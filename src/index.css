@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+
+  /* Primary — teal */
+  --color-brand-50: #eefbf8;
+  --color-brand-100: #d4f4ee;
+  --color-brand-200: #ace6dc;
+  --color-brand-300: #78d1c5;
+  --color-brand-400: #46b6ac;
+  --color-brand-500: #2a9990;
+  --color-brand-600: #1f7d76;
+  --color-brand-700: #1c645f;
+  --color-brand-800: #1a504d;
+  --color-brand-900: #184441;
+  --color-brand-950: #092726;
+
+  /* Secondary — light blue */
+  --color-sky-accent-50: #eff8ff;
+  --color-sky-accent-100: #dcedff;
+  --color-sky-accent-200: #b6dcff;
+  --color-sky-accent-300: #7ec2ff;
+  --color-sky-accent-400: #3fa2ff;
+  --color-sky-accent-500: #1683f5;
+  --color-sky-accent-600: #0666d1;
+
+  /* Accent — warm yellow */
+  --color-amber-accent-50: #fefaec;
+  --color-amber-accent-100: #fdf1c9;
+  --color-amber-accent-200: #fbe08e;
+  --color-amber-accent-300: #f8c953;
+  --color-amber-accent-400: #f4b02a;
+  --color-amber-accent-500: #ec9312;
+  --color-amber-accent-600: #cc700d;
+
+  --color-surface: #f6f9f8;
+  --color-surface-muted: #eef3f1;
+}
+
+html {
+  direction: rtl;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: #16302d;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-300) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-brand-300);
+  border-radius: 999px;
+}

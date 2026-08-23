@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import FocusSession from "../components/FocusSession";
+import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import StatCard from "../components/StatCard";
@@ -136,8 +137,9 @@ export default function Overview() {
           <div className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)]" />
           <div className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50" />
           <div className="relative">
-            <p className="font-display text-2xl font-extrabold text-brand-950">
-              {greeting.text}، {currentUser?.name.split(" ")[0]} {greeting.emoji}
+            <p className="flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950">
+              <TimeOfDayBadge period={greeting.period} />
+              {greeting.text}، {currentUser?.name.split(" ")[0]}
             </p>
             <p className="mt-1 text-sm text-brand-950/55">{heroMessage}</p>
 

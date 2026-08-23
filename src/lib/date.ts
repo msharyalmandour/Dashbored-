@@ -50,17 +50,19 @@ export function toISODate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+export type GreetingPeriod = "morning" | "afternoon" | "evening" | "night";
+
 export interface Greeting {
   text: string;
-  emoji: string;
+  period: GreetingPeriod;
 }
 
 export function getGreeting(date: Date = new Date()): Greeting {
   const hour = date.getHours();
-  if (hour >= 5 && hour < 12) return { text: "صباح الخير", emoji: "☀️" };
-  if (hour >= 12 && hour < 17) return { text: "يعطيك العافية", emoji: "🌤️" };
-  if (hour >= 17 && hour < 22) return { text: "مساء الخير", emoji: "🌆" };
-  return { text: "سهران على بحثك؟", emoji: "🌙" };
+  if (hour >= 5 && hour < 12) return { text: "صباح الخير", period: "morning" };
+  if (hour >= 12 && hour < 17) return { text: "يعطيك العافية", period: "afternoon" };
+  if (hour >= 17 && hour < 22) return { text: "مساء الخير", period: "evening" };
+  return { text: "سهران على بحثك؟", period: "night" };
 }
 
 export { arabicMonths, arabicWeekdays, arabicWeekdaysShort };

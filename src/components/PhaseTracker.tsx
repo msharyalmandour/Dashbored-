@@ -1,46 +1,56 @@
 import { Check } from "lucide-react";
 import clsx from "clsx";
-import type { MilestoneGroup } from "../lib/selectors";
+import type { ResearchStage } from "../data/types";
 
-export default function PhaseTracker({ groups }: { groups: MilestoneGroup[] }) {
+export default function PhaseTracker({ stages }: { stages: ResearchStage[] }) {
   return (
     <div className="flex items-start justify-between overflow-x-auto pb-1">
-      {groups.map((group, i) => (
-        <div key={group.name} className="flex flex-1 items-start">
-          <div className="flex min-w-[84px] flex-col items-center gap-2 text-center">
+      {stages.map((stage, i) => (
+        <div key={stage.id} className="flex flex-1 items-start">
+          <div className="flex min-w-[92px] flex-col items-center gap-2 text-center">
             <div
               className={clsx(
                 "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold",
-                group.status === "done" &&
+                stage.status === "done" &&
                   "border-brand-500 bg-brand-500 text-white",
-                group.status === "active" &&
+                stage.status === "active" &&
                   "border-brand-500 bg-paper text-brand-600",
-                group.status === "upcoming" &&
+                stage.status === "upcoming" &&
                   "border-brand-100 bg-paper text-brand-950/30",
               )}
             >
-              {group.status === "done" ? (
+              {stage.status === "done" ? (
                 <Check size={16} />
-              ) : group.status === "active" ? (
+              ) : stage.status === "active" ? (
                 <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />
               ) : (
                 i + 1
               )}
             </div>
-            <span
-              className={clsx(
-                "text-xs font-semibold",
-                group.status === "upcoming" ? "text-brand-950/35" : "text-brand-950/80",
-              )}
-            >
-              {group.name}
-            </span>
+            <div>
+              <p
+                className={clsx(
+                  "text-xs font-semibold",
+                  stage.status === "upcoming" ? "text-brand-950/35" : "text-brand-950/80",
+                )}
+              >
+                {stage.titleAr}
+              </p>
+              <p
+                className={clsx(
+                  "text-[10px]",
+                  stage.status === "upcoming" ? "text-brand-950/25" : "text-brand-950/40",
+                )}
+              >
+                {stage.titleEn}
+              </p>
+            </div>
           </div>
-          {i < groups.length - 1 && (
+          {i < stages.length - 1 && (
             <div
               className={clsx(
                 "mt-[18px] h-0.5 flex-1",
-                group.status === "done" ? "bg-brand-500" : "bg-brand-100",
+                stage.status === "done" ? "bg-brand-500" : "bg-brand-100",
               )}
             />
           )}

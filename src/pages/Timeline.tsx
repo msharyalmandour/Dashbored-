@@ -1,10 +1,10 @@
 import clsx from "clsx";
 import Card from "../components/ui/Card";
-import { researchPhases } from "../data/mockData";
+import { researchStages } from "../data/mockData";
 import { formatDateShort, parseDate } from "../lib/date";
 
-const projectStart = researchPhases[0].startDate;
-const projectEnd = researchPhases[researchPhases.length - 1].dueDate;
+const projectStart = researchStages[0].startDate;
+const projectEnd = researchStages[researchStages.length - 1].dueDate;
 
 const totalDays =
   (parseDate(projectEnd).getTime() - parseDate(projectStart).getTime()) /
@@ -60,22 +60,22 @@ export default function Timeline() {
           </div>
 
           <div className="space-y-3">
-            {researchPhases.map((phase) => {
-              const left = offsetPct(phase.startDate);
-              const width = offsetPct(phase.dueDate) - left;
+            {researchStages.map((stage) => {
+              const left = offsetPct(stage.startDate);
+              const width = offsetPct(stage.dueDate) - left;
               return (
-                <div key={phase.id} className="flex items-center gap-3">
+                <div key={stage.id} className="flex items-center gap-3">
                   <div className="w-44 shrink-0 truncate text-sm font-medium text-brand-950/80">
-                    {phase.order}. {phase.title}
+                    {stage.order}. {stage.titleAr}
                   </div>
                   <div className="relative h-6 flex-1 rounded-full bg-surface-muted">
                     <div
                       className={clsx(
                         "absolute top-0 h-6 rounded-full",
-                        barColor[phase.status],
+                        barColor[stage.status],
                       )}
                       style={{ width: `${Math.max(width, 2)}%`, right: `${left}%` }}
-                      title={`${formatDateShort(phase.startDate)} — ${formatDateShort(phase.dueDate)}`}
+                      title={`${formatDateShort(stage.startDate)} — ${formatDateShort(stage.dueDate)}`}
                     />
                   </div>
                 </div>

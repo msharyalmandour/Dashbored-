@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   BookOpenText,
+  BookMarked,
   ListChecks,
   Users,
   MapPinned,
@@ -12,6 +13,7 @@ import {
   LogOut,
   Stethoscope,
   Compass,
+  FlaskConical,
 } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
@@ -19,12 +21,14 @@ import Avatar from "./ui/Avatar";
 
 const navItems = [
   { to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true },
-  { to: "/plan", label: "خطة البحث", icon: BookOpenText },
-  { to: "/tasks", label: "المهام", icon: ListChecks },
+  { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
+  { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
+  { to: "/methodology", label: "المنهجية", icon: FlaskConical },
+  { to: "/tasks", label: "مهامي", icon: ListChecks },
+  { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
   { to: "/team", label: "الفريق", icon: Users },
   { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
   { to: "/fieldwork", label: "الميدان", icon: MapPinned },
-  { to: "/references", label: "المراجع", icon: Library },
   { to: "/files", label: "الملفات", icon: FolderClosed },
   { to: "/calendar", label: "التقويم", icon: CalendarDays },
 ];

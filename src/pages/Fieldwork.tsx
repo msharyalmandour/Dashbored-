@@ -1,9 +1,9 @@
-import { MapPin } from "lucide-react";
+import { Info, MapPin } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
-import { fieldworkSites, projectMeta, teamMembers } from "../data/mockData";
+import { fieldworkSites, teamMembers } from "../data/mockData";
 
 const pinColor = {
   completed: "text-brand-500",
@@ -25,12 +25,20 @@ const statusChip = {
 
 export default function Fieldwork() {
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
-  const collectedPct = Math.round(
-    (projectMeta.participantsCollected / projectMeta.participantsTarget) * 100,
-  );
+  const totalCollected = fieldworkSites.reduce((sum, s) => sum + s.collected, 0);
+  const totalTarget = fieldworkSites.reduce((sum, s) => sum + s.target, 0);
+  const collectedPct = totalTarget > 0 ? Math.round((totalCollected / totalTarget) * 100) : 0;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="flex items-start gap-3 rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 lg:col-span-3">
+        <Info size={18} className="mt-0.5 shrink-0 text-sky-accent-600" />
+        <p className="text-sm font-semibold text-sky-accent-700">
+          مرحلة جمع البيانات (Data Collection) ما بدأت بعد — هذي الصفحة تنشط تلقائيًا
+          بعد اكتمال المنهجية والحصول على الموافقة الأخلاقية.
+        </p>
+      </div>
+
       <Card tone="teal" className="lg:col-span-2">
         <CardHeader title="مواقع الجمع الميداني" subtitle="المملكة العربية السعودية" />
         <div className="relative h-96 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-surface-muted to-sky-accent-50">
@@ -68,13 +76,10 @@ export default function Fieldwork() {
       </Card>
 
       <Card tone="amber">
-        <CardHeader title="إجمالي المشاركين" />
+        <CardHeader title="إجمالي المشاركين المستهدف" />
         <p className="text-3xl font-extrabold text-brand-950">
-          {projectMeta.participantsCollected}
-          <span className="text-base font-medium text-brand-950/40">
-            {" "}
-            / {projectMeta.participantsTarget}
-          </span>
+          {totalCollected}
+          <span className="text-base font-medium text-brand-950/40"> / {totalTarget}</span>
         </p>
         <p className="mb-3 text-xs text-brand-950/45">{collectedPct}% من الهدف</p>
         <ProgressBar value={collectedPct} />

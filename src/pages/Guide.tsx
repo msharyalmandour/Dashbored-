@@ -1,6 +1,8 @@
 import {
+  BookMarked,
   BookOpenText,
   CalendarDays,
+  FlaskConical,
   FolderClosed,
   LayoutDashboard,
   Library,
@@ -16,56 +18,68 @@ const sections: { icon: typeof LayoutDashboard; title: string; desc: string; ton
   {
     icon: LayoutDashboard,
     title: "الرئيسية",
-    desc: "نظرة سريعة على كل شيء: كم باقي على التسليم، مؤشراتكم العامة، أولويات اليوم، وتقويم الشهر.",
+    desc: "نظرة سريعة تجاوب على: وين وصل بحثي؟ ما المرحلة الحالية؟ وش المهمة والخطوة القادمة؟",
     tone: "teal",
   },
   {
     icon: BookOpenText,
-    title: "خطة البحث",
-    desc: "الخطة الكاملة بـ 12 مرحلة من اختيار الموضوع إلى المناقشة النهائية، كل مرحلة فيها مسؤولها وتاريخها.",
+    title: "المقترح البحثي",
+    desc: "مكونات المقترح السبعة (Background إلى Methodology) بحالتها، بالإضافة إلى بطاقتي الفجوة البحثية وهدف الدراسة.",
     tone: "cream",
   },
   {
-    icon: ListChecks,
-    title: "المهام",
-    desc: "كل مهامك ومهام الفريق. تقدر تفلتر حسب الحالة، وقائدة الفريق فقط تقدر تسند مهام جديدة من هنا.",
+    icon: BookMarked,
+    title: "مراجعة الأدبيات",
+    desc: "الدراسات المجمّعة والمُراجَعة، مصنّفة حسب الموضوع البحثي (Theme) مع أهم نتائج كل دراسة.",
     tone: "sky",
+  },
+  {
+    icon: FlaskConical,
+    title: "المنهجية",
+    desc: "قرارات المنهجية: تصميم الدراسة، العينة، أداة الدراسة، وطريقة جمع البيانات.",
+    tone: "amber",
+  },
+  {
+    icon: ListChecks,
+    title: "مهامي",
+    desc: "مهام الكتابة البحثية الفعلية. تقدر تفلتر حسب الحالة، وقائدة الفريق فقط تقدر تسند مهام جديدة.",
+    tone: "violet",
+  },
+  {
+    icon: Library,
+    title: "مكتبة الأدلة",
+    desc: "كل المصادر العلمية اللي يجمعها الفريق، مصنّفة حسب القسم اللي تدعمه (خلفية، أدبيات، فجوة، منهجية).",
+    tone: "rose",
   },
   {
     icon: Users,
     title: "الفريق",
-    desc: "بطاقة لكل عضو فيها نسبة إنجازه وعدد مهامه المكتملة والمتأخرة.",
-    tone: "violet",
+    desc: "بطاقة لكل باحث فيها نسبة إنجازه وعدد مهامه المكتملة والمتأخرة.",
+    tone: "sky",
   },
   {
     icon: ListTree,
     title: "الجدول الزمني",
-    desc: "عرض بصري (Gantt) لمدة كل مرحلة من مراحل البحث ومتى تبدأ وتنتهي.",
-    tone: "amber",
+    desc: "عرض بصري (Gantt) لرحلة البحث الثمانية من المقترح إلى البحث النهائي.",
+    tone: "cream",
   },
   {
     icon: MapPinned,
     title: "الميدان",
-    desc: "مواقع جمع البيانات الميدانية وعدد المشاركين اللي تم جمع بياناتهم في كل موقع.",
-    tone: "rose",
-  },
-  {
-    icon: Library,
-    title: "المراجع",
-    desc: "قائمة المصادر العلمية اللي يجمعها الفريق، مصنّفة حسب النوع (مقالات، كتب، تقارير، أدلة).",
-    tone: "sky",
+    desc: "مواقع جمع البيانات الميدانية — تُفعَّل لاحقًا عند الوصول لمرحلة Data Collection.",
+    tone: "teal",
   },
   {
     icon: FolderClosed,
     title: "الملفات",
-    desc: "كل ملفات ومستندات البحث، مصنّفة حسب المجلد اللي تتبعه.",
-    tone: "cream",
+    desc: "كل ملفات ومستندات البحث، مصنّفة حسب القسم اللي تتبعه.",
+    tone: "amber",
   },
   {
     icon: CalendarDays,
     title: "التقويم",
-    desc: "تقويم شهري كامل لكل الاجتماعات والمواعيد النهائية وأيام الجمع الميداني.",
-    tone: "teal",
+    desc: "تقويم شهري كامل لكل الاجتماعات ومواعيد التسليم النهائية.",
+    tone: "violet",
   },
 ];
 
@@ -79,7 +93,7 @@ export default function Guide() {
           أهلًا فيك في NURSYNC 👋
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-brand-950/60">
-          هذا الدليل يوضح لك وين تروح لكل شيء داخل الموقع، وكيف تشتغل على مهامك
+          هذا الدليل يوضح لك وين تروح لكل شيء داخل الموقع، وكيف تشتغل على بحثك
           خطوة بخطوة.
         </p>
       </Card>
@@ -112,7 +126,7 @@ export default function Guide() {
             <ol className="space-y-3 text-sm text-brand-950/70">
               <li className="flex gap-2">
                 <span className="font-bold text-brand-600">١.</span>
-                افتح صفحة <b>المهام</b> من القائمة الجانبية.
+                افتح صفحة <b>مهامي</b> من القائمة الجانبية.
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-brand-600">٢.</span>
@@ -121,20 +135,20 @@ export default function Guide() {
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-brand-600">٣.</span>
-                اكتب عنوان المهمة ووصفها، واختر العضو المسؤول وتاريخ التسليم
+                اكتب عنوان المهمة ووصفها، واختر الباحث المسؤول وتاريخ التسليم
                 والأولوية.
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-brand-600">٤.</span>
-                اضغط <b>«إسناد المهمة»</b> — المهمة تظهر فورًا في قائمة العضو
-                وفي أولويات اليوم بالرئيسية.
+                اضغط <b>«إسناد المهمة»</b> — المهمة تظهر فورًا في قائمة الباحث
+                وفي «مهامي القادمة» بالرئيسية.
               </li>
             </ol>
           ) : (
             <ol className="space-y-3 text-sm text-brand-950/70">
               <li className="flex gap-2">
                 <span className="font-bold text-brand-600">١.</span>
-                افتح صفحة <b>المهام</b> واضغط تبويب <b>«مهامي»</b> عشان تشوف
+                افتح صفحة <b>مهامي</b> واضغط تبويب <b>«مهامي»</b> عشان تشوف
                 اللي مسندة لك بس.
               </li>
               <li className="flex gap-2">
@@ -160,22 +174,22 @@ export default function Guide() {
           <ul className="space-y-3 text-sm text-brand-950/70">
             <li className="flex gap-2">
               <span className="font-bold text-brand-600">•</span>
-              راجع <b>الرئيسية</b> كل يوم — فيها أولوياتك وأقرب موعد نهائي.
+              راجع <b>الرئيسية</b> كل يوم — فيها مرحلتك الحالية وخطوتك التالية.
             </li>
             <li className="flex gap-2">
               <span className="font-bold text-brand-600">•</span>
-              اربط كل مهمة أو ملف بمرحلته في <b>خطة البحث</b> عشان يبقى كل شي
-              منظم.
+              لا تكتب <b>Aim</b> قبل ما تُغلق <b>الفجوة البحثية</b> بشكل واضح —
+              الترتيب مهم في المقترح البحثي.
             </li>
             <li className="flex gap-2">
               <span className="font-bold text-brand-600">•</span>
-              حدّث بياناتك الميدانية أول بأول في صفحة <b>الميدان</b> حتى يشوف
-              الفريق التقدم الفعلي.
+              كل دراسة تجمعها ضيفها في <b>مكتبة الأدلة</b> مع تصنيف واضح لموضوعها
+              حتى تسهل عليك كتابة مراجعة الأدبيات.
             </li>
             <li className="flex gap-2">
               <span className="font-bold text-brand-600">•</span>
-              ارفع كل ملف بحثي في <b>الملفات</b> بدل ما يبقى عندك بس، عشان
-              يوصل لباقي الفريق.
+              ارفع كل مسودة في <b>الملفات</b> بدل ما تبقى عندك بس، عشان يوصل
+              لباقي الفريق.
             </li>
           </ul>
         </Card>

@@ -74,7 +74,7 @@ create table if not exists public.tasks (
   due_date date,
   status text not null default 'todo' check (status in ('todo', 'in-progress', 'done', 'overdue')),
   priority text not null default 'medium' check (priority in ('low', 'medium', 'high')),
-  phase_id text,
+  section_key text,
   created_by uuid references public.profiles (id),
   created_at timestamptz not null default now()
 );

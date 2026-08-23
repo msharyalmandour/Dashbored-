@@ -13,19 +13,80 @@ export interface TeamMember {
   tasksTotal: number;
 }
 
+export type SectionStatus = "done" | "in-progress" | "not-started";
 export type PhaseStatus = "done" | "active" | "upcoming";
 
-export interface ResearchPhase {
+/** الأقسام السبعة لكتابة المقترح البحثي */
+export type ProposalSectionKey =
+  | "background"
+  | "literature-review"
+  | "problem"
+  | "gap"
+  | "aim"
+  | "questions"
+  | "methodology";
+
+export interface ProposalSection {
+  key: ProposalSectionKey;
+  order: number;
+  labelAr: string;
+  labelEn: string;
+  status: SectionStatus;
+  ownerId: string;
+  updatedAt: string;
+}
+
+/** رحلة تقدم البحث الكبرى — 8 مراحل */
+export interface ResearchStage {
   id: string;
   order: number;
-  title: string;
-  summary: string;
+  titleAr: string;
+  titleEn: string;
   status: PhaseStatus;
-  progress: number;
   startDate: string;
   dueDate: string;
-  ownerId: string;
-  milestoneGroup: string;
+}
+
+export interface ResearchGap {
+  whatWeKnow: string[];
+  whatWeDontKnow: string[];
+  gapStatement: string;
+  studyConnection: string;
+  connectsToAim: boolean;
+}
+
+export interface ResearchQuestion {
+  id: string;
+  order: number;
+  text: string;
+}
+
+export interface StudyAim {
+  statement: string;
+  status: SectionStatus;
+  questions: ResearchQuestion[];
+}
+
+export interface SamplingPlan {
+  inclusionCriteria: string[];
+  exclusionCriteria: string[];
+  sampleSize: string;
+  samplingTechnique: string;
+}
+
+export interface StudyTool {
+  type: "existing" | "developed" | "undecided";
+  name: string;
+}
+
+export interface Methodology {
+  studyDesign: string;
+  studyDesignStatus: SectionStatus;
+  studySetting: string;
+  population: string;
+  sampling: SamplingPlan;
+  dataCollectionMethods: string[];
+  studyTool: StudyTool;
 }
 
 export type TaskStatus = "todo" | "in-progress" | "done" | "overdue";
@@ -39,7 +100,7 @@ export interface Task {
   dueDate: string;
   status: TaskStatus;
   priority: TaskPriority;
-  phaseId?: string;
+  sectionKey?: ProposalSectionKey;
 }
 
 export interface FieldworkSite {
@@ -68,13 +129,33 @@ export interface CalendarEvent {
   location: string;
 }
 
-export interface ReferenceItem {
+/** موضوع بحثي تُصنَّف تحته الدراسات في مراجعة الأدبيات */
+export type LiteratureTheme =
+  | "Delirium"
+  | "Nursing Knowledge"
+  | "Detection Tools"
+  | "Tool Utilization"
+  | "Patient Outcomes";
+
+export type EvidenceSection =
+  | "background"
+  | "literature-review"
+  | "gap"
+  | "methodology"
+  | "other";
+
+export interface EvidencePaper {
   id: string;
   title: string;
   authors: string;
   year: number;
-  type: "article" | "book" | "report" | "guideline";
-  tags: string[];
+  theme: LiteratureTheme;
+  studyDesign: string;
+  keyFinding: string;
+  relevance: string;
+  section: EvidenceSection;
+  reviewStatus: "collected" | "reviewed";
+  link?: string;
   addedById: string;
 }
 

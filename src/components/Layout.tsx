@@ -5,12 +5,14 @@ import { useAuth } from "../context/AuthContext";
 
 const titles: Record<string, string> = {
   "/": "نظرة عامة",
-  "/plan": "خطة البحث",
-  "/tasks": "المهام",
+  "/proposal": "المقترح البحثي",
+  "/literature-review": "مراجعة الأدبيات",
+  "/methodology": "المنهجية",
+  "/tasks": "مهامي",
+  "/evidence": "مكتبة الأدلة",
   "/team": "الفريق",
   "/timeline": "الجدول الزمني",
   "/fieldwork": "الميدان",
-  "/references": "المراجع",
   "/files": "الملفات",
   "/calendar": "التقويم",
   "/guide": "دليل الطالب",

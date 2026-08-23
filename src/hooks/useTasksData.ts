@@ -11,7 +11,7 @@ interface TaskRow {
   due_date: string;
   status: Task["status"];
   priority: Task["priority"];
-  phase_id: string | null;
+  section_key: string | null;
 }
 
 function mapRow(row: TaskRow): Task {
@@ -23,7 +23,7 @@ function mapRow(row: TaskRow): Task {
     dueDate: row.due_date,
     status: row.status,
     priority: row.priority,
-    phaseId: row.phase_id ?? undefined,
+    sectionKey: (row.section_key as Task["sectionKey"]) ?? undefined,
   };
 }
 

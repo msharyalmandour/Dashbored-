@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Activity,
   AlertCircle,
+  BookOpenCheck,
   CalendarClock,
   CheckCircle2,
   Circle,
-  ClipboardList,
   Compass,
-  Users,
-  UserRound,
+  ListTodo,
+  Milestone,
+  TrendingUp,
   X,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
@@ -21,13 +21,13 @@ import PhaseTracker from "../components/PhaseTracker";
 import { useAuth } from "../context/AuthContext";
 import {
   calendarEvents,
-  fieldworkSites,
+  evidenceLibrary,
   projectMeta,
   recentActivity,
+  researchStages,
   tasks,
   teamMembers,
 } from "../data/mockData";
-import { getMilestoneGroups } from "../lib/selectors";
 import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
 
 const today = new Date(2026, 7, 22);
@@ -61,11 +61,13 @@ export default function Overview() {
     setShowGuideBanner(false);
   };
 
-  const milestoneGroups = getMilestoneGroups();
   const remainingDays = daysUntil(projectMeta.deadline, today);
-  const collectedPct = Math.round(
-    (projectMeta.participantsCollected / projectMeta.participantsTarget) * 100,
-  );
+  const nextDeadlineDays = daysUntil(projectMeta.nextDeadlineDate, today);
+
+  const reviewedCount = evidenceLibrary.filter((p) => p.reviewStatus === "reviewed").length;
+  const collectedCount = evidenceLibrary.length;
+  const remainingCount = collectedCount - reviewedCount;
+  const litReviewPct = Math.round((reviewedCount / collectedCount) * 100);
 
   const priorities = [...tasks]
     .filter((t) => t.status !== "done")
@@ -89,7 +91,7 @@ export default function Overview() {
   const overdueCount = tasks.filter((t) => t.status === "overdue").length;
   const heroMessage =
     priorities.length === 0
-      ? "ما عليك شي مستعجل اليوم — وقت زين تراجع خطة البحث أو ترتاح شوي ☕"
+      ? "ما عليك شي مستعجل اليوم — وقت زين تراجع المقترح البحثي أو ترتاح شوي ☕"
       : overdueCount > 0
         ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي تسويه اليوم.`
         : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
@@ -117,7 +119,7 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Welcome + deadline */}
+      {/* Welcome + progress */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card tone="teal" className="relative overflow-hidden lg:col-span-2">
           <div className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)]" />
@@ -128,24 +130,24 @@ export default function Overview() {
             </p>
             <p className="mt-1 text-sm text-brand-950/55">{heroMessage}</p>
 
-            <div className="mt-6 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
-                <UserRound size={20} />
-              </div>
-              <div>
-                <p className="font-display text-lg font-bold text-brand-950">{projectMeta.name}</p>
-                <p className="text-sm text-brand-700">{projectMeta.subtitle}</p>
-              </div>
+            <div className="mt-6">
+              <p className="text-sm font-semibold text-brand-950/70">{projectMeta.name}</p>
+              <p className="text-xs text-brand-700" dir="ltr">
+                {projectMeta.subtitle}
+              </p>
             </div>
 
             <div className="mt-6 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1.5 font-semibold text-brand-950/70">
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث</p>
+                  <p className="font-display text-4xl font-extrabold text-brand-950">
+                    {projectMeta.overallProgress}%
+                  </p>
+                </div>
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-brand-950/70">
                   <CalendarClock size={15} />
-                  الموعد النهائي للتسليم — {formatDateLong(projectMeta.deadline)}
-                </span>
-                <span className="font-extrabold text-brand-700">
-                  متبقٍ {remainingDays} يومًا
+                  الموعد النهائي — {formatDateLong(projectMeta.deadline)} (متبقٍ {remainingDays} يومًا)
                 </span>
               </div>
               <ProgressBar
@@ -159,34 +161,34 @@ export default function Overview() {
 
         <div className="grid grid-cols-2 gap-4">
           <StatCard
-            icon={Activity}
-            label="تقدم البحث"
-            value={`${projectMeta.overallProgress}%`}
-            sub="على المسار الصحيح"
+            icon={Milestone}
+            label="المرحلة الحالية"
+            value={projectMeta.currentStageAr}
+            sub={projectMeta.currentStageEn}
             color="brand"
             tone="teal"
           />
           <StatCard
-            icon={Users}
-            label="الفريق"
-            value={`${teamMembers.length} أعضاء`}
-            sub={`${teamMembers.filter((m) => m.progress > 0).length} نشطون`}
-            color="sky-accent"
-            tone="sky"
-          />
-          <StatCard
-            icon={ClipboardList}
-            label="المهام"
-            value={`${tasks.length}`}
-            sub={`${tasks.filter((t) => t.status === "done").length} مكتملة`}
+            icon={ListTodo}
+            label="المهمة الحالية"
+            value={projectMeta.currentTask}
+            sub="قيد التنفيذ الآن"
             color="amber-accent"
             tone="cream"
           />
           <StatCard
-            icon={UserRound}
-            label="المشاركون"
-            value={`${projectMeta.participantsCollected}/${projectMeta.participantsTarget}`}
-            progress={collectedPct}
+            icon={TrendingUp}
+            label="الخطوة التالية"
+            value={projectMeta.nextStep}
+            sub="بعد إكمال الحالية"
+            color="sky-accent"
+            tone="sky"
+          />
+          <StatCard
+            icon={CalendarClock}
+            label="الموعد القادم"
+            value={formatDateShort(projectMeta.nextDeadlineDate)}
+            sub={`${projectMeta.nextDeadlineLabel} — متبقٍ ${nextDeadlineDays} أيام`}
             color="brand"
             tone="violet"
           />
@@ -194,18 +196,23 @@ export default function Overview() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Research progress + priorities */}
+        {/* Research journey + priorities */}
         <div className="space-y-4 lg:col-span-2">
           <Card tone="cream">
-            <CardHeader title="تقدم البحث بالمراحل" subtitle={`${projectMeta.overallProgress}% إجمالي التقدم`} />
-            <PhaseTracker groups={milestoneGroups} />
+            <CardHeader
+              title="رحلة تقدم البحث"
+              subtitle="Research Progress Journey"
+            />
+            <PhaseTracker stages={researchStages} />
           </Card>
 
           <Card>
             <CardHeader
-              title="أولويات اليوم"
+              title="مهامي القادمة"
               action={
-                <span className="text-xs font-semibold text-brand-600">عرض الكل</span>
+                <Link to="/tasks" className="text-xs font-semibold text-brand-600">
+                  عرض الكل
+                </Link>
               }
             />
             <ul className="divide-y divide-brand-50">
@@ -298,23 +305,27 @@ export default function Overview() {
         </Card>
 
         <Card tone="amber">
-          <CardHeader title="تقدم الميدان" action={<span className="text-xs font-semibold text-brand-600">عرض الخريطة</span>} />
-          <p className="text-2xl font-extrabold text-brand-950">
-            {projectMeta.participantsCollected}
-            <span className="text-base font-medium text-brand-950/40"> / {projectMeta.participantsTarget}</span>
-          </p>
-          <p className="mb-3 text-xs text-brand-950/45">مشارك تم جمع بياناته</p>
-          <ProgressBar value={collectedPct} />
-          <ul className="mt-4 space-y-2">
-            {fieldworkSites.slice(0, 3).map((site) => (
-              <li key={site.id} className="flex items-center justify-between text-sm">
-                <span className="text-brand-950/70">{site.city}</span>
-                <span className="font-semibold text-brand-950">
-                  {site.collected}/{site.target}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <CardHeader
+            title="مراجعة الأدبيات"
+            action={
+              <Link to="/literature-review" className="text-xs font-semibold text-brand-600">
+                عرض المكتبة
+              </Link>
+            }
+          />
+          <div className="flex items-center gap-2">
+            <BookOpenCheck size={18} className="text-amber-accent-600" />
+            <p className="text-2xl font-extrabold text-brand-950">
+              {reviewedCount}
+              <span className="text-base font-medium text-brand-950/40"> / {collectedCount}</span>
+            </p>
+          </div>
+          <p className="mb-3 text-xs text-brand-950/45">دراسة تمت مراجعتها من إجمالي المجمّعة</p>
+          <ProgressBar value={litReviewPct} />
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <span className="text-brand-950/70">الدراسات المتبقية</span>
+            <span className="font-semibold text-brand-950">{remainingCount}</span>
+          </div>
         </Card>
 
         <Card>

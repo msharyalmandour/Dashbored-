@@ -6,8 +6,13 @@ import Avatar from "../components/ui/Avatar";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
+import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort } from "../lib/date";
+
+const sectionLabel = Object.fromEntries(
+  proposalSections.map((s) => [s.key, s.labelAr]),
+);
 
 const statusStyle: Record<TaskStatus, string> = {
   todo: "text-sky-accent-600 bg-sky-accent-50",
@@ -216,7 +221,14 @@ export default function Tasks() {
                 <AlertCircle size={18} className="shrink-0 text-rose-500" />
               )}
               <div className="min-w-[200px] flex-1">
-                <p className="font-semibold text-brand-950">{task.title}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-brand-950">{task.title}</p>
+                  {task.sectionKey && sectionLabel[task.sectionKey] && (
+                    <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
+                      {sectionLabel[task.sectionKey]}
+                    </span>
+                  )}
+                </div>
                 {task.description && (
                   <p className="mt-0.5 truncate text-sm text-brand-950/45">{task.description}</p>
                 )}

@@ -1,4 +1,6 @@
 import clsx from "clsx";
+import { Link } from "react-router-dom";
+import { GraduationCap } from "lucide-react";
 import Card from "../components/ui/Card";
 import { researchStages } from "../data/mockData";
 import { formatDateShort, parseDate } from "../lib/date";
@@ -95,6 +97,19 @@ export default function Timeline() {
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-brand-100" /> قادمة
         </span>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-brand-100 bg-brand-50 px-4 py-3">
+        <p className="text-sm font-semibold text-brand-700">
+          🎓 هذي آخر محطة برحلتكم — يوم تسلّمون البحث النهائي، سجّلوا اللحظة.
+        </p>
+        <Link
+          to="/celebration"
+          className="flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-bold text-white hover:bg-brand-600"
+        >
+          <GraduationCap size={15} />
+          تسليم البحث النهائي
+        </Link>
       </div>
     </Card>
   );

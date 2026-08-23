@@ -13,11 +13,14 @@ import Fieldwork from "./pages/Fieldwork";
 import Files from "./pages/Files";
 import CalendarPage from "./pages/CalendarPage";
 import Guide from "./pages/Guide";
+import Story from "./pages/Story";
+import Celebration from "./pages/Celebration";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/celebration" element={<Celebration />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Overview />} />
         <Route path="/proposal" element={<Proposal />} />
@@ -30,6 +33,7 @@ export default function App() {
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/files" element={<Files />} />
         <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/story" element={<Story />} />
         <Route path="/guide" element={<Guide />} />
       </Route>
     </Routes>

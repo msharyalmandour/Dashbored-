@@ -15,6 +15,7 @@ const titles: Record<string, string> = {
   "/fieldwork": "الميدان",
   "/files": "الملفات",
   "/calendar": "التقويم",
+  "/story": "قصة بحثك",
   "/guide": "دليل الطالب",
 };
 

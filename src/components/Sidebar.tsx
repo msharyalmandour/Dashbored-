@@ -14,9 +14,12 @@ import {
   Stethoscope,
   Compass,
   FlaskConical,
+  Sparkles,
 } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
+import { researchStages } from "../data/mockData";
+import { getResearcherTitle } from "../lib/identity";
 import Avatar from "./ui/Avatar";
 
 const navItems = [
@@ -31,6 +34,7 @@ const navItems = [
   { to: "/fieldwork", label: "الميدان", icon: MapPinned },
   { to: "/files", label: "الملفات", icon: FolderClosed },
   { to: "/calendar", label: "التقويم", icon: CalendarDays },
+  { to: "/story", label: "قصة بحثك", icon: Sparkles },
 ];
 
 export default function Sidebar() {
@@ -103,6 +107,10 @@ export default function Sidebar() {
               <LogOut size={16} />
             </button>
           </div>
+          <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
+            <Sparkles size={12} />
+            {getResearcherTitle(researchStages, currentUser.title.includes("ة")).ar}
+          </p>
         </div>
       )}
     </aside>

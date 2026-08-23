@@ -9,6 +9,7 @@ import {
   Circle,
   Coffee,
   Compass,
+  History,
   ListTodo,
   Milestone,
   Moon,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import FocusSession from "../components/FocusSession";
+import TimeCapsule from "../components/TimeCapsule";
 import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
@@ -36,6 +38,7 @@ import {
 import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
 import { getDailyQuote } from "../data/motivation";
 import { useVisitGap } from "../hooks/useVisitGap";
+import { useFirstVisit } from "../hooks/useFirstVisit";
 
 const today = new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -55,18 +58,34 @@ const statusLabel: Record<string, string> = {
 };
 
 const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
+const FLASHBACK_DISMISSED_KEY = "nursync.flashbackDismissedAt";
+const FLASHBACK_MIN_DAYS = 3;
+const FLASHBACK_RESURFACE_DAYS = 7;
 
 export default function Overview() {
   const { currentUser } = useAuth();
   const visitGapDays = useVisitGap();
+  const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [showGuideBanner, setShowGuideBanner] = useState(
     () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
   );
+  const [showFlashback, setShowFlashback] = useState(() => {
+    if (daysSinceFirstVisit < FLASHBACK_MIN_DAYS) return false;
+    const dismissedAt = localStorage.getItem(FLASHBACK_DISMISSED_KEY);
+    if (!dismissedAt) return true;
+    const daysSinceDismiss = (Date.now() - new Date(dismissedAt).getTime()) / 86_400_000;
+    return daysSinceDismiss >= FLASHBACK_RESURFACE_DAYS;
+  });
 
   const dismissGuideBanner = () => {
     localStorage.setItem(GUIDE_BANNER_KEY, "1");
     setShowGuideBanner(false);
+  };
+
+  const dismissFlashback = () => {
+    localStorage.setItem(FLASHBACK_DISMISSED_KEY, new Date().toISOString());
+    setShowFlashback(false);
   };
 
   const remainingDays = daysUntil(projectMeta.deadline, today);
@@ -127,6 +146,24 @@ export default function Overview() {
           <button
             onClick={dismissGuideBanner}
             className="shrink-0 rounded-lg p-1.5 text-amber-accent-600 hover:bg-amber-accent-200"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {showFlashback && (
+        <div className="flex items-center gap-4 rounded-3xl border border-brand-200 bg-brand-50 px-5 py-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white">
+            <History size={18} />
+          </span>
+          <p className="min-w-0 flex-1 text-sm font-semibold text-brand-700">
+            قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنتِ بس بادئة
+            بحثك من الصفر — الحين عندك {projectMeta.overallProgress}% خلف ظهرك. كملي بنفس القوة 🌱
+          </p>
+          <button
+            onClick={dismissFlashback}
+            className="shrink-0 rounded-lg p-1.5 text-brand-600 hover:bg-brand-100"
           >
             <X size={16} />
           </button>
@@ -232,6 +269,7 @@ export default function Overview() {
       </div>
 
       <FocusSession />
+      <TimeCapsule />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Research journey + priorities */}

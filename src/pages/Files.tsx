@@ -43,7 +43,7 @@ export default function Files() {
               "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
               folder === f
                 ? "bg-brand-500 text-white"
-                : "bg-white text-brand-950/60 hover:bg-surface-muted",
+                : "bg-paper text-brand-950/60 hover:bg-surface-muted",
             )}
           >
             {f === "all" ? "كل الملفات" : f}

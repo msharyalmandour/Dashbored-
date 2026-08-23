@@ -34,10 +34,156 @@
   --color-amber-accent-400: #f4b02a;
   --color-amber-accent-500: #ec9312;
   --color-amber-accent-600: #cc700d;
+  --color-amber-accent-700: #a85a0a;
 
   --color-surface: #faf7f0;
   --color-surface-muted: #f2ede0;
   --color-paper: #fffdf8;
+  --color-ink: #22201a;
+  --color-overlay-soft: rgba(255, 255, 255, 0.55);
+  --color-track: rgba(255, 255, 255, 0.7);
+}
+
+/* ===================================================================
+   الثيمات — كل ثيم يعيد تعريف نفس المتغيرات فوق، فالمكونات ما تتغير أبدًا.
+   =================================================================== */
+
+/* أسود — محايد داكن بلمسة نعناعية */
+:root[data-theme="black"] {
+  --color-brand-50: #161616;
+  --color-brand-100: #212121;
+  --color-brand-200: #2e2e2e;
+  --color-brand-300: #454545;
+  --color-brand-400: #14b8a6;
+  --color-brand-500: #2dd4bf;
+  --color-brand-600: #5eead4;
+  --color-brand-700: #99f6e4;
+  --color-brand-800: #ccfbf1;
+  --color-brand-900: #e6fffa;
+  --color-brand-950: #fafafa;
+
+  --color-sky-accent-50: #101822;
+  --color-sky-accent-100: #182233;
+  --color-sky-accent-200: #24344c;
+  --color-sky-accent-300: #3c5a86;
+  --color-sky-accent-400: #60a5fa;
+  --color-sky-accent-500: #3b82f6;
+  --color-sky-accent-600: #93c5fd;
+
+  --color-amber-accent-50: #201a0d;
+  --color-amber-accent-100: #332812;
+  --color-amber-accent-200: #4d3c1a;
+  --color-amber-accent-300: #92660f;
+  --color-amber-accent-400: #f59e0b;
+  --color-amber-accent-500: #fbbf24;
+  --color-amber-accent-600: #fcd34d;
+  --color-amber-accent-700: #fde68a;
+
+  --color-violet-50: #17131f;
+  --color-violet-100: #221c30;
+  --color-rose-50: #200f12;
+  --color-rose-100: #331419;
+  --color-rose-500: #f87171;
+  --color-rose-600: #fca5a5;
+
+  --color-surface: #0a0a0a;
+  --color-surface-muted: #151515;
+  --color-paper: #111111;
+  --color-ink: #fafafa;
+  --color-overlay-soft: rgba(0, 0, 0, 0.35);
+  --color-track: rgba(255, 255, 255, 0.12);
+}
+
+/* أخضر غامق */
+:root[data-theme="dark-green"] {
+  --color-brand-50: #0e241c;
+  --color-brand-100: #143529;
+  --color-brand-200: #1d4c3a;
+  --color-brand-300: #276650;
+  --color-brand-400: #2f8c68;
+  --color-brand-500: #34d399;
+  --color-brand-600: #6ee7b7;
+  --color-brand-700: #9df3cf;
+  --color-brand-800: #cffae4;
+  --color-brand-900: #e8fdf3;
+  --color-brand-950: #f3fdf8;
+
+  --color-sky-accent-50: #0d1e2c;
+  --color-sky-accent-100: #123049;
+  --color-sky-accent-200: #1a4568;
+  --color-sky-accent-300: #2f6aa0;
+  --color-sky-accent-400: #4fb8ff;
+  --color-sky-accent-500: #38bdf8;
+  --color-sky-accent-600: #7dd3fc;
+
+  --color-amber-accent-50: #241a0a;
+  --color-amber-accent-100: #3a2a10;
+  --color-amber-accent-200: #5c4118;
+  --color-amber-accent-300: #97690f;
+  --color-amber-accent-400: #f4b02a;
+  --color-amber-accent-500: #fbbf24;
+  --color-amber-accent-600: #fcd34d;
+  --color-amber-accent-700: #fde68a;
+
+  --color-violet-50: #1c1530;
+  --color-violet-100: #2a1f47;
+  --color-rose-50: #2a1116;
+  --color-rose-100: #3d1920;
+  --color-rose-500: #fb7185;
+  --color-rose-600: #fda4af;
+
+  --color-surface: #071410;
+  --color-surface-muted: #0f221a;
+  --color-paper: #0c1c16;
+  --color-ink: #f3fdf8;
+  --color-overlay-soft: rgba(0, 0, 0, 0.3);
+  --color-track: rgba(255, 255, 255, 0.12);
+}
+
+/* كحلي — أزرق داكن بلمسة ذهبية */
+:root[data-theme="navy"] {
+  --color-brand-50: #101d33;
+  --color-brand-100: #16294a;
+  --color-brand-200: #1f3a68;
+  --color-brand-300: #2c4f8c;
+  --color-brand-400: #f4b02a;
+  --color-brand-500: #f4b02a;
+  --color-brand-600: #f8c953;
+  --color-brand-700: #fbe08e;
+  --color-brand-800: #fef3c7;
+  --color-brand-900: #fffbea;
+  --color-brand-950: #f8fafc;
+
+  --color-sky-accent-50: #0e1a2e;
+  --color-sky-accent-100: #142544;
+  --color-sky-accent-200: #1c3560;
+  --color-sky-accent-300: #305490;
+  --color-sky-accent-400: #60a5fa;
+  --color-sky-accent-500: #3b82f6;
+  --color-sky-accent-600: #93c5fd;
+
+  --color-amber-accent-50: #1f150d;
+  --color-amber-accent-100: #2f2012;
+  --color-amber-accent-200: #4a3419;
+  --color-amber-accent-300: #93540f;
+  --color-amber-accent-400: #fb923c;
+  --color-amber-accent-500: #fb923c;
+  --color-amber-accent-600: #fdba74;
+  --color-amber-accent-700: #fed7aa;
+
+  --color-violet-50: #16172e;
+  --color-violet-100: #212347;
+  --color-rose-50: #200f16;
+  --color-rose-100: #33141f;
+  --color-rose-500: #fb7185;
+  --color-rose-600: #fda4af;
+
+  --color-surface: #0a1220;
+  --color-surface-muted: #101c30;
+  --color-paper: #0d1728;
+  --color-ink: #f8fafc;
+  --color-overlay-soft: rgba(0, 0, 0, 0.3);
+  --color-track: rgba(255, 255, 255, 0.12);
 }
 
 html {
@@ -47,7 +193,8 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: var(--color-surface);
-  color: #22201a;
+  color: var(--color-ink);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1, h2, h3, .font-display {

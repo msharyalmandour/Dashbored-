@@ -91,7 +91,7 @@ export default function Guide() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {sections.map((s) => (
             <Card key={s.title} tone={s.tone} className="flex gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/70 text-brand-700">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-paper text-brand-700">
                 <s.icon size={18} />
               </span>
               <div>

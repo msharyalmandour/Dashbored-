@@ -41,7 +41,7 @@ export default function Fieldwork() {
               style={{ right: `${site.x}%`, top: `${site.y}%` }}
             >
               <div className="flex flex-col items-center">
-                <span className="mb-1 whitespace-nowrap rounded-lg bg-white px-2 py-1 text-[11px] font-bold text-brand-950 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                <span className="mb-1 whitespace-nowrap rounded-lg bg-paper px-2 py-1 text-[11px] font-bold text-brand-950 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                   {site.city} — {site.collected}/{site.target}
                 </span>
                 <MapPin

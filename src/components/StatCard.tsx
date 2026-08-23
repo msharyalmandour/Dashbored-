@@ -46,7 +46,7 @@ export default function StatCard({
       <p className="font-display mt-3 text-3xl font-extrabold text-brand-950">{value}</p>
       {progress !== undefined ? (
         <div className="mt-3">
-          <ProgressBar value={progress} color={color} track="bg-white/70" />
+          <ProgressBar value={progress} color={color} track="bg-[var(--color-track)]" />
         </div>
       ) : (
         sub && (

@@ -28,7 +28,7 @@ import {
   teamMembers,
 } from "../data/mockData";
 import { getMilestoneGroups } from "../lib/selectors";
-import { daysUntil, formatDateLong, formatDateShort, toISODate } from "../lib/date";
+import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
 
 const today = new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -86,6 +86,14 @@ export default function Overview() {
 
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
 
+  const overdueCount = tasks.filter((t) => t.status === "overdue").length;
+  const heroMessage =
+    priorities.length === 0
+      ? "ما عليك شي مستعجل اليوم — وقت زين تراجع خطة البحث أو ترتاح شوي ☕"
+      : overdueCount > 0
+        ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي تسويه اليوم.`
+        : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
+
   return (
     <div className="space-y-6">
       {showGuideBanner && (
@@ -102,7 +110,7 @@ export default function Overview() {
           </p>
           <button
             onClick={dismissGuideBanner}
-            className="shrink-0 rounded-lg p-1.5 text-amber-accent-600 hover:bg-white/60"
+            className="shrink-0 rounded-lg p-1.5 text-amber-accent-600 hover:bg-amber-accent-200"
           >
             <X size={16} />
           </button>
@@ -112,15 +120,13 @@ export default function Overview() {
       {/* Welcome + deadline */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card tone="teal" className="relative overflow-hidden lg:col-span-2">
-          <div className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-white/40" />
+          <div className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)]" />
           <div className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50" />
           <div className="relative">
             <p className="font-display text-2xl font-extrabold text-brand-950">
-              صباح الخير، {currentUser?.name.split(" ")[0]} 👋
+              {getGreeting()}، {currentUser?.name.split(" ")[0]} 👋
             </p>
-            <p className="mt-1 text-sm text-brand-950/55">
-              فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع.
-            </p>
+            <p className="mt-1 text-sm text-brand-950/55">{heroMessage}</p>
 
             <div className="mt-6 flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
@@ -132,7 +138,7 @@ export default function Overview() {
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/70 bg-white/60 p-4">
+            <div className="mt-6 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-1.5 font-semibold text-brand-950/70">
                   <CalendarClock size={15} />
@@ -145,7 +151,7 @@ export default function Overview() {
               <ProgressBar
                 value={projectMeta.overallProgress}
                 className="mt-3"
-                track="bg-white/70"
+                track="bg-[var(--color-track)]"
               />
             </div>
           </div>
@@ -229,6 +235,11 @@ export default function Overview() {
                 );
               })}
             </ul>
+            {priorities.length === 0 && (
+              <p className="py-6 text-center text-sm text-brand-950/40">
+                ما فيه أولويات معلّقة عليك اليوم — استمتع بيومك 🌿
+              </p>
+            )}
           </Card>
         </div>
 

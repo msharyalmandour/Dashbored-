@@ -14,9 +14,9 @@ export default function PhaseTracker({ groups }: { groups: MilestoneGroup[] }) {
                 group.status === "done" &&
                   "border-brand-500 bg-brand-500 text-white",
                 group.status === "active" &&
-                  "border-brand-500 bg-white text-brand-600",
+                  "border-brand-500 bg-paper text-brand-600",
                 group.status === "upcoming" &&
-                  "border-brand-100 bg-white text-brand-950/30",
+                  "border-brand-100 bg-paper text-brand-950/30",
               )}
             >
               {group.status === "done" ? (

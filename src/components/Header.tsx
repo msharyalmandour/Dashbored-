@@ -1,6 +1,7 @@
 import { Bell, MessageSquare, Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Avatar from "./ui/Avatar";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function Header({ title }: { title: string }) {
   const { currentUser } = useAuth();
@@ -18,9 +19,11 @@ export default function Header({ title }: { title: string }) {
           <input
             type="text"
             placeholder="ابحث عن مهام، أوراق بحثية، ملفات..."
-            className="w-full rounded-xl border border-brand-100 bg-surface-muted py-2 pe-9 ps-3 text-sm outline-none placeholder:text-brand-950/30 focus:border-brand-300 focus:bg-white"
+            className="w-full rounded-xl border border-brand-100 bg-surface-muted py-2 pe-9 ps-3 text-sm outline-none placeholder:text-brand-950/30 focus:border-brand-300 focus:bg-paper"
           />
         </div>
+
+        <ThemeSwitcher />
 
         <button className="relative rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted">
           <Bell size={18} />

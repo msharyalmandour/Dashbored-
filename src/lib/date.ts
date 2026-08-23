@@ -50,4 +50,11 @@ export function toISODate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+export function getGreeting(date: Date = new Date()): string {
+  const hour = date.getHours();
+  if (hour < 12) return "صباح الخير";
+  if (hour < 17) return "يعطيك العافية";
+  return "مساء الخير";
+}
+
 export { arabicMonths, arabicWeekdays, arabicWeekdaysShort };

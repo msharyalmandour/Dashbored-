@@ -109,7 +109,7 @@ export default function Tasks() {
                 "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
                 filter === f.id
                   ? "bg-brand-500 text-white"
-                  : "bg-white text-brand-950/60 hover:bg-surface-muted",
+                  : "bg-paper text-brand-950/60 hover:bg-surface-muted",
               )}
             >
               {f.label}
@@ -238,7 +238,13 @@ export default function Tasks() {
           );
         })}
         {filtered.length === 0 && (
-          <p className="py-10 text-center text-sm text-brand-950/40">لا توجد مهام مطابقة</p>
+          <p className="py-10 text-center text-sm text-brand-950/40">
+            {filter === "mine"
+              ? "ما عليك مهام هنا — عاشت الأيادي 🎉"
+              : filter === "done"
+                ? "ولا مهمة مكتملة بعد بهذا الفلتر"
+                : "ما فيه مهام مطابقة لهذا الفلتر حاليًا"}
+          </p>
         )}
       </div>
     </div>

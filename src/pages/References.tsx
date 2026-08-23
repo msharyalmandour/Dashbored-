@@ -48,7 +48,7 @@ export default function References() {
               "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
               filter === f.id
                 ? "bg-brand-500 text-white"
-                : "bg-white text-brand-950/60 hover:bg-surface-muted",
+                : "bg-paper text-brand-950/60 hover:bg-surface-muted",
             )}
           >
             {f.label}

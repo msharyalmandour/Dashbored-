@@ -46,8 +46,8 @@ export default function ResearchPlan() {
                 className={clsx(
                   "absolute -right-8 top-5 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold",
                   phase.status === "done" && "border-brand-500 bg-brand-500 text-white",
-                  phase.status === "active" && "border-brand-500 bg-white text-brand-600",
-                  phase.status === "upcoming" && "border-brand-100 bg-white text-brand-950/30",
+                  phase.status === "active" && "border-brand-500 bg-paper text-brand-600",
+                  phase.status === "upcoming" && "border-brand-100 bg-paper text-brand-950/30",
                 )}
               >
                 {phase.status === "done" ? <Check size={14} /> : phase.order}

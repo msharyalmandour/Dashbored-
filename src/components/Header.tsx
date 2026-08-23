@@ -6,8 +6,8 @@ export default function Header({ title }: { title: string }) {
   const { currentUser } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-100 bg-white/80 px-8 py-4 backdrop-blur">
-      <h1 className="text-xl font-bold text-brand-950">{title}</h1>
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-100/70 bg-paper/85 px-8 py-4 backdrop-blur">
+      <h1 className="font-display text-xl font-bold text-brand-950">{title}</h1>
 
       <div className="flex flex-1 items-center justify-end gap-4">
         <div className="relative hidden w-full max-w-sm md:block">

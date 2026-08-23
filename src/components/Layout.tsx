@@ -13,11 +13,20 @@ const titles: Record<string, string> = {
   "/references": "المراجع",
   "/files": "الملفات",
   "/calendar": "التقويم",
+  "/guide": "دليل الطالب",
 };
 
 export default function Layout() {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
   const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface text-sm font-semibold text-brand-950/50">
+        جارٍ التحميل...
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return <Navigate to="/login" replace state={{ from: location }} />;

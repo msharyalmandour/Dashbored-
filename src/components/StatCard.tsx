@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { colorClasses } from "../lib/colors";
+import Card, { type CardTone } from "./ui/Card";
 import ProgressBar from "./ui/ProgressBar";
 
 interface StatCardProps {
@@ -8,8 +8,21 @@ interface StatCardProps {
   value: string;
   sub?: string;
   color?: string;
+  tone?: CardTone;
   progress?: number;
 }
+
+const chipClasses: Record<string, string> = {
+  brand: "bg-brand-500 text-white",
+  "sky-accent": "bg-sky-accent-500 text-white",
+  "amber-accent": "bg-amber-accent-500 text-white",
+};
+
+const subTextClasses: Record<string, string> = {
+  brand: "text-brand-700",
+  "sky-accent": "text-sky-accent-600",
+  "amber-accent": "text-amber-accent-600",
+};
 
 export default function StatCard({
   icon: Icon,
@@ -17,25 +30,31 @@ export default function StatCard({
   value,
   sub,
   color = "brand",
+  tone = "paper",
   progress,
 }: StatCardProps) {
-  const c = colorClasses(color);
   return (
-    <div className="rounded-2xl border border-brand-100/70 bg-white p-4 shadow-sm shadow-brand-950/5">
-      <div className="flex items-center gap-2 text-sm text-brand-950/50">
-        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${c.bg50} ${c.text600}`}>
+    <Card tone={tone} className="flex flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-brand-950/55">{label}</span>
+        <span
+          className={`flex h-9 w-9 items-center justify-center rounded-xl ${chipClasses[color] ?? chipClasses.brand}`}
+        >
           <Icon size={16} />
         </span>
-        {label}
       </div>
-      <p className="mt-3 text-2xl font-extrabold text-brand-950">{value}</p>
+      <p className="font-display mt-3 text-3xl font-extrabold text-brand-950">{value}</p>
       {progress !== undefined ? (
         <div className="mt-3">
-          <ProgressBar value={progress} color={color} />
+          <ProgressBar value={progress} color={color} track="bg-white/70" />
         </div>
       ) : (
-        sub && <p className={`mt-1 text-xs font-semibold ${c.text600}`}>{sub}</p>
+        sub && (
+          <p className={`mt-1 text-xs font-bold ${subTextClasses[color] ?? subTextClasses.brand}`}>
+            {sub}
+          </p>
+        )
       )}
-    </div>
+    </Card>
   );
 }

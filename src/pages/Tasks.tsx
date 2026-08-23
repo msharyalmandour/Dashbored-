@@ -4,8 +4,9 @@ import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import { useAuth } from "../context/AuthContext";
-import { tasks as initialTasks, teamMembers } from "../data/mockData";
-import type { Task, TaskPriority, TaskStatus } from "../data/types";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useTasksData } from "../hooks/useTasksData";
+import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort } from "../lib/date";
 
 const statusStyle: Record<TaskStatus, string> = {
@@ -43,20 +44,20 @@ const filters: { id: string; label: string }[] = [
   { id: "done", label: "مكتملة" },
 ];
 
-let taskIdCounter = initialTasks.length + 1;
-
 export default function Tasks() {
   const { currentUser, isLeader } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const { roster } = useTeamRoster();
+  const { tasks, addTask } = useTasksData();
   const [filter, setFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const assignableMembers = teamMembers.filter((m) => m.id !== currentUser?.id);
+  const assignableMembers = roster.filter((m) => m.id !== currentUser?.id);
 
   const [form, setForm] = useState({
     title: "",
     description: "",
-    assigneeId: assignableMembers[0]?.id ?? "",
+    assigneeId: "",
     dueDate: "2026-08-30",
     priority: "medium" as TaskPriority,
   });
@@ -69,21 +70,30 @@ export default function Tasks() {
     });
   }, [tasks, filter, currentUser]);
 
-  const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
+  const memberById = (id: string) =>
+    roster.find((m) => m.id === id) ?? {
+      id,
+      name: "عضو",
+      initials: "؟",
+      color: "brand",
+    };
 
-  const handleAssign = () => {
-    if (!form.title.trim() || !form.assigneeId) return;
-    const newTask: Task = {
-      id: `t${taskIdCounter++}`,
+  const handleAssign = async () => {
+    const assigneeId = form.assigneeId || assignableMembers[0]?.id;
+    if (!form.title.trim() || !assigneeId) return;
+    const { error } = await addTask({
       title: form.title.trim(),
       description: form.description.trim(),
-      assigneeId: form.assigneeId,
+      assigneeId,
       dueDate: form.dueDate,
-      status: "todo",
       priority: form.priority,
-    };
-    setTasks((prev) => [newTask, ...prev]);
+    });
+    if (error) {
+      setFormError(error);
+      return;
+    }
     setForm({ ...form, title: "", description: "" });
+    setFormError(null);
     setShowForm(false);
   };
 
@@ -119,7 +129,7 @@ export default function Tasks() {
       </div>
 
       {showForm && isLeader && (
-        <Card className="relative">
+        <Card tone="cream" className="relative">
           <button
             onClick={() => setShowForm(false)}
             className="absolute left-4 top-4 text-brand-950/40 hover:text-brand-700"
@@ -140,7 +150,7 @@ export default function Tasks() {
             <label className="block text-sm">
               <span className="mb-1 block font-semibold text-brand-950/70">إسناد إلى</span>
               <select
-                value={form.assigneeId}
+                value={form.assigneeId || assignableMembers[0]?.id || ""}
                 onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
               >
@@ -183,6 +193,11 @@ export default function Tasks() {
               </select>
             </label>
           </div>
+          {formError && (
+            <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">
+              {formError}
+            </p>
+          )}
           <button
             onClick={handleAssign}
             className="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600"

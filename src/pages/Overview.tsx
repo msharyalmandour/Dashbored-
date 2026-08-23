@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Activity,
   AlertCircle,
@@ -6,8 +7,10 @@ import {
   CheckCircle2,
   Circle,
   ClipboardList,
+  Compass,
   Users,
   UserRound,
+  X,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -44,9 +47,19 @@ const statusLabel: Record<string, string> = {
   overdue: "متأخرة",
 };
 
+const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
+
 export default function Overview() {
   const { currentUser } = useAuth();
   const [selectedDate, setSelectedDate] = useState(todayIso);
+  const [showGuideBanner, setShowGuideBanner] = useState(
+    () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
+  );
+
+  const dismissGuideBanner = () => {
+    localStorage.setItem(GUIDE_BANNER_KEY, "1");
+    setShowGuideBanner(false);
+  };
 
   const milestoneGroups = getMilestoneGroups();
   const remainingDays = daysUntil(projectMeta.deadline, today);
@@ -75,42 +88,64 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
+      {showGuideBanner && (
+        <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
+            <Compass size={18} />
+          </span>
+          <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
+            أول مرة تستخدم NURSYNC؟ راجع{" "}
+            <Link to="/guide" className="underline underline-offset-2">
+              دليل الطالب
+            </Link>{" "}
+            عشان تعرف وين تروح ولاش تضيف مهامك.
+          </p>
+          <button
+            onClick={dismissGuideBanner}
+            className="shrink-0 rounded-lg p-1.5 text-amber-accent-600 hover:bg-white/60"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Welcome + deadline */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="relative overflow-hidden lg:col-span-2">
-          <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-brand-50" />
-          <div className="pointer-events-none absolute -bottom-16 left-24 h-32 w-32 rounded-full bg-amber-accent-50" />
+        <Card tone="teal" className="relative overflow-hidden lg:col-span-2">
+          <div className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-white/40" />
+          <div className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50" />
           <div className="relative">
-            <p className="text-xl font-extrabold text-brand-950">
+            <p className="font-display text-2xl font-extrabold text-brand-950">
               صباح الخير، {currentUser?.name.split(" ")[0]} 👋
             </p>
-            <p className="mt-1 text-sm text-brand-950/50">
+            <p className="mt-1 text-sm text-brand-950/55">
               فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع.
             </p>
 
             <div className="mt-6 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
                 <UserRound size={20} />
               </div>
               <div>
-                <p className="text-lg font-bold text-brand-950">{projectMeta.name}</p>
-                <p className="text-sm text-brand-600">{projectMeta.subtitle}</p>
+                <p className="font-display text-lg font-bold text-brand-950">{projectMeta.name}</p>
+                <p className="text-sm text-brand-700">{projectMeta.subtitle}</p>
               </div>
             </div>
 
-            <div className="mt-6 rounded-xl border border-brand-100 bg-surface-muted p-4">
+            <div className="mt-6 rounded-2xl border border-white/70 bg-white/60 p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-1.5 font-semibold text-brand-950/70">
                   <CalendarClock size={15} />
                   الموعد النهائي للتسليم — {formatDateLong(projectMeta.deadline)}
                 </span>
-                <span className="font-extrabold text-brand-600">
+                <span className="font-extrabold text-brand-700">
                   متبقٍ {remainingDays} يومًا
                 </span>
               </div>
               <ProgressBar
                 value={projectMeta.overallProgress}
                 className="mt-3"
+                track="bg-white/70"
               />
             </div>
           </div>
@@ -123,6 +158,7 @@ export default function Overview() {
             value={`${projectMeta.overallProgress}%`}
             sub="على المسار الصحيح"
             color="brand"
+            tone="teal"
           />
           <StatCard
             icon={Users}
@@ -130,6 +166,7 @@ export default function Overview() {
             value={`${teamMembers.length} أعضاء`}
             sub={`${teamMembers.filter((m) => m.progress > 0).length} نشطون`}
             color="sky-accent"
+            tone="sky"
           />
           <StatCard
             icon={ClipboardList}
@@ -137,6 +174,7 @@ export default function Overview() {
             value={`${tasks.length}`}
             sub={`${tasks.filter((t) => t.status === "done").length} مكتملة`}
             color="amber-accent"
+            tone="cream"
           />
           <StatCard
             icon={UserRound}
@@ -144,6 +182,7 @@ export default function Overview() {
             value={`${projectMeta.participantsCollected}/${projectMeta.participantsTarget}`}
             progress={collectedPct}
             color="brand"
+            tone="violet"
           />
         </div>
       </div>
@@ -151,7 +190,7 @@ export default function Overview() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Research progress + priorities */}
         <div className="space-y-4 lg:col-span-2">
-          <Card>
+          <Card tone="cream">
             <CardHeader title="تقدم البحث بالمراحل" subtitle={`${projectMeta.overallProgress}% إجمالي التقدم`} />
             <PhaseTracker groups={milestoneGroups} />
           </Card>
@@ -195,7 +234,7 @@ export default function Overview() {
 
         {/* Calendar + upcoming */}
         <div className="space-y-4">
-          <Card>
+          <Card tone="sky">
             <MiniCalendar
               events={calendarEvents}
               today={today}
@@ -232,7 +271,7 @@ export default function Overview() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card>
+        <Card tone="violet">
           <CardHeader title="تقدم الفريق" action={<span className="text-xs font-semibold text-brand-600">عرض الكل</span>} />
           <div className="flex justify-between">
             {teamMembers.map((m) => (
@@ -247,7 +286,7 @@ export default function Overview() {
           </div>
         </Card>
 
-        <Card>
+        <Card tone="amber">
           <CardHeader title="تقدم الميدان" action={<span className="text-xs font-semibold text-brand-600">عرض الخريطة</span>} />
           <p className="text-2xl font-extrabold text-brand-950">
             {projectMeta.participantsCollected}

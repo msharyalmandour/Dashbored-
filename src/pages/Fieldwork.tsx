@@ -31,7 +31,7 @@ export default function Fieldwork() {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card className="lg:col-span-2">
+      <Card tone="teal" className="lg:col-span-2">
         <CardHeader title="مواقع الجمع الميداني" subtitle="المملكة العربية السعودية" />
         <div className="relative h-96 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-surface-muted to-sky-accent-50">
           {fieldworkSites.map((site) => (
@@ -67,7 +67,7 @@ export default function Fieldwork() {
         </div>
       </Card>
 
-      <Card>
+      <Card tone="amber">
         <CardHeader title="إجمالي المشاركين" />
         <p className="text-3xl font-extrabold text-brand-950">
           {projectMeta.participantsCollected}

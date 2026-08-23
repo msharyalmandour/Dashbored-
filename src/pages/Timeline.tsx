@@ -39,8 +39,8 @@ const monthMarks = [
 
 export default function Timeline() {
   return (
-    <Card>
-      <h2 className="mb-1 text-base font-bold text-brand-950">الجدول الزمني للبحث</h2>
+    <Card tone="cream">
+      <h2 className="font-display mb-1 text-base font-bold text-brand-950">الجدول الزمني للبحث</h2>
       <p className="mb-6 text-sm text-brand-950/50">
         {formatDateShort(projectStart)} — {formatDateShort(projectEnd)}
       </p>

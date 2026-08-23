@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Tajawal", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
 
   /* Primary — teal */
   --color-brand-50: #eefbf8;
@@ -34,8 +35,9 @@
   --color-amber-accent-500: #ec9312;
   --color-amber-accent-600: #cc700d;
 
-  --color-surface: #f6f9f8;
-  --color-surface-muted: #eef3f1;
+  --color-surface: #faf7f0;
+  --color-surface-muted: #f2ede0;
+  --color-paper: #fffdf8;
 }
 
 html {
@@ -45,7 +47,11 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: var(--color-surface);
-  color: #16302d;
+  color: #22201a;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
 }
 
 * {

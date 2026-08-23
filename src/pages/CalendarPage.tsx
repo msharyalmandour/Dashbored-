@@ -38,7 +38,7 @@ export default function CalendarPage() {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card className="lg:col-span-2">
+      <Card tone="sky" className="lg:col-span-2">
         <MiniCalendar
           events={calendarEvents}
           today={today}

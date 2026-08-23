@@ -24,9 +24,9 @@ export default function ResearchPlan() {
 
   return (
     <div className="space-y-5">
-      <Card className="flex flex-wrap items-center justify-between gap-4">
+      <Card tone="cream" className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-brand-950">خطة البحث الكاملة — 12 مرحلة</h2>
+          <h2 className="font-display text-base font-bold text-brand-950">خطة البحث الكاملة — 12 مرحلة</h2>
           <p className="mt-1 text-sm text-brand-950/50">
             تم إنجاز {done} من {researchPhases.length} مرحلة
           </p>

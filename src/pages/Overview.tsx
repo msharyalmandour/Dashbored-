@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import FocusSession from "../components/FocusSession";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import StatCard from "../components/StatCard";
@@ -31,6 +32,7 @@ import {
 } from "../data/mockData";
 import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
 import { getDailyQuote } from "../data/motivation";
+import { useVisitGap } from "../hooks/useVisitGap";
 
 const today = new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -53,6 +55,7 @@ const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
 
 export default function Overview() {
   const { currentUser } = useAuth();
+  const visitGapDays = useVisitGap();
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [showGuideBanner, setShowGuideBanner] = useState(
     () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
@@ -90,14 +93,19 @@ export default function Overview() {
 
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
 
+  const greeting = getGreeting();
   const dailyQuote = getDailyQuote();
   const overdueCount = tasks.filter((t) => t.status === "overdue").length;
   const heroMessage =
-    priorities.length === 0
-      ? "ما عليك شي مستعجل اليوم — وقت زين تراجع المقترح البحثي أو ترتاح شوي ☕"
-      : overdueCount > 0
-        ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي تسويه اليوم.`
-        : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
+    overdueCount > 0
+      ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي تسويه اليوم.`
+      : visitGapDays !== null && visitGapDays >= 2
+        ? `غبت ${visitGapDays} أيام — طبيعي جدًا، خذ وقتك بس لا تنسى إن بحثك يستناك 🌱`
+        : visitGapDays === 1
+          ? "من زمان ما شفناك من أمس! رجّع نفسك بخطوة بسيطة اليوم 🌱"
+          : priorities.length === 0
+            ? "ما عليك شي مستعجل اليوم — وقت زين تراجع المقترح البحثي أو ترتاح شوي ☕"
+            : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
 
   return (
     <div className="space-y-6">
@@ -129,7 +137,7 @@ export default function Overview() {
           <div className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50" />
           <div className="relative">
             <p className="font-display text-2xl font-extrabold text-brand-950">
-              {getGreeting()}، {currentUser?.name.split(" ")[0]} 👋
+              {greeting.text}، {currentUser?.name.split(" ")[0]} {greeting.emoji}
             </p>
             <p className="mt-1 text-sm text-brand-950/55">{heroMessage}</p>
 
@@ -202,6 +210,8 @@ export default function Overview() {
           />
         </div>
       </div>
+
+      <FocusSession />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Research journey + priorities */}

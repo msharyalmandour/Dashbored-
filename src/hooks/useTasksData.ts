@@ -89,5 +89,15 @@ export function useTasksData() {
     return { error: error?.message };
   };
 
-  return { tasks, loading, addTask };
+  const updateStatus = async (taskId: string, status: Task["status"]) => {
+    if (!isSupabaseConfigured) {
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status } : t)));
+      return { error: undefined as string | undefined };
+    }
+
+    const { error } = await supabase!.from("tasks").update({ status }).eq("id", taskId);
+    return { error: error?.message };
+  };
+
+  return { tasks, loading, addTask, updateStatus };
 }

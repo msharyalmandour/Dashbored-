@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { AlertCircle, Plus, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { AlertCircle, CheckCircle2, Circle, PartyPopper, Plus, X } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -9,6 +9,13 @@ import { useTasksData } from "../hooks/useTasksData";
 import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort } from "../lib/date";
+
+const celebrations = [
+  "عاشت الأيادي!",
+  "خطوة قدام في بحثك 👏",
+  "تقدم ما ينكسر",
+  "أنت قدها وقدود!",
+];
 
 const sectionLabel = Object.fromEntries(
   proposalSections.map((s) => [s.key, s.labelAr]),
@@ -52,10 +59,17 @@ const filters: { id: string; label: string }[] = [
 export default function Tasks() {
   const { currentUser, isLeader } = useAuth();
   const { roster } = useTeamRoster();
-  const { tasks, addTask } = useTasksData();
+  const { tasks, addTask, updateStatus } = useTasksData();
   const [filter, setFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [celebration, setCelebration] = useState<{ title: string; line: string } | null>(null);
+
+  useEffect(() => {
+    if (!celebration) return;
+    const timer = setTimeout(() => setCelebration(null), 3200);
+    return () => clearTimeout(timer);
+  }, [celebration]);
 
   const assignableMembers = roster.filter((m) => m.id !== currentUser?.id);
 
@@ -100,6 +114,17 @@ export default function Tasks() {
     setForm({ ...form, title: "", description: "" });
     setFormError(null);
     setShowForm(false);
+  };
+
+  const toggleDone = async (task: (typeof tasks)[number]) => {
+    const canToggle = isLeader || task.assigneeId === currentUser?.id;
+    if (!canToggle) return;
+    const nextStatus: TaskStatus = task.status === "done" ? "todo" : "done";
+    await updateStatus(task.id, nextStatus);
+    if (nextStatus === "done") {
+      const line = celebrations[Math.floor(Math.random() * celebrations.length)];
+      setCelebration({ title: task.title, line });
+    }
   };
 
   return (
@@ -215,11 +240,32 @@ export default function Tasks() {
       <div className="grid grid-cols-1 gap-3">
         {filtered.map((task) => {
           const assignee = memberById(task.assigneeId);
+          const canToggle = isLeader || task.assigneeId === currentUser?.id;
           return (
             <Card key={task.id} className="flex flex-wrap items-center gap-4">
-              {task.status === "overdue" && (
-                <AlertCircle size={18} className="shrink-0 text-rose-500" />
-              )}
+              <button
+                onClick={() => toggleDone(task)}
+                disabled={!canToggle}
+                title={
+                  canToggle
+                    ? task.status === "done"
+                      ? "إلغاء الإكمال"
+                      : "تعليم كمكتملة"
+                    : undefined
+                }
+                className={clsx(
+                  "shrink-0",
+                  canToggle ? "cursor-pointer" : "cursor-default opacity-60",
+                )}
+              >
+                {task.status === "done" ? (
+                  <CheckCircle2 size={20} className="text-brand-500" />
+                ) : task.status === "overdue" ? (
+                  <AlertCircle size={20} className="text-rose-500" />
+                ) : (
+                  <Circle size={20} className="text-brand-950/25" />
+                )}
+              </button>
               <div className="min-w-[200px] flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold text-brand-950">{task.title}</p>
@@ -259,6 +305,22 @@ export default function Tasks() {
           </p>
         )}
       </div>
+
+      {celebration && (
+        <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-accent-500 text-white">
+              <PartyPopper size={18} />
+            </span>
+            <div>
+              <p className="text-sm font-bold text-brand-950">{celebration.line}</p>
+              <p className="max-w-xs truncate text-xs text-brand-950/50">
+                أكملت: {celebration.title}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

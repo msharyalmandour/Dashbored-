@@ -1,3 +1,5 @@
+import type { GreetingPeriod } from "../lib/date";
+
 export const motivationalQuotes: string[] = [
   "التعب مؤقت، بس اسمك على غلاف البحث يبقى للأبد.",
   "كل فقرة تكتبها اليوم خطوة أقرب للتخرج.",
@@ -11,9 +13,21 @@ export const motivationalQuotes: string[] = [
   "أعظم الأبحاث بدأت بسؤال بسيط وفنجان قهوة.",
 ];
 
-export function getDailyQuote(date: Date = new Date()): string {
+/** بدون كافيين — تُستخدم بعد المساء عشان ما تشجّع سهر زايد */
+export const nightQuotes: string[] = [
+  "لو تقدر تنام بدري الليلة، بكرة تركيزك يفرق.",
+  "خذ نفس عميق، اشرب مويه، وكمّل بهدوء.",
+  "النوم الكافي جزء من خطة البحث، مو رفاهية.",
+  "سطر أو سطرين الحين، والباقي يوفّرله بكرة وأنت مرتاح.",
+  "لو تحس بالتعب، خلها آخر خطوة الليلة وارجع بنشاط بكرة.",
+];
+
+export function getDailyQuote(date: Date = new Date(), period?: GreetingPeriod): string {
   const dayOfYear = Math.floor(
     (date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000,
   );
+  if (period === "night") {
+    return nightQuotes[dayOfYear % nightQuotes.length];
+  }
   return motivationalQuotes[dayOfYear % motivationalQuotes.length];
 }

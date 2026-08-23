@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 import {
   AlertCircle,
   BookOpenCheck,
@@ -10,6 +11,7 @@ import {
   Compass,
   ListTodo,
   Milestone,
+  Moon,
   TrendingUp,
   X,
 } from "lucide-react";
@@ -95,7 +97,7 @@ export default function Overview() {
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
 
   const greeting = getGreeting();
-  const dailyQuote = getDailyQuote();
+  const dailyQuote = getDailyQuote(new Date(), greeting.period);
   const overdueCount = tasks.filter((t) => t.status === "overdue").length;
   const heroMessage =
     overdueCount > 0
@@ -150,9 +152,25 @@ export default function Overview() {
               </p>
             </div>
 
-            <div className="mt-4 flex items-center gap-2 rounded-2xl bg-amber-accent-100/70 px-3.5 py-2.5">
-              <Coffee size={16} className="shrink-0 text-amber-accent-600" />
-              <p className="text-sm font-medium italic text-amber-accent-700">{dailyQuote}</p>
+            <div
+              className={clsx(
+                "mt-4 flex items-center gap-2 rounded-2xl px-3.5 py-2.5",
+                greeting.period === "night" ? "bg-brand-100/70" : "bg-amber-accent-100/70",
+              )}
+            >
+              {greeting.period === "night" ? (
+                <Moon size={16} className="shrink-0 text-brand-700" />
+              ) : (
+                <Coffee size={16} className="shrink-0 text-amber-accent-600" />
+              )}
+              <p
+                className={clsx(
+                  "text-sm font-medium italic",
+                  greeting.period === "night" ? "text-brand-700" : "text-amber-accent-700",
+                )}
+              >
+                {dailyQuote}
+              </p>
             </div>
 
             <div className="mt-4 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-4">

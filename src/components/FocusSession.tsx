@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Coffee, Pause, Play, RotateCcw, Square } from "lucide-react";
+import { Coffee, Moon, Pause, Play, RotateCcw, Square } from "lucide-react";
 import clsx from "clsx";
 import Card from "./ui/Card";
+import { getGreeting } from "../lib/date";
 
 type SessionState = "idle" | "running" | "paused" | "done";
 
@@ -25,6 +26,7 @@ function formatTime(totalSeconds: number) {
 }
 
 export default function FocusSession() {
+  const isNight = getGreeting().period === "night";
   const [duration, setDuration] = useState(25);
   const [remaining, setRemaining] = useState(25 * 60);
   const [state, setState] = useState<SessionState>("idle");
@@ -72,13 +74,22 @@ export default function FocusSession() {
     return (
       <Card tone="cream" className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white shadow-sm shadow-amber-accent-500/30">
-            <Coffee size={20} />
+          <span
+            className={clsx(
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm",
+              isNight ? "bg-brand-700 shadow-brand-700/30" : "bg-amber-accent-500 shadow-amber-accent-500/30",
+            )}
+          >
+            {isNight ? <Moon size={20} /> : <Coffee size={20} />}
           </span>
           <div>
-            <p className="font-display font-bold text-brand-950">جهّز قهوتك وابدأ جلسة بحث</p>
+            <p className="font-display font-bold text-brand-950">
+              {isNight ? "جلسة بحث هادئة قبل النوم" : "جهّز قهوتك وابدأ جلسة بحث"}
+            </p>
             <p className="text-sm text-brand-950/50">
-              وقت تركيز بدون مقاطعات — اختر المدة وابدأ.
+              {isNight
+                ? "خلها جلسة خفيفة — نوم كافي أهم من ساعة إضافية."
+                : "وقت تركيز بدون مقاطعات — اختر المدة وابدأ."}
             </p>
           </div>
         </div>
@@ -105,10 +116,15 @@ export default function FocusSession() {
           </div>
           <button
             onClick={start}
-            className="flex items-center gap-1.5 rounded-xl bg-amber-accent-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:bg-amber-accent-600"
+            className={clsx(
+              "flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-sm",
+              isNight
+                ? "bg-brand-700 shadow-brand-700/30 hover:bg-brand-800"
+                : "bg-amber-accent-500 shadow-amber-accent-500/30 hover:bg-amber-accent-600",
+            )}
           >
             <Play size={16} />
-            ابدأ الجلسة ☕
+            {isNight ? "ابدأ الجلسة" : "ابدأ الجلسة ☕"}
           </button>
         </div>
       </Card>
@@ -117,15 +133,17 @@ export default function FocusSession() {
 
   if (state === "done") {
     return (
-      <Card tone="amber" className="flex flex-wrap items-center justify-between gap-4">
+      <Card tone={isNight ? "teal" : "amber"} className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
-            <Coffee size={20} />
+            {isNight ? <Moon size={20} /> : <Coffee size={20} />}
           </span>
           <div>
             <p className="font-display font-bold text-brand-950">🎉 خلّصت جلستك! أحسنت</p>
             <p className="text-sm text-brand-950/60">
-              وقت استراحة قصيرة — اشرب قهوة، تمشى شوي، وارجع لجلسة جديدة.
+              {isNight
+                ? "وقت استراحة — اشرب مويه، وفكّر تختم الليلة بدري عشان نوم أفضل."
+                : "وقت استراحة قصيرة — اشرب قهوة، تمشى شوي، وارجع لجلسة جديدة."}
             </p>
           </div>
         </div>
@@ -159,7 +177,11 @@ export default function FocusSession() {
               className="transition-all duration-1000"
             />
           </svg>
-          <Coffee size={18} className="absolute text-amber-accent-600" />
+          {isNight ? (
+            <Moon size={18} className="absolute text-brand-700" />
+          ) : (
+            <Coffee size={18} className="absolute text-amber-accent-600" />
+          )}
         </div>
         <div>
           <p className="font-display text-2xl font-extrabold text-brand-950">

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { Coffee, Stethoscope } from "lucide-react";
+import { Coffee, Moon, Stethoscope } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
+import { getGreeting } from "../lib/date";
 
 export default function Login() {
   const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword } = useAuth();
   const location = useLocation();
+  const isNight = getGreeting().period === "night";
 
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
@@ -63,7 +65,16 @@ export default function Login() {
           </div>
           <h1 className="font-display text-2xl font-extrabold text-brand-950">NURSYNC</h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-950/50">
-            جهّز فنجان قهوتك، ونبدأ رحلة بحثك <Coffee size={14} className="text-amber-accent-600" />
+            {isNight ? (
+              <>
+                تسهر على بحثك؟ لا تنسى راحتك <Moon size={14} className="text-brand-600" />
+              </>
+            ) : (
+              <>
+                جهّز فنجان قهوتك، ونبدأ رحلة بحثك{" "}
+                <Coffee size={14} className="text-amber-accent-600" />
+              </>
+            )}
           </p>
         </div>
 

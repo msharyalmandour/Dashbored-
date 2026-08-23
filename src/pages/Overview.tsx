@@ -6,6 +6,7 @@ import {
   CalendarClock,
   CheckCircle2,
   Circle,
+  Coffee,
   Compass,
   ListTodo,
   Milestone,
@@ -29,6 +30,7 @@ import {
   teamMembers,
 } from "../data/mockData";
 import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
+import { getDailyQuote } from "../data/motivation";
 
 const today = new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -88,6 +90,7 @@ export default function Overview() {
 
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
 
+  const dailyQuote = getDailyQuote();
   const overdueCount = tasks.filter((t) => t.status === "overdue").length;
   const heroMessage =
     priorities.length === 0
@@ -137,7 +140,12 @@ export default function Overview() {
               </p>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-4">
+            <div className="mt-4 flex items-center gap-2 rounded-2xl bg-amber-accent-100/70 px-3.5 py-2.5">
+              <Coffee size={16} className="shrink-0 text-amber-accent-600" />
+              <p className="text-sm font-medium italic text-amber-accent-700">{dailyQuote}</p>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-4">
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث</p>

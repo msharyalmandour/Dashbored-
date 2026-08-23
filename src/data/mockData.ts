@@ -76,6 +76,15 @@ export const teamMembers: TeamMember[] = [
   },
 ];
 
+/** بيانات دخول تجريبية لمحاكاة تسجيل الدخول بالرقم الجامعي (وضع العرض التجريبي فقط) */
+export const demoCredentials: { memberId: string; universityId: string; password: string }[] = [
+  { memberId: "sara", universityId: "442100154", password: "sara2026" },
+  { memberId: "ahmed", universityId: "442100211", password: "ahmed2026" },
+  { memberId: "maha", universityId: "442100309", password: "maha2026" },
+  { memberId: "omar", universityId: "442100417", password: "omar2026" },
+  { memberId: "lin", universityId: "442100522", password: "lin2026" },
+];
+
 /** رحلة تقدم البحث — 8 مراحل كبرى */
 export const researchStages: ResearchStage[] = [
   { id: "proposal", order: 1, titleAr: "المقترح البحثي", titleEn: "Proposal", status: "done", startDate: "2026-02-01", dueDate: "2026-03-05" },

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { Stethoscope } from "lucide-react";
+import { Coffee, Stethoscope } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { teamMembers } from "../data/mockData";
-import Avatar from "../components/ui/Avatar";
+import { demoCredentials, teamMembers } from "../data/mockData";
 
 export default function Login() {
   const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword } = useAuth();
@@ -15,6 +14,11 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [universityId, setUniversityId] = useState("");
+  const [mockPassword, setMockPassword] = useState("");
+  const [mockError, setMockError] = useState<string | null>(null);
+  const [showDemoCreds, setShowDemoCreds] = useState(false);
 
   if (currentUser) {
     const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
@@ -37,6 +41,19 @@ export default function Login() {
     }
   };
 
+  const handleMockSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setMockError(null);
+    const match = demoCredentials.find(
+      (c) => c.universityId === universityId.trim() && c.password === mockPassword,
+    );
+    if (!match) {
+      setMockError("الرقم الجامعي أو كلمة المرور غير صحيحة — جرّب البيانات التجريبية تحت.");
+      return;
+    }
+    loginAsMock(match.memberId);
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface px-4">
       <div className="w-full max-w-md rounded-3xl border border-brand-100 bg-paper p-8 shadow-sm shadow-brand-950/5">
@@ -45,8 +62,8 @@ export default function Login() {
             <Stethoscope size={24} />
           </div>
           <h1 className="font-display text-2xl font-extrabold text-brand-950">NURSYNC</h1>
-          <p className="mt-1 text-sm text-brand-950/50">
-            منصة إدارة أبحاث التخرج لفرق طلاب التمريض
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-950/50">
+            جهّز فنجان قهوتك، ونبدأ رحلة بحثك <Coffee size={14} className="text-amber-accent-600" />
           </p>
         </div>
 
@@ -66,7 +83,7 @@ export default function Login() {
                 </label>
               )}
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">البريد الإلكتروني</span>
+                <span className="mb-1 block font-semibold text-brand-950/70">البريد الجامعي</span>
                 <input
                   required
                   type="email"
@@ -118,36 +135,87 @@ export default function Login() {
           </>
         ) : (
           <>
-            <p className="mb-3 text-sm font-semibold text-brand-950/70">
-              اختر حسابك لتسجيل الدخول
-            </p>
-            <div className="space-y-2">
-              {teamMembers.map((member) => (
-                <button
-                  key={member.id}
-                  onClick={() => loginAsMock(member.id)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-brand-100 p-3 text-start transition-colors hover:border-brand-300 hover:bg-brand-50"
-                >
-                  <Avatar initials={member.initials} color={member.color} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-brand-950">
-                      {member.name}
-                    </p>
-                    <p className="truncate text-xs text-brand-950/50">{member.title}</p>
-                  </div>
-                  {member.role === "leader" && (
-                    <span className="rounded-full bg-amber-accent-100 px-2 py-1 text-[11px] font-bold text-amber-accent-600">
-                      قائدة الفريق
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <form onSubmit={handleMockSubmit} className="space-y-3">
+              <label className="block text-sm">
+                <span className="mb-1 block font-semibold text-brand-950/70">الرقم الجامعي</span>
+                <input
+                  required
+                  inputMode="numeric"
+                  value={universityId}
+                  onChange={(e) => setUniversityId(e.target.value)}
+                  className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                  placeholder="442100154"
+                  dir="ltr"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block font-semibold text-brand-950/70">كلمة المرور</span>
+                <input
+                  required
+                  type="password"
+                  value={mockPassword}
+                  onChange={(e) => setMockPassword(e.target.value)}
+                  className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                  placeholder="••••••••"
+                  dir="ltr"
+                />
+              </label>
+
+              {mockError && (
+                <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">
+                  {mockError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+              >
+                تسجيل الدخول
+              </button>
+            </form>
+
+            <button
+              onClick={() => setShowDemoCreds((s) => !s)}
+              className="mt-4 w-full text-center text-sm font-semibold text-brand-600 hover:underline"
+            >
+              {showDemoCreds ? "إخفاء بيانات الدخول التجريبية" : "عرض بيانات الدخول التجريبية"}
+            </button>
+
+            {showDemoCreds && (
+              <div className="mt-3 space-y-1.5 rounded-xl bg-surface-muted p-3">
+                {demoCredentials.map((c) => {
+                  const member = teamMembers.find((m) => m.id === c.memberId)!;
+                  return (
+                    <button
+                      key={c.memberId}
+                      type="button"
+                      onClick={() => {
+                        setUniversityId(c.universityId);
+                        setMockPassword(c.password);
+                        setMockError(null);
+                      }}
+                      className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-paper"
+                    >
+                      <span className="font-semibold text-brand-950/70">
+                        {member.name}
+                        {member.role === "leader" && (
+                          <span className="ms-1 text-amber-accent-600">(قائدة الفريق)</span>
+                        )}
+                      </span>
+                      <span className="font-mono text-brand-950/45" dir="ltr">
+                        {c.universityId} / {c.password}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             <p className="mt-6 text-center text-xs text-brand-950/40">
-              هذا تسجيل دخول تجريبي ببيانات وهمية — لتفعيل تسجيل دخول حقيقي
-              بالبريد وكلمة المرور، أضف مفاتيح Supabase في متغيرات البيئة
-              (راجع ملف .env.example).
+              هذا تسجيل دخول تجريبي بمحاكاة بوابة الطالب — لتفعيل تسجيل دخول
+              حقيقي بالبريد الجامعي وكلمة المرور، أضف مفاتيح Supabase في
+              متغيرات البيئة (راجع ملف .env.example).
             </p>
           </>
         )}

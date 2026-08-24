@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import Landing from "../pages/Landing";
 import { useAuth } from "../context/AuthContext";
 
 const titles: Record<string, string> = {
@@ -34,6 +35,7 @@ export default function Layout() {
   }
 
   if (!currentUser) {
+    if (location.pathname === "/") return <Landing />;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 

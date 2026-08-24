@@ -36,10 +36,10 @@
   --color-amber-accent-600: #cc700d;
   --color-amber-accent-700: #a85a0a;
 
-  --color-surface: #faf7f0;
-  --color-surface-muted: #f2ede0;
-  --color-paper: #fffdf8;
-  --color-ink: #22201a;
+  --color-surface: #fdf0f3;
+  --color-surface-muted: #f9dfe6;
+  --color-paper: #fffafb;
+  --color-ink: #33141d;
   --color-overlay-soft: rgba(255, 255, 255, 0.55);
   --color-track: rgba(255, 255, 255, 0.7);
 }
@@ -62,6 +62,11 @@
   --color-brand-800: #42481e;
   --color-brand-900: #383c1c;
   --color-brand-950: #1d1f0f;
+
+  --color-surface: #f7f7e9;
+  --color-surface-muted: #edefd8;
+  --color-paper: #fdfdf5;
+  --color-ink: #23260f;
 }
 
 /* أسود — محايد داكن بلمسة نعناعية */

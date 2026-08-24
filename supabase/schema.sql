@@ -325,3 +325,86 @@ begin
   where id = target_team_id;
 end;
 $$;
+
+-- ============================================================
+-- 6) إثباتات تحويل STC Pay — يرفعها قائد الفريق داخل التطبيق، وتراجعينها
+--    من صفحة إدارة الاشتراكات قبل ما تضغطين "تمديد الاشتراك"
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('payment-proofs', 'payment-proofs', false)
+on conflict (id) do nothing;
+
+create table if not exists public.payment_proofs (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  uploaded_by uuid references public.profiles (id) on delete set null,
+  file_path text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.payment_proofs enable row level security;
+
+drop policy if exists "team can view their own payment proofs" on public.payment_proofs;
+create policy "team can view their own payment proofs"
+  on public.payment_proofs for select
+  to authenticated
+  using (team_id = public.my_team_id() or public.is_super_admin());
+
+drop policy if exists "team can upload their own payment proofs" on public.payment_proofs;
+create policy "team can upload their own payment proofs"
+  on public.payment_proofs for insert
+  to authenticated
+  with check (team_id = public.my_team_id());
+
+drop policy if exists "team can upload payment proof files" on storage.objects;
+create policy "team can upload payment proof files"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'payment-proofs'
+    and (storage.foldername(name))[1] = public.my_team_id()::text
+  );
+
+drop policy if exists "team can view payment proof files" on storage.objects;
+create policy "team can view payment proof files"
+  on storage.objects for select
+  to authenticated
+  using (
+    bucket_id = 'payment-proofs'
+    and ((storage.foldername(name))[1] = public.my_team_id()::text or public.is_super_admin())
+  );
+
+-- ============================================================
+-- 7) أدوات إدارية إضافية للـ Super Admin
+-- ============================================================
+
+-- ترجّع أعضاء فريق معيّن — تستخدمينها بصفحة إدارة الاشتراكات لنقل عضو غلط فريقه
+create or replace function public.admin_list_team_members(p_team_id uuid)
+returns table (id uuid, name text, email text, role text)
+language sql
+security definer set search_path = public
+stable
+as $$
+  select p.id, p.name, p.email, p.role
+  from public.profiles p
+  where p.team_id = p_team_id and public.is_super_admin()
+  order by (p.role = 'leader') desc, p.name;
+$$;
+
+-- تنقل عضو لفريق ثاني — عشان لو أحد سجّل بدون رابط الدعوة وصار له فريق منفصل غلط.
+-- يصير "عضو" عادي بالفريق الجديد (مو قائد) حتى ما يتعارض مع قائد الفريق الأصلي
+create or replace function public.admin_move_member(p_member_id uuid, p_target_team_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if not public.is_super_admin() then
+    raise exception 'غير مصرح لك بهذا الإجراء';
+  end if;
+
+  update public.profiles
+  set team_id = p_target_team_id, role = 'member'
+  where id = p_member_id;
+end;
+$$;

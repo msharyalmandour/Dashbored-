@@ -105,5 +105,5 @@ export function useAdminTeams() {
     return { error: error?.message };
   };
 
-  return { teams, loading, extendSubscription };
+  return { teams, loading, extendSubscription, refresh: load };
 }

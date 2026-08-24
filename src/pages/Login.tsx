@@ -7,19 +7,25 @@ import { getGreeting } from "../lib/date";
 import Logo from "../components/Logo";
 
 export default function Login() {
-  const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword } = useAuth();
+  const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword, resetPassword } =
+    useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const inviteTeamId = searchParams.get("team");
   const isNight = getGreeting().period === "night";
 
   const [isSignUp, setIsSignUp] = useState(!!inviteTeamId);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"male" | "female">("female");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetSubmitting, setResetSubmitting] = useState(false);
 
   const [universityId, setUniversityId] = useState("");
   const [mockPassword, setMockPassword] = useState("");
@@ -45,6 +51,16 @@ export default function Login() {
     else if (isSignUp) {
       setError("تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل دخولك.");
     }
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError(null);
+    setResetSubmitting(true);
+    const result = await resetPassword(resetEmail);
+    setResetSubmitting(false);
+    if (result.error) setResetError(result.error);
+    else setResetSent(true);
   };
 
   const handleMockSubmit = (e: React.FormEvent) => {
@@ -88,7 +104,58 @@ export default function Login() {
           </p>
         </div>
 
-        {mode === "supabase" ? (
+        {mode === "supabase" && isForgotPassword ? (
+          <>
+            {resetSent ? (
+              <p className="rounded-xl bg-brand-50 px-3 py-3 text-center text-sm font-semibold text-brand-700">
+                تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط
+                الرابط لتعيين كلمة مرور جديدة.
+              </p>
+            ) : (
+              <form onSubmit={handleResetSubmit} className="space-y-3">
+                <label className="block text-sm">
+                  <span className="mb-1 block font-semibold text-brand-950/70">
+                    البريد الجامعي
+                  </span>
+                  <input
+                    required
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                    placeholder="you@example.com"
+                    dir="ltr"
+                  />
+                </label>
+
+                {resetError && (
+                  <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">
+                    {resetError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={resetSubmitting}
+                  className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
+                >
+                  {resetSubmitting ? "..." : "إرسال رابط إعادة التعيين"}
+                </button>
+              </form>
+            )}
+
+            <button
+              onClick={() => {
+                setIsForgotPassword(false);
+                setResetSent(false);
+                setResetError(null);
+              }}
+              className="mt-4 w-full text-center text-sm font-semibold text-brand-600 hover:underline"
+            >
+              الرجوع لتسجيل الدخول
+            </button>
+          </>
+        ) : mode === "supabase" ? (
           <>
             <form onSubmit={handleSubmit} className="space-y-3">
               {isSignUp && (
@@ -174,6 +241,18 @@ export default function Login() {
                 {submitting ? "..." : isSignUp ? "إنشاء حساب" : "تسجيل الدخول"}
               </button>
             </form>
+
+            {!isSignUp && (
+              <button
+                onClick={() => {
+                  setIsForgotPassword(true);
+                  setError(null);
+                }}
+                className="mt-3 w-full text-center text-xs font-semibold text-brand-950/45 hover:text-brand-600 hover:underline"
+              >
+                نسيت كلمة المرور؟
+              </button>
+            )}
 
             <button
               onClick={() => {

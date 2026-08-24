@@ -27,6 +27,8 @@ interface AuthContextValue {
   canWrite: boolean;
   loading: boolean;
   mode: "supabase" | "mock";
+  /** true بعد ما المستخدم يفتح رابط "استعادة كلمة المرور" من بريده */
+  passwordRecovery: boolean;
   loginAsMock: (userId: string) => void;
   signInWithPassword: (email: string, password: string) => Promise<AuthResult>;
   signUpWithPassword: (
@@ -36,6 +38,9 @@ interface AuthContextValue {
     gender: "male" | "female",
     teamId?: string,
   ) => Promise<AuthResult>;
+  resetPassword: (email: string) => Promise<AuthResult>;
+  updatePassword: (password: string) => Promise<AuthResult>;
+  cancelPasswordRecovery: () => void;
   logout: () => void;
 }
 
@@ -86,9 +91,13 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
     canWrite: true,
     loading: false,
     mode: "mock",
+    passwordRecovery: false,
     loginAsMock,
     signInWithPassword: async () => ({ error: "Supabase غير مفعّل" }),
     signUpWithPassword: async () => ({ error: "Supabase غير مفعّل" }),
+    resetPassword: async () => ({ error: "Supabase غير مفعّل" }),
+    updatePassword: async () => ({ error: "Supabase غير مفعّل" }),
+    cancelPasswordRecovery: () => {},
     logout,
   };
 
@@ -100,14 +109,16 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<TeamMember | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   useEffect(() => {
     supabase!.auth.getSession().then(({ data }) => {
       setSession(data.session);
     });
 
-    const { data: sub } = supabase!.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase!.auth.onAuthStateChange((event, s) => {
       setSession(s);
+      if (event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
     });
 
     return () => sub.subscription.unsubscribe();
@@ -201,6 +212,24 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     supabase!.auth.signOut();
   };
 
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase!.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname,
+    });
+    return error ? { error: error.message } : {};
+  };
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabase!.auth.updateUser({ password });
+    if (!error) setPasswordRecovery(false);
+    return error ? { error: error.message } : {};
+  };
+
+  const cancelPasswordRecovery = () => {
+    setPasswordRecovery(false);
+    supabase!.auth.signOut();
+  };
+
   const subscriptionState = getTeamSubscriptionState(team?.subscriptionEndDate);
 
   const value: AuthContextValue = {
@@ -212,9 +241,13 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     canWrite: canTeamWrite(subscriptionState),
     loading,
     mode: "supabase",
+    passwordRecovery,
     loginAsMock: () => {},
     signInWithPassword,
     signUpWithPassword,
+    resetPassword,
+    updatePassword,
+    cancelPasswordRecovery,
     logout,
   };
 

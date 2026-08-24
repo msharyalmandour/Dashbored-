@@ -1,12 +1,28 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { CheckCircle2, RefreshCw, ShieldCheck, Trophy, Users } from "lucide-react";
+import {
+  ArrowLeftRight,
+  CheckCircle2,
+  ChevronDown,
+  RefreshCw,
+  ShieldCheck,
+  Trophy,
+  Users,
+} from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import { useAuth } from "../context/AuthContext";
 import { useAdminTeams } from "../hooks/useAdminTeams";
+import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { formatDateLong } from "../lib/date";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
+
+interface TeamMemberRow {
+  id: string;
+  name: string;
+  email: string | null;
+  role: string;
+}
 
 const stateBadge: Record<string, string> = {
   active: "bg-brand-50 text-brand-600",
@@ -19,9 +35,14 @@ const monthOptions = [1, 3, 6, 12];
 
 export default function AdminSubscriptions() {
   const { isSuperAdmin } = useAuth();
-  const { teams, loading, extendSubscription } = useAdminTeams();
+  const { teams, loading, extendSubscription, refresh } = useAdminTeams();
   const [extendingId, setExtendingId] = useState<string | null>(null);
   const [months, setMonths] = useState<Record<string, number>>({});
+  const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
+  const [membersByTeam, setMembersByTeam] = useState<Record<string, TeamMemberRow[]>>({});
+  const [membersLoading, setMembersLoading] = useState<string | null>(null);
+  const [moveTarget, setMoveTarget] = useState<Record<string, string>>({});
+  const [movingMemberId, setMovingMemberId] = useState<string | null>(null);
 
   if (!isSuperAdmin) return <Navigate to="/" replace />;
 
@@ -29,6 +50,36 @@ export default function AdminSubscriptions() {
     setExtendingId(teamId);
     await extendSubscription(teamId, months[teamId] ?? 1);
     setExtendingId(null);
+  };
+
+  const loadMembers = async (teamId: string) => {
+    setMembersLoading(teamId);
+    const { data } = await supabase!.rpc("admin_list_team_members", { p_team_id: teamId });
+    if (data) setMembersByTeam((prev) => ({ ...prev, [teamId]: data as TeamMemberRow[] }));
+    setMembersLoading(null);
+  };
+
+  const toggleExpand = (teamId: string) => {
+    if (expandedTeamId === teamId) {
+      setExpandedTeamId(null);
+      return;
+    }
+    setExpandedTeamId(teamId);
+    if (!membersByTeam[teamId]) loadMembers(teamId);
+  };
+
+  const handleMoveMember = async (memberId: string, currentTeamId: string) => {
+    const targetTeamId = moveTarget[memberId];
+    if (!targetTeamId) return;
+    setMovingMemberId(memberId);
+    const { error } = await supabase!.rpc("admin_move_member", {
+      p_member_id: memberId,
+      p_target_team_id: targetTeamId,
+    });
+    if (!error) {
+      await Promise.all([loadMembers(currentTeamId), loadMembers(targetTeamId), refresh()]);
+    }
+    setMovingMemberId(null);
   };
 
   const activeStates = new Set(["active", "expiring-soon"]);
@@ -99,8 +150,10 @@ export default function AdminSubscriptions() {
             const state = getTeamSubscriptionState(team.subscriptionEndDate);
             const isExtending = extendingId === team.id;
             const selectedMonths = months[team.id] ?? 1;
+            const isExpanded = expandedTeamId === team.id;
             return (
-              <li key={team.id} className="flex flex-wrap items-center gap-4 p-4">
+              <li key={team.id} className="p-4">
+              <div className="flex flex-wrap items-center gap-4">
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1.5 truncate font-semibold text-brand-950">
                     {team.name}
@@ -162,6 +215,81 @@ export default function AdminSubscriptions() {
                   )}
                   تمديد الاشتراك
                 </button>
+                {isSupabaseConfigured && (
+                  <button
+                    onClick={() => toggleExpand(team.id)}
+                    className="flex items-center gap-1 rounded-xl px-2 py-2 text-xs font-bold text-brand-950/45 hover:bg-surface-muted"
+                  >
+                    <ChevronDown
+                      size={15}
+                      className={clsx("transition-transform", isExpanded && "rotate-180")}
+                    />
+                    الأعضاء
+                  </button>
+                )}
+              </div>
+
+              {isExpanded && (
+                <div className="mt-3 rounded-2xl bg-surface-muted p-3">
+                  {membersLoading === team.id ? (
+                    <p className="py-2 text-center text-xs text-brand-950/40">جارٍ التحميل...</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {(membersByTeam[team.id] ?? []).map((member) => (
+                        <li
+                          key={member.id}
+                          className="flex flex-wrap items-center gap-2.5 rounded-xl bg-paper px-3 py-2"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-brand-950">
+                              {member.name}{" "}
+                              {member.role === "leader" && (
+                                <span className="text-[11px] font-bold text-amber-accent-600">
+                                  (قائد)
+                                </span>
+                              )}
+                            </p>
+                            <p className="truncate text-xs text-brand-950/45">{member.email}</p>
+                          </div>
+                          <select
+                            value={moveTarget[member.id] ?? ""}
+                            onChange={(e) =>
+                              setMoveTarget((prev) => ({ ...prev, [member.id]: e.target.value }))
+                            }
+                            className="rounded-lg border border-brand-100 px-2 py-1.5 text-xs font-semibold text-brand-950/70 outline-none focus:border-brand-300"
+                          >
+                            <option value="">نقل لفريق...</option>
+                            {teams
+                              .filter((t) => t.id !== team.id)
+                              .map((t) => (
+                                <option key={t.id} value={t.id}>
+                                  {t.name}
+                                </option>
+                              ))}
+                          </select>
+                          <button
+                            onClick={() => handleMoveMember(member.id, team.id)}
+                            disabled={!moveTarget[member.id] || movingMemberId === member.id}
+                            className="flex items-center gap-1 rounded-lg bg-brand-100 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-200 disabled:opacity-50"
+                          >
+                            {movingMemberId === member.id ? (
+                              <RefreshCw size={12} className="animate-spin" />
+                            ) : (
+                              <ArrowLeftRight size={12} />
+                            )}
+                            نقل
+                          </button>
+                        </li>
+                      ))}
+                      {(membersByTeam[team.id] ?? []).length === 0 && (
+                        <li className="py-2 text-center text-xs text-brand-950/40">
+                          ولا عضو بهالفريق
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
+              )}
               </li>
             );
           })}

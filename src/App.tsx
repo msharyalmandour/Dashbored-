@@ -19,9 +19,10 @@ import Guide from "./pages/Guide";
 import Story from "./pages/Story";
 import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
-  const { currentUser } = useAuth();
+  const { currentUser, passwordRecovery } = useAuth();
 
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -29,6 +30,13 @@ export default function App() {
       isFemaleUser(currentUser) ? "female" : "male",
     );
   }, [currentUser]);
+
+  // رابط استعادة كلمة المرور يجي بـ token داخل الـ hash، وده يتعارض مع HashRouter —
+  // فبدل ما نعتمد على مسار مخصص، نلتقط حالة "استعادة" من AuthContext ونعرض
+  // شاشة تعيين كلمة المرور فوق أي مسار كان المستخدم واقف عليه
+  if (passwordRecovery) {
+    return <ResetPassword />;
+  }
 
   return (
     <Routes>

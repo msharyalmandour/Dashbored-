@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
+import PaymentProofUpload from "./PaymentProofUpload";
 import { useAuth } from "../context/AuthContext";
 
 const titles: Record<string, string> = {
@@ -54,23 +55,26 @@ export default function Layout() {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
                   <AlertTriangle size={18} />
                 </span>
-                <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
-                  {subscriptionState === "none" ? (
-                    <>
-                      اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
-                      المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
-                      {isLeader
-                        ? "حوّلوا مبلغ الاشتراك عبر STC Pay وأرسلوا لنا إثبات التحويل لتفعيله."
-                        : "خلّوا قائد فريقكم يحوّل مبلغ الاشتراك عبر STC Pay لتفعيله."}
-                    </>
-                  ) : (
-                    <>
-                      اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس
-                      ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا
-                      للاستمرار في استخدام كل المزايا.
-                    </>
-                  )}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-amber-accent-700">
+                    {subscriptionState === "none" ? (
+                      <>
+                        اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
+                        المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
+                        {isLeader
+                          ? "حوّلوا مبلغ الاشتراك عبر STC Pay وأرسلوا لنا إثبات التحويل لتفعيله."
+                          : "خلّوا قائد فريقكم يحوّل مبلغ الاشتراك عبر STC Pay لتفعيله."}
+                      </>
+                    ) : (
+                      <>
+                        اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس
+                        ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا
+                        للاستمرار في استخدام كل المزايا.
+                      </>
+                    )}
+                  </p>
+                  {isLeader && <PaymentProofUpload />}
+                </div>
               </div>
             )}
             <Outlet />

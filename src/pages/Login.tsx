@@ -76,29 +76,31 @@ export default function Login() {
     loginAsMock(match.memberId);
   };
 
+  const inputClass =
+    "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-amber-400/50";
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface px-4">
-      <div className="w-full max-w-md rounded-3xl border border-brand-100 bg-paper p-8 shadow-sm shadow-brand-950/5">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900 p-8 shadow-2xl shadow-black/40">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3">
             <Logo size={48} />
           </div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-950">NURSYNC</h1>
+          <h1 className="font-display text-2xl font-extrabold text-white">NURSYNC</h1>
           {inviteTeamId && mode === "supabase" && (
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300">
               <Users size={13} />
               دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل
             </span>
           )}
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-950/50">
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-white/50">
             {isNight ? (
               <>
-                تسهر على بحثك؟ لا تنسى راحتك <Moon size={14} className="text-brand-600" />
+                تسهر على بحثك؟ لا تنسى راحتك <Moon size={14} className="text-amber-300" />
               </>
             ) : (
               <>
-                جهّز فنجان قهوتك، ونبدأ رحلة بحثك{" "}
-                <Coffee size={14} className="text-amber-accent-600" />
+                جهّز فنجان قهوتك، ونبدأ رحلة بحثك <Coffee size={14} className="text-amber-300" />
               </>
             )}
           </p>
@@ -107,29 +109,27 @@ export default function Login() {
         {mode === "supabase" && isForgotPassword ? (
           <>
             {resetSent ? (
-              <p className="rounded-xl bg-brand-50 px-3 py-3 text-center text-sm font-semibold text-brand-700">
+              <p className="rounded-xl bg-amber-400/10 px-3 py-3 text-center text-sm font-semibold text-amber-300">
                 تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط
                 الرابط لتعيين كلمة مرور جديدة.
               </p>
             ) : (
               <form onSubmit={handleResetSubmit} className="space-y-3">
                 <label className="block text-sm">
-                  <span className="mb-1 block font-semibold text-brand-950/70">
-                    البريد الجامعي
-                  </span>
+                  <span className="mb-1 block font-semibold text-white/70">البريد الجامعي</span>
                   <input
                     required
                     type="email"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                    className={inputClass}
                     placeholder="you@example.com"
                     dir="ltr"
                   />
                 </label>
 
                 {resetError && (
-                  <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">
+                  <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
                     {resetError}
                   </p>
                 )}
@@ -137,7 +137,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={resetSubmitting}
-                  className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
+                  className="w-full rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-neutral-950 hover:bg-amber-300 disabled:opacity-60"
                 >
                   {resetSubmitting ? "..." : "إرسال رابط إعادة التعيين"}
                 </button>
@@ -150,7 +150,7 @@ export default function Login() {
                 setResetSent(false);
                 setResetError(null);
               }}
-              className="mt-4 w-full text-center text-sm font-semibold text-brand-600 hover:underline"
+              className="mt-4 w-full text-center text-sm font-semibold text-amber-300 hover:underline"
             >
               الرجوع لتسجيل الدخول
             </button>
@@ -160,19 +160,19 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-3">
               {isSignUp && (
                 <label className="block text-sm">
-                  <span className="mb-1 block font-semibold text-brand-950/70">الاسم الكامل</span>
+                  <span className="mb-1 block font-semibold text-white/70">الاسم الكامل</span>
                   <input
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                    className={inputClass}
                     placeholder="مثال: سارة العتيبي"
                   />
                 </label>
               )}
               {isSignUp && (
                 <div className="text-sm">
-                  <span className="mb-1 block font-semibold text-brand-950/70">
+                  <span className="mb-1 block font-semibold text-white/70">
                     عشان نخاطبك بالصيغة الصح بكل الموقع
                   </span>
                   <div className="flex gap-2">
@@ -181,8 +181,8 @@ export default function Login() {
                       onClick={() => setGender("female")}
                       className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
                         gender === "female"
-                          ? "border-brand-400 bg-brand-50 text-brand-700"
-                          : "border-brand-100 text-brand-950/50 hover:bg-surface-muted"
+                          ? "border-amber-400 bg-amber-400/10 text-amber-300"
+                          : "border-white/15 text-white/50 hover:bg-white/5"
                       }`}
                     >
                       أنثى
@@ -192,8 +192,8 @@ export default function Login() {
                       onClick={() => setGender("male")}
                       className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
                         gender === "male"
-                          ? "border-brand-400 bg-brand-50 text-brand-700"
-                          : "border-brand-100 text-brand-950/50 hover:bg-surface-muted"
+                          ? "border-amber-400 bg-amber-400/10 text-amber-300"
+                          : "border-white/15 text-white/50 hover:bg-white/5"
                       }`}
                     >
                       ذكر
@@ -202,33 +202,33 @@ export default function Login() {
                 </div>
               )}
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">البريد الجامعي</span>
+                <span className="mb-1 block font-semibold text-white/70">البريد الجامعي</span>
                 <input
                   required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                  className={inputClass}
                   placeholder="you@example.com"
                   dir="ltr"
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">كلمة المرور</span>
+                <span className="mb-1 block font-semibold text-white/70">كلمة المرور</span>
                 <input
                   required
                   type="password"
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                  className={inputClass}
                   placeholder="••••••••"
                   dir="ltr"
                 />
               </label>
 
               {error && (
-                <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">
+                <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
                   {error}
                 </p>
               )}
@@ -236,7 +236,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
+                className="w-full rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-neutral-950 hover:bg-amber-300 disabled:opacity-60"
               >
                 {submitting ? "..." : isSignUp ? "إنشاء حساب" : "تسجيل الدخول"}
               </button>
@@ -248,7 +248,7 @@ export default function Login() {
                   setIsForgotPassword(true);
                   setError(null);
                 }}
-                className="mt-3 w-full text-center text-xs font-semibold text-brand-950/45 hover:text-brand-600 hover:underline"
+                className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-amber-300 hover:underline"
               >
                 نسيت كلمة المرور؟
               </button>
@@ -259,7 +259,7 @@ export default function Login() {
                 setIsSignUp((s) => !s);
                 setError(null);
               }}
-              className="mt-4 w-full text-center text-sm font-semibold text-brand-600 hover:underline"
+              className="mt-4 w-full text-center text-sm font-semibold text-amber-300 hover:underline"
             >
               {isSignUp ? "عندك حساب؟ سجّل دخولك" : "ما عندك حساب؟ أنشئ واحد"}
             </button>
@@ -268,39 +268,39 @@ export default function Login() {
           <>
             <form onSubmit={handleMockSubmit} className="space-y-3">
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">الرقم الجامعي</span>
+                <span className="mb-1 block font-semibold text-white/70">الرقم الجامعي</span>
                 <input
                   required
                   inputMode="numeric"
                   value={universityId}
                   onChange={(e) => setUniversityId(e.target.value)}
-                  className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                  className={inputClass}
                   placeholder="442100154"
                   dir="ltr"
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">كلمة المرور</span>
+                <span className="mb-1 block font-semibold text-white/70">كلمة المرور</span>
                 <input
                   required
                   type="password"
                   value={mockPassword}
                   onChange={(e) => setMockPassword(e.target.value)}
-                  className="w-full rounded-xl border border-brand-100 px-3 py-2.5 outline-none focus:border-brand-300"
+                  className={inputClass}
                   placeholder="••••••••"
                   dir="ltr"
                 />
               </label>
 
               {mockError && (
-                <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">
+                <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
                   {mockError}
                 </p>
               )}
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+                className="w-full rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-neutral-950 hover:bg-amber-300"
               >
                 تسجيل الدخول
               </button>
@@ -308,13 +308,13 @@ export default function Login() {
 
             <button
               onClick={() => setShowDemoCreds((s) => !s)}
-              className="mt-4 w-full text-center text-sm font-semibold text-brand-600 hover:underline"
+              className="mt-4 w-full text-center text-sm font-semibold text-amber-300 hover:underline"
             >
               {showDemoCreds ? "إخفاء بيانات الدخول التجريبية" : "عرض بيانات الدخول التجريبية"}
             </button>
 
             {showDemoCreds && (
-              <div className="mt-3 space-y-1.5 rounded-xl bg-surface-muted p-3">
+              <div className="mt-3 space-y-1.5 rounded-xl bg-white/5 p-3">
                 {demoCredentials.map((c) => {
                   const member = teamMembers.find((m) => m.id === c.memberId)!;
                   return (
@@ -326,15 +326,15 @@ export default function Login() {
                         setMockPassword(c.password);
                         setMockError(null);
                       }}
-                      className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-paper"
+                      className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-white/10"
                     >
-                      <span className="font-semibold text-brand-950/70">
+                      <span className="font-semibold text-white/70">
                         {member.name}
                         {member.role === "leader" && (
-                          <span className="ms-1 text-amber-accent-600">(قائدة الفريق)</span>
+                          <span className="ms-1 text-amber-400">(قائدة الفريق)</span>
                         )}
                       </span>
-                      <span className="font-mono text-brand-950/45" dir="ltr">
+                      <span className="font-mono text-white/40" dir="ltr">
                         {c.universityId} / {c.password}
                       </span>
                     </button>
@@ -343,7 +343,7 @@ export default function Login() {
               </div>
             )}
 
-            <p className="mt-6 text-center text-xs text-brand-950/40">
+            <p className="mt-6 text-center text-xs text-white/35">
               هذا تسجيل دخول تجريبي بمحاكاة بوابة الطالب — لتفعيل تسجيل دخول
               حقيقي بالبريد الجامعي وكلمة المرور، أضف مفاتيح Supabase في
               متغيرات البيئة (راجع ملف .env.example).

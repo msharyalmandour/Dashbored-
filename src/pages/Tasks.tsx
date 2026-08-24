@@ -1,17 +1,33 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Circle, FileText, PartyPopper, Plus, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Circle,
+  FileText,
+  LayoutGrid,
+  List,
+  ListChecks,
+  PartyPopper as PartyPopperIcon,
+  Plus,
+  X,
+} from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import Skeleton from "../components/ui/Skeleton";
+import EmptyState from "../components/ui/EmptyState";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import ImproveWritingButton from "../components/ImproveWritingButton";
 import ConfettiBurst from "../components/cinematic/ConfettiBurst";
+import TasksKanban from "../components/TasksKanban";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort } from "../lib/date";
+import { playChime } from "../lib/sound";
 
 const TASK_ATTACHMENTS_KEY = "nursync.taskAttachments";
 
@@ -73,11 +89,13 @@ const filters: { id: string; label: string }[] = [
 export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
-  const { tasks, addTask, updateStatus } = useTasksData();
+  const { tasks, loading, addTask, updateStatus } = useTasksData();
+  const { showToast } = useToast();
   const [filter, setFilter] = useState("all");
+  const [view, setView] = useState<"list" | "board">("list");
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [celebration, setCelebration] = useState<{ title: string; line: string } | null>(null);
+  const [justCompleted, setJustCompleted] = useState(false);
   const [taskAttachments, setTaskAttachments] =
     useState<Record<string, AttachedFileMeta>>(loadTaskAttachments);
 
@@ -90,10 +108,10 @@ export default function Tasks() {
   };
 
   useEffect(() => {
-    if (!celebration) return;
-    const timer = setTimeout(() => setCelebration(null), 3200);
+    if (!justCompleted) return;
+    const timer = setTimeout(() => setJustCompleted(false), 1000);
     return () => clearTimeout(timer);
-  }, [celebration]);
+  }, [justCompleted]);
 
   const assignableMembers = roster.filter((m) => m.id !== currentUser?.id);
 
@@ -140,16 +158,23 @@ export default function Tasks() {
     setShowForm(false);
   };
 
-  const toggleDone = async (task: (typeof tasks)[number]) => {
+  const changeStatus = async (task: (typeof tasks)[number], nextStatus: TaskStatus) => {
     const canToggle = canWrite && (isLeader || task.assigneeId === currentUser?.id);
     if (!canToggle) return;
-    const nextStatus: TaskStatus = task.status === "done" ? "todo" : "done";
     await updateStatus(task.id, nextStatus);
     if (nextStatus === "done") {
       const line = celebrations[Math.floor(Math.random() * celebrations.length)];
-      setCelebration({ title: task.title, line });
+      showToast({ title: line, desc: `أكملت: ${task.title}`, icon: PartyPopperIcon, tone: "amber" });
+      playChime();
+      setJustCompleted(true);
     }
   };
+
+  const toggleDone = (task: (typeof tasks)[number]) =>
+    changeStatus(task, task.status === "done" ? "todo" : "done");
+
+  const canToggleTask = (task: (typeof tasks)[number]) =>
+    canWrite && (isLeader || task.assigneeId === currentUser?.id);
 
   return (
     <div className="space-y-5">
@@ -171,15 +196,40 @@ export default function Tasks() {
           ))}
         </div>
 
-        {isLeader && canWrite && (
-          <button
-            onClick={() => setShowForm((s) => !s)}
-            className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
-          >
-            <Plus size={16} />
-            إسناد مهمة جديدة
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-xl bg-paper p-1">
+            <button
+              onClick={() => setView("list")}
+              title="عرض قائمة"
+              className={clsx(
+                "rounded-lg p-1.5",
+                view === "list" ? "bg-brand-500 text-white" : "text-brand-950/50 hover:bg-surface-muted",
+              )}
+            >
+              <List size={16} />
+            </button>
+            <button
+              onClick={() => setView("board")}
+              title="عرض لوحة"
+              className={clsx(
+                "rounded-lg p-1.5",
+                view === "board" ? "bg-brand-500 text-white" : "text-brand-950/50 hover:bg-surface-muted",
+              )}
+            >
+              <LayoutGrid size={16} />
+            </button>
+          </div>
+
+          {isLeader && canWrite && (
+            <button
+              onClick={() => setShowForm((s) => !s)}
+              className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
+            >
+              <Plus size={16} />
+              إسناد مهمة جديدة
+            </button>
+          )}
+        </div>
       </div>
 
       {showForm && isLeader && canWrite && (
@@ -267,101 +317,104 @@ export default function Tasks() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 gap-3">
-        {filtered.map((task) => {
-          const assignee = memberById(task.assigneeId);
-          const canToggle = canWrite && (isLeader || task.assigneeId === currentUser?.id);
-          return (
-            <Card key={task.id} className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={() => toggleDone(task)}
-                disabled={!canToggle}
-                title={
-                  canToggle
-                    ? task.status === "done"
-                      ? "إلغاء الإكمال"
-                      : "تعليم كمكتملة"
-                    : undefined
-                }
-                className={clsx(
-                  "shrink-0",
-                  canToggle ? "cursor-pointer" : "cursor-default opacity-60",
-                )}
-              >
-                {task.status === "done" ? (
-                  <CheckCircle2 size={20} className="text-brand-500" />
-                ) : task.status === "overdue" ? (
-                  <AlertCircle size={20} className="text-rose-500" />
-                ) : (
-                  <Circle size={20} className="text-brand-950/25" />
-                )}
-              </button>
-              <div className="min-w-[200px] flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-brand-950">{task.title}</p>
-                  {task.sectionKey && sectionLabel[task.sectionKey] && (
-                    <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
-                      {sectionLabel[task.sectionKey]}
-                    </span>
+      {loading ? (
+        <div className="grid grid-cols-1 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-20" />
+          ))}
+        </div>
+      ) : view === "board" ? (
+        <TasksKanban
+          tasks={filtered}
+          memberById={memberById}
+          canToggleTask={canToggleTask}
+          onChangeStatus={changeStatus}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-3">
+          {filtered.map((task) => {
+            const assignee = memberById(task.assigneeId);
+            const canToggle = canToggleTask(task);
+            return (
+              <Card key={task.id} className="flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() => toggleDone(task)}
+                  disabled={!canToggle}
+                  title={
+                    canToggle
+                      ? task.status === "done"
+                        ? "إلغاء الإكمال"
+                        : "تعليم كمكتملة"
+                      : undefined
+                  }
+                  className={clsx(
+                    "shrink-0",
+                    canToggle ? "cursor-pointer" : "cursor-default opacity-60",
+                  )}
+                >
+                  {task.status === "done" ? (
+                    <CheckCircle2 size={20} className="text-brand-500" />
+                  ) : task.status === "overdue" ? (
+                    <AlertCircle size={20} className="text-rose-500" />
+                  ) : (
+                    <Circle size={20} className="text-brand-950/25" />
+                  )}
+                </button>
+                <div className="min-w-[200px] flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-brand-950">{task.title}</p>
+                    {task.sectionKey && sectionLabel[task.sectionKey] && (
+                      <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
+                        {sectionLabel[task.sectionKey]}
+                      </span>
+                    )}
+                  </div>
+                  {task.description && (
+                    <p className="mt-0.5 truncate text-sm text-brand-950/45">{task.description}</p>
+                  )}
+                  {taskAttachments[task.id] && (
+                    <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
+                      <FileText size={12} />
+                      <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
+                    </p>
                   )}
                 </div>
-                {task.description && (
-                  <p className="mt-0.5 truncate text-sm text-brand-950/45">{task.description}</p>
+                {canToggle && !taskAttachments[task.id] && (
+                  <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
                 )}
-                {taskAttachments[task.id] && (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
-                    <FileText size={12} />
-                    <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
-                  </p>
-                )}
-              </div>
-              {canToggle && !taskAttachments[task.id] && (
-                <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
-              )}
-              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
-                {priorityLabel[task.priority]}
-              </span>
-              <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
-              <div className="flex items-center gap-2">
-                <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
-                <span className="hidden text-sm font-medium text-brand-950/70 sm:block">
-                  {assignee.name.split(" ")[0]}
+                <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
+                  {priorityLabel[task.priority]}
                 </span>
-              </div>
-              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
-                {statusLabel[task.status]}
-              </span>
-            </Card>
-          );
-        })}
-        {filtered.length === 0 && (
-          <p className="py-10 text-center text-sm text-brand-950/40">
-            {filter === "mine"
-              ? "ما عليك مهام هنا — عاشت الأيادي 🎉"
-              : filter === "done"
-                ? "ولا مهمة مكتملة بعد بهذا الفلتر"
-                : "ما فيه مهام مطابقة لهذا الفلتر حاليًا"}
-          </p>
-        )}
-      </div>
-
-      <ConfettiBurst active={!!celebration} />
-
-      {celebration && (
-        <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-accent-500 text-white">
-              <PartyPopper size={18} />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-brand-950">{celebration.line}</p>
-              <p className="max-w-xs truncate text-xs text-brand-950/50">
-                أكملت: {celebration.title}
-              </p>
-            </div>
-          </div>
+                <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
+                <div className="flex items-center gap-2">
+                  <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
+                  <span className="hidden text-sm font-medium text-brand-950/70 sm:block">
+                    {assignee.name.split(" ")[0]}
+                  </span>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
+                  {statusLabel[task.status]}
+                </span>
+              </Card>
+            );
+          })}
+          {filtered.length === 0 && (
+            <EmptyState
+              icon={ListChecks}
+              title={
+                filter === "mine"
+                  ? "ما عليك مهام هنا"
+                  : filter === "done"
+                    ? "ولا مهمة مكتملة بعد"
+                    : "ما فيه مهام مطابقة"
+              }
+              desc={filter === "mine" ? "عاشت الأيادي 🎉" : "بهذا الفلتر حاليًا"}
+            />
+          )}
         </div>
       )}
+
+      <ConfettiBurst active={justCompleted} />
     </div>
   );
 }

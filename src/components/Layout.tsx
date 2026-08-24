@@ -6,6 +6,7 @@ import Landing from "../pages/Landing";
 import PaymentProofUpload from "./PaymentProofUpload";
 import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
+import Skeleton from "./ui/Skeleton";
 import { useAuth } from "../context/AuthContext";
 
 const titles: Record<string, string> = {
@@ -31,8 +32,30 @@ export default function Layout() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface text-sm font-semibold text-brand-950/50">
-        جارٍ التحميل...
+      <div className="flex min-h-screen bg-surface">
+        <div className="hidden w-64 shrink-0 border-l border-brand-100/60 p-4 md:block">
+          <Skeleton className="h-10 w-32" />
+          <div className="mt-8 space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-9" />
+            ))}
+          </div>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-center justify-between border-b border-brand-100/60 px-8 py-5">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-9 w-9 rounded-full" />
+          </div>
+          <main className="flex-1 space-y-4 px-8 py-6">
+            <Skeleton className="h-32" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-24" />
+              ))}
+            </div>
+            <Skeleton className="h-48" />
+          </main>
+        </div>
       </div>
     );
   }

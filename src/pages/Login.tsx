@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import { getGreeting } from "../lib/date";
 import Logo from "../components/Logo";
+import CursorGlow from "../components/cinematic/CursorGlow";
 
 export default function Login() {
   const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword, resetPassword } =
@@ -80,8 +81,9 @@ export default function Login() {
     "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-amber-400/50";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900 p-8 shadow-2xl shadow-black/40">
+    <div className="relative flex min-h-screen items-center justify-center bg-neutral-950 px-4">
+      <CursorGlow />
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/10 bg-neutral-900 p-8 shadow-2xl shadow-black/40">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3">
             <Logo size={48} />

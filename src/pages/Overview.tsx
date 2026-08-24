@@ -32,6 +32,7 @@ import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
 import { useMouseParallax } from "../hooks/useMouseParallax";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import {
   calendarEvents,
   evidenceLibrary,
@@ -118,8 +119,7 @@ export default function Overview() {
     overallProgress: projectMeta.overallProgress,
   });
   const unlockedAchievements = achievements.filter((a) => unlockedAchievementIds.has(a.id));
-  const [newAchievement, setNewAchievement] = useState<(typeof achievements)[number] | null>(null);
-  const [stageCelebration, setStageCelebration] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const seen: string[] = JSON.parse(localStorage.getItem(ACHIEVEMENTS_SEEN_KEY) ?? "[]");
@@ -128,21 +128,29 @@ export default function Overview() {
       (a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id),
     );
     if (freshlyUnlocked) {
-      setNewAchievement(freshlyUnlocked);
+      showToast({
+        title: `إنجاز جديد: ${freshlyUnlocked.title}`,
+        desc: freshlyUnlocked.desc,
+        icon: Award,
+        tone: "brand",
+      });
       localStorage.setItem(
         ACHIEVEMENTS_SEEN_KEY,
         JSON.stringify([...seenSet, freshlyUnlocked.id]),
       );
-      const timer = setTimeout(() => setNewAchievement(null), 4500);
-      return () => clearTimeout(timer);
+      return;
     }
 
     const lastSeenStage = localStorage.getItem(LAST_SEEN_STAGE_KEY);
     if (lastSeenStage && lastSeenStage !== projectMeta.currentStageAr) {
-      setStageCelebration(true);
-      const timer = setTimeout(() => setStageCelebration(false), 4500);
+      showToast({
+        title: "🎉 أنجزتم مرحلة بحثية كاملة!",
+        desc: `وصلتوا لمرحلة ${projectMeta.currentStageAr}`,
+        icon: PartyPopper,
+        tone: "amber",
+      });
       localStorage.setItem(LAST_SEEN_STAGE_KEY, projectMeta.currentStageAr);
-      return () => clearTimeout(timer);
+      return;
     }
     localStorage.setItem(LAST_SEEN_STAGE_KEY, projectMeta.currentStageAr);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -573,33 +581,6 @@ export default function Overview() {
         </Card>
       )}
 
-      {newAchievement && (
-        <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
-              <Award size={18} />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-brand-950">إنجاز جديد: {newAchievement.title}</p>
-              <p className="text-xs text-brand-950/50">{newAchievement.desc}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {stageCelebration && (
-        <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-amber-accent-200 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-accent-500 text-white">
-              <PartyPopper size={18} />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-brand-950">🎉 أنجزتم مرحلة بحثية كاملة!</p>
-              <p className="text-xs text-brand-950/50">وصلتوا لمرحلة {projectMeta.currentStageAr}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

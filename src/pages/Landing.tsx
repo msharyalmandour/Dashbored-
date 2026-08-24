@@ -15,6 +15,7 @@ import Reveal from "../components/Reveal";
 import Logo from "../components/Logo";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
+import CursorGlow from "../components/cinematic/CursorGlow";
 import { useMouseParallax } from "../hooks/useMouseParallax";
 import { researchStages } from "../data/mockData";
 import overviewShot from "../assets/landing/overview.png";
@@ -135,8 +136,9 @@ export default function Landing() {
   const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+    <div className="relative min-h-screen bg-neutral-950 text-white">
+      <CursorGlow />
+      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2.5">
           <Logo size={40} />
           <span className="font-display text-lg font-extrabold tracking-tight text-white">

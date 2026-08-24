@@ -1,11 +1,14 @@
-import { Bell, MessageSquare, Search } from "lucide-react";
+import { useState } from "react";
+import { Bell, MessageSquare, Search, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Avatar from "./ui/Avatar";
 import ThemeSwitcher from "./ThemeSwitcher";
 import PresenceStack from "./PresenceStack";
+import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 
 export default function Header({ title }: { title: string }) {
   const { currentUser } = useAuth();
+  const [soundOn, setSoundOn] = useState(isSoundEnabled);
 
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-100/70 bg-paper/85 px-8 py-4 backdrop-blur">
@@ -26,6 +29,18 @@ export default function Header({ title }: { title: string }) {
         </button>
 
         <PresenceStack />
+
+        <button
+          onClick={() => {
+            const next = !soundOn;
+            setSoundEnabled(next);
+            setSoundOn(next);
+          }}
+          title={soundOn ? "إيقاف أصوات التفاعل" : "تشغيل أصوات التفاعل"}
+          className="rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted"
+        >
+          {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        </button>
 
         <ThemeSwitcher />
 

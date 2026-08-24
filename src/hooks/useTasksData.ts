@@ -95,7 +95,14 @@ export function useTasksData() {
       return { error: undefined as string | undefined };
     }
 
+    // تحديث فوري بالواجهة قبل انتظار رد الخادم — يحس التطبيق أسرع
+    let previous: Task[] = [];
+    setTasks((prev) => {
+      previous = prev;
+      return prev.map((t) => (t.id === taskId ? { ...t, status } : t));
+    });
     const { error } = await supabase!.from("tasks").update({ status }).eq("id", taskId);
+    if (error) setTasks(previous);
     return { error: error?.message };
   };
 

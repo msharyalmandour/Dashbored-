@@ -14,8 +14,12 @@ create table if not exists public.profiles (
   role text not null default 'member' check (role in ('leader', 'member')),
   color text not null default 'brand',
   email text,
+  gender text check (gender in ('male', 'female')),
   created_at timestamptz not null default now()
 );
+
+-- ترقية جدول قديم: أضف عمود gender لو الجدول كان موجود من قبل بدونه
+alter table public.profiles add column if not exists gender text check (gender in ('male', 'female'));
 
 alter table public.profiles enable row level security;
 
@@ -38,20 +42,21 @@ create policy "users can insert their own profile"
   with check (auth.uid() = id);
 
 -- ينشئ صف profile تلقائيًا عند تسجيل مستخدم جديد.
--- مرّر الاسم والحروف الأولى عبر options.data عند استدعاء supabase.auth.signUp:
---   supabase.auth.signUp({ email, password, options: { data: { name, initials } } })
+-- مرّر الاسم والحروف الأولى والجنس عبر options.data عند استدعاء supabase.auth.signUp:
+--   supabase.auth.signUp({ email, password, options: { data: { name, initials, gender } } })
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, name, initials, email)
+  insert into public.profiles (id, name, initials, email, gender)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)),
     coalesce(new.raw_user_meta_data ->> 'initials', upper(left(new.email, 2))),
-    new.email
+    new.email,
+    new.raw_user_meta_data ->> 'gender'
   )
   on conflict (id) do nothing;
   return new;

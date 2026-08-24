@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Lock, Mail, PenLine, Sparkles } from "lucide-react";
 import Card from "./ui/Card";
+import { useAuth } from "../context/AuthContext";
+import { g, isFemaleUser } from "../lib/gender";
 
 const STORAGE_KEY = "nursync.timecapsule";
 const UNLOCK_DAYS = 7;
@@ -30,6 +32,8 @@ function saveCapsule(data: CapsuleData) {
 }
 
 export default function TimeCapsule() {
+  const { currentUser } = useAuth();
+  const isFemale = isFemaleUser(currentUser);
   const [capsule, setCapsule] = useState<CapsuleData | null>(loadCapsule);
   const [composing, setComposing] = useState(false);
   const [why, setWhy] = useState("");
@@ -86,7 +90,7 @@ export default function TimeCapsule() {
             onChange={(e) => setWhy(e.target.value)}
             rows={2}
             className="w-full resize-none rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
-            placeholder="اكتبي بكل صراحة..."
+            placeholder={g(isFemale, "اكتبي بكل صراحة...", "اكتب بكل صراحة...")}
           />
         </label>
         <label className="block text-sm">
@@ -104,7 +108,7 @@ export default function TimeCapsule() {
             onClick={submit}
             className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
           >
-            احفظ رسالتي
+            {g(isFemale, "احفظي رسالتي", "احفظ رسالتي")}
           </button>
           <button
             onClick={() => setComposing(false)}
@@ -125,8 +129,12 @@ export default function TimeCapsule() {
             <Mail size={18} />
           </span>
           <div>
-            <p className="font-display font-bold text-brand-950">اكتبي رسالة لنفسك المستقبلية</p>
-            <p className="text-sm text-brand-950/50">سؤالين بسيطين — راح نرجعهم لك يوم تخلصين رحلتك 💌</p>
+            <p className="font-display font-bold text-brand-950">
+              {g(isFemale, "اكتبي رسالة لنفسك المستقبلية", "اكتب رسالة لنفسك المستقبلية")}
+            </p>
+            <p className="text-sm text-brand-950/50">
+              سؤالين بسيطين — راح نرجعهم لك يوم {g(isFemale, "تخلصين", "تخلص")} رحلتك 💌
+            </p>
           </div>
         </div>
         <button
@@ -175,7 +183,7 @@ export default function TimeCapsule() {
           onClick={markRead}
           className="rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600"
         >
-          افتح رسالتي
+          {g(isFemale, "افتحي رسالتي", "افتح رسالتي")}
         </button>
       </Card>
     );
@@ -200,7 +208,7 @@ export default function TimeCapsule() {
         </p>
       )}
       <button onClick={writeNew} className="text-xs font-semibold text-brand-600 hover:underline">
-        اكتب رسالة جديدة
+        {g(isFemale, "اكتبي رسالة جديدة", "اكتب رسالة جديدة")}
       </button>
     </Card>
   );

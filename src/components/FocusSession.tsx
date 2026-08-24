@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { Coffee, Moon, Pause, Play, RotateCcw, Square } from "lucide-react";
 import clsx from "clsx";
 import Card from "./ui/Card";
+import { useAuth } from "../context/AuthContext";
 import { getGreeting } from "../lib/date";
+import { g, isFemaleUser } from "../lib/gender";
 
 type SessionState = "idle" | "running" | "paused" | "done";
 
@@ -26,6 +28,8 @@ function formatTime(totalSeconds: number) {
 }
 
 export default function FocusSession() {
+  const { currentUser } = useAuth();
+  const isFemale = isFemaleUser(currentUser);
   const isNight = getGreeting().period === "night";
   const [duration, setDuration] = useState(25);
   const [remaining, setRemaining] = useState(25 * 60);
@@ -84,7 +88,9 @@ export default function FocusSession() {
           </span>
           <div>
             <p className="font-display font-bold text-brand-950">
-              {isNight ? "جلسة بحث هادئة قبل النوم" : "جهّز قهوتك وابدأ جلسة بحث"}
+              {isNight
+                ? "جلسة بحث هادئة قبل النوم"
+                : g(isFemale, "جهزي قهوتك وابدئي جلسة بحث", "جهّز قهوتك وابدأ جلسة بحث")}
             </p>
             <p className="text-sm text-brand-950/50">
               {isNight
@@ -124,7 +130,9 @@ export default function FocusSession() {
             )}
           >
             <Play size={16} />
-            {isNight ? "ابدأ الجلسة" : "ابدأ الجلسة ☕"}
+            {isNight
+              ? g(isFemale, "ابدئي الجلسة", "ابدأ الجلسة")
+              : `${g(isFemale, "ابدئي", "ابدأ")} الجلسة ☕`}
           </button>
         </div>
       </Card>
@@ -142,8 +150,16 @@ export default function FocusSession() {
             <p className="font-display font-bold text-brand-950">🎉 خلّصت جلستك! أحسنت</p>
             <p className="text-sm text-brand-950/60">
               {isNight
-                ? "وقت استراحة — اشرب مويه، وفكّر تختم الليلة بدري عشان نوم أفضل."
-                : "وقت استراحة قصيرة — اشرب قهوة، تمشى شوي، وارجع لجلسة جديدة."}
+                ? g(
+                    isFemale,
+                    "وقت استراحة — اشربي مويه، وفكّري تختمي الليلة بدري عشان نوم أفضل.",
+                    "وقت استراحة — اشرب مويه، وفكّر تختم الليلة بدري عشان نوم أفضل.",
+                  )
+                : g(
+                    isFemale,
+                    "وقت استراحة قصيرة — اشربي قهوة، تمشي شوي، وارجعي لجلسة جديدة.",
+                    "وقت استراحة قصيرة — اشرب قهوة، تمشى شوي، وارجع لجلسة جديدة.",
+                  )}
             </p>
           </div>
         </div>

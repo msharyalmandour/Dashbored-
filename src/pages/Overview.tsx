@@ -39,6 +39,7 @@ import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } fr
 import { getDailyQuote } from "../data/motivation";
 import { useVisitGap } from "../hooks/useVisitGap";
 import { useFirstVisit } from "../hooks/useFirstVisit";
+import { g, isFemaleUser } from "../lib/gender";
 
 const today = new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -64,6 +65,7 @@ const FLASHBACK_RESURFACE_DAYS = 7;
 
 export default function Overview() {
   const { currentUser } = useAuth();
+  const isFemale = isFemaleUser(currentUser);
   const visitGapDays = useVisitGap();
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
@@ -120,13 +122,13 @@ export default function Overview() {
   const overdueCount = tasks.filter((t) => t.status === "overdue").length;
   const heroMessage =
     overdueCount > 0
-      ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي تسويه اليوم.`
+      ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي ${g(isFemale, "تسوينه", "تسويه")} اليوم.`
       : visitGapDays !== null && visitGapDays >= 2
-        ? `غبت ${visitGapDays} أيام — طبيعي جدًا، خذ وقتك بس لا تنسى إن بحثك يستناك 🌱`
+        ? `غبتِ ${visitGapDays} أيام — طبيعي جدًا، ${g(isFemale, "خذي", "خذ")} وقتك بس لا تنسى إن بحثك يستناك 🌱`
         : visitGapDays === 1
-          ? "من زمان ما شفناك من أمس! رجّع نفسك بخطوة بسيطة اليوم 🌱"
+          ? `من زمان ما شفناك من أمس! ${g(isFemale, "رجّعي", "رجّع")} نفسك بخطوة بسيطة اليوم 🌱`
           : priorities.length === 0
-            ? "ما عليك شي مستعجل اليوم — وقت زين تراجع المقترح البحثي أو ترتاح شوي ☕"
+            ? `ما عليك شي مستعجل اليوم — وقت زين ${g(isFemale, "تراجعين", "تراجع")} المقترح البحثي أو ${g(isFemale, "ترتاحين", "ترتاح")} شوي ☕`
             : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
 
   return (
@@ -137,11 +139,13 @@ export default function Overview() {
             <Compass size={18} />
           </span>
           <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
-            أول مرة تستخدم NURSYNC؟ راجع{" "}
+            أول مرة {g(isFemale, "تستخدمين", "تستخدم")} NURSYNC؟{" "}
+            {g(isFemale, "راجعي", "راجع")}{" "}
             <Link to="/guide" className="underline underline-offset-2">
               دليل الطالب
             </Link>{" "}
-            عشان تعرف وين تروح ولاش تضيف مهامك.
+            عشان {g(isFemale, "تعرفين", "تعرف")} وين {g(isFemale, "تروحين", "تروح")} ولاش{" "}
+            {g(isFemale, "تضيفين", "تضيف")} مهامك.
           </p>
           <button
             onClick={dismissGuideBanner}
@@ -158,8 +162,9 @@ export default function Overview() {
             <History size={18} />
           </span>
           <p className="min-w-0 flex-1 text-sm font-semibold text-brand-700">
-            قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنتِ بس بادئة
-            بحثك من الصفر — الحين عندك {projectMeta.overallProgress}% خلف ظهرك. كملي بنفس القوة 🌱
+            قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
+            {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
+            {projectMeta.overallProgress}% خلف ظهرك. {g(isFemale, "كملي", "كمل")} بنفس القوة 🌱
           </p>
           <button
             onClick={dismissFlashback}

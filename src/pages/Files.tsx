@@ -3,9 +3,22 @@ import { FileSpreadsheet, FileText, FileImage, File as FileIcon } from "lucide-r
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
+import { useAuth } from "../context/AuthContext";
 import { files, teamMembers } from "../data/mockData";
 import type { FileItem } from "../data/types";
-import { formatDateShort } from "../lib/date";
+import { formatDateShort, toISODate } from "../lib/date";
+
+const ATTACHED_KEY = "nursync.attachedFiles";
+
+function loadAttached(): FileItem[] {
+  try {
+    const raw = localStorage.getItem(ATTACHED_KEY);
+    return raw ? (JSON.parse(raw) as FileItem[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 const kindIcon: Record<FileItem["kind"], typeof FileText> = {
   pdf: FileText,
@@ -22,18 +35,41 @@ const kindColor: Record<FileItem["kind"], string> = {
 };
 
 export default function Files() {
+  const { currentUser } = useAuth();
   const [folder, setFolder] = useState("all");
+  const [attached, setAttached] = useState<FileItem[]>(loadAttached);
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
 
+  const allFiles = [...attached, ...files];
+
   const folders = useMemo(
-    () => ["all", ...Array.from(new Set(files.map((f) => f.folder)))],
-    [],
+    () => ["all", ...Array.from(new Set(allFiles.map((f) => f.folder)))],
+    [allFiles],
   );
 
-  const filtered = files.filter((f) => folder === "all" || f.folder === folder);
+  const filtered = allFiles.filter((f) => folder === "all" || f.folder === folder);
+
+  const handleAttach = (meta: AttachedFileMeta) => {
+    const newFile: FileItem = {
+      id: `f-local-${Date.now()}`,
+      name: meta.name,
+      kind: meta.kind,
+      size: meta.size,
+      folder: "مرفقاتي",
+      uploadedById: currentUser?.id ?? teamMembers[0].id,
+      date: toISODate(new Date()),
+    };
+    setAttached((prev) => {
+      const updated = [newFile, ...prev];
+      localStorage.setItem(ATTACHED_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   return (
     <div className="space-y-5">
+      <FileAttach onAttach={handleAttach} />
+
       <div className="flex flex-wrap gap-2">
         {folders.map((f) => (
           <button

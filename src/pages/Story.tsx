@@ -9,11 +9,15 @@ import {
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import { useAuth } from "../context/AuthContext";
 import { calendarEvents, evidenceLibrary, projectMeta, tasks, teamMembers } from "../data/mockData";
 import { formatDateLong, toISODate } from "../lib/date";
 import { useFirstVisit } from "../hooks/useFirstVisit";
+import { g, isFemaleUser } from "../lib/gender";
 
 export default function Story() {
+  const { currentUser } = useAuth();
+  const isFemale = isFemaleUser(currentUser);
   const { firstVisit, daysSince } = useFirstVisit();
 
   const reviewedCount = evidenceLibrary.filter((p) => p.reviewStatus === "reviewed").length;
@@ -116,7 +120,9 @@ export default function Story() {
         <p className="font-display text-lg font-bold text-brand-950">
           كل سطر كتبتيه، وكل دراسة قرأتيها، وكل يوم كملتِ فيه — صار جزء من قصة بحثك.
         </p>
-        <p className="mt-2 text-sm text-brand-950/55">استمري، القصة لسه ما خلصت 🌱</p>
+        <p className="mt-2 text-sm text-brand-950/55">
+          {g(isFemale, "استمري", "استمر")}، القصة لسه ما خلصت 🌱
+        </p>
         <Link
           to="/"
           className="mt-4 inline-block rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"

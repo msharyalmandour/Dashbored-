@@ -26,6 +26,7 @@ interface AuthContextValue {
     email: string,
     password: string,
     name: string,
+    gender: "male" | "female",
   ) => Promise<AuthResult>;
   logout: () => void;
 }
@@ -100,7 +101,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     setLoading(true);
     supabase!
       .from("profiles")
-      .select("id, name, initials, title, role, color, email")
+      .select("id, name, initials, title, role, color, email, gender")
       .eq("id", session.user.id)
       .single()
       .then(({ data }) => {
@@ -121,11 +122,16 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     return error ? { error: error.message } : {};
   };
 
-  const signUpWithPassword = async (email: string, password: string, name: string) => {
+  const signUpWithPassword = async (
+    email: string,
+    password: string,
+    name: string,
+    gender: "male" | "female",
+  ) => {
     const { error } = await supabase!.auth.signUp({
       email,
       password,
-      options: { data: { name, initials: initialsFromName(name) } },
+      options: { data: { name, initials: initialsFromName(name), gender } },
     });
     return error ? { error: error.message } : {};
   };

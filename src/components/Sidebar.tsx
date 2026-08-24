@@ -20,6 +20,7 @@ import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { researchStages } from "../data/mockData";
 import { getResearcherTitle } from "../lib/identity";
+import { isFemaleUser } from "../lib/gender";
 import Avatar from "./ui/Avatar";
 
 const navItems = [
@@ -109,7 +110,7 @@ export default function Sidebar() {
           </div>
           <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
             <Sparkles size={12} />
-            {getResearcherTitle(researchStages, currentUser.title.includes("ة")).ar}
+            {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}
           </p>
         </div>
       )}

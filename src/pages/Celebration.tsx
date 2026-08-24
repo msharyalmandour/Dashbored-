@@ -4,6 +4,7 @@ import { GraduationCap, Mail, PartyPopper, Sparkles } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { projectMeta, teamMembers } from "../data/mockData";
 import { formatDateLong, toISODate } from "../lib/date";
+import { g, isFemaleUser } from "../lib/gender";
 
 const SUBMITTED_KEY = "nursync.submittedAt";
 const CAPSULE_KEY = "nursync.timecapsule";
@@ -48,6 +49,7 @@ export default function Celebration() {
 
   if (!currentUser) return <Navigate to="/login" replace />;
 
+  const isFemale = isFemaleUser(currentUser);
   const isFirstView =
     Math.abs(Date.now() - new Date(submittedAt).getTime()) < 60_000;
   const firstName = currentUser.name.split(" ")[0];
@@ -76,7 +78,9 @@ export default function Celebration() {
             <PartyPopper size={22} className="text-amber-accent-500" />
             مبروك يا {firstName}!
           </p>
-          <p className="mt-2 text-sm text-brand-950/60">سلّمتِ بحثك النهائي — إنجاز يستاهل الاحتفال 🎉</p>
+          <p className="mt-2 text-sm text-brand-950/60">
+            {g(isFemale, "سلّمتِ", "سلّمت")} بحثك النهائي — إنجاز يستاهل الاحتفال 🎉
+          </p>
 
           <div className="mt-5 rounded-2xl border border-brand-100 bg-surface-muted p-4 text-start">
             <p className="text-xs font-semibold uppercase tracking-wide text-brand-950/40">
@@ -116,7 +120,7 @@ export default function Celebration() {
             )}
             <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-brand-700">
               <Sparkles size={14} />
-              وصلتِ لها — بكل فخر.
+              {g(isFemale, "وصلتِ لها", "وصلت لها")} — بكل فخر.
             </p>
           </div>
         )}

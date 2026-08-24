@@ -14,6 +14,7 @@ export default function Login() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [gender, setGender] = useState<"male" | "female">("female");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,7 +34,7 @@ export default function Login() {
     setSubmitting(true);
 
     const result = isSignUp
-      ? await signUpWithPassword(email, password, name)
+      ? await signUpWithPassword(email, password, name, gender)
       : await signInWithPassword(email, password);
 
     setSubmitting(false);
@@ -92,6 +93,37 @@ export default function Login() {
                     placeholder="مثال: سارة العتيبي"
                   />
                 </label>
+              )}
+              {isSignUp && (
+                <div className="text-sm">
+                  <span className="mb-1 block font-semibold text-brand-950/70">
+                    عشان نخاطبك بالصيغة الصح بكل الموقع
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setGender("female")}
+                      className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                        gender === "female"
+                          ? "border-brand-400 bg-brand-50 text-brand-700"
+                          : "border-brand-100 text-brand-950/50 hover:bg-surface-muted"
+                      }`}
+                    >
+                      أنثى
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGender("male")}
+                      className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                        gender === "male"
+                          ? "border-brand-400 bg-brand-50 text-brand-700"
+                          : "border-brand-100 text-brand-950/50 hover:bg-surface-muted"
+                      }`}
+                    >
+                      ذكر
+                    </button>
+                  </div>
+                </div>
               )}
               <label className="block text-sm">
                 <span className="mb-1 block font-semibold text-brand-950/70">البريد الجامعي</span>

@@ -1,10 +1,23 @@
-import { AlertTriangle, ArrowDown, CheckCircle2, Circle, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { AlertTriangle, ArrowDown, CheckCircle2, Circle, FileText, RefreshCw } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
+import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import { proposalSections, researchGap, studyAim, teamMembers } from "../data/mockData";
 import type { SectionStatus } from "../data/types";
+
+const PROPOSAL_ATTACHMENTS_KEY = "nursync.proposalAttachments";
+
+function loadProposalAttachments(): Record<string, AttachedFileMeta> {
+  try {
+    const raw = localStorage.getItem(PROPOSAL_ATTACHMENTS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, AttachedFileMeta>) : {};
+  } catch {
+    return {};
+  }
+}
 
 const statusLabel: Record<SectionStatus, string> = {
   done: "مكتمل",
@@ -29,6 +42,16 @@ export default function Proposal() {
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
   const doneCount = proposalSections.filter((s) => s.status === "done").length;
   const completionPct = Math.round((doneCount / proposalSections.length) * 100);
+  const [sectionAttachments, setSectionAttachments] =
+    useState<Record<string, AttachedFileMeta>>(loadProposalAttachments);
+
+  const attachToSection = (key: string, meta: AttachedFileMeta) => {
+    setSectionAttachments((prev) => {
+      const updated = { ...prev, [key]: meta };
+      localStorage.setItem(PROPOSAL_ATTACHMENTS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   return (
     <div className="space-y-5">
@@ -58,7 +81,16 @@ export default function Proposal() {
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-brand-950">{section.labelAr}</p>
                   <p className="text-xs text-brand-950/45">{section.labelEn}</p>
+                  {sectionAttachments[section.key] && (
+                    <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
+                      <FileText size={12} />
+                      <bdi className="truncate">{sectionAttachments[section.key].name}</bdi>
+                    </p>
+                  )}
                 </div>
+                {!sectionAttachments[section.key] && (
+                  <FileAttach compact onAttach={(meta) => attachToSection(section.key, meta)} />
+                )}
                 <Avatar initials={owner.initials} color={owner.color} size="sm" />
                 <span
                   className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${statusChip[section.status]}`}

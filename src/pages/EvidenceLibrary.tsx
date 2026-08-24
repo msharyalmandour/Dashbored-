@@ -3,8 +3,26 @@ import { BookMarked } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
+import { useAuth } from "../context/AuthContext";
 import { evidenceLibrary, teamMembers } from "../data/mockData";
-import type { EvidenceSection } from "../data/types";
+import type { EvidencePaper, EvidenceSection } from "../data/types";
+import { g, isFemaleUser } from "../lib/gender";
+
+const ATTACHED_KEY = "nursync.attachedPapers";
+
+function loadAttachedPapers(): EvidencePaper[] {
+  try {
+    const raw = localStorage.getItem(ATTACHED_KEY);
+    return raw ? (JSON.parse(raw) as EvidencePaper[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function titleFromFileName(name: string): string {
+  return name.replace(/\.[^./]+$/, "").replace(/[_-]+/g, " ");
+}
 
 const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
   { id: "all", label: "الكل" },
@@ -16,17 +34,44 @@ const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
 ];
 
 export default function EvidenceLibrary() {
+  const { currentUser } = useAuth();
+  const isFemale = isFemaleUser(currentUser);
   const [filter, setFilter] = useState<"all" | EvidenceSection>("all");
+  const [attachedPapers, setAttachedPapers] = useState<EvidencePaper[]>(loadAttachedPapers);
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
 
+  const allPapers = [...attachedPapers, ...evidenceLibrary];
+
   const filtered = useMemo(
-    () => evidenceLibrary.filter((p) => filter === "all" || p.section === filter),
-    [filter],
+    () => allPapers.filter((p) => filter === "all" || p.section === filter),
+    [allPapers, filter],
   );
+
+  const handleAttach = (meta: AttachedFileMeta) => {
+    const newPaper: EvidencePaper = {
+      id: `e-local-${Date.now()}`,
+      title: titleFromFileName(meta.name),
+      authors: "—",
+      year: new Date().getFullYear(),
+      theme: "Delirium",
+      studyDesign: "—",
+      keyFinding: "لسا ما تمت مراجعتها — أضيفي ملخص النتائج بعد القراءة.",
+      relevance: "لسا ما تمت مراجعتها.",
+      section: "other",
+      reviewStatus: "collected",
+      addedById: currentUser?.id ?? teamMembers[0].id,
+    };
+    setAttachedPapers((prev) => {
+      const updated = [newPaper, ...prev];
+      localStorage.setItem(ATTACHED_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
         {sectionFilters.map((f) => (
           <button
             key={f.id}
@@ -41,6 +86,12 @@ export default function EvidenceLibrary() {
             {f.label}
           </button>
         ))}
+        </div>
+        <FileAttach
+          compact
+          onAttach={handleAttach}
+          label={g(isFemale, "أرفقي دراسة PDF جديدة", "أرفق دراسة PDF جديدة")}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

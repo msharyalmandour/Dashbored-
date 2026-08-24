@@ -1,14 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Circle, PartyPopper, Plus, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Circle, FileText, PartyPopper, Plus, X } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort } from "../lib/date";
+
+const TASK_ATTACHMENTS_KEY = "nursync.taskAttachments";
+
+function loadTaskAttachments(): Record<string, AttachedFileMeta> {
+  try {
+    const raw = localStorage.getItem(TASK_ATTACHMENTS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, AttachedFileMeta>) : {};
+  } catch {
+    return {};
+  }
+}
 
 const celebrations = [
   "عاشت الأيادي!",
@@ -64,6 +76,16 @@ export default function Tasks() {
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [celebration, setCelebration] = useState<{ title: string; line: string } | null>(null);
+  const [taskAttachments, setTaskAttachments] =
+    useState<Record<string, AttachedFileMeta>>(loadTaskAttachments);
+
+  const attachToTask = (taskId: string, meta: AttachedFileMeta) => {
+    setTaskAttachments((prev) => {
+      const updated = { ...prev, [taskId]: meta };
+      localStorage.setItem(TASK_ATTACHMENTS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   useEffect(() => {
     if (!celebration) return;
@@ -278,7 +300,16 @@ export default function Tasks() {
                 {task.description && (
                   <p className="mt-0.5 truncate text-sm text-brand-950/45">{task.description}</p>
                 )}
+                {taskAttachments[task.id] && (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
+                    <FileText size={12} />
+                    <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
+                  </p>
+                )}
               </div>
+              {canToggle && !taskAttachments[task.id] && (
+                <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
+              )}
               <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
                 {priorityLabel[task.priority]}
               </span>

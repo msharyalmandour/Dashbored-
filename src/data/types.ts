@@ -1,4 +1,5 @@
 export type Role = "leader" | "member";
+export type Gender = "male" | "female";
 
 export interface TeamMember {
   id: string;
@@ -8,6 +9,7 @@ export interface TeamMember {
   initials: string;
   color: string;
   email: string;
+  gender?: Gender;
   progress: number;
   tasksDone: number;
   tasksTotal: number;

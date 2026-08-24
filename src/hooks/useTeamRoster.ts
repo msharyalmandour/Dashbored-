@@ -14,7 +14,7 @@ export function useTeamRoster() {
 
     supabase!
       .from("profiles")
-      .select("id, name, initials, title, role, color, email")
+      .select("id, name, initials, title, role, color, email, gender")
       .then(({ data }) => {
         if (data) {
           setRoster(

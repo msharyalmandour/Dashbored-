@@ -23,7 +23,7 @@ const titles: Record<string, string> = {
 };
 
 export default function Layout() {
-  const { currentUser, canWrite, loading, mode } = useAuth();
+  const { currentUser, canWrite, loading, mode, subscriptionState, isLeader } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -55,9 +55,21 @@ export default function Layout() {
                   <AlertTriangle size={18} />
                 </span>
                 <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
-                  اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس ما
-                  تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا للاستمرار في
-                  استخدام كل المزايا.
+                  {subscriptionState === "none" ? (
+                    <>
+                      اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
+                      المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
+                      {isLeader
+                        ? "حوّلوا مبلغ الاشتراك عبر STC Pay وأرسلوا لنا إثبات التحويل لتفعيله."
+                        : "خلّوا قائد فريقكم يحوّل مبلغ الاشتراك عبر STC Pay لتفعيله."}
+                    </>
+                  ) : (
+                    <>
+                      اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس
+                      ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا
+                      للاستمرار في استخدام كل المزايا.
+                    </>
+                  )}
                 </p>
               </div>
             )}

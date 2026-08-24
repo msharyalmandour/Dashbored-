@@ -141,23 +141,27 @@ as $$
 declare
   new_team_id uuid;
   meta_team_id text := new.raw_user_meta_data ->> 'team_id';
+  new_role text := 'member';
 begin
   if meta_team_id is not null then
     new_team_id := meta_team_id::uuid;
   else
+    -- أول شخص يسجل بدون رابط دعوة هو من ينشئ الفريق، فيصير تلقائيًا قائد الفريق
     insert into public.teams (name)
     values (coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)) || ' — فريق بحثي')
     returning id into new_team_id;
+    new_role := 'leader';
   end if;
 
-  insert into public.profiles (id, team_id, name, initials, email, gender)
+  insert into public.profiles (id, team_id, name, initials, email, gender, role)
   values (
     new.id,
     new_team_id,
     coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)),
     coalesce(new.raw_user_meta_data ->> 'initials', upper(left(new.email, 2))),
     new.email,
-    new.raw_user_meta_data ->> 'gender'
+    new.raw_user_meta_data ->> 'gender',
+    new_role
   )
   on conflict (id) do nothing;
   return new;

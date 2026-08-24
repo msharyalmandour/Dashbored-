@@ -1,19 +1,61 @@
-import { Mail, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, Mail, ShieldCheck, UserPlus } from "lucide-react";
 import Card, { type CardTone } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 
 const tones: CardTone[] = ["teal", "sky", "cream", "violet", "rose"];
+
+function InviteCard() {
+  const { team } = useAuth();
+  const [copied, setCopied] = useState(false);
+
+  if (!team) return null;
+  const inviteLink = `${window.location.origin}${window.location.pathname}#/login?team=${team.id}`;
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card tone="cream" className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-100 text-amber-accent-700">
+          <UserPlus size={18} />
+        </span>
+        <div>
+          <p className="font-bold text-brand-950">دعوة بقية أعضاء الفريق</p>
+          <p className="mt-0.5 text-sm text-brand-950/55">
+            شاركوا هذا الرابط مع بقية الفريق — كل من يسجّل حساب عبره ينضم لنفس فريقكم تلقائيًا.
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={copy}
+        className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+      >
+        {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
+        {copied ? "تم النسخ" : "نسخ رابط الدعوة"}
+      </button>
+    </Card>
+  );
+}
 
 export default function Team() {
   const { roster } = useTeamRoster();
   const { tasks } = useTasksData();
+  const { isLeader, mode } = useAuth();
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div>
+      {isLeader && mode === "supabase" && <InviteCard />}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {roster.map((member, i) => {
         const memberTasks = tasks.filter((t) => t.assigneeId === member.id);
         const overdue = memberTasks.filter((t) => t.status === "overdue").length;
@@ -75,6 +117,7 @@ export default function Team() {
           </Card>
         );
       })}
+      </div>
     </div>
   );
 }

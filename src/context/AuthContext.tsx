@@ -34,6 +34,7 @@ interface AuthContextValue {
     password: string,
     name: string,
     gender: "male" | "female",
+    teamId?: string,
   ) => Promise<AuthResult>;
   logout: () => void;
 }
@@ -179,11 +180,19 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     password: string,
     name: string,
     gender: "male" | "female",
+    teamId?: string,
   ) => {
     const { error } = await supabase!.auth.signUp({
       email,
       password,
-      options: { data: { name, initials: initialsFromName(name), gender } },
+      options: {
+        data: {
+          name,
+          initials: initialsFromName(name),
+          gender,
+          ...(teamId ? { team_id: teamId } : {}),
+        },
+      },
     });
     return error ? { error: error.message } : {};
   };

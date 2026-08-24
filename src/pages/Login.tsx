@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { Coffee, Moon } from "lucide-react";
+import { Navigate, useLocation, useSearchParams } from "react-router-dom";
+import { Coffee, Moon, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import { getGreeting } from "../lib/date";
@@ -9,9 +9,11 @@ import Logo from "../components/Logo";
 export default function Login() {
   const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const inviteTeamId = searchParams.get("team");
   const isNight = getGreeting().period === "night";
 
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +37,7 @@ export default function Login() {
     setSubmitting(true);
 
     const result = isSignUp
-      ? await signUpWithPassword(email, password, name, gender)
+      ? await signUpWithPassword(email, password, name, gender, inviteTeamId ?? undefined)
       : await signInWithPassword(email, password);
 
     setSubmitting(false);
@@ -66,6 +68,12 @@ export default function Login() {
             <Logo size={48} />
           </div>
           <h1 className="font-display text-2xl font-extrabold text-brand-950">NURSYNC</h1>
+          {inviteTeamId && mode === "supabase" && (
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">
+              <Users size={13} />
+              دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل
+            </span>
+          )}
           <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-950/50">
             {isNight ? (
               <>

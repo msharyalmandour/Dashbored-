@@ -40,7 +40,7 @@ const problems = [
   {
     icon: Users,
     title: "ما أحد متابع الكل",
-    desc: "القائدة تسأل \"وصلتوا لوين؟\" وكل وحدة تجاوب بشكل مختلف.",
+    desc: "قائد الفريق يسأل \"وصلتوا لوين؟\" وكل عضو يجاوب بشكل مختلف.",
   },
   {
     icon: PartyPopper,
@@ -53,12 +53,12 @@ const features: { image: string; title: string; desc: string; reverse?: boolean 
   {
     image: overviewShot,
     title: "رحلة بحث واضحة من أول يوم للتسليم",
-    desc: "٨ مراحل بحثية واضحة، تعرفين وين وصلتوا بالضبط ووش الخطوة الجاية — بدون ما تسألين حد.",
+    desc: "٨ مراحل بحثية واضحة، تعرفون وين وصلتوا بالضبط ووش الخطوة الجاية — بدون ما تسألون حد.",
   },
   {
     image: tasksShot,
     title: "مهام موزعة، واضح مين مسؤول عن وش",
-    desc: "كل عضوة تشوف مهامها بالضبط، بأولويتها وتاريخ استحقاقها — وقائدة الفريق تسند وتتابع بضغطة.",
+    desc: "كل عضو يشوف مهامه بالضبط، بأولويتها وتاريخ استحقاقها — وقائد الفريق يسند ويتابع بضغطة.",
     reverse: true,
   },
   {
@@ -69,7 +69,7 @@ const features: { image: string; title: string; desc: string; reverse?: boolean 
   {
     image: celebrationShot,
     title: "لحظات نفتخر فيها فعلاً",
-    desc: "من أول رسالة تكتبينها لنفسك، للاحتفال الحقيقي يوم تسلّمين البحث النهائي.",
+    desc: "من أول رسالة تكتبونها لنفسكم، للاحتفال الحقيقي يوم تسلّمون البحث النهائي.",
     reverse: true,
   },
 ];
@@ -125,12 +125,12 @@ export default function Landing() {
                 href="#pricing"
                 className="rounded-xl px-5 py-3 text-sm font-bold text-brand-700 hover:bg-brand-50"
               >
-                شوفي السعر
+                شوفوا السعر
               </a>
             </div>
             <p className="mt-5 text-sm text-brand-950/45">
               ٢٥ ريال شهريًا لكل شخص — يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال بس للفريق كامل
-              ({TEAM_SIZE} طالبات).
+              ({TEAM_SIZE} أعضاء).
             </p>
           </div>
           <div className="lg:pe-4">
@@ -207,7 +207,7 @@ export default function Landing() {
             <span className="text-lg font-semibold text-brand-950/60">ريال / شهريًا لكل شخص</span>
           </p>
           <p className="mt-1 text-sm text-brand-950/50">
-            يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال شهريًا للفريق كامل ({TEAM_SIZE} طالبات)
+            يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال شهريًا للفريق كامل ({TEAM_SIZE} أعضاء)
           </p>
 
           <ul className="mx-auto mt-8 max-w-xs space-y-3 text-start">
@@ -237,8 +237,8 @@ export default function Landing() {
           <div className="mt-8 border-t border-brand-100 pt-6 text-start text-sm text-brand-950/55">
             <p className="mb-2 font-bold text-brand-950">كيف يتم الدفع؟</p>
             <ol className="space-y-1.5">
-              <li>١. حوّلي المبلغ عبر STC Pay</li>
-              <li>٢. أرسلي لنا إثبات التحويل</li>
+              <li>١. حوّلوا المبلغ عبر STC Pay</li>
+              <li>٢. أرسلوا لنا إثبات التحويل</li>
               <li>٣. نفعّل اشتراك فريقكم خلال ساعة</li>
             </ol>
           </div>

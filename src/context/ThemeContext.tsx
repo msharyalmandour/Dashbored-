@@ -9,7 +9,7 @@ export interface ThemeOption {
 }
 
 export const themes: ThemeOption[] = [
-  { id: "white", label: "أبيض", swatch: "#faf7f0" },
+  { id: "white", label: "الأساسي", swatch: "#c93f64" },
   { id: "dark-green", label: "أخضر غامق", swatch: "#0e3a2a" },
   { id: "black", label: "أسود", swatch: "#0a0a0a" },
   { id: "navy", label: "كحلي", swatch: "#0e2340" },

@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
+import { useAuth } from "./context/AuthContext";
+import { isFemaleUser } from "./lib/gender";
 import Overview from "./pages/Overview";
 import Proposal from "./pages/Proposal";
 import LiteratureReview from "./pages/LiteratureReview";
@@ -18,6 +21,15 @@ import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 
 export default function App() {
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-gender",
+      isFemaleUser(currentUser) ? "female" : "male",
+    );
+  }, [currentUser]);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />

@@ -2,10 +2,14 @@ import { useState } from "react";
 import { Check, Palette } from "lucide-react";
 import clsx from "clsx";
 import { themes, useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import { isFemaleUser } from "../lib/gender";
 
 export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
+  const { currentUser } = useAuth();
   const [open, setOpen] = useState(false);
+  const basicSwatch = isFemaleUser(currentUser) ? "#c93f64" : "#7f8c36";
 
   return (
     <div className="relative">
@@ -36,7 +40,7 @@ export default function ThemeSwitcher() {
               >
                 <span
                   className="h-5 w-5 shrink-0 rounded-full border border-brand-950/10"
-                  style={{ backgroundColor: t.swatch }}
+                  style={{ backgroundColor: t.id === "white" ? basicSwatch : t.swatch }}
                 />
                 <span className="flex-1 text-start">{t.label}</span>
                 {theme === t.id && <Check size={15} className="text-brand-600" />}

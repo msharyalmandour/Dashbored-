@@ -4,18 +4,18 @@
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Tajawal", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
 
-  /* Primary — teal */
-  --color-brand-50: #eefbf8;
-  --color-brand-100: #d4f4ee;
-  --color-brand-200: #ace6dc;
-  --color-brand-300: #78d1c5;
-  --color-brand-400: #46b6ac;
-  --color-brand-500: #2a9990;
-  --color-brand-600: #1f7d76;
-  --color-brand-700: #1c645f;
-  --color-brand-800: #1a504d;
-  --color-brand-900: #184441;
-  --color-brand-950: #092726;
+  /* Primary — dusty rose (الوضع الأساسي الافتراضي) */
+  --color-brand-50: #fdf2f4;
+  --color-brand-100: #fce3e8;
+  --color-brand-200: #f8c2cd;
+  --color-brand-300: #f097ab;
+  --color-brand-400: #e26884;
+  --color-brand-500: #c93f64;
+  --color-brand-600: #a52f4f;
+  --color-brand-700: #832540;
+  --color-brand-800: #6b2036;
+  --color-brand-900: #591d2e;
+  --color-brand-950: #34101a;
 
   /* Secondary — light blue */
   --color-sky-accent-50: #eff8ff;
@@ -47,6 +47,22 @@
 /* ===================================================================
    الثيمات — كل ثيم يعيد تعريف نفس المتغيرات فوق، فالمكونات ما تتغير أبدًا.
    =================================================================== */
+
+/* الوضع الأساسي (الفاتح) يتلوّن تلقائيًا حسب جنس المستخدم — زيتوني للذكور،
+   وردي (الافتراضي أعلاه) للإناث. ينطبق فقط لما ما يكون فيه ثيم داكن مُختار. */
+:root[data-gender="male"]:not([data-theme]) {
+  --color-brand-50: #f8f8ee;
+  --color-brand-100: #eef0d6;
+  --color-brand-200: #dde2ac;
+  --color-brand-300: #c4cd7a;
+  --color-brand-400: #a8b452;
+  --color-brand-500: #7f8c36;
+  --color-brand-600: #656f2a;
+  --color-brand-700: #505822;
+  --color-brand-800: #42481e;
+  --color-brand-900: #383c1c;
+  --color-brand-950: #1d1f0f;
+}
 
 /* أسود — محايد داكن بلمسة نعناعية */
 :root[data-theme="black"] {

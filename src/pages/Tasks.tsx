@@ -5,6 +5,7 @@ import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import ImproveWritingButton from "../components/ImproveWritingButton";
+import ConfettiBurst from "../components/cinematic/ConfettiBurst";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
@@ -343,6 +344,8 @@ export default function Tasks() {
           </p>
         )}
       </div>
+
+      <ConfettiBurst active={!!celebration} />
 
       {celebration && (
         <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">

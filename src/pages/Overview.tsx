@@ -1,18 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import {
   AlertCircle,
+  Award,
   BookOpenCheck,
   CalendarClock,
   CheckCircle2,
   Circle,
   Coffee,
   Compass,
+  Crown,
   History,
   ListTodo,
   Milestone,
   Moon,
+  PartyPopper,
   TrendingUp,
   X,
 } from "lucide-react";
@@ -43,6 +46,7 @@ import { getDailyQuote } from "../data/motivation";
 import { useVisitGap } from "../hooks/useVisitGap";
 import { useFirstVisit } from "../hooks/useFirstVisit";
 import { g, isFemaleUser } from "../lib/gender";
+import { achievements, getUnlockedAchievementIds } from "../lib/achievements";
 
 const today = new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -65,6 +69,9 @@ const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
 const FLASHBACK_DISMISSED_KEY = "nursync.flashbackDismissedAt";
 const FLASHBACK_MIN_DAYS = 3;
 const FLASHBACK_RESURFACE_DAYS = 7;
+const ACHIEVEMENTS_SEEN_KEY = "nursync.achievementsSeen";
+const LAST_SEEN_STAGE_KEY = "nursync.lastSeenStage";
+const NIGHT_OWL_DISMISSED_KEY = "nursync.nightOwlDismissedOn";
 
 export default function Overview() {
   const { currentUser } = useAuth();
@@ -93,6 +100,56 @@ export default function Overview() {
     localStorage.setItem(FLASHBACK_DISMISSED_KEY, new Date().toISOString());
     setShowFlashback(false);
   };
+
+  const currentHour = new Date().getHours();
+  const isDeepNight = currentHour >= 1 && currentHour < 5;
+  const [showNightOwl, setShowNightOwl] = useState(
+    () => isDeepNight && localStorage.getItem(NIGHT_OWL_DISMISSED_KEY) !== toISODate(new Date()),
+  );
+  const dismissNightOwl = () => {
+    localStorage.setItem(NIGHT_OWL_DISMISSED_KEY, toISODate(new Date()));
+    setShowNightOwl(false);
+  };
+
+  const unlockedAchievementIds = getUnlockedAchievementIds({
+    tasks,
+    evidenceLibrary,
+    researchStages,
+    overallProgress: projectMeta.overallProgress,
+  });
+  const unlockedAchievements = achievements.filter((a) => unlockedAchievementIds.has(a.id));
+  const [newAchievement, setNewAchievement] = useState<(typeof achievements)[number] | null>(null);
+  const [stageCelebration, setStageCelebration] = useState(false);
+
+  useEffect(() => {
+    const seen: string[] = JSON.parse(localStorage.getItem(ACHIEVEMENTS_SEEN_KEY) ?? "[]");
+    const seenSet = new Set(seen);
+    const freshlyUnlocked = achievements.find(
+      (a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id),
+    );
+    if (freshlyUnlocked) {
+      setNewAchievement(freshlyUnlocked);
+      localStorage.setItem(
+        ACHIEVEMENTS_SEEN_KEY,
+        JSON.stringify([...seenSet, freshlyUnlocked.id]),
+      );
+      const timer = setTimeout(() => setNewAchievement(null), 4500);
+      return () => clearTimeout(timer);
+    }
+
+    const lastSeenStage = localStorage.getItem(LAST_SEEN_STAGE_KEY);
+    if (lastSeenStage && lastSeenStage !== projectMeta.currentStageAr) {
+      setStageCelebration(true);
+      const timer = setTimeout(() => setStageCelebration(false), 4500);
+      localStorage.setItem(LAST_SEEN_STAGE_KEY, projectMeta.currentStageAr);
+      return () => clearTimeout(timer);
+    }
+    localStorage.setItem(LAST_SEEN_STAGE_KEY, projectMeta.currentStageAr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const weekNumber = Math.floor(daysSinceFirstVisit / 7) + 1;
+  const topPerformer = [...teamMembers].sort((a, b) => b.tasksDone - a.tasksDone)[0];
 
   const remainingDays = daysUntil(projectMeta.deadline, today);
   const nextDeadlineDays = daysUntil(projectMeta.nextDeadlineDate, today);
@@ -179,6 +236,24 @@ export default function Overview() {
         </div>
       )}
 
+      {showNightOwl && (
+        <div className="flex items-center gap-4 rounded-3xl border border-violet-100 bg-violet-50 px-5 py-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white">
+            <Moon size={18} />
+          </span>
+          <p className="min-w-0 flex-1 text-sm font-semibold text-violet-700">
+            الساعة كذا وبعدك {g(isFemale, "صاحية", "صاحي")} تراجعين بحثك؟ نحترم الجدّية، بس لا
+            تنسى قسط راحتك — بحثك بينتظرك باكر بنفس المكان 🌙
+          </p>
+          <button
+            onClick={dismissNightOwl}
+            className="shrink-0 rounded-lg p-1.5 text-violet-600 hover:bg-violet-100"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Welcome + progress */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div ref={heroParallaxRef} className="lg:col-span-2">
@@ -203,6 +278,11 @@ export default function Overview() {
               <p className="text-xs text-brand-700" dir="ltr">
                 {projectMeta.subtitle}
               </p>
+              {weekNumber >= 1 && (
+                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-950/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">
+                  🌱 أسبوع رقم {weekNumber} من رحلتكم البحثية
+                </span>
+              )}
             </div>
 
             <div
@@ -391,11 +471,23 @@ export default function Overview() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card tone="violet">
-          <CardHeader title="تقدم الفريق" action={<span className="text-xs font-semibold text-brand-600">عرض الكل</span>} />
+          <CardHeader
+            title="تقدم الفريق"
+            subtitle={topPerformer ? `🌟 ${topPerformer.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
+            action={<span className="text-xs font-semibold text-brand-600">عرض الكل</span>}
+          />
           <div className="flex justify-between">
             {teamMembers.map((m) => (
               <div key={m.id} className="flex flex-col items-center gap-2">
-                <Avatar initials={m.initials} color={m.color} />
+                <div className="relative">
+                  {m.id === topPerformer?.id && (
+                    <Crown
+                      size={14}
+                      className="absolute -top-2 start-1/2 -translate-x-1/2 -translate-y-1/2 rotate-0 fill-amber-accent-400 text-amber-accent-500"
+                    />
+                  )}
+                  <Avatar initials={m.initials} color={m.color} />
+                </div>
                 <span className="text-xs font-semibold text-brand-950/70">
                   {m.name.split(" ")[0]}
                 </span>
@@ -457,6 +549,57 @@ export default function Overview() {
           </ul>
         </Card>
       </div>
+
+      {unlockedAchievements.length > 0 && (
+        <Card>
+          <CardHeader title="إنجازاتكم" subtitle="Achievements" />
+          <div className="flex flex-wrap gap-3">
+            {unlockedAchievements.map((a) => (
+              <div
+                key={a.id}
+                title={a.desc}
+                className="flex items-center gap-2.5 rounded-2xl border border-brand-100/70 bg-surface-muted px-3.5 py-2.5"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
+                  <a.icon size={15} />
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-brand-950">{a.title}</p>
+                  <p className="text-[11px] text-brand-950/45">{a.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {newAchievement && (
+        <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
+              <Award size={18} />
+            </span>
+            <div>
+              <p className="text-sm font-bold text-brand-950">إنجاز جديد: {newAchievement.title}</p>
+              <p className="text-xs text-brand-950/50">{newAchievement.desc}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {stageCelebration && (
+        <div className="fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-amber-accent-200 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-accent-500 text-white">
+              <PartyPopper size={18} />
+            </span>
+            <div>
+              <p className="text-sm font-bold text-brand-950">🎉 أنجزتم مرحلة بحثية كاملة!</p>
+              <p className="text-xs text-brand-950/50">وصلتوا لمرحلة {projectMeta.currentStageAr}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

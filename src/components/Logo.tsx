@@ -7,7 +7,7 @@ import { Infinity as InfinityIcon } from "lucide-react";
 export default function Logo({ size = 40 }: { size?: number }) {
   return (
     <div
-      className="flex shrink-0 items-center justify-center rounded-2xl bg-neutral-950 text-white"
+      className="flex shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-neutral-950 text-white"
       style={{ height: size, width: size }}
     >
       <InfinityIcon size={Math.round(size * 0.5)} strokeWidth={2.25} />

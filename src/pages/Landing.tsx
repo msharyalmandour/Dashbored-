@@ -20,11 +20,11 @@ const TEAM_SIZE = 5;
 
 function BrowserFrame({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-brand-100 bg-paper shadow-2xl shadow-brand-950/20 transition-transform duration-300 hover:scale-[1.02]">
-      <div className="flex items-center gap-1.5 border-b border-brand-100 bg-surface-muted px-3.5 py-2.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-rose-300" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-accent-300" />
-        <span className="h-2.5 w-2.5 rounded-full bg-brand-300" />
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.02]">
+      <div className="flex items-center gap-1.5 border-b border-white/10 bg-neutral-800/70 px-3.5 py-2.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+        <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
       </div>
       <img src={src} alt={alt} className="block w-full" loading="lazy" />
     </div>
@@ -76,17 +76,17 @@ const features: { image: string; title: string; desc: string; reverse?: boolean 
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-neutral-950 text-white">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2.5">
           <Logo size={40} />
-          <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
+          <span className="font-display text-lg font-extrabold tracking-tight text-white">
             NURSYNC
           </span>
         </div>
         <Link
           to="/login"
-          className="rounded-xl border border-brand-200 px-4 py-2 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          className="rounded-xl border border-white/15 px-4 py-2 text-sm font-bold text-white/90 hover:bg-white/5"
         >
           تسجيل الدخول
         </Link>
@@ -94,39 +94,39 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-brand-100/60 blur-3xl motion-reduce:animate-none" />
-        <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-amber-accent-100/70 blur-3xl motion-reduce:animate-none" />
+        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
+        <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3.5 py-1.5 text-xs font-bold text-brand-700">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/80">
               <Sparkles size={13} />
               مبنية خصيصًا لفرق بحث التخرج التمريضي
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] text-brand-950 lg:text-5xl">
+            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] text-white lg:text-5xl">
               بحث التخرج مو لازم
               <br />
               يكون فوضى واتساب وإكسل
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-brand-950/60">
+            <p className="mt-5 max-w-lg text-lg text-white/55">
               NURSYNC تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
               النهائي — بمكان واحد يشوفه الجميع.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/login"
-                className="flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600"
+                className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 hover:bg-amber-300"
               >
                 ابدأ فريقك الآن
                 <ArrowLeft size={16} />
               </Link>
               <a
                 href="#pricing"
-                className="rounded-xl px-5 py-3 text-sm font-bold text-brand-700 hover:bg-brand-50"
+                className="rounded-xl px-5 py-3 text-sm font-bold text-white/75 hover:bg-white/5"
               >
                 شوفوا السعر
               </a>
             </div>
-            <p className="mt-5 text-sm text-brand-950/45">
+            <p className="mt-5 text-sm text-white/35">
               ٢٥ ريال شهريًا لكل شخص — يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال بس للفريق كامل
               ({TEAM_SIZE} أعضاء).
             </p>
@@ -142,20 +142,20 @@ export default function Landing() {
       {/* Problem */}
       <section className="mx-auto max-w-6xl px-6 py-14">
         <div className="mb-10 text-center">
-          <h2 className="font-display text-2xl font-extrabold text-brand-950 lg:text-3xl">
+          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             نعرف بالضبط وش اللي تمرون فيه
           </h2>
-          <p className="mt-2 text-brand-950/55">لأننا فهمناها من فرق حقيقية زيكم</p>
+          <p className="mt-2 text-white/50">لأننا فهمناها من فرق حقيقية زيكم</p>
         </div>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           {problems.map((p, i) => (
             <Reveal key={p.title} delay={i * 120}>
-              <div className="rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+              <div className="rounded-3xl border border-white/10 bg-neutral-900 p-6 shadow-sm shadow-black/20">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-400/10 text-rose-300">
                   <p.icon size={20} />
                 </span>
-                <h3 className="mt-4 font-display font-bold text-brand-950">{p.title}</h3>
-                <p className="mt-1.5 text-sm text-brand-950/55">{p.desc}</p>
+                <h3 className="mt-4 font-display font-bold text-white">{p.title}</h3>
+                <p className="mt-1.5 text-sm text-white/50">{p.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -165,7 +165,7 @@ export default function Landing() {
       {/* Features */}
       <section className="mx-auto max-w-6xl px-6 py-14">
         <div className="mb-14 text-center">
-          <h2 className="font-display text-2xl font-extrabold text-brand-950 lg:text-3xl">
+          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             كل شي يحتاجه فريقكم، بمكان واحد
           </h2>
         </div>
@@ -182,10 +182,10 @@ export default function Landing() {
               </Reveal>
               <Reveal delay={150}>
                 <div>
-                  <h3 className="font-display text-xl font-extrabold text-brand-950 lg:text-2xl">
+                  <h3 className="font-display text-xl font-extrabold text-white lg:text-2xl">
                     {f.title}
                   </h3>
-                  <p className="mt-3 max-w-md text-brand-950/60">{f.desc}</p>
+                  <p className="mt-3 max-w-md text-white/55">{f.desc}</p>
                 </div>
               </Reveal>
             </div>
@@ -195,16 +195,16 @@ export default function Landing() {
 
       {/* Pricing */}
       <Reveal className="mx-auto max-w-3xl px-6 py-16">
-        <section id="pricing" className="rounded-3xl border-2 border-brand-200 bg-paper p-8 text-center shadow-lg shadow-brand-950/10 lg:p-12">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-accent-100 px-3.5 py-1.5 text-xs font-bold text-amber-accent-700">
+        <section id="pricing" className="rounded-3xl border-2 border-amber-400/25 bg-neutral-900 p-8 text-center shadow-lg shadow-black/30 lg:p-12">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3.5 py-1.5 text-xs font-bold text-amber-300">
             <Trophy size={13} />
             أول ١٥ فريق يحصلون على سعر المؤسسين — ثابت مدى اشتراككم
           </span>
-          <p className="mt-6 flex items-center justify-center gap-2 font-display text-brand-950">
+          <p className="mt-6 flex items-center justify-center gap-2 font-display text-white">
             <span className="text-5xl font-extrabold">{PRICE_PER_PERSON}</span>
-            <span className="text-lg font-semibold text-brand-950/60">ريال / شهريًا لكل شخص</span>
+            <span className="text-lg font-semibold text-white/55">ريال / شهريًا لكل شخص</span>
           </p>
-          <p className="mt-1 text-sm text-brand-950/50">
+          <p className="mt-1 text-sm text-white/40">
             يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال شهريًا للفريق كامل ({TEAM_SIZE} أعضاء)
           </p>
 
@@ -215,8 +215,8 @@ export default function Landing() {
               "مكتبة أدلة ومرفقات بلا حدود",
               "دعم مباشر وتحديثات مستمرة",
             ].map((item) => (
-              <li key={item} className="flex items-center gap-2.5 text-sm text-brand-950/70">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600">
+              <li key={item} className="flex items-center gap-2.5 text-sm text-white/70">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-amber-300">
                   <Check size={12} strokeWidth={3} />
                 </span>
                 {item}
@@ -226,14 +226,14 @@ export default function Landing() {
 
           <Link
             to="/login"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-3 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-400 px-8 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 hover:bg-amber-300"
           >
             ابدأ فريقك الآن
             <ArrowLeft size={16} />
           </Link>
 
-          <div className="mt-8 border-t border-brand-100 pt-6 text-start text-sm text-brand-950/55">
-            <p className="mb-2 font-bold text-brand-950">كيف يتم الدفع؟</p>
+          <div className="mt-8 border-t border-white/10 pt-6 text-start text-sm text-white/50">
+            <p className="mb-2 font-bold text-white">كيف يتم الدفع؟</p>
             <ol className="space-y-1.5">
               <li>١. حوّلوا المبلغ عبر STC Pay</li>
               <li>٢. أرسلوا لنا إثبات التحويل</li>
@@ -243,7 +243,7 @@ export default function Landing() {
         </section>
       </Reveal>
 
-      <footer className="border-t border-brand-100/70 py-8 text-center text-sm text-brand-950/40">
+      <footer className="border-t border-white/10 py-8 text-center text-sm text-white/35">
         NURSYNC — صُنعت لفرق بحث التخرج التمريضي
       </footer>
     </div>

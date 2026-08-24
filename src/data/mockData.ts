@@ -23,6 +23,7 @@ export const teamMembers: TeamMember[] = [
     color: "brand",
     email: "sara@nursync.app",
     gender: "female",
+    isSuperAdmin: true,
     progress: 82,
     tasksDone: 18,
     tasksTotal: 22,

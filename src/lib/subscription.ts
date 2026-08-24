@@ -1,15 +1,29 @@
-import type { TeamMember } from "../data/types";
+export type TeamSubscriptionState = "active" | "expiring-soon" | "expired" | "none";
 
-/**
- * تحدد إذا كان اشتراك الحساب فعّال — تُستخدم فقط في وضع Supabase الحقيقي.
- * وضع العرض التجريبي (mock) دايمًا "فعّال" لأنه مو مرتبط باشتراك حقيقي.
- */
-export function isSubscriptionActive(user: Pick<TeamMember, "subscriptionStatus" | "trialEndsAt"> | null): boolean {
-  if (!user || !user.subscriptionStatus) return true;
-  if (user.subscriptionStatus === "active") return true;
-  if (user.subscriptionStatus === "trial") {
-    if (!user.trialEndsAt) return true;
-    return new Date(user.trialEndsAt).getTime() > Date.now();
-  }
-  return false;
+const EXPIRING_SOON_DAYS = 7;
+
+/** يحدد حالة اشتراك الفريق من تاريخ الانتهاء المخزّن بقاعدة البيانات */
+export function getTeamSubscriptionState(
+  subscriptionEndDate: string | null | undefined,
+): TeamSubscriptionState {
+  if (!subscriptionEndDate) return "none";
+  const end = new Date(subscriptionEndDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.ceil((end.getTime() - today.getTime()) / 86_400_000);
+  if (diffDays < 0) return "expired";
+  if (diffDays <= EXPIRING_SOON_DAYS) return "expiring-soon";
+  return "active";
 }
+
+/** فريقه بحالة "none" أو "expired" يتحول تلقائيًا لوضع قراءة فقط */
+export function canTeamWrite(state: TeamSubscriptionState): boolean {
+  return state === "active" || state === "expiring-soon";
+}
+
+export const subscriptionStateLabel: Record<TeamSubscriptionState, string> = {
+  active: "نشط",
+  "expiring-soon": "على وشك الانتهاء",
+  expired: "منتهي",
+  none: "لم يُفعّل بعد",
+};

@@ -8,9 +8,9 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { teamMembers } from "../data/mockData";
-import type { TeamMember } from "../data/types";
+import type { Team, TeamMember } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
-import { isSubscriptionActive } from "../lib/subscription";
+import { canTeamWrite, getTeamSubscriptionState, type TeamSubscriptionState } from "../lib/subscription";
 
 interface AuthResult {
   error?: string;
@@ -19,8 +19,12 @@ interface AuthResult {
 interface AuthContextValue {
   currentUser: TeamMember | null;
   isLeader: boolean;
-  /** فعّالة دايمًا بوضع العرض التجريبي؛ تعكس حالة الاشتراك الحقيقية بوضع Supabase */
-  hasActiveSubscription: boolean;
+  isSuperAdmin: boolean;
+  /** null بوضع العرض التجريبي — الفريق التجريبي مو مرتبط باشتراك حقيقي */
+  team: Team | null;
+  /** فعّالة دايمًا بوضع العرض التجريبي؛ تعكس حالة اشتراك الفريق الحقيقية بوضع Supabase */
+  subscriptionState: TeamSubscriptionState;
+  canWrite: boolean;
   loading: boolean;
   mode: "supabase" | "mock";
   loginAsMock: (userId: string) => void;
@@ -37,6 +41,13 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const STORAGE_KEY = "nursync.currentUserId";
+
+const mockTeam: Team = {
+  id: "mock-team",
+  name: "فريق البحث التجريبي",
+  subscriptionEndDate: "2030-01-01",
+  memberCount: teamMembers.length,
+};
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/);
@@ -66,7 +77,10 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
   const value: AuthContextValue = {
     currentUser,
     isLeader: currentUser?.role === "leader",
-    hasActiveSubscription: true,
+    isSuperAdmin: currentUser?.isSuperAdmin ?? false,
+    team: mockTeam,
+    subscriptionState: "active",
+    canWrite: true,
     loading: false,
     mode: "mock",
     loginAsMock,
@@ -81,6 +95,7 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
 function AuthProviderSupabase({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [currentUser, setCurrentUser] = useState<TeamMember | null>(null);
+  const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,6 +113,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session) {
       setCurrentUser(null);
+      setTeam(null);
       setLoading(false);
       return;
     }
@@ -105,26 +121,46 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     setLoading(true);
     supabase!
       .from("profiles")
-      .select(
-        "id, name, initials, title, role, color, email, gender, subscription_status, trial_ends_at",
-      )
+      .select("id, team_id, name, initials, title, role, color, email, gender, is_super_admin")
       .eq("id", session.user.id)
       .single()
-      .then(({ data }) => {
-        if (data) {
-          const { subscription_status, trial_ends_at, ...rest } = data as typeof data & {
-            subscription_status?: TeamMember["subscriptionStatus"];
-            trial_ends_at?: string | null;
-          };
-          setCurrentUser({
-            ...rest,
-            subscriptionStatus: subscription_status,
-            trialEndsAt: trial_ends_at,
-            progress: 0,
-            tasksDone: 0,
-            tasksTotal: 0,
-          } as TeamMember);
+      .then(async ({ data }) => {
+        if (!data) {
+          setLoading(false);
+          return;
         }
+
+        const { team_id, is_super_admin, ...rest } = data as typeof data & {
+          team_id: string | null;
+          is_super_admin: boolean;
+        };
+        setCurrentUser({
+          ...rest,
+          teamId: team_id,
+          isSuperAdmin: is_super_admin,
+          progress: 0,
+          tasksDone: 0,
+          tasksTotal: 0,
+        } as TeamMember);
+
+        if (team_id) {
+          const { data: teamRow } = await supabase!
+            .from("teams")
+            .select("id, name, subscription_end_date")
+            .eq("id", team_id)
+            .single();
+          if (teamRow) {
+            setTeam({
+              id: teamRow.id,
+              name: teamRow.name,
+              subscriptionEndDate: teamRow.subscription_end_date,
+              memberCount: 0,
+            });
+          }
+        } else {
+          setTeam(null);
+        }
+
         setLoading(false);
       });
   }, [session]);
@@ -152,10 +188,15 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     supabase!.auth.signOut();
   };
 
+  const subscriptionState = getTeamSubscriptionState(team?.subscriptionEndDate);
+
   const value: AuthContextValue = {
     currentUser,
     isLeader: currentUser?.role === "leader",
-    hasActiveSubscription: isSubscriptionActive(currentUser),
+    isSuperAdmin: currentUser?.isSuperAdmin ?? false,
+    team,
+    subscriptionState,
+    canWrite: canTeamWrite(subscriptionState),
     loading,
     mode: "supabase",
     loginAsMock: () => {},

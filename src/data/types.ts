@@ -1,6 +1,5 @@
 export type Role = "leader" | "member";
 export type Gender = "male" | "female";
-export type SubscriptionStatus = "trial" | "active" | "expired";
 
 export interface TeamMember {
   id: string;
@@ -11,12 +10,20 @@ export interface TeamMember {
   color: string;
   email: string;
   gender?: Gender;
-  /** حالة الاشتراك — لا تُستخدم إلا في وضع Supabase الحقيقي (اشتراك تجريبي/فعّال/منتهي) */
-  subscriptionStatus?: SubscriptionStatus;
-  trialEndsAt?: string | null;
+  /** لا تُستخدم إلا في وضع Supabase الحقيقي */
+  teamId?: string | null;
+  isSuperAdmin?: boolean;
   progress: number;
   tasksDone: number;
   tasksTotal: number;
+}
+
+/** فريق بحثي — عميل مستقل باشتراكه الخاص (وضع Supabase الحقيقي فقط) */
+export interface Team {
+  id: string;
+  name: string;
+  subscriptionEndDate: string | null;
+  memberCount: number;
 }
 
 export type SectionStatus = "done" | "in-progress" | "not-started";

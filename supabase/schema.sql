@@ -4,10 +4,24 @@
 -- الصق هذا الملف كامل، ثم اضغط Run. يمكن تشغيله أكثر من مرة بأمان.
 
 -- ============================================================
--- 1) الملفات الشخصية (profile لكل مستخدم في auth.users)
+-- 1) الفرق (كل فريق بحثي = عميل مستقل باشتراكه الخاص)
+-- ============================================================
+create table if not exists public.teams (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  /** تاريخ انتهاء الاشتراك — NULL يعني الفريق ما فعّل اشتراكه أبدًا بعد */
+  subscription_end_date date,
+  created_at timestamptz not null default now()
+);
+
+alter table public.teams enable row level security;
+
+-- ============================================================
+-- 2) الملفات الشخصية (profile لكل مستخدم في auth.users)
 -- ============================================================
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
+  team_id uuid references public.teams (id) on delete set null,
   name text not null,
   initials text not null default '',
   title text not null default 'عضو الفريق',
@@ -15,44 +29,61 @@ create table if not exists public.profiles (
   color text not null default 'brand',
   email text,
   gender text check (gender in ('male', 'female')),
-  subscription_status text not null default 'trial'
-    check (subscription_status in ('trial', 'active', 'expired')),
-  trial_ends_at timestamptz default (now() + interval '14 days'),
+  /** حساب صاحب النظام (مالك NURSYNC) — يشوف صفحة إدارة الاشتراكات لكل الفرق */
+  is_super_admin boolean not null default false,
   created_at timestamptz not null default now()
 );
 
 -- ترقية جدول قديم: أضف الأعمدة الجديدة لو الجدول كان موجود من قبل بدونها
+alter table public.profiles add column if not exists team_id uuid references public.teams (id) on delete set null;
 alter table public.profiles add column if not exists gender text check (gender in ('male', 'female'));
-alter table public.profiles add column if not exists subscription_status text
-  not null default 'trial' check (subscription_status in ('trial', 'active', 'expired'));
-alter table public.profiles add column if not exists trial_ends_at timestamptz
-  default (now() + interval '14 days');
+alter table public.profiles add column if not exists is_super_admin boolean not null default false;
+-- ترقية من نسخة قديمة كانت تحط الاشتراك على كل حساب بدل الفريق (لم تعد مستخدمة)
+alter table public.profiles drop column if exists subscription_status;
+alter table public.profiles drop column if exists trial_ends_at;
+drop function if exists public.has_active_subscription(uuid);
 
--- تتحقق هل اشتراك المستخدم فعّال (Active، أو Trial ولسا ما انتهى)
--- استخدمها بأي RLS policy عشان تمنعين الوصول للمحتوى الفعلي لحساب منتهي الاشتراك
-create or replace function public.has_active_subscription(uid uuid)
+alter table public.profiles enable row level security;
+
+-- يرجّع team_id الخاص بالمستخدم الحالي — دالة SECURITY DEFINER عشان تتفادى التكرار
+-- اللانهائي لما policy على جدول profiles تحتاج تقرأ من نفس جدول profiles
+create or replace function public.my_team_id()
+returns uuid
+language sql
+security definer set search_path = public
+stable
+as $$
+  select team_id from public.profiles where id = auth.uid();
+$$;
+
+-- هل الحساب الحالي مالك النظام (Super Admin)؟
+create or replace function public.is_super_admin(uid uuid default auth.uid())
+returns boolean
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce((select is_super_admin from public.profiles where id = uid), false);
+$$;
+
+-- هل فريق معيّن يقدر "يكتب" (يضيف/يعدّل) الحين؟ محتاج تاريخ انتهاء موجود ولسا ما فات
+create or replace function public.team_can_write(tid uuid)
 returns boolean
 language sql
 security definer set search_path = public
 stable
 as $$
   select exists (
-    select 1 from public.profiles
-    where id = uid
-      and (
-        subscription_status = 'active'
-        or (subscription_status = 'trial' and (trial_ends_at is null or trial_ends_at > now()))
-      )
+    select 1 from public.teams
+    where id = tid and subscription_end_date is not null and subscription_end_date >= current_date
   );
 $$;
-
-alter table public.profiles enable row level security;
 
 drop policy if exists "profiles are viewable by the team" on public.profiles;
 create policy "profiles are viewable by the team"
   on public.profiles for select
   to authenticated
-  using (true);
+  using (team_id = public.my_team_id() or public.is_super_admin());
 
 drop policy if exists "users can update their own profile" on public.profiles;
 create policy "users can update their own profile"
@@ -66,18 +97,36 @@ create policy "users can insert their own profile"
   to authenticated
   with check (auth.uid() = id);
 
--- ينشئ صف profile تلقائيًا عند تسجيل مستخدم جديد.
--- مرّر الاسم والحروف الأولى والجنس عبر options.data عند استدعاء supabase.auth.signUp:
---   supabase.auth.signUp({ email, password, options: { data: { name, initials, gender } } })
+drop policy if exists "team members can view their own team" on public.teams;
+create policy "team members can view their own team"
+  on public.teams for select
+  to authenticated
+  using (id = public.my_team_id() or public.is_super_admin());
+
+-- ينشئ صف profile تلقائيًا عند تسجيل مستخدم جديد، وينشئ فريق جديد له تلقائيًا
+-- إلا إذا مرّرتِ team_id لعضو منضم لفريق موجود (رابط دعوة الفريق):
+--   supabase.auth.signUp({ email, password, options: { data: { name, initials, gender, team_id? } } })
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  new_team_id uuid;
+  meta_team_id text := new.raw_user_meta_data ->> 'team_id';
 begin
-  insert into public.profiles (id, name, initials, email, gender)
+  if meta_team_id is not null then
+    new_team_id := meta_team_id::uuid;
+  else
+    insert into public.teams (name)
+    values (coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)) || ' — فريق بحثي')
+    returning id into new_team_id;
+  end if;
+
+  insert into public.profiles (id, team_id, name, initials, email, gender)
   values (
     new.id,
+    new_team_id,
     coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)),
     coalesce(new.raw_user_meta_data ->> 'initials', upper(left(new.email, 2))),
     new.email,
@@ -94,10 +143,11 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- ============================================================
--- 2) المهام
+-- 3) المهام
 -- ============================================================
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
+  team_id uuid references public.teams (id) on delete cascade,
   title text not null,
   description text not null default '',
   assignee_id uuid not null references public.profiles (id),
@@ -109,35 +159,57 @@ create table if not exists public.tasks (
   created_at timestamptz not null default now()
 );
 
+alter table public.tasks add column if not exists team_id uuid references public.teams (id) on delete cascade;
+
+-- تعبّي team_id تلقائيًا من فريق منشئ المهمة، حتى لو الواجهة ما أرسلتها
+create or replace function public.set_task_team_id()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if new.team_id is null then
+    new.team_id := public.my_team_id();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists set_task_team_id on public.tasks;
+create trigger set_task_team_id
+  before insert on public.tasks
+  for each row execute procedure public.set_task_team_id();
+
 alter table public.tasks enable row level security;
 
--- المحتوى الفعلي (المهام) محجوب عن أي حساب اشتراكه منتهي — حتى لو مسجّل دخول صحيح
+-- القراءة مسموحة دايمًا لأعضاء الفريق — حتى لو الاشتراك منتهي (وضع "قراءة فقط")
 drop policy if exists "tasks are viewable by the team" on public.tasks;
 create policy "tasks are viewable by the team"
   on public.tasks for select
   to authenticated
-  using (public.has_active_subscription(auth.uid()));
+  using (team_id = public.my_team_id());
 
--- إسناد مهمة جديدة: يقدر يسويها قائد الفريق فقط، واشتراكه لازم يكون فعّال
+-- إضافة مهمة جديدة: قائد الفريق فقط، واشتراك الفريق لازم يكون فعّال (مو منتهي)
 drop policy if exists "only the leader can create tasks" on public.tasks;
 create policy "only the leader can create tasks"
   on public.tasks for insert
   to authenticated
   with check (
-    public.has_active_subscription(auth.uid())
+    public.team_can_write(public.my_team_id())
     and exists (
       select 1 from public.profiles
       where id = auth.uid() and role = 'leader'
     )
   );
 
--- تحديث المهمة: العضو المسؤول عنها يقدر يحدّث حالتها، والقائد يقدر يعدّل أي مهمة — واشتراكهم لازم يكون فعّال
+-- تحديث المهمة (تغيير الحالة مثلًا): العضو المسؤول عنها أو القائد، واشتراك الفريق فعّال
 drop policy if exists "assignee or leader can update a task" on public.tasks;
 create policy "assignee or leader can update a task"
   on public.tasks for update
   to authenticated
   using (
-    public.has_active_subscription(auth.uid())
+    team_id = public.my_team_id()
+    and public.team_can_write(public.my_team_id())
     and (
       auth.uid() = assignee_id
       or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
@@ -149,16 +221,18 @@ create policy "only the leader can delete tasks"
   on public.tasks for delete
   to authenticated
   using (
-    public.has_active_subscription(auth.uid())
+    team_id = public.my_team_id()
+    and public.team_can_write(public.my_team_id())
     and exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
   );
 
 -- تفعيل التحديث اللحظي (Realtime) حتى تتزامن المهام بين كل الفريق فورًا
 alter publication supabase_realtime add table public.tasks;
 alter publication supabase_realtime add table public.profiles;
+alter publication supabase_realtime add table public.teams;
 
 -- ============================================================
--- 3) تعيين أول قائدة/قائد فريق
+-- 4) تعيين أول قائدة/قائد فريق
 -- ============================================================
 -- بعد ما تسجّل أول حساب (من صفحة تسجيل الدخول في الموقع)، شغّل هذا السطر
 -- بعد ما تستبدل البريد الإلكتروني بإيميل قائدة/قائد الفريق الفعلي:
@@ -166,16 +240,50 @@ alter publication supabase_realtime add table public.profiles;
 -- update public.profiles set role = 'leader' where email = 'leader@example.com';
 
 -- ============================================================
--- 4) إدارة الاشتراك (يدويًا الآن، لحد ما تربطين بوابة دفع)
+-- 5) تعيينك أنتِ كمالكة للنظام (Super Admin)
 -- ============================================================
--- كل حساب جديد يبدأ تلقائيًا بفترة تجريبية 14 يوم (subscription_status = 'trial').
--- بعد ما يدفع الفريق، فعّلي اشتراكهم بتشغيل هذا السطر لكل حساب بالفريق:
+-- شغّلي هذا السطر مرة وحدة بإيميلك أنتِ — بعدها راح تقدرين توصلين لصفحة
+-- "إدارة الاشتراكات" (/admin/subscriptions) وتشوفين كل الفرق:
 --
--- update public.profiles set subscription_status = 'active' where email = 'leader@example.com';
---
--- لو انتهى الاشتراك أو توقف الدفع:
---
--- update public.profiles set subscription_status = 'expired' where email = 'leader@example.com';
---
--- لما تربطين بوابة دفع حقيقية (Moyasar/Tap)، خلي الـ webhook حقها يشغّل نفس هذين
--- السطرين تلقائيًا بدل التفعيل اليدوي — الكود بالموقع والـ RLS جاهزين، ما يحتاجون تعديل.
+-- update public.profiles set is_super_admin = true where email = 'you@example.com';
+
+-- ============================================================
+-- 6) دوال صفحة "إدارة الاشتراكات" — Super Admin فقط
+-- ============================================================
+-- ترجّع كل الفرق مع حالتهم — يرفضها تلقائيًا لو المستخدم مو Super Admin
+create or replace function public.admin_list_teams()
+returns table (
+  id uuid,
+  name text,
+  subscription_end_date date,
+  member_count bigint
+)
+language sql
+security definer set search_path = public
+stable
+as $$
+  select t.id, t.name, t.subscription_end_date, count(p.id) as member_count
+  from public.teams t
+  left join public.profiles p on p.team_id = t.id
+  where public.is_super_admin()
+  group by t.id, t.name, t.subscription_end_date
+  order by t.subscription_end_date nulls first;
+$$;
+
+-- تمدّد اشتراك فريق فصل دراسي كامل (4 أشهر) من تاريخ الضغط على الزر —
+-- استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا
+create or replace function public.admin_extend_subscription(target_team_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if not public.is_super_admin() then
+    raise exception 'غير مصرح لك بهذا الإجراء';
+  end if;
+
+  update public.teams
+  set subscription_end_date = (current_date + interval '4 months')::date
+  where id = target_team_id;
+end;
+$$;

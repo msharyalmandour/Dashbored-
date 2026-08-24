@@ -14,6 +14,7 @@ import {
   Stethoscope,
   Compass,
   FlaskConical,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import clsx from "clsx";
@@ -39,7 +40,7 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, isSuperAdmin, logout } = useAuth();
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-e border-brand-100/70 bg-paper">
@@ -88,6 +89,23 @@ export default function Sidebar() {
           <Compass size={18} />
           دليل الطالب
         </NavLink>
+
+        {isSuperAdmin && (
+          <NavLink
+            to="/admin/subscriptions"
+            className={({ isActive }) =>
+              clsx(
+                "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                isActive
+                  ? "bg-brand-700 text-white shadow-sm shadow-brand-700/30"
+                  : "text-brand-700 hover:bg-brand-50",
+              )
+            }
+          >
+            <ShieldCheck size={18} />
+            إدارة الاشتراكات
+          </NavLink>
+        )}
       </nav>
 
       {currentUser && (

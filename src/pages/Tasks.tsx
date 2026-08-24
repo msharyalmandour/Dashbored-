@@ -69,7 +69,7 @@ const filters: { id: string; label: string }[] = [
 ];
 
 export default function Tasks() {
-  const { currentUser, isLeader } = useAuth();
+  const { currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
   const { tasks, addTask, updateStatus } = useTasksData();
   const [filter, setFilter] = useState("all");
@@ -139,7 +139,7 @@ export default function Tasks() {
   };
 
   const toggleDone = async (task: (typeof tasks)[number]) => {
-    const canToggle = isLeader || task.assigneeId === currentUser?.id;
+    const canToggle = canWrite && (isLeader || task.assigneeId === currentUser?.id);
     if (!canToggle) return;
     const nextStatus: TaskStatus = task.status === "done" ? "todo" : "done";
     await updateStatus(task.id, nextStatus);
@@ -169,7 +169,7 @@ export default function Tasks() {
           ))}
         </div>
 
-        {isLeader && (
+        {isLeader && canWrite && (
           <button
             onClick={() => setShowForm((s) => !s)}
             className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
@@ -180,7 +180,7 @@ export default function Tasks() {
         )}
       </div>
 
-      {showForm && isLeader && (
+      {showForm && isLeader && canWrite && (
         <Card tone="cream" className="relative">
           <button
             onClick={() => setShowForm(false)}
@@ -262,7 +262,7 @@ export default function Tasks() {
       <div className="grid grid-cols-1 gap-3">
         {filtered.map((task) => {
           const assignee = memberById(task.assigneeId);
-          const canToggle = isLeader || task.assigneeId === currentUser?.id;
+          const canToggle = canWrite && (isLeader || task.assigneeId === currentUser?.id);
           return (
             <Card key={task.id} className="flex flex-wrap items-center gap-4">
               <button

@@ -1,8 +1,11 @@
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
+  BookOpenCheck,
   Check,
   MessageCircleWarning,
+  Milestone,
   PartyPopper,
   Sparkles,
   Trophy,
@@ -10,6 +13,10 @@ import {
 } from "lucide-react";
 import Reveal from "../components/Reveal";
 import Logo from "../components/Logo";
+import TiltCard from "../components/cinematic/TiltCard";
+import CountUp from "../components/cinematic/CountUp";
+import { useMouseParallax } from "../hooks/useMouseParallax";
+import { researchStages } from "../data/mockData";
 import overviewShot from "../assets/landing/overview.png";
 import tasksShot from "../assets/landing/tasks.png";
 import evidenceShot from "../assets/landing/evidence.png";
@@ -17,6 +24,54 @@ import celebrationShot from "../assets/landing/celebration.png";
 
 const PRICE_PER_PERSON = 40;
 const TEAM_SIZE = 5;
+
+const stageBlurbs: Record<string, string> = {
+  proposal: "تحددون فكرة بحثكم ومشكلته من البداية",
+  "lit-review": "تجمعون وتحللون الدراسات السابقة المرتبطة",
+  gap: "تكتشفون وش الناقص بالدراسات الموجودة",
+  aim: "تصيغون هدف بحثكم وأسئلته بدقة",
+  methodology: "تحددون طريقة جمع وتحليل بياناتكم",
+  "data-collection": "تنفذون الجمع الفعلي للبيانات بالميدان",
+  analysis: "تحللون النتائج وتستخرجون الدلالات",
+  final: "تجمعون كل شي بتقرير نهائي جاهز للتسليم",
+};
+
+function FloatingCard({
+  className,
+  duration,
+  tilt,
+  depth,
+  parallax,
+  children,
+}: {
+  className: string;
+  duration: number;
+  tilt: string;
+  depth: number;
+  parallax: { x: number; y: number };
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`pointer-events-none absolute motion-reduce:animate-none ${className}`}
+      style={
+        {
+          animation: `card-float ${duration}s ease-in-out infinite`,
+          "--tilt": tilt,
+        } as CSSProperties
+      }
+    >
+      <div
+        style={{
+          transform: `translate3d(${parallax.x * depth}px, ${parallax.y * depth}px, 0)`,
+          transition: "transform 120ms ease-out",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
 function BrowserFrame({ src, alt }: { src: string; alt: string }) {
   return (
@@ -75,6 +130,10 @@ const features: { image: string; title: string; desc: string; reverse?: boolean 
 ];
 
 export default function Landing() {
+  const { ref: heroRef, offset } = useMouseParallax(16);
+  const [hoveredStage, setHoveredStage] = useState<string | null>(null);
+  const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
@@ -93,7 +152,7 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section ref={heroRef} className="relative overflow-hidden">
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
@@ -103,9 +162,9 @@ export default function Landing() {
               مبنية خصيصًا لفرق بحث التخرج التمريضي
             </span>
             <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] text-white lg:text-5xl">
-              بحث التخرج مو لازم
+              حوّلوا بحثكم
               <br />
-              يكون فوضى واتساب وإكسل
+              لرؤية واضحة
             </h1>
             <p className="mt-5 max-w-lg text-lg text-white/55">
               NURSYNC تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
@@ -131,12 +190,123 @@ export default function Landing() {
               ({TEAM_SIZE} أعضاء).
             </p>
           </div>
-          <div className="lg:pe-4">
-            <Reveal>
-              <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
-            </Reveal>
+
+          <div className="relative lg:pe-4">
+            <TiltCard maxTilt={4} className="relative z-10">
+              <Reveal>
+                <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
+              </Reveal>
+            </TiltCard>
+
+            <FloatingCard
+              className="-top-8 start-2 z-20 hidden sm:block"
+              duration={7}
+              tilt="-6deg"
+              depth={0.7}
+              parallax={offset}
+            >
+              <div className="w-40 rounded-2xl border border-white/10 bg-neutral-900/90 p-3 shadow-2xl shadow-black/40 backdrop-blur">
+                <div className="flex items-center gap-1.5 text-emerald-300">
+                  <Check size={12} />
+                  <span className="text-[11px] font-bold">مراجعة الأدبيات</span>
+                </div>
+                <p className="mt-1 text-[10px] text-white/45">مكتملة — ١٨ دراسة</p>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard
+              className="-bottom-6 -start-6 z-20 hidden sm:block"
+              duration={8.5}
+              tilt="4deg"
+              depth={0.9}
+              parallax={offset}
+            >
+              <div className="flex w-36 items-center gap-2.5 rounded-2xl border border-white/10 bg-neutral-900/90 p-3 shadow-2xl shadow-black/40 backdrop-blur">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-amber-400 text-[11px] font-extrabold text-amber-300">
+                  ٤٢٪
+                </span>
+                <span className="text-[10px] font-semibold text-white/60">نسبة تقدم البحث</span>
+              </div>
+            </FloatingCard>
+
+            <FloatingCard
+              className="-end-8 top-1/3 z-20 hidden lg:block"
+              duration={6.5}
+              tilt="-3deg"
+              depth={0.5}
+              parallax={offset}
+            >
+              <span className="flex h-3 w-3 animate-[node-pulse_2.4s_ease-in-out_infinite] rounded-full bg-amber-400 motion-reduce:animate-none" />
+            </FloatingCard>
           </div>
         </div>
+      </section>
+
+      {/* Facts strip */}
+      <Reveal className="mx-auto max-w-6xl px-6">
+        <div className="grid grid-cols-2 gap-4 border-t border-white/10 py-8 sm:grid-cols-4">
+          {[
+            { icon: Milestone, value: 8, label: "مراحل بحثية واضحة" },
+            { icon: Users, value: TEAM_SIZE, label: "أعضاء بكل فريق" },
+            { icon: Trophy, value: 15, label: "مقعد بسعر المؤسسين" },
+            { icon: BookOpenCheck, value: PRICE_PER_PERSON, label: "ريال شهريًا لكل شخص" },
+          ].map((f) => (
+            <div key={f.label} className="text-center">
+              <f.icon size={18} className="mx-auto text-amber-300/80" />
+              <p className="mt-2 font-display text-3xl font-extrabold text-white">
+                <CountUp value={f.value} />
+              </p>
+              <p className="mt-1 text-xs text-white/45">{f.label}</p>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
+      {/* Research journey constellation */}
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <Reveal className="mb-12 text-center">
+          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
+            رحلتكم البحثية، متصلة
+          </h2>
+          <p className="mt-2 text-white/50">٨ مراحل واضحة من أول فكرة للتسليم النهائي</p>
+        </Reveal>
+
+        <Reveal delay={100}>
+          <div className="flex items-start justify-between overflow-x-auto pb-2">
+            {researchStages.map((stage, i) => (
+              <div key={stage.id} className="flex flex-1 items-center">
+                <button
+                  onMouseEnter={() => setHoveredStage(stage.id)}
+                  onMouseLeave={() => setHoveredStage(null)}
+                  className="flex min-w-[80px] flex-col items-center gap-2.5 text-center"
+                >
+                  <span
+                    className={`flex h-3 w-3 rounded-full border-2 transition-all ${
+                      hoveredStage === stage.id
+                        ? "scale-125 border-amber-400 bg-amber-400 shadow-[0_0_12px_2px_rgba(251,191,36,0.5)]"
+                        : "border-white/25 bg-neutral-950"
+                    }`}
+                  />
+                  <span
+                    className={`text-[11px] font-semibold transition-colors ${
+                      hoveredStage === stage.id ? "text-amber-300" : "text-white/50"
+                    }`}
+                  >
+                    {stage.titleAr}
+                  </span>
+                </button>
+                {i < researchStages.length - 1 && (
+                  <div className="mt-[6px] h-px flex-1 bg-white/10" />
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white/10 bg-neutral-900/80 p-5 text-center backdrop-blur transition-all">
+            <p className="font-display font-bold text-amber-300">{activeStage.titleAr}</p>
+            <p className="mt-1.5 text-sm text-white/55">{stageBlurbs[activeStage.id]}</p>
+          </div>
+        </Reveal>
       </section>
 
       {/* Problem */}
@@ -178,7 +348,9 @@ export default function Landing() {
               }`}
             >
               <Reveal>
-                <BrowserFrame src={f.image} alt={f.title} />
+                <TiltCard maxTilt={3}>
+                  <BrowserFrame src={f.image} alt={f.title} />
+                </TiltCard>
               </Reveal>
               <Reveal delay={150}>
                 <div>

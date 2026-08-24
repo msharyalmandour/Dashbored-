@@ -25,6 +25,9 @@ import ProgressBar from "../components/ui/ProgressBar";
 import StatCard from "../components/StatCard";
 import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
+import TiltCard from "../components/cinematic/TiltCard";
+import CountUp from "../components/cinematic/CountUp";
+import { useMouseParallax } from "../hooks/useMouseParallax";
 import { useAuth } from "../context/AuthContext";
 import {
   calendarEvents,
@@ -66,6 +69,7 @@ const FLASHBACK_RESURFACE_DAYS = 7;
 export default function Overview() {
   const { currentUser } = useAuth();
   const isFemale = isFemaleUser(currentUser);
+  const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
   const visitGapDays = useVisitGap();
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
@@ -177,9 +181,16 @@ export default function Overview() {
 
       {/* Welcome + progress */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card tone="teal" className="relative overflow-hidden lg:col-span-2">
-          <div className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)]" />
-          <div className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50" />
+        <div ref={heroParallaxRef} className="lg:col-span-2">
+        <Card tone="teal" className="relative overflow-hidden">
+          <div
+            className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)] transition-transform duration-300 ease-out motion-reduce:transition-none"
+            style={{ transform: `translate3d(${heroOffset.x * 0.6}px, ${heroOffset.y * 0.6}px, 0)` }}
+          />
+          <div
+            className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50 transition-transform duration-300 ease-out motion-reduce:transition-none"
+            style={{ transform: `translate3d(${heroOffset.x * -0.4}px, ${heroOffset.y * -0.4}px, 0)` }}
+          />
           <div className="relative">
             <p className="flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950">
               <TimeOfDayBadge period={greeting.period} />
@@ -220,7 +231,7 @@ export default function Overview() {
                 <div>
                   <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث</p>
                   <p className="font-display text-4xl font-extrabold text-brand-950">
-                    {projectMeta.overallProgress}%
+                    <CountUp value={projectMeta.overallProgress} suffix="%" />
                   </p>
                 </div>
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-brand-950/70">
@@ -236,40 +247,49 @@ export default function Overview() {
             </div>
           </div>
         </Card>
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <StatCard
-            icon={Milestone}
-            label="المرحلة الحالية"
-            value={projectMeta.currentStageAr}
-            sub={projectMeta.currentStageEn}
-            color="brand"
-            tone="teal"
-          />
-          <StatCard
-            icon={ListTodo}
-            label="المهمة الحالية"
-            value={projectMeta.currentTask}
-            sub="قيد التنفيذ الآن"
-            color="amber-accent"
-            tone="cream"
-          />
-          <StatCard
-            icon={TrendingUp}
-            label="الخطوة التالية"
-            value={projectMeta.nextStep}
-            sub="بعد إكمال الحالية"
-            color="sky-accent"
-            tone="sky"
-          />
-          <StatCard
-            icon={CalendarClock}
-            label="الموعد القادم"
-            value={formatDateShort(projectMeta.nextDeadlineDate)}
-            sub={`${projectMeta.nextDeadlineLabel} — متبقٍ ${nextDeadlineDays} أيام`}
-            color="brand"
-            tone="violet"
-          />
+          <TiltCard maxTilt={4}>
+            <StatCard
+              icon={Milestone}
+              label="المرحلة الحالية"
+              value={projectMeta.currentStageAr}
+              sub={projectMeta.currentStageEn}
+              color="brand"
+              tone="teal"
+            />
+          </TiltCard>
+          <TiltCard maxTilt={4}>
+            <StatCard
+              icon={ListTodo}
+              label="المهمة الحالية"
+              value={projectMeta.currentTask}
+              sub="قيد التنفيذ الآن"
+              color="amber-accent"
+              tone="cream"
+            />
+          </TiltCard>
+          <TiltCard maxTilt={4}>
+            <StatCard
+              icon={TrendingUp}
+              label="الخطوة التالية"
+              value={projectMeta.nextStep}
+              sub="بعد إكمال الحالية"
+              color="sky-accent"
+              tone="sky"
+            />
+          </TiltCard>
+          <TiltCard maxTilt={4}>
+            <StatCard
+              icon={CalendarClock}
+              label="الموعد القادم"
+              value={formatDateShort(projectMeta.nextDeadlineDate)}
+              sub={`${projectMeta.nextDeadlineLabel} — متبقٍ ${nextDeadlineDays} أيام`}
+              color="brand"
+              tone="violet"
+            />
+          </TiltCard>
         </div>
       </div>
 
@@ -397,8 +417,11 @@ export default function Overview() {
           <div className="flex items-center gap-2">
             <BookOpenCheck size={18} className="text-amber-accent-600" />
             <p className="text-2xl font-extrabold text-brand-950">
-              {reviewedCount}
-              <span className="text-base font-medium text-brand-950/40"> / {collectedCount}</span>
+              <CountUp value={reviewedCount} />
+              <span className="text-base font-medium text-brand-950/40">
+                {" "}
+                / <CountUp value={collectedCount} />
+              </span>
             </p>
           </div>
           <p className="mb-3 text-xs text-brand-950/45">دراسة تمت مراجعتها من إجمالي المجمّعة</p>

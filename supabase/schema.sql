@@ -11,10 +11,36 @@ create table if not exists public.teams (
   name text not null,
   /** تاريخ انتهاء الاشتراك — NULL يعني الفريق ما فعّل اشتراكه أبدًا بعد */
   subscription_end_date date,
+  /** السعر الشهري الخاص بهذا الفريق بالريال — يبقى ثابت له حتى لو تغيّر السعر العام لاحقًا */
+  monthly_price numeric(6, 2) not null default 25,
+  /** أول 15 فريق يشتركون بالنظام — سعرهم (25 ريال) يبقى ثابت مدى الاشتراك */
+  is_founder boolean not null default false,
   created_at timestamptz not null default now()
 );
 
+alter table public.teams add column if not exists monthly_price numeric(6, 2) not null default 25;
+alter table public.teams add column if not exists is_founder boolean not null default false;
+
 alter table public.teams enable row level security;
+
+-- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين" وقت إنشائهم
+create or replace function public.set_team_founder_flag()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if (select count(*) from public.teams) < 15 then
+    new.is_founder := true;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists set_team_founder_flag on public.teams;
+create trigger set_team_founder_flag
+  before insert on public.teams
+  for each row execute procedure public.set_team_founder_flag();
 
 -- ============================================================
 -- 2) الملفات الشخصية (profile لكل مستخدم في auth.users)
@@ -256,23 +282,27 @@ returns table (
   id uuid,
   name text,
   subscription_end_date date,
-  member_count bigint
+  member_count bigint,
+  monthly_price numeric,
+  is_founder boolean
 )
 language sql
 security definer set search_path = public
 stable
 as $$
-  select t.id, t.name, t.subscription_end_date, count(p.id) as member_count
+  select t.id, t.name, t.subscription_end_date, count(p.id) as member_count,
+         t.monthly_price, t.is_founder
   from public.teams t
   left join public.profiles p on p.team_id = t.id
   where public.is_super_admin()
-  group by t.id, t.name, t.subscription_end_date
+  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder
   order by t.subscription_end_date nulls first;
 $$;
 
--- تمدّد اشتراك فريق فصل دراسي كامل (4 أشهر) من تاريخ الضغط على الزر —
--- استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا
-create or replace function public.admin_extend_subscription(target_team_id uuid)
+-- تمدّد اشتراك فريق بعدد الأشهر اللي دفعوها فعليًا (سعر ٢٥ ريال/شهر) —
+-- تُضيف الأشهر فوق تاريخ الانتهاء الحالي لو لسا ما انتهى (تجديد مبكر ما يضيّع أيام)،
+-- أو من اليوم لو منتهي أو أول مرة. استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا
+create or replace function public.admin_extend_subscription(target_team_id uuid, months int default 1)
 returns void
 language plpgsql
 security definer set search_path = public
@@ -283,7 +313,10 @@ begin
   end if;
 
   update public.teams
-  set subscription_end_date = (current_date + interval '4 months')::date
+  set subscription_end_date = (
+    greatest(coalesce(subscription_end_date, current_date), current_date)
+    + (months || ' months')::interval
+  )::date
   where id = target_team_id;
 end;
 $$;

@@ -24,6 +24,9 @@ export interface Team {
   name: string;
   subscriptionEndDate: string | null;
   memberCount: number;
+  monthlyPrice: number;
+  /** من أول 15 فريق اشتركوا — سعرهم ثابت مدى الاشتراك */
+  isFounder: boolean;
 }
 
 export type SectionStatus = "done" | "in-progress" | "not-started";

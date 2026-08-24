@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { CheckCircle2, RefreshCw, ShieldCheck, Users } from "lucide-react";
+import { CheckCircle2, RefreshCw, ShieldCheck, Trophy, Users } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import { useAuth } from "../context/AuthContext";
@@ -15,22 +15,26 @@ const stateBadge: Record<string, string> = {
   none: "bg-surface-muted text-brand-950/45",
 };
 
+const monthOptions = [1, 3, 6, 12];
+
 export default function AdminSubscriptions() {
   const { isSuperAdmin } = useAuth();
   const { teams, loading, extendSubscription } = useAdminTeams();
   const [extendingId, setExtendingId] = useState<string | null>(null);
+  const [months, setMonths] = useState<Record<string, number>>({});
 
   if (!isSuperAdmin) return <Navigate to="/" replace />;
 
   const handleExtend = async (teamId: string) => {
     setExtendingId(teamId);
-    await extendSubscription(teamId);
+    await extendSubscription(teamId, months[teamId] ?? 1);
     setExtendingId(null);
   };
 
-  const activeCount = teams.filter(
-    (t) => getTeamSubscriptionState(t.subscriptionEndDate) === "active",
-  ).length;
+  const activeStates = new Set(["active", "expiring-soon"]);
+  const activeTeams = teams.filter((t) =>
+    activeStates.has(getTeamSubscriptionState(t.subscriptionEndDate)),
+  );
   const expiringCount = teams.filter(
     (t) => getTeamSubscriptionState(t.subscriptionEndDate) === "expiring-soon",
   ).length;
@@ -38,6 +42,7 @@ export default function AdminSubscriptions() {
     const s = getTeamSubscriptionState(t.subscriptionEndDate);
     return s === "expired" || s === "none";
   }).length;
+  const monthlyRevenue = activeTeams.reduce((sum, t) => sum + t.monthlyPrice, 0);
 
   return (
     <div className="space-y-5">
@@ -50,16 +55,22 @@ export default function AdminSubscriptions() {
             إدارة الاشتراكات
           </h1>
           <p className="text-sm text-brand-950/55">
-            كل الفرق المسجّلة بالنظام — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
+            ٢٥ ريال شهريًا لكل فريق — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
           </p>
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card tone="cream">
           <p className="text-sm font-semibold text-brand-950/60">فرق نشطة</p>
           <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
-            {activeCount}
+            {activeTeams.length}
+          </p>
+        </Card>
+        <Card tone="violet">
+          <p className="text-sm font-semibold text-brand-950/60">الإيراد الشهري الحالي</p>
+          <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
+            {monthlyRevenue} <span className="text-base font-medium text-brand-950/40">ريال</span>
           </p>
         </Card>
         <Card tone="amber">
@@ -84,13 +95,25 @@ export default function AdminSubscriptions() {
           {teams.map((team) => {
             const state = getTeamSubscriptionState(team.subscriptionEndDate);
             const isExtending = extendingId === team.id;
+            const selectedMonths = months[team.id] ?? 1;
             return (
               <li key={team.id} className="flex flex-wrap items-center gap-4 p-4">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-brand-950">{team.name}</p>
-                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-brand-950/45">
-                    <Users size={12} />
-                    {team.memberCount} أعضاء
+                  <p className="flex items-center gap-1.5 truncate font-semibold text-brand-950">
+                    {team.name}
+                    {team.isFounder && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[11px] font-bold text-amber-accent-700">
+                        <Trophy size={11} />
+                        مؤسس
+                      </span>
+                    )}
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-3 text-xs text-brand-950/45">
+                    <span className="flex items-center gap-1.5">
+                      <Users size={12} />
+                      {team.memberCount} أعضاء
+                    </span>
+                    <span>{team.monthlyPrice} ريال/شهر</span>
                   </p>
                 </div>
                 <div className="text-sm text-brand-950/60">
@@ -106,6 +129,19 @@ export default function AdminSubscriptions() {
                 >
                   {subscriptionStateLabel[state]}
                 </span>
+                <select
+                  value={selectedMonths}
+                  onChange={(e) =>
+                    setMonths((prev) => ({ ...prev, [team.id]: Number(e.target.value) }))
+                  }
+                  className="rounded-xl border border-brand-100 px-2.5 py-2 text-sm font-semibold text-brand-950/70 outline-none focus:border-brand-300"
+                >
+                  {monthOptions.map((m) => (
+                    <option key={m} value={m}>
+                      {m} {m === 1 ? "شهر" : "أشهر"}
+                    </option>
+                  ))}
+                </select>
                 <button
                   onClick={() => handleExtend(team.id)}
                   disabled={isExtending}

@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Overview from "./pages/Overview";
 import Proposal from "./pages/Proposal";
@@ -20,6 +21,7 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 export default function App() {
   return (
     <Routes>
+      <Route path="/welcome" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/celebration" element={<Celebration />} />
       <Route element={<Layout />}>

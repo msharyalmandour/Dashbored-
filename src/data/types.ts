@@ -1,5 +1,6 @@
 export type Role = "leader" | "member";
 export type Gender = "male" | "female";
+export type SubscriptionStatus = "trial" | "active" | "expired";
 
 export interface TeamMember {
   id: string;
@@ -10,6 +11,9 @@ export interface TeamMember {
   color: string;
   email: string;
   gender?: Gender;
+  /** حالة الاشتراك — لا تُستخدم إلا في وضع Supabase الحقيقي (اشتراك تجريبي/فعّال/منتهي) */
+  subscriptionStatus?: SubscriptionStatus;
+  trialEndsAt?: string | null;
   progress: number;
   tasksDone: number;
   tasksTotal: number;

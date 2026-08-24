@@ -10,6 +10,7 @@ import type { Session } from "@supabase/supabase-js";
 import { teamMembers } from "../data/mockData";
 import type { TeamMember } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { isSubscriptionActive } from "../lib/subscription";
 
 interface AuthResult {
   error?: string;
@@ -18,6 +19,8 @@ interface AuthResult {
 interface AuthContextValue {
   currentUser: TeamMember | null;
   isLeader: boolean;
+  /** فعّالة دايمًا بوضع العرض التجريبي؛ تعكس حالة الاشتراك الحقيقية بوضع Supabase */
+  hasActiveSubscription: boolean;
   loading: boolean;
   mode: "supabase" | "mock";
   loginAsMock: (userId: string) => void;
@@ -63,6 +66,7 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
   const value: AuthContextValue = {
     currentUser,
     isLeader: currentUser?.role === "leader",
+    hasActiveSubscription: true,
     loading: false,
     mode: "mock",
     loginAsMock,
@@ -101,13 +105,21 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     setLoading(true);
     supabase!
       .from("profiles")
-      .select("id, name, initials, title, role, color, email, gender")
+      .select(
+        "id, name, initials, title, role, color, email, gender, subscription_status, trial_ends_at",
+      )
       .eq("id", session.user.id)
       .single()
       .then(({ data }) => {
         if (data) {
+          const { subscription_status, trial_ends_at, ...rest } = data as typeof data & {
+            subscription_status?: TeamMember["subscriptionStatus"];
+            trial_ends_at?: string | null;
+          };
           setCurrentUser({
-            ...data,
+            ...rest,
+            subscriptionStatus: subscription_status,
+            trialEndsAt: trial_ends_at,
             progress: 0,
             tasksDone: 0,
             tasksTotal: 0,
@@ -143,6 +155,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
   const value: AuthContextValue = {
     currentUser,
     isLeader: currentUser?.role === "leader",
+    hasActiveSubscription: isSubscriptionActive(currentUser),
     loading,
     mode: "supabase",
     loginAsMock: () => {},

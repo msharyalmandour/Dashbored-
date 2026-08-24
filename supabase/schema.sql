@@ -257,10 +257,31 @@ create policy "only the leader can delete tasks"
     and exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
   );
 
--- تفعيل التحديث اللحظي (Realtime) حتى تتزامن المهام بين كل الفريق فورًا
-alter publication supabase_realtime add table public.tasks;
-alter publication supabase_realtime add table public.profiles;
-alter publication supabase_realtime add table public.teams;
+-- تفعيل التحديث اللحظي (Realtime) حتى تتزامن المهام بين كل الفريق فورًا —
+-- بشكل آمن للتشغيل أكثر من مرة (يتجاوز أي جدول مفعّل عليه Realtime أصلًا)
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'tasks'
+  ) then
+    alter publication supabase_realtime add table public.tasks;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'profiles'
+  ) then
+    alter publication supabase_realtime add table public.profiles;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'teams'
+  ) then
+    alter publication supabase_realtime add table public.teams;
+  end if;
+end $$;
 
 -- ============================================================
 -- 4) تعيين أول قائدة/قائد فريق

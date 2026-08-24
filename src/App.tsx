@@ -20,6 +20,7 @@ import Story from "./pages/Story";
 import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import ResetPassword from "./pages/ResetPassword";
+import SupervisorView from "./pages/SupervisorView";
 
 export default function App() {
   const { currentUser, passwordRecovery } = useAuth();
@@ -42,6 +43,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/celebration" element={<Celebration />} />
+      <Route path="/supervisor/:token" element={<SupervisorView />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Overview />} />
         <Route path="/proposal" element={<Proposal />} />

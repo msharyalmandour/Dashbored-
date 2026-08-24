@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, Mail, ShieldCheck, UserPlus } from "lucide-react";
+import { Check, Copy, GraduationCap, Mail, ShieldCheck, UserPlus } from "lucide-react";
 import Card, { type CardTone } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
@@ -47,6 +47,43 @@ function InviteCard() {
   );
 }
 
+function SupervisorLinkCard() {
+  const { team } = useAuth();
+  const [copied, setCopied] = useState(false);
+
+  if (!team?.shareToken) return null;
+  const shareLink = `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}`;
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(shareLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card tone="sky" className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-100 text-sky-accent-700">
+          <GraduationCap size={18} />
+        </span>
+        <div>
+          <p className="font-bold text-brand-950">رابط المشرف الأكاديمي</p>
+          <p className="mt-0.5 text-sm text-brand-950/55">
+            شاركوه مع مشرفكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={copy}
+        className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+      >
+        {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
+        {copied ? "تم النسخ" : "نسخ رابط المشرف"}
+      </button>
+    </Card>
+  );
+}
+
 export default function Team() {
   const { roster } = useTeamRoster();
   const { tasks } = useTasksData();
@@ -54,7 +91,12 @@ export default function Team() {
 
   return (
     <div>
-      {isLeader && mode === "supabase" && <InviteCard />}
+      {isLeader && mode === "supabase" && (
+        <>
+          <InviteCard />
+          <SupervisorLinkCard />
+        </>
+      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {roster.map((member, i) => {
         const memberTasks = tasks.filter((t) => t.assigneeId === member.id);

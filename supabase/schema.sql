@@ -408,3 +408,56 @@ begin
   where id = p_member_id;
 end;
 $$;
+
+-- ============================================================
+-- 8) رابط المشرف الأكاديمي — تقرير قراءة فقط بدون تسجيل دخول
+-- ============================================================
+
+-- رمز مشاركة عشوائي غير قابل للتخمين لكل فريق — نفس فكرة رابط دعوة الفريق
+alter table public.teams add column if not exists share_token uuid not null default gen_random_uuid();
+create unique index if not exists teams_share_token_idx on public.teams (share_token);
+
+-- ترجّع لقطة قراءة فقط من بيانات الفريق الحقيقية (المهام والأعضاء) لمن يملك
+-- الرمز — بدون أي حاجة لتسجيل دخول. SECURITY DEFINER عشان تتجاوز RLS بأمان
+-- (الوصول محصور بمعرفة الرمز نفسه، مو بجلسة مستخدم).
+create or replace function public.get_team_snapshot(p_token uuid)
+returns json
+language plpgsql
+security definer set search_path = public
+stable
+as $$
+declare
+  v_team_id uuid;
+  v_team_name text;
+  result json;
+begin
+  select id, name into v_team_id, v_team_name from public.teams where share_token = p_token;
+  if v_team_id is null then
+    return null;
+  end if;
+
+  select json_build_object(
+    'teamName', v_team_name,
+    'members', (
+      select coalesce(json_agg(json_build_object('name', p.name, 'initials', p.initials, 'role', p.role)), '[]'::json)
+      from public.profiles p
+      where p.team_id = v_team_id
+    ),
+    'tasks', (
+      select coalesce(json_agg(json_build_object(
+        'title', t.title,
+        'status', t.status,
+        'dueDate', t.due_date,
+        'assigneeName', p.name
+      ) order by t.due_date), '[]'::json)
+      from public.tasks t
+      left join public.profiles p on p.id = t.assignee_id
+      where t.team_id = v_team_id
+    )
+  ) into result;
+
+  return result;
+end;
+$$;
+
+grant execute on function public.get_team_snapshot(uuid) to anon;

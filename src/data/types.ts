@@ -27,6 +27,8 @@ export interface Team {
   monthlyPrice: number;
   /** من أول 15 فريق اشتركوا — سعرهم ثابت مدى الاشتراك */
   isFounder: boolean;
+  /** رمز رابط المشرف الأكاديمي (وضع Supabase الحقيقي فقط) */
+  shareToken?: string;
 }
 
 export type SectionStatus = "done" | "in-progress" | "not-started";

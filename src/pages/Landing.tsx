@@ -9,14 +9,18 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import Reveal from "../components/Reveal";
 import overviewShot from "../assets/landing/overview.png";
 import tasksShot from "../assets/landing/tasks.png";
 import evidenceShot from "../assets/landing/evidence.png";
 import celebrationShot from "../assets/landing/celebration.png";
 
+const PRICE_PER_PERSON = 25;
+const TEAM_SIZE = 5;
+
 function BrowserFrame({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-brand-100 bg-paper shadow-2xl shadow-brand-950/20">
+    <div className="overflow-hidden rounded-2xl border border-brand-100 bg-paper shadow-2xl shadow-brand-950/20 transition-transform duration-300 hover:scale-[1.02]">
       <div className="flex items-center gap-1.5 border-b border-brand-100 bg-surface-muted px-3.5 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-rose-300" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber-accent-300" />
@@ -92,8 +96,8 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl" />
-        <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 rounded-full bg-amber-accent-100/70 blur-3xl" />
+        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-brand-100/60 blur-3xl motion-reduce:animate-none" />
+        <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-amber-accent-100/70 blur-3xl motion-reduce:animate-none" />
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3.5 py-1.5 text-xs font-bold text-brand-700">
@@ -125,11 +129,14 @@ export default function Landing() {
               </a>
             </div>
             <p className="mt-5 text-sm text-brand-950/45">
-              ٢٥ ريال شهريًا لكل فريق — ٥ طالبات، وصول كامل للجميع.
+              ٢٥ ريال شهريًا لكل شخص — يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال بس للفريق كامل
+              ({TEAM_SIZE} طالبات).
             </p>
           </div>
           <div className="lg:pe-4">
-            <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
+            <Reveal>
+              <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
+            </Reveal>
           </div>
         </div>
       </section>
@@ -143,17 +150,16 @@ export default function Landing() {
           <p className="mt-2 text-brand-950/55">لأننا فهمناها من فرق حقيقية زيكم</p>
         </div>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          {problems.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
-                <p.icon size={20} />
-              </span>
-              <h3 className="mt-4 font-display font-bold text-brand-950">{p.title}</h3>
-              <p className="mt-1.5 text-sm text-brand-950/55">{p.desc}</p>
-            </div>
+          {problems.map((p, i) => (
+            <Reveal key={p.title} delay={i * 120}>
+              <div className="rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500">
+                  <p.icon size={20} />
+                </span>
+                <h3 className="mt-4 font-display font-bold text-brand-950">{p.title}</h3>
+                <p className="mt-1.5 text-sm text-brand-950/55">{p.desc}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -173,30 +179,36 @@ export default function Landing() {
                 f.reverse ? "lg:[&>*:first-child]:order-2" : ""
               }`}
             >
-              <BrowserFrame src={f.image} alt={f.title} />
-              <div>
-                <h3 className="font-display text-xl font-extrabold text-brand-950 lg:text-2xl">
-                  {f.title}
-                </h3>
-                <p className="mt-3 max-w-md text-brand-950/60">{f.desc}</p>
-              </div>
+              <Reveal>
+                <BrowserFrame src={f.image} alt={f.title} />
+              </Reveal>
+              <Reveal delay={150}>
+                <div>
+                  <h3 className="font-display text-xl font-extrabold text-brand-950 lg:text-2xl">
+                    {f.title}
+                  </h3>
+                  <p className="mt-3 max-w-md text-brand-950/60">{f.desc}</p>
+                </div>
+              </Reveal>
             </div>
           ))}
         </div>
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="mx-auto max-w-3xl px-6 py-16">
-        <div className="rounded-3xl border-2 border-brand-200 bg-paper p-8 text-center shadow-lg shadow-brand-950/10 lg:p-12">
+      <Reveal className="mx-auto max-w-3xl px-6 py-16">
+        <section id="pricing" className="rounded-3xl border-2 border-brand-200 bg-paper p-8 text-center shadow-lg shadow-brand-950/10 lg:p-12">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-accent-100 px-3.5 py-1.5 text-xs font-bold text-amber-accent-700">
             <Trophy size={13} />
             أول ١٥ فريق يحصلون على سعر المؤسسين — ثابت مدى اشتراككم
           </span>
           <p className="mt-6 flex items-center justify-center gap-2 font-display text-brand-950">
-            <span className="text-5xl font-extrabold">٢٥</span>
-            <span className="text-lg font-semibold text-brand-950/60">ريال / شهريًا</span>
+            <span className="text-5xl font-extrabold">{PRICE_PER_PERSON}</span>
+            <span className="text-lg font-semibold text-brand-950/60">ريال / شهريًا لكل شخص</span>
           </p>
-          <p className="mt-1 text-sm text-brand-950/50">لكل فريق كامل (٥ طالبات) — مو لكل شخص</p>
+          <p className="mt-1 text-sm text-brand-950/50">
+            يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال شهريًا للفريق كامل ({TEAM_SIZE} طالبات)
+          </p>
 
           <ul className="mx-auto mt-8 max-w-xs space-y-3 text-start">
             {[
@@ -230,8 +242,8 @@ export default function Landing() {
               <li>٣. نفعّل اشتراك فريقكم خلال ساعة</li>
             </ol>
           </div>
-        </div>
-      </section>
+        </section>
+      </Reveal>
 
       <footer className="border-t border-brand-100/70 py-8 text-center text-sm text-brand-950/40">
         NURSYNC — صُنعت لفرق بحث التخرج التمريضي

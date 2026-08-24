@@ -215,3 +215,8 @@ h1, h2, h3, .font-display {
   background-color: var(--color-brand-300);
   border-radius: 999px;
 }
+
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(24px, -18px); }
+}

@@ -42,7 +42,10 @@ export default function AdminSubscriptions() {
     const s = getTeamSubscriptionState(t.subscriptionEndDate);
     return s === "expired" || s === "none";
   }).length;
-  const monthlyRevenue = activeTeams.reduce((sum, t) => sum + t.monthlyPrice, 0);
+  const monthlyRevenue = activeTeams.reduce(
+    (sum, t) => sum + t.monthlyPrice * t.memberCount,
+    0,
+  );
 
   return (
     <div className="space-y-5">
@@ -55,7 +58,7 @@ export default function AdminSubscriptions() {
             إدارة الاشتراكات
           </h1>
           <p className="text-sm text-brand-950/55">
-            ٢٥ ريال شهريًا لكل فريق — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
+            ٢٥ ريال شهريًا لكل شخص — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
           </p>
         </div>
       </Card>
@@ -113,7 +116,12 @@ export default function AdminSubscriptions() {
                       <Users size={12} />
                       {team.memberCount} أعضاء
                     </span>
-                    <span>{team.monthlyPrice} ريال/شهر</span>
+                    <span>
+                      {team.monthlyPrice} ريال/شخص —{" "}
+                      <span className="font-bold text-brand-700">
+                        {team.monthlyPrice * team.memberCount} ريال/شهر
+                      </span>
+                    </span>
                   </p>
                 </div>
                 <div className="text-sm text-brand-950/60">

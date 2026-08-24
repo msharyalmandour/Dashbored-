@@ -38,7 +38,7 @@
 
   --color-surface: #fdf0f3;
   --color-surface-muted: #f9dfe6;
-  --color-paper: #fffafb;
+  --color-paper: #fcedf1;
   --color-ink: #33141d;
   --color-overlay-soft: rgba(255, 255, 255, 0.55);
   --color-track: rgba(255, 255, 255, 0.7);
@@ -65,7 +65,7 @@
 
   --color-surface: #f7f7e9;
   --color-surface-muted: #edefd8;
-  --color-paper: #fdfdf5;
+  --color-paper: #f2f3e0;
   --color-ink: #23260f;
 }
 

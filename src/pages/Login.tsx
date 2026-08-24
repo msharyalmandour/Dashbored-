@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { Coffee, Moon, Stethoscope } from "lucide-react";
+import { Coffee, Moon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import { getGreeting } from "../lib/date";
+import Logo from "../components/Logo";
 
 export default function Login() {
   const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword } = useAuth();
@@ -61,8 +62,8 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-surface px-4">
       <div className="w-full max-w-md rounded-3xl border border-brand-100 bg-paper p-8 shadow-sm shadow-brand-950/5">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-sm shadow-brand-500/30">
-            <Stethoscope size={24} />
+          <div className="mb-3">
+            <Logo size={48} />
           </div>
           <h1 className="font-display text-2xl font-extrabold text-brand-950">NURSYNC</h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-950/50">

@@ -11,7 +11,6 @@ import {
   CalendarDays,
   ListTree,
   LogOut,
-  Stethoscope,
   Compass,
   FlaskConical,
   ShieldCheck,
@@ -23,6 +22,7 @@ import { researchStages } from "../data/mockData";
 import { getResearcherTitle } from "../lib/identity";
 import { isFemaleUser } from "../lib/gender";
 import Avatar from "./ui/Avatar";
+import Logo from "./Logo";
 
 const navItems = [
   { to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true },
@@ -45,9 +45,7 @@ export default function Sidebar() {
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-e border-brand-100/70 bg-paper">
       <div className="flex items-center gap-2.5 px-6 py-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-sm shadow-brand-950/20">
-          <Stethoscope size={19} />
-        </div>
+        <Logo size={40} />
         <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
           NURSYNC
         </span>

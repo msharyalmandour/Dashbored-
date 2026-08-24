@@ -5,11 +5,11 @@ import {
   MessageCircleWarning,
   PartyPopper,
   Sparkles,
-  Stethoscope,
   Trophy,
   Users,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
+import Logo from "../components/Logo";
 import overviewShot from "../assets/landing/overview.png";
 import tasksShot from "../assets/landing/tasks.png";
 import evidenceShot from "../assets/landing/evidence.png";
@@ -79,9 +79,7 @@ export default function Landing() {
     <div className="min-h-screen bg-surface">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-sm shadow-brand-500/30">
-            <Stethoscope size={19} />
-          </div>
+          <Logo size={40} />
           <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
             NURSYNC
           </span>

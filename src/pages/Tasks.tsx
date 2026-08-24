@@ -4,6 +4,7 @@ import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
+import ImproveWritingButton from "../components/ImproveWritingButton";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
@@ -214,7 +215,13 @@ export default function Tasks() {
               </select>
             </label>
             <label className="block text-sm md:col-span-2">
-              <span className="mb-1 block font-semibold text-brand-950/70">الوصف</span>
+              <span className="mb-1 flex items-center justify-between font-semibold text-brand-950/70">
+                الوصف
+                <ImproveWritingButton
+                  value={form.description}
+                  onImproved={(text) => setForm({ ...form, description: text })}
+                />
+              </span>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}

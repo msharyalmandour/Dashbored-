@@ -4,6 +4,8 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
 import PaymentProofUpload from "./PaymentProofUpload";
+import CommandPalette from "./CommandPalette";
+import AiAssistant from "./AiAssistant";
 import { useAuth } from "../context/AuthContext";
 
 const titles: Record<string, string> = {
@@ -45,6 +47,8 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen bg-surface">
+      <CommandPalette />
+      <AiAssistant />
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header title={title} />

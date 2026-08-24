@@ -53,7 +53,7 @@ const mockTeam: Team = {
   name: "فريق البحث التجريبي",
   subscriptionEndDate: "2030-01-01",
   memberCount: teamMembers.length,
-  monthlyPrice: 25,
+  monthlyPrice: 40,
   isFounder: true,
 };
 

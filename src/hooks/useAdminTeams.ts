@@ -8,7 +8,7 @@ const mockTeams: Team[] = [
     name: "فريق دليريوم — سارة العتيبي",
     subscriptionEndDate: "2030-01-01",
     memberCount: 5,
-    monthlyPrice: 25,
+    monthlyPrice: 40,
     isFounder: true,
   },
   {
@@ -16,7 +16,7 @@ const mockTeams: Team[] = [
     name: "فريق تجارب — نورة القحطاني",
     subscriptionEndDate: fromToday(4),
     memberCount: 4,
-    monthlyPrice: 25,
+    monthlyPrice: 40,
     isFounder: true,
   },
   {
@@ -24,7 +24,7 @@ const mockTeams: Team[] = [
     name: "فريق سلامة المريض — بندر العتيبي",
     subscriptionEndDate: fromToday(-10),
     memberCount: 6,
-    monthlyPrice: 25,
+    monthlyPrice: 40,
     isFounder: false,
   },
   {
@@ -32,7 +32,7 @@ const mockTeams: Team[] = [
     name: "فريق التمريض المجتمعي — ريم الدوسري",
     subscriptionEndDate: null,
     memberCount: 3,
-    monthlyPrice: 25,
+    monthlyPrice: 40,
     isFounder: false,
   },
 ];

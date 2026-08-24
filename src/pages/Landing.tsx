@@ -15,7 +15,7 @@ import tasksShot from "../assets/landing/tasks.png";
 import evidenceShot from "../assets/landing/evidence.png";
 import celebrationShot from "../assets/landing/celebration.png";
 
-const PRICE_PER_PERSON = 25;
+const PRICE_PER_PERSON = 40;
 const TEAM_SIZE = 5;
 
 function BrowserFrame({ src, alt }: { src: string; alt: string }) {
@@ -127,7 +127,7 @@ export default function Landing() {
               </a>
             </div>
             <p className="mt-5 text-sm text-white/35">
-              ٢٥ ريال شهريًا لكل شخص — يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال بس للفريق كامل
+              ٤٠ ريال شهريًا لكل شخص — يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال بس للفريق كامل
               ({TEAM_SIZE} أعضاء).
             </p>
           </div>

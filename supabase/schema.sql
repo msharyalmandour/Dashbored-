@@ -13,13 +13,13 @@ create table if not exists public.teams (
   subscription_end_date date,
   /** السعر الشهري بالريال لكل شخص بالفريق — يبقى ثابت للفريق حتى لو تغيّر السعر العام لاحقًا.
       الفاتورة الشهرية الفعلية للفريق = monthly_price × عدد الأعضاء */
-  monthly_price numeric(6, 2) not null default 25,
-  /** أول 15 فريق يشتركون بالنظام — سعرهم (25 ريال) يبقى ثابت مدى الاشتراك */
+  monthly_price numeric(6, 2) not null default 40,
+  /** أول 15 فريق يشتركون بالنظام — سعرهم (40 ريال) يبقى ثابت مدى الاشتراك */
   is_founder boolean not null default false,
   created_at timestamptz not null default now()
 );
 
-alter table public.teams add column if not exists monthly_price numeric(6, 2) not null default 25;
+alter table public.teams add column if not exists monthly_price numeric(6, 2) not null default 40;
 alter table public.teams add column if not exists is_founder boolean not null default false;
 
 alter table public.teams enable row level security;
@@ -304,7 +304,7 @@ as $$
   order by t.subscription_end_date nulls first;
 $$;
 
--- تمدّد اشتراك فريق بعدد الأشهر اللي دفعوها فعليًا (٢٥ ريال/شخص شهريًا) —
+-- تمدّد اشتراك فريق بعدد الأشهر اللي دفعوها فعليًا (٤٠ ريال/شخص شهريًا) —
 -- تُضيف الأشهر فوق تاريخ الانتهاء الحالي لو لسا ما انتهى (تجديد مبكر ما يضيّع أيام)،
 -- أو من اليوم لو منتهي أو أول مرة. استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا
 create or replace function public.admin_extend_subscription(target_team_id uuid, months int default 1)

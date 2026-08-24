@@ -109,7 +109,7 @@ export default function AdminSubscriptions() {
             إدارة الاشتراكات
           </h1>
           <p className="text-sm text-brand-950/55">
-            ٢٥ ريال شهريًا لكل شخص — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
+            ٤٠ ريال شهريًا لكل شخص — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
           </p>
         </div>
       </Card>

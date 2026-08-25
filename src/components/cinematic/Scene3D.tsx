@@ -1,6 +1,6 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles } from "@react-three/drei";
+import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles, Stars } from "@react-three/drei";
 import type { Mesh } from "three";
 
 /** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
@@ -89,12 +89,27 @@ function FloatingShapes({ count }: { count: number }) {
   );
 }
 
+const INTRO_START_Z = 2.2;
+const INTRO_REST_Z = 6;
+const INTRO_DURATION = 2.4;
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+/** لقطة افتتاحية سينمائية: الكاميرا تبدأ قريبة جدًا (تكبير كبير) وتتراجع بسلاسة
+    للمسافة الطبيعية، وبعدها تتبع حركة الماوس بخفة (parallax) */
 function CameraRig() {
   useFrame((state) => {
+    const elapsed = state.clock.getElapsedTime();
+    const introT = Math.min(elapsed / INTRO_DURATION, 1);
+    const targetZ = INTRO_START_Z + (INTRO_REST_Z - INTRO_START_Z) * easeOutCubic(introT);
+
     const x = state.pointer.x * 0.4;
     const y = state.pointer.y * 0.25;
     state.camera.position.x += (x - state.camera.position.x) * 0.03;
     state.camera.position.y += (-y - state.camera.position.y) * 0.03;
+    state.camera.position.z += (targetZ - state.camera.position.z) * (introT < 1 ? 0.08 : 0.03);
     state.camera.lookAt(0, 0, 0);
   });
   return null;
@@ -112,13 +127,18 @@ export default function Scene3D({ density = "full" }: { density?: "full" | "ligh
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0">
-      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 6], fov: 45 }} gl={{ antialias: true, alpha: true }}>
+      <Canvas
+        dpr={[1, 2]}
+        camera={{ position: [0, 0, INTRO_START_Z], fov: 45 }}
+        gl={{ antialias: true, alpha: true }}
+      >
         <Suspense fallback={null}>
           <ambientLight intensity={0.35} />
           <pointLight position={[4, 3, 5]} intensity={90} color={GOLD_LIGHT} />
           <pointLight position={[-4, -2, -3]} intensity={35} color="#ffffff" />
           <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
           <LocalEnvironment />
+          <Stars radius={80} depth={40} count={density === "full" ? 4500 : 2500} factor={3} saturation={0} fade speed={0.4} />
           <CenterpieceKnot />
           {density === "full" && <FloatingShapes count={7} />}
           <Sparkles

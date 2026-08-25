@@ -1,8 +1,21 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, Sparkles } from "@react-three/drei";
+import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import type { Mesh } from "three";
+
+/** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
+    شي تعكسه، وإلا تطلع رمادية باهتة على أي كرت رسومات حقيقي (خلاف المحاكاة البرمجية) */
+function LocalEnvironment() {
+  return (
+    <Environment resolution={256} frames={1}>
+      <Lightformer intensity={5} color="#fbbf24" position={[0, 3, -4]} scale={[9, 4, 1]} />
+      <Lightformer intensity={3} color="#fcd34d" position={[-5, 1, 3]} scale={[5, 5, 1]} rotation={[0, Math.PI / 2, 0]} />
+      <Lightformer intensity={3} color="#ffffff" position={[5, -1, 3]} scale={[5, 5, 1]} rotation={[0, -Math.PI / 2, 0]} />
+      <Lightformer intensity={2} color="#ffffff" position={[0, -5, 2]} scale={[6, 3, 1]} rotation={[Math.PI / 2, 0, 0]} />
+    </Environment>
+  );
+}
 
 const GOLD = "#fbbf24";
 const GOLD_LIGHT = "#fcd34d";
@@ -20,12 +33,12 @@ function CenterpieceKnot() {
         <torusKnotGeometry args={[1, 0.32, 200, 32]} />
         <MeshDistortMaterial
           color={GOLD}
-          metalness={0.9}
-          roughness={0.18}
+          metalness={0.55}
+          roughness={0.25}
           distort={0.14}
           speed={1.1}
           emissive={GOLD}
-          emissiveIntensity={0.12}
+          emissiveIntensity={0.35}
         />
       </mesh>
     </Float>
@@ -61,7 +74,15 @@ function FloatingShapes({ count }: { count: number }) {
             ) : (
               <icosahedronGeometry args={[1, 0]} />
             )}
-            <meshStandardMaterial color={GOLD_LIGHT} metalness={0.7} roughness={0.3} transparent opacity={0.55} />
+            <meshStandardMaterial
+              color={GOLD_LIGHT}
+              metalness={0.45}
+              roughness={0.3}
+              emissive={GOLD_LIGHT}
+              emissiveIntensity={0.2}
+              transparent
+              opacity={0.6}
+            />
           </mesh>
         </Float>
       ))}
@@ -96,6 +117,7 @@ export default function Scene3D({ density = "full" }: { density?: "full" | "ligh
           <pointLight position={[4, 3, 5]} intensity={90} color={GOLD_LIGHT} />
           <pointLight position={[-4, -2, -3]} intensity={35} color="#ffffff" />
           <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
+          <LocalEnvironment />
           <CenterpieceKnot />
           {density === "full" && <FloatingShapes count={7} />}
           <Sparkles

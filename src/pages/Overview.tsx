@@ -22,6 +22,7 @@ import {
 import Card, { CardHeader } from "../components/ui/Card";
 import FocusSession from "../components/FocusSession";
 import TimeCapsule from "../components/TimeCapsule";
+import ShareUpdate from "../components/ShareUpdate";
 import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import GrowingPlant from "../components/GrowingPlant";
 import Avatar from "../components/ui/Avatar";
@@ -386,6 +387,7 @@ export default function Overview() {
       </div>
 
       <FocusSession />
+      <ShareUpdate />
       <TimeCapsule />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

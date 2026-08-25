@@ -32,8 +32,8 @@
     <script>
       (function () {
         try {
-          var theme = localStorage.getItem("nursync.theme");
-          if (theme && theme !== "white") {
+          var theme = localStorage.getItem("nursync.theme") || "black";
+          if (theme !== "white") {
             document.documentElement.setAttribute("data-theme", theme);
           }
         } catch (e) {}

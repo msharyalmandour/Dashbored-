@@ -11,7 +11,7 @@ export interface ThemeOption {
 export const themes: ThemeOption[] = [
   { id: "white", label: "الأساسي", swatch: "#c93f64" },
   { id: "dark-green", label: "أخضر غامق", swatch: "#0e3a2a" },
-  { id: "black", label: "أسود", swatch: "#0a0a0a" },
+  { id: "black", label: "أسود ذهبي", swatch: "#fbbf24" },
   { id: "navy", label: "كحلي", swatch: "#0e2340" },
 ];
 
@@ -34,7 +34,7 @@ function applyTheme(theme: ThemeId) {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeId>(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as ThemeId | null;
-    return stored && themes.some((t) => t.id === stored) ? stored : "white";
+    return stored && themes.some((t) => t.id === stored) ? stored : "black";
   });
 
   useEffect(() => {

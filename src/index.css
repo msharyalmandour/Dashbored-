@@ -69,19 +69,19 @@
   --color-ink: #23260f;
 }
 
-/* أسود — محايد داكن بلمسة نعناعية */
+/* أسود — الثيم الافتراضي، نفس هوية صفحة الهبوط (أسود وذهبي) */
 :root[data-theme="black"] {
-  --color-brand-50: #161616;
-  --color-brand-100: #212121;
-  --color-brand-200: #2e2e2e;
-  --color-brand-300: #454545;
-  --color-brand-400: #14b8a6;
-  --color-brand-500: #2dd4bf;
-  --color-brand-600: #5eead4;
-  --color-brand-700: #99f6e4;
-  --color-brand-800: #ccfbf1;
-  --color-brand-900: #e6fffa;
-  --color-brand-950: #fafafa;
+  --color-brand-50: #1a1509;
+  --color-brand-100: #241d0d;
+  --color-brand-200: #332912;
+  --color-brand-300: #4d3d1a;
+  --color-brand-400: #f4b02a;
+  --color-brand-500: #fbbf24;
+  --color-brand-600: #fcd34d;
+  --color-brand-700: #fde68a;
+  --color-brand-800: #fef3c7;
+  --color-brand-900: #fffbea;
+  --color-brand-950: #fffef7;
 
   --color-sky-accent-50: #101822;
   --color-sky-accent-100: #182233;

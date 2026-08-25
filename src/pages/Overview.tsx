@@ -400,7 +400,10 @@ export default function Overview() {
             <CardHeader
               title="مهامي القادمة"
               action={
-                <Link to="/tasks" className="text-xs font-semibold text-brand-600">
+                <Link
+                  to="/tasks"
+                  className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
+                >
                   عرض الكل
                 </Link>
               }
@@ -455,7 +458,10 @@ export default function Overview() {
             <CardHeader
               title={selectedDate === todayIso ? "أحداث اليوم" : formatDateShort(selectedDate)}
               action={
-                <Link to="/calendar" className="text-xs font-semibold text-brand-600 hover:underline">
+                <Link
+                  to="/calendar"
+                  className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
+                >
                   عرض الكل
                 </Link>
               }
@@ -488,7 +494,10 @@ export default function Overview() {
             title="تقدم الفريق"
             subtitle={topPerformer ? `🌟 ${topPerformer.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
             action={
-              <Link to="/team" className="text-xs font-semibold text-brand-600 hover:underline">
+              <Link
+                to="/team"
+                className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
+              >
                 عرض الكل
               </Link>
             }
@@ -545,7 +554,10 @@ export default function Overview() {
           <CardHeader
             title="آخر نشاط للفريق"
             action={
-              <Link to="/team" className="text-xs font-semibold text-brand-600 hover:underline">
+              <Link
+                to="/team"
+                className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
+              >
                 عرض الكل
               </Link>
             }

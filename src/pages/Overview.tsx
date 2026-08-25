@@ -267,6 +267,7 @@ export default function Overview() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div ref={heroParallaxRef} className="lg:col-span-2">
         <Card tone="teal" className="relative overflow-hidden">
+          <div className="pointer-events-none absolute -right-14 -top-14 h-52 w-52 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-400/10 blur-3xl motion-reduce:animate-none" />
           <div
             className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)] transition-transform duration-300 ease-out motion-reduce:transition-none"
             style={{ transform: `translate3d(${heroOffset.x * 0.6}px, ${heroOffset.y * 0.6}px, 0)` }}

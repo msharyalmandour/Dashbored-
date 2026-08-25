@@ -1,15 +1,17 @@
-import { lazy, Suspense, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   BookOpenCheck,
   Check,
+  ChevronDown,
   MessageCircleWarning,
   Milestone,
   PartyPopper,
   Sparkles,
   Trophy,
   Users,
+  X,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
 import RevealRotate from "../components/RevealRotate";
@@ -82,13 +84,88 @@ function FloatingCard({
 
 function BrowserFrame({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.02]">
-      <div className="flex items-center gap-1.5 border-b border-white/10 bg-neutral-800/70 px-3.5 py-2.5">
+    <div className="overflow-hidden rounded-2xl border border-amber-400/10 bg-neutral-900 shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.02]">
+      <div className="flex items-center gap-1.5 border-b border-amber-400/10 bg-neutral-800/70 px-3.5 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
         <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
       </div>
       <img src={src} alt={alt} className="block w-full" loading="lazy" />
+    </div>
+  );
+}
+
+function GoldDivider() {
+  return (
+    <div className="mx-auto h-px w-full max-w-3xl bg-gradient-to-r from-transparent via-amber-400/25 to-transparent" />
+  );
+}
+
+/** بديل خفيف يبين وقت تحميل مشهد الـ3D الثقيل (~950 كيلوبايت) — عشان ما تبين
+    منطقة الهيرو فاضية لحظة أو لحظتين عند اتصال بطيء */
+function ScenePlaceholder() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+      <div className="h-40 w-40 animate-pulse rounded-full bg-amber-400/10 blur-3xl" />
+    </div>
+  );
+}
+
+/** زر عائم يظهر بعد ما تنزلين تحت الهيرو، ويختفي قرب الفوتر عشان ما يتعارض
+    مع زر الاشتراك بكرت الأسعار */
+function StickyCTA() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      const pastHero = window.scrollY > 700;
+      const nearBottom =
+        window.scrollY + window.innerHeight > document.body.scrollHeight - 500;
+      setShow(pastHero && !nearBottom);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      className={`fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 transition-all duration-300 ${
+        show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+      }`}
+    >
+      <Link
+        to="/login"
+        className="flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg shadow-black/40 transition-all duration-300 hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
+      >
+        ابدأ فريقك الآن
+        <ArrowLeft size={16} />
+      </Link>
+    </div>
+  );
+}
+
+function FaqItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: () => void }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-amber-400/10 bg-neutral-900">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-start"
+      >
+        <span className="font-display font-bold text-white">{q}</span>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-amber-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <div
+        className="grid transition-all duration-300 ease-out"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <p className="px-5 pb-4 text-sm leading-relaxed text-white/55">{a}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -108,6 +185,42 @@ const problems = [
     icon: PartyPopper,
     title: "قرب التسليم = فزعة",
     desc: "آخر أسبوع الكل يكتشف إن فيه أقسام ناقصة محد سوّاها.",
+  },
+];
+
+const beforeAfter = {
+  before: [
+    "محادثات واتساب متفرقة وملفات ضايعة بين الأجهزة",
+    "محد يعرف بالضبط وين وصل الفريق",
+    "قرب التسليم = فوضى واكتشاف أقسام ناقصة",
+  ],
+  after: [
+    "كل شي بمكان واحد، منظم وواضح لكل الفريق",
+    "تقدم كل مرحلة يبين لحظيًا للجميع",
+    "تسليم مرتب من بداية البحث، بدون مفاجآت اللحظة الأخيرة",
+  ],
+};
+
+const faqs = [
+  {
+    q: "شنو لو ما نعرف نستخدم برامج تقنية؟",
+    a: "التطبيق بسيط وبالعربي بالكامل، ودليل الطالب داخل التطبيق يمشي وياكم خطوة بخطوة من أول يوم.",
+  },
+  {
+    q: "لو حبينا نوقف الاشتراك بعد شهر أو شهرين؟",
+    a: "تقدرون توقفون في أي وقت تبونه، ما فيه أي التزام طويل أو شروط جزائية.",
+  },
+  {
+    q: "هل بيانات وملفات فريقنا آمنة؟",
+    a: "بياناتكم خاصة بفريقكم فقط، ومحمية بنظام صلاحيات — كل عضو يشوف اللي يخصه حسب دوره في الفريق.",
+  },
+  {
+    q: "ينفع نستخدمه لو فريقنا أكبر أو أصغر من ٥ أعضاء؟",
+    a: `أكيد، السعر ${PRICE_PER_PERSON} ريال لكل شخص، فتقدرون تضيفون أو تحذفون أعضاء ويتغيّر السعر تلقائيًا حسب عدد فريقكم.`,
+  },
+  {
+    q: "لو واجهنا مشكلة أو سؤال، كيف الدعم؟",
+    a: "تراسلوننا مباشرة من داخل التطبيق أو عبر التواصل المتاح، ونرد عليكم خلال نفس اليوم غالبًا.",
   },
 ];
 
@@ -140,6 +253,7 @@ export default function Landing() {
   const { ref: heroRef, offset } = useMouseParallax(16);
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
   const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
     <div className="relative min-h-screen bg-neutral-950 text-white">
@@ -147,6 +261,7 @@ export default function Landing() {
         <StarsBackdrop />
       </Suspense>
       <CursorGlow />
+      <StickyCTA />
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2.5">
           <Logo size={40} />
@@ -166,7 +281,7 @@ export default function Landing() {
       <section ref={heroRef} className="relative overflow-hidden">
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
-        <Suspense fallback={null}>
+        <Suspense fallback={<ScenePlaceholder />}>
           <Scene3D density="full" />
         </Suspense>
         <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
@@ -189,7 +304,7 @@ export default function Landing() {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/login"
-                className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 hover:bg-amber-300"
+                className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
               >
                 ابدأ فريقك الآن
                 <ArrowLeft size={16} />
@@ -259,8 +374,9 @@ export default function Landing() {
       </section>
 
       {/* Facts strip */}
+      <GoldDivider />
       <Reveal className="mx-auto max-w-6xl px-6">
-        <div className="grid grid-cols-2 gap-4 border-t border-white/10 py-8 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-4">
           {[
             { icon: Milestone, value: 8, label: "مراحل بحثية واضحة" },
             { icon: Users, value: TEAM_SIZE, label: "أعضاء بكل فريق" },
@@ -318,7 +434,7 @@ export default function Landing() {
             ))}
           </div>
 
-          <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white/10 bg-neutral-900/80 p-5 text-center backdrop-blur transition-all">
+          <div className="mx-auto mt-8 max-w-md rounded-2xl border border-amber-400/10 bg-neutral-900/80 p-5 text-center backdrop-blur transition-all">
             <p className="font-display font-bold text-amber-300">{activeStage.titleAr}</p>
             <p className="mt-1.5 text-sm text-white/55">{stageBlurbs[activeStage.id]}</p>
           </div>
@@ -326,6 +442,7 @@ export default function Landing() {
       </section>
 
       {/* Problem */}
+      <GoldDivider />
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-14">
         <div className="mb-10 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
@@ -336,7 +453,7 @@ export default function Landing() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           {problems.map((p, i) => (
             <Reveal key={p.title} delay={i * 120}>
-              <div className="rounded-3xl border border-white/10 bg-neutral-900 p-6 shadow-sm shadow-black/20">
+              <div className="rounded-3xl border border-amber-400/10 bg-neutral-900 p-6 shadow-sm shadow-black/20">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-400/10 text-rose-300">
                   <p.icon size={20} />
                 </span>
@@ -346,6 +463,38 @@ export default function Landing() {
             </Reveal>
           ))}
         </div>
+
+        {/* Before / after */}
+        <Reveal delay={200} className="mt-14">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="rounded-3xl border border-white/10 bg-neutral-900/60 p-6">
+              <p className="mb-4 text-sm font-bold text-white/40">قبل NURSYNC</p>
+              <ul className="space-y-3">
+                {beforeAfter.before.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-white/50">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-400/10 text-rose-300">
+                      <X size={12} strokeWidth={3} />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-amber-400/25 bg-neutral-900 p-6">
+              <p className="mb-4 text-sm font-bold text-amber-300">بعد NURSYNC</p>
+              <ul className="space-y-3">
+                {beforeAfter.after.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-white/75">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-amber-300">
+                      <Check size={12} strokeWidth={3} />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* Features */}
@@ -381,6 +530,29 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <GoldDivider />
+      <section className="relative z-10 mx-auto max-w-2xl px-6 py-16">
+        <Reveal className="mb-10 text-center">
+          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
+            أسئلة يسألونها كل الفرق
+          </h2>
+        </Reveal>
+        <Reveal delay={100}>
+          <div className="space-y-3">
+            {faqs.map((f, i) => (
+              <FaqItem
+                key={f.q}
+                q={f.q}
+                a={f.a}
+                open={openFaq === i}
+                onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+              />
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
       {/* Pricing */}
       <Reveal className="mx-auto max-w-3xl px-6 py-16">
         <section id="pricing" className="rounded-3xl border-2 border-amber-400/25 bg-neutral-900 p-8 text-center shadow-lg shadow-black/30 lg:p-12">
@@ -414,7 +586,7 @@ export default function Landing() {
 
           <Link
             to="/login"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-400 px-8 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 hover:bg-amber-300"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-400 px-8 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
           >
             ابدأ فريقك الآن
             <ArrowLeft size={16} />

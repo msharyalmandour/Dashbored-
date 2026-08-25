@@ -18,7 +18,7 @@ export default function Header({
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-brand-100/70 bg-paper/85 px-4 py-4 backdrop-blur sm:gap-4 sm:px-8">
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-brand-100/70 bg-paper/85 px-4 py-4 backdrop-blur print:hidden sm:gap-4 sm:px-8">
       <div className="flex min-w-0 items-center gap-2">
         <button
           onClick={onMenuClick}

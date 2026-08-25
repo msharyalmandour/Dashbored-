@@ -58,7 +58,7 @@ export default function Sidebar({
       )}
       <aside
         className={clsx(
-          "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/70 bg-paper transition-transform duration-300 md:static md:z-auto md:w-64 md:translate-x-0",
+          "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/70 bg-paper transition-transform duration-300 print:hidden md:static md:z-auto md:w-64 md:translate-x-0",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >

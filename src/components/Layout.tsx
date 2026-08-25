@@ -80,7 +80,7 @@ export default function Layout() {
         <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="space-y-6">
             {showReadOnlyBanner && (
-              <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4">
+              <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4 print:hidden">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
                   <AlertTriangle size={18} />
                 </span>

@@ -301,6 +301,48 @@ button:not(:disabled):active {
   transform: scale(0.97);
 }
 
+/* طباعة/تصدير PDF — نفرض ألوان واضحة للطباعة بغض النظر عن الثيم المفعّل
+   (أسود/كحلي/أخضر...) عشان ما نطبع خلفية داكنة تبذّر حبر */
+@media print {
+  :root {
+    --color-surface: #ffffff !important;
+    --color-surface-muted: #f3f3f3 !important;
+    --color-paper: #ffffff !important;
+    --color-ink: #171717 !important;
+    --color-overlay-soft: rgba(0, 0, 0, 0.06) !important;
+    --color-track: rgba(0, 0, 0, 0.1) !important;
+
+    --color-brand-50: #f7f7f7 !important;
+    --color-brand-100: #ececec !important;
+    --color-brand-200: #d8d8d8 !important;
+    --color-brand-300: #b8b8b8 !important;
+    --color-brand-400: #8a8a8a !important;
+    --color-brand-500: #4b5563 !important;
+    --color-brand-600: #374151 !important;
+    --color-brand-700: #1f2937 !important;
+    --color-brand-800: #171717 !important;
+    --color-brand-900: #0f0f0f !important;
+    --color-brand-950: #0a0a0a !important;
+
+    --color-amber-accent-50: #fefaec !important;
+    --color-amber-accent-100: #fdf1c9 !important;
+    --color-amber-accent-200: #fbe08e !important;
+    --color-amber-accent-300: #f8c953 !important;
+    --color-amber-accent-400: #d97706 !important;
+    --color-amber-accent-500: #b45309 !important;
+    --color-amber-accent-600: #92400e !important;
+    --color-amber-accent-700: #78350f !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   button:not(:disabled) {
     transition: none;

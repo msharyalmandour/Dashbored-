@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { AlertTriangle, ArrowDown, CheckCircle2, Circle, FileText, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowDown, CheckCircle2, Circle, FileDown, FileText, RefreshCw } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
-import { proposalSections, researchGap, studyAim, teamMembers } from "../data/mockData";
+import { proposalSections, researchGap, studyAim, teamMembers, projectMeta } from "../data/mockData";
 import type { SectionStatus } from "../data/types";
+import { formatDateLong } from "../lib/date";
 
 const PROPOSAL_ATTACHMENTS_KEY = "nursync.proposalAttachments";
 
@@ -55,7 +56,21 @@ export default function Proposal() {
 
   return (
     <div className="space-y-5">
-      <Card tone="cream" className="flex flex-wrap items-center justify-between gap-4">
+      {/* يبين بس عند الطباعة/تصدير PDF — ترويسة رسمية للمستند */}
+      <div className="hidden print:block">
+        <h1 className="font-display text-2xl font-extrabold text-brand-950">
+          {projectMeta.name}
+        </h1>
+        <p className="mt-1 text-sm text-brand-950/60" dir="ltr">
+          {projectMeta.subtitle}
+        </p>
+        <p className="mt-3 text-xs text-brand-950/45">
+          تم التصدير بتاريخ {formatDateLong(new Date().toISOString().slice(0, 10))} — NURSYNC
+        </p>
+        <div className="my-4 border-t border-brand-200" />
+      </div>
+
+      <Card tone="cream" className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div>
           <h2 className="font-display text-base font-bold text-brand-950">
             المقترح البحثي <span className="text-brand-950/40">— Research Proposal</span>
@@ -64,13 +79,20 @@ export default function Proposal() {
             {doneCount} من {proposalSections.length} أقسام مكتملة
           </p>
         </div>
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-xs shrink grow">
           <ProgressBar value={completionPct} />
         </div>
+        <button
+          onClick={() => window.print()}
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+        >
+          <FileDown size={16} />
+          تصدير PDF
+        </button>
       </Card>
 
       {/* Proposal Progress checklist */}
-      <Card>
+      <Card className="print:break-inside-avoid">
         <CardHeader title="مكونات المقترح البحثي" subtitle="Proposal Components" />
         <ul className="divide-y divide-brand-50">
           {proposalSections.map((section) => {
@@ -89,7 +111,9 @@ export default function Proposal() {
                   )}
                 </div>
                 {!sectionAttachments[section.key] && (
-                  <FileAttach compact onAttach={(meta) => attachToSection(section.key, meta)} />
+                  <div className="print:hidden">
+                    <FileAttach compact onAttach={(meta) => attachToSection(section.key, meta)} />
+                  </div>
                 )}
                 <Avatar initials={owner.initials} color={owner.color} size="sm" />
                 <span
@@ -104,7 +128,7 @@ export default function Proposal() {
       </Card>
 
       {/* Research Gap */}
-      <Card tone="amber">
+      <Card tone="amber" className="print:break-inside-avoid">
         <CardHeader title="الفجوة البحثية" subtitle="Research Gap" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-2xl bg-paper p-4">
@@ -161,7 +185,7 @@ export default function Proposal() {
       </Card>
 
       {/* Aim & Research Questions */}
-      <Card>
+      <Card className="print:break-inside-avoid">
         <CardHeader title="هدف الدراسة وأسئلة البحث" subtitle="Aim & Research Questions" />
 
         <div className="mb-5 flex items-center justify-center gap-3 text-xs font-bold">

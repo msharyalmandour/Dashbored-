@@ -25,6 +25,9 @@ import evidenceShot from "../assets/landing/evidence.png";
 import celebrationShot from "../assets/landing/celebration.png";
 
 const Scene3D = lazy(() => import("../components/cinematic/Scene3D"));
+const StarsBackdrop = lazy(() =>
+  import("../components/cinematic/Scene3D").then((m) => ({ default: m.StarsBackdrop })),
+);
 
 const PRICE_PER_PERSON = 40;
 const TEAM_SIZE = 5;
@@ -140,6 +143,9 @@ export default function Landing() {
 
   return (
     <div className="relative min-h-screen bg-neutral-950 text-white">
+      <Suspense fallback={null}>
+        <StarsBackdrop />
+      </Suspense>
       <CursorGlow />
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2.5">
@@ -195,10 +201,10 @@ export default function Landing() {
                 شوفوا السعر
               </a>
             </div>
-            <p className="mt-5 text-sm text-white/35">
-              ٤٠ ريال شهريًا لكل شخص — يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال بس للفريق كامل
-              ({TEAM_SIZE} أعضاء).
-            </p>
+            <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 px-3.5 py-1.5 text-xs font-semibold text-white/50">
+              <Check size={12} className="text-amber-400" />
+              {PRICE_PER_PERSON} ريال شهريًا لكل شخص — {PRICE_PER_PERSON * TEAM_SIZE} ريال للفريق كامل ({TEAM_SIZE} أعضاء)
+            </span>
           </div>
 
           <div className="relative lg:pe-4">
@@ -273,7 +279,7 @@ export default function Landing() {
       </Reveal>
 
       {/* Research journey constellation */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <Reveal className="mb-12 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             رحلتكم البحثية، متصلة
@@ -320,7 +326,7 @@ export default function Landing() {
       </section>
 
       {/* Problem */}
-      <section className="mx-auto max-w-6xl px-6 py-14">
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-14">
         <div className="mb-10 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             نعرف بالضبط وش اللي تمرون فيه
@@ -343,7 +349,7 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className="mx-auto max-w-6xl px-6 py-14">
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-14">
         <div className="mb-14 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             كل شي يحتاجه فريقكم، بمكان واحد
@@ -414,19 +420,29 @@ export default function Landing() {
             <ArrowLeft size={16} />
           </Link>
 
-          <div className="mt-8 border-t border-white/10 pt-6 text-start text-sm text-white/50">
-            <p className="mb-2 font-bold text-white">كيف يتم الدفع؟</p>
-            <ol className="space-y-1.5">
-              <li>١. حوّلوا المبلغ عبر STC Pay</li>
-              <li>٢. أرسلوا لنا إثبات التحويل</li>
-              <li>٣. نفعّل اشتراك فريقكم خلال ساعة</li>
+          <div className="mt-8 border-t border-amber-400/15 pt-6 text-start text-sm text-white/50">
+            <p className="mb-3 font-bold text-white">كيف يتم الدفع؟</p>
+            <ol className="space-y-2.5">
+              {["حوّلوا المبلغ عبر STC Pay", "أرسلوا لنا إثبات التحويل", "نفعّل اشتراك فريقكم خلال ساعة"].map(
+                (step, i) => (
+                  <li key={step} className="flex items-center gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-[11px] font-bold text-amber-300">
+                      {i + 1}
+                    </span>
+                    {step}
+                  </li>
+                ),
+              )}
             </ol>
           </div>
         </section>
       </Reveal>
 
-      <footer className="border-t border-white/10 py-8 text-center text-sm text-white/35">
-        NURSYNC — صُنعت لفرق بحث التخرج التمريضي
+      <footer className="relative z-10 border-t border-amber-400/10 py-10 text-center">
+        <p className="font-display text-sm font-semibold tracking-wide text-white/60">NURSYNC</p>
+        <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-white/30">
+          صُنعت لفرق بحث التخرج التمريضي
+        </p>
       </footer>
     </div>
   );

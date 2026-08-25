@@ -155,3 +155,22 @@ export default function Scene3D({ density = "full" }: { density?: "full" | "ligh
     </div>
   );
 }
+
+/** طبقة نجوم ثابتة (fixed) خفيفة تغطي الصفحة كاملة خلف كل المحتوى — بدون العقدة
+    ثلاثية الأبعاد الثقيلة، بس نجوم متلألئة براحة. تبقى بمكانها حتى لو تمرّرين. */
+export function StarsBackdrop() {
+  const reducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reducedMotion) return null;
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0">
+      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 1], fov: 60 }} gl={{ antialias: false, alpha: true }}>
+        <Suspense fallback={null}>
+          <Stars radius={60} depth={30} count={3500} factor={2.5} saturation={0} fade speed={0.3} />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}

@@ -104,7 +104,12 @@ export default function LiteratureReview() {
                   <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-brand-600">
                     <BookMarked size={13} />
                     {study.link ? (
-                      <a href={study.link} className="flex items-center gap-1 hover:underline">
+                      <a
+                        href={study.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:underline"
+                      >
                         عرض المصدر <ExternalLink size={12} />
                       </a>
                     ) : (

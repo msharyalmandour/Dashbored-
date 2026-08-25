@@ -34,7 +34,6 @@ import { useMouseParallax } from "../hooks/useMouseParallax";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import {
-  calendarEvents,
   evidenceLibrary,
   projectMeta,
   recentActivity,
@@ -46,6 +45,7 @@ import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } fr
 import { getDailyQuote } from "../data/motivation";
 import { useVisitGap } from "../hooks/useVisitGap";
 import { useFirstVisit } from "../hooks/useFirstVisit";
+import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { g, isFemaleUser } from "../lib/gender";
 import { achievements, getUnlockedAchievementIds } from "../lib/achievements";
 
@@ -81,6 +81,7 @@ export default function Overview() {
   const visitGapDays = useVisitGap();
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
+  const { events: calendarEvents } = useCalendarEvents();
   const [showGuideBanner, setShowGuideBanner] = useState(
     () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
   );
@@ -453,7 +454,11 @@ export default function Overview() {
           <Card>
             <CardHeader
               title={selectedDate === todayIso ? "أحداث اليوم" : formatDateShort(selectedDate)}
-              action={<span className="text-xs font-semibold text-brand-600">عرض الكل</span>}
+              action={
+                <Link to="/calendar" className="text-xs font-semibold text-brand-600 hover:underline">
+                  عرض الكل
+                </Link>
+              }
             />
             <ul className="space-y-3">
               {(dayEvents.length > 0 ? dayEvents : upcoming).map((event) => (
@@ -482,7 +487,11 @@ export default function Overview() {
           <CardHeader
             title="تقدم الفريق"
             subtitle={topPerformer ? `🌟 ${topPerformer.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
-            action={<span className="text-xs font-semibold text-brand-600">عرض الكل</span>}
+            action={
+              <Link to="/team" className="text-xs font-semibold text-brand-600 hover:underline">
+                عرض الكل
+              </Link>
+            }
           />
           <div className="flex justify-between">
             {teamMembers.map((m) => (
@@ -533,7 +542,14 @@ export default function Overview() {
         </Card>
 
         <Card>
-          <CardHeader title="آخر نشاط للفريق" action={<span className="text-xs font-semibold text-brand-600">عرض الكل</span>} />
+          <CardHeader
+            title="آخر نشاط للفريق"
+            action={
+              <Link to="/team" className="text-xs font-semibold text-brand-600 hover:underline">
+                عرض الكل
+              </Link>
+            }
+          />
           <ul className="space-y-3">
             {recentActivity.map((activity) => {
               const member = memberById(activity.memberId);

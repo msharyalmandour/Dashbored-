@@ -307,6 +307,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "background",
     reviewStatus: "reviewed",
     addedById: "ahmed",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=Delirium+in+Critically+Ill+Older+Adults",
   },
   {
     id: "p2",
@@ -320,6 +321,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "literature-review",
     reviewStatus: "reviewed",
     addedById: "ahmed",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=ICU+Nurses+Knowledge+Attitudes+Delirium+Assessment",
   },
   {
     id: "p3",
@@ -333,6 +335,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "methodology",
     reviewStatus: "reviewed",
     addedById: "lin",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=Validity+Reliability+CAM-ICU+Tool+Systematic+Review",
   },
   {
     id: "p4",
@@ -346,6 +349,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "gap",
     reviewStatus: "reviewed",
     addedById: "maha",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=Barriers+Delirium+Screening+Tool+Utilization+ICU",
   },
   {
     id: "p5",
@@ -359,6 +363,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "background",
     reviewStatus: "reviewed",
     addedById: "sara",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=Impact+Early+Delirium+Detection+Patient+Outcomes",
   },
   {
     id: "p6",
@@ -372,6 +377,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "literature-review",
     reviewStatus: "collected",
     addedById: "ahmed",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=Nurses+Practice+Patterns+Delirium+Screening+National+Survey",
   },
   {
     id: "p7",
@@ -385,6 +391,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "methodology",
     reviewStatus: "collected",
     addedById: "omar",
+    link: "https://pubmed.ncbi.nlm.nih.gov/?term=Comparing+Detection+Tools+Delirium+Elderly+ICU+Patients",
   },
   {
     id: "p8",
@@ -398,6 +405,7 @@ export const evidenceLibrary: EvidencePaper[] = [
     section: "other",
     reviewStatus: "collected",
     addedById: "maha",
+    link: "https://scfhs.org.sa",
   },
 ];
 

@@ -1,7 +1,6 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import type { Mesh } from "three";
 
 /** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
@@ -38,7 +37,7 @@ function CenterpieceKnot() {
           distort={0.14}
           speed={1.1}
           emissive={GOLD}
-          emissiveIntensity={0.35}
+          emissiveIntensity={0.55}
         />
       </mesh>
     </Float>
@@ -102,7 +101,9 @@ function CameraRig() {
 }
 
 /** مشهد ثلاثي الأبعاد سينمائي — عقدة ذهبية دوّارة وسط أشكال هندسية عائمة وبريق خفيف،
-    يتبع حركة الماوس بخفة. يعتمد على WebGL محليًا بدون تحميل أي موارد خارجية. */
+    يتبع حركة الماوس بخفة. يعتمد على WebGL محليًا بدون تحميل أي موارد خارجية.
+    ملاحظة: تعمّدنا عدم استخدام EffectComposer/Bloom — تسبب بشاشة نصفها أسود على
+    الشاشات عالية الدقة (Retina/DPR=2)؛ التوهج هنا كله عبر emissive + الإضاءة. */
 export default function Scene3D({ density = "full" }: { density?: "full" | "light" }) {
   const reducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -128,9 +129,6 @@ export default function Scene3D({ density = "full" }: { density?: "full" | "ligh
             color={GOLD_LIGHT}
             opacity={0.55}
           />
-          <EffectComposer>
-            <Bloom intensity={0.65} luminanceThreshold={0.2} luminanceSmoothing={0.9} mipmapBlur />
-          </EffectComposer>
           <CameraRig />
         </Suspense>
       </Canvas>

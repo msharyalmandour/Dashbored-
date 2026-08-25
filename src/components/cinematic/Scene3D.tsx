@@ -1,0 +1,117 @@
+import { Suspense, useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, MeshDistortMaterial, Sparkles } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import type { Mesh } from "three";
+
+const GOLD = "#fbbf24";
+const GOLD_LIGHT = "#fcd34d";
+
+function CenterpieceKnot() {
+  const ref = useRef<Mesh>(null);
+  useFrame((_state, delta) => {
+    if (!ref.current) return;
+    ref.current.rotation.x += delta * 0.07;
+    ref.current.rotation.y += delta * 0.1;
+  });
+  return (
+    <Float speed={1.3} rotationIntensity={0.25} floatIntensity={1}>
+      <mesh ref={ref} scale={1.5}>
+        <torusKnotGeometry args={[1, 0.32, 200, 32]} />
+        <MeshDistortMaterial
+          color={GOLD}
+          metalness={0.9}
+          roughness={0.18}
+          distort={0.14}
+          speed={1.1}
+          emissive={GOLD}
+          emissiveIntensity={0.12}
+        />
+      </mesh>
+    </Float>
+  );
+}
+
+interface ShapeSpec {
+  position: [number, number, number];
+  scale: number;
+  speed: number;
+  geo: "octahedron" | "icosahedron";
+}
+
+function FloatingShapes({ count }: { count: number }) {
+  const shapes = useMemo<ShapeSpec[]>(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        position: [(Math.random() - 0.5) * 9, (Math.random() - 0.5) * 5, -2 - Math.random() * 4],
+        scale: 0.18 + Math.random() * 0.26,
+        speed: 0.6 + Math.random() * 0.8,
+        geo: i % 2 === 0 ? "octahedron" : "icosahedron",
+      })),
+    [count],
+  );
+
+  return (
+    <>
+      {shapes.map((s, i) => (
+        <Float key={i} speed={s.speed} rotationIntensity={0.6} floatIntensity={1.5}>
+          <mesh position={s.position} scale={s.scale}>
+            {s.geo === "octahedron" ? (
+              <octahedronGeometry args={[1, 0]} />
+            ) : (
+              <icosahedronGeometry args={[1, 0]} />
+            )}
+            <meshStandardMaterial color={GOLD_LIGHT} metalness={0.7} roughness={0.3} transparent opacity={0.55} />
+          </mesh>
+        </Float>
+      ))}
+    </>
+  );
+}
+
+function CameraRig() {
+  useFrame((state) => {
+    const x = state.pointer.x * 0.4;
+    const y = state.pointer.y * 0.25;
+    state.camera.position.x += (x - state.camera.position.x) * 0.03;
+    state.camera.position.y += (-y - state.camera.position.y) * 0.03;
+    state.camera.lookAt(0, 0, 0);
+  });
+  return null;
+}
+
+/** مشهد ثلاثي الأبعاد سينمائي — عقدة ذهبية دوّارة وسط أشكال هندسية عائمة وبريق خفيف،
+    يتبع حركة الماوس بخفة. يعتمد على WebGL محليًا بدون تحميل أي موارد خارجية. */
+export default function Scene3D({ density = "full" }: { density?: "full" | "light" }) {
+  const reducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reducedMotion) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0">
+      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 6], fov: 45 }} gl={{ antialias: true, alpha: true }}>
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.35} />
+          <pointLight position={[4, 3, 5]} intensity={90} color={GOLD_LIGHT} />
+          <pointLight position={[-4, -2, -3]} intensity={35} color="#ffffff" />
+          <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
+          <CenterpieceKnot />
+          {density === "full" && <FloatingShapes count={7} />}
+          <Sparkles
+            count={density === "full" ? 110 : 55}
+            scale={9}
+            size={2.2}
+            speed={0.3}
+            color={GOLD_LIGHT}
+            opacity={0.55}
+          />
+          <EffectComposer>
+            <Bloom intensity={0.65} luminanceThreshold={0.2} luminanceSmoothing={0.9} mipmapBlur />
+          </EffectComposer>
+          <CameraRig />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}

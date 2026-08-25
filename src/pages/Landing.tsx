@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { lazy, Suspense, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -22,6 +22,8 @@ import overviewShot from "../assets/landing/overview.png";
 import tasksShot from "../assets/landing/tasks.png";
 import evidenceShot from "../assets/landing/evidence.png";
 import celebrationShot from "../assets/landing/celebration.png";
+
+const Scene3D = lazy(() => import("../components/cinematic/Scene3D"));
 
 const PRICE_PER_PERSON = 40;
 const TEAM_SIZE = 5;
@@ -157,7 +159,10 @@ export default function Landing() {
       <section ref={heroRef} className="relative overflow-hidden">
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
-        <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
+        <Suspense fallback={null}>
+          <Scene3D density="full" />
+        </Suspense>
+        <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/80">
               <Sparkles size={13} />

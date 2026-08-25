@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Bell, MessageSquare, Search, Volume2, VolumeX } from "lucide-react";
+import { Search, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Avatar from "./ui/Avatar";
 import ThemeSwitcher from "./ThemeSwitcher";
 import PresenceStack from "./PresenceStack";
+import NotificationsBell from "./NotificationsBell";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 
 export default function Header({ title }: { title: string }) {
@@ -44,18 +45,7 @@ export default function Header({ title }: { title: string }) {
 
         <ThemeSwitcher />
 
-        <button className="relative rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted">
-          <Bell size={18} />
-          <span className="absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-accent-500 text-[10px] font-bold text-white">
-            3
-          </span>
-        </button>
-        <button className="relative rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted">
-          <MessageSquare size={18} />
-          <span className="absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full bg-sky-accent-500 text-[10px] font-bold text-white">
-            2
-          </span>
-        </button>
+        <NotificationsBell />
 
         {currentUser && (
           <div className="flex items-center gap-2">

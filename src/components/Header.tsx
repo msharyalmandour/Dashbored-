@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Volume2, VolumeX } from "lucide-react";
+import { Menu, Search, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Avatar from "./ui/Avatar";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -7,15 +7,29 @@ import PresenceStack from "./PresenceStack";
 import NotificationsBell from "./NotificationsBell";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 
-export default function Header({ title }: { title: string }) {
+export default function Header({
+  title,
+  onMenuClick,
+}: {
+  title: string;
+  onMenuClick?: () => void;
+}) {
   const { currentUser } = useAuth();
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-100/70 bg-paper/85 px-8 py-4 backdrop-blur">
-      <h1 className="font-display text-xl font-bold text-brand-950">{title}</h1>
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-brand-100/70 bg-paper/85 px-4 py-4 backdrop-blur sm:gap-4 sm:px-8">
+      <div className="flex min-w-0 items-center gap-2">
+        <button
+          onClick={onMenuClick}
+          className="shrink-0 rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted md:hidden"
+        >
+          <Menu size={18} />
+        </button>
+        <h1 className="font-display truncate text-lg font-bold text-brand-950 sm:text-xl">{title}</h1>
+      </div>
 
-      <div className="flex flex-1 items-center justify-end gap-4">
+      <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
         <button
           onClick={() => window.dispatchEvent(new Event("nursync:open-command-palette"))}
           className="hidden w-full max-w-sm items-center gap-2 rounded-xl border border-brand-100 bg-surface-muted py-2 pe-2.5 ps-3 text-sm md:flex"

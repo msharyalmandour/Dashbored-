@@ -34,16 +34,18 @@ export default function StatCard({
   progress,
 }: StatCardProps) {
   return (
-    <Card tone={tone} className="flex flex-col p-4">
+    <Card tone={tone} className="flex flex-col p-3.5 sm:p-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-bold uppercase tracking-wide text-brand-950/45">{label}</span>
+        <span className="text-[11px] font-semibold text-brand-950/45">{label}</span>
         <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${chipClasses[color] ?? chipClasses.brand}`}
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${chipClasses[color] ?? chipClasses.brand}`}
         >
-          <Icon size={14} />
+          <Icon size={12} />
         </span>
       </div>
-      <p className="font-display mt-2 text-lg font-extrabold leading-snug text-brand-950">{value}</p>
+      <p className="font-display mt-1.5 line-clamp-2 text-sm font-bold leading-snug text-brand-950 sm:text-base">
+        {value}
+      </p>
       {progress !== undefined ? (
         <div className="mt-2.5">
           <ProgressBar value={progress} color={color} track="bg-[var(--color-track)]" />

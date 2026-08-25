@@ -39,97 +39,119 @@ const navItems = [
   { to: "/story", label: "قصة بحثك", icon: Sparkles },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  open = false,
+  onClose,
+}: {
+  open?: boolean;
+  onClose?: () => void;
+}) {
   const { currentUser, isSuperAdmin, logout } = useAuth();
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-e border-brand-100/70 bg-paper">
-      <div className="flex items-center gap-2.5 px-6 py-6">
-        <Logo size={40} />
-        <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
-          NURSYNC
-        </span>
-      </div>
-
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) =>
-              clsx(
-                "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
-                isActive
-                  ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
-                  : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
-              )
-            }
-          >
-            <item.icon size={18} />
-            {item.label}
-          </NavLink>
-        ))}
-
-        <div className="my-2 border-t border-brand-100/70" />
-
-        <NavLink
-          to="/guide"
-          className={({ isActive }) =>
-            clsx(
-              "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
-              isActive
-                ? "bg-amber-accent-400 text-white shadow-sm shadow-amber-accent-400/30"
-                : "text-amber-accent-600 hover:bg-amber-accent-50",
-            )
-          }
-        >
-          <Compass size={18} />
-          دليل الطالب
-        </NavLink>
-
-        {isSuperAdmin && (
-          <NavLink
-            to="/admin/subscriptions"
-            className={({ isActive }) =>
-              clsx(
-                "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
-                isActive
-                  ? "bg-brand-700 text-white shadow-sm shadow-brand-700/30"
-                  : "text-brand-700 hover:bg-brand-50",
-              )
-            }
-          >
-            <ShieldCheck size={18} />
-            إدارة الاشتراكات
-          </NavLink>
-        )}
-      </nav>
-
-      {currentUser && (
-        <div className="border-t border-brand-100/70 p-4">
-          <div className="flex items-center gap-3 rounded-2xl bg-surface-muted p-3">
-            <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-brand-950">
-                {currentUser.name}
-              </p>
-              <p className="truncate text-xs text-brand-950/50">{currentUser.title}</p>
-            </div>
-            <button
-              onClick={logout}
-              title="تسجيل الخروج"
-              className="rounded-lg p-1.5 text-brand-950/40 hover:bg-paper hover:text-brand-700"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-          <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
-            <Sparkles size={12} />
-            {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}
-          </p>
-        </div>
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          onClick={onClose}
+        />
       )}
-    </aside>
+      <aside
+        className={clsx(
+          "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/70 bg-paper transition-transform duration-300 md:static md:z-auto md:w-64 md:translate-x-0",
+          open ? "translate-x-0" : "translate-x-full",
+        )}
+      >
+        <div className="flex items-center gap-2.5 px-6 py-6">
+          <Logo size={40} />
+          <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
+            NURSYNC
+          </span>
+        </div>
+
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              onClick={onClose}
+              className={({ isActive }) =>
+                clsx(
+                  "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                  isActive
+                    ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
+                    : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
+                )
+              }
+            >
+              <item.icon size={18} />
+              {item.label}
+            </NavLink>
+          ))}
+
+          <div className="my-2 border-t border-brand-100/70" />
+
+          <NavLink
+            to="/guide"
+            onClick={onClose}
+            className={({ isActive }) =>
+              clsx(
+                "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                isActive
+                  ? "bg-amber-accent-400 text-white shadow-sm shadow-amber-accent-400/30"
+                  : "text-amber-accent-600 hover:bg-amber-accent-50",
+              )
+            }
+          >
+            <Compass size={18} />
+            دليل الطالب
+          </NavLink>
+
+          {isSuperAdmin && (
+            <NavLink
+              to="/admin/subscriptions"
+              onClick={onClose}
+              className={({ isActive }) =>
+                clsx(
+                  "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                  isActive
+                    ? "bg-brand-700 text-white shadow-sm shadow-brand-700/30"
+                    : "text-brand-700 hover:bg-brand-50",
+                )
+              }
+            >
+              <ShieldCheck size={18} />
+              إدارة الاشتراكات
+            </NavLink>
+          )}
+        </nav>
+
+        {currentUser && (
+          <div className="border-t border-brand-100/70 p-4">
+            <div className="flex items-center gap-3 rounded-2xl bg-surface-muted p-3">
+              <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-brand-950">
+                  {currentUser.name}
+                </p>
+                <p className="truncate text-xs text-brand-950/50">{currentUser.title}</p>
+              </div>
+              <button
+                onClick={logout}
+                title="تسجيل الخروج"
+                className="rounded-lg p-1.5 text-brand-950/40 hover:bg-paper hover:text-brand-700"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+            <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
+              <Sparkles size={12} />
+              {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}
+            </p>
+          </div>
+        )}
+      </aside>
+    </>
   );
 }

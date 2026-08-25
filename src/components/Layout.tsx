@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import Sidebar from "./Sidebar";
@@ -29,6 +30,7 @@ const titles: Record<string, string> = {
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader } = useAuth();
   const location = useLocation();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   if (loading) {
     return (
@@ -72,10 +74,10 @@ export default function Layout() {
     <div className="flex min-h-screen bg-surface">
       <CommandPalette />
       <AiAssistant />
-      <Sidebar />
+      <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Header title={title} />
-        <main className="flex-1 px-8 py-6">
+        <Header title={title} onMenuClick={() => setMobileNavOpen(true)} />
+        <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="space-y-6">
             {showReadOnlyBanner && (
               <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4">

@@ -338,7 +338,7 @@ export default function Overview() {
         </Card>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <TiltCard maxTilt={4}>
             <StatCard
               icon={Milestone}

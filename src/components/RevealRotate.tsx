@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import clsx from "clsx";
 
-/** يكشف العنصر بحركة ناعمة (تلاشي + انزلاق + ميلان ثلاثي أبعاد خفيف) أول ما يدخل
-    الشاشة أثناء التمرير */
-export default function Reveal({
+/** يكشف العنصر بدوران ثلاثي الأبعاد يستقر بمكانه أول ما يدخل الشاشة — للصور
+    والبطاقات البارزة (أقوى من Reveal العادي، يعطي إحساس "يجي من الفضاء لمكانه") */
+export default function RevealRotate({
   children,
   className,
-  delay = 0,
+  direction = "left",
 }: {
   children: ReactNode;
   className?: string;
-  delay?: number;
+  direction?: "left" | "right";
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -27,28 +26,27 @@ export default function Reveal({
           observer.disconnect();
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.2 },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const shown = visible || reducedMotion;
+  const hiddenRotateY = direction === "left" ? -38 : 38;
 
   return (
-    <div style={{ perspective: 900 }}>
+    <div className={className} style={{ perspective: 1400 }}>
       <div
         ref={ref}
+        className="transition-[transform,opacity] duration-[950ms] ease-out"
         style={{
-          transitionDelay: shown ? `${delay}ms` : "0ms",
           transformStyle: "preserve-3d",
-          transform: shown ? "translateY(0) rotateX(0deg)" : "translateY(2rem) rotateX(10deg)",
+          opacity: visible || reducedMotion ? 1 : 0,
+          transform:
+            visible || reducedMotion
+              ? "rotateY(0deg) translateX(0) scale(1)"
+              : `rotateY(${hiddenRotateY}deg) translateX(${direction === "left" ? -30 : 30}px) scale(0.88)`,
         }}
-        className={clsx(
-          "transition-all duration-700 ease-out",
-          shown ? "opacity-100" : "opacity-0",
-          className,
-        )}
       >
         {children}
       </div>

@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
+import RevealRotate from "../components/RevealRotate";
 import Logo from "../components/Logo";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
@@ -168,10 +169,12 @@ export default function Landing() {
               <Sparkles size={13} />
               مبنية خصيصًا لفرق بحث التخرج التمريضي
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] text-white lg:text-5xl">
+            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] tracking-tight text-white lg:text-5xl">
               حوّلوا بحثكم
               <br />
-              لرؤية واضحة
+              <span className="bg-gradient-to-l from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent">
+                لرؤية واضحة
+              </span>
             </h1>
             <p className="mt-5 max-w-lg text-lg text-white/55">
               NURSYNC تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
@@ -200,9 +203,9 @@ export default function Landing() {
 
           <div className="relative lg:pe-4">
             <TiltCard maxTilt={4} className="relative z-10">
-              <Reveal>
+              <RevealRotate direction="right">
                 <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
-              </Reveal>
+              </RevealRotate>
             </TiltCard>
 
             <FloatingCard
@@ -354,11 +357,11 @@ export default function Landing() {
                 f.reverse ? "lg:[&>*:first-child]:order-2" : ""
               }`}
             >
-              <Reveal>
+              <RevealRotate direction={f.reverse ? "right" : "left"}>
                 <TiltCard maxTilt={3}>
                   <BrowserFrame src={f.image} alt={f.title} />
                 </TiltCard>
-              </Reveal>
+              </RevealRotate>
               <Reveal delay={150}>
                 <div>
                   <h3 className="font-display text-xl font-extrabold text-white lg:text-2xl">

@@ -91,7 +91,7 @@ function FloatingShapes({ count }: { count: number }) {
 
 const INTRO_START_Z = 2.2;
 const INTRO_REST_Z = 6;
-const INTRO_DURATION = 2.4;
+const INTRO_DURATION = 1.3;
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
@@ -107,9 +107,9 @@ function CameraRig() {
 
     const x = state.pointer.x * 0.4;
     const y = state.pointer.y * 0.25;
-    state.camera.position.x += (x - state.camera.position.x) * 0.03;
-    state.camera.position.y += (-y - state.camera.position.y) * 0.03;
-    state.camera.position.z += (targetZ - state.camera.position.z) * (introT < 1 ? 0.08 : 0.03);
+    state.camera.position.x += (x - state.camera.position.x) * 0.06;
+    state.camera.position.y += (-y - state.camera.position.y) * 0.06;
+    state.camera.position.z += (targetZ - state.camera.position.z) * (introT < 1 ? 0.14 : 0.06);
     state.camera.lookAt(0, 0, 0);
   });
   return null;

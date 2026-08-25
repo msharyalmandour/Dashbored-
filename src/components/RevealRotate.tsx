@@ -26,7 +26,7 @@ export default function RevealRotate({
           observer.disconnect();
         }
       },
-      { threshold: 0.2 },
+      { threshold: 0.1 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -38,7 +38,7 @@ export default function RevealRotate({
     <div className={className} style={{ perspective: 1400 }}>
       <div
         ref={ref}
-        className="transition-[transform,opacity] duration-[950ms] ease-out"
+        className="transition-[transform,opacity] duration-500 ease-out"
         style={{
           transformStyle: "preserve-3d",
           opacity: visible || reducedMotion ? 1 : 0,

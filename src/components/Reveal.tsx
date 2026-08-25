@@ -27,7 +27,7 @@ export default function Reveal({
           observer.disconnect();
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.1 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -45,7 +45,7 @@ export default function Reveal({
           transform: shown ? "translateY(0) rotateX(0deg)" : "translateY(2rem) rotateX(10deg)",
         }}
         className={clsx(
-          "transition-all duration-700 ease-out",
+          "transition-all duration-[400ms] ease-out",
           shown ? "opacity-100" : "opacity-0",
           className,
         )}

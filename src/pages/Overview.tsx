@@ -23,6 +23,7 @@ import Card, { CardHeader } from "../components/ui/Card";
 import FocusSession from "../components/FocusSession";
 import TimeCapsule from "../components/TimeCapsule";
 import TimeOfDayBadge from "../components/TimeOfDayBadge";
+import GrowingPlant from "../components/GrowingPlant";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import StatCard from "../components/StatCard";
@@ -276,6 +277,7 @@ export default function Overview() {
             className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50 transition-transform duration-300 ease-out motion-reduce:transition-none"
             style={{ transform: `translate3d(${heroOffset.x * -0.4}px, ${heroOffset.y * -0.4}px, 0)` }}
           />
+          <GrowingPlant className="pointer-events-none absolute left-4 top-2 h-28 w-28 opacity-90" />
           <div className="relative">
             <p className="flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950">
               <TimeOfDayBadge period={greeting.period} />

@@ -1,7 +1,7 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles, Stars } from "@react-three/drei";
-import type { Mesh } from "three";
+import { CatmullRomCurve3, TubeGeometry, Vector3, type Mesh } from "three";
 
 /** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
     شي تعكسه، وإلا تطلع رمادية باهتة على أي كرت رسومات حقيقي (خلاف المحاكاة البرمجية) */
@@ -19,22 +19,39 @@ function LocalEnvironment() {
 const GOLD = "#fbbf24";
 const GOLD_LIGHT = "#fcd34d";
 
+/** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار NURSYNC — عشان مشهد تسجيل
+    الدخول يكون مرتبط بهوية البراند الفعلية، مو شكل مجرد بدون معنى */
+function buildInfinityGeometry(): TubeGeometry {
+  const segments = 220;
+  const points: Vector3[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const t = (i / segments) * Math.PI * 2;
+    points.push(new Vector3(Math.cos(t) * 1.35, Math.sin(t) * Math.cos(t) * 1.35, 0));
+  }
+  const curve = new CatmullRomCurve3(points, true, "catmullrom", 0.2);
+  return new TubeGeometry(curve, 220, 0.24, 24, true);
+}
+
 function CenterpieceKnot() {
   const ref = useRef<Mesh>(null);
-  useFrame((_state, delta) => {
+  const geometry = useMemo(() => buildInfinityGeometry(), []);
+  useFrame((state, delta) => {
     if (!ref.current) return;
-    ref.current.rotation.x += delta * 0.07;
-    ref.current.rotation.y += delta * 0.1;
+    // منحنى مسطّح (z=0) — ندوّره بمحور Z (زي عقرب ساعة) عشان يفضل يواجه
+    // الكاميرا دايمًا، ونميّله بزوايا صغيرة بس على X/Y (بدون ما يوصل حرف
+    // ٩٠ درجة) عشان يعطي عمق خفيف بدون ما يختفي الشكل من الجانب
+    ref.current.rotation.z += delta * 0.15;
+    ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.12;
+    ref.current.rotation.y = Math.cos(state.clock.elapsedTime * 0.25) * 0.1;
   });
   return (
-    <Float speed={1.3} rotationIntensity={0.25} floatIntensity={1}>
-      <mesh ref={ref} scale={1.5}>
-        <torusKnotGeometry args={[1, 0.32, 200, 32]} />
+    <Float speed={1.3} rotationIntensity={0.2} floatIntensity={0.8}>
+      <mesh ref={ref} geometry={geometry} scale={1.15}>
         <MeshDistortMaterial
           color={GOLD}
           metalness={0.55}
           roughness={0.25}
-          distort={0.14}
+          distort={0.06}
           speed={1.1}
           emissive={GOLD}
           emissiveIntensity={0.55}

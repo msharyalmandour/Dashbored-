@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { BookMarked } from "lucide-react";
+import { BookMarked, Check, Copy, Quote } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import { evidenceLibrary, teamMembers } from "../data/mockData";
 import type { EvidencePaper, EvidenceSection } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
+import { buildReferenceList, toCitation, type CitationStyle } from "../lib/citation";
 
 const ATTACHED_KEY = "nursync.attachedPapers";
 
@@ -38,7 +39,30 @@ export default function EvidenceLibrary() {
   const isFemale = isFemaleUser(currentUser);
   const [filter, setFilter] = useState<"all" | EvidenceSection>("all");
   const [attachedPapers, setAttachedPapers] = useState<EvidencePaper[]>(loadAttachedPapers);
+  const [citationStyle, setCitationStyle] = useState<CitationStyle>("apa");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedList, setCopiedList] = useState(false);
   const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
+
+  const copyCitation = async (paper: EvidencePaper) => {
+    try {
+      await navigator.clipboard.writeText(toCitation(paper, citationStyle));
+      setCopiedId(paper.id);
+      setTimeout(() => setCopiedId(null), 1800);
+    } catch {
+      // نسخ يدوي لو الحافظة غير متاحة
+    }
+  };
+
+  const copyReferenceList = async (papers: EvidencePaper[]) => {
+    try {
+      await navigator.clipboard.writeText(buildReferenceList(papers, citationStyle));
+      setCopiedList(true);
+      setTimeout(() => setCopiedList(false), 1800);
+    } catch {
+      // نسخ يدوي لو الحافظة غير متاحة
+    }
+  };
 
   const allPapers = [...attachedPapers, ...evidenceLibrary];
 
@@ -94,6 +118,35 @@ export default function EvidenceLibrary() {
         />
       </div>
 
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-muted px-4 py-3">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-semibold text-brand-950/60">أسلوب الاقتباس:</span>
+          <div className="flex overflow-hidden rounded-lg border border-brand-100">
+            {(["apa", "vancouver"] as CitationStyle[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => setCitationStyle(s)}
+                className={clsx(
+                  "px-3 py-1.5 text-xs font-bold transition-colors",
+                  citationStyle === s
+                    ? "bg-brand-500 text-white"
+                    : "bg-paper text-brand-950/55 hover:bg-surface-muted",
+                )}
+              >
+                {s === "apa" ? "APA" : "Vancouver"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button
+          onClick={() => copyReferenceList(filtered)}
+          className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 text-xs font-bold text-brand-700 hover:bg-paper"
+        >
+          {copiedList ? <Check size={13} /> : <Copy size={13} />}
+          {copiedList ? "تم نسخ القائمة" : "نسخ كل المراجع"}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {filtered.map((paper) => {
           const addedBy = memberById(paper.addedById);
@@ -132,9 +185,18 @@ export default function EvidenceLibrary() {
                     <p className="mt-0.5 text-xs text-brand-950/70">{paper.relevance}</p>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-brand-950/40">
-                  <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
-                  أضافها {addedBy.name.split(" ")[0]}
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-xs text-brand-950/40">
+                    <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
+                    أضافها {addedBy.name.split(" ")[0]}
+                  </div>
+                  <button
+                    onClick={() => copyCitation(paper)}
+                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-600 hover:bg-surface-muted"
+                  >
+                    {copiedId === paper.id ? <Check size={13} /> : <Quote size={13} />}
+                    {copiedId === paper.id ? "تم النسخ" : "نسخ الاقتباس"}
+                  </button>
                 </div>
               </div>
             </Card>

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowRight, Coffee, Moon, Users } from "lucide-react";
+import { ArrowRight, BookMarked, Coffee, Gift, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import { getGreeting } from "../lib/date";
@@ -15,6 +15,15 @@ const journeySteps = [
   { n: "01", label: "سجّلي دخولك" },
   { n: "02", label: "افتحي لوحة فريقك" },
   { n: "03", label: "أنجزوا بحثكم" },
+];
+
+/** أبرز مزايا NURSYNC — تظهر لأي فريق جديد وقت التسجيل عشان يعرفون وش
+    ينتظرهم قبل ما يكملون */
+const signupFeatures = [
+  { icon: TrendingUp, label: "تتبعوا تقدم بحثكم بمكان واحد" },
+  { icon: Users, label: "نسّقوا مع فريقكم بسهولة" },
+  { icon: BookMarked, label: "قوالب وأدلة بحثية جاهزة" },
+  { icon: GraduationCap, label: "رابط قراءة لمشرفكم بدون دخول" },
 ];
 
 /** أشكال هندسية شفافة توحي بـ"شبكة بحثية" — دوائر متراكبة وخطوط منحنية،
@@ -239,6 +248,29 @@ export default function Login() {
                   </span>
                 )}
               </div>
+
+              {mode === "supabase" && isSignUp && !isForgotPassword && (
+                <div className="mb-5 space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    {signupFeatures.map((f) => (
+                      <div
+                        key={f.label}
+                        className="flex items-center gap-2 rounded-xl bg-white/5 px-2.5 py-2"
+                      >
+                        <f.icon size={14} className="shrink-0 text-amber-300" />
+                        <span className="text-[11px] font-semibold text-white/70">{f.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-3 py-2.5 text-center">
+                    <Gift size={16} className="shrink-0 text-amber-300" />
+                    <p className="text-xs font-bold text-amber-300">
+                      جربوا NURSYNC مجانًا 3 أيام كاملة — بدون أي التزام، وبعدها اشتراك بسيط
+                      بالريال لكل عضو.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {mode === "supabase" && isForgotPassword ? (
                 <>

@@ -16,15 +16,20 @@ create table if not exists public.teams (
   monthly_price numeric(6, 2) not null default 40,
   /** أول 15 فريق يشتركون بالنظام — سعرهم (40 ريال) يبقى ثابت مدى الاشتراك */
   is_founder boolean not null default false,
+  /** true لين أول تفعيل اشتراك حقيقي من الإدارة — يميّز الأيام الثلاثة
+      المجانية التلقائية عن اشتراك مدفوع فعليًا */
+  on_trial boolean not null default true,
   created_at timestamptz not null default now()
 );
 
 alter table public.teams add column if not exists monthly_price numeric(6, 2) not null default 40;
 alter table public.teams add column if not exists is_founder boolean not null default false;
+alter table public.teams add column if not exists on_trial boolean not null default true;
 
 alter table public.teams enable row level security;
 
--- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين" وقت إنشائهم
+-- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين"، ويعطي كل فريق جديد ٣ أيام تجربة
+-- مجانية تلقائيًا (subscription_end_date = بعد ٣ أيام) وقت إنشائه
 create or replace function public.set_team_founder_flag()
 returns trigger
 language plpgsql
@@ -33,6 +38,9 @@ as $$
 begin
   if (select count(*) from public.teams) < 15 then
     new.is_founder := true;
+  end if;
+  if new.subscription_end_date is null then
+    new.subscription_end_date := current_date + 3;
   end if;
   return new;
 end;
@@ -371,24 +379,26 @@ returns table (
   subscription_end_date date,
   member_count bigint,
   monthly_price numeric,
-  is_founder boolean
+  is_founder boolean,
+  on_trial boolean
 )
 language sql
 security definer set search_path = public
 stable
 as $$
   select t.id, t.name, t.subscription_end_date, count(p.id) as member_count,
-         t.monthly_price, t.is_founder
+         t.monthly_price, t.is_founder, t.on_trial
   from public.teams t
   left join public.profiles p on p.team_id = t.id
   where public.is_super_admin()
-  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder
+  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder, t.on_trial
   order by t.subscription_end_date nulls first;
 $$;
 
 -- تمدّد اشتراك فريق بعدد الأشهر اللي دفعوها فعليًا (٤٠ ريال/شخص شهريًا) —
 -- تُضيف الأشهر فوق تاريخ الانتهاء الحالي لو لسا ما انتهى (تجديد مبكر ما يضيّع أيام)،
--- أو من اليوم لو منتهي أو أول مرة. استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا
+-- أو من اليوم لو منتهي أو أول مرة. استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا.
+-- أول تمديد حقيقي يطفي علم "تجربة مجانية" (on_trial) نهائيًا للفريق
 create or replace function public.admin_extend_subscription(target_team_id uuid, months int default 1)
 returns void
 language plpgsql
@@ -403,7 +413,8 @@ begin
   set subscription_end_date = (
     greatest(coalesce(subscription_end_date, current_date), current_date)
     + (months || ' months')::interval
-  )::date
+  )::date,
+  on_trial = false
   where id = target_team_id;
 end;
 $$;

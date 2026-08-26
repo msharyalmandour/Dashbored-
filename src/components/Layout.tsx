@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Gift } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
@@ -9,6 +9,7 @@ import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
 import Skeleton from "./ui/Skeleton";
 import { useAuth } from "../context/AuthContext";
+import { daysUntil } from "../lib/date";
 
 const titles: Record<string, string> = {
   "/": "نظرة عامة",
@@ -28,7 +29,7 @@ const titles: Record<string, string> = {
 };
 
 export default function Layout() {
-  const { currentUser, canWrite, loading, mode, subscriptionState, isLeader } = useAuth();
+  const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -69,6 +70,9 @@ export default function Layout() {
 
   const title = titles[location.pathname] ?? "نيرسينك";
   const showReadOnlyBanner = mode === "supabase" && !canWrite;
+  const showTrialBanner =
+    mode === "supabase" && canWrite && team?.isOnTrial && subscriptionState === "expiring-soon";
+  const trialDaysLeft = team?.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
 
   return (
     <div className="flex min-h-screen bg-surface">
@@ -79,6 +83,18 @@ export default function Layout() {
         <Header title={title} onMenuClick={() => setMobileNavOpen(true)} />
         <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="space-y-6">
+            {showTrialBanner && (
+              <div className="flex items-center gap-4 rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 print:hidden">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-500 text-white">
+                  <Gift size={18} />
+                </span>
+                <p className="min-w-0 flex-1 text-sm font-semibold text-sky-accent-700">
+                  أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
+                  {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
+                  . {isLeader ? "فعّلوا الاشتراك بأي وقت قبل ما تنتهي عشان ما تنقطع الخدمة." : "خلّوا قائد فريقكم يفعّل الاشتراك قبل ما تنتهي التجربة."}
+                </p>
+              </div>
+            )}
             {showReadOnlyBanner && (
               <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4 print:hidden">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">

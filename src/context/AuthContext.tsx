@@ -55,6 +55,7 @@ const mockTeam: Team = {
   memberCount: teamMembers.length,
   monthlyPrice: 40,
   isFounder: true,
+  isOnTrial: false,
 };
 
 function initialsFromName(name: string) {
@@ -160,7 +161,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
         if (team_id) {
           const { data: teamRow } = await supabase!
             .from("teams")
-            .select("id, name, subscription_end_date, monthly_price, is_founder, share_token")
+            .select("id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token")
             .eq("id", team_id)
             .single();
           if (teamRow) {
@@ -171,6 +172,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               memberCount: 0,
               monthlyPrice: teamRow.monthly_price,
               isFounder: teamRow.is_founder,
+              isOnTrial: teamRow.on_trial,
               shareToken: teamRow.share_token,
             });
           }

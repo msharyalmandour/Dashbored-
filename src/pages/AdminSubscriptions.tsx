@@ -4,6 +4,7 @@ import {
   ArrowLeftRight,
   CheckCircle2,
   ChevronDown,
+  Gift,
   RefreshCw,
   ShieldCheck,
   Trophy,
@@ -161,6 +162,12 @@ export default function AdminSubscriptions() {
                       <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[11px] font-bold text-amber-accent-700">
                         <Trophy size={11} />
                         مؤسس
+                      </span>
+                    )}
+                    {team.isOnTrial && (state === "active" || state === "expiring-soon") && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-sky-accent-100 px-2 py-0.5 text-[11px] font-bold text-sky-accent-700">
+                        <Gift size={11} />
+                        تجربة مجانية
                       </span>
                     )}
                   </p>

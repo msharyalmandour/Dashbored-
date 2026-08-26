@@ -10,14 +10,16 @@ const mockTeams: Team[] = [
     memberCount: 5,
     monthlyPrice: 40,
     isFounder: true,
+    isOnTrial: false,
   },
   {
     id: "team-trials",
     name: "فريق تجارب — نورة القحطاني",
-    subscriptionEndDate: fromToday(4),
+    subscriptionEndDate: fromToday(2),
     memberCount: 4,
     monthlyPrice: 40,
     isFounder: true,
+    isOnTrial: true,
   },
   {
     id: "team-safety",
@@ -26,6 +28,7 @@ const mockTeams: Team[] = [
     memberCount: 6,
     monthlyPrice: 40,
     isFounder: false,
+    isOnTrial: false,
   },
   {
     id: "team-community",
@@ -34,6 +37,7 @@ const mockTeams: Team[] = [
     memberCount: 3,
     monthlyPrice: 40,
     isFounder: false,
+    isOnTrial: true,
   },
 ];
 
@@ -56,6 +60,7 @@ interface AdminTeamRow {
   member_count: number;
   monthly_price: number;
   is_founder: boolean;
+  on_trial: boolean;
 }
 
 export function useAdminTeams() {
@@ -75,6 +80,7 @@ export function useAdminTeams() {
           memberCount: Number(row.member_count),
           monthlyPrice: Number(row.monthly_price),
           isFounder: row.is_founder,
+          isOnTrial: row.on_trial,
         })),
       );
     }
@@ -91,7 +97,7 @@ export function useAdminTeams() {
       setTeams((prev) =>
         prev.map((t) =>
           t.id === teamId
-            ? { ...t, subscriptionEndDate: extendDate(t.subscriptionEndDate, months) }
+            ? { ...t, subscriptionEndDate: extendDate(t.subscriptionEndDate, months), isOnTrial: false }
             : t,
         ),
       );

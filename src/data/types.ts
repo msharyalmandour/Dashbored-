@@ -27,6 +27,8 @@ export interface Team {
   monthlyPrice: number;
   /** من أول 15 فريق اشتركوا — سعرهم ثابت مدى الاشتراك */
   isFounder: boolean;
+  /** true لين أول تفعيل اشتراك حقيقي — يميّز الأيام الثلاثة المجانية عن التجديد */
+  isOnTrial: boolean;
   /** رمز رابط المشرف الأكاديمي (وضع Supabase الحقيقي فقط) */
   shareToken?: string;
 }

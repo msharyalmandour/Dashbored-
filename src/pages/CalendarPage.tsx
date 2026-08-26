@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { CalendarClock, MapPin, Users2, Flag, ClipboardCheck, Plus, X } from "lucide-react";
+import { CalendarClock, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, X } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import MiniCalendar from "../components/MiniCalendar";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useAuth } from "../context/AuthContext";
 import type { CalendarEventType } from "../data/types";
 import { formatDateLong, toISODate } from "../lib/date";
+import { downloadICS } from "../lib/ics";
 
 const today = new Date(2026, 7, 22);
 
@@ -63,8 +64,16 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-4">
-      {canWrite && (
-        <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2.5">
+        <button
+          onClick={() => downloadICS(events)}
+          title="حمّلي ملف .ics تضيفينه لتقويم قوقل أو أبل أو أوتلوك"
+          className="flex items-center gap-1.5 rounded-xl border border-brand-100 px-4 py-2 text-sm font-bold text-brand-700 hover:bg-surface-muted"
+        >
+          <Download size={16} />
+          تصدير للتقويم
+        </button>
+        {canWrite && (
           <button
             onClick={() => setShowForm((s) => !s)}
             className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
@@ -72,8 +81,8 @@ export default function CalendarPage() {
             <Plus size={16} />
             إضافة حدث / موعد نهائي
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {showForm && canWrite && (
         <Card tone="cream" className="relative">

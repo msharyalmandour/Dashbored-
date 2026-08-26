@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Check, Copy, GraduationCap, Mail, ShieldCheck, UserPlus } from "lucide-react";
-import Card, { type CardTone } from "../components/ui/Card";
+import { Check, Clock, Copy, GraduationCap, Mail, ShieldCheck, UserPlus } from "lucide-react";
+import Card, { CardHeader, type CardTone } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { recentActivity, teamMembers } from "../data/mockData";
 
 const tones: CardTone[] = ["teal", "sky", "cream", "violet", "rose"];
 
@@ -80,6 +81,38 @@ function SupervisorLinkCard() {
         {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
         {copied ? "تم النسخ" : "نسخ رابط المشرف"}
       </button>
+    </Card>
+  );
+}
+
+function ActivityLog() {
+  const memberById = (id: string) => teamMembers.find((m) => m.id === id);
+
+  return (
+    <Card className="mt-4">
+      <CardHeader title="سجل نشاط الفريق" subtitle="Activity Log" />
+      <ul className="divide-y divide-brand-50">
+        {recentActivity.map((activity) => {
+          const member = memberById(activity.memberId);
+          if (!member) return null;
+          return (
+            <li key={activity.id} className="flex items-start gap-3 py-3">
+              <Avatar initials={member.initials} color={member.color} size="sm" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-brand-950">
+                  <span className="font-semibold">{member.name.split(" ")[0]}</span>{" "}
+                  {activity.action}{" "}
+                  <span className="font-semibold text-brand-700">"{activity.target}"</span>
+                </p>
+                <p className="mt-0.5 flex items-center gap-1 text-xs text-brand-950/40">
+                  <Clock size={12} />
+                  {activity.timeAgo}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </Card>
   );
 }
@@ -160,6 +193,8 @@ export default function Team() {
         );
       })}
       </div>
+
+      <ActivityLog />
     </div>
   );
 }

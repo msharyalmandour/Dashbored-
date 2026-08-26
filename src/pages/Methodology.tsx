@@ -1,5 +1,6 @@
 import { ClipboardList, FlaskConical, MapPin, Ruler, Users2 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import MethodologyTemplateHelper from "../components/MethodologyTemplateHelper";
 import { methodology } from "../data/mockData";
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -51,6 +52,8 @@ export default function Methodology() {
           </p>
         </div>
       </Card>
+
+      <MethodologyTemplateHelper />
 
       <Card>
         <CardHeader title="تصميم الدراسة" subtitle="Study Design" />

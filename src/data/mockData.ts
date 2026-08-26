@@ -424,6 +424,12 @@ export const recentActivity: ActivityItem[] = [
   { id: "a3", memberId: "lin", action: "صنّفت", target: "الدراسات حسب الموضوع البحثي", timeAgo: "أمس" },
   { id: "a4", memberId: "sara", action: "أكملت", target: "كتابة Background", timeAgo: "أمس" },
   { id: "a5", memberId: "omar", action: "بدأ", target: "قراءة أدبيات المنهجية", timeAgo: "قبل يومين" },
+  { id: "a6", memberId: "sara", action: "أكملت", target: "تحديد Statement of Problem", timeAgo: "قبل 3 أيام" },
+  { id: "a7", memberId: "ahmed", action: "أرفق", target: "ملف مراجعة أدبيات أولي", timeAgo: "قبل 4 أيام" },
+  { id: "a8", memberId: "maha", action: "علّقت على", target: "مسودة الفجوة البحثية", timeAgo: "قبل 5 أيام" },
+  { id: "a9", memberId: "lin", action: "أضافت", target: "دراسة CAM-ICU للمكتبة", timeAgo: "قبل أسبوع" },
+  { id: "a10", memberId: "omar", action: "حدّث", target: "معايير الاشتمال والاستبعاد", timeAgo: "قبل أسبوع" },
+  { id: "a11", memberId: "sara", action: "أنشأت", target: "الفريق البحثي بـ NURSYNC", timeAgo: "قبل أسبوعين" },
 ];
 
 export const projectMeta = {

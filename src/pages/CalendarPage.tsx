@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CalendarClock, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, X } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import EmptyState from "../components/ui/EmptyState";
 import MiniCalendar from "../components/MiniCalendar";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useAuth } from "../context/AuthContext";
@@ -191,7 +192,11 @@ export default function CalendarPage() {
               );
             })}
             {dayEvents.length === 0 && (
-              <p className="py-6 text-center text-sm text-brand-950/40">لا توجد أحداث في هذا اليوم</p>
+              <EmptyState
+                icon={CalendarClock}
+                title="يوم فاضي من المواعيد"
+                desc="ما فيه شي مسجّل بهذا اليوم — استغلّيه لخطوة بحثية إضافية، أو خذي راحة."
+              />
             )}
           </ul>
         </Card>

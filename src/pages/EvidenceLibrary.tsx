@@ -3,6 +3,7 @@ import { BookMarked, Check, Copy, Quote } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import EmptyState from "../components/ui/EmptyState";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import { useAuth } from "../context/AuthContext";
 import { evidenceLibrary, teamMembers } from "../data/mockData";
@@ -203,9 +204,17 @@ export default function EvidenceLibrary() {
           );
         })}
         {filtered.length === 0 && (
-          <p className="col-span-full py-10 text-center text-sm text-brand-950/40">
-            لا توجد مصادر مطابقة لهذا الفلتر
-          </p>
+          <div className="col-span-full">
+            <EmptyState
+              icon={BookMarked}
+              title={filter === "all" ? "المكتبة لسا فاضية" : "لا توجد دراسات بهذا القسم"}
+              desc={
+                filter === "all"
+                  ? "أول دراسة تضيفينها هنا تبدأ مكتبة أدلة بحثكم — أرفقي أول ملف PDF."
+                  : "جربي فلتر ثاني، أو أرفقي دراسة جديدة تحت هذا القسم."
+              }
+            />
+          </div>
         )}
       </div>
     </div>

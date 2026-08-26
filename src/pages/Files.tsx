@@ -3,6 +3,7 @@ import { FileSpreadsheet, FileText, FileImage, File as FileIcon } from "lucide-r
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import EmptyState from "../components/ui/EmptyState";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import { useAuth } from "../context/AuthContext";
 import { files, teamMembers } from "../data/mockData";
@@ -114,7 +115,13 @@ export default function Files() {
             );
           })}
           {filtered.length === 0 && (
-            <li className="py-10 text-center text-sm text-brand-950/40">لا توجد ملفات</li>
+            <li>
+              <EmptyState
+                icon={FileIcon}
+                title="لا ملفات هنا بعد"
+                desc="أرفقوا أول ملف للفريق — أي مستند أو صورة أو جدول يخص بحثكم."
+              />
+            </li>
           )}
         </ul>
       </Card>

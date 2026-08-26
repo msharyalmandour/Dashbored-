@@ -46,7 +46,7 @@ function CenterpieceKnot() {
   });
   return (
     <Float speed={1.3} rotationIntensity={0.2} floatIntensity={0.8}>
-      <mesh ref={ref} geometry={geometry} scale={1.15}>
+      <mesh ref={ref} geometry={geometry} scale={1.7}>
         <MeshDistortMaterial
           color={GOLD}
           metalness={0.55}

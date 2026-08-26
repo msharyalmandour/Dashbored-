@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import clsx from "clsx";
 import {
   AlertCircle,
+  AlertTriangle,
   Award,
   BookOpenCheck,
   CalendarClock,
@@ -75,6 +76,9 @@ const FLASHBACK_RESURFACE_DAYS = 7;
 const ACHIEVEMENTS_SEEN_KEY = "nursync.achievementsSeen";
 const LAST_SEEN_STAGE_KEY = "nursync.lastSeenStage";
 const NIGHT_OWL_DISMISSED_KEY = "nursync.nightOwlDismissedOn";
+const DEADLINE_ALERT_DISMISSED_KEY = "nursync.deadlineAlertDismissedAt";
+const DEADLINE_ALERT_RESURFACE_DAYS = 2;
+const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
   const { currentUser } = useAuth();
@@ -113,6 +117,17 @@ export default function Overview() {
   const dismissNightOwl = () => {
     localStorage.setItem(NIGHT_OWL_DISMISSED_KEY, toISODate(new Date()));
     setShowNightOwl(false);
+  };
+
+  const [showDeadlineAlert, setShowDeadlineAlert] = useState(() => {
+    const dismissedAt = localStorage.getItem(DEADLINE_ALERT_DISMISSED_KEY);
+    if (!dismissedAt) return true;
+    const daysSinceDismiss = (Date.now() - new Date(dismissedAt).getTime()) / 86_400_000;
+    return daysSinceDismiss >= DEADLINE_ALERT_RESURFACE_DAYS;
+  });
+  const dismissDeadlineAlert = () => {
+    localStorage.setItem(DEADLINE_ALERT_DISMISSED_KEY, new Date().toISOString());
+    setShowDeadlineAlert(false);
   };
 
   const unlockedAchievementIds = getUnlockedAchievementIds({
@@ -192,6 +207,17 @@ export default function Overview() {
   const greeting = getGreeting();
   const dailyQuote = getDailyQuote(new Date(), greeting.period);
   const overdueCount = tasks.filter((t) => t.status === "overdue").length;
+
+  const nearestDeadlineEvent = calendarEvents
+    .filter((e) => e.type === "deadline" && e.date >= todayIso)
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+  const nearestDeadlineEventDays = nearestDeadlineEvent
+    ? daysUntil(nearestDeadlineEvent.date, today)
+    : null;
+  const deadlineAlertActive =
+    overdueCount > 0 ||
+    (nearestDeadlineEventDays !== null && nearestDeadlineEventDays <= DEADLINE_ALERT_WINDOW_DAYS);
+
   const heroMessage =
     overdueCount > 0
       ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي ${g(isFemale, "تسوينه", "تسويه")} اليوم.`
@@ -259,6 +285,58 @@ export default function Overview() {
           <button
             onClick={dismissNightOwl}
             className="shrink-0 rounded-lg p-1.5 text-violet-600 hover:bg-violet-100"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {showDeadlineAlert && deadlineAlertActive && (
+        <div
+          className={clsx(
+            "flex items-center gap-4 rounded-3xl border px-5 py-4",
+            overdueCount > 0 ? "border-rose-200 bg-rose-50" : "border-amber-accent-200 bg-amber-accent-100",
+          )}
+        >
+          <span
+            className={clsx(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white",
+              overdueCount > 0 ? "bg-rose-500" : "bg-amber-accent-500",
+            )}
+          >
+            <AlertTriangle size={18} />
+          </span>
+          <p
+            className={clsx(
+              "min-w-0 flex-1 text-sm font-semibold",
+              overdueCount > 0 ? "text-rose-700" : "text-amber-accent-700",
+            )}
+          >
+            {overdueCount > 0 ? (
+              <>
+                عندكم {overdueCount} {overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} —{" "}
+                <Link to="/tasks" className="underline underline-offset-2">
+                  راجعوها أول شي
+                </Link>{" "}
+                قبل أي شي ثاني.
+              </>
+            ) : (
+              <>
+                موعد قريب: <span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{" "}
+                بعد {nearestDeadlineEventDays} {nearestDeadlineEventDays === 1 ? "يوم" : "أيام"} —{" "}
+                <Link to="/calendar" className="underline underline-offset-2">
+                  شوفوا التقويم
+                </Link>
+                .
+              </>
+            )}
+          </p>
+          <button
+            onClick={dismissDeadlineAlert}
+            className={clsx(
+              "shrink-0 rounded-lg p-1.5",
+              overdueCount > 0 ? "text-rose-600 hover:bg-rose-100" : "text-amber-accent-600 hover:bg-amber-accent-200",
+            )}
           >
             <X size={16} />
           </button>

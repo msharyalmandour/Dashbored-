@@ -284,6 +284,67 @@ begin
 end $$;
 
 -- ============================================================
+-- 3ب) تعليقات المهام — نقاش قصير مرتبط بكل مهمة
+-- ============================================================
+create table if not exists public.task_comments (
+  id uuid primary key default gen_random_uuid(),
+  task_id uuid not null references public.tasks (id) on delete cascade,
+  team_id uuid references public.teams (id) on delete cascade,
+  author_id uuid not null references public.profiles (id),
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+-- تعبّي team_id تلقائيًا من فريق المهمة نفسها، حتى لو الواجهة ما أرسلتها
+create or replace function public.set_task_comment_team_id()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if new.team_id is null then
+    select team_id into new.team_id from public.tasks where id = new.task_id;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists set_task_comment_team_id on public.task_comments;
+create trigger set_task_comment_team_id
+  before insert on public.task_comments
+  for each row execute procedure public.set_task_comment_team_id();
+
+alter table public.task_comments enable row level security;
+
+-- القراءة مسموحة لأي عضو بالفريق
+drop policy if exists "task comments are viewable by the team" on public.task_comments;
+create policy "task comments are viewable by the team"
+  on public.task_comments for select
+  to authenticated
+  using (team_id = public.my_team_id());
+
+-- إضافة تعليق: أي عضو بالفريق، طالما اشتراك الفريق فعّال وينسبه لنفسه فقط
+drop policy if exists "team members can add task comments" on public.task_comments;
+create policy "team members can add task comments"
+  on public.task_comments for insert
+  to authenticated
+  with check (
+    auth.uid() = author_id
+    and public.team_can_write(public.my_team_id())
+    and exists (select 1 from public.tasks where id = task_id and team_id = public.my_team_id())
+  );
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'task_comments'
+  ) then
+    alter publication supabase_realtime add table public.task_comments;
+  end if;
+end $$;
+
+-- ============================================================
 -- 4) تعيين أول قائدة/قائد فريق
 -- ============================================================
 -- بعد ما تسجّل أول حساب (من صفحة تسجيل الدخول في الموقع)، شغّل هذا السطر

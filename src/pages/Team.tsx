@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Clock, Copy, GraduationCap, Mail, ShieldCheck, UserPlus } from "lucide-react";
+import { Check, Clock, Copy, GraduationCap, Mail, Scale, ShieldCheck, UserPlus } from "lucide-react";
+import clsx from "clsx";
 import Card, { CardHeader, type CardTone } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
@@ -8,6 +9,8 @@ import { useTasksData } from "../hooks/useTasksData";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
+import type { Task, TeamMember } from "../data/types";
+import { g, isFemaleUser } from "../lib/gender";
 
 const tones: CardTone[] = ["teal", "sky", "cream", "violet", "rose"];
 
@@ -81,6 +84,72 @@ function SupervisorLinkCard() {
         {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
         {copied ? "تم النسخ" : "نسخ رابط المشرف"}
       </button>
+    </Card>
+  );
+}
+
+function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[] }) {
+  const rows = roster
+    .map((member) => {
+      const memberTasks = tasks.filter((t) => t.assigneeId === member.id);
+      const open = memberTasks.filter((t) => t.status !== "done").length;
+      const overdue = memberTasks.filter((t) => t.status === "overdue").length;
+      return { member, open, overdue };
+    })
+    .sort((a, b) => b.open - a.open);
+
+  const maxOpen = Math.max(1, ...rows.map((r) => r.open));
+  const mostLoaded = rows[0];
+  const leastLoaded = rows[rows.length - 1];
+  const imbalanced = rows.length > 1 && mostLoaded.open - leastLoaded.open >= 3;
+
+  return (
+    <Card className="mt-4">
+      <CardHeader
+        title="موازنة حمل الفريق"
+        subtitle="Workload Balance"
+        action={<Scale size={18} className="text-brand-600" />}
+      />
+      <ul className="space-y-3">
+        {rows.map(({ member, open, overdue }, i) => (
+          <li key={member.id} className="flex items-center gap-3">
+            <Avatar initials={member.initials} color={member.color} size="sm" />
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-center justify-between gap-2 text-sm">
+                <span className="truncate font-semibold text-brand-950">
+                  {member.name.split(" ")[0]}
+                </span>
+                <span className="shrink-0 text-xs font-bold text-brand-950/50">
+                  {open} مفتوحة
+                  {overdue > 0 && <span className="text-rose-500"> · {overdue} متأخرة</span>}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
+                <div
+                  className={clsx(
+                    "h-full rounded-full",
+                    overdue > 0
+                      ? "bg-rose-400"
+                      : i === 0 && open > 0
+                        ? "bg-amber-accent-400"
+                        : "bg-brand-400",
+                  )}
+                  style={{ width: `${open === 0 ? 0 : Math.max(6, (open / maxOpen) * 100)}%` }}
+                />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {imbalanced && (
+        <p className="mt-4 rounded-xl bg-amber-accent-50 px-3 py-2 text-xs font-semibold text-amber-accent-700">
+          الحمل متفاوت شوي — {mostLoaded.member.name.split(" ")[0]}{" "}
+          {g(isFemaleUser(mostLoaded.member), "عندها", "عنده")} {mostLoaded.open} مهام مفتوحة،
+          بينما {leastLoaded.member.name.split(" ")[0]}{" "}
+          {g(isFemaleUser(leastLoaded.member), "عندها", "عنده")} {leastLoaded.open} بس — ممكن
+          توزيع أعدل.
+        </p>
+      )}
     </Card>
   );
 }
@@ -194,6 +263,7 @@ export default function Team() {
       })}
       </div>
 
+      <WorkloadBalance roster={roster} tasks={tasks} />
       <ActivityLog />
     </div>
   );

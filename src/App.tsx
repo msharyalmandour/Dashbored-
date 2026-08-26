@@ -6,6 +6,7 @@ import { useAuth } from "./context/AuthContext";
 import { isFemaleUser } from "./lib/gender";
 import Overview from "./pages/Overview";
 import Proposal from "./pages/Proposal";
+import FullDocumentExport from "./pages/FullDocumentExport";
 import LiteratureReview from "./pages/LiteratureReview";
 import Methodology from "./pages/Methodology";
 import Tasks from "./pages/Tasks";
@@ -47,6 +48,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Overview />} />
         <Route path="/proposal" element={<Proposal />} />
+        <Route path="/proposal/export" element={<FullDocumentExport />} />
         <Route path="/literature-review" element={<LiteratureReview />} />
         <Route path="/methodology" element={<Methodology />} />
         <Route path="/tasks" element={<Tasks />} />

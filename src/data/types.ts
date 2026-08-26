@@ -121,6 +121,14 @@ export interface Task {
   sectionKey?: ProposalSectionKey;
 }
 
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+}
+
 export interface FieldworkSite {
   id: string;
   city: string;

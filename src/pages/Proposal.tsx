@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { AlertTriangle, ArrowDown, CheckCircle2, Circle, FileDown, FileText, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowDown, CheckCircle2, Circle, FileDown, FileStack, FileText, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -82,13 +83,23 @@ export default function Proposal() {
         <div className="w-full max-w-xs shrink grow">
           <ProgressBar value={completionPct} />
         </div>
-        <button
-          onClick={() => window.print()}
-          className="flex shrink-0 items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
-        >
-          <FileDown size={16} />
-          تصدير PDF
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            to="/proposal/export"
+            title="وثيقة واحدة تجمع المقترح والمنهجية وقائمة المراجع"
+            className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          >
+            <FileStack size={16} />
+            الوثيقة الكاملة
+          </Link>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+          >
+            <FileDown size={16} />
+            تصدير PDF
+          </button>
+        </div>
       </Card>
 
       {/* Proposal Progress checklist */}

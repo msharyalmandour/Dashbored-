@@ -10,6 +10,7 @@ import type {
   ResearchStage,
   StudyAim,
   Task,
+  TaskComment,
   TeamMember,
 } from "./types";
 
@@ -273,6 +274,30 @@ export const tasks: Task[] = [
     status: "todo",
     priority: "medium",
     sectionKey: "methodology",
+  },
+];
+
+export const taskComments: TaskComment[] = [
+  {
+    id: "c1",
+    taskId: "t1",
+    authorId: "sara",
+    body: "لا تنسى تضيف دراسات عن Tool Utilization كمان — ناقصة عندنا شوي.",
+    createdAt: "2026-08-21T10:15:00.000Z",
+  },
+  {
+    id: "c2",
+    taskId: "t1",
+    authorId: "ahmed",
+    body: "تمام، أضفت اثنتين اليوم وبكمل باكر إن شاء الله.",
+    createdAt: "2026-08-21T14:40:00.000Z",
+  },
+  {
+    id: "c3",
+    taskId: "t5",
+    authorId: "maha",
+    body: "متعثرة شوي بربط الفجوة بالهدف — ممكن نراجعها سوا بالاجتماع الجاي؟",
+    createdAt: "2026-08-24T09:05:00.000Z",
   },
 ];
 

@@ -7,6 +7,7 @@ import {
   LayoutGrid,
   List,
   ListChecks,
+  MessageCircle,
   PartyPopper as PartyPopperIcon,
   Plus,
   X,
@@ -18,12 +19,14 @@ import Skeleton from "../components/ui/Skeleton";
 import EmptyState from "../components/ui/EmptyState";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import ImproveWritingButton from "../components/ImproveWritingButton";
+import TaskComments from "../components/TaskComments";
 import ConfettiBurst from "../components/cinematic/ConfettiBurst";
 import TasksKanban from "../components/TasksKanban";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
+import { useTaskComments } from "../hooks/useTaskComments";
 import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort } from "../lib/date";
@@ -90,12 +93,14 @@ export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
   const { tasks, loading, addTask, updateStatus } = useTasksData();
+  const { comments, addComment } = useTaskComments();
   const { showToast } = useToast();
   const [filter, setFilter] = useState("all");
   const [view, setView] = useState<"list" | "board">("list");
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [taskAttachments, setTaskAttachments] =
     useState<Record<string, AttachedFileMeta>>(loadTaskAttachments);
 
@@ -335,66 +340,89 @@ export default function Tasks() {
           {filtered.map((task) => {
             const assignee = memberById(task.assigneeId);
             const canToggle = canToggleTask(task);
+            const taskComments = comments.filter((c) => c.taskId === task.id);
+            const isExpanded = expandedTaskId === task.id;
             return (
-              <Card key={task.id} className="flex flex-wrap items-center gap-4">
-                <button
-                  onClick={() => toggleDone(task)}
-                  disabled={!canToggle}
-                  title={
-                    canToggle
-                      ? task.status === "done"
-                        ? "إلغاء الإكمال"
-                        : "تعليم كمكتملة"
-                      : undefined
-                  }
-                  className={clsx(
-                    "shrink-0",
-                    canToggle ? "cursor-pointer" : "cursor-default opacity-60",
-                  )}
-                >
-                  {task.status === "done" ? (
-                    <CheckCircle2 size={20} className="text-brand-500" />
-                  ) : task.status === "overdue" ? (
-                    <AlertCircle size={20} className="text-rose-500" />
-                  ) : (
-                    <Circle size={20} className="text-brand-950/25" />
-                  )}
-                </button>
-                <div className="min-w-[200px] flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-brand-950">{task.title}</p>
-                    {task.sectionKey && sectionLabel[task.sectionKey] && (
-                      <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
-                        {sectionLabel[task.sectionKey]}
-                      </span>
+              <Card key={task.id} className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <button
+                    onClick={() => toggleDone(task)}
+                    disabled={!canToggle}
+                    title={
+                      canToggle
+                        ? task.status === "done"
+                          ? "إلغاء الإكمال"
+                          : "تعليم كمكتملة"
+                        : undefined
+                    }
+                    className={clsx(
+                      "shrink-0",
+                      canToggle ? "cursor-pointer" : "cursor-default opacity-60",
+                    )}
+                  >
+                    {task.status === "done" ? (
+                      <CheckCircle2 size={20} className="text-brand-500" />
+                    ) : task.status === "overdue" ? (
+                      <AlertCircle size={20} className="text-rose-500" />
+                    ) : (
+                      <Circle size={20} className="text-brand-950/25" />
+                    )}
+                  </button>
+                  <div className="min-w-[200px] flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-brand-950">{task.title}</p>
+                      {task.sectionKey && sectionLabel[task.sectionKey] && (
+                        <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
+                          {sectionLabel[task.sectionKey]}
+                        </span>
+                      )}
+                    </div>
+                    {task.description && (
+                      <p className="mt-0.5 truncate text-sm text-brand-950/45">{task.description}</p>
+                    )}
+                    {taskAttachments[task.id] && (
+                      <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
+                        <FileText size={12} />
+                        <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
+                      </p>
                     )}
                   </div>
-                  {task.description && (
-                    <p className="mt-0.5 truncate text-sm text-brand-950/45">{task.description}</p>
+                  {canToggle && !taskAttachments[task.id] && (
+                    <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
                   )}
-                  {taskAttachments[task.id] && (
-                    <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
-                      <FileText size={12} />
-                      <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
-                    </p>
-                  )}
-                </div>
-                {canToggle && !taskAttachments[task.id] && (
-                  <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
-                )}
-                <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
-                  {priorityLabel[task.priority]}
-                </span>
-                <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
-                <div className="flex items-center gap-2">
-                  <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
-                  <span className="hidden text-sm font-medium text-brand-950/70 sm:block">
-                    {assignee.name.split(" ")[0]}
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
+                    {priorityLabel[task.priority]}
                   </span>
+                  <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
+                  <div className="flex items-center gap-2">
+                    <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
+                    <span className="hidden text-sm font-medium text-brand-950/70 sm:block">
+                      {assignee.name.split(" ")[0]}
+                    </span>
+                  </div>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
+                    {statusLabel[task.status]}
+                  </span>
+                  <button
+                    onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                    title="التعليقات"
+                    className={clsx(
+                      "flex items-center gap-1 text-xs font-semibold",
+                      isExpanded ? "text-brand-600" : "text-brand-950/45 hover:text-brand-600",
+                    )}
+                  >
+                    <MessageCircle size={16} />
+                    {taskComments.length > 0 && taskComments.length}
+                  </button>
                 </div>
-                <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
-                  {statusLabel[task.status]}
-                </span>
+                {isExpanded && (
+                  <TaskComments
+                    comments={taskComments}
+                    memberById={memberById}
+                    canComment={canWrite}
+                    onSubmit={(body) => addComment(task.id, currentUser!.id, body)}
+                  />
+                )}
               </Card>
             );
           })}

@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AlertTriangle, CheckCircle2, Circle, Clock, ShieldCheck, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  CheckCircle2,
+  Circle,
+  Clock,
+  MessageSquareText,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 import Logo from "../components/Logo";
 import { supabase } from "../lib/supabaseClient";
-import { formatDateShort } from "../lib/date";
+import { formatDateLong, formatDateShort } from "../lib/date";
 
 interface SnapshotTask {
   title: string;
@@ -20,6 +29,8 @@ interface SnapshotMember {
 
 interface Snapshot {
   teamName: string;
+  supervisorNote: string | null;
+  supervisorNoteAt: string | null;
   members: SnapshotMember[];
   tasks: SnapshotTask[];
 }
@@ -43,6 +54,9 @@ export default function SupervisorView() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
+  const [noteSubmitting, setNoteSubmitting] = useState(false);
+  const [noteSent, setNoteSent] = useState(false);
 
   useEffect(() => {
     if (!supabase || !token) {
@@ -61,10 +75,28 @@ export default function SupervisorView() {
           setError("الرابط غير صالح أو منتهي.");
         } else {
           setSnapshot(data as Snapshot);
+          setNoteDraft((data as Snapshot).supervisorNote ?? "");
         }
         setLoading(false);
       });
   }, [token]);
+
+  const submitNote = async () => {
+    if (!supabase || !token) return;
+    setNoteSubmitting(true);
+    const { error: rpcError } = await supabase.rpc("submit_supervisor_note", {
+      p_token: token,
+      p_note: noteDraft,
+    });
+    setNoteSubmitting(false);
+    if (!rpcError) {
+      setSnapshot((prev) =>
+        prev ? { ...prev, supervisorNote: noteDraft.trim() || null, supervisorNoteAt: new Date().toISOString() } : prev,
+      );
+      setNoteSent(true);
+      setTimeout(() => setNoteSent(false), 2500);
+    }
+  };
 
   if (loading) {
     return (
@@ -179,6 +211,34 @@ export default function SupervisorView() {
               )}
             </ul>
           </div>
+        </div>
+
+        <div className="mt-4 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-700">
+            <MessageSquareText size={15} />
+            ملاحظة لفريقكم
+          </p>
+          <p className="mt-1 text-xs text-neutral-400">
+            تظهر لكل الفريق بلوحتهم الرئيسية — أرسلوا واحدة جديدة تستبدل القديمة.
+            {snapshot.supervisorNoteAt && (
+              <> آخر تحديث: {formatDateLong(snapshot.supervisorNoteAt.slice(0, 10))}</>
+            )}
+          </p>
+          <textarea
+            value={noteDraft}
+            onChange={(e) => setNoteDraft(e.target.value)}
+            rows={3}
+            placeholder="مثال: راجعوا صياغة الفجوة البحثية قبل الاجتماع الجاي، وركّزوا على ربطها بالهدف."
+            className="mt-3 w-full rounded-2xl border border-neutral-200 px-3.5 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-300 focus:border-neutral-400"
+          />
+          <button
+            onClick={submitNote}
+            disabled={noteSubmitting}
+            className="mt-3 flex items-center gap-2 rounded-xl bg-neutral-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-neutral-800 disabled:opacity-50"
+          >
+            {noteSent ? <Check size={15} /> : null}
+            {noteSubmitting ? "..." : noteSent ? "تم الإرسال" : "إرسال الملاحظة"}
+          </button>
         </div>
 
         <p className="mt-6 text-center text-xs text-neutral-400">

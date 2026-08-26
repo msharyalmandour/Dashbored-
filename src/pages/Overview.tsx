@@ -12,6 +12,7 @@ import {
   Coffee,
   Compass,
   Crown,
+  GraduationCap,
   History,
   ListTodo,
   Milestone,
@@ -81,7 +82,7 @@ const DEADLINE_ALERT_RESURFACE_DAYS = 2;
 const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
-  const { currentUser } = useAuth();
+  const { currentUser, team } = useAuth();
   const isFemale = isFemaleUser(currentUser);
   const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
   const visitGapDays = useVisitGap();
@@ -340,6 +341,21 @@ export default function Overview() {
           >
             <X size={16} />
           </button>
+        </div>
+      )}
+
+      {team?.supervisorNote && (
+        <div className="flex items-start gap-4 rounded-3xl border border-violet-100 bg-violet-50 px-5 py-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white">
+            <GraduationCap size={18} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-violet-500">
+              ملاحظة من مشرفكم
+              {team.supervisorNoteAt && ` — ${formatDateLong(team.supervisorNoteAt.slice(0, 10))}`}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-violet-800">{team.supervisorNote}</p>
+          </div>
         </div>
       )}
 

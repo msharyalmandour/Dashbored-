@@ -510,9 +510,14 @@ $$;
 alter table public.teams add column if not exists share_token uuid not null default gen_random_uuid();
 create unique index if not exists teams_share_token_idx on public.teams (share_token);
 
--- ترجّع لقطة قراءة فقط من بيانات الفريق الحقيقية (المهام والأعضاء) لمن يملك
--- الرمز — بدون أي حاجة لتسجيل دخول. SECURITY DEFINER عشان تتجاوز RLS بأمان
--- (الوصول محصور بمعرفة الرمز نفسه، مو بجلسة مستخدم).
+-- ملاحظة/توجيه واحدة حالية من المشرف الأكاديمي للفريق — تُستبدل بكل مرة يرسل
+-- فيها المشرف ملاحظة جديدة (مو سجل كامل، بس آخر ملاحظة نشطة)
+alter table public.teams add column if not exists supervisor_note text;
+alter table public.teams add column if not exists supervisor_note_at timestamptz;
+
+-- ترجّع لقطة قراءة فقط من بيانات الفريق الحقيقية (المهام والأعضاء وملاحظة
+-- المشرف) لمن يملك الرمز — بدون أي حاجة لتسجيل دخول. SECURITY DEFINER عشان
+-- تتجاوز RLS بأمان (الوصول محصور بمعرفة الرمز نفسه، مو بجلسة مستخدم).
 create or replace function public.get_team_snapshot(p_token uuid)
 returns json
 language plpgsql
@@ -522,15 +527,21 @@ as $$
 declare
   v_team_id uuid;
   v_team_name text;
+  v_note text;
+  v_note_at timestamptz;
   result json;
 begin
-  select id, name into v_team_id, v_team_name from public.teams where share_token = p_token;
+  select id, name, supervisor_note, supervisor_note_at
+    into v_team_id, v_team_name, v_note, v_note_at
+  from public.teams where share_token = p_token;
   if v_team_id is null then
     return null;
   end if;
 
   select json_build_object(
     'teamName', v_team_name,
+    'supervisorNote', v_note,
+    'supervisorNoteAt', v_note_at,
     'members', (
       select coalesce(json_agg(json_build_object('name', p.name, 'initials', p.initials, 'role', p.role)), '[]'::json)
       from public.profiles p
@@ -554,3 +565,20 @@ end;
 $$;
 
 grant execute on function public.get_team_snapshot(uuid) to anon;
+
+-- يسمح للمشرف (يملك الرمز فقط، بدون تسجيل دخول) يرسل/يحدّث ملاحظة لفريقه —
+-- تظهر لهم بلوحتهم الرئيسية. SECURITY DEFINER لنفس سبب get_team_snapshot
+create or replace function public.submit_supervisor_note(p_token uuid, p_note text)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  update public.teams
+  set supervisor_note = nullif(trim(p_note), ''),
+      supervisor_note_at = now()
+  where share_token = p_token;
+end;
+$$;
+
+grant execute on function public.submit_supervisor_note(uuid, text) to anon;

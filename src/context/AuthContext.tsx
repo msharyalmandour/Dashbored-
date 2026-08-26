@@ -161,7 +161,9 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
         if (team_id) {
           const { data: teamRow } = await supabase!
             .from("teams")
-            .select("id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token")
+            .select(
+              "id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at",
+            )
             .eq("id", team_id)
             .single();
           if (teamRow) {
@@ -174,6 +176,8 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               isFounder: teamRow.is_founder,
               isOnTrial: teamRow.on_trial,
               shareToken: teamRow.share_token,
+              supervisorNote: teamRow.supervisor_note,
+              supervisorNoteAt: teamRow.supervisor_note_at,
             });
           }
         } else {

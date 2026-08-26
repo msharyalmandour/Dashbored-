@@ -31,6 +31,9 @@ export interface Team {
   isOnTrial: boolean;
   /** رمز رابط المشرف الأكاديمي (وضع Supabase الحقيقي فقط) */
   shareToken?: string;
+  /** آخر ملاحظة أرسلها المشرف الأكاديمي عبر رابطه (وضع Supabase الحقيقي فقط) */
+  supervisorNote?: string | null;
+  supervisorNoteAt?: string | null;
 }
 
 export type SectionStatus = "done" | "in-progress" | "not-started";

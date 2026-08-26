@@ -32,7 +32,7 @@ function buildInfinityGeometry(): TubeGeometry {
   return new TubeGeometry(curve, 220, 0.24, 24, true);
 }
 
-function CenterpieceKnot() {
+function CenterpieceKnot({ scale = 1.7 }: { scale?: number }) {
   const ref = useRef<Mesh>(null);
   const geometry = useMemo(() => buildInfinityGeometry(), []);
   useFrame((state, delta) => {
@@ -46,7 +46,7 @@ function CenterpieceKnot() {
   });
   return (
     <Float speed={1.3} rotationIntensity={0.2} floatIntensity={0.8}>
-      <mesh ref={ref} geometry={geometry} scale={1.7}>
+      <mesh ref={ref} geometry={geometry} scale={scale}>
         <MeshDistortMaterial
           color={GOLD}
           metalness={0.55}
@@ -136,7 +136,13 @@ function CameraRig() {
     يتبع حركة الماوس بخفة. يعتمد على WebGL محليًا بدون تحميل أي موارد خارجية.
     ملاحظة: تعمّدنا عدم استخدام EffectComposer/Bloom — تسبب بشاشة نصفها أسود على
     الشاشات عالية الدقة (Retina/DPR=2)؛ التوهج هنا كله عبر emissive + الإضاءة. */
-export default function Scene3D({ density = "full" }: { density?: "full" | "light" }) {
+export default function Scene3D({
+  density = "full",
+  centerpieceScale = 1.7,
+}: {
+  density?: "full" | "light";
+  centerpieceScale?: number;
+}) {
   const reducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -156,7 +162,7 @@ export default function Scene3D({ density = "full" }: { density?: "full" | "ligh
           <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
           <LocalEnvironment />
           <Stars radius={80} depth={40} count={density === "full" ? 4500 : 2500} factor={3} saturation={0} fade speed={0.4} />
-          <CenterpieceKnot />
+          <CenterpieceKnot scale={centerpieceScale} />
           {density === "full" && <FloatingShapes count={7} />}
           <Sparkles
             count={density === "full" ? 110 : 55}

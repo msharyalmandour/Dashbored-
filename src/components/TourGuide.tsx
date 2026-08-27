@@ -72,6 +72,12 @@ export default function TourGuide() {
           <p className="mx-auto mt-1.5 max-w-xs text-sm leading-relaxed text-white/45">
             {step.body}
           </p>
+          <img
+            key={step.id}
+            src={step.image}
+            alt={step.title}
+            className="mx-auto mt-3 h-24 w-44 animate-[panel-in_0.4s_ease-out] rounded-xl border border-amber-400/25 object-cover object-top shadow-lg shadow-black/50 sm:h-28 sm:w-52"
+          />
         </div>
 
         {isNarrationAvailable() && (

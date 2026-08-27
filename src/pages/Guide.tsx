@@ -2,6 +2,8 @@ import {
   BookMarked,
   BookOpenText,
   CalendarDays,
+  Compass,
+  Download,
   FlaskConical,
   FolderClosed,
   LayoutDashboard,
@@ -13,6 +15,22 @@ import {
 } from "lucide-react";
 import Card, { CardHeader, type CardTone } from "../components/ui/Card";
 import { useAuth } from "../context/AuthContext";
+import { useTour } from "../context/TourContext";
+import { useTasksData } from "../hooks/useTasksData";
+import { useTaskComments } from "../hooks/useTaskComments";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useCalendarEvents } from "../hooks/useCalendarEvents";
+import {
+  evidenceLibrary,
+  files,
+  methodology,
+  projectMeta,
+  proposalSections,
+  recentActivity,
+  researchGap,
+  studyAim,
+} from "../data/mockData";
+import { downloadBackup } from "../lib/backup";
 
 const sections: { icon: typeof LayoutDashboard; title: string; desc: string; tone: CardTone }[] = [
   {
@@ -85,17 +103,48 @@ const sections: { icon: typeof LayoutDashboard; title: string; desc: string; ton
 
 export default function Guide() {
   const { isLeader } = useAuth();
+  const { startTour } = useTour();
+  const { tasks } = useTasksData();
+  const { comments } = useTaskComments();
+  const { roster } = useTeamRoster();
+  const { events } = useCalendarEvents();
+
+  const exportBackup = () => {
+    downloadBackup({
+      projectMeta,
+      proposalSections,
+      researchGap,
+      studyAim,
+      methodology,
+      tasks,
+      taskComments: comments,
+      evidenceLibrary,
+      team: roster,
+      files,
+      calendarEvents: events,
+      recentActivity,
+    });
+  };
 
   return (
     <div className="space-y-6">
-      <Card tone="amber">
-        <h2 className="font-display text-lg font-bold text-brand-950">
-          أهلًا فيك في NURSYNC 👋
-        </h2>
-        <p className="mt-1 max-w-2xl text-sm text-brand-950/60">
-          هذا الدليل يوضح لك وين تروح لكل شيء داخل الموقع، وكيف تشتغل على بحثك
-          خطوة بخطوة.
-        </p>
+      <Card tone="amber" className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-lg font-bold text-brand-950">
+            أهلًا فيك في NURSYNC 👋
+          </h2>
+          <p className="mt-1 max-w-2xl text-sm text-brand-950/60">
+            هذا الدليل يوضح لك وين تروح لكل شيء داخل الموقع، وكيف تشتغل على بحثك
+            خطوة بخطوة.
+          </p>
+        </div>
+        <button
+          onClick={startTour}
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-amber-accent-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-accent-600"
+        >
+          <Compass size={16} />
+          ابدأ الجولة التعريفية
+        </button>
       </Card>
 
       <div>
@@ -194,6 +243,28 @@ export default function Guide() {
           </ul>
         </Card>
       </div>
+
+      <Card className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-muted text-brand-700">
+            <Download size={18} />
+          </span>
+          <div>
+            <p className="font-bold text-brand-950">نسخة احتياطية</p>
+            <p className="mt-1 max-w-md text-sm text-brand-950/60">
+              نزّل نسخة JSON من كل بيانات فريقكم — المقترح، المهام، مكتبة الأدلة،
+              الفريق، والملفات — تقدرون تحتفظون فيها أو ترسلونها لمشرفكم.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={exportBackup}
+          className="flex shrink-0 items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+        >
+          <Download size={16} />
+          تصدير نسخة احتياطية
+        </button>
+      </Card>
     </div>
   );
 }

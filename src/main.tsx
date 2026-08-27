@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import { ToastProvider } from "./context/ToastContext.tsx";
+import { TourProvider } from "./context/TourContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider>
         <AuthProvider>
           <ToastProvider>
-            <App />
+            <TourProvider>
+              <App />
+            </TourProvider>
           </ToastProvider>
         </AuthProvider>
       </ThemeProvider>

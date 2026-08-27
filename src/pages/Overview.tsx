@@ -37,6 +37,7 @@ import CountUp from "../components/cinematic/CountUp";
 import { useMouseParallax } from "../hooks/useMouseParallax";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { useTour } from "../context/TourContext";
 import {
   evidenceLibrary,
   projectMeta,
@@ -83,6 +84,7 @@ const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
   const { currentUser, team } = useAuth();
+  const { startTour, finished: tourFinished } = useTour();
   const isFemale = isFemaleUser(currentUser);
   const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
   const visitGapDays = useVisitGap();
@@ -239,13 +241,34 @@ export default function Overview() {
           </span>
           <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
             أول مرة {g(isFemale, "تستخدمين", "تستخدم")} NURSYNC؟{" "}
-            {g(isFemale, "راجعي", "راجع")}{" "}
-            <Link to="/guide" className="underline underline-offset-2">
-              دليل الطالب
-            </Link>{" "}
-            عشان {g(isFemale, "تعرفين", "تعرف")} وين {g(isFemale, "تروحين", "تروح")} ولاش{" "}
-            {g(isFemale, "تضيفين", "تضيف")} مهامك.
+            {tourFinished ? (
+              <>
+                خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر{" "}
+                {g(isFemale, "راجعي", "راجع")}{" "}
+                <Link to="/guide" className="underline underline-offset-2">
+                  دليل الطالب
+                </Link>
+                .
+              </>
+            ) : (
+              <>
+                خلّي مرشدتنا تاخذك بجولة سريعة على أهم صفحات الموقع، أو{" "}
+                {g(isFemale, "راجعي", "راجع")}{" "}
+                <Link to="/guide" className="underline underline-offset-2">
+                  دليل الطالب
+                </Link>{" "}
+                المكتوب.
+              </>
+            )}
           </p>
+          {!tourFinished && (
+            <button
+              onClick={startTour}
+              className="shrink-0 rounded-xl bg-amber-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-accent-600"
+            >
+              ابدأ الجولة
+            </button>
+          )}
           <button
             onClick={dismissGuideBanner}
             className="shrink-0 rounded-lg p-1.5 text-amber-accent-600 hover:bg-amber-accent-200"

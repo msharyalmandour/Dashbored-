@@ -8,6 +8,7 @@ import Landing from "../pages/Landing";
 import PaymentProofUpload from "./PaymentProofUpload";
 import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
+import TourGuide from "./TourGuide";
 import Skeleton from "./ui/Skeleton";
 import { useAuth } from "../context/AuthContext";
 import { daysUntil } from "../lib/date";
@@ -79,6 +80,7 @@ export default function Layout() {
     <div className="flex min-h-screen bg-surface">
       <CommandPalette />
       <AiAssistant />
+      <TourGuide />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header title={title} onMenuClick={() => setMobileNavOpen(true)} />

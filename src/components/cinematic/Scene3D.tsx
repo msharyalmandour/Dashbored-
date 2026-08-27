@@ -4,8 +4,10 @@ import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles, Stars }
 import { CatmullRomCurve3, TubeGeometry, Vector3, type Mesh } from "three";
 
 /** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
-    شي تعكسه، وإلا تطلع رمادية باهتة على أي كرت رسومات حقيقي (خلاف المحاكاة البرمجية) */
-function LocalEnvironment() {
+    شي تعكسه، وإلا تطلع رمادية باهتة على أي كرت رسومات حقيقي (خلاف المحاكاة البرمجية).
+    مُصدّرة عشان مشاهد ثلاثية الأبعاد ثانية (زي شعار المرشد الصوتي) تستخدم
+    نفس الإضاءة المدروسة بدل ما تكرر الإعداد */
+export function LocalEnvironment() {
   return (
     <Environment resolution={256} frames={1}>
       <Lightformer intensity={5} color="#fbbf24" position={[0, 3, -4]} scale={[9, 4, 1]} />
@@ -16,12 +18,13 @@ function LocalEnvironment() {
   );
 }
 
-const GOLD = "#fbbf24";
-const GOLD_LIGHT = "#fcd34d";
+export const GOLD = "#fbbf24";
+export const GOLD_LIGHT = "#fcd34d";
 
-/** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار NURSYNC — عشان مشهد تسجيل
-    الدخول يكون مرتبط بهوية البراند الفعلية، مو شكل مجرد بدون معنى */
-function buildInfinityGeometry(): TubeGeometry {
+/** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار NURSYNC — عشان أي مشهد
+    ثلاثي الأبعاد بالتطبيق (تسجيل الدخول، الهيرو، شعار المرشد الصوتي)
+    يكون مرتبط بهوية البراند الفعلية، مو شكل مجرد بدون معنى */
+export function buildInfinityGeometry(): TubeGeometry {
   const segments = 220;
   const points: Vector3[] = [];
   for (let i = 0; i <= segments; i++) {

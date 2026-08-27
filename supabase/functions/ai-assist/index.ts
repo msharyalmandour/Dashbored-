@@ -2,17 +2,37 @@
 //
 // النشر: supabase functions deploy ai-assist
 // المتغيرات المطلوبة (Project Settings → Edge Functions → Secrets):
-//   ANTHROPIC_API_KEY   مفتاح Anthropic الخاص بك
+//   ANTHROPIC_API_KEY    مفتاح Anthropic الخاص بك
+//   ELEVENLABS_API_KEY   اختياري — لصوت المرشدة "نور" الحقيقي بالجولة
+//                        التعريفية (بدونه ترجع تلقائيًا لصوت المتصفح
+//                        الجاهز، بدون أي كسر بالتطبيق)
+//   ELEVENLABS_VOICE_ID  اختياري — رمز صوت من مكتبة ElevenLabs
+//                        (elevenlabs.io/app/voice-library)، افتراضيًا صوت
+//                        عام يدعم العربية عبر eleven_multilingual_v2
 // (SUPABASE_URL و SUPABASE_ANON_KEY متوفرة تلقائيًا داخل بيئة الدالة)
 //
-// هذي الدالة هي الطبقة الوحيدة اللي تتكلم مع Claude API — مفتاح Anthropic
-// ما يظهر أبدًا بكود الواجهة (لو حطيناه بالـ React مباشرة، أي حد يفتح أدوات
-// المطور بالمتصفح يقدر يسرقه ويستخدم رصيدك).
+// هذي الدالة هي الطبقة الوحيدة اللي تتكلم مع Claude API وElevenLabs —
+// المفاتيح ما تظهر أبدًا بكود الواجهة (لو حطيناها بالـ React مباشرة، أي حد
+// يفتح أدوات المطور بالمتصفح يقدر يسرقها ويستخدم رصيدك).
 
 import Anthropic from "npm:@anthropic-ai/sdk@^0.68.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
+
+const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+// صوت افتراضي عام يدعم العربية عبر نموذج eleven_multilingual_v2 — بدّليه
+// برمز صوت تختارينه من مكتبة ElevenLabs لو تبين صوت مختلف
+const ELEVENLABS_VOICE_ID = Deno.env.get("ELEVENLABS_VOICE_ID") ?? "21m00Tcm4TlvDq8ikWAM";
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
 
 // بروتوكولات ومعايير البحث العلمي التمريضي — مصدر معرفة موثوق يُغذّى للمساعد
 // عشان إجاباته تُبنى على معايير معتمدة عالميًا ومحليًا، مو معلومات عامة غير مؤكدة.
@@ -208,6 +228,42 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ text: textFrom(response.content) }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    if (body.action === "tts") {
+      if (!ELEVENLABS_API_KEY) {
+        return new Response(JSON.stringify({ error: "خدمة الصوت غير مفعّلة" }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const text = ((body.text as string) ?? "").slice(0, 600);
+      const ttsResponse = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
+        {
+          method: "POST",
+          headers: {
+            "xi-api-key": ELEVENLABS_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+          }),
+        },
+      );
+      if (!ttsResponse.ok) {
+        return new Response(JSON.stringify({ error: "تعذّر توليد الصوت" }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const audioBytes = new Uint8Array(await ttsResponse.arrayBuffer());
+      return new Response(
+        JSON.stringify({ audioBase64: bytesToBase64(audioBytes), mimeType: "audio/mpeg" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     if (body.action === "improve") {

@@ -3,7 +3,7 @@ import { Volume2, VolumeX, X } from "lucide-react";
 import Logo from "./Logo";
 import { useTour } from "../context/TourContext";
 import { guideIntro, guideName } from "../data/onboardingTour";
-import { isSpeechSupported, speak, stopSpeaking } from "../lib/speech";
+import { isNarrationAvailable, speak, stopSpeaking } from "../lib/speech";
 
 const MUTED_KEY = "nursync.tourMuted";
 
@@ -57,7 +57,7 @@ export default function TourGuide() {
                 {activeIndex + 1} من {steps.length} — {step.label}
               </p>
               <div className="flex shrink-0 items-center gap-1">
-                {isSpeechSupported() && (
+                {isNarrationAvailable() && (
                   <button
                     onClick={toggleMute}
                     title={muted ? "تشغيل الصوت" : "كتم الصوت"}

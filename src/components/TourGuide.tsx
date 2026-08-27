@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Volume2, VolumeX, X } from "lucide-react";
 import Logo from "./Logo";
 import { useTour } from "../context/TourContext";
-import { guideName } from "../data/onboardingTour";
+import { guideIntro, guideName } from "../data/onboardingTour";
 import { isSpeechSupported, speak, stopSpeaking } from "../lib/speech";
 
 const MUTED_KEY = "nursync.tourMuted";
@@ -21,7 +21,7 @@ export default function TourGuide() {
     }
     if (muted) return;
     const step = steps[activeIndex];
-    const intro = activeIndex === 0 ? `أنا ${guideName}، مرشدتكم في NURSYNC. ` : "";
+    const intro = activeIndex === 0 ? `${guideIntro} ` : "";
     speak(`${intro}${step.title}. ${step.body}`);
     return () => stopSpeaking();
     // eslint-disable-next-line react-hooks/exhaustive-deps

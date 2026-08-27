@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowRight, BookMarked, Coffee, Gift, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, BookMarked, Coffee, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
+import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import { getGreeting } from "../lib/date";
@@ -262,8 +263,8 @@ export default function Login() {
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-3 py-2.5 text-center">
-                    <Gift size={16} className="shrink-0 text-amber-300" />
+                  <div className="flex animate-[node-pulse_2.2s_ease-in-out_infinite] items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-3 py-2.5 text-center">
+                    <GiftMotion size={20} />
                     <p className="text-xs font-bold text-amber-300">
                       جربوا NURSYNC مجانًا 3 أيام كاملة — بدون أي التزام، وبعدها اشتراك بسيط
                       بالريال لكل عضو.

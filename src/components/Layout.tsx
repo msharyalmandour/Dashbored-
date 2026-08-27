@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { AlertTriangle, Gift } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
@@ -85,8 +86,8 @@ export default function Layout() {
           <div className="space-y-6">
             {showTrialBanner && (
               <div className="flex items-center gap-4 rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 print:hidden">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-500 text-white">
-                  <Gift size={18} />
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-500">
+                  <GiftMotion size={20} />
                 </span>
                 <p className="min-w-0 flex-1 text-sm font-semibold text-sky-accent-700">
                   أنتم بفترة التجربة المجانية 🎉 — باقي{" "}

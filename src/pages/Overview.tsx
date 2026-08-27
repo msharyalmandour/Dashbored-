@@ -252,7 +252,7 @@ export default function Overview() {
               </>
             ) : (
               <>
-                خلّي مرشدتنا تاخذك بجولة سريعة على أهم صفحات الموقع، أو{" "}
+                خلّي مرشدنا ياخذك بجولة سريعة على أهم صفحات الموقع، أو{" "}
                 {g(isFemale, "راجعي", "راجع")}{" "}
                 <Link to="/guide" className="underline underline-offset-2">
                   دليل الطالب

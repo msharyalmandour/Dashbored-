@@ -32,21 +32,25 @@ function buildInfinityGeometry(): TubeGeometry {
   return new TubeGeometry(curve, 220, 0.24, 24, true);
 }
 
-function CenterpieceKnot({ scale = 1.7 }: { scale?: number }) {
+function CenterpieceKnot({ scale = 1.7, y = 0 }: { scale?: number; y?: number }) {
   const ref = useRef<Mesh>(null);
   const geometry = useMemo(() => buildInfinityGeometry(), []);
   useFrame((state, delta) => {
     if (!ref.current) return;
     // منحنى مسطّح (z=0) — ندوّره بمحور Z (زي عقرب ساعة) عشان يفضل يواجه
     // الكاميرا دايمًا، ونميّله بزوايا صغيرة بس على X/Y (بدون ما يوصل حرف
-    // ٩٠ درجة) عشان يعطي عمق خفيف بدون ما يختفي الشكل من الجانب
+    // ٩٠ درجة) عشان يعطي عمق خفيف بدون ما يختفي الشكل من الجانب. نضيف
+    // تأثير خفيف لمتابعة الماوس فوق الميلان الطبيعي عشان يحس المستخدم
+    // إن الشكل "حي" ويتفاعل معه
     ref.current.rotation.z += delta * 0.15;
-    ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.12;
-    ref.current.rotation.y = Math.cos(state.clock.elapsedTime * 0.25) * 0.1;
+    ref.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.3) * 0.12 + state.pointer.y * 0.12;
+    ref.current.rotation.y =
+      Math.cos(state.clock.elapsedTime * 0.25) * 0.1 + state.pointer.x * 0.12;
   });
   return (
     <Float speed={1.3} rotationIntensity={0.2} floatIntensity={0.8}>
-      <mesh ref={ref} geometry={geometry} scale={scale}>
+      <mesh ref={ref} geometry={geometry} scale={scale} position={[0, y, 0]}>
         <MeshDistortMaterial
           color={GOLD}
           metalness={0.55}
@@ -58,6 +62,55 @@ function CenterpieceKnot({ scale = 1.7 }: { scale?: number }) {
         />
       </mesh>
     </Float>
+  );
+}
+
+interface RingSpec {
+  radius: number;
+  z: number;
+  tiltX: number;
+  phase: number;
+  speed: number;
+  opacity: number;
+}
+
+const RING_SPECS: RingSpec[] = [
+  { radius: 2.05, z: 0.55, tiltX: 0.18, phase: 0, speed: 0.5, opacity: 0.22 },
+  { radius: 2.55, z: -0.7, tiltX: -0.22, phase: 1.7, speed: 0.4, opacity: 0.15 },
+  { radius: 3.1, z: -1.7, tiltX: 0.28, phase: 3.1, speed: 0.32, opacity: 0.1 },
+];
+
+/** حلقة توهج طائفة حول العقدة المركزية — بعضها أقرب للكاميرا من الشكل
+    وبعضها أبعد، تنبض بحجمها ببطء وتنجرف خفيف نحو موضع الماوس، عشان تعطي
+    إحساس "موجات طاقة" عضوية حول المركز بدل حلقة ثابتة جامدة */
+function WaveRing({ radius, z, tiltX, phase, speed, opacity }: RingSpec) {
+  const ref = useRef<Mesh>(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const pulse = 1 + Math.sin(t * speed + phase) * 0.05;
+    ref.current.scale.setScalar(pulse);
+    ref.current.rotation.z = t * 0.04 * (phase % 2 === 0 ? 1 : -1);
+    const targetX = state.pointer.x * 0.25;
+    const targetY = -state.pointer.y * 0.18;
+    ref.current.position.x += (targetX - ref.current.position.x) * 0.02;
+    ref.current.position.y += (targetY - ref.current.position.y) * 0.02;
+  });
+  return (
+    <mesh ref={ref} position={[0, 0, z]} rotation={[tiltX, 0, 0]}>
+      <torusGeometry args={[radius, 0.012, 16, 100]} />
+      <meshBasicMaterial color={GOLD_LIGHT} transparent opacity={opacity} />
+    </mesh>
+  );
+}
+
+function WaveRings({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {RING_SPECS.slice(0, count).map((r, i) => (
+        <WaveRing key={i} {...r} />
+      ))}
+    </>
   );
 }
 
@@ -139,9 +192,13 @@ function CameraRig() {
 export default function Scene3D({
   density = "full",
   centerpieceScale = 1.7,
+  centerpieceY = 0,
+  waveRings = false,
 }: {
   density?: "full" | "light";
   centerpieceScale?: number;
+  centerpieceY?: number;
+  waveRings?: boolean;
 }) {
   const reducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -162,7 +219,8 @@ export default function Scene3D({
           <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
           <LocalEnvironment />
           <Stars radius={80} depth={40} count={density === "full" ? 4500 : 2500} factor={3} saturation={0} fade speed={0.4} />
-          <CenterpieceKnot scale={centerpieceScale} />
+          <CenterpieceKnot scale={centerpieceScale} y={centerpieceY} />
+          {waveRings && <WaveRings count={density === "full" ? 3 : 1} />}
           {density === "full" && <FloatingShapes count={7} />}
           <Sparkles
             count={density === "full" ? 110 : 55}

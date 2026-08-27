@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -19,7 +19,6 @@ import Logo from "../components/Logo";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
 import CursorGlow from "../components/cinematic/CursorGlow";
-import { useMouseParallax } from "../hooks/useMouseParallax";
 import { researchStages } from "../data/mockData";
 import overviewShot from "../assets/landing/overview.png";
 import tasksShot from "../assets/landing/tasks.png";
@@ -44,43 +43,6 @@ const stageBlurbs: Record<string, string> = {
   analysis: "تحللون النتائج وتستخرجون الدلالات",
   final: "تجمعون كل شي بتقرير نهائي جاهز للتسليم",
 };
-
-function FloatingCard({
-  className,
-  duration,
-  tilt,
-  depth,
-  parallax,
-  children,
-}: {
-  className: string;
-  duration: number;
-  tilt: string;
-  depth: number;
-  parallax: { x: number; y: number };
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={`pointer-events-none absolute motion-reduce:animate-none ${className}`}
-      style={
-        {
-          animation: `card-float ${duration}s ease-in-out infinite`,
-          "--tilt": tilt,
-        } as CSSProperties
-      }
-    >
-      <div
-        style={{
-          transform: `translate3d(${parallax.x * depth}px, ${parallax.y * depth}px, 0)`,
-          transition: "transform 120ms ease-out",
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
 
 function BrowserFrame({ src, alt }: { src: string; alt: string }) {
   return (
@@ -250,10 +212,20 @@ const features: { image: string; title: string; desc: string; reverse?: boolean 
 ];
 
 export default function Landing() {
-  const { ref: heroRef, offset } = useMouseParallax(16);
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
   const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  // نخفف كثافة موجات وجزيئات المشهد ثلاثي الأبعاد على الشاشات الصغيرة
+  // (أداء أفضل، وموجات أقل ازدحامًا حوالين النص على الجوال)
+  const [heroDensity, setHeroDensity] = useState<"full" | "light">("full");
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setHeroDensity(mq.matches ? "light" : "full");
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-neutral-950 text-white">
@@ -277,31 +249,35 @@ export default function Landing() {
         </Link>
       </header>
 
-      {/* Hero */}
-      <section ref={heroRef} className="relative overflow-hidden">
+      {/* Hero — ارتفاع محدود بمقاس الشاشة عشان المشهد ثلاثي الأبعاد يتناسب
+          دايمًا مع حجم معقول، ما يكبر بشكل عشوائي حسب طول المحتوى تحته */}
+      <section className="relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden lg:min-h-[820px]">
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
         <Suspense fallback={<ScenePlaceholder />}>
-          <Scene3D density="full" />
+          <Scene3D density={heroDensity} waveRings centerpieceScale={0.25} centerpieceY={1} />
         </Suspense>
-        <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-6 py-10 lg:grid-cols-2 lg:py-16">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/80">
+        {/* تعتيم خفيف خلف النص عشان يفضل واضح ومقروء فوق توهج الشكل ثلاثي
+            الأبعاد، مهما كانت شدة الإضاءة خلفه */}
+        <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_60%_55%_at_50%_42%,rgba(10,10,10,0.55),transparent_70%)]" />
+        <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center px-6 text-center">
+          <div className="animate-[hero-in_0.9s_ease-out] [text-shadow:0_4px_28px_rgba(3,6,10,0.85)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/80 backdrop-blur">
               <Sparkles size={13} />
               مبنية خصيصًا لفرق بحث التخرج التمريضي
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] tracking-tight text-white lg:text-5xl">
+            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.15] tracking-tight text-white lg:text-6xl">
               حوّلوا بحثكم
               <br />
               <span className="bg-gradient-to-l from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent">
                 لرؤية واضحة
               </span>
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-white/55">
+            <p className="mx-auto mt-5 max-w-lg text-lg text-white/60">
               NURSYNC تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
               النهائي — بمكان واحد يشوفه الجميع.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/login"
                 className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
@@ -316,61 +292,20 @@ export default function Landing() {
                 شوفوا السعر
               </a>
             </div>
-            <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 px-3.5 py-1.5 text-xs font-semibold text-white/50">
+            <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 px-3.5 py-1.5 text-xs font-semibold text-white/50 backdrop-blur">
               <Check size={12} className="text-amber-400" />
               {PRICE_PER_PERSON} ريال شهريًا لكل شخص — {PRICE_PER_PERSON * TEAM_SIZE} ريال للفريق كامل ({TEAM_SIZE} أعضاء)
             </span>
           </div>
-
-          <div className="relative lg:pe-4">
-            <TiltCard maxTilt={4} className="relative z-10">
-              <RevealRotate direction="right">
-                <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
-              </RevealRotate>
-            </TiltCard>
-
-            <FloatingCard
-              className="-top-8 start-2 z-20 hidden sm:block"
-              duration={7}
-              tilt="-6deg"
-              depth={0.7}
-              parallax={offset}
-            >
-              <div className="w-40 rounded-2xl border border-white/10 bg-neutral-900/90 p-3 shadow-2xl shadow-black/40 backdrop-blur">
-                <div className="flex items-center gap-1.5 text-emerald-300">
-                  <Check size={12} />
-                  <span className="text-[11px] font-bold">مراجعة الأدبيات</span>
-                </div>
-                <p className="mt-1 text-[10px] text-white/45">مكتملة — ١٨ دراسة</p>
-              </div>
-            </FloatingCard>
-
-            <FloatingCard
-              className="-bottom-6 -start-6 z-20 hidden sm:block"
-              duration={8.5}
-              tilt="4deg"
-              depth={0.9}
-              parallax={offset}
-            >
-              <div className="flex w-36 items-center gap-2.5 rounded-2xl border border-white/10 bg-neutral-900/90 p-3 shadow-2xl shadow-black/40 backdrop-blur">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-amber-400 text-[11px] font-extrabold text-amber-300">
-                  ٤٢٪
-                </span>
-                <span className="text-[10px] font-semibold text-white/60">نسبة تقدم البحث</span>
-              </div>
-            </FloatingCard>
-
-            <FloatingCard
-              className="-end-8 top-1/3 z-20 hidden lg:block"
-              duration={6.5}
-              tilt="-3deg"
-              depth={0.5}
-              parallax={offset}
-            >
-              <span className="flex h-3 w-3 animate-[node-pulse_2.4s_ease-in-out_infinite] rounded-full bg-amber-400 motion-reduce:animate-none" />
-            </FloatingCard>
-          </div>
         </div>
+      </section>
+
+      <section className="relative z-10 mx-auto -mt-10 max-w-4xl px-6 pb-16 lg:-mt-16 lg:pb-24">
+        <TiltCard maxTilt={3}>
+          <RevealRotate direction="left">
+            <BrowserFrame src={overviewShot} alt="لوحة تحكم NURSYNC" />
+          </RevealRotate>
+        </TiltCard>
       </section>
 
       {/* Facts strip */}

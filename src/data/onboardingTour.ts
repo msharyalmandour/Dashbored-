@@ -9,6 +9,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+/** اسم المرشدة اللي تاخذ المستخدمة بالجولة التعريفية — تعرّف عن نفسها
+    بأول خطوة قبل ما تبدأ تشرح */
+export const guideName = "نور";
+
 export interface TourStep {
   id: string;
   route: string;

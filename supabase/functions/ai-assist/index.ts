@@ -254,10 +254,15 @@ Deno.serve(async (req: Request) => {
         },
       );
       if (!ttsResponse.ok) {
-        return new Response(JSON.stringify({ error: "تعذّر توليد الصوت" }), {
-          status: 502,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        const errBody = await ttsResponse.text();
+        console.error("ElevenLabs TTS failed", ttsResponse.status, errBody);
+        return new Response(
+          JSON.stringify({ error: "تعذّر توليد الصوت", detail: errBody }),
+          {
+            status: 502,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
       }
       const audioBytes = new Uint8Array(await ttsResponse.arrayBuffer());
       return new Response(

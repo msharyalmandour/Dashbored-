@@ -3,13 +3,25 @@ import { getSpeechAnalyser, onSpeakingChange } from "../lib/speech";
 
 const BAR_COUNT = 5;
 
+const SIZES = {
+  sm: { base: 5, range: 20, width: "w-1", gap: "gap-[3px]" },
+  lg: { base: 10, range: 52, width: "w-2", gap: "gap-1.5" },
+};
+
 /** موجات صوت متحركة — ترسم طيف الصوت الحقيقي أثناء تشغيل صوت AI (عبر
     Web Audio API)، أو نبضة تقريبية أثناء صوت المتصفح الاحتياطي اللي ما
     فيه تحليل طيف متاح */
-export default function VoiceWaveform({ className = "" }: { className?: string }) {
+export default function VoiceWaveform({
+  className = "",
+  size = "sm",
+}: {
+  className?: string;
+  size?: "sm" | "lg";
+}) {
   const [speaking, setSpeaking] = useState(false);
   const barsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const [usingAnalyser, setUsingAnalyser] = useState(false);
+  const { base, range, width, gap } = SIZES[size];
 
   useEffect(() => onSpeakingChange(setSpeaking), []);
 
@@ -45,18 +57,18 @@ export default function VoiceWaveform({ className = "" }: { className?: string }
   }, [speaking]);
 
   return (
-    <div className={`flex items-end gap-[3px] ${className}`} aria-hidden>
+    <div className={`flex items-end ${gap} ${className}`} aria-hidden>
       {Array.from({ length: BAR_COUNT }).map((_, i) => (
         <span
           key={i}
           ref={(el) => {
             barsRef.current[i] = el;
           }}
-          className={`w-1 rounded-full bg-brand-500 ${
+          className={`${width} rounded-full bg-brand-500 ${
             speaking && !usingAnalyser ? "animate-[wave-pulse_0.9s_ease-in-out_infinite]" : ""
           }`}
           style={{
-            height: "calc(5px + var(--h, 0.15) * 20px)",
+            height: `calc(${base}px + var(--h, 0.15) * ${range}px)`,
             transition: usingAnalyser ? "height 60ms linear" : "height 150ms ease",
             animationDelay: speaking && !usingAnalyser ? `${i * 0.11}s` : undefined,
           }}

@@ -348,6 +348,12 @@ h1, h2, h3, .font-display {
   50% { box-shadow: 0 0 0 14px rgba(217, 119, 6, 0); }
 }
 
+/* نسخة أضخم من نفس التوهج — للمرشدة وقت ظهورها بمنتصف الشاشة بحجم كبير */
+@keyframes speaker-glow-lg {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4); }
+  50% { box-shadow: 0 0 0 28px rgba(217, 119, 6, 0); }
+}
+
 /* حلقة تركيز واضحة بلون البراند لكل عناصر الكيبورد */
 button:focus-visible,
 a:focus-visible,

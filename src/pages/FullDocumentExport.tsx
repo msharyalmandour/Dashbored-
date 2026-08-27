@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, Circle, FileDown, RefreshCw } from "lucide-react";
+import { CheckCircle2, Circle, FileDown, FileType2, Loader2, RefreshCw, ArrowRight } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import {
   evidenceLibrary,
@@ -13,6 +14,7 @@ import {
 import type { SectionStatus } from "../data/types";
 import { buildReferenceList } from "../lib/citation";
 import { formatDateLong } from "../lib/date";
+import { buildProposalWordDoc, downloadWordDoc } from "../lib/wordExport";
 
 const statusLabel: Record<SectionStatus, string> = {
   done: "مكتمل",
@@ -62,6 +64,26 @@ function ListField({ label, items }: { label: string; items: string[] }) {
 
 export default function FullDocumentExport() {
   const references = buildReferenceList(evidenceLibrary, "apa").split("\n\n");
+  const [exportingWord, setExportingWord] = useState(false);
+
+  const exportWord = async () => {
+    setExportingWord(true);
+    try {
+      const blob = await buildProposalWordDoc({
+        projectName: projectMeta.name,
+        projectSubtitle: projectMeta.subtitle,
+        teamNames: teamMembers.map((m) => m.name),
+        proposalSections,
+        researchGap,
+        studyAim,
+        methodology,
+        evidenceLibrary,
+      });
+      downloadWordDoc(blob, `${projectMeta.name}.docx`);
+    } finally {
+      setExportingWord(false);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -73,13 +95,23 @@ export default function FullDocumentExport() {
           <ArrowRight size={16} />
           رجوع للمقترح
         </Link>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
-        >
-          <FileDown size={16} />
-          تصدير PDF
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={exportWord}
+            disabled={exportingWord}
+            className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950 hover:bg-surface-muted disabled:opacity-60"
+          >
+            {exportingWord ? <Loader2 size={16} className="animate-spin" /> : <FileType2 size={16} />}
+            تصدير Word
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+          >
+            <FileDown size={16} />
+            تصدير PDF
+          </button>
+        </div>
       </div>
 
       {/* غلاف الوثيقة */}

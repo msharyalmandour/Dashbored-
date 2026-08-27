@@ -9,6 +9,32 @@ import { isSupabaseConfigured, supabase } from "./supabaseClient";
 let currentAudio: HTMLAudioElement | null = null;
 let cachedArabicVoice: SpeechSynthesisVoice | null = null;
 
+// لتغذية موجات الصوت المتحركة (Waveform) بأثناء صوت AI الحقيقي — تحليل
+// طيف الصوت اللحظي عبر Web Audio API
+let audioCtx: AudioContext | null = null;
+let analyserNode: AnalyserNode | null = null;
+
+type SpeakingListener = (speaking: boolean) => void;
+let speakingListeners: SpeakingListener[] = [];
+
+function setSpeaking(speaking: boolean) {
+  speakingListeners.forEach((cb) => cb(speaking));
+}
+
+/** يسجّل مستمع لحالة "تتكلم الآن أو لا" — يرجّع دالة لإلغاء التسجيل */
+export function onSpeakingChange(cb: SpeakingListener): () => void {
+  speakingListeners.push(cb);
+  return () => {
+    speakingListeners = speakingListeners.filter((l) => l !== cb);
+  };
+}
+
+/** يرجّع عقدة تحليل الصوت الحالية (متوفرة بس أثناء تشغيل صوت AI حقيقي)
+    عشان نرسم موجات تتفاعل فعليًا مع الصوت، مو أنيميشن عشوائي */
+export function getSpeechAnalyser(): AnalyserNode | null {
+  return analyserNode;
+}
+
 function pickArabicVoice(): SpeechSynthesisVoice | null {
   if (!isBrowserSpeechSupported()) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -39,6 +65,9 @@ function speakWithBrowserVoice(text: string) {
   if (cachedArabicVoice) utterance.voice = cachedArabicVoice;
   utterance.rate = 0.95;
   utterance.pitch = 1.05;
+  utterance.onstart = () => setSpeaking(true);
+  utterance.onend = () => setSpeaking(false);
+  utterance.onerror = () => setSpeaking(false);
   window.speechSynthesis.speak(utterance);
 }
 
@@ -49,7 +78,26 @@ async function speakWithAIVoice(text: string): Promise<boolean> {
       body: { action: "tts", text },
     });
     if (error || !data?.audioBase64) return false;
+
     currentAudio = new Audio(`data:${data.mimeType ?? "audio/mpeg"};base64,${data.audioBase64}`);
+
+    // نربط عقدة تحليل صوت عشان نرسم موجات حقيقية تتحرك مع الصوت الفعلي —
+    // لازم AudioContext واحد يُعاد استخدامه (المتصفحات تمنع إنشاء أكثر من
+    // مصدر MediaElementSource لنفس عنصر الصوت)
+    try {
+      audioCtx ??= new AudioContext();
+      const source = audioCtx.createMediaElementSource(currentAudio);
+      analyserNode = audioCtx.createAnalyser();
+      analyserNode.fftSize = 64;
+      source.connect(analyserNode);
+      analyserNode.connect(audioCtx.destination);
+    } catch {
+      analyserNode = null;
+    }
+
+    currentAudio.onplay = () => setSpeaking(true);
+    currentAudio.onended = () => setSpeaking(false);
+    currentAudio.onpause = () => setSpeaking(false);
     await currentAudio.play();
     return true;
   } catch {
@@ -64,6 +112,7 @@ export function stopSpeaking() {
     currentAudio = null;
   }
   if (isBrowserSpeechSupported()) window.speechSynthesis.cancel();
+  setSpeaking(false);
 }
 
 /** ينطق النص بأفضل صوت متاح — يحاول صوت AI حقيقي أول، ولو ما نجح (خطأ

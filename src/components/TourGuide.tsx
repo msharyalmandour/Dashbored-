@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Volume2, VolumeX, X } from "lucide-react";
 import Logo from "./Logo";
+import VoiceWaveform from "./VoiceWaveform";
 import { useTour } from "../context/TourContext";
 import { guideIntro, guideName } from "../data/onboardingTour";
-import { isNarrationAvailable, speak, stopSpeaking } from "../lib/speech";
+import { isNarrationAvailable, onSpeakingChange, speak, stopSpeaking } from "../lib/speech";
 
 const MUTED_KEY = "nursync.tourMuted";
 
@@ -13,6 +14,9 @@ const MUTED_KEY = "nursync.tourMuted";
 export default function TourGuide() {
   const { steps, activeIndex, next, prev, close } = useTour();
   const [muted, setMuted] = useState(() => localStorage.getItem(MUTED_KEY) === "1");
+  const [speaking, setSpeaking] = useState(false);
+
+  useEffect(() => onSpeakingChange(setSpeaking), []);
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -45,16 +49,19 @@ export default function TourGuide() {
       <div className="animate-[panel-in_0.4s_ease-out] rounded-3xl border border-brand-100 bg-paper p-5 shadow-2xl shadow-brand-950/15">
         <div className="flex items-start gap-3">
           <span
-            className="shrink-0 animate-[card-float_3.5s_ease-in-out_infinite]"
+            className={`shrink-0 animate-[card-float_3.5s_ease-in-out_infinite] rounded-full transition-transform duration-300 ${
+              speaking ? "scale-110 animate-[speaker-glow_1.4s_ease-in-out_infinite]" : ""
+            }`}
             style={{ "--tilt": "0deg" } as React.CSSProperties}
           >
             <Logo size={40} />
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <p className="flex items-center gap-1 text-xs font-bold text-brand-600">
+              <p className="flex items-center gap-1.5 text-xs font-bold text-brand-600">
                 <span className="text-brand-950">{guideName}</span> · خطوة{" "}
                 {activeIndex + 1} من {steps.length} — {step.label}
+                {speaking && <VoiceWaveform className="ms-0.5" />}
               </p>
               <div className="flex shrink-0 items-center gap-1">
                 {isNarrationAvailable() && (

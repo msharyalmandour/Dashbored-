@@ -335,6 +335,19 @@ h1, h2, h3, .font-display {
   100% { opacity: 1; transform: scale(1); }
 }
 
+/* تُستخدم كبديل مؤقت لموجات الصوت وقت صوت المتصفح الاحتياطي (ما فيه تحليل
+    طيف صوت حقيقي متاح له) — نبضة متتابعة توهم بحركة الصوت */
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+/* هالة توهج حول شعار المرشدة وقت ما تتكلم فعليًا — تعطي إحساس "حضور" أقوى */
+@keyframes speaker-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.35); }
+  50% { box-shadow: 0 0 0 14px rgba(217, 119, 6, 0); }
+}
+
 /* حلقة تركيز واضحة بلون البراند لكل عناصر الكيبورد */
 button:focus-visible,
 a:focus-visible,

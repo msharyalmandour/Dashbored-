@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Check, Clock, Copy, GraduationCap, Mail, Scale, ShieldCheck, UserPlus } from "lucide-react";
+import {
+  Bell,
+  Check,
+  Clock,
+  Copy,
+  GraduationCap,
+  Mail,
+  Scale,
+  ShieldCheck,
+  UserPlus,
+} from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader, type CardTone } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -11,6 +21,11 @@ import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
+
+function daysAgo(iso: string): number {
+  const diff = Date.now() - new Date(iso).getTime();
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+}
 
 const tones: CardTone[] = ["teal", "sky", "cream", "violet", "rose"];
 
@@ -54,9 +69,11 @@ function InviteCard() {
 function SupervisorLinkCard() {
   const { team } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [reminderCopied, setReminderCopied] = useState(false);
 
   if (!team?.shareToken) return null;
   const shareLink = `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}`;
+  const waitingDays = team.supervisorNoteAt ? daysAgo(team.supervisorNoteAt) : null;
 
   const copy = async () => {
     await navigator.clipboard.writeText(shareLink);
@@ -64,26 +81,55 @@ function SupervisorLinkCard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const copyReminder = async () => {
+    const message = team.supervisorNote
+      ? `مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n${shareLink}`
+      : `مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على NURSYNC — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n${shareLink}`;
+    await navigator.clipboard.writeText(message);
+    setReminderCopied(true);
+    setTimeout(() => setReminderCopied(false), 2000);
+  };
+
   return (
-    <Card tone="sky" className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-100 text-sky-accent-700">
-          <GraduationCap size={18} />
-        </span>
-        <div>
-          <p className="font-bold text-brand-950">رابط المشرف الأكاديمي</p>
-          <p className="mt-0.5 text-sm text-brand-950/55">
-            شاركوه مع مشرفكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.
-          </p>
+    <Card tone="sky" className="mb-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-100 text-sky-accent-700">
+            <GraduationCap size={18} />
+          </span>
+          <div>
+            <p className="font-bold text-brand-950">رابط المشرف الأكاديمي</p>
+            <p className="mt-0.5 text-sm text-brand-950/55">
+              شاركوه مع مشرفكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.
+            </p>
+            {waitingDays !== null ? (
+              <p className="mt-1.5 text-xs font-semibold text-sky-accent-700">
+                آخر ملاحظة منه/منها قبل {waitingDays === 0 ? "أقل من يوم" : `${waitingDays} ${waitingDays === 1 ? "يوم" : "أيام"}`}
+              </p>
+            ) : (
+              <p className="mt-1.5 text-xs font-semibold text-amber-accent-600">
+                لسا ما وصلتكم ملاحظة من مشرفكم — ذكّروه بالرابط
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={copyReminder}
+            className="flex items-center justify-center gap-2 rounded-xl border border-sky-accent-200 bg-white px-4 py-2.5 text-sm font-bold text-sky-accent-700 hover:bg-sky-accent-50"
+          >
+            {reminderCopied ? <Check size={15} /> : <Bell size={15} />}
+            {reminderCopied ? "تم النسخ" : "نسخ رسالة تذكير"}
+          </button>
+          <button
+            onClick={copy}
+            className="flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+          >
+            {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
+            {copied ? "تم النسخ" : "نسخ الرابط"}
+          </button>
         </div>
       </div>
-      <button
-        onClick={copy}
-        className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
-      >
-        {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
-        {copied ? "تم النسخ" : "نسخ رابط المشرف"}
-      </button>
     </Card>
   );
 }

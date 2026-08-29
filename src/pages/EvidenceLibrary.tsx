@@ -3,6 +3,7 @@ import { BookMarked, Check, Copy, Quote } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
+import ProgressBar from "../components/ui/ProgressBar";
 import EmptyState from "../components/ui/EmptyState";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import { useAuth } from "../context/AuthContext";
@@ -66,9 +67,14 @@ export default function EvidenceLibrary() {
   };
 
   const allPapers = [...attachedPapers, ...evidenceLibrary];
+  const reviewedCount = allPapers.filter((p) => p.reviewStatus === "reviewed").length;
 
   const filtered = useMemo(
-    () => allPapers.filter((p) => filter === "all" || p.section === filter),
+    () =>
+      allPapers
+        .filter((p) => filter === "all" || p.section === filter)
+        // اللي لسا ما تُراجع يطلع أول — عشان محد يضيع بين الدراسات المكدسة
+        .sort((a, b) => Number(a.reviewStatus === "reviewed") - Number(b.reviewStatus === "reviewed")),
     [allPapers, filter],
   );
 
@@ -95,6 +101,19 @@ export default function EvidenceLibrary() {
 
   return (
     <div className="space-y-5">
+      {allPapers.length > 0 && (
+        <div className="flex items-center gap-4 rounded-2xl bg-surface-muted px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-brand-950/50">
+              <span>تقدم المراجعة</span>
+              <span className="text-brand-600">
+                {reviewedCount} من {allPapers.length} دراسة
+              </span>
+            </div>
+            <ProgressBar value={(reviewedCount / allPapers.length) * 100} />
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
         {sectionFilters.map((f) => (

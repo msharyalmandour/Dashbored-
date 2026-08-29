@@ -15,6 +15,7 @@ import {
   FlaskConical,
   ShieldCheck,
   Sparkles,
+  type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
@@ -24,19 +25,44 @@ import { isFemaleUser } from "../lib/gender";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
 
-const navItems = [
-  { to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true },
-  { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
-  { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
-  { to: "/methodology", label: "المنهجية", icon: FlaskConical },
-  { to: "/tasks", label: "مهامي", icon: ListChecks },
-  { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
-  { to: "/team", label: "الفريق", icon: Users },
-  { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-  { to: "/fieldwork", label: "الميدان", icon: MapPinned },
-  { to: "/files", label: "الملفات", icon: FolderClosed },
-  { to: "/calendar", label: "التقويم", icon: CalendarDays },
-  { to: "/story", label: "قصة بحثك", icon: Sparkles },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  end?: boolean;
+}
+
+const navGroups: { label: string | null; items: NavItem[] }[] = [
+  {
+    label: null,
+    items: [{ to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true }],
+  },
+  {
+    label: "البحث",
+    items: [
+      { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
+      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
+      { to: "/methodology", label: "المنهجية", icon: FlaskConical },
+      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
+    ],
+  },
+  {
+    label: "العمل والفريق",
+    items: [
+      { to: "/tasks", label: "مهامي", icon: ListChecks },
+      { to: "/team", label: "الفريق", icon: Users },
+      { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
+      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
+    ],
+  },
+  {
+    label: "أخرى",
+    items: [
+      { to: "/files", label: "الملفات", icon: FolderClosed },
+      { to: "/calendar", label: "التقويم", icon: CalendarDays },
+      { to: "/story", label: "قصة بحثك", icon: Sparkles },
+    ],
+  },
 ];
 
 export default function Sidebar({
@@ -74,24 +100,33 @@ export default function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                clsx(
-                  "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
-                  isActive
-                    ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
-                    : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
-                )
-              }
-            >
-              <item.icon size={18} />
-              {item.label}
-            </NavLink>
+          {navGroups.map((group, gi) => (
+            <div key={group.label ?? `group-${gi}`} className={gi > 0 ? "mt-3" : undefined}>
+              {group.label && (
+                <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-brand-950/35">
+                  {group.label}
+                </p>
+              )}
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    clsx(
+                      "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                      isActive
+                        ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
+                        : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
+                    )
+                  }
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
 
           <div className="my-2 border-t border-brand-100/70" />

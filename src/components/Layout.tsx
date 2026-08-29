@@ -125,7 +125,9 @@ export default function Layout() {
                 </div>
               </div>
             )}
-            <Outlet />
+            <div key={location.pathname} className="animate-[page-in_0.35s_ease-out]">
+              <Outlet />
+            </div>
           </div>
         </main>
       </div>

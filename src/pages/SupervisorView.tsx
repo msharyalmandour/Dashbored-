@@ -100,8 +100,24 @@ export default function SupervisorView() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <p className="text-sm font-semibold text-neutral-400">جاري التحميل...</p>
+      <div className="min-h-screen bg-neutral-50 px-4 py-10">
+        <div className="mx-auto max-w-3xl animate-pulse">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-2xl bg-neutral-200" />
+              <div className="h-4 w-20 rounded bg-neutral-200" />
+            </div>
+            <div className="h-7 w-24 rounded-full bg-neutral-200" />
+          </div>
+          <div className="h-28 rounded-3xl bg-neutral-200" />
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-20 rounded-2xl bg-neutral-200" />
+            ))}
+          </div>
+          <div className="mt-4 h-40 rounded-3xl bg-neutral-200" />
+          <div className="mt-4 h-52 rounded-3xl bg-neutral-200" />
+        </div>
       </div>
     );
   }

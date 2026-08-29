@@ -63,7 +63,11 @@ export default function Sidebar({
         )}
       >
         <div className="flex items-center gap-2.5 px-6 py-6">
-          <Logo size={40} />
+          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
+            <span className="absolute inset-[-6px] rounded-full bg-amber-accent-400/20 blur-md animate-pulse" />
+            <span className="absolute inset-[-2px] rounded-full ring-1 ring-amber-accent-400/40" />
+            <Logo size={40} />
+          </div>
           <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
             NURSYNC
           </span>

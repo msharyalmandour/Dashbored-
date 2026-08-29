@@ -6,7 +6,6 @@ import {
   Copy,
   GraduationCap,
   Mail,
-  Scale,
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
@@ -25,6 +24,11 @@ import { g, isFemaleUser } from "../lib/gender";
 function daysAgo(iso: string): number {
   const diff = Date.now() - new Date(iso).getTime();
   return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+}
+
+/** أول ظهور لعضو بسجل النشاط هو الأحدث — السجل مرتّب زمنيًا من الأجدد للأقدم */
+function lastActivityFor(memberId: string): string | null {
+  return recentActivity.find((a) => a.memberId === memberId)?.timeAgo ?? null;
 }
 
 const tones: CardTone[] = ["teal", "sky", "cream", "violet", "rose"];
@@ -135,12 +139,15 @@ function SupervisorLinkCard() {
 }
 
 function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[] }) {
+  const [reportCopied, setReportCopied] = useState(false);
+
   const rows = roster
     .map((member) => {
       const memberTasks = tasks.filter((t) => t.assigneeId === member.id);
       const open = memberTasks.filter((t) => t.status !== "done").length;
       const overdue = memberTasks.filter((t) => t.status === "overdue").length;
-      return { member, open, overdue };
+      const done = memberTasks.filter((t) => t.status === "done").length;
+      return { member, open, overdue, done, total: memberTasks.length };
     })
     .sort((a, b) => b.open - a.open);
 
@@ -149,12 +156,39 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
   const leastLoaded = rows[rows.length - 1];
   const imbalanced = rows.length > 1 && mostLoaded.open - leastLoaded.open >= 3;
 
+  const copyReport = async () => {
+    const today = new Date().toLocaleDateString("ar-SA-u-nu-latn", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const lines = [
+      `تقرير مساهمة الفريق — ${today}`,
+      "",
+      ...rows.map(
+        ({ member, total, done, overdue }) =>
+          `${member.name}: ${done} من ${total} مهمة مكتملة${overdue > 0 ? ` — ${overdue} متأخرة` : ""}`,
+      ),
+    ];
+    await navigator.clipboard.writeText(lines.join("\n"));
+    setReportCopied(true);
+    setTimeout(() => setReportCopied(false), 2000);
+  };
+
   return (
     <Card className="mt-4">
       <CardHeader
         title="موازنة حمل الفريق"
         subtitle="Workload Balance"
-        action={<Scale size={18} className="text-brand-600" />}
+        action={
+          <button
+            onClick={copyReport}
+            className="flex items-center gap-1.5 rounded-lg border border-brand-200 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-50"
+          >
+            {reportCopied ? <Check size={13} /> : <Copy size={13} />}
+            {reportCopied ? "تم النسخ" : "نسخ تقرير المساهمة"}
+          </button>
+        }
       />
       <ul className="space-y-3">
         {rows.map(({ member, open, overdue }, i) => (
@@ -281,6 +315,11 @@ export default function Team() {
               <Mail size={14} />
               {member.email}
             </a>
+
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-950/35">
+              <Clock size={12} />
+              {lastActivityFor(member.id) ? `آخر نشاط ${lastActivityFor(member.id)}` : "لسا ما بدأ نشاط"}
+            </p>
 
             <div className="mt-4">
               <div className="mb-1 flex justify-between text-xs font-semibold text-brand-950/50">

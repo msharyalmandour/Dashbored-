@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b0b0c;
+  --surface: #141414;
+  --surface-raised: #1b1a18;
+  --foreground: #f3ede0;
+  --muted: #a8a196;
+  --gold: #caa14d;
+  --gold-light: #e8d19c;
+  --gold-dark: #8a6d2f;
+  --border: rgba(202, 161, 77, 0.18);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-border: var(--border);
+  --font-sans: var(--font-tajawal);
+  --font-display: var(--font-amiri);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), serif;
+}
+
+::selection {
+  background: var(--gold);
+  color: #0b0b0c;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.input-field {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.input-field::placeholder {
+  color: var(--muted);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--gold);
+}

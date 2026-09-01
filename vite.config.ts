@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
             manifest: {
               name: 'NURSYNC — منصة إدارة أبحاث التخرج',
               short_name: 'NURSYNC',
-              description: 'تنظّم رحلة بحث فريقكم البحثي كامل بمكان واحد',
+              description: 'رفيقكم بمشروع التخرج — ينظّم فريقكم ومهامكم ويخلّي التنسيق أسهل من قهوة الصبح ☕',
               lang: 'ar',
               dir: 'rtl',
               start_url: '/',

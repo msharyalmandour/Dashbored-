@@ -214,6 +214,10 @@ export default function Scene3D({
         dpr={[1, 2]}
         camera={{ position: [0, 0, INTRO_START_Z], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
+        // نحدد document.body كهدف تانبت للأحداث بدل ديف R3F الداخلي — الديف
+        // ذاك ممكن يكون لسا ما اتعلّق بالـ DOM لحظة اتصال الأحداث، وقتها
+        // R3F يحاول يستدعي addEventListener على null وتنهار الصفحة كاملة
+        eventSource={document.body}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.35} />
@@ -250,7 +254,12 @@ export function StarsBackdrop() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
-      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 1], fov: 60 }} gl={{ antialias: false, alpha: true }}>
+      <Canvas
+        dpr={[1, 2]}
+        camera={{ position: [0, 0, 1], fov: 60 }}
+        gl={{ antialias: false, alpha: true }}
+        eventSource={document.body}
+      >
         <Suspense fallback={null}>
           <Stars radius={60} depth={30} count={3500} factor={2.5} saturation={0} fade speed={0.3} />
         </Suspense>

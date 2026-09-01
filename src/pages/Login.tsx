@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { ArrowRight, BookMarked, Coffee, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
+import ErrorBoundary from "../components/ErrorBoundary";
 import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
@@ -166,9 +167,11 @@ export default function Login() {
     <div className="relative min-h-screen overflow-hidden bg-[#050b12]">
       <div className="absolute inset-0 bg-gradient-to-b from-[#08211d] via-[#061318] to-[#03060a]" />
       <NetworkBackdrop />
-      <Suspense fallback={null}>
-        <Scene3D density="light" centerpieceScale={0.95} />
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <Scene3D density="light" centerpieceScale={0.95} />
+        </Suspense>
+      </ErrorBoundary>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_640px_320px_at_center,rgba(3,6,10,0.72),transparent_75%)]" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03060a] via-transparent to-[#03060a]/50" />
 

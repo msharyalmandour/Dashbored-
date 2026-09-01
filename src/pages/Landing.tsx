@@ -13,6 +13,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import ErrorBoundary from "../components/ErrorBoundary";
 import Reveal from "../components/Reveal";
 import RevealRotate from "../components/RevealRotate";
 import Logo from "../components/Logo";
@@ -254,9 +255,11 @@ export default function Landing() {
       <section className="relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden lg:min-h-[820px]">
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
         <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
-        <Suspense fallback={<ScenePlaceholder />}>
-          <Scene3D density={heroDensity} waveRings centerpieceScale={0.25} centerpieceY={1} />
-        </Suspense>
+        <ErrorBoundary fallback={<ScenePlaceholder />}>
+          <Suspense fallback={<ScenePlaceholder />}>
+            <Scene3D density={heroDensity} waveRings centerpieceScale={0.25} centerpieceY={1} />
+          </Suspense>
+        </ErrorBoundary>
         {/* تعتيم خفيف خلف النص عشان يفضل واضح ومقروء فوق توهج الشكل ثلاثي
             الأبعاد، مهما كانت شدة الإضاءة خلفه */}
         <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_60%_55%_at_50%_42%,rgba(10,10,10,0.55),transparent_70%)]" />

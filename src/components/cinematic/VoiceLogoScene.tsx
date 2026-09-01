@@ -331,6 +331,10 @@ export default function VoiceLogoScene({ speaking }: { speaking: boolean }) {
         dpr={[1, 2]}
         camera={{ position: [0, 0, 3.4], fov: 40 }}
         gl={{ antialias: true, alpha: true }}
+        // نحدد document.body كهدف تانبت للأحداث بدل ديف R3F الداخلي — الديف
+        // ذاك ممكن يكون لسا ما اتعلّق بالـ DOM لحظة اتصال الأحداث، وقتها
+        // R3F يحاول يستدعي addEventListener على null وتنهار الصفحة كاملة
+        eventSource={document.body}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.4} />

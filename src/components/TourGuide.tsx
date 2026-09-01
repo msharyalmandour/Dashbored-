@@ -3,6 +3,7 @@ import { Volume2, VolumeX, X } from "lucide-react";
 import { useTour } from "../context/TourContext";
 import { guideIntro, guideName } from "../data/onboardingTour";
 import { isNarrationAvailable, onSpeakingChange, speak, stopSpeaking } from "../lib/speech";
+import ErrorBoundary from "./ErrorBoundary";
 
 const MUTED_KEY = "nursync.tourMuted";
 
@@ -50,9 +51,11 @@ export default function TourGuide() {
     <div className="fixed inset-0 z-50 overflow-hidden bg-neutral-950/[0.97] backdrop-blur-md print:hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_42%,rgba(251,191,36,0.07),transparent_70%)]" />
 
-      <Suspense fallback={null}>
-        <VoiceLogoScene speaking={speaking} />
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <VoiceLogoScene speaking={speaking} />
+        </Suspense>
+      </ErrorBoundary>
 
       <button
         onClick={close}

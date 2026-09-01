@@ -1,15 +1,22 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { MeshDistortMaterial, Sparkles } from "@react-three/drei";
-import { CapsuleGeometry, TorusGeometry, type Group, type Mesh, type MeshBasicMaterial } from "three";
-import { GOLD, GOLD_LIGHT, LocalEnvironment, buildInfinityGeometry } from "./Scene3D";
+import { Sparkles } from "@react-three/drei";
+import {
+  BoxGeometry,
+  CapsuleGeometry,
+  SphereGeometry,
+  TorusGeometry,
+  type Group,
+  type Mesh,
+  type MeshBasicMaterial,
+} from "three";
+import { GOLD, GOLD_LIGHT, LocalEnvironment } from "./Scene3D";
 import { getSpeechAnalyser } from "../../lib/speech";
 
-const BODY_Y = -0.62;
+const FACE_DARK = "#1c1206";
 
 const ENTRANCE_DURATION = 1.3;
-const BASE_SCALE = 0.42;
-const LOGO_Y = 0.75;
+const MASCOT_Y = 0.02;
 const RIPPLE_COUNT = 6;
 const RIPPLE_LIFETIME_MS = 1150;
 
@@ -19,7 +26,7 @@ function easeOutCubic(t: number) {
 
 /** يرجّع شدة الصوت اللحظية [0..1] — طيف حقيقي وقت صوت AI، أو نبضة اصطناعية
     ناعمة (مجموع موجات جيبية) وقت صوت المتصفح الاحتياطي اللي ما فيه تحليل
-    طيف متاح له، عشان الشعار يفضل "حي" بأي الحالتين */
+    طيف متاح له، عشان مشاري يفضل "حي" بأي الحالتين */
 function readAmplitude(speaking: boolean, fakePhaseRef: { current: number }, delta: number): number {
   if (!speaking) return 0;
   const analyser = getSpeechAnalyser();
@@ -38,89 +45,121 @@ function readAmplitude(speaking: boolean, fakePhaseRef: { current: number }, del
   return Math.max(0, Math.min(1, v));
 }
 
-/** الشعار المركزي — نفس هندسة رمز اللانهاية بباقي مشاهد البراند، ينبض
-    ويتوهج فعليًا حسب شدة الصوت (مو حركة عشوائية)، ويميل بخفة نحو الماوس */
-function SpeakingLogo({ speaking }: { speaking: boolean }) {
-  const meshRef = useRef<Mesh>(null);
+/** مشاري نفسه — شخصية وحدة كاملة (رأس، عينين، فم يتكلم، جذع، وذراعين)
+    بدل شعار عائم. الرأس والجذع بنفس المادة الذهبية، والفم يتحرك فعليًا
+    حسب شدة الصوت (مو حركة عشوائية)، والذراعين يلوّحون بالدخول وبعدين
+    يتفاعلون بإيماءات خفيفة أثناء الكلام، زي شخص يشرح بيديه */
+function Mascot({ speaking }: { speaking: boolean }) {
+  const groupRef = useRef<Group>(null);
+  const headRef = useRef<Mesh>(null);
+  const mouthRef = useRef<Mesh>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const materialRef = useRef<any>(null);
-  const geometry = useMemo(() => buildInfinityGeometry(), []);
+  const headMaterialRef = useRef<any>(null);
+  const leftEyeRef = useRef<Mesh>(null);
+  const rightEyeRef = useRef<Mesh>(null);
+  const leftArmRef = useRef<Group>(null);
+  const rightArmRef = useRef<Group>(null);
+
   const smoothedAmp = useRef(0);
   const fakePhase = useRef(0);
+  const blinkStart = useRef(2 + Math.random() * 2);
 
-  useFrame((state, delta) => {
-    if (!meshRef.current) return;
-    const amp = readAmplitude(speaking, fakePhase, delta);
-    smoothedAmp.current += (amp - smoothedAmp.current) * 0.15;
-
-    const t = state.clock.elapsedTime;
-    meshRef.current.rotation.z += delta * 0.1;
-    meshRef.current.rotation.x = Math.sin(t * 0.3) * 0.1 + state.pointer.y * 0.1;
-    meshRef.current.rotation.y = Math.cos(t * 0.25) * 0.08 + state.pointer.x * 0.1;
-
-    const breathe = 1 + Math.sin(t * 1.3) * 0.018;
-    const pulse = 1 + smoothedAmp.current * 0.1;
-    meshRef.current.scale.setScalar(BASE_SCALE * breathe * pulse);
-
-    const mat = materialRef.current;
-    if (mat) {
-      mat.emissiveIntensity = 0.5 + smoothedAmp.current * 0.9;
-      mat.distort = 0.05 + smoothedAmp.current * 0.1;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} geometry={geometry}>
-      <MeshDistortMaterial
-        ref={materialRef}
-        color={GOLD}
-        metalness={0.55}
-        roughness={0.22}
-        distort={0.05}
-        speed={1.4}
-        emissive={GOLD}
-        emissiveIntensity={0.5}
-      />
-    </mesh>
-  );
-}
-
-/** جسم بسيط ومجرّد أسفل الشعار — يخلي مشاري "شخصية" ترحّب بدل رمز عائم لحاله.
-    ما هو شكل بشري حرفي، بس هيكل مبسّط بنفس مادة الشعار الذهبية: جذع وذراعين،
-    وذراعه اليمنى تلوّح ترحيبًا وقت الدخول، وتتحرك بخفة أكثر وقت الكلام */
-function MascotBody({ speaking }: { speaking: boolean }) {
-  const groupRef = useRef<Group>(null);
-  const rightArmRef = useRef<Group>(null);
-  const leftArmRef = useRef<Group>(null);
+  const headGeometry = useMemo(() => new SphereGeometry(0.34, 32, 32), []);
+  const eyeGeometry = useMemo(() => new SphereGeometry(0.035, 16, 16), []);
+  const mouthGeometry = useMemo(() => new BoxGeometry(0.1, 0.036, 0.024), []);
   const torsoGeometry = useMemo(() => new CapsuleGeometry(0.16, 0.3, 8, 16), []);
   const armGeometry = useMemo(() => new CapsuleGeometry(0.04, 0.24, 6, 12), []);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
+    const amp = readAmplitude(speaking, fakePhase, delta);
+    smoothedAmp.current += (amp - smoothedAmp.current) * 0.22;
+    const amount = smoothedAmp.current;
+
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(t * 0.25) * 0.06 + state.pointer.x * 0.04;
+      groupRef.current.rotation.y = Math.sin(t * 0.25) * 0.06 + state.pointer.x * 0.05;
     }
-    // ترحيب بتلويح واضح أول 3 ثواني (يوصل شبه أفقي)، وبعدها تمايل هادئ —
-    // أسرع وأوضح وقت الكلام عشان يحس المستخدم إن مشاري "يتفاعل" مو بس يقف
+
+    // الرأس ينبض بخفة ويميل نحو الماوس شوي، زي شخص يتابعك بنظره
+    if (headRef.current) {
+      const breathe = 1 + Math.sin(t * 1.3) * 0.014;
+      headRef.current.scale.setScalar(breathe);
+      headRef.current.rotation.x = Math.sin(t * 0.3) * 0.06 + state.pointer.y * 0.08;
+      headRef.current.rotation.y = Math.cos(t * 0.25) * 0.05 + state.pointer.x * 0.1;
+    }
+    if (headMaterialRef.current) {
+      headMaterialRef.current.emissiveIntensity = 0.35 + amount * 0.6;
+    }
+
+    // فم يتكلم فعليًا — يتوسّع طول وعرض حسب شدة الصوت اللحظية، ويرجع خط
+    // رفيع وهو ساكت بدل ما يفضل مفتوح أو مقفول بثبات
+    if (mouthRef.current) {
+      const openness = speaking ? 0.55 + amount * 2.8 : 0.55 + Math.sin(t * 1.1) * 0.08;
+      mouthRef.current.scale.y = Math.max(0.4, openness);
+      mouthRef.current.scale.x = 1 + amount * 0.12;
+    }
+
+    // رمشة خفيفة كل كم ثانية عشان يحس المستخدم إنه "حي" حتى وهو ساكت
+    const BLINK_DURATION = 0.14;
+    const sinceBlink = t - blinkStart.current;
+    let eyeScale = 1;
+    if (sinceBlink >= 0 && sinceBlink < BLINK_DURATION) {
+      const phase = sinceBlink / BLINK_DURATION;
+      const closeAmount = phase < 0.5 ? phase * 2 : (1 - phase) * 2;
+      eyeScale = 1 - closeAmount * 0.85;
+    } else if (sinceBlink >= BLINK_DURATION) {
+      blinkStart.current = t + 2.5 + Math.random() * 3;
+    }
+    if (leftEyeRef.current) leftEyeRef.current.scale.y = eyeScale;
+    if (rightEyeRef.current) rightEyeRef.current.scale.y = eyeScale;
+
+    // تلويح ترحيب واضح أول 3 ثواني، وبعدها إيماءات محادثة خفيفة تتزامن
+    // مع شدة الصوت — كل ذراع بطور مختلف عشان الحركة تبان طبيعية مو متطابقة
     const waveWindow = Math.max(0, 1 - t / 3);
-    const wave = Math.sin(t * (speaking ? 5 : 3.4)) * (0.55 * waveWindow + (speaking ? 0.12 : 0.05));
-    if (rightArmRef.current) rightArmRef.current.rotation.z = -0.6 + wave;
-    if (leftArmRef.current) leftArmRef.current.rotation.z = 0.6 + Math.sin(t * 1.6 + 1) * 0.04;
+    const entranceWave = Math.sin(t * 5) * 0.6 * waveWindow;
+    const rightGesture = speaking ? Math.sin(t * 5.2) * amount * 0.45 : Math.sin(t * 1.5) * 0.04;
+    const leftGesture = speaking ? Math.sin(t * 4.4 + 1.6) * amount * 0.35 : Math.sin(t * 1.7 + 1) * 0.04;
+    if (rightArmRef.current) rightArmRef.current.rotation.z = -0.55 + entranceWave + rightGesture;
+    if (leftArmRef.current) leftArmRef.current.rotation.z = 0.55 + leftGesture;
   });
 
   return (
-    <group ref={groupRef} position={[0, BODY_Y, -0.1]}>
+    <group ref={groupRef}>
+      {/* الرأس */}
+      <mesh ref={headRef} geometry={headGeometry} position={[0, 0.58, 0.02]}>
+        <meshPhysicalMaterial
+          ref={headMaterialRef}
+          color={GOLD}
+          metalness={0.5}
+          roughness={0.25}
+          emissive={GOLD}
+          emissiveIntensity={0.35}
+        />
+        <mesh ref={leftEyeRef} geometry={eyeGeometry} position={[-0.115, 0.04, 0.29]}>
+          <meshStandardMaterial color={FACE_DARK} roughness={0.4} metalness={0} />
+        </mesh>
+        <mesh ref={rightEyeRef} geometry={eyeGeometry} position={[0.115, 0.04, 0.29]}>
+          <meshStandardMaterial color={FACE_DARK} roughness={0.4} metalness={0} />
+        </mesh>
+        <mesh ref={mouthRef} geometry={mouthGeometry} position={[0, -0.11, 0.315]}>
+          <meshStandardMaterial color={FACE_DARK} roughness={0.4} metalness={0} />
+        </mesh>
+      </mesh>
+
+      {/* الجذع */}
       <mesh geometry={torsoGeometry}>
         <meshPhysicalMaterial
           color={GOLD}
           metalness={0.5}
           roughness={0.3}
           transparent
-          opacity={0.82}
+          opacity={0.85}
           emissive={GOLD}
           emissiveIntensity={0.22}
         />
       </mesh>
+
+      {/* الذراعين */}
       <group ref={leftArmRef} position={[-0.28, 0.14, 0.06]}>
         <mesh geometry={armGeometry} position={[0, -0.1, 0]}>
           <meshPhysicalMaterial
@@ -151,7 +190,7 @@ function MascotBody({ speaking }: { speaking: boolean }) {
   );
 }
 
-/** موجات دائرية تنطلق من الشعار — تظهر واحدة جديدة كل ما اكتشفنا "نبرة"
+/** موجات دائرية تنطلق من مشاري — تظهر واحدة جديدة كل ما اكتشفنا "نبرة"
     جديدة بالصوت (قفزة بشدة الصوت فوق متوسطها الأخير)، وتتمدد وتخفت
     بسلاسة، بدل معادل صوت تقليدي بأعمدة حادة */
 function RippleField({ speaking }: { speaking: boolean }) {
@@ -189,7 +228,7 @@ function RippleField({ speaking }: { speaking: boolean }) {
       }
       mesh.visible = true;
       const p = age / RIPPLE_LIFETIME_MS;
-      mesh.scale.setScalar((1.15 + p * 2.6) * BASE_SCALE);
+      mesh.scale.setScalar(0.55 + p * 1.1);
       const mat = mesh.material as MeshBasicMaterial;
       mat.opacity = (1 - p) * 0.45;
     });
@@ -204,6 +243,7 @@ function RippleField({ speaking }: { speaking: boolean }) {
             meshRefs.current[i] = el;
           }}
           geometry={geometry}
+          position={[0, 0.3, 0]}
           rotation={[0.18, 0, 0]}
           visible={false}
         >
@@ -214,7 +254,7 @@ function RippleField({ speaking }: { speaking: boolean }) {
   );
 }
 
-/** حقل طاقة خفيف دايم الحضور حول الشعار — موجود حتى بدون كلام، يعطي
+/** حقل طاقة خفيف دايم الحضور حول مشاري — موجود حتى بدون كلام، يعطي
     إحساس "مجال" مو فراغ تام، ويلتف ببطء بمحاور مختلفة لعمق مكاني بسيط */
 function AmbientField() {
   const ringA = useRef<Mesh>(null);
@@ -226,23 +266,21 @@ function AmbientField() {
     if (ringA.current) {
       ringA.current.rotation.z = t * 0.05;
       ringA.current.rotation.x = 0.3 + Math.sin(t * 0.2) * 0.08;
-      const s = (1.9 + Math.sin(t * 0.4) * 0.08) * BASE_SCALE;
-      ringA.current.scale.setScalar(s);
+      ringA.current.scale.setScalar(0.85 + Math.sin(t * 0.4) * 0.04);
     }
     if (ringB.current) {
       ringB.current.rotation.z = -t * 0.035;
       ringB.current.rotation.x = -0.35 + Math.cos(t * 0.18) * 0.1;
-      const s = (2.4 + Math.cos(t * 0.33) * 0.1) * BASE_SCALE;
-      ringB.current.scale.setScalar(s);
+      ringB.current.scale.setScalar(1.05 + Math.cos(t * 0.33) * 0.05);
     }
   });
 
   return (
     <>
-      <mesh ref={ringA} geometry={geometry}>
+      <mesh ref={ringA} geometry={geometry} position={[0, 0.3, 0]}>
         <meshBasicMaterial color={GOLD_LIGHT} transparent opacity={0.16} />
       </mesh>
-      <mesh ref={ringB} geometry={geometry}>
+      <mesh ref={ringB} geometry={geometry} position={[0, 0.3, 0]}>
         <meshBasicMaterial color={GOLD} transparent opacity={0.1} />
       </mesh>
     </>
@@ -260,14 +298,14 @@ function EntranceGroup({ children }: { children: React.ReactNode }) {
     ref.current.scale.setScalar(0.35 + eased * 0.65);
   });
   return (
-    <group position={[0, LOGO_Y, 0]}>
+    <group position={[0, MASCOT_Y, 0]}>
       <group ref={ref}>{children}</group>
     </group>
   );
 }
 
 /** تفاعل خفيف جدًا مع الماوس — الكاميرا تنجرف بلطف نحو موضع المؤشر،
-    يعطي إحساس عمق بدون ما يصير مبالغ فيه أو يشتت الانتباه عن الشعار */
+    يعطي إحساس عمق بدون ما يصير مبالغ فيه أو يشتت الانتباه عن مشاري */
 function ParallaxCamera() {
   useFrame((state) => {
     const x = state.pointer.x * 0.28;
@@ -279,8 +317,8 @@ function ParallaxCamera() {
   return null;
 }
 
-/** المشهد الكامل — الشعار وحده هو العنصر البصري الرئيسي وسط الشاشة، يتنفس
-    ويتفاعل مع الصوت الحقيقي، بدون أي بطاقة أو خلفية UI حوله */
+/** المشهد الكامل — مشاري نفسه هو العنصر البصري الرئيسي وسط الشاشة، شخصية
+    كاملة (رأس، عينين، فم يتكلم، جذع وذراعين) بدون أي بطاقة أو خلفية UI حوله */
 export default function VoiceLogoScene({ speaking }: { speaking: boolean }) {
   const reducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -291,7 +329,7 @@ export default function VoiceLogoScene({ speaking }: { speaking: boolean }) {
     <div className="pointer-events-none absolute inset-0">
       <Canvas
         dpr={[1, 2]}
-        camera={{ position: [0, 0, 4.3], fov: 40 }}
+        camera={{ position: [0, 0, 3.4], fov: 40 }}
         gl={{ antialias: true, alpha: true }}
       >
         <Suspense fallback={null}>
@@ -301,8 +339,7 @@ export default function VoiceLogoScene({ speaking }: { speaking: boolean }) {
           <pointLight position={[0, -2, 3]} intensity={15} color={GOLD} />
           <LocalEnvironment />
           <EntranceGroup>
-            <SpeakingLogo speaking={speaking} />
-            <MascotBody speaking={speaking} />
+            <Mascot speaking={speaking} />
             <RippleField speaking={speaking} />
             <AmbientField />
           </EntranceGroup>

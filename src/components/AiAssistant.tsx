@@ -8,6 +8,12 @@ interface ChatMessage {
   content: string;
 }
 
+const examplePrompts = [
+  "لخّص لي هذي الدراسة بثلاث نقاط",
+  "اقترح صياغة أوضح للفجوة البحثية عندنا",
+  "وش الفرق بين Cross-sectional و Cohort Study؟",
+];
+
 /** مساعد بحثي عائم — يشتغل فقط بوضع Supabase الحقيقي عبر Edge Function
     (supabase/functions/ai-assist) عشان مفتاح Anthropic ما يظهر بالمتصفح. */
 export default function AiAssistant() {
@@ -20,8 +26,8 @@ export default function AiAssistant() {
 
   if (mode !== "supabase" || !currentUser) return null;
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (override?: string) => {
+    const text = (override ?? input).trim();
     if (!text || loading) return;
     setError(null);
     const next = [...messages, { role: "user" as const, content: text }];
@@ -35,7 +41,7 @@ export default function AiAssistant() {
 
     setLoading(false);
     if (fnError || data?.error) {
-      setError("تعذّر الوصول للمساعد — حاول مرة ثانية");
+      setError("ما وصل الرد — تأكد من اتصالك بالإنترنت وحاول ترسل سؤالك مرة ثانية.");
       return;
     }
     setMessages((prev) => [...prev, { role: "assistant", content: data.text }]);
@@ -60,7 +66,9 @@ export default function AiAssistant() {
               </span>
               <div>
                 <p className="text-sm font-bold text-brand-950">المساعد البحثي</p>
-                <p className="text-xs text-brand-950/45">يساعدك تفهم وتتقدم ببحثك</p>
+                <p className="text-xs text-brand-950/45">
+                  يجاوب على أسئلتك كتابةً — غير مشاري اللي يشرح لك بالصوت
+                </p>
               </div>
             </div>
             <button
@@ -73,10 +81,21 @@ export default function AiAssistant() {
 
           <div className="flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 && (
-              <p className="rounded-2xl bg-surface-muted p-3 text-sm text-brand-950/55">
-                اسألني عن أي شي يخص بحثكم — تلخيص مصدر، اقتراح فجوة بحثية، أو أي
-                استفسار عن مراحل البحث.
-              </p>
+              <div className="space-y-2">
+                <p className="rounded-2xl bg-surface-muted p-3 text-sm text-brand-950/55">
+                  اسألني عن أي شي يخص بحثكم — جرب أحد هذي الأمثلة أو اكتب سؤالك
+                  مباشرة:
+                </p>
+                {examplePrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    onClick={() => send(prompt)}
+                    className="block w-full rounded-xl border border-brand-100 px-3 py-2 text-start text-sm text-brand-700 hover:bg-surface-muted"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
             )}
             {messages.map((m, i) => (
               <div
@@ -107,7 +126,7 @@ export default function AiAssistant() {
               className="flex-1 rounded-xl border border-brand-100 bg-surface-muted px-3 py-2 text-sm outline-none focus:border-brand-300 focus:bg-paper"
             />
             <button
-              onClick={send}
+              onClick={() => send()}
               disabled={loading || !input.trim()}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
             >

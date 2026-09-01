@@ -1,9 +1,11 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { MeshDistortMaterial, Sparkles } from "@react-three/drei";
-import { TorusGeometry, type Group, type Mesh, type MeshBasicMaterial } from "three";
+import { CapsuleGeometry, TorusGeometry, type Group, type Mesh, type MeshBasicMaterial } from "three";
 import { GOLD, GOLD_LIGHT, LocalEnvironment, buildInfinityGeometry } from "./Scene3D";
 import { getSpeechAnalyser } from "../../lib/speech";
+
+const BODY_Y = -0.62;
 
 const ENTRANCE_DURATION = 1.3;
 const BASE_SCALE = 0.42;
@@ -80,6 +82,72 @@ function SpeakingLogo({ speaking }: { speaking: boolean }) {
         emissiveIntensity={0.5}
       />
     </mesh>
+  );
+}
+
+/** جسم بسيط ومجرّد أسفل الشعار — يخلي مشاري "شخصية" ترحّب بدل رمز عائم لحاله.
+    ما هو شكل بشري حرفي، بس هيكل مبسّط بنفس مادة الشعار الذهبية: جذع وذراعين،
+    وذراعه اليمنى تلوّح ترحيبًا وقت الدخول، وتتحرك بخفة أكثر وقت الكلام */
+function MascotBody({ speaking }: { speaking: boolean }) {
+  const groupRef = useRef<Group>(null);
+  const rightArmRef = useRef<Group>(null);
+  const leftArmRef = useRef<Group>(null);
+  const torsoGeometry = useMemo(() => new CapsuleGeometry(0.16, 0.3, 8, 16), []);
+  const armGeometry = useMemo(() => new CapsuleGeometry(0.04, 0.24, 6, 12), []);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (groupRef.current) {
+      groupRef.current.rotation.y = Math.sin(t * 0.25) * 0.06 + state.pointer.x * 0.04;
+    }
+    // ترحيب بتلويح واضح أول 3 ثواني (يوصل شبه أفقي)، وبعدها تمايل هادئ —
+    // أسرع وأوضح وقت الكلام عشان يحس المستخدم إن مشاري "يتفاعل" مو بس يقف
+    const waveWindow = Math.max(0, 1 - t / 3);
+    const wave = Math.sin(t * (speaking ? 5 : 3.4)) * (0.55 * waveWindow + (speaking ? 0.12 : 0.05));
+    if (rightArmRef.current) rightArmRef.current.rotation.z = -0.6 + wave;
+    if (leftArmRef.current) leftArmRef.current.rotation.z = 0.6 + Math.sin(t * 1.6 + 1) * 0.04;
+  });
+
+  return (
+    <group ref={groupRef} position={[0, BODY_Y, -0.1]}>
+      <mesh geometry={torsoGeometry}>
+        <meshPhysicalMaterial
+          color={GOLD}
+          metalness={0.5}
+          roughness={0.3}
+          transparent
+          opacity={0.82}
+          emissive={GOLD}
+          emissiveIntensity={0.22}
+        />
+      </mesh>
+      <group ref={leftArmRef} position={[-0.28, 0.14, 0.06]}>
+        <mesh geometry={armGeometry} position={[0, -0.1, 0]}>
+          <meshPhysicalMaterial
+            color={GOLD_LIGHT}
+            metalness={0.5}
+            roughness={0.3}
+            transparent
+            opacity={0.85}
+            emissive={GOLD}
+            emissiveIntensity={0.28}
+          />
+        </mesh>
+      </group>
+      <group ref={rightArmRef} position={[0.28, 0.14, 0.06]}>
+        <mesh geometry={armGeometry} position={[0, -0.1, 0]}>
+          <meshPhysicalMaterial
+            color={GOLD_LIGHT}
+            metalness={0.5}
+            roughness={0.3}
+            transparent
+            opacity={0.85}
+            emissive={GOLD}
+            emissiveIntensity={0.25}
+          />
+        </mesh>
+      </group>
+    </group>
   );
 }
 
@@ -234,6 +302,7 @@ export default function VoiceLogoScene({ speaking }: { speaking: boolean }) {
           <LocalEnvironment />
           <EntranceGroup>
             <SpeakingLogo speaking={speaking} />
+            <MascotBody speaking={speaking} />
             <RippleField speaking={speaking} />
             <AmbientField />
           </EntranceGroup>

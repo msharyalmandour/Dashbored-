@@ -1,29 +1,29 @@
 import type { Metadata } from "next";
-import { Markazi_Text, Tajawal, IBM_Plex_Mono } from "next/font/google";
+import { Unbounded, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const markazi = Markazi_Text({
-  variable: "--font-markazi",
-  subsets: ["arabic", "latin"],
+const unbounded = Unbounded({
+  variable: "--font-unbounded",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const jbMono = JetBrains_Mono({
+  variable: "--font-jbmono",
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-const tajawal = Tajawal({
-  variable: "--font-tajawal",
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "700", "900"],
-});
-
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
 export const metadata: Metadata = {
-  title: "دِقّة — قطع غيار سيارات مدعومة بالذكاء الاصطناعي",
+  title: "VELOCITÀ — The Automotive Discovery Platform",
   description:
-    "منصة دِقّة لبيع قطع غيار السيارات في السعودية. افحص سيارتك برقم الشاصي أو صورة، واكتشف القطع المتوافقة معها.",
+    "Some people see a car. Others feel something. Discover, compare, and find the car that feels like you.",
 };
 
 export default function RootLayout({
@@ -31,9 +31,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
-      lang="ar"
-      dir="rtl"
-      className={`${markazi.variable} ${tajawal.variable} ${plexMono.variable} h-full antialiased`}
+      lang="en"
+      className={`${unbounded.variable} ${manrope.variable} ${jbMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text font-body">
         {children}

@@ -23,7 +23,7 @@ export default function Nav() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="text-sm text-text-soft transition-colors hover:text-text"
+                className="text-sm font-medium text-text-soft transition-colors hover:text-accent"
               >
                 {link.label}
               </a>
@@ -32,7 +32,7 @@ export default function Nav() {
         </ul>
         <a
           href="#identify"
-          className="rounded-diqa-sm border border-primary bg-primary px-4 py-2 text-sm text-bg transition-colors hover:bg-transparent hover:text-primary sm:inline-block hidden"
+          className="rounded-diqa-sm border border-primary bg-primary px-4 py-2 text-sm font-medium text-bg transition-all hover:scale-105 hover:bg-transparent hover:text-primary sm:inline-block hidden"
         >
           افحص سيارتك
         </a>

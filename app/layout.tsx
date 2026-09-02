@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Markazi_Text, Tajawal, IBM_Plex_Mono } from "next/font/google";
+import { Cairo, Tajawal, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const markazi = Markazi_Text({
-  variable: "--font-markazi",
+const cairo = Cairo({
+  variable: "--font-cairo",
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["600", "700", "800", "900"],
 });
 
 const tajawal = Tajawal({
@@ -33,7 +33,7 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${markazi.variable} ${tajawal.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${cairo.variable} ${tajawal.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text font-body">
         {children}

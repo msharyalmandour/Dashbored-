@@ -1,12 +1,19 @@
 export default function Hero() {
   return (
-    <section id="top" className="mx-auto max-w-6xl px-6 pb-16 pt-14 sm:pt-20">
-      <div className="grid items-center gap-10 sm:grid-cols-[1.2fr_1fr]">
+    <section
+      id="top"
+      className="relative overflow-hidden px-6 pb-16 pt-14 sm:pt-20"
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 right-1/2 h-[560px] w-[560px] translate-x-1/2 rounded-full bg-accent/10 blur-[120px] sm:right-0 sm:translate-x-1/4"
+      />
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 sm:grid-cols-[1.2fr_1fr]">
         <div>
           <p className="font-data text-xs uppercase tracking-[0.3em] text-accent">
             دِقّة · قطع غيار سيارات
           </p>
-          <h1 className="mt-4 font-editorial text-5xl leading-[1.15] text-text sm:text-6xl">
+          <h1 className="mt-4 font-editorial text-5xl font-extrabold leading-[1.1] text-text sm:text-6xl">
             القطعة الصحيحة، لسيارتك بالضبط
             <span className="block text-primary">من غير تخمين</span>
           </h1>
@@ -18,13 +25,13 @@ export default function Hero() {
           <div className="mt-8 flex flex-wrap gap-4">
             <a
               href="#identify"
-              className="rounded-diqa border border-primary bg-primary px-6 py-3 text-sm font-medium text-bg transition-colors hover:bg-transparent hover:text-primary"
+              className="rounded-diqa border border-primary bg-primary px-6 py-3 text-sm font-semibold text-bg transition-all hover:scale-[1.03] hover:bg-transparent hover:text-primary"
             >
               صوّر قطعتك الآن
             </a>
             <a
               href="#explorer"
-              className="rounded-diqa border border-line bg-panel px-6 py-3 text-sm font-medium text-text transition-colors hover:border-accent hover:text-accent"
+              className="rounded-diqa border border-line bg-panel px-6 py-3 text-sm font-semibold text-text transition-colors hover:border-accent hover:text-accent"
             >
               استكشف السيارة
             </a>
@@ -40,9 +47,9 @@ export default function Hero() {
           ].map((stat) => (
             <div
               key={stat.label}
-              className="rounded-diqa border border-line bg-panel p-5"
+              className="rounded-diqa border border-line bg-panel p-5 transition-colors hover:border-accent/50"
             >
-              <div className="font-data text-2xl text-primary">
+              <div className="font-data text-2xl font-semibold text-primary">
                 {stat.value}
               </div>
               <div className="mt-1 text-xs text-text-soft">{stat.label}</div>

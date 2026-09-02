@@ -111,15 +111,40 @@ export default function ImageCheckTab() {
               نسبة الثقة {Math.round(result.confidence * 100)}٪
             </span>
           </div>
+
+          <div className="mt-4 flex items-center gap-3 rounded-diqa-sm border border-accent/40 bg-accent/10 px-4 py-3">
+            <span className="text-xl">✅</span>
+            <div>
+              <div className="text-sm font-medium text-text">
+                متوفرة الآن — عندنا {result.compatibleParts.length} بدائل لهذي القطعة
+              </div>
+              <div className="text-xs text-text-soft">
+                اختر البديل المناسب لك من القائمة وتواصل معنا لإتمام الطلب.
+              </div>
+            </div>
+          </div>
+
           <ul className="mt-4 divide-y divide-line">
             {result.compatibleParts.map((p) => (
               <li
                 key={p.name}
-                className="flex items-center justify-between py-2 text-sm"
+                className="flex items-center justify-between py-3 text-sm"
               >
                 <div>
                   <div className="text-text">{p.name}</div>
-                  <div className="text-xs text-text-soft">{p.brand}</div>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-text-soft">
+                    <span>{p.brand}</span>
+                    <span className="text-line">•</span>
+                    {p.stockCount <= 3 ? (
+                      <span className="font-medium text-accent">
+                        ⚠ آخر {p.stockCount} قطع
+                      </span>
+                    ) : (
+                      <span className="text-primary">
+                        ✓ متوفر — {p.stockCount} قطعة
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <span className="font-data text-primary">{p.price} ر.س</span>
               </li>

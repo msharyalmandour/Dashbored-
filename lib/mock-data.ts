@@ -1,4 +1,5 @@
 import type {
+  BrandOrigin,
   Car,
   ImageRecognitionResult,
   Part,
@@ -196,9 +197,34 @@ export function mockImageRecognition(): ImageRecognitionResult {
     categoryId: "brakes",
     confidence: 0.93,
     compatibleParts: [
-      { name: "تيل فرامل أمامي — أصلي", brand: "Toyota Genuine", price: 185 },
-      { name: "تيل فرامل أمامي — بديل ممتاز", brand: "Brembo", price: 240 },
-      { name: "تيل فرامل أمامي — اقتصادي", brand: "Bosch", price: 130 },
+      { name: "تيل فرامل أمامي — أصلي", brand: "Toyota Genuine", price: 185, inStock: true, stockCount: 14 },
+      { name: "تيل فرامل أمامي — بديل ممتاز", brand: "Brembo", price: 240, inStock: true, stockCount: 6 },
+      { name: "تيل فرامل أمامي — اقتصادي", brand: "Bosch", price: 130, inStock: true, stockCount: 2 },
     ],
   };
 }
+
+/** تغطية العلامات حسب منشأ السيارة — بيانات وهمية للعرض التجريبي فقط */
+export const brandOrigins: BrandOrigin[] = [
+  {
+    id: "japanese",
+    label: "سيارات يابانية",
+    flag: "🇯🇵",
+    brands: ["تويوتا", "هوندا", "نيسان", "لكزس", "مازدا", "ميتسوبيشي"],
+    partsAvailable: 68,
+  },
+  {
+    id: "chinese",
+    label: "سيارات صينية",
+    flag: "🇨🇳",
+    brands: ["جيلي", "شيري", "إم جي", "تشانجان", "جي إيه سي", "هافال"],
+    partsAvailable: 31,
+  },
+  {
+    id: "german",
+    label: "سيارات ألمانية",
+    flag: "🇩🇪",
+    brands: ["مرسيدس", "بي إم دبليو", "فولكس فاجن", "أودي", "بورش"],
+    partsAvailable: 45,
+  },
+];

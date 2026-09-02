@@ -11,22 +11,22 @@ export default function Hero() {
             <span className="block text-primary">من غير تخمين</span>
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-8 text-text-soft">
-            أدخل رقم شاصي سيارتك (VIN) أو صوّر القطعة العطلانة، ودِقّة تطابقها
+            صوّر القطعة العطلانة أو أدخل رقم شاصي سيارتك (VIN)، ودِقّة تطابقها
             بدقة مع قطع الغيار المتوافقة فعلياً — بدون بحث عشوائي وبدون قطع
             غلط.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a
-              href="#explorer"
+              href="#identify"
               className="rounded-diqa border border-primary bg-primary px-6 py-3 text-sm font-medium text-bg transition-colors hover:bg-transparent hover:text-primary"
             >
-              استكشف السيارة
+              صوّر قطعتك الآن
             </a>
             <a
-              href="#identify"
+              href="#explorer"
               className="rounded-diqa border border-line bg-panel px-6 py-3 text-sm font-medium text-text transition-colors hover:border-accent hover:text-accent"
             >
-              اسأل الذكاء الاصطناعي
+              استكشف السيارة
             </a>
           </div>
         </div>

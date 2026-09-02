@@ -1,7 +1,8 @@
 const links = [
+  { href: "#identify", label: "افحص قطعتك" },
+  { href: "#brands", label: "العلامات" },
   { href: "#explorer", label: "استكشف" },
   { href: "#collection", label: "المجموعة" },
-  { href: "#identify", label: "بحث AI" },
   { href: "#about", label: "من نحن" },
 ];
 

@@ -49,5 +49,21 @@ export interface ImageRecognitionResult {
   partName: string;
   categoryId: PartCategoryId;
   confidence: number;
-  compatibleParts: { name: string; brand: string; price: number }[];
+  compatibleParts: {
+    name: string;
+    brand: string;
+    price: number;
+    inStock: boolean;
+    stockCount: number;
+  }[];
+}
+
+export type OriginId = "japanese" | "chinese" | "german";
+
+export interface BrandOrigin {
+  id: OriginId;
+  label: string;
+  flag: string;
+  brands: string[];
+  partsAvailable: number;
 }

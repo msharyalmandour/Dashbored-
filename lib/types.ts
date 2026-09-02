@@ -1,65 +1,53 @@
-export type CategoryId =
-  | "supercars"
-  | "sports"
-  | "luxury"
-  | "electric"
-  | "suv"
-  | "performance"
-  | "classics";
+export type PartCategoryId =
+  | "exterior"
+  | "engine"
+  | "tires"
+  | "brakes"
+  | "suspension";
 
-export type FuelType = "Petrol" | "Electric" | "Hybrid";
-export type DriveType = "RWD" | "AWD" | "FWD";
-export type Environment =
-  | "studio"
-  | "mountain"
-  | "night-city"
-  | "desert"
-  | "track"
-  | "architecture";
-export type Silhouette = "supercar" | "coupe" | "sedan" | "suv" | "classic";
-export type Feeling = "speed" | "luxury" | "adventure" | "future" | "attention" | "technology";
+export interface PartCategory {
+  id: PartCategoryId;
+  label: string;
+  labelEn: string;
+}
+
+export interface Part {
+  id: string;
+  name: string;
+  categoryId: PartCategoryId;
+  /** موضع النقطة التفاعلية داخل رسم السيارة (viewBox 0 0 800 320) */
+  hotspot: { x: number; y: number };
+  /** مركز الحركة (pan+zoom) عند فتح القطعة — قد يختلف قليلاً عن موضع النقطة */
+  focus: { x: number; y: number; scale: number };
+  description: string;
+  relatedPartIds: string[];
+  /** كلمات مفتاحية لمحاكاة بحث اللغة الطبيعية (mock NLP) */
+  keywords: string[];
+}
+
+export interface CompatiblePartsSummary {
+  categoryId: PartCategoryId;
+  categoryLabel: string;
+  count: number;
+}
 
 export interface Car {
-  slug: string;
-  brand: string;
+  make: string;
   model: string;
-  category: CategoryId;
   year: number;
-  priceFrom: number; // SAR
-  horsepower: number;
-  torqueNm: number;
-  zeroToHundred: number; // seconds
-  topSpeed: number; // km/h
-  weightKg: number;
-  fuelType: FuelType;
-  transmission: string;
-  drive: DriveType;
-  environment: Environment;
-  silhouette: Silhouette;
-  hue: number; // 0-360, accent tint for this car's art
-  tagline: string;
-  description: string;
-  interiorNote: string;
-  feelings: Feeling[];
-  related: string[]; // slugs
+  trim: string;
+  engine: string;
+  vin: string;
+  compatibleParts: CompatiblePartsSummary[];
 }
 
-export interface Brand {
-  name: string;
-  country: string;
-  founded: number;
+export interface VinCheckResult {
+  car: Car;
 }
 
-export interface CategoryDef {
-  id: CategoryId;
-  label: string;
-  line: string;
-}
-
-export interface Story {
-  slug: string;
-  title: string;
-  kicker: string;
-  excerpt: string;
-  hue: number;
+export interface ImageRecognitionResult {
+  partName: string;
+  categoryId: PartCategoryId;
+  confidence: number;
+  compatibleParts: { name: string; brand: string; price: number }[];
 }

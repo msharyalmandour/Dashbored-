@@ -1,40 +1,31 @@
-# Velocità
+# دِقّة (Diqa)
 
-A premium automotive discovery platform — Tesla-level minimalism, Porsche-level
-storytelling, Netflix-style discovery. Find, compare, and fall for the car that
-feels like you.
+منصة تجارة إلكترونية لقطع غيار السيارات في السعودية — نسخة MVP بواجهة أمامية
+فقط وبيانات وهمية (mock data)، بدون باك إند أو قاعدة بيانات فعلية.
 
-This is a concept/demo build: the catalog, brand roster, and specs are
-realistic but fictional, and every car image is an illustrated SVG stand-in
-(gradient environments + a hue-tinted silhouette) rather than photography —
-there's no licensed image source wired into this project.
+الميزة الأساسية: فحص السيارة عبر رقم الشاصي (VIN) أو صورة القطعة، ومستكشف
+تفاعلي (SVG) لقطع السيارة مع بحث "ذكي" (محاكاة مطابقة كلمات مفتاحية).
 
-## Tech
+## التقنيات
 
 - Next.js (App Router) + TypeScript
 - Tailwind CSS v4
-- Fonts: Unbounded (display), Manrope (body), JetBrains Mono (data) via `next/font`
+- خطوط Google: Markazi Text / Tajawal / IBM Plex Mono
+- واجهة عربية RTL بالكامل
 
-## Run locally
+## التشغيل محلياً
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+افتح [http://localhost:3000](http://localhost:3000).
 
-## Structure
+## البنية
 
-- `app/` — Next.js App Router entry (`page.tsx`, `layout.tsx`, `globals.css`)
-- `components/platform/` — the platform UI: Nav, Hero, Discover (search +
-  filters), Brands, FeaturedCars/CarCard, Categories, PersonalityQuiz,
-  Compare, FeelingDiscovery, Stories, CarDetailOverlay, Footer, and the
-  illustration system (`CarArt`, `InteriorArt`)
-- `components/platform/PlatformContext.tsx` — shared client state: filters,
-  favorites (persisted to `localStorage`), compare selection, and the open
-  car detail overlay
-- `lib/types.ts` — data model (Car, Brand, Category, Story, …)
-- `lib/cars-data.ts` — the car/brand/category/story dataset
-- `lib/filters.ts`, `lib/quiz.ts`, `lib/interior-facts.ts` — search filtering,
-  personality-quiz scoring, and generated interior-story copy
+- `app/` — صفحات Next.js (App Router)
+- `components/` — مكونات الواجهة، بما فيها `PartsExplorer/` (المستكشف التفاعلي)
+- `lib/types.ts` — أنواع البيانات (Car, Part, ...)
+- `lib/mock-data.ts` — بيانات وهمية للسيارات والقطع
+- `lib/search.ts` — محاكاة البحث الذكي (مطابقة كلمات مفتاحية)

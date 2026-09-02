@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { tasks as mockTasks } from "../data/mockData";
 import type { Task } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+
+let channelIdCounter = 0;
 
 interface TaskRow {
   id: string;
@@ -32,6 +34,11 @@ let mockIdCounter = mockTasks.length + 1;
 export function useTasksData() {
   const [tasks, setTasks] = useState<Task[]>(isSupabaseConfigured ? [] : mockTasks);
   const [loading, setLoading] = useState(isSupabaseConfigured);
+  // كل نداء لهذا الـ hook يفتح قناة مستقلة باسم فريد — أكثر من مكوّن يستخدم
+  // useTasksData بنفس الوقت (زي جرس التنبيهات وصفحة المهام) وقناة بنفس
+  // الاسم "tasks-sync" لهم كلهم تسبب تعارض بـ Supabase Realtime ويعلّق الواجهة
+  const channelIdRef = useRef<number | null>(null);
+  channelIdRef.current ??= channelIdCounter++;
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
@@ -48,7 +55,7 @@ export function useTasksData() {
     load();
 
     const channel = supabase!
-      .channel("tasks-sync")
+      .channel(`tasks-sync-${channelIdRef.current}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, load)
       .subscribe();
 

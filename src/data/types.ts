@@ -34,6 +34,16 @@ export interface Team {
   /** آخر ملاحظة أرسلها المشرف الأكاديمي عبر رابطه (وضع Supabase الحقيقي فقط) */
   supervisorNote?: string | null;
   supervisorNoteAt?: string | null;
+  /** رمز دعوة الفريق لفرق ثانية — يُستخدم برابط الإحالة (وضع Supabase الحقيقي فقط) */
+  referralCode?: string;
+}
+
+/** إحصائيات إحالة فريق المستخدم الحالي — من دالة get_my_referral_stats */
+export interface ReferralStats {
+  referralCode: string;
+  referredCount: number;
+  rewardedCount: number;
+  bonusDaysEarned: number;
 }
 
 export type SectionStatus = "done" | "in-progress" | "not-started";

@@ -4,8 +4,10 @@ import {
   Check,
   Clock,
   Copy,
+  Gift,
   GraduationCap,
   Mail,
+  MessageCircle,
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
@@ -15,6 +17,7 @@ import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
+import { useReferralStats } from "../hooks/useReferralStats";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
@@ -134,6 +137,78 @@ function SupervisorLinkCard() {
           </button>
         </div>
       </div>
+    </Card>
+  );
+}
+
+function ReferralCard() {
+  const { team } = useAuth();
+  const { stats } = useReferralStats();
+  const [copied, setCopied] = useState(false);
+
+  if (!team?.referralCode) return null;
+  const referralLink = `${window.location.origin}${window.location.pathname}#/login?ref=${team.referralCode}`;
+  const waMessage = `جربوا NURSYNC — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وياخذون ٣ أيام وصول فوري 🎁\n${referralLink}`;
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card tone="amber" className="mb-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
+            <Gift size={18} />
+          </span>
+          <div>
+            <p className="font-bold text-brand-950">ادعوا فريق ثاني واربحوا ١٥ يوم مجاني</p>
+            <p className="mt-0.5 text-sm text-brand-950/55">
+              شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون ١٥ يوم إضافي
+              تلقائيًا، وهم كمان ياخذون ٣ أيام وصول فوري.
+            </p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white hover:brightness-95"
+          >
+            <MessageCircle size={15} />
+            واتساب
+          </a>
+          <button
+            onClick={copy}
+            className="flex items-center justify-center gap-2 rounded-xl border border-amber-accent-300 bg-white px-4 py-2.5 text-sm font-bold text-amber-accent-700 hover:bg-amber-accent-50"
+          >
+            {copied ? <Check size={15} /> : <Copy size={15} />}
+            {copied ? "تم النسخ" : "نسخ الرابط"}
+          </button>
+        </div>
+      </div>
+
+      {stats && (
+        <div className="mt-4 grid grid-cols-3 gap-3 rounded-2xl bg-white/60 p-3">
+          <div className="text-center">
+            <p className="font-display text-xl font-extrabold text-brand-950">{stats.referredCount}</p>
+            <p className="text-[11px] font-semibold text-brand-950/50">فرق دعوتوها</p>
+          </div>
+          <div className="text-center">
+            <p className="font-display text-xl font-extrabold text-brand-950">{stats.rewardedCount}</p>
+            <p className="text-[11px] font-semibold text-brand-950/50">فعّلوا اشتراكهم</p>
+          </div>
+          <div className="text-center">
+            <p className="font-display text-xl font-extrabold text-amber-accent-600">
+              {stats.bonusDaysEarned}
+            </p>
+            <p className="text-[11px] font-semibold text-brand-950/50">يوم مجاني ربحتوه</p>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
@@ -277,6 +352,7 @@ export default function Team() {
         <>
           <InviteCard />
           <SupervisorLinkCard />
+          <ReferralCard />
         </>
       )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

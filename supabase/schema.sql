@@ -26,7 +26,60 @@ alter table public.teams add column if not exists monthly_price numeric(6, 2) no
 alter table public.teams add column if not exists is_founder boolean not null default false;
 alter table public.teams add column if not exists on_trial boolean not null default true;
 
+-- نظام الإحالة بين الفرق — كل فريق له رمز دعوة فريد يشاركه مع فرق ثانية،
+-- ولو فريق جديد انضم عن طريقه وفعّل اشتراكه، الفريق الداعي ياخذ ١٥ يوم مجاني
+alter table public.teams add column if not exists referral_code text;
+alter table public.teams add column if not exists referred_by_team_id uuid references public.teams(id);
+alter table public.teams add column if not exists referral_reward_granted boolean not null default false;
+
 alter table public.teams enable row level security;
+
+-- يولّد رمز دعوة قصير وفريد (٦ أحرف، بدون حروف/أرقام ملتبسة زي 0/O أو 1/I)
+create or replace function public.generate_referral_code()
+returns text
+language plpgsql
+as $$
+declare
+  chars text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  result text;
+  i int;
+  taken boolean;
+begin
+  loop
+    result := '';
+    for i in 1..6 loop
+      result := result || substr(chars, floor(random() * length(chars) + 1)::int, 1);
+    end loop;
+    select exists(select 1 from public.teams where referral_code = result) into taken;
+    exit when not taken;
+  end loop;
+  return result;
+end;
+$$;
+
+update public.teams set referral_code = public.generate_referral_code() where referral_code is null;
+
+alter table public.teams alter column referral_code set not null;
+alter table public.teams drop constraint if exists teams_referral_code_key;
+alter table public.teams add constraint teams_referral_code_key unique (referral_code);
+
+-- يولّد رمز تلقائيًا لأي فريق جديد
+create or replace function public.set_team_referral_code()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.referral_code is null then
+    new.referral_code := public.generate_referral_code();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists set_team_referral_code on public.teams;
+create trigger set_team_referral_code
+  before insert on public.teams
+  for each row execute procedure public.set_team_referral_code();
 
 -- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين"، ويعطي كل فريق جديد ٣ أيام تجربة
 -- مجانية تلقائيًا (subscription_end_date = بعد ٣ أيام) وقت إنشائه
@@ -91,6 +144,29 @@ as $$
   select team_id from public.profiles where id = auth.uid();
 $$;
 
+-- إحصائيات الإحالة لفريق المستخدم الحالي — تُعرض بصفحة "الفريق"
+create or replace function public.get_my_referral_stats()
+returns table (
+  referral_code text,
+  referred_count int,
+  rewarded_count int,
+  bonus_days_earned int
+)
+language sql
+stable
+security definer set search_path = public
+as $$
+  select
+    t.referral_code,
+    (select count(*)::int from public.teams r where r.referred_by_team_id = t.id),
+    (select count(*)::int from public.teams r where r.referred_by_team_id = t.id and r.referral_reward_granted = true),
+    (select count(*)::int from public.teams r where r.referred_by_team_id = t.id and r.referral_reward_granted = true) * 15
+  from public.teams t
+  where t.id = public.my_team_id();
+$$;
+
+grant execute on function public.get_my_referral_stats() to authenticated;
+
 -- هل الحساب الحالي مالك النظام (Super Admin)؟
 create or replace function public.is_super_admin(uid uuid default auth.uid())
 returns boolean
@@ -139,8 +215,10 @@ create policy "team members can view their own team"
   using (id = public.my_team_id() or public.is_super_admin());
 
 -- ينشئ صف profile تلقائيًا عند تسجيل مستخدم جديد، وينشئ فريق جديد له تلقائيًا
--- إلا إذا مرّرتِ team_id لعضو منضم لفريق موجود (رابط دعوة الفريق):
---   supabase.auth.signUp({ email, password, options: { data: { name, initials, gender, team_id? } } })
+-- إلا إذا مرّرتِ team_id لعضو منضم لفريق موجود (رابط دعوة الفريق)، أو
+-- referral_code لفريق جديد جاي عن طريق رابط إحالة فريق ثاني (يربطه بالفريق
+-- الداعي، ويعطيه ٣ أيام وصول فوري كحافز):
+--   supabase.auth.signUp({ email, password, options: { data: { name, initials, gender, team_id?, referral_code? } } })
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -149,14 +227,26 @@ as $$
 declare
   new_team_id uuid;
   meta_team_id text := new.raw_user_meta_data ->> 'team_id';
+  meta_referral_code text := new.raw_user_meta_data ->> 'referral_code';
+  referrer_team_id uuid;
   new_role text := 'member';
 begin
   if meta_team_id is not null then
     new_team_id := meta_team_id::uuid;
   else
+    if meta_referral_code is not null and length(trim(meta_referral_code)) > 0 then
+      select id into referrer_team_id
+      from public.teams
+      where referral_code = upper(trim(meta_referral_code));
+    end if;
+
     -- أول شخص يسجل بدون رابط دعوة هو من ينشئ الفريق، فيصير تلقائيًا قائد الفريق
-    insert into public.teams (name)
-    values (coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)) || ' — فريق بحثي')
+    insert into public.teams (name, referred_by_team_id, subscription_end_date)
+    values (
+      coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)) || ' — فريق بحثي',
+      referrer_team_id,
+      case when referrer_team_id is not null then current_date + 3 else null end
+    )
     returning id into new_team_id;
     new_role := 'leader';
   end if;
@@ -398,12 +488,17 @@ $$;
 -- تمدّد اشتراك فريق بعدد الأشهر اللي دفعوها فعليًا (٤٠ ريال/شخص شهريًا) —
 -- تُضيف الأشهر فوق تاريخ الانتهاء الحالي لو لسا ما انتهى (تجديد مبكر ما يضيّع أيام)،
 -- أو من اليوم لو منتهي أو أول مرة. استخدميها بعد ما تتأكدين من تحويل STC Pay يدويًا.
--- أول تمديد حقيقي يطفي علم "تجربة مجانية" (on_trial) نهائيًا للفريق
+-- أول تمديد حقيقي يطفي علم "تجربة مجانية" (on_trial) نهائيًا للفريق، ولو
+-- الفريق مُحال من فريق ثاني (referred_by_team_id) هذا أول تمديد له، الفريق
+-- الداعي ياخذ ١٥ يوم مجاني تلقائيًا — مرة وحدة بس لكل فريق مُحال
 create or replace function public.admin_extend_subscription(target_team_id uuid, months int default 1)
 returns void
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  ref_team_id uuid;
+  already_rewarded boolean;
 begin
   if not public.is_super_admin() then
     raise exception 'غير مصرح لك بهذا الإجراء';
@@ -416,6 +511,20 @@ begin
   )::date,
   on_trial = false
   where id = target_team_id;
+
+  select referred_by_team_id, referral_reward_granted
+    into ref_team_id, already_rewarded
+    from public.teams where id = target_team_id;
+
+  if ref_team_id is not null and not already_rewarded then
+    update public.teams
+    set subscription_end_date = (
+      greatest(coalesce(subscription_end_date, current_date), current_date) + interval '15 days'
+    )::date
+    where id = ref_team_id;
+
+    update public.teams set referral_reward_granted = true where id = target_team_id;
+  end if;
 end;
 $$;
 

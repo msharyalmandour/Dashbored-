@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowRight, BookMarked, Coffee, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, BookMarked, Coffee, Gift, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
@@ -67,6 +67,7 @@ export default function Login() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const inviteTeamId = searchParams.get("team");
+  const referralCode = searchParams.get("ref");
   const isNight = getGreeting().period === "night";
 
   // نلتقط هل المستخدمة كانت مسجلة دخولها أصلًا وقت أول تحميل للصفحة (زي
@@ -88,8 +89,8 @@ export default function Login() {
     return () => clearTimeout(t);
   }, [celebrating]);
 
-  const [showForm, setShowForm] = useState(!!inviteTeamId);
-  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId);
+  const [showForm, setShowForm] = useState(!!inviteTeamId || !!referralCode);
+  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -125,7 +126,14 @@ export default function Login() {
     setSubmitting(true);
 
     const result = isSignUp
-      ? await signUpWithPassword(email, password, name, gender, inviteTeamId ?? undefined)
+      ? await signUpWithPassword(
+          email,
+          password,
+          name,
+          gender,
+          inviteTeamId ?? undefined,
+          referralCode ?? undefined,
+        )
       : await signInWithPassword(email, password);
 
     setSubmitting(false);
@@ -229,7 +237,7 @@ export default function Login() {
           ) : (
             <div className="w-full max-w-md animate-[panel-in_0.5s_ease-out] rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
               <div className="mb-6 flex flex-col items-center text-center">
-                {!inviteTeamId && (
+                {!inviteTeamId && !referralCode && (
                   <button
                     onClick={() => setShowForm(false)}
                     className="mb-4 flex items-center gap-1 self-start text-xs font-semibold text-white/40 hover:text-amber-300"
@@ -249,6 +257,12 @@ export default function Login() {
                   <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300">
                     <Users size={13} />
                     دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل
+                  </span>
+                )}
+                {!inviteTeamId && referralCode && mode === "supabase" && (
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300">
+                    <Gift size={13} />
+                    دعوة من فريق بحثي — أنشئوا حسابكم واحصلوا على ٣ أيام وصول فوري 🎉
                   </span>
                 )}
               </div>

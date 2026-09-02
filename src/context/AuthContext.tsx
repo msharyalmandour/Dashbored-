@@ -37,6 +37,7 @@ interface AuthContextValue {
     name: string,
     gender: "male" | "female",
     teamId?: string,
+    referralCode?: string,
   ) => Promise<AuthResult>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
@@ -56,6 +57,7 @@ const mockTeam: Team = {
   monthlyPrice: 40,
   isFounder: true,
   isOnTrial: false,
+  referralCode: "DEMO01",
 };
 
 function initialsFromName(name: string) {
@@ -162,7 +164,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           const { data: teamRow } = await supabase!
             .from("teams")
             .select(
-              "id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at",
+              "id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code",
             )
             .eq("id", team_id)
             .single();
@@ -178,6 +180,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               shareToken: teamRow.share_token,
               supervisorNote: teamRow.supervisor_note,
               supervisorNoteAt: teamRow.supervisor_note_at,
+              referralCode: teamRow.referral_code,
             });
           }
         } else {
@@ -199,6 +202,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     name: string,
     gender: "male" | "female",
     teamId?: string,
+    referralCode?: string,
   ) => {
     const { error } = await supabase!.auth.signUp({
       email,
@@ -209,6 +213,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           initials: initialsFromName(name),
           gender,
           ...(teamId ? { team_id: teamId } : {}),
+          ...(referralCode ? { referral_code: referralCode } : {}),
         },
       },
     });

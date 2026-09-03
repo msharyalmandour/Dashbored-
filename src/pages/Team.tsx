@@ -148,7 +148,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${window.location.origin}${window.location.pathname}#/login?ref=${team.referralCode}`;
-  const waMessage = `جربوا NURSYNC — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وياخذون ٣ أيام وصول فوري 🎁\n${referralLink}`;
+  const waMessage = `جربوا NURSYNC — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ٧ أيام مجانية 🎁\n${referralLink}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -167,7 +167,7 @@ function ReferralCard() {
             <p className="font-bold text-brand-950">ادعوا فريق ثاني واربحوا ١٥ يوم مجاني</p>
             <p className="mt-0.5 text-sm text-brand-950/55">
               شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون ١٥ يوم إضافي
-              تلقائيًا، وهم كمان ياخذون ٣ أيام وصول فوري.
+              تلقائيًا.
             </p>
           </div>
         </div>

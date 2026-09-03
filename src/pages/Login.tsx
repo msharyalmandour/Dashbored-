@@ -262,7 +262,7 @@ export default function Login() {
                 {!inviteTeamId && referralCode && mode === "supabase" && (
                   <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300">
                     <Gift size={13} />
-                    دعوة من فريق بحثي — أنشئوا حسابكم واحصلوا على ٣ أيام وصول فوري 🎉
+                    دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة ٧ أيام مجانية 🎉
                   </span>
                 )}
               </div>

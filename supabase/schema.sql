@@ -85,8 +85,8 @@ create trigger set_team_referral_code
 
 create index if not exists teams_referred_by_team_id_idx on public.teams (referred_by_team_id);
 
--- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين"، ويعطي كل فريق جديد ٣ أيام تجربة
--- مجانية تلقائيًا (subscription_end_date = بعد ٣ أيام) وقت إنشائه
+-- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين"، ويعطي كل فريق جديد ٧ أيام تجربة
+-- مجانية تلقائيًا (subscription_end_date = بعد ٧ أيام) وقت إنشائه
 create or replace function public.set_team_founder_flag()
 returns trigger
 language plpgsql
@@ -97,7 +97,7 @@ begin
     new.is_founder := true;
   end if;
   if new.subscription_end_date is null then
-    new.subscription_end_date := current_date + 3;
+    new.subscription_end_date := current_date + 7;
   end if;
   return new;
 end;
@@ -221,7 +221,8 @@ create policy "team members can view their own team"
 -- ينشئ صف profile تلقائيًا عند تسجيل مستخدم جديد، وينشئ فريق جديد له تلقائيًا
 -- إلا إذا مرّرتِ team_id لعضو منضم لفريق موجود (رابط دعوة الفريق)، أو
 -- referral_code لفريق جديد جاي عن طريق رابط إحالة فريق ثاني (يربطه بالفريق
--- الداعي، ويعطيه ٣ أيام وصول فوري كحافز):
+-- الداعي، فيصير له تجربة ٧ أيام مثل أي فريق جديد — والفريق الداعي ياخذ ١٥ يوم
+-- إضافي أول ما اشتراك الفريق المُحال ينمدد):
 --   supabase.auth.signUp({ email, password, options: { data: { name, initials, gender, team_id?, referral_code? } } })
 create or replace function public.handle_new_user()
 returns trigger
@@ -245,11 +246,11 @@ begin
     end if;
 
     -- أول شخص يسجل بدون رابط دعوة هو من ينشئ الفريق، فيصير تلقائيًا قائد الفريق
-    insert into public.teams (name, referred_by_team_id, subscription_end_date)
+    -- (تاريخ انتهاء الاشتراك يتحدد تلقائيًا بواسطة set_team_founder_flag — تجربة ٧ أيام لكل فريق جديد)
+    insert into public.teams (name, referred_by_team_id)
     values (
       coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)) || ' — فريق بحثي',
-      referrer_team_id,
-      case when referrer_team_id is not null then current_date + 3 else null end
+      referrer_team_id
     )
     returning id into new_team_id;
     new_role := 'leader';

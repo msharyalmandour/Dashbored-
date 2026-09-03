@@ -4,7 +4,7 @@ const sparkAngles = [-60, -20, 20, 60, 100, -100];
 
 /** موشن صندوق هدية صغير — الغطا يقفز وينفتح شوي مع بريق وشرر يطير حواليه،
     بحلقة متكررة تسكن أغلب الوقت وتنبض لحظة "افتحوها!" كل بضع ثوانٍ.
-    بديل عن أيقونة Gift الثابتة لأي مكان نبرز فيه "٣ أيام تجربة مجانية" */
+    بديل عن أيقونة Gift الثابتة لأي مكان نبرز فيه "٧ أيام تجربة مجانية" */
 export default function GiftMotion({ size = 20 }: { size?: number }) {
   return (
     <span className="relative inline-flex shrink-0" style={{ width: size, height: size }}>

@@ -5,6 +5,8 @@ import {
   BookOpenCheck,
   Check,
   ChevronDown,
+  Copy,
+  MessageCircle,
   MessageCircleWarning,
   Milestone,
   PartyPopper,
@@ -76,6 +78,38 @@ function ScenePlaceholder() {
 
 /** زر عائم يظهر بعد ما تنزلين تحت الهيرو، ويختفي قرب الفوتر عشان ما يتعارض
     مع زر الاشتراك بكرت الأسعار */
+function ShareSiteRow() {
+  const [copied, setCopied] = useState(false);
+  const siteUrl = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
+  const waMessage = `جربوا NURSYNC — منصة تنظّم بحث التخرج كامل بمكان واحد بدل قروبات الواتساب المشتتة 🎓\n${siteUrl}`;
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(siteUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mt-4 flex items-center justify-center gap-2">
+      <a
+        href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-[#25D366]/40 hover:text-[#25D366]"
+      >
+        <MessageCircle size={13} /> شاركي الموقع
+      </a>
+      <button
+        onClick={copy}
+        className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-amber-400/40 hover:text-amber-300"
+      >
+        {copied ? <Check size={13} /> : <Copy size={13} />}
+        {copied ? "تم النسخ" : "نسخ الرابط"}
+      </button>
+    </div>
+  );
+}
+
 function StickyCTA() {
   const [show, setShow] = useState(false);
 
@@ -553,6 +587,7 @@ export default function Landing() {
         <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-white/30">
           صُنعت لفرق بحث التخرج التمريضي
         </p>
+        <ShareSiteRow />
       </footer>
     </div>
   );

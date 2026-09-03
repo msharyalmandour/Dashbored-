@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #0b0a08;
-  --color-panel: #16130d;
-  --color-panel-strong: #201a11;
-  --color-line: #322a1b;
-  --color-text: #f6f1e6;
-  --color-text-soft: #a89d87;
-  --color-primary: #d4a955;
-  --color-accent: #eec27a;
+  --color-bg: #0a0c0a;
+  --color-panel: #151815;
+  --color-panel-strong: #1f231f;
+  --color-line: #2b302b;
+  --color-text: #f5f4ee;
+  --color-text-soft: #9ba39a;
+  --color-primary: #a6e22e;
+  --color-accent: #ccff66;
 
   --font-editorial: var(--font-cairo), "Cairo", sans-serif;
   --font-body: var(--font-tajawal), "Tajawal", sans-serif;

@@ -38,6 +38,7 @@ alter table public.teams enable row level security;
 create or replace function public.generate_referral_code()
 returns text
 language plpgsql
+set search_path = public
 as $$
 declare
   chars text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -67,6 +68,7 @@ alter table public.teams add constraint teams_referral_code_key unique (referral
 create or replace function public.set_team_referral_code()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if new.referral_code is null then
@@ -80,6 +82,8 @@ drop trigger if exists set_team_referral_code on public.teams;
 create trigger set_team_referral_code
   before insert on public.teams
   for each row execute procedure public.set_team_referral_code();
+
+create index if not exists teams_referred_by_team_id_idx on public.teams (referred_by_team_id);
 
 -- يعلّم أول 15 فريق تلقائيًا كـ"مؤسسين"، ويعطي كل فريق جديد ٣ أيام تجربة
 -- مجانية تلقائيًا (subscription_end_date = بعد ٣ أيام) وقت إنشائه

@@ -131,7 +131,7 @@ export default function Guide() {
       <Card tone="amber" className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-lg font-bold text-brand-950">
-            أهلًا فيك في StudySync 👋
+            أهلًا فيك في CohortSync 👋
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-brand-950/60">
             هذا الدليل يوضح لك وين تروح لكل شيء داخل الموقع، وكيف تشتغل على بحثك

@@ -95,7 +95,7 @@ export default function Sidebar({
             <Logo size={40} />
           </div>
           <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
-            StudySync
+            CohortSync
           </span>
         </div>
 

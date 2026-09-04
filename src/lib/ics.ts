@@ -24,7 +24,7 @@ export function buildICS(events: CalendarEvent[]): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//StudySync//Research Calendar//AR",
+    "PRODID:-//CohortSync//Research Calendar//AR",
     "CALSCALE:GREGORIAN",
   ];
 

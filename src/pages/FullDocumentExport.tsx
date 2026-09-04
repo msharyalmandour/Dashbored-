@@ -117,7 +117,7 @@ export default function FullDocumentExport() {
       {/* غلاف الوثيقة */}
       <Card tone="cream" className="text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-brand-950/40">
-          StudySync — الوثيقة البحثية الكاملة
+          CohortSync — الوثيقة البحثية الكاملة
         </p>
         <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-950">
           {projectMeta.name}

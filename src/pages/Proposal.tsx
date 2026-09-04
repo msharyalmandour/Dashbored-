@@ -66,7 +66,7 @@ export default function Proposal() {
           {projectMeta.subtitle}
         </p>
         <p className="mt-3 text-xs text-brand-950/45">
-          تم التصدير بتاريخ {formatDateLong(new Date().toISOString().slice(0, 10))} — StudySync
+          تم التصدير بتاريخ {formatDateLong(new Date().toISOString().slice(0, 10))} — CohortSync
         </p>
         <div className="my-4 border-t border-brand-200" />
       </div>

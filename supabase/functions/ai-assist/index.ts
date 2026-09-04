@@ -1,4 +1,4 @@
-// Supabase Edge Function — مساعد StudySync الذكي
+// Supabase Edge Function — مساعد CohortSync الذكي
 //
 // النشر: supabase functions deploy ai-assist
 // المتغيرات المطلوبة (Project Settings → Edge Functions → Secrets):
@@ -171,7 +171,7 @@ translation).
   PICO، NCBE) عشان تعرف الطالبة إن الجواب موثوق ومو تخمين.
 `;
 
-const CHAT_SYSTEM = `أنت مساعد بحثي داخل تطبيق StudySync، يساعد فرق طلاب/طالبات
+const CHAT_SYSTEM = `أنت مساعد بحثي داخل تطبيق CohortSync، يساعد فرق طلاب/طالبات
 التمريض في بحث التخرج (المقترح، مراجعة الأدبيات، المنهجية). جاوب بإيجاز
 ووضوح، بالعربية إلا إذا كتب المستخدم بالإنجليزية، وركّز على مساعدتهم
 يفهمون ويتقدمون ببحثهم — لا تكتب لهم البحث كامل نيابة عنهم.

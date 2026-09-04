@@ -6,6 +6,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
 import PaymentProofUpload from "./PaymentProofUpload";
+import MoyasarPayment from "./MoyasarPayment";
 import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
 import TourGuide from "./TourGuide";
@@ -110,8 +111,8 @@ export default function Layout() {
                         اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
                         المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
                         {isLeader
-                          ? "حوّلوا مبلغ الاشتراك عبر STC Pay وأرسلوا لنا إثبات التحويل لتفعيله."
-                          : "خلّوا قائد فريقكم يحوّل مبلغ الاشتراك عبر STC Pay لتفعيله."}
+                          ? "ادفعوا الآن بالبطاقة لتفعيل فوري، أو حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل."
+                          : "خلّوا قائد فريقكم يفعّل الاشتراك بالبطاقة أو تحويل STC Pay."}
                       </>
                     ) : (
                       <>
@@ -121,7 +122,13 @@ export default function Layout() {
                       </>
                     )}
                   </p>
-                  {isLeader && <PaymentProofUpload />}
+                  {isLeader && (
+                    <>
+                      <MoyasarPayment />
+                      <p className="mt-3 text-xs font-semibold text-brand-950/45">أو الطريقة اليدوية:</p>
+                      <PaymentProofUpload />
+                    </>
+                  )}
                 </div>
               </div>
             )}

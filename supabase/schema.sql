@@ -696,3 +696,29 @@ end;
 $$;
 
 grant execute on function public.submit_supervisor_note(uuid, text) to anon;
+
+-- ============================================================
+-- 8) مدفوعات Moyasar — سجل تتبع للدفعات المؤكدة عبر البطاقة (تفعيل فوري
+--    للاشتراك، بديل أسرع لإثبات تحويل STC Pay اليدوي أعلاه). الإدراج
+--    والتحديث يصيران فقط من دالة Edge Function باسم moyasar-webhook
+--    (بمفتاح service_role، يتجاوز RLS) بعد ما تتحقق من حالة الدفعة
+--    مباشرة من Moyasar — مو من الواجهة مباشرة.
+-- ============================================================
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  moyasar_payment_id text not null unique,
+  amount numeric(8, 2) not null,
+  status text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.payments enable row level security;
+
+drop policy if exists "team can view their own payments" on public.payments;
+create policy "team can view their own payments"
+  on public.payments for select
+  to authenticated
+  using (team_id = public.my_team_id() or public.is_super_admin());
+
+create index if not exists payments_team_id_idx on public.payments (team_id);

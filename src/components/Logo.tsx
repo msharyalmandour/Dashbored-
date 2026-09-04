@@ -1,7 +1,7 @@
 import { Infinity as InfinityIcon } from "lucide-react";
 
 /**
- * علامة NURSYNC — أسود ثابت دايمًا (مو مرتبط بثيم الجنس أو الوضع الليلي)،
+ * علامة StudySync — أسود ثابت دايمًا (مو مرتبط بثيم الجنس أو الوضع الليلي)،
  * عشان تبقى هوية بصرية واحدة موحّدة للبراند نفسه، بعيدة عن أي إيحاء طبي بحت.
  */
 export default function Logo({ size = 40 }: { size?: number }) {

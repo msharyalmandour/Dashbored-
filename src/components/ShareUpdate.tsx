@@ -21,7 +21,7 @@ function buildMessage(): string {
 آخر التحديثات:
 ${activityLines}
 
-تم إنشاؤه عبر NURSYNC`;
+تم إنشاؤه عبر StudySync`;
 }
 
 /** يصيغ رسالة تحديث جاهزة (تقدم + آخر التحديثات) عشان تُرسل للمشرف/ة بضغطة،

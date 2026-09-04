@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
           VitePWA({
             registerType: 'autoUpdate',
             manifest: {
-              name: 'NURSYNC — منصة إدارة أبحاث التخرج',
-              short_name: 'NURSYNC',
+              name: 'StudySync — منصة إدارة أبحاث التخرج',
+              short_name: 'StudySync',
               description: 'رفيقكم بمشروع التخرج — ينظّم فريقكم ومهامكم ويخلّي التنسيق أسهل من قهوة الصبح ☕',
               lang: 'ar',
               dir: 'rtl',

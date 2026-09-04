@@ -21,7 +21,7 @@ export function LocalEnvironment() {
 export const GOLD = "#fbbf24";
 export const GOLD_LIGHT = "#fcd34d";
 
-/** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار NURSYNC — عشان أي مشهد
+/** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار StudySync — عشان أي مشهد
     ثلاثي الأبعاد بالتطبيق (تسجيل الدخول، الهيرو، شعار المرشد الصوتي)
     يكون مرتبط بهوية البراند الفعلية، مو شكل مجرد بدون معنى */
 export function buildInfinityGeometry(): TubeGeometry {

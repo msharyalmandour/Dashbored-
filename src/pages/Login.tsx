@@ -19,7 +19,7 @@ const journeySteps = [
   { n: "03", label: "أنجزوا بحثكم" },
 ];
 
-/** أبرز مزايا NURSYNC — تظهر لأي فريق جديد وقت التسجيل عشان يعرفون وش
+/** أبرز مزايا StudySync — تظهر لأي فريق جديد وقت التسجيل عشان يعرفون وش
     ينتظرهم قبل ما يكملون */
 const signupFeatures = [
   { icon: TrendingUp, label: "تتبعوا تقدم بحثكم بمكان واحد" },
@@ -187,7 +187,7 @@ export default function Login() {
         <header className="flex w-full max-w-6xl items-center justify-between">
           <Logo size={34} />
           <span className="hidden text-xs font-semibold tracking-[0.3em] text-white/25 sm:block">
-            NURSYNC
+            StudySync
           </span>
         </header>
 
@@ -283,7 +283,7 @@ export default function Login() {
                   <div className="flex animate-[node-pulse_2.2s_ease-in-out_infinite] items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-3 py-2.5 text-center">
                     <GiftMotion size={20} />
                     <p className="text-xs font-bold text-amber-300">
-                      جربوا NURSYNC مجانًا 3 أيام كاملة — بدون أي التزام، وبعدها اشتراك بسيط
+                      جربوا StudySync مجانًا ٧ أيام كاملة — بدون أي التزام، وبعدها اشتراك بسيط
                       بالريال لكل عضو.
                     </p>
                   </div>

@@ -144,7 +144,7 @@ export default function SupervisorView() {
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Logo size={36} />
-            <span className="font-display text-base font-extrabold text-neutral-900">NURSYNC</span>
+            <span className="font-display text-base font-extrabold text-neutral-900">StudySync</span>
           </div>
           <span className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs font-bold text-neutral-500">
             <ShieldCheck size={13} />
@@ -258,7 +258,7 @@ export default function SupervisorView() {
         </div>
 
         <p className="mt-6 text-center text-xs text-neutral-400">
-          مشاركة من فريق البحث عبر NURSYNC — رابط قراءة فقط
+          مشاركة من فريق البحث عبر StudySync — رابط قراءة فقط
         </p>
       </div>
     </div>

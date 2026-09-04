@@ -1,4 +1,4 @@
--- NURSYNC — Supabase schema
+-- StudySync — Supabase schema
 --
 -- الاستخدام: افتح مشروعك على supabase.com > SQL Editor > New query،
 -- الصق هذا الملف كامل، ثم اضغط Run. يمكن تشغيله أكثر من مرة بأمان.
@@ -121,7 +121,7 @@ create table if not exists public.profiles (
   color text not null default 'brand',
   email text,
   gender text check (gender in ('male', 'female')),
-  /** حساب صاحب النظام (مالك NURSYNC) — يشوف صفحة إدارة الاشتراكات لكل الفرق */
+  /** حساب صاحب النظام (مالك StudySync) — يشوف صفحة إدارة الاشتراكات لكل الفرق */
   is_super_admin boolean not null default false,
   created_at timestamptz not null default now()
 );

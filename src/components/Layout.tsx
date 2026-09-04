@@ -12,6 +12,7 @@ import AiAssistant from "./AiAssistant";
 import TourGuide from "./TourGuide";
 import Skeleton from "./ui/Skeleton";
 import { useAuth } from "../context/AuthContext";
+import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
 
 const titles: Record<string, string> = {
@@ -71,7 +72,7 @@ export default function Layout() {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  const title = titles[location.pathname] ?? "نيرسينك";
+  const title = titles[location.pathname] ?? "Wesync";
   const showReadOnlyBanner = mode === "supabase" && !canWrite;
   const showTrialBanner =
     mode === "supabase" && canWrite && team?.isOnTrial && subscriptionState === "expiring-soon";
@@ -126,7 +127,7 @@ export default function Layout() {
                     <>
                       <MoyasarPayment />
                       <p className="mt-3 text-xs font-semibold text-brand-950/45">أو الطريقة اليدوية:</p>
-                      <PaymentProofUpload />
+                      {isSupabaseConfigured && <PaymentProofUpload />}
                     </>
                   )}
                 </div>

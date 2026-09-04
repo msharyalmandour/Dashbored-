@@ -12,6 +12,7 @@ import {
   CalendarDays,
   ListTree,
   Compass,
+  CreditCard,
   FlaskConical,
   ShieldCheck,
   Sparkles,
@@ -33,6 +34,7 @@ const baseItems = [
   { to: "/calendar", label: "التقويم", icon: CalendarDays },
   { to: "/story", label: "قصة بحثك", icon: Sparkles },
   { to: "/guide", label: "دليل الطالب", icon: Compass },
+  { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
 ];
 
 export default function CommandPalette() {

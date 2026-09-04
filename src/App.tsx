@@ -20,6 +20,7 @@ import Guide from "./pages/Guide";
 import Story from "./pages/Story";
 import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
+import Pricing from "./pages/Pricing";
 import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
 
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/story" element={<Story />} />
         <Route path="/guide" element={<Guide />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
       </Route>
     </Routes>

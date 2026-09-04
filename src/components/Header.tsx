@@ -5,6 +5,7 @@ import Avatar from "./ui/Avatar";
 import ThemeSwitcher from "./ThemeSwitcher";
 import PresenceStack from "./PresenceStack";
 import NotificationsBell from "./NotificationsBell";
+import SubscriptionBadge from "./SubscriptionBadge";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 
 export default function Header({
@@ -44,6 +45,8 @@ export default function Header({
         </button>
 
         <PresenceStack />
+
+        <SubscriptionBadge />
 
         <button
           onClick={() => {

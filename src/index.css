@@ -403,11 +403,45 @@ button:not(:disabled):active {
   }
 }
 
+/* ===================================================================
+   نظام الحركة المتقدّم — استخدام premium (دخول متتابع + رفعة عند التحويم)
+   يعتمد بالكامل على متغيرات الثيم الحالي، فيشتغل بنفس الجودة بكل الأوضاع
+   الأربعة بدون أي لون مثبّت يدويًا.
+   =================================================================== */
+
+/* دخول متتابع للبطاقات — كل بطاقة توخّر شوي عن اللي قبلها عبر --stagger-i */
+.stagger-in {
+  animation: panel-in 0.45s ease-out both;
+  animation-delay: calc(var(--stagger-i, 0) * 70ms);
+}
+
+/* بطاقة تفاعلية — رفعة خفيفة + توهج بلون البراند الحالي عند التحويم */
+.card-interactive {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  will-change: transform;
+}
+.card-interactive:hover,
+.card-interactive:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -16px color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   button:not(:disabled) {
     transition: none;
   }
   button:not(:disabled):active {
+    transform: none;
+  }
+  .stagger-in {
+    animation: none;
+  }
+  .card-interactive {
+    transition: none;
+  }
+  .card-interactive:hover,
+  .card-interactive:focus-visible {
     transform: none;
   }
 }

@@ -18,17 +18,20 @@ export default function Card({
   className,
   as: As = "div",
   tone = "paper",
+  interactive = false,
 }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "section";
   tone?: CardTone;
+  interactive?: boolean;
 }) {
   return (
     <As
       className={clsx(
         "rounded-3xl border p-5 shadow-sm shadow-brand-950/5",
         toneClasses[tone],
+        interactive && "card-interactive",
         className,
       )}
     >

@@ -12,6 +12,7 @@ import {
   ListTree,
   LogOut,
   Compass,
+  CreditCard,
   FlaskConical,
   ShieldCheck,
   Sparkles,
@@ -61,6 +62,7 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
       { to: "/files", label: "الملفات", icon: FolderClosed },
       { to: "/calendar", label: "التقويم", icon: CalendarDays },
       { to: "/story", label: "قصة بحثك", icon: Sparkles },
+      { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
     ],
   },
 ];

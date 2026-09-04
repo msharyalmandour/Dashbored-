@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import {
@@ -19,9 +19,9 @@ import {
   Moon,
   PartyPopper,
   TrendingUp,
-  X,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import { AlertCard } from "../components/ui/cards";
 import FocusSession from "../components/FocusSession";
 import TimeCapsule from "../components/TimeCapsule";
 import ShareUpdate from "../components/ShareUpdate";
@@ -235,136 +235,84 @@ export default function Overview() {
   return (
     <div className="space-y-6">
       {showGuideBanner && (
-        <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
-            <Compass size={18} />
-          </span>
-          <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
-            أول مرة {g(isFemale, "تستخدمين", "تستخدم")} Wesync؟{" "}
-            {tourFinished ? (
-              <>
-                خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر{" "}
-                {g(isFemale, "راجعي", "راجع")}{" "}
-                <Link to="/guide" className="underline underline-offset-2">
-                  دليل الطالب
-                </Link>
-                .
-              </>
-            ) : (
-              <>
-                خلّي مرشدنا ياخذك بجولة سريعة على أهم صفحات الموقع، أو{" "}
-                {g(isFemale, "راجعي", "راجع")}{" "}
-                <Link to="/guide" className="underline underline-offset-2">
-                  دليل الطالب
-                </Link>{" "}
-                المكتوب.
-              </>
-            )}
-          </p>
-          {!tourFinished && (
-            <button
-              onClick={startTour}
-              className="shrink-0 rounded-xl bg-amber-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-accent-600"
-            >
-              ابدأ الجولة
-            </button>
+        <AlertCard
+          tone="warning"
+          icon={Compass}
+          onDismiss={dismissGuideBanner}
+          action={
+            !tourFinished && (
+              <button
+                onClick={startTour}
+                className="shrink-0 rounded-xl bg-amber-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-accent-600"
+              >
+                ابدأ الجولة
+              </button>
+            )
+          }
+        >
+          أول مرة {g(isFemale, "تستخدمين", "تستخدم")} Wesync؟{" "}
+          {tourFinished ? (
+            <>
+              خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر{" "}
+              {g(isFemale, "راجعي", "راجع")}{" "}
+              <Link to="/guide" className="underline underline-offset-2">
+                دليل الطالب
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              خلّي مرشدنا ياخذك بجولة سريعة على أهم صفحات الموقع، أو{" "}
+              {g(isFemale, "راجعي", "راجع")}{" "}
+              <Link to="/guide" className="underline underline-offset-2">
+                دليل الطالب
+              </Link>{" "}
+              المكتوب.
+            </>
           )}
-          <button
-            onClick={dismissGuideBanner}
-            className="shrink-0 rounded-lg p-1.5 text-amber-accent-600 hover:bg-amber-accent-200"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        </AlertCard>
       )}
 
       {showFlashback && (
-        <div className="flex items-center gap-4 rounded-3xl border border-brand-200 bg-brand-50 px-5 py-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white">
-            <History size={18} />
-          </span>
-          <p className="min-w-0 flex-1 text-sm font-semibold text-brand-700">
-            قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
-            {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
-            {projectMeta.overallProgress}% خلف ظهرك. {g(isFemale, "كملي", "كمل")} بنفس القوة 🌱
-          </p>
-          <button
-            onClick={dismissFlashback}
-            className="shrink-0 rounded-lg p-1.5 text-brand-600 hover:bg-brand-100"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>
+          قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
+          {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
+          {projectMeta.overallProgress}% خلف ظهرك. {g(isFemale, "كملي", "كمل")} بنفس القوة 🌱
+        </AlertCard>
       )}
 
       {showNightOwl && (
-        <div className="flex items-center gap-4 rounded-3xl border border-violet-100 bg-violet-50 px-5 py-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white">
-            <Moon size={18} />
-          </span>
-          <p className="min-w-0 flex-1 text-sm font-semibold text-violet-700">
-            الساعة كذا وبعدك {g(isFemale, "صاحية", "صاحي")} تراجعين بحثك؟ نحترم الجدّية، بس لا
-            تنسى قسط راحتك — بحثك بينتظرك باكر بنفس المكان 🌙
-          </p>
-          <button
-            onClick={dismissNightOwl}
-            className="shrink-0 rounded-lg p-1.5 text-violet-600 hover:bg-violet-100"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        <AlertCard tone="violet" icon={Moon} onDismiss={dismissNightOwl}>
+          الساعة كذا وبعدك {g(isFemale, "صاحية", "صاحي")} تراجعين بحثك؟ نحترم الجدّية، بس لا
+          تنسى قسط راحتك — بحثك بينتظرك باكر بنفس المكان 🌙
+        </AlertCard>
       )}
 
       {showDeadlineAlert && deadlineAlertActive && (
-        <div
-          className={clsx(
-            "flex items-center gap-4 rounded-3xl border px-5 py-4",
-            overdueCount > 0 ? "border-rose-200 bg-rose-50" : "border-amber-accent-200 bg-amber-accent-100",
-          )}
+        <AlertCard
+          tone={overdueCount > 0 ? "danger" : "warning"}
+          icon={AlertTriangle}
+          onDismiss={dismissDeadlineAlert}
         >
-          <span
-            className={clsx(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white",
-              overdueCount > 0 ? "bg-rose-500" : "bg-amber-accent-500",
-            )}
-          >
-            <AlertTriangle size={18} />
-          </span>
-          <p
-            className={clsx(
-              "min-w-0 flex-1 text-sm font-semibold",
-              overdueCount > 0 ? "text-rose-700" : "text-amber-accent-700",
-            )}
-          >
-            {overdueCount > 0 ? (
-              <>
-                عندكم {overdueCount} {overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} —{" "}
-                <Link to="/tasks" className="underline underline-offset-2">
-                  راجعوها أول شي
-                </Link>{" "}
-                قبل أي شي ثاني.
-              </>
-            ) : (
-              <>
-                موعد قريب: <span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{" "}
-                بعد {nearestDeadlineEventDays} {nearestDeadlineEventDays === 1 ? "يوم" : "أيام"} —{" "}
-                <Link to="/calendar" className="underline underline-offset-2">
-                  شوفوا التقويم
-                </Link>
-                .
-              </>
-            )}
-          </p>
-          <button
-            onClick={dismissDeadlineAlert}
-            className={clsx(
-              "shrink-0 rounded-lg p-1.5",
-              overdueCount > 0 ? "text-rose-600 hover:bg-rose-100" : "text-amber-accent-600 hover:bg-amber-accent-200",
-            )}
-          >
-            <X size={16} />
-          </button>
-        </div>
+          {overdueCount > 0 ? (
+            <>
+              عندكم {overdueCount} {overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} —{" "}
+              <Link to="/tasks" className="underline underline-offset-2">
+                راجعوها أول شي
+              </Link>{" "}
+              قبل أي شي ثاني.
+            </>
+          ) : (
+            <>
+              موعد قريب: <span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{" "}
+              بعد {nearestDeadlineEventDays} {nearestDeadlineEventDays === 1 ? "يوم" : "أيام"} —{" "}
+              <Link to="/calendar" className="underline underline-offset-2">
+                شوفوا التقويم
+              </Link>
+              .
+            </>
+          )}
+        </AlertCard>
       )}
 
       {team?.supervisorNote && (
@@ -460,46 +408,54 @@ export default function Overview() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <TiltCard maxTilt={4}>
-            <StatCard
-              icon={Milestone}
-              label="المرحلة الحالية"
-              value={projectMeta.currentStageAr}
-              sub={projectMeta.currentStageEn}
-              color="brand"
-              tone="teal"
-            />
-          </TiltCard>
-          <TiltCard maxTilt={4}>
-            <StatCard
-              icon={ListTodo}
-              label="المهمة الحالية"
-              value={projectMeta.currentTask}
-              sub="قيد التنفيذ الآن"
-              color="amber-accent"
-              tone="cream"
-            />
-          </TiltCard>
-          <TiltCard maxTilt={4}>
-            <StatCard
-              icon={TrendingUp}
-              label="الخطوة التالية"
-              value={projectMeta.nextStep}
-              sub="بعد إكمال الحالية"
-              color="sky-accent"
-              tone="sky"
-            />
-          </TiltCard>
-          <TiltCard maxTilt={4}>
-            <StatCard
-              icon={CalendarClock}
-              label="الموعد القادم"
-              value={formatDateShort(projectMeta.nextDeadlineDate)}
-              sub={`${projectMeta.nextDeadlineLabel} — متبقٍ ${nextDeadlineDays} أيام`}
-              color="brand"
-              tone="violet"
-            />
-          </TiltCard>
+          <div className="stagger-in" style={{ "--stagger-i": 0 } as CSSProperties}>
+            <TiltCard maxTilt={4}>
+              <StatCard
+                icon={Milestone}
+                label="المرحلة الحالية"
+                value={projectMeta.currentStageAr}
+                sub={projectMeta.currentStageEn}
+                color="brand"
+                tone="teal"
+              />
+            </TiltCard>
+          </div>
+          <div className="stagger-in" style={{ "--stagger-i": 1 } as CSSProperties}>
+            <TiltCard maxTilt={4}>
+              <StatCard
+                icon={ListTodo}
+                label="المهمة الحالية"
+                value={projectMeta.currentTask}
+                sub="قيد التنفيذ الآن"
+                color="amber-accent"
+                tone="cream"
+              />
+            </TiltCard>
+          </div>
+          <div className="stagger-in" style={{ "--stagger-i": 2 } as CSSProperties}>
+            <TiltCard maxTilt={4}>
+              <StatCard
+                icon={TrendingUp}
+                label="الخطوة التالية"
+                value={projectMeta.nextStep}
+                sub="بعد إكمال الحالية"
+                color="sky-accent"
+                tone="sky"
+              />
+            </TiltCard>
+          </div>
+          <div className="stagger-in" style={{ "--stagger-i": 3 } as CSSProperties}>
+            <TiltCard maxTilt={4}>
+              <StatCard
+                icon={CalendarClock}
+                label="الموعد القادم"
+                value={formatDateShort(projectMeta.nextDeadlineDate)}
+                sub={`${projectMeta.nextDeadlineLabel} — متبقٍ ${nextDeadlineDays} أيام`}
+                color="brand"
+                tone="violet"
+              />
+            </TiltCard>
+          </div>
         </div>
       </div>
 
@@ -518,7 +474,7 @@ export default function Overview() {
             <PhaseTracker stages={researchStages} />
           </Card>
 
-          <Card>
+          <Card interactive>
             <CardHeader
               title="مهامي القادمة"
               action={
@@ -611,7 +567,7 @@ export default function Overview() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card tone="violet">
+        <Card tone="violet" interactive>
           <CardHeader
             title="تقدم الفريق"
             subtitle={topPerformer ? `🌟 ${topPerformer.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
@@ -645,7 +601,7 @@ export default function Overview() {
           </div>
         </Card>
 
-        <Card tone="amber">
+        <Card tone="amber" interactive>
           <CardHeader
             title="مراجعة الأدبيات"
             action={
@@ -672,7 +628,7 @@ export default function Overview() {
           </div>
         </Card>
 
-        <Card>
+        <Card interactive>
           <CardHeader
             title="آخر نشاط للفريق"
             action={

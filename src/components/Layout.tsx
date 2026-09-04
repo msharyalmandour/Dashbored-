@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { AlertTriangle } from "lucide-react";
+import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
+import { AlertTriangle, CreditCard } from "lucide-react";
 import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
 import PaymentProofUpload from "./PaymentProofUpload";
-import MoyasarPayment from "./MoyasarPayment";
+import CheckoutModal from "./CheckoutModal";
+import { AlertCard } from "./ui/cards";
 import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
 import TourGuide from "./TourGuide";
@@ -29,6 +30,7 @@ const titles: Record<string, string> = {
   "/calendar": "التقويم",
   "/story": "قصة بحثك",
   "/guide": "دليل الطالب",
+  "/pricing": "الباقات والاشتراك",
   "/admin/subscriptions": "إدارة الاشتراكات",
 };
 
@@ -36,7 +38,7 @@ export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [showTrialPayment, setShowTrialPayment] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   if (loading) {
     return (
@@ -90,60 +92,76 @@ export default function Layout() {
         <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="space-y-6">
             {showTrialBanner && (
-              <div className="rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 print:hidden">
-                <div className="flex items-center gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-500">
-                    <GiftMotion size={20} />
-                  </span>
-                  <p className="min-w-0 flex-1 text-sm font-semibold text-sky-accent-700">
-                    أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
-                    {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
-                    . {isLeader ? "فعّلوا الاشتراك بأي وقت قبل ما تنتهي عشان ما تنقطع الخدمة." : "خلّوا قائد فريقكم يفعّل الاشتراك قبل ما تنتهي التجربة."}
-                  </p>
-                  {isLeader && !showTrialPayment && (
+              <AlertCard
+                tone="info"
+                icon={GiftMotion}
+                action={
+                  isLeader && (
                     <button
-                      onClick={() => setShowTrialPayment(true)}
-                      className="shrink-0 rounded-xl bg-sky-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-sky-accent-600"
+                      onClick={() => setCheckoutOpen(true)}
+                      className="flex shrink-0 items-center gap-1.5 rounded-xl bg-sky-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-sky-accent-600"
                     >
+                      <CreditCard size={13} />
                       فعّلوا الاشتراك الآن
                     </button>
-                  )}
-                </div>
-                {isLeader && showTrialPayment && <MoyasarPayment />}
-              </div>
+                  )
+                }
+              >
+                أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
+                {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
+                .{" "}
+                {isLeader ? (
+                  <>
+                    فعّلوا الاشتراك بأي وقت قبل ما تنتهي عشان ما تنقطع الخدمة، أو{" "}
+                    <Link to="/pricing" className="underline underline-offset-2">
+                      شوفوا الباقات
+                    </Link>
+                    .
+                  </>
+                ) : (
+                  "خلّوا قائد فريقكم يفعّل الاشتراك قبل ما تنتهي التجربة."
+                )}
+              </AlertCard>
             )}
             {showReadOnlyBanner && (
-              <div className="flex items-center gap-4 rounded-3xl border border-amber-accent-200 bg-amber-accent-100 px-5 py-4 print:hidden">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
-                  <AlertTriangle size={18} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-amber-accent-700">
-                    {subscriptionState === "none" ? (
-                      <>
-                        اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
-                        المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
-                        {isLeader
-                          ? "ادفعوا الآن بالبطاقة لتفعيل فوري، أو حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل."
-                          : "خلّوا قائد فريقكم يفعّل الاشتراك بالبطاقة أو تحويل STC Pay."}
-                      </>
-                    ) : (
-                      <>
-                        اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس
-                        ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا
-                        للاستمرار في استخدام كل المزايا.
-                      </>
-                    )}
-                  </p>
-                  {isLeader && (
+              <AlertCard tone="warning" icon={AlertTriangle}>
+                <div>
+                  {subscriptionState === "none" ? (
                     <>
-                      <MoyasarPayment />
-                      <p className="mt-3 text-xs font-semibold text-brand-950/45">أو الطريقة اليدوية:</p>
-                      {isSupabaseConfigured && <PaymentProofUpload />}
+                      اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
+                      المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
+                      {isLeader
+                        ? "ادفعوا الآن بالبطاقة لتفعيل فوري، أو حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل."
+                        : "خلّوا قائد فريقكم يفعّل الاشتراك بالبطاقة أو تحويل STC Pay."}
+                    </>
+                  ) : (
+                    <>
+                      اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس
+                      ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا
+                      للاستمرار في استخدام كل المزايا.
                     </>
                   )}
+                  {isLeader && (
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <button
+                        onClick={() => setCheckoutOpen(true)}
+                        className="flex items-center gap-1.5 rounded-xl bg-amber-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-accent-600"
+                      >
+                        <CreditCard size={13} />
+                        ادفعوا الآن بالبطاقة
+                      </button>
+                      <span className="text-xs font-semibold text-brand-950/45">
+                        أو الطريقة اليدوية بالأسفل
+                      </span>
+                    </div>
+                  )}
+                  {isLeader && isSupabaseConfigured && (
+                    <div className="mt-3">
+                      <PaymentProofUpload />
+                    </div>
+                  )}
                 </div>
-              </div>
+              </AlertCard>
             )}
             <div key={location.pathname} className="animate-[page-in_0.35s_ease-out]">
               <Outlet />
@@ -151,6 +169,7 @@ export default function Layout() {
           </div>
         </main>
       </div>
+      {checkoutOpen && isLeader && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
   );
 }

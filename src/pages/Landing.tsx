@@ -560,14 +560,20 @@ export default function Landing() {
             to="/login"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-400 px-8 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
           >
-            ابدأ فريقك الآن
+            ابدأ فريقك الآن — تجربة مجانية ٧ أيام
             <ArrowLeft size={16} />
+          </Link>
+          <Link
+            to="/login"
+            className="mt-3 block text-center text-xs font-semibold text-white/40 hover:text-amber-300 hover:underline"
+          >
+            متأكدين؟ فعّلوا الاشتراك مباشرة بدون تجربة
           </Link>
 
           <div className="mt-8 border-t border-amber-400/15 pt-6 text-start text-sm text-white/50">
             <p className="mb-3 font-bold text-white">كيف يتم الدفع؟</p>
             <ol className="space-y-2.5">
-              {["حوّلوا المبلغ عبر STC Pay", "أرسلوا لنا إثبات التحويل", "نفعّل اشتراك فريقكم خلال ساعة"].map(
+              {["ادفعوا فورًا بالبطاقة (تفعيل لحظي)", "أو حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل", "نفعّل اشتراك فريقكم خلال ساعة كحد أقصى"].map(
                 (step, i) => (
                   <li key={step} className="flex items-center gap-2.5">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-[11px] font-bold text-amber-300">

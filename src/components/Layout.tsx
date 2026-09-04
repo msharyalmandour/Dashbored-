@@ -36,6 +36,7 @@ export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [showTrialPayment, setShowTrialPayment] = useState(false);
 
   if (loading) {
     return (
@@ -89,15 +90,26 @@ export default function Layout() {
         <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="space-y-6">
             {showTrialBanner && (
-              <div className="flex items-center gap-4 rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 print:hidden">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-500">
-                  <GiftMotion size={20} />
-                </span>
-                <p className="min-w-0 flex-1 text-sm font-semibold text-sky-accent-700">
-                  أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
-                  {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
-                  . {isLeader ? "فعّلوا الاشتراك بأي وقت قبل ما تنتهي عشان ما تنقطع الخدمة." : "خلّوا قائد فريقكم يفعّل الاشتراك قبل ما تنتهي التجربة."}
-                </p>
+              <div className="rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 print:hidden">
+                <div className="flex items-center gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-500">
+                    <GiftMotion size={20} />
+                  </span>
+                  <p className="min-w-0 flex-1 text-sm font-semibold text-sky-accent-700">
+                    أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
+                    {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
+                    . {isLeader ? "فعّلوا الاشتراك بأي وقت قبل ما تنتهي عشان ما تنقطع الخدمة." : "خلّوا قائد فريقكم يفعّل الاشتراك قبل ما تنتهي التجربة."}
+                  </p>
+                  {isLeader && !showTrialPayment && (
+                    <button
+                      onClick={() => setShowTrialPayment(true)}
+                      className="shrink-0 rounded-xl bg-sky-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-sky-accent-600"
+                    >
+                      فعّلوا الاشتراك الآن
+                    </button>
+                  )}
+                </div>
+                {isLeader && showTrialPayment && <MoyasarPayment />}
               </div>
             )}
             {showReadOnlyBanner && (

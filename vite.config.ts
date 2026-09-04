@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
           VitePWA({
             registerType: 'autoUpdate',
             manifest: {
-              name: 'CohortSync — منصة إدارة أبحاث التخرج',
-              short_name: 'CohortSync',
+              name: 'Wesync — منصة إدارة أبحاث التخرج',
+              short_name: 'Wesync',
               description: 'رفيقكم بمشروع التخرج — ينظّم فريقكم ومهامكم ويخلّي التنسيق أسهل من قهوة الصبح ☕',
               lang: 'ar',
               dir: 'rtl',

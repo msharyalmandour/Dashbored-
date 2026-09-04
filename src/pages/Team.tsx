@@ -91,7 +91,7 @@ function SupervisorLinkCard() {
   const copyReminder = async () => {
     const message = team.supervisorNote
       ? `مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n${shareLink}`
-      : `مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على CohortSync — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n${shareLink}`;
+      : `مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على Wesync — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n${shareLink}`;
     await navigator.clipboard.writeText(message);
     setReminderCopied(true);
     setTimeout(() => setReminderCopied(false), 2000);
@@ -148,7 +148,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${window.location.origin}${window.location.pathname}#/login?ref=${team.referralCode}`;
-  const waMessage = `جربوا CohortSync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ٧ أيام مجانية 🎁\n${referralLink}`;
+  const waMessage = `جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ٧ أيام مجانية 🎁\n${referralLink}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);

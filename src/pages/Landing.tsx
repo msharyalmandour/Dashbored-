@@ -81,7 +81,7 @@ function ScenePlaceholder() {
 function ShareSiteRow() {
   const [copied, setCopied] = useState(false);
   const siteUrl = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
-  const waMessage = `جربوا CohortSync — منصة تنظّم بحث التخرج كامل بمكان واحد بدل قروبات الواتساب المشتتة 🎓\n${siteUrl}`;
+  const waMessage = `جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد بدل قروبات الواتساب المشتتة 🎓\n${siteUrl}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(siteUrl);
@@ -273,7 +273,7 @@ export default function Landing() {
         <div className="flex items-center gap-2.5">
           <Logo size={40} />
           <span className="font-display text-lg font-extrabold tracking-tight text-white">
-            CohortSync
+            Wesync
           </span>
         </div>
         <Link
@@ -311,7 +311,7 @@ export default function Landing() {
               </span>
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-lg text-white/60">
-              CohortSync تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
+              Wesync تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
               النهائي — بمكان واحد يشوفه الجميع.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -340,7 +340,7 @@ export default function Landing() {
       <section className="relative z-10 mx-auto -mt-10 max-w-4xl px-6 pb-16 lg:-mt-16 lg:pb-24">
         <TiltCard maxTilt={3}>
           <RevealRotate direction="left">
-            <BrowserFrame src={overviewShot} alt="لوحة تحكم CohortSync" />
+            <BrowserFrame src={overviewShot} alt="لوحة تحكم Wesync" />
           </RevealRotate>
         </TiltCard>
       </section>
@@ -440,7 +440,7 @@ export default function Landing() {
         <Reveal delay={200} className="mt-14">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-3xl border border-white/10 bg-neutral-900/60 p-6">
-              <p className="mb-4 text-sm font-bold text-white/40">قبل CohortSync</p>
+              <p className="mb-4 text-sm font-bold text-white/40">قبل Wesync</p>
               <ul className="space-y-3">
                 {beforeAfter.before.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-white/50">
@@ -453,7 +453,7 @@ export default function Landing() {
               </ul>
             </div>
             <div className="rounded-3xl border border-amber-400/25 bg-neutral-900 p-6">
-              <p className="mb-4 text-sm font-bold text-amber-300">بعد CohortSync</p>
+              <p className="mb-4 text-sm font-bold text-amber-300">بعد Wesync</p>
               <ul className="space-y-3">
                 {beforeAfter.after.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-white/75">
@@ -583,7 +583,7 @@ export default function Landing() {
       </Reveal>
 
       <footer className="relative z-10 border-t border-amber-400/10 py-10 text-center">
-        <p className="font-display text-sm font-semibold tracking-wide text-white/60">CohortSync</p>
+        <p className="font-display text-sm font-semibold tracking-wide text-white/60">Wesync</p>
         <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-white/30">
           صُنعت لفرق بحث التخرج التمريضي
         </p>

@@ -240,7 +240,7 @@ export default function Overview() {
             <Compass size={18} />
           </span>
           <p className="min-w-0 flex-1 text-sm font-semibold text-amber-accent-700">
-            أول مرة {g(isFemale, "تستخدمين", "تستخدم")} CohortSync؟{" "}
+            أول مرة {g(isFemale, "تستخدمين", "تستخدم")} Wesync؟{" "}
             {tourFinished ? (
               <>
                 خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر{" "}

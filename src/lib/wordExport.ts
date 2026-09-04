@@ -93,7 +93,7 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
             bidirectional: true,
             children: [
               new TextRun({
-                text: "CohortSync — الوثيقة البحثية الكاملة",
+                text: "Wesync — الوثيقة البحثية الكاملة",
                 bold: true,
                 size: 20,
                 color: "8a6d1a",

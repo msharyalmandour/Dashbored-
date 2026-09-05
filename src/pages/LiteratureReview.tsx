@@ -1,7 +1,8 @@
 import { BookMarked, CheckCircle2, Circle, ExternalLink } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import ProgressBar from "../components/ui/ProgressBar";
-import { evidenceLibrary } from "../data/mockData";
+import EmptyState from "../components/ui/EmptyState";
+import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme } from "../data/types";
 
 const themeOrder: LiteratureTheme[] = [
@@ -21,10 +22,21 @@ const themeLabelAr: Record<LiteratureTheme, string> = {
 };
 
 export default function LiteratureReview() {
-  const reviewed = evidenceLibrary.filter((p) => p.reviewStatus === "reviewed").length;
-  const collected = evidenceLibrary.length;
+  const { papers } = useEvidencePapers();
+  const reviewed = papers.filter((p) => p.reviewStatus === "reviewed").length;
+  const collected = papers.length;
   const remaining = collected - reviewed;
-  const pct = Math.round((reviewed / collected) * 100);
+  const pct = collected > 0 ? Math.round((reviewed / collected) * 100) : 0;
+
+  if (collected === 0) {
+    return (
+      <EmptyState
+        icon={BookMarked}
+        title="ما فيه دراسات لسا"
+        desc="أضيفوا أول دراسة من مكتبة الأدلة عشان تبدأ مراجعة الأدبيات تتجمّع هنا."
+      />
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -52,7 +64,7 @@ export default function LiteratureReview() {
       </Card>
 
       {themeOrder.map((theme) => {
-        const studies = evidenceLibrary.filter((p) => p.theme === theme);
+        const studies = papers.filter((p) => p.theme === theme);
         if (studies.length === 0) return null;
 
         return (
@@ -93,11 +105,11 @@ export default function LiteratureReview() {
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <div className="rounded-xl bg-paper p-3">
                       <p className="text-[11px] font-bold text-brand-950/45">أهم النتائج</p>
-                      <p className="mt-1 text-sm text-brand-950/75">{study.keyFinding}</p>
+                      <p className="mt-1 text-sm text-brand-950/75">{study.keyFinding || "—"}</p>
                     </div>
                     <div className="rounded-xl bg-paper p-3">
                       <p className="text-[11px] font-bold text-brand-950/45">الصلة بالبحث</p>
-                      <p className="mt-1 text-sm text-brand-950/75">{study.relevance}</p>
+                      <p className="mt-1 text-sm text-brand-950/75">{study.relevance || "—"}</p>
                     </div>
                   </div>
 

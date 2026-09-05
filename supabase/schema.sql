@@ -722,3 +722,430 @@ create policy "team can view their own payments"
   using (team_id = public.my_team_id() or public.is_super_admin());
 
 create index if not exists payments_team_id_idx on public.payments (team_id);
+
+-- ============================================================
+-- 9) البنية التحتية الحقيقية للبحث — Research Core Engine
+--    Team → Research Project (تلقائي، فريق واحد = مشروع واحد) → بيانات البحث
+--    كل الجداول تتربط بـ research_project_id، وكل الـ RLS تستخدم
+--    my_research_project_id() فوق my_team_id() الموجودة أصلًا —
+--    بدون أي نظام ملكية جديد أو منفصل.
+-- ============================================================
+
+create table if not exists public.research_projects (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null unique references public.teams (id) on delete cascade,
+  title text not null default '',
+  description text not null default '',
+  research_type text not null default '' check (research_type in ('', 'quantitative', 'qualitative', 'mixed-methods')),
+  status text not null default 'planning' check (status in ('planning', 'active', 'writing', 'submitted')),
+  start_date date,
+  target_submission_date date,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists research_projects_team_idx on public.research_projects (team_id);
+
+alter table public.research_projects enable row level security;
+
+-- دالة مساعدة فوق my_team_id() الموجودة أصلًا — نفس نمط RLS المستخدم بجدول tasks
+create or replace function public.my_research_project_id()
+returns uuid
+language sql
+security definer set search_path = public
+stable
+as $$
+  select id from public.research_projects where team_id = public.my_team_id();
+$$;
+
+drop policy if exists "research project viewable by the team" on public.research_projects;
+create policy "research project viewable by the team"
+  on public.research_projects for select
+  to authenticated
+  using (team_id = public.my_team_id());
+
+drop policy if exists "leader can update the research project" on public.research_projects;
+create policy "leader can update the research project"
+  on public.research_projects for update
+  to authenticated
+  using (
+    team_id = public.my_team_id()
+    and public.team_can_write(public.my_team_id())
+    and exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+  );
+
+-- ---------------------------------------------------------------
+-- رحلة البحث — 10 مراحل ثابتة تتربط بالمشروع
+-- ---------------------------------------------------------------
+create table if not exists public.research_stages (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  stage_key text not null check (stage_key in (
+    'topic', 'proposal', 'literature-review', 'research-gap', 'research-questions',
+    'methodology', 'data-collection', 'analysis', 'writing', 'final-submission'
+  )),
+  title_ar text not null,
+  title_en text not null,
+  stage_order int not null,
+  -- ملاحظة: نفس قيم PhaseStatus بالواجهة أصلًا (src/data/types.ts) — "upcoming"
+  -- مو "not-started" — عشان PhaseTracker.tsx الموجود يشتغل عليها بدون أي تعديل
+  status text not null default 'upcoming' check (status in ('upcoming', 'active', 'done')),
+  progress int not null default 0 check (progress between 0 and 100),
+  start_date date,
+  target_date date,
+  completed_date date,
+  unique (research_project_id, stage_key)
+);
+
+create index if not exists research_stages_project_idx on public.research_stages (research_project_id);
+
+alter table public.research_stages enable row level security;
+
+drop policy if exists "research stages viewable by the team" on public.research_stages;
+create policy "research stages viewable by the team"
+  on public.research_stages for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can update research stages" on public.research_stages;
+create policy "team can update research stages"
+  on public.research_stages for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+-- ---------------------------------------------------------------
+-- المقترح البحثي — أقسام حقيقية بدل JSON واحد
+-- ---------------------------------------------------------------
+create table if not exists public.proposal_sections (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  section_key text not null check (section_key in (
+    'background', 'literature-review', 'problem', 'gap', 'aim', 'questions', 'methodology'
+  )),
+  order_index int not null,
+  label_ar text not null,
+  label_en text not null,
+  status text not null default 'not-started' check (status in ('not-started', 'in-progress', 'done')),
+  content text not null default '',
+  owner_id uuid references public.profiles (id),
+  updated_at timestamptz not null default now(),
+  unique (research_project_id, section_key)
+);
+
+create index if not exists proposal_sections_project_idx on public.proposal_sections (research_project_id);
+
+alter table public.proposal_sections enable row level security;
+
+drop policy if exists "proposal sections viewable by the team" on public.proposal_sections;
+create policy "proposal sections viewable by the team"
+  on public.proposal_sections for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can edit proposal sections" on public.proposal_sections;
+create policy "team can edit proposal sections"
+  on public.proposal_sections for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+-- ---------------------------------------------------------------
+-- الفجوة البحثية + هدف الدراسة + أسئلة البحث
+-- ---------------------------------------------------------------
+create table if not exists public.research_gap (
+  research_project_id uuid primary key references public.research_projects (id) on delete cascade,
+  what_we_know text[] not null default '{}',
+  what_we_dont_know text[] not null default '{}',
+  gap_statement text not null default '',
+  study_connection text not null default '',
+  connects_to_aim boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.research_gap enable row level security;
+
+drop policy if exists "research gap viewable by the team" on public.research_gap;
+create policy "research gap viewable by the team"
+  on public.research_gap for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can edit research gap" on public.research_gap;
+create policy "team can edit research gap"
+  on public.research_gap for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+create table if not exists public.study_aim (
+  research_project_id uuid primary key references public.research_projects (id) on delete cascade,
+  statement text not null default '',
+  status text not null default 'not-started' check (status in ('not-started', 'in-progress', 'done')),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.study_aim enable row level security;
+
+drop policy if exists "study aim viewable by the team" on public.study_aim;
+create policy "study aim viewable by the team"
+  on public.study_aim for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can edit study aim" on public.study_aim;
+create policy "team can edit study aim"
+  on public.study_aim for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+create table if not exists public.research_questions (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  order_index int not null,
+  text text not null default ''
+);
+
+create index if not exists research_questions_project_idx on public.research_questions (research_project_id);
+
+alter table public.research_questions enable row level security;
+
+drop policy if exists "research questions viewable by the team" on public.research_questions;
+create policy "research questions viewable by the team"
+  on public.research_questions for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can add research questions" on public.research_questions;
+create policy "team can add research questions"
+  on public.research_questions for insert
+  to authenticated
+  with check (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+drop policy if exists "team can remove research questions" on public.research_questions;
+create policy "team can remove research questions"
+  on public.research_questions for delete
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+-- ---------------------------------------------------------------
+-- المنهجية — أعمدة حقيقية تطابق واجهة Methodology الحالية حرفيًا
+-- ---------------------------------------------------------------
+create table if not exists public.methodology (
+  research_project_id uuid primary key references public.research_projects (id) on delete cascade,
+  study_design text not null default '',
+  study_design_status text not null default 'not-started' check (study_design_status in ('not-started', 'in-progress', 'done')),
+  study_setting text not null default '',
+  population text not null default '',
+  sampling_inclusion text[] not null default '{}',
+  sampling_exclusion text[] not null default '{}',
+  sample_size text not null default '',
+  sampling_technique text not null default '',
+  data_collection_methods text[] not null default '{}',
+  study_tool_type text not null default 'undecided' check (study_tool_type in ('existing', 'developed', 'undecided')),
+  study_tool_name text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.methodology enable row level security;
+
+drop policy if exists "methodology viewable by the team" on public.methodology;
+create policy "methodology viewable by the team"
+  on public.methodology for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can edit methodology" on public.methodology;
+create policy "team can edit methodology"
+  on public.methodology for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+-- ---------------------------------------------------------------
+-- مكتبة الأدلة — دراسات حقيقية مشتركة بالفريق
+-- ---------------------------------------------------------------
+create table if not exists public.evidence_papers (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  title text not null,
+  authors text not null default '',
+  year int,
+  theme text not null default '',
+  study_design text not null default '',
+  key_finding text not null default '',
+  relevance text not null default '',
+  section text not null default 'other' check (section in ('background', 'literature-review', 'gap', 'methodology', 'other')),
+  review_status text not null default 'collected' check (review_status in ('collected', 'reviewed')),
+  link text,
+  added_by uuid references public.profiles (id),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists evidence_papers_project_idx on public.evidence_papers (research_project_id);
+
+alter table public.evidence_papers enable row level security;
+
+drop policy if exists "evidence papers viewable by the team" on public.evidence_papers;
+create policy "evidence papers viewable by the team"
+  on public.evidence_papers for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can add evidence papers" on public.evidence_papers;
+create policy "team can add evidence papers"
+  on public.evidence_papers for insert
+  to authenticated
+  with check (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and added_by = auth.uid()
+  );
+
+drop policy if exists "team can update evidence papers" on public.evidence_papers;
+create policy "team can update evidence papers"
+  on public.evidence_papers for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+drop policy if exists "author or leader can delete evidence papers" on public.evidence_papers;
+create policy "author or leader can delete evidence papers"
+  on public.evidence_papers for delete
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and (
+      added_by = auth.uid()
+      or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+    )
+  );
+
+-- ---------------------------------------------------------------
+-- إنشاء تلقائي لمشروع البحث عند إنشاء الفريق — نفس فكرة
+-- set_team_founder_flag الموجودة، بدون تعديلها
+-- ---------------------------------------------------------------
+create or replace function public.seed_research_project_content(p_project_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.research_stages (research_project_id, stage_key, title_ar, title_en, stage_order)
+  values
+    (p_project_id, 'topic', 'اختيار الموضوع', 'Topic Selection', 1),
+    (p_project_id, 'proposal', 'المقترح البحثي', 'Research Proposal', 2),
+    (p_project_id, 'literature-review', 'مراجعة الأدبيات', 'Literature Review', 3),
+    (p_project_id, 'research-gap', 'الفجوة البحثية', 'Research Gap', 4),
+    (p_project_id, 'research-questions', 'أسئلة البحث', 'Research Questions', 5),
+    (p_project_id, 'methodology', 'المنهجية', 'Methodology', 6),
+    (p_project_id, 'data-collection', 'جمع البيانات', 'Data Collection', 7),
+    (p_project_id, 'analysis', 'تحليل البيانات', 'Data Analysis', 8),
+    (p_project_id, 'writing', 'كتابة البحث', 'Writing', 9),
+    (p_project_id, 'final-submission', 'التسليم النهائي', 'Final Submission', 10)
+  on conflict (research_project_id, stage_key) do nothing;
+
+  insert into public.proposal_sections (research_project_id, section_key, order_index, label_ar, label_en)
+  values
+    (p_project_id, 'background', 1, 'خلفية البحث', 'Background'),
+    (p_project_id, 'literature-review', 2, 'مراجعة الأدبيات', 'Literature Review'),
+    (p_project_id, 'problem', 3, 'مشكلة البحث', 'Statement of Problem'),
+    (p_project_id, 'gap', 4, 'الفجوة المعرفية', 'Gap of Knowledge'),
+    (p_project_id, 'aim', 5, 'هدف الدراسة', 'Purpose / Aim'),
+    (p_project_id, 'questions', 6, 'أسئلة البحث', 'Research Questions'),
+    (p_project_id, 'methodology', 7, 'المنهجية', 'Methodology')
+  on conflict (research_project_id, section_key) do nothing;
+
+  insert into public.research_gap (research_project_id) values (p_project_id) on conflict do nothing;
+  insert into public.study_aim (research_project_id) values (p_project_id) on conflict do nothing;
+  insert into public.methodology (research_project_id) values (p_project_id) on conflict do nothing;
+end;
+$$;
+
+create or replace function public.create_research_project_for_team()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_project_id uuid;
+begin
+  insert into public.research_projects (team_id) values (new.id)
+  on conflict (team_id) do nothing
+  returning id into v_project_id;
+
+  if v_project_id is not null then
+    perform public.seed_research_project_content(v_project_id);
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists create_research_project_for_team on public.teams;
+create trigger create_research_project_for_team
+  after insert on public.teams
+  for each row execute procedure public.create_research_project_for_team();
+
+-- تعبئة تلقائية (backfill) لأي فريق موجود قبل هالتحديث — آمنة للتشغيل أكثر من مرة
+do $$
+declare
+  t record;
+  v_project_id uuid;
+begin
+  for t in select id from public.teams where not exists (
+    select 1 from public.research_projects where team_id = teams.id
+  ) loop
+    insert into public.research_projects (team_id) values (t.id) returning id into v_project_id;
+    perform public.seed_research_project_content(v_project_id);
+  end loop;
+end $$;
+
+-- تفعيل التحديث اللحظي لكل جداول البحث الجديدة — نفس أسلوب tasks
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'research_projects') then
+    alter publication supabase_realtime add table public.research_projects;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'research_stages') then
+    alter publication supabase_realtime add table public.research_stages;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'proposal_sections') then
+    alter publication supabase_realtime add table public.proposal_sections;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'research_gap') then
+    alter publication supabase_realtime add table public.research_gap;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'study_aim') then
+    alter publication supabase_realtime add table public.study_aim;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'research_questions') then
+    alter publication supabase_realtime add table public.research_questions;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'methodology') then
+    alter publication supabase_realtime add table public.methodology;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'evidence_papers') then
+    alter publication supabase_realtime add table public.evidence_papers;
+  end if;
+end $$;

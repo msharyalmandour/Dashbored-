@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { AlertTriangle, ArrowDown, CheckCircle2, Circle, FileDown, FileStack, FileText, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
-import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
-import { proposalSections, researchGap, studyAim, teamMembers, projectMeta } from "../data/mockData";
+import { useProposal } from "../hooks/useProposal";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useResearchProject } from "../hooks/useResearchProject";
 import type { SectionStatus } from "../data/types";
 import { formatDateLong } from "../lib/date";
 
@@ -40,10 +41,42 @@ function StatusIcon({ status }: { status: SectionStatus }) {
   return <Circle size={18} className="shrink-0 text-brand-950/25" />;
 }
 
+/** حقل نصي يُحفظ عند الخروج منه (blur) فقط — مو مع كل ضغطة زر، حتى ما نضغط
+    قاعدة البيانات بكل حرف. يحتفظ بمسودة محلية لحين الحفظ. */
+function AutoSaveTextarea({
+  value,
+  onSave,
+  placeholder,
+  rows = 3,
+}: {
+  value: string;
+  onSave: (next: string) => void;
+  placeholder: string;
+  rows?: number;
+}) {
+  const [draft, setDraft] = useState(value);
+  return (
+    <textarea
+      value={draft}
+      onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setDraft(e.target.value)}
+      onBlur={() => {
+        if (draft !== value) onSave(draft);
+      }}
+      placeholder={placeholder}
+      rows={rows}
+      className="w-full resize-y rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
+    />
+  );
+}
+
 export default function Proposal() {
-  const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
-  const doneCount = proposalSections.filter((s) => s.status === "done").length;
-  const completionPct = Math.round((doneCount / proposalSections.length) * 100);
+  const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } =
+    useProposal();
+  const { project } = useResearchProject();
+  const { roster } = useTeamRoster();
+  const memberById = (id: string) => roster.find((m) => m.id === id);
+  const doneCount = sections.filter((s) => s.status === "done").length;
+  const completionPct = sections.length > 0 ? Math.round((doneCount / sections.length) * 100) : 0;
   const [sectionAttachments, setSectionAttachments] =
     useState<Record<string, AttachedFileMeta>>(loadProposalAttachments);
 
@@ -60,11 +93,13 @@ export default function Proposal() {
       {/* يبين بس عند الطباعة/تصدير PDF — ترويسة رسمية للمستند */}
       <div className="hidden print:block">
         <h1 className="font-display text-2xl font-extrabold text-brand-950">
-          {projectMeta.name}
+          {project?.title || "المقترح البحثي"}
         </h1>
-        <p className="mt-1 text-sm text-brand-950/60" dir="ltr">
-          {projectMeta.subtitle}
-        </p>
+        {project?.description && (
+          <p className="mt-1 text-sm text-brand-950/60" dir="ltr">
+            {project.description}
+          </p>
+        )}
         <p className="mt-3 text-xs text-brand-950/45">
           تم التصدير بتاريخ {formatDateLong(new Date().toISOString().slice(0, 10))} — Wesync
         </p>
@@ -77,7 +112,7 @@ export default function Proposal() {
             المقترح البحثي <span className="text-brand-950/40">— Research Proposal</span>
           </h2>
           <p className="mt-1 text-sm text-brand-950/50">
-            {doneCount} من {proposalSections.length} أقسام مكتملة
+            {doneCount} من {sections.length} أقسام مكتملة
           </p>
         </div>
         <div className="w-full max-w-xs shrink grow">
@@ -102,36 +137,52 @@ export default function Proposal() {
         </div>
       </Card>
 
-      {/* Proposal Progress checklist */}
+      {/* Proposal Progress checklist — كل قسم قابل للتحرير ويُحفظ فورًا */}
       <Card className="print:break-inside-avoid">
         <CardHeader title="مكونات المقترح البحثي" subtitle="Proposal Components" />
         <ul className="divide-y divide-brand-50">
-          {proposalSections.map((section) => {
+          {sections.map((section) => {
             const owner = memberById(section.ownerId);
             return (
-              <li key={section.key} className="flex items-center gap-3 py-3">
-                <StatusIcon status={section.status} />
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-brand-950">{section.labelAr}</p>
-                  <p className="text-xs text-brand-950/45">{section.labelEn}</p>
-                  {sectionAttachments[section.key] && (
-                    <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
-                      <FileText size={12} />
-                      <bdi className="truncate">{sectionAttachments[section.key].name}</bdi>
-                    </p>
-                  )}
-                </div>
-                {!sectionAttachments[section.key] && (
-                  <div className="print:hidden">
-                    <FileAttach compact onAttach={(meta) => attachToSection(section.key, meta)} />
+              <li key={section.key} className="space-y-2.5 py-3">
+                <div className="flex items-center gap-3">
+                  <StatusIcon status={section.status} />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-brand-950">{section.labelAr}</p>
+                    <p className="text-xs text-brand-950/45">{section.labelEn}</p>
+                    {sectionAttachments[section.key] && (
+                      <p className="mt-1 flex items-center gap-1 text-xs text-brand-600">
+                        <FileText size={12} />
+                        <bdi className="truncate">{sectionAttachments[section.key].name}</bdi>
+                      </p>
+                    )}
                   </div>
-                )}
-                <Avatar initials={owner.initials} color={owner.color} size="sm" />
-                <span
-                  className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${statusChip[section.status]}`}
-                >
-                  {statusLabel[section.status]}
-                </span>
+                  {!sectionAttachments[section.key] && (
+                    <div className="print:hidden">
+                      <FileAttach compact onAttach={(meta) => attachToSection(section.key, meta)} />
+                    </div>
+                  )}
+                  {owner && <Avatar initials={owner.initials} color={owner.color} size="sm" />}
+                  <select
+                    value={section.status}
+                    onChange={(e) => updateSection(section.key, { status: e.target.value as SectionStatus })}
+                    className={`whitespace-nowrap rounded-full border-0 px-2.5 py-1 text-xs font-bold outline-none print:hidden ${statusChip[section.status]}`}
+                  >
+                    {(Object.keys(statusLabel) as SectionStatus[]).map((s) => (
+                      <option key={s} value={s}>
+                        {statusLabel[s]}
+                      </option>
+                    ))}
+                  </select>
+                  <span className={`hidden whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold print:inline ${statusChip[section.status]}`}>
+                    {statusLabel[section.status]}
+                  </span>
+                </div>
+                <AutoSaveTextarea
+                  value={section.content}
+                  onSave={(content) => updateSection(section.key, { content })}
+                  placeholder="اكتبوا محتوى هذا القسم هنا..."
+                />
               </li>
             );
           })}
@@ -144,25 +195,21 @@ export default function Proposal() {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-2xl bg-paper p-4">
             <p className="mb-2 text-sm font-bold text-brand-950">ما نعرفه</p>
-            <ul className="space-y-1.5">
-              {researchGap.whatWeKnow.map((item, i) => (
-                <li key={i} className="flex gap-2 text-sm text-brand-950/70">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <AutoSaveTextarea
+              value={gap.whatWeKnow.join("\n")}
+              onSave={(v) => updateGap({ whatWeKnow: v.split("\n").filter(Boolean) })}
+              placeholder={"سطر لكل نقطة..."}
+              rows={4}
+            />
           </div>
           <div className="rounded-2xl bg-paper p-4">
             <p className="mb-2 text-sm font-bold text-brand-950">ما لا نعرفه</p>
-            <ul className="space-y-1.5">
-              {researchGap.whatWeDontKnow.map((item, i) => (
-                <li key={i} className="flex gap-2 text-sm text-brand-950/70">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <AutoSaveTextarea
+              value={gap.whatWeDontKnow.join("\n")}
+              onSave={(v) => updateGap({ whatWeDontKnow: v.split("\n").filter(Boolean) })}
+              placeholder={"سطر لكل نقطة..."}
+              rows={4}
+            />
           </div>
         </div>
 
@@ -172,7 +219,11 @@ export default function Proposal() {
 
         <div className="rounded-2xl border-2 border-amber-accent-400 bg-paper p-4">
           <p className="mb-1.5 text-sm font-bold text-amber-accent-700">الفجوة البحثية — Research Gap</p>
-          <p className="text-sm text-brand-950/80">{researchGap.gapStatement}</p>
+          <AutoSaveTextarea
+            value={gap.gapStatement}
+            onSave={(v) => updateGap({ gapStatement: v })}
+            placeholder="اكتبوا صياغة الفجوة البحثية هنا..."
+          />
         </div>
 
         <div className="my-3 flex justify-center">
@@ -181,10 +232,14 @@ export default function Proposal() {
 
         <div className="rounded-2xl bg-paper p-4">
           <p className="mb-1.5 text-sm font-bold text-brand-950">ما ستدرسه — Your Study</p>
-          <p className="text-sm text-brand-950/80">{researchGap.studyConnection}</p>
+          <AutoSaveTextarea
+            value={gap.studyConnection}
+            onSave={(v) => updateGap({ studyConnection: v })}
+            placeholder="كيف تربط دراستكم بهذي الفجوة؟"
+          />
         </div>
 
-        {!researchGap.connectsToAim && (
+        {!gap.connectsToAim && (
           <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 p-3.5">
             <AlertTriangle size={18} className="mt-0.5 shrink-0 text-rose-500" />
             <p className="text-sm font-semibold text-rose-600">
@@ -199,61 +254,23 @@ export default function Proposal() {
       <Card className="print:break-inside-avoid">
         <CardHeader title="هدف الدراسة وأسئلة البحث" subtitle="Aim & Research Questions" />
 
-        <div className="mb-5 flex items-center justify-center gap-3 text-xs font-bold">
-          <span className="rounded-full bg-amber-accent-100 px-3 py-1.5 text-amber-accent-700">
-            الفجوة البحثية
-          </span>
-          <ArrowDown className="-rotate-90 text-brand-950/25" size={16} />
-          <span
-            className={clsx(
-              "rounded-full px-3 py-1.5",
-              studyAim.status === "not-started"
-                ? "bg-surface-muted text-brand-950/40"
-                : "bg-brand-100 text-brand-700",
-            )}
-          >
-            هدف الدراسة
-          </span>
-          <ArrowDown className="-rotate-90 text-brand-950/25" size={16} />
-          <span
-            className={clsx(
-              "rounded-full px-3 py-1.5",
-              studyAim.questions.length === 0
-                ? "bg-surface-muted text-brand-950/40"
-                : "bg-brand-100 text-brand-700",
-            )}
-          >
-            أسئلة البحث
-          </span>
-        </div>
-
         <div className="rounded-2xl bg-surface-muted p-4">
           <p className="mb-1.5 text-sm font-bold text-brand-950">هدف الدراسة — Purpose / Aim</p>
-          {studyAim.statement ? (
-            <p className="text-sm text-brand-950/80">{studyAim.statement}</p>
-          ) : (
-            <p className="text-sm italic text-brand-950/40">
-              لم تتم صياغته بعد — الخطوة التالية بعد إغلاق الفجوة البحثية.
-            </p>
-          )}
+          <AutoSaveTextarea
+            value={aim.statement}
+            onSave={(v) => updateAimStatement(v)}
+            placeholder="اكتبوا هدف الدراسة هنا..."
+          />
         </div>
 
         <div className="mt-3 rounded-2xl bg-surface-muted p-4">
           <p className="mb-1.5 text-sm font-bold text-brand-950">أسئلة البحث — Research Questions</p>
-          {studyAim.questions.length > 0 ? (
-            <ol className="space-y-1.5">
-              {studyAim.questions.map((q) => (
-                <li key={q.id} className="flex gap-2 text-sm text-brand-950/80">
-                  <span className="font-bold text-brand-600">{q.order}.</span>
-                  {q.text}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="text-sm italic text-brand-950/40">
-              لم تتم صياغتها بعد — تُشتق مباشرة من هدف الدراسة.
-            </p>
-          )}
+          <AutoSaveTextarea
+            value={questions.map((q) => q.text).join("\n")}
+            onSave={(v) => setResearchQuestions(v.split("\n").filter(Boolean))}
+            placeholder={"سؤال بحث واحد بكل سطر..."}
+            rows={4}
+          />
         </div>
       </Card>
     </div>

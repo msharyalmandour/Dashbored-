@@ -1,31 +1,16 @@
 import { useMemo, useState } from "react";
-import { BookMarked, Check, Copy, Quote } from "lucide-react";
+import { BookMarked, Check, Copy, Plus, Quote, X } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import EmptyState from "../components/ui/EmptyState";
-import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import { useAuth } from "../context/AuthContext";
-import { evidenceLibrary, teamMembers } from "../data/mockData";
-import type { EvidencePaper, EvidenceSection } from "../data/types";
+import { useEvidencePapers } from "../hooks/useEvidencePapers";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import type { EvidencePaper, EvidenceSection, LiteratureTheme } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { buildReferenceList, toCitation, type CitationStyle } from "../lib/citation";
-
-const ATTACHED_KEY = "nursync.attachedPapers";
-
-function loadAttachedPapers(): EvidencePaper[] {
-  try {
-    const raw = localStorage.getItem(ATTACHED_KEY);
-    return raw ? (JSON.parse(raw) as EvidencePaper[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function titleFromFileName(name: string): string {
-  return name.replace(/\.[^./]+$/, "").replace(/[_-]+/g, " ");
-}
 
 const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
   { id: "all", label: "الكل" },
@@ -36,15 +21,37 @@ const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
   { id: "other", label: "أخرى" },
 ];
 
+const themeOptions: LiteratureTheme[] = [
+  "Delirium",
+  "Nursing Knowledge",
+  "Detection Tools",
+  "Tool Utilization",
+  "Patient Outcomes",
+];
+
+const emptyForm = {
+  title: "",
+  authors: "",
+  year: new Date().getFullYear(),
+  theme: themeOptions[0],
+  studyDesign: "",
+  keyFinding: "",
+  relevance: "",
+  section: "other" as EvidenceSection,
+};
+
 export default function EvidenceLibrary() {
   const { currentUser } = useAuth();
   const isFemale = isFemaleUser(currentUser);
+  const { papers, addPaper, updateReviewStatus } = useEvidencePapers();
+  const { roster } = useTeamRoster();
   const [filter, setFilter] = useState<"all" | EvidenceSection>("all");
-  const [attachedPapers, setAttachedPapers] = useState<EvidencePaper[]>(loadAttachedPapers);
   const [citationStyle, setCitationStyle] = useState<CitationStyle>("apa");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedList, setCopiedList] = useState(false);
-  const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const memberById = (id: string) => roster.find((m) => m.id === id);
 
   const copyCitation = async (paper: EvidencePaper) => {
     try {
@@ -56,9 +63,9 @@ export default function EvidenceLibrary() {
     }
   };
 
-  const copyReferenceList = async (papers: EvidencePaper[]) => {
+  const copyReferenceList = async (list: EvidencePaper[]) => {
     try {
-      await navigator.clipboard.writeText(buildReferenceList(papers, citationStyle));
+      await navigator.clipboard.writeText(buildReferenceList(list, citationStyle));
       setCopiedList(true);
       setTimeout(() => setCopiedList(false), 1800);
     } catch {
@@ -66,77 +73,140 @@ export default function EvidenceLibrary() {
     }
   };
 
-  const allPapers = [...attachedPapers, ...evidenceLibrary];
-  const reviewedCount = allPapers.filter((p) => p.reviewStatus === "reviewed").length;
+  const reviewedCount = papers.filter((p) => p.reviewStatus === "reviewed").length;
 
   const filtered = useMemo(
     () =>
-      allPapers
+      papers
         .filter((p) => filter === "all" || p.section === filter)
-        // اللي لسا ما تُراجع يطلع أول — عشان محد يضيع بين الدراسات المكدسة
         .sort((a, b) => Number(a.reviewStatus === "reviewed") - Number(b.reviewStatus === "reviewed")),
-    [allPapers, filter],
+    [papers, filter],
   );
 
-  const handleAttach = (meta: AttachedFileMeta) => {
-    const newPaper: EvidencePaper = {
-      id: `e-local-${Date.now()}`,
-      title: titleFromFileName(meta.name),
-      authors: "—",
-      year: new Date().getFullYear(),
-      theme: "Delirium",
-      studyDesign: "—",
-      keyFinding: "لسا ما تمت مراجعتها — أضيفي ملخص النتائج بعد القراءة.",
-      relevance: "لسا ما تمت مراجعتها.",
-      section: "other",
-      reviewStatus: "collected",
-      addedById: currentUser?.id ?? teamMembers[0].id,
-    };
-    setAttachedPapers((prev) => {
-      const updated = [newPaper, ...prev];
-      localStorage.setItem(ATTACHED_KEY, JSON.stringify(updated));
-      return updated;
-    });
+  const submitPaper = async () => {
+    if (!form.title.trim()) return;
+    await addPaper({ ...form, addedById: currentUser?.id ?? "" });
+    setForm(emptyForm);
+    setShowForm(false);
   };
 
   return (
     <div className="space-y-5">
-      {allPapers.length > 0 && (
+      {papers.length > 0 && (
         <div className="flex items-center gap-4 rounded-2xl bg-surface-muted px-4 py-3">
           <div className="min-w-0 flex-1">
             <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-brand-950/50">
               <span>تقدم المراجعة</span>
               <span className="text-brand-600">
-                {reviewedCount} من {allPapers.length} دراسة
+                {reviewedCount} من {papers.length} دراسة
               </span>
             </div>
-            <ProgressBar value={(reviewedCount / allPapers.length) * 100} />
+            <ProgressBar value={(reviewedCount / papers.length) * 100} />
           </div>
         </div>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
-        {sectionFilters.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={clsx(
-              "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-              filter === f.id
-                ? "bg-brand-500 text-white"
-                : "bg-paper text-brand-950/60 hover:bg-surface-muted",
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
+          {sectionFilters.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={clsx(
+                "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+                filter === f.id
+                  ? "bg-brand-500 text-white"
+                  : "bg-paper text-brand-950/60 hover:bg-surface-muted",
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
-        <FileAttach
-          compact
-          onAttach={handleAttach}
-          label={g(isFemale, "أرفقي دراسة PDF جديدة", "أرفق دراسة PDF جديدة")}
-        />
+        <button
+          onClick={() => setShowForm((v) => !v)}
+          className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+        >
+          {showForm ? <X size={16} /> : <Plus size={16} />}
+          {showForm ? "إلغاء" : g(isFemale, "أضيفي دراسة جديدة", "أضف دراسة جديدة")}
+        </button>
       </div>
+
+      {showForm && (
+        <Card tone="sky">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <input
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              placeholder="عنوان الدراسة"
+              className="col-span-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+            <input
+              value={form.authors}
+              onChange={(e) => setForm((f) => ({ ...f, authors: e.target.value }))}
+              placeholder="المؤلفون"
+              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+            <input
+              type="number"
+              value={form.year}
+              onChange={(e) => setForm((f) => ({ ...f, year: Number(e.target.value) }))}
+              placeholder="سنة النشر"
+              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+            <select
+              value={form.theme}
+              onChange={(e) => setForm((f) => ({ ...f, theme: e.target.value as LiteratureTheme }))}
+              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            >
+              {themeOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+            <select
+              value={form.section}
+              onChange={(e) => setForm((f) => ({ ...f, section: e.target.value as EvidenceSection }))}
+              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            >
+              {sectionFilters
+                .filter((s) => s.id !== "all")
+                .map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+            </select>
+            <input
+              value={form.studyDesign}
+              onChange={(e) => setForm((f) => ({ ...f, studyDesign: e.target.value }))}
+              placeholder="تصميم الدراسة"
+              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+            <textarea
+              value={form.keyFinding}
+              onChange={(e) => setForm((f) => ({ ...f, keyFinding: e.target.value }))}
+              placeholder="أهم النتائج"
+              rows={2}
+              className="col-span-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+            <textarea
+              value={form.relevance}
+              onChange={(e) => setForm((f) => ({ ...f, relevance: e.target.value }))}
+              placeholder="الصلة بالبحث"
+              rows={2}
+              className="col-span-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+          </div>
+          <button
+            onClick={submitPaper}
+            disabled={!form.title.trim()}
+            className="mt-3 rounded-xl bg-sky-accent-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-accent-600 disabled:opacity-50"
+          >
+            حفظ الدراسة
+          </button>
+        </Card>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-muted px-4 py-3">
         <div className="flex items-center gap-2 text-sm">
@@ -184,31 +254,38 @@ export default function EvidenceLibrary() {
                   <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
                     {paper.theme}
                   </span>
-                  <span
+                  <button
+                    onClick={() =>
+                      updateReviewStatus(paper.id, paper.reviewStatus === "reviewed" ? "collected" : "reviewed")
+                    }
                     className={clsx(
-                      "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                      "rounded-full px-2 py-0.5 text-[11px] font-bold transition-colors",
                       paper.reviewStatus === "reviewed"
-                        ? "bg-brand-50 text-brand-600"
-                        : "bg-amber-accent-50 text-amber-accent-600",
+                        ? "bg-brand-50 text-brand-600 hover:bg-brand-100"
+                        : "bg-amber-accent-50 text-amber-accent-600 hover:bg-amber-accent-100",
                     )}
                   >
                     {paper.reviewStatus === "reviewed" ? "تمت مراجعتها" : "تم جمعها"}
-                  </span>
+                  </button>
                 </div>
                 <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div className="rounded-xl bg-surface-muted p-2.5">
                     <p className="text-[11px] font-bold text-brand-950/45">أهم النتائج</p>
-                    <p className="mt-0.5 text-xs text-brand-950/70">{paper.keyFinding}</p>
+                    <p className="mt-0.5 text-xs text-brand-950/70">{paper.keyFinding || "—"}</p>
                   </div>
                   <div className="rounded-xl bg-surface-muted p-2.5">
                     <p className="text-[11px] font-bold text-brand-950/45">الصلة بالبحث</p>
-                    <p className="mt-0.5 text-xs text-brand-950/70">{paper.relevance}</p>
+                    <p className="mt-0.5 text-xs text-brand-950/70">{paper.relevance || "—"}</p>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-xs text-brand-950/40">
-                    <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
-                    أضافها {addedBy.name.split(" ")[0]}
+                    {addedBy && (
+                      <>
+                        <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
+                        أضافها {addedBy.name.split(" ")[0]}
+                      </>
+                    )}
                   </div>
                   <button
                     onClick={() => copyCitation(paper)}
@@ -229,8 +306,8 @@ export default function EvidenceLibrary() {
               title={filter === "all" ? "المكتبة لسا فاضية" : "لا توجد دراسات بهذا القسم"}
               desc={
                 filter === "all"
-                  ? "أول دراسة تضيفينها هنا تبدأ مكتبة أدلة بحثكم — أرفقي أول ملف PDF."
-                  : "جربي فلتر ثاني، أو أرفقي دراسة جديدة تحت هذا القسم."
+                  ? "أول دراسة تضيفينها هنا تبدأ مكتبة أدلة بحثكم — أضيفي أول دراسة."
+                  : "جربي فلتر ثاني، أو أضيفي دراسة جديدة تحت هذا القسم."
               }
             />
           </div>

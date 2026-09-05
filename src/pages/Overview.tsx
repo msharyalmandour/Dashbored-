@@ -51,6 +51,11 @@ import { getDailyQuote } from "../data/motivation";
 import { useVisitGap } from "../hooks/useVisitGap";
 import { useFirstVisit } from "../hooks/useFirstVisit";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
+import { useResearchStages } from "../hooks/useResearchStages";
+import { useEvidencePapers } from "../hooks/useEvidencePapers";
+import { useProposal } from "../hooks/useProposal";
+import { useMethodology } from "../hooks/useMethodology";
+import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { g, isFemaleUser } from "../lib/gender";
 import { achievements, getUnlockedAchievementIds } from "../lib/achievements";
 
@@ -91,6 +96,18 @@ export default function Overview() {
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const { events: calendarEvents } = useCalendarEvents();
+  const { stages: realStages } = useResearchStages();
+  const { papers: realEvidencePapers } = useEvidencePapers();
+  const { sections: realProposalSections, gap: realResearchGap, questions: realResearchQuestions } = useProposal();
+  const { methodology: realMethodology } = useMethodology();
+  const currentStage = getCurrentStage(realStages);
+  const realOverallProgress = getOverallProgress(realStages, {
+    proposalSections: realProposalSections,
+    researchGap: realResearchGap,
+    researchQuestions: realResearchQuestions,
+    methodology: realMethodology,
+    evidencePapers: realEvidencePapers,
+  });
   const [showGuideBanner, setShowGuideBanner] = useState(
     () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
   );
@@ -183,10 +200,10 @@ export default function Overview() {
   const remainingDays = daysUntil(projectMeta.deadline, today);
   const nextDeadlineDays = daysUntil(projectMeta.nextDeadlineDate, today);
 
-  const reviewedCount = evidenceLibrary.filter((p) => p.reviewStatus === "reviewed").length;
-  const collectedCount = evidenceLibrary.length;
+  const reviewedCount = realEvidencePapers.filter((p) => p.reviewStatus === "reviewed").length;
+  const collectedCount = realEvidencePapers.length;
   const remainingCount = collectedCount - reviewedCount;
-  const litReviewPct = Math.round((reviewedCount / collectedCount) * 100);
+  const litReviewPct = collectedCount > 0 ? Math.round((reviewedCount / collectedCount) * 100) : 0;
 
   const priorities = [...tasks]
     .filter((t) => t.status !== "done")
@@ -277,7 +294,7 @@ export default function Overview() {
         <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>
           قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
           {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
-          {projectMeta.overallProgress}% خلف ظهرك. {g(isFemale, "كملي", "كمل")} بنفس القوة 🌱
+          {realOverallProgress}% خلف ظهرك. {g(isFemale, "كملي", "كمل")} بنفس القوة 🌱
         </AlertCard>
       )}
 
@@ -389,7 +406,7 @@ export default function Overview() {
                 <div>
                   <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث</p>
                   <p className="font-display text-4xl font-extrabold text-brand-950">
-                    <CountUp value={projectMeta.overallProgress} suffix="%" />
+                    <CountUp value={realOverallProgress} suffix="%" />
                   </p>
                 </div>
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-brand-950/70">
@@ -398,7 +415,7 @@ export default function Overview() {
                 </span>
               </div>
               <ProgressBar
-                value={projectMeta.overallProgress}
+                value={realOverallProgress}
                 className="mt-3"
                 track="bg-[var(--color-track)]"
               />
@@ -413,8 +430,8 @@ export default function Overview() {
               <StatCard
                 icon={Milestone}
                 label="المرحلة الحالية"
-                value={projectMeta.currentStageAr}
-                sub={projectMeta.currentStageEn}
+                value={currentStage?.titleAr ?? projectMeta.currentStageAr}
+                sub={currentStage?.titleEn ?? projectMeta.currentStageEn}
                 color="brand"
                 tone="teal"
               />

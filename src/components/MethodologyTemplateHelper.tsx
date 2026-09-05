@@ -25,8 +25,15 @@ ${t.suggestedTool}`;
 }
 
 /** قوالب مبدئية حسب نوع الدراسة — نقطة بداية جاهزة للنسخ بدل الصفحة
-    الفاضية، تحتاج تعديل حسب دراستكم الفعلية قبل الاعتماد النهائي */
-export default function MethodologyTemplateHelper() {
+    الفاضية، تحتاج تعديل حسب دراستكم الفعلية قبل الاعتماد النهائي.
+    القالب نفسه اقتراح ثابت فقط — لا يُحفظ ولا يتغيّر؛ "تطبيق القالب"
+    (لو مُرِّر onApply) ينسخ قيمه لحقول المنهجية الحقيقية القابلة للتعديل،
+    فيبقى الفرق واضح بين الاقتراح والبيانات المحفوظة فعليًا. */
+export default function MethodologyTemplateHelper({
+  onApply,
+}: {
+  onApply?: (template: MethodologyTemplate) => void;
+}) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const active = methodologyTemplates.find((t) => t.id === activeId) ?? null;
@@ -120,13 +127,24 @@ export default function MethodologyTemplateHelper() {
             <p className="mt-0.5 text-sm text-brand-950/80">{active.suggestedTool}</p>
           </div>
 
-          <button
-            onClick={copy}
-            className="flex items-center gap-2 rounded-xl bg-sky-accent-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-accent-600"
-          >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? "تم نسخ القالب" : "نسخ القالب"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={copy}
+              className="flex items-center gap-2 rounded-xl bg-sky-accent-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-accent-600"
+            >
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+              {copied ? "تم نسخ القالب" : "نسخ القالب"}
+            </button>
+            {onApply && (
+              <button
+                onClick={() => onApply(active)}
+                className="flex items-center gap-2 rounded-xl border border-sky-accent-300 bg-paper px-4 py-2.5 text-sm font-bold text-sky-accent-700 hover:bg-sky-accent-50"
+              >
+                <Sparkles size={16} />
+                تعبئة حقول المنهجية بهذا القالب
+              </button>
+            )}
+          </div>
         </div>
       )}
     </Card>

@@ -2,22 +2,8 @@ import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { GraduationCap } from "lucide-react";
 import Card from "../components/ui/Card";
-import { researchStages } from "../data/mockData";
+import { useResearchStages } from "../hooks/useResearchStages";
 import { formatDateShort, parseDate } from "../lib/date";
-
-const projectStart = researchStages[0].startDate;
-const projectEnd = researchStages[researchStages.length - 1].dueDate;
-
-const totalDays =
-  (parseDate(projectEnd).getTime() - parseDate(projectStart).getTime()) /
-  (1000 * 60 * 60 * 24);
-
-function offsetPct(date: string) {
-  const days =
-    (parseDate(date).getTime() - parseDate(projectStart).getTime()) /
-    (1000 * 60 * 60 * 24);
-  return (days / totalDays) * 100;
-}
 
 const barColor = {
   done: "bg-brand-500",
@@ -26,25 +12,46 @@ const barColor = {
 };
 
 const monthMarks = [
-  "2026-02-01",
-  "2026-03-01",
-  "2026-04-01",
-  "2026-05-01",
-  "2026-06-01",
-  "2026-07-01",
-  "2026-08-01",
-  "2026-09-01",
-  "2026-10-01",
-  "2026-11-01",
-  "2026-12-01",
+  "2026-02-01", "2026-03-01", "2026-04-01", "2026-05-01", "2026-06-01", "2026-07-01",
+  "2026-08-01", "2026-09-01", "2026-10-01", "2026-11-01", "2026-12-01",
 ];
 
+function formatShortMonth(iso: string) {
+  const months = [
+    "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو",
+    "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+  ];
+  const idx = parseDate(iso).getMonth() - 1;
+  return months[idx] ?? "";
+}
+
 export default function Timeline() {
+  const { stages, loading } = useResearchStages();
+
+  if (loading || stages.length === 0) {
+    return <Card tone="cream" className="text-center text-sm text-brand-950/45">جارٍ تحميل الجدول الزمني...</Card>;
+  }
+
+  const dated = stages.filter((s) => s.startDate && s.targetDate);
+  const projectStart = dated[0]?.startDate ?? stages[0].startDate;
+  const projectEnd = dated[dated.length - 1]?.targetDate ?? stages[stages.length - 1].targetDate;
+
+  const totalDays =
+    projectStart && projectEnd
+      ? (parseDate(projectEnd).getTime() - parseDate(projectStart).getTime()) / (1000 * 60 * 60 * 24)
+      : 0;
+
+  function offsetPct(date: string | null) {
+    if (!date || !projectStart || totalDays === 0) return 0;
+    const days = (parseDate(date).getTime() - parseDate(projectStart).getTime()) / (1000 * 60 * 60 * 24);
+    return (days / totalDays) * 100;
+  }
+
   return (
     <Card tone="cream">
       <h2 className="font-display mb-1 text-base font-bold text-brand-950">الجدول الزمني للبحث</h2>
       <p className="mb-6 text-sm text-brand-950/50">
-        {formatDateShort(projectStart)} — {formatDateShort(projectEnd)}
+        {projectStart && formatDateShort(projectStart)} — {projectEnd && formatDateShort(projectEnd)}
       </p>
 
       <div className="relative overflow-x-auto">
@@ -62,9 +69,9 @@ export default function Timeline() {
           </div>
 
           <div className="space-y-3">
-            {researchStages.map((stage) => {
+            {stages.map((stage) => {
               const left = offsetPct(stage.startDate);
-              const width = offsetPct(stage.dueDate) - left;
+              const width = offsetPct(stage.targetDate) - left;
               return (
                 <div key={stage.id} className="flex items-center gap-3">
                   <div className="w-44 shrink-0 truncate text-sm font-medium text-brand-950/80">
@@ -72,12 +79,13 @@ export default function Timeline() {
                   </div>
                   <div className="relative h-6 flex-1 rounded-full bg-surface-muted">
                     <div
-                      className={clsx(
-                        "absolute top-0 h-6 rounded-full",
-                        barColor[stage.status],
-                      )}
+                      className={clsx("absolute top-0 h-6 rounded-full", barColor[stage.status])}
                       style={{ width: `${Math.max(width, 2)}%`, right: `${left}%` }}
-                      title={`${formatDateShort(stage.startDate)} — ${formatDateShort(stage.dueDate)}`}
+                      title={
+                        stage.startDate && stage.targetDate
+                          ? `${formatDateShort(stage.startDate)} — ${formatDateShort(stage.targetDate)}`
+                          : undefined
+                      }
                     />
                   </div>
                 </div>
@@ -113,22 +121,4 @@ export default function Timeline() {
       </div>
     </Card>
   );
-}
-
-function formatShortMonth(iso: string) {
-  const months = [
-    "فبراير",
-    "مارس",
-    "أبريل",
-    "مايو",
-    "يونيو",
-    "يوليو",
-    "أغسطس",
-    "سبتمبر",
-    "أكتوبر",
-    "نوفمبر",
-    "ديسمبر",
-  ];
-  const idx = parseDate(iso).getMonth() - 1;
-  return months[idx] ?? "";
 }

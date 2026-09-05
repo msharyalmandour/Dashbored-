@@ -217,3 +217,55 @@ export interface ActivityItem {
   target: string;
   timeAgo: string;
 }
+
+/** ========================================================================
+    محرك البحث الحقيقي — Team → ResearchProject → بيانات البحث
+    (وضع Supabase الحقيقي فقط؛ كل فريق حقيقي يملك مشروعًا واحدًا يُنشأ تلقائيًا) */
+
+export type ResearchType = "" | "quantitative" | "qualitative" | "mixed-methods";
+export type ResearchProjectStatus = "planning" | "active" | "writing" | "submitted";
+
+export interface ResearchProject {
+  id: string;
+  teamId: string;
+  title: string;
+  description: string;
+  researchType: ResearchType;
+  status: ResearchProjectStatus;
+  startDate: string | null;
+  targetSubmissionDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StageKey =
+  | "topic"
+  | "proposal"
+  | "literature-review"
+  | "research-gap"
+  | "research-questions"
+  | "methodology"
+  | "data-collection"
+  | "analysis"
+  | "writing"
+  | "final-submission";
+
+/** حالة المرحلة بالجدول الزمني — نفس PhaseStatus المستخدمة بالواجهة أصلًا */
+export interface ResearchStageRow {
+  id: string;
+  stageKey: StageKey;
+  titleAr: string;
+  titleEn: string;
+  order: number;
+  status: PhaseStatus;
+  progress: number;
+  startDate: string | null;
+  targetDate: string | null;
+  completedDate: string | null;
+}
+
+/** قسم مقترح حقيقي — نفس شكل ProposalSection الحالي + محتوى قابل للتحرير */
+export interface ProposalSectionRow extends ProposalSection {
+  content: string;
+}
+

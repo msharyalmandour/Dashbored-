@@ -8,22 +8,86 @@
 //                                 (Google Cloud Console → Credentials →
 //                                 Service Accounts → Keys) — يُلصق كامل،
 //                                 لا يُرسل أبدًا بالمحادثة مع الوكيل.
+//   GOOGLE_DRIVE_ROOT_ID          معرّف الـ Shared Drive الرئيسي اللي حساب
+//                                 الخدمة عضو Content Manager فيه — مو سر
+//                                 (نفس فكرة drive_folder_id بالأسفل). كل
+//                                 فريق جديد ما عنده مجلد بعد يحصل تلقائيًا
+//                                 مجلد فرعي هنا بأول رفع له.
 // (SUPABASE_URL و SUPABASE_ANON_KEY و SUPABASE_SERVICE_ROLE_KEY متوفرة
 //  تلقائيًا داخل بيئة الدالة)
 //
-// مجلد Drive نفسه مو سر — يُخزَّن بعمود research_projects.drive_folder_id
-// (لكل فريق مجلده الخاص)، وحساب الخدمة لازم يكون عضو Content Manager
-// بالـ Shared Drive اللي يحويه (يضيفه قائد الفريق يدويًا من Drive).
+// مجلد كل فريق يُخزَّن بعمود research_projects.drive_folder_id. أول فريق
+// (اللي أعدّته يدويًا) مجلده هو الـ root نفسه. أي فريق جديد بعده — بما فيها
+// فرق طلاب ثانين ما نعرفهم — يُنشأ له مجلد فرعي تلقائيًا تحت GOOGLE_DRIVE_ROOT_ID
+// أول ما يحاول يرفع أي ملف، بدون أي تدخل يدوي أو إعداد Google من طرفهم.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { GoogleAuth } from "npm:google-auth-library@9";
 
 const SERVICE_ACCOUNT_KEY = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY");
+const DRIVE_ROOT_ID = Deno.env.get("GOOGLE_DRIVE_ROOT_ID");
 
 const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
+
+async function getDriveAccessToken(): Promise<string | null> {
+  const googleAuth = new GoogleAuth({
+    credentials: JSON.parse(SERVICE_ACCOUNT_KEY!),
+    scopes: ["https://www.googleapis.com/auth/drive"],
+  });
+  const googleClient = await googleAuth.getClient();
+  const { token } = await googleClient.getAccessToken();
+  return token ?? null;
+}
+
+/** ينشئ مجلد فرعي جديد باسم الفريق تحت الـ Shared Drive الرئيسي، ويربطه
+    بمشروع الفريق — يصير أول ما فريق جديد (ما أعددنا له مجلد يدويًا) يحاول
+    يرفع أي ملف لأول مرة. آمن من التسابق: لو فريقين حاولوا بنفس اللحظة،
+    الفريق يستخدم أول مجلد يتسجّل فعليًا بقاعدة البيانات. */
+async function ensureDriveFolder(accessToken: string, projectId: string, teamId: string): Promise<string | null> {
+  if (!DRIVE_ROOT_ID) return null;
+
+  const { data: team } = await supabaseAdmin.from("teams").select("name").eq("id", teamId).single();
+  const folderName = team?.name || "فريق بحثي";
+
+  const createRes = await fetch(
+    "https://www.googleapis.com/drive/v3/files?supportsAllDrives=true&fields=id",
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: folderName,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [DRIVE_ROOT_ID],
+      }),
+    },
+  );
+  if (!createRes.ok) {
+    console.error("Drive folder creation failed:", await createRes.text());
+    return null;
+  }
+  const created = (await createRes.json()) as { id: string };
+
+  const { data: updated } = await supabaseAdmin
+    .from("research_projects")
+    .update({ drive_folder_id: created.id })
+    .eq("id", projectId)
+    .is("drive_folder_id", null)
+    .select("drive_folder_id")
+    .single();
+
+  if (updated?.drive_folder_id) return updated.drive_folder_id;
+
+  // فريق ثاني سبقنا وأنشأ مجلده بنفس اللحظة — نستخدم المجلد المسجَّل فعليًا
+  const { data: project } = await supabaseAdmin
+    .from("research_projects")
+    .select("drive_folder_id")
+    .eq("id", projectId)
+    .single();
+  return project?.drive_folder_id ?? created.id;
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -63,12 +127,10 @@ Deno.serve(async (req: Request) => {
 
     const { data: project } = await supabase
       .from("research_projects")
-      .select("drive_folder_id")
+      .select("team_id, drive_folder_id")
       .eq("id", projectId)
       .single();
-    if (!project?.drive_folder_id) {
-      return jsonError("مجلد Google Drive لفريقكم ما تم ربطه بعد — تواصلوا مع قائد الفريق", 409);
-    }
+    if (!project) return jsonError("ما لقينا مشروع بحث مرتبط بفريقك", 404);
 
     const form = await req.formData();
     const file = form.get("file");
@@ -77,16 +139,20 @@ Deno.serve(async (req: Request) => {
     const meetingMinutesId = form.get("meeting_minutes_id") as string | null;
 
     // توكن وصول حقيقي عبر حساب الخدمة — صلاحيته محصورة على المجلدات اللي
-    // أضافه قائد الفريق فيها كعضو، ما يقدر يشوف أي شي ثاني بدرايف أحد
-    const googleAuth = new GoogleAuth({
-      credentials: JSON.parse(SERVICE_ACCOUNT_KEY),
-      scopes: ["https://www.googleapis.com/auth/drive"],
-    });
-    const googleClient = await googleAuth.getClient();
-    const { token: accessToken } = await googleClient.getAccessToken();
+    // حساب الخدمة عضو فيها، ما يقدر يشوف أي شي ثاني بدرايف أحد
+    const accessToken = await getDriveAccessToken();
     if (!accessToken) return jsonError("تعذّر الاتصال بـ Google Drive", 502);
 
-    const metadata = { name: file.name, parents: [project.drive_folder_id] };
+    // مجلد الفريق: موجود مسبقًا (فرق أُعدّت يدويًا)، أو يُنشأ تلقائيًا الآن
+    // كمجلد فرعي تحت الـ Shared Drive الرئيسي (أي فريق جديد — بما فيهم فرق
+    // طلاب ثانين ما نعرفهم — بدون أي إعداد يدوي من جهتهم)
+    const folderId =
+      project.drive_folder_id ?? (await ensureDriveFolder(accessToken, projectId, project.team_id));
+    if (!folderId) {
+      return jsonError("رفع الملفات لدرايف غير مفعّل بعد على هذا المشروع — تواصلوا مع الدعم", 503);
+    }
+
+    const metadata = { name: file.name, parents: [folderId] };
     const boundary = `wesync-${crypto.randomUUID()}`;
     const encoder = new TextEncoder();
     const fileBytes = new Uint8Array(await file.arrayBuffer());

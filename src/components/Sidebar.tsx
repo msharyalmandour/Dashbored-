@@ -16,6 +16,7 @@ import {
   FlaskConical,
   ShieldCheck,
   Sparkles,
+  NotebookPen,
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
@@ -60,6 +61,7 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
     label: "أخرى",
     items: [
       { to: "/files", label: "الملفات", icon: FolderClosed },
+      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
       { to: "/calendar", label: "التقويم", icon: CalendarDays },
       { to: "/story", label: "قصة بحثك", icon: Sparkles },
       { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },

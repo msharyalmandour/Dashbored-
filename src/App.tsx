@@ -15,6 +15,7 @@ import Team from "./pages/Team";
 import Timeline from "./pages/Timeline";
 import Fieldwork from "./pages/Fieldwork";
 import Files from "./pages/Files";
+import MeetingMinutes from "./pages/MeetingMinutes";
 import CalendarPage from "./pages/CalendarPage";
 import Guide from "./pages/Guide";
 import Story from "./pages/Story";
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/files" element={<Files />} />
+        <Route path="/meeting-minutes" element={<MeetingMinutes />} />
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/story" element={<Story />} />
         <Route path="/guide" element={<Guide />} />

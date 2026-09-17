@@ -1149,3 +1149,113 @@ begin
     alter publication supabase_realtime add table public.evidence_papers;
   end if;
 end $$;
+
+-- ============================================================
+-- 10) رفع ملفات حقيقي إلى Google Drive + محاضر الاجتماعات
+--     مجلد Drive لكل فريق يُخزَّن بعمود research_projects.drive_folder_id
+--     (مو سرًا مشتركًا — كل فريق مجلده الخاص، نفس فكرة research_project_id
+--     أصلًا). الإدراج والتحديث بجدول files، وربط drive_file_id/drive_view_link
+--     بجدول meeting_minutes، يصيران فقط من دالة Edge Function باسم
+--     drive-upload (بمفتاح service_role، يتجاوز RLS) بعد رفع حقيقي فعلي
+--     لـ Google Drive عبر حساب خدمة — مو من الواجهة مباشرة، نفس فكرة payments.
+-- ============================================================
+alter table public.research_projects add column if not exists drive_folder_id text;
+
+create table if not exists public.files (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  name text not null,
+  mime_type text not null default '',
+  size_bytes bigint not null default 0,
+  category text not null default 'general' check (category in ('general', 'meeting-minutes')),
+  drive_file_id text unique,
+  drive_view_link text,
+  uploaded_by uuid references public.profiles (id),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists files_project_idx on public.files (research_project_id);
+
+alter table public.files enable row level security;
+
+drop policy if exists "files viewable by the team" on public.files;
+create policy "files viewable by the team"
+  on public.files for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can add files" on public.files;
+create policy "team can add files"
+  on public.files for insert
+  to authenticated
+  with check (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and uploaded_by = auth.uid()
+  );
+
+drop policy if exists "uploader or leader can delete files" on public.files;
+create policy "uploader or leader can delete files"
+  on public.files for delete
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and (
+      uploaded_by = auth.uid()
+      or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+    )
+  );
+
+create table if not exists public.meeting_minutes (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  meeting_date date not null,
+  attendees text[] not null default '{}',
+  discussion text not null default '',
+  decisions text not null default '',
+  action_items text not null default '',
+  created_by uuid references public.profiles (id),
+  drive_file_id text,
+  drive_view_link text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists meeting_minutes_project_idx on public.meeting_minutes (research_project_id);
+
+alter table public.meeting_minutes enable row level security;
+
+drop policy if exists "meeting minutes viewable by the team" on public.meeting_minutes;
+create policy "meeting minutes viewable by the team"
+  on public.meeting_minutes for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can add meeting minutes" on public.meeting_minutes;
+create policy "team can add meeting minutes"
+  on public.meeting_minutes for insert
+  to authenticated
+  with check (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and created_by = auth.uid()
+  );
+
+drop policy if exists "team can update meeting minutes" on public.meeting_minutes;
+create policy "team can update meeting minutes"
+  on public.meeting_minutes for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'files') then
+    alter publication supabase_realtime add table public.files;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'meeting_minutes') then
+    alter publication supabase_realtime add table public.meeting_minutes;
+  end if;
+end $$;

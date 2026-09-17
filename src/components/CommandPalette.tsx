@@ -16,6 +16,7 @@ import {
   FlaskConical,
   ShieldCheck,
   Sparkles,
+  NotebookPen,
   Search,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -31,6 +32,7 @@ const baseItems = [
   { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
   { to: "/fieldwork", label: "الميدان", icon: MapPinned },
   { to: "/files", label: "الملفات", icon: FolderClosed },
+  { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
   { to: "/calendar", label: "التقويم", icon: CalendarDays },
   { to: "/story", label: "قصة بحثك", icon: Sparkles },
   { to: "/guide", label: "دليل الطالب", icon: Compass },

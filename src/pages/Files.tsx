@@ -1,75 +1,65 @@
 import { useMemo, useState } from "react";
-import { FileSpreadsheet, FileText, FileImage, File as FileIcon } from "lucide-react";
+import { FileSpreadsheet, FileText, FileImage, File as FileIcon, ExternalLink } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import EmptyState from "../components/ui/EmptyState";
-import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
-import { useAuth } from "../context/AuthContext";
-import { files, teamMembers } from "../data/mockData";
-import type { FileItem } from "../data/types";
-import { formatDateShort, toISODate } from "../lib/date";
+import FileAttach from "../components/FileAttach";
+import { useFiles } from "../hooks/useFiles";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import type { DriveFile } from "../data/types";
+import { formatDateShort } from "../lib/date";
 
-const ATTACHED_KEY = "nursync.attachedFiles";
+type Kind = "pdf" | "doc" | "sheet" | "image";
 
-function loadAttached(): FileItem[] {
-  try {
-    const raw = localStorage.getItem(ATTACHED_KEY);
-    return raw ? (JSON.parse(raw) as FileItem[]) : [];
-  } catch {
-    return [];
-  }
+function detectKind(mimeType: string): Kind {
+  if (mimeType === "application/pdf") return "pdf";
+  if (mimeType.startsWith("image/")) return "image";
+  if (mimeType.includes("sheet") || mimeType.includes("excel") || mimeType.includes("csv")) return "sheet";
+  return "doc";
 }
 
-const kindIcon: Record<FileItem["kind"], typeof FileText> = {
+const kindIcon: Record<Kind, typeof FileText> = {
   pdf: FileText,
   doc: FileIcon,
   sheet: FileSpreadsheet,
   image: FileImage,
 };
 
-const kindColor: Record<FileItem["kind"], string> = {
+const kindColor: Record<Kind, string> = {
   pdf: "bg-rose-50 text-rose-600",
   doc: "bg-sky-accent-50 text-sky-accent-600",
   sheet: "bg-brand-50 text-brand-600",
   image: "bg-amber-accent-50 text-amber-accent-600",
 };
 
-export default function Files() {
-  const { currentUser } = useAuth();
-  const [folder, setFolder] = useState("all");
-  const [attached, setAttached] = useState<FileItem[]>(loadAttached);
-  const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
+function formatSize(bytes: number): string {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
-  const allFiles = [...attached, ...files];
+function categoryLabel(f: DriveFile) {
+  return f.category === "meeting-minutes" ? "محاضر الاجتماعات" : "عام";
+}
+
+export default function Files() {
+  const { files, reload } = useFiles();
+  const { roster } = useTeamRoster();
+  const memberById = (id: string) => roster.find((m) => m.id === id);
+  const [folder, setFolder] = useState("all");
 
   const folders = useMemo(
-    () => ["all", ...Array.from(new Set(allFiles.map((f) => f.folder)))],
-    [allFiles],
+    () => ["all", ...Array.from(new Set(files.map(categoryLabel)))],
+    [files],
   );
 
-  const filtered = allFiles.filter((f) => folder === "all" || f.folder === folder);
-
-  const handleAttach = (meta: AttachedFileMeta) => {
-    const newFile: FileItem = {
-      id: `f-local-${Date.now()}`,
-      name: meta.name,
-      kind: meta.kind,
-      size: meta.size,
-      folder: "مرفقاتي",
-      uploadedById: currentUser?.id ?? teamMembers[0].id,
-      date: toISODate(new Date()),
-    };
-    setAttached((prev) => {
-      const updated = [newFile, ...prev];
-      localStorage.setItem(ATTACHED_KEY, JSON.stringify(updated));
-      return updated;
-    });
-  };
+  const filtered = files.filter((f) => folder === "all" || categoryLabel(f) === folder);
 
   return (
     <div className="space-y-5">
-      <FileAttach onAttach={handleAttach} />
+      <FileAttach onAttach={reload} />
 
       <div className="flex flex-wrap gap-2">
         {folders.map((f) => (
@@ -91,25 +81,42 @@ export default function Files() {
       <Card className="p-0">
         <ul className="divide-y divide-brand-50">
           {filtered.map((file) => {
-            const Icon = kindIcon[file.kind];
+            const kind = detectKind(file.mimeType);
+            const Icon = kindIcon[kind];
             const uploader = memberById(file.uploadedById);
             return (
               <li key={file.id} className="flex items-center gap-4 p-4">
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kindColor[file.kind]}`}>
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kindColor[kind]}`}>
                   <Icon size={18} />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-brand-950">
                     <bdi>{file.name}</bdi>
                   </p>
-                  <p className="text-xs text-brand-950/45">{file.folder} · {file.size}</p>
+                  <p className="text-xs text-brand-950/45">
+                    {categoryLabel(file)}
+                    {file.sizeBytes ? ` · ${formatSize(file.sizeBytes)}` : ""}
+                  </p>
                 </div>
-                <div className="hidden items-center gap-1.5 text-xs text-brand-950/45 sm:flex">
-                  <Avatar initials={uploader.initials} color={uploader.color} size="sm" />
-                  {uploader.name.split(" ")[0]}
-                </div>
+                {file.driveViewLink && (
+                  <a
+                    href={file.driveViewLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex shrink-0 items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 transition-colors hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    <ExternalLink size={12} />
+                    فتح بدرايف
+                  </a>
+                )}
+                {uploader && (
+                  <div className="hidden items-center gap-1.5 text-xs text-brand-950/45 sm:flex">
+                    <Avatar initials={uploader.initials} color={uploader.color} size="sm" />
+                    {uploader.name.split(" ")[0]}
+                  </div>
+                )}
                 <span className="w-20 shrink-0 text-end text-xs text-brand-950/40">
-                  {formatDateShort(file.date)}
+                  {formatDateShort(file.createdAt)}
                 </span>
               </li>
             );

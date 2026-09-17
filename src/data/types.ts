@@ -269,3 +269,32 @@ export interface ProposalSectionRow extends ProposalSection {
   content: string;
 }
 
+/** ملف حقيقي مرفوع لمجلد Google Drive الخاص بالفريق — عبر Edge Function
+    drive-upload، ما يُنشأ ولا يُعدَّل مباشرة من الواجهة */
+export interface DriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  category: "general" | "meeting-minutes";
+  driveFileId: string;
+  driveViewLink: string;
+  uploadedById: string;
+  createdAt: string;
+}
+
+/** محضر اجتماع حقيقي — يُحفظ بقاعدة البيانات فورًا، وملف .docx يتولّد
+    ويُرفع لنفس مجلد الفريق بدرايف بعدها */
+export interface MeetingMinutesRow {
+  id: string;
+  meetingDate: string;
+  attendees: string[];
+  discussion: string;
+  decisions: string;
+  actionItems: string;
+  createdById: string;
+  driveFileId: string | null;
+  driveViewLink: string | null;
+  createdAt: string;
+}
+

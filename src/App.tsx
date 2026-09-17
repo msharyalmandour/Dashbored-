@@ -9,6 +9,7 @@ import Proposal from "./pages/Proposal";
 import FullDocumentExport from "./pages/FullDocumentExport";
 import LiteratureReview from "./pages/LiteratureReview";
 import Methodology from "./pages/Methodology";
+import EthicalApprovalPage from "./pages/EthicalApproval";
 import Tasks from "./pages/Tasks";
 import EvidenceLibrary from "./pages/EvidenceLibrary";
 import Team from "./pages/Team";
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/proposal/export" element={<FullDocumentExport />} />
         <Route path="/literature-review" element={<LiteratureReview />} />
         <Route path="/methodology" element={<Methodology />} />
+        <Route path="/ethical-approval" element={<EthicalApprovalPage />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/evidence" element={<EvidenceLibrary />} />
         <Route path="/team" element={<Team />} />

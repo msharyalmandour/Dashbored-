@@ -1259,3 +1259,130 @@ begin
     alter publication supabase_realtime add table public.meeting_minutes;
   end if;
 end $$;
+
+-- ============================================================
+-- 11) مطابقة المقترح البحثي + طلب الموافقة الأخلاقية لنموذج جامعة
+--     الملك عبدالعزيز الرسمي (Course Syllabus / Proposal Template /
+--     Rubric / Application for Nursing Research Ethical Approval)
+-- ============================================================
+alter table public.research_projects add column if not exists abstract text not null default '';
+alter table public.research_projects add column if not exists supervisor_name text not null default '';
+
+alter table public.methodology add column if not exists data_collection_procedure text not null default '';
+alter table public.methodology add column if not exists data_analysis text not null default '';
+alter table public.methodology add column if not exists ethical_considerations text not null default '';
+
+create table if not exists public.ethical_approval (
+  research_project_id uuid primary key references public.research_projects (id) on delete cascade,
+  application_date date,
+  pi_name text not null default '',
+  pi_affiliation text not null default '',
+  pi_email text not null default '',
+  pi_type text not null default 'undergraduate' check (pi_type in ('faculty', 'graduate', 'undergraduate')),
+  other_researchers text not null default '',
+  supervisor_names text not null default '',
+  registration_no text not null default '',
+  expected_start_date date,
+  expected_end_date date,
+  persons_involved text not null default '',
+  data_management_confidentiality text not null default '',
+  funding_details text not null default '',
+  principle_written_explanation text check (principle_written_explanation in ('yes', 'no', 'na')),
+  principle_oral_explanation text check (principle_oral_explanation in ('yes', 'no', 'na')),
+  principle_written_consent text check (principle_written_consent in ('yes', 'no', 'na')),
+  principle_oral_consent text check (principle_oral_consent in ('yes', 'no', 'na')),
+  principle_voluntary_informed text check (principle_voluntary_informed in ('yes', 'no', 'na')),
+  principle_withdraw_option text check (principle_withdraw_option in ('yes', 'no', 'na')),
+  principle_harm_informed text check (principle_harm_informed in ('yes', 'no', 'na')),
+  principle_confidentiality_guaranteed text check (principle_confidentiality_guaranteed in ('yes', 'no', 'na')),
+  principle_anonymity_guaranteed text check (principle_anonymity_guaranteed in ('yes', 'no', 'na')),
+  principle_vulnerable_groups_informed text check (principle_vulnerable_groups_informed in ('yes', 'no', 'na')),
+  principle_interview_no_explanation_needed text check (principle_interview_no_explanation_needed in ('yes', 'no', 'na')),
+  principle_safe_data_storage text check (principle_safe_data_storage in ('yes', 'no', 'na')),
+  principle_will_publish text check (principle_will_publish in ('yes', 'no', 'na')),
+  attach_protocol_or_proposal boolean not null default false,
+  attach_participant_info_sheet boolean not null default false,
+  attach_consent_form boolean not null default false,
+  attach_study_tools boolean not null default false,
+  attach_other_supportive_docs boolean not null default false,
+  outcome text not null default 'pending' check (outcome in ('pending', 'granted', 'amendments', 'rejected')),
+  ref_number text,
+  meeting_date date,
+  approval_letter_file_id uuid references public.files (id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.ethical_approval enable row level security;
+
+drop policy if exists "ethical approval viewable by the team" on public.ethical_approval;
+create policy "ethical approval viewable by the team"
+  on public.ethical_approval for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can edit ethical approval" on public.ethical_approval;
+create policy "team can edit ethical approval"
+  on public.ethical_approval for update
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+  );
+
+-- يوسّع خيارات فئة الملفات لتشمل خطاب/مرفقات الموافقة الأخلاقية — يعيد
+-- استخدام نفس مسار الرفع الحقيقي (FileAttach → drive-upload) بدون كود جديد
+alter table public.files drop constraint if exists files_category_check;
+alter table public.files add constraint files_category_check
+  check (category in ('general', 'meeting-minutes', 'ethical-approval'));
+
+-- صف طلب موافقة أخلاقية فارغ لكل مشروع بحث حالي — seed_research_project_content
+-- المُحدَّثة (بالأسفل) تتكفل بأي فريق جديد تلقائيًا
+insert into public.ethical_approval (research_project_id)
+select id from public.research_projects
+where not exists (select 1 from public.ethical_approval where research_project_id = research_projects.id)
+on conflict do nothing;
+
+create or replace function public.seed_research_project_content(p_project_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.research_stages (research_project_id, stage_key, title_ar, title_en, stage_order)
+  values
+    (p_project_id, 'topic', 'اختيار الموضوع', 'Topic Selection', 1),
+    (p_project_id, 'proposal', 'المقترح البحثي', 'Research Proposal', 2),
+    (p_project_id, 'literature-review', 'مراجعة الأدبيات', 'Literature Review', 3),
+    (p_project_id, 'research-gap', 'الفجوة البحثية', 'Research Gap', 4),
+    (p_project_id, 'research-questions', 'أسئلة البحث', 'Research Questions', 5),
+    (p_project_id, 'methodology', 'المنهجية', 'Methodology', 6),
+    (p_project_id, 'data-collection', 'جمع البيانات', 'Data Collection', 7),
+    (p_project_id, 'analysis', 'تحليل البيانات', 'Data Analysis', 8),
+    (p_project_id, 'writing', 'كتابة البحث', 'Writing', 9),
+    (p_project_id, 'final-submission', 'التسليم النهائي', 'Final Submission', 10)
+  on conflict (research_project_id, stage_key) do nothing;
+
+  insert into public.proposal_sections (research_project_id, section_key, order_index, label_ar, label_en)
+  values
+    (p_project_id, 'background', 1, 'خلفية البحث', 'Background'),
+    (p_project_id, 'literature-review', 2, 'مراجعة الأدبيات', 'Literature Review'),
+    (p_project_id, 'problem', 3, 'مشكلة البحث', 'Statement of Problem'),
+    (p_project_id, 'gap', 4, 'الفجوة المعرفية', 'Gap of Knowledge'),
+    (p_project_id, 'aim', 5, 'هدف الدراسة', 'Purpose / Aim'),
+    (p_project_id, 'questions', 6, 'أسئلة البحث', 'Research Questions'),
+    (p_project_id, 'methodology', 7, 'المنهجية', 'Methodology')
+  on conflict (research_project_id, section_key) do nothing;
+
+  insert into public.research_gap (research_project_id) values (p_project_id) on conflict do nothing;
+  insert into public.study_aim (research_project_id) values (p_project_id) on conflict do nothing;
+  insert into public.methodology (research_project_id) values (p_project_id) on conflict do nothing;
+  insert into public.ethical_approval (research_project_id) values (p_project_id) on conflict do nothing;
+end;
+$$;
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'ethical_approval') then
+    alter publication supabase_realtime add table public.ethical_approval;
+  end if;
+end $$;

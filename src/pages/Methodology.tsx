@@ -165,10 +165,35 @@ export default function Methodology() {
           subtitle="Data Collection"
           action={<ClipboardList size={18} className="text-brand-600" />}
         />
-        <EditableListField
-          label="طريقة الجمع (مقابلة / استبيان / ملاحظة / أخرى)"
-          items={methodology.dataCollectionMethods}
-          onSave={(v) => updateMethodology({ dataCollectionMethods: v })}
+        <div className="space-y-3">
+          <EditableListField
+            label="طريقة الجمع (مقابلة / استبيان / ملاحظة / أخرى)"
+            items={methodology.dataCollectionMethods}
+            onSave={(v) => updateMethodology({ dataCollectionMethods: v })}
+          />
+          <EditableField
+            label="إجراء جمع البيانات — الخطة العامة لكيفية الجمع فعليًا"
+            value={methodology.dataCollectionProcedure}
+            onSave={(v) => updateMethodology({ dataCollectionProcedure: v })}
+          />
+        </div>
+      </Card>
+
+      <Card>
+        <CardHeader title="تحليل البيانات" subtitle="Data Analysis" />
+        <EditableField
+          label="طريقة التحليل (إحصائي / موضوعاتي / أخرى)"
+          value={methodology.dataAnalysis}
+          onSave={(v) => updateMethodology({ dataAnalysis: v })}
+        />
+      </Card>
+
+      <Card>
+        <CardHeader title="الاعتبارات الأخلاقية" subtitle="Ethical Considerations" />
+        <EditableField
+          label="الموافقات الأخلاقية والموافقة المستنيرة"
+          value={methodology.ethicalConsiderations}
+          onSave={(v) => updateMethodology({ ethicalConsiderations: v })}
         />
       </Card>
 

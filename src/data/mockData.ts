@@ -152,6 +152,9 @@ export const methodology: Methodology = {
   },
   dataCollectionMethods: [],
   studyTool: { type: "undecided", name: "" },
+  dataCollectionProcedure: "",
+  dataAnalysis: "",
+  ethicalConsiderations: "",
 };
 
 export const tasks: Task[] = [

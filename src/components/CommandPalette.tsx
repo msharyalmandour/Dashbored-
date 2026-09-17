@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Sparkles,
   NotebookPen,
+  FileCheck2,
   Search,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -26,6 +27,7 @@ const baseItems = [
   { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
   { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
   { to: "/methodology", label: "المنهجية", icon: FlaskConical },
+  { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
   { to: "/tasks", label: "مهامي", icon: ListChecks },
   { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
   { to: "/team", label: "الفريق", icon: Users },

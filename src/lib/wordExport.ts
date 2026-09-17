@@ -1,27 +1,30 @@
-import type { EvidencePaper, Methodology, ProposalSection, ResearchGap, StudyAim } from "../data/types";
+import type { EvidencePaper, Methodology, ProposalSectionRow, ResearchGap, ResearchQuestion, StudyAim } from "../data/types";
 import { buildReferenceList } from "./citation";
 import { formatDateLong } from "./date";
 
-const statusLabelAr: Record<ProposalSection["status"], string> = {
-  done: "مكتمل",
-  "in-progress": "قيد العمل",
-  "not-started": "لم يبدأ",
-};
-
 export interface WordExportInput {
-  projectName: string;
-  projectSubtitle: string;
+  projectTitle: string;
+  abstract: string;
+  supervisorName: string;
   teamNames: string[];
-  proposalSections: ProposalSection[];
+  sections: ProposalSectionRow[];
   researchGap: ResearchGap;
   studyAim: StudyAim;
+  researchQuestions: ResearchQuestion[];
   methodology: Methodology;
   evidenceLibrary: EvidencePaper[];
 }
 
-/** يبني وثيقة Word حقيقية (.docx) من بيانات المقترح البحثي كاملة — ملف
-    قابل للتعديل الكامل بوورد (خلاف تصدير PDF اللي مجرد طباعة ثابتة)،
-    عشان المشرفة تقدر تعلّق وتعدّل وتتبّع التغييرات مباشرة.
+function sectionContent(sections: ProposalSectionRow[], key: ProposalSectionRow["key"]): string {
+  return sections.find((s) => s.key === key)?.content ?? "";
+}
+
+/** يبني وثيقة Word حقيقية (.docx) من بيانات المقترح البحثي كاملة، بنفس
+    ترتيب وعناوين نموذج المقترح الرسمي لكلية التمريض بالضبط (غلاف → ملخص →
+    ١.الخلفية ومراجعة الأدبيات → ٢.مشكلة البحث → ٣.هدف الدراسة → ٤.سؤال
+    البحث → ٥.المنهجية → قائمة المراجع) — ملف قابل للتعديل الكامل بوورد
+    (خلاف تصدير PDF اللي مجرد طباعة ثابتة)، عشان المشرفة تقدر تعلّق وتعدّل
+    وتتبّع التغييرات مباشرة.
     مكتبة docx ثقيلة (~350 كيلوبايت) ونادر إنها تُستخدم أصلاً، فنحمّلها
     ديناميكيًا هنا بس وقت الحاجة الفعلية — بدل ما تدخل حزمة التطبيق
     الرئيسية اللي تحمّل بكل صفحة */
@@ -67,8 +70,12 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
     });
   }
 
+  function narrative(text: string) {
+    return text.trim() ? ar(text) : ar("لم يُكتب بعد.", { color: "999999" });
+  }
+
   function fieldBlock(label: string, value: string) {
-    return [ar(label, { bold: true, size: 22 }), ar(value || "لم يُحدد بعد", { color: value ? undefined : "999999" })];
+    return [ar(label, { bold: true, size: 22 }), narrative(value)];
   }
 
   function listBlock(label: string, items: string[]) {
@@ -83,17 +90,26 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
     .filter(Boolean);
 
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: { font: "Times New Roman", size: 24 },
+          paragraph: { spacing: { line: 360, lineRule: "auto" } },
+        },
+      },
+    },
     sections: [
       {
         properties: {},
         children: [
+          // غلاف الوثيقة — Title Page
           new Paragraph({
             alignment: AlignmentType.CENTER,
             spacing: { after: 80 },
             bidirectional: true,
             children: [
               new TextRun({
-                text: "Wesync — الوثيقة البحثية الكاملة",
+                text: "Wesync — المقترح البحثي",
                 bold: true,
                 size: 20,
                 color: "8a6d1a",
@@ -105,13 +121,8 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
             heading: HeadingLevel.TITLE,
             alignment: AlignmentType.CENTER,
             bidirectional: true,
-            spacing: { after: 80 },
-            children: [new TextRun({ text: input.projectName, bold: true, rightToLeft: true })],
-          }),
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
             spacing: { after: 200 },
-            children: [new TextRun({ text: input.projectSubtitle, italics: true })],
+            children: [new TextRun({ text: input.projectTitle, bold: true, rightToLeft: true })],
           }),
           new Paragraph({
             alignment: AlignmentType.CENTER,
@@ -119,6 +130,18 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
             spacing: { after: 60 },
             children: [
               new TextRun({ text: `الفريق البحثي: ${input.teamNames.join("، ")}`, size: 20, rightToLeft: true }),
+            ],
+          }),
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            bidirectional: true,
+            spacing: { after: 60 },
+            children: [
+              new TextRun({
+                text: `المشرف الأكاديمي: ${input.supervisorName || "—"}`,
+                size: 20,
+                rightToLeft: true,
+              }),
             ],
           }),
           new Paragraph({
@@ -135,47 +158,51 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
             ],
           }),
 
-          arHeading("١. مكونات المقترح البحثي", HeadingLevel.HEADING_1),
-          ...input.proposalSections.map((s) =>
-            ar(`${s.labelAr} (${s.labelEn}) — ${statusLabelAr[s.status]}`),
-          ),
+          // الملخص — Abstract
+          arHeading("الملخص — Abstract", HeadingLevel.HEADING_1),
+          narrative(input.abstract),
 
-          arHeading("الفجوة البحثية", HeadingLevel.HEADING_2),
-          ar("ما نعرفه", { bold: true, size: 22 }),
-          ...input.researchGap.whatWeKnow.map((t) => arBullet(t)),
-          ar("ما لا نعرفه", { bold: true, size: 22 }),
-          ...input.researchGap.whatWeDontKnow.map((t) => arBullet(t)),
-          ar("الفجوة البحثية", { bold: true, size: 22 }),
-          ar(input.researchGap.gapStatement),
-          ar("ما ستدرسه", { bold: true, size: 22 }),
-          ar(input.researchGap.studyConnection),
+          // ١. الخلفية ومراجعة الأدبيات
+          arHeading("١. الخلفية ومراجعة الأدبيات — Background and Literature Review", HeadingLevel.HEADING_1),
+          narrative(sectionContent(input.sections, "background")),
+          narrative(sectionContent(input.sections, "literature-review")),
 
-          arHeading("هدف الدراسة وأسئلة البحث", HeadingLevel.HEADING_2),
-          ar("هدف الدراسة", { bold: true, size: 22 }),
-          ar(input.studyAim.statement || "لم تتم صياغته بعد.", {
-            color: input.studyAim.statement ? undefined : "999999",
-          }),
-          ar("أسئلة البحث", { bold: true, size: 22 }),
-          ...(input.studyAim.questions.length > 0
-            ? input.studyAim.questions.map((q) => ar(`${q.order}. ${q.text}`))
+          // ٢. مشكلة البحث (مع الفجوة البحثية)
+          arHeading("٢. مشكلة البحث — Statement of Problem", HeadingLevel.HEADING_1),
+          narrative(sectionContent(input.sections, "problem")),
+          ...(input.researchGap.gapStatement.trim()
+            ? [ar("الفجوة البحثية:", { bold: true, size: 22 }), narrative(input.researchGap.gapStatement)]
+            : []),
+
+          // ٣. هدف الدراسة
+          arHeading("٣. هدف الدراسة — Purpose of the Study", HeadingLevel.HEADING_1),
+          narrative(input.studyAim.statement),
+
+          // ٤. سؤال البحث
+          arHeading("٤. سؤال البحث — Research Question", HeadingLevel.HEADING_1),
+          ...(input.researchQuestions.length > 0
+            ? input.researchQuestions.map((q) => ar(`${q.order}. ${q.text}`))
             : [ar("لم تتم صياغتها بعد.", { color: "999999" })]),
 
-          arHeading("٢. المنهجية", HeadingLevel.HEADING_1),
-          ...fieldBlock("نوع التصميم (كمي / كيفي / مختلط)", input.methodology.studyDesign),
-          ...fieldBlock("مكان الدراسة", input.methodology.studySetting),
-          ...fieldBlock("مجتمع الدراسة", input.methodology.population),
+          // ٥. المنهجية
+          arHeading("٥. المنهجية — Methods", HeadingLevel.HEADING_1),
+          ...fieldBlock("أ. تصميم الدراسة — Design", input.methodology.studyDesign),
+          ...fieldBlock("ب. مكان الدراسة — Setting", input.methodology.studySetting),
+          ...fieldBlock("مجتمع الدراسة — Population", input.methodology.population),
+          ...listBlock("ج. معايير الاشتمال — Inclusion Criteria", input.methodology.sampling.inclusionCriteria),
+          ...listBlock("معايير الاستبعاد — Exclusion Criteria", input.methodology.sampling.exclusionCriteria),
+          ...fieldBlock("حجم العينة — Sample Size", input.methodology.sampling.sampleSize),
+          ...fieldBlock("أسلوب اختيار العينة — Sampling Technique", input.methodology.sampling.samplingTechnique),
+          ...listBlock("د. طريقة/أداة جمع البيانات — Data Collection Method/Tool", input.methodology.dataCollectionMethods),
+          ...fieldBlock("هـ. إجراء جمع البيانات — Data Collection Procedure", input.methodology.dataCollectionProcedure),
+          ...fieldBlock("و. تحليل البيانات — Data Analysis", input.methodology.dataAnalysis),
+          ...fieldBlock("ز. الاعتبارات الأخلاقية — Ethical Considerations", input.methodology.ethicalConsiderations),
 
-          arHeading("العينة", HeadingLevel.HEADING_2),
-          ...listBlock("معايير الاشتمال", input.methodology.sampling.inclusionCriteria),
-          ...listBlock("معايير الاستبعاد", input.methodology.sampling.exclusionCriteria),
-          ...fieldBlock("حجم العينة", input.methodology.sampling.sampleSize),
-          ...fieldBlock("أسلوب اختيار العينة", input.methodology.sampling.samplingTechnique),
-
-          arHeading("جمع البيانات", HeadingLevel.HEADING_2),
-          ...listBlock("طريقة الجمع", input.methodology.dataCollectionMethods),
-
-          arHeading(`٣. قائمة المراجع (APA) — ${input.evidenceLibrary.length}`, HeadingLevel.HEADING_1),
-          ...references.map((ref) => enParagraph(ref)),
+          // قائمة المراجع
+          arHeading(`قائمة المراجع (APA) — References — ${input.evidenceLibrary.length}`, HeadingLevel.HEADING_1),
+          ...(references.length > 0
+            ? references.map((ref) => enParagraph(ref))
+            : [ar("لم تُضَف مراجع بعد.", { color: "999999" })]),
         ],
       },
     ],

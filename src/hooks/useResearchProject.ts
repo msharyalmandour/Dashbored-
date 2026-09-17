@@ -14,6 +14,8 @@ interface ResearchProjectRow {
   target_submission_date: string | null;
   created_at: string;
   updated_at: string;
+  abstract: string;
+  supervisor_name: string;
 }
 
 function mapRow(row: ResearchProjectRow): ResearchProject {
@@ -28,6 +30,8 @@ function mapRow(row: ResearchProjectRow): ResearchProject {
     targetSubmissionDate: row.target_submission_date,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    abstract: row.abstract,
+    supervisorName: row.supervisor_name,
   };
 }
 
@@ -42,6 +46,8 @@ const mockProject: ResearchProject = {
   targetSubmissionDate: projectMeta.deadline,
   createdAt: "2026-02-01",
   updatedAt: "2026-02-01",
+  abstract: "",
+  supervisorName: "",
 };
 
 /** مشروع البحث الوحيد لفريق المستخدم الحالي — يُنشأ تلقائيًا بقاعدة البيانات
@@ -65,5 +71,18 @@ export function useResearchProject() {
       });
   }, []);
 
-  return { project, loading };
+  const updateProject = async (updates: { abstract?: string; supervisorName?: string }) => {
+    if (!isSupabaseConfigured) {
+      setProject((prev) => (prev ? { ...prev, ...updates } : prev));
+      return { error: undefined as string | undefined };
+    }
+    setProject((prev) => (prev ? { ...prev, ...updates } : prev));
+    const dbUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (updates.abstract !== undefined) dbUpdates.abstract = updates.abstract;
+    if (updates.supervisorName !== undefined) dbUpdates.supervisor_name = updates.supervisorName;
+    const { error } = await supabase!.from("research_projects").update(dbUpdates).eq("id", project?.id);
+    return { error: error?.message };
+  };
+
+  return { project, loading, updateProject };
 }

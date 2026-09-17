@@ -72,7 +72,7 @@ function AutoSaveTextarea({
 export default function Proposal() {
   const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } =
     useProposal();
-  const { project } = useResearchProject();
+  const { project, updateProject } = useResearchProject();
   const { roster } = useTeamRoster();
   const memberById = (id: string) => roster.find((m) => m.id === id);
   const doneCount = sections.filter((s) => s.status === "done").length;
@@ -135,6 +135,34 @@ export default function Proposal() {
             تصدير PDF
           </button>
         </div>
+      </Card>
+
+      {/* اسم المشرف الأكاديمي — يظهر بصفحة عنوان المقترح المُصدَّرة */}
+      <Card className="print:hidden">
+        <label className="block text-sm">
+          <span className="mb-1 block font-semibold text-brand-950/70">اسم المشرف الأكاديمي — Supervisor Name</span>
+          <input
+            defaultValue={project?.supervisorName ?? ""}
+            onBlur={(e) => {
+              if (e.target.value !== (project?.supervisorName ?? "")) {
+                updateProject({ supervisorName: e.target.value });
+              }
+            }}
+            placeholder="اسم المشرف/ة"
+            className="w-full rounded-lg border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
+          />
+        </label>
+      </Card>
+
+      {/* الملخص — Abstract: ١٥٠-٢٥٠ كلمة تغطي الخلفية والهدف والمنهج والخلاصة، مطلوب رسميًا وأول بند يُقيَّم بالروبريك */}
+      <Card className="print:break-inside-avoid">
+        <CardHeader title="الملخص" subtitle="Abstract (150–250 words)" />
+        <AutoSaveTextarea
+          value={project?.abstract ?? ""}
+          onSave={(v) => updateProject({ abstract: v })}
+          placeholder="اكتبوا ملخصًا يغطي: الخلفية، هدف الدراسة، المنهج، والخلاصة — بين ١٥٠ و٢٥٠ كلمة."
+          rows={5}
+        />
       </Card>
 
       {/* Proposal Progress checklist — كل قسم قابل للتحرير ويُحفظ فورًا */}

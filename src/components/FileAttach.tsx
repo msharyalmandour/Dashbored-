@@ -16,6 +16,8 @@ export interface AttachedFileMeta {
   /** رابط الملف الحقيقي بدرايف — موجود فقط لما يكون الرفع حقيقي (وضع Supabase) */
   driveViewLink?: string;
   driveFileId?: string;
+  /** id الصف الحقيقي بجدول files — موجود فقط لما يكون الرفع حقيقي */
+  fileRowId?: string;
 }
 
 function detectKind(file: File): Kind {
@@ -39,10 +41,12 @@ export default function FileAttach({
   onAttach,
   label,
   compact = false,
+  category = "general",
 }: {
   onAttach: (meta: AttachedFileMeta) => void;
   label?: string;
   compact?: boolean;
+  category?: "general" | "ethical-approval";
 }) {
   const { currentUser } = useAuth();
   const isFemale = isFemaleUser(currentUser);
@@ -69,9 +73,11 @@ export default function FileAttach({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("category", "general");
+      formData.append("category", category);
       const { data, error } = await supabase.functions.invoke("drive-upload", { body: formData });
-      const uploaded = data?.file as { drive_view_link?: string; drive_file_id?: string } | undefined;
+      const uploaded = data?.file as
+        | { id?: string; drive_view_link?: string; drive_file_id?: string }
+        | undefined;
       if (error || !uploaded) {
         setState("error");
         window.setTimeout(() => setState("idle"), 2200);
@@ -83,6 +89,7 @@ export default function FileAttach({
         kind: detectKind(file),
         driveViewLink: uploaded.drive_view_link,
         driveFileId: uploaded.drive_file_id,
+        fileRowId: uploaded.id,
       });
       setState("done");
       window.setTimeout(() => setState("idle"), 1400);

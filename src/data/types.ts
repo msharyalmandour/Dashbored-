@@ -120,6 +120,12 @@ export interface Methodology {
   sampling: SamplingPlan;
   dataCollectionMethods: string[];
   studyTool: StudyTool;
+  /** إجراء جمع البيانات — كيف بيتم الجمع عمليًا (Methods Template item e) */
+  dataCollectionProcedure: string;
+  /** طريقة تحليل البيانات — إحصائي أو نوعي (Methods Template item f، مُقيَّم بالروبريك) */
+  dataAnalysis: string;
+  /** الاعتبارات الأخلاقية بالمنهجية (Methods Template item g، مُقيَّم بالروبريك) */
+  ethicalConsiderations: string;
 }
 
 export type TaskStatus = "todo" | "in-progress" | "done" | "overdue";
@@ -236,6 +242,10 @@ export interface ResearchProject {
   targetSubmissionDate: string | null;
   createdAt: string;
   updatedAt: string;
+  /** ملخص المقترح (١٥٠-٢٥٠ كلمة تغطي الخلفية والهدف والمنهج والخلاصة) — Abstract */
+  abstract: string;
+  /** اسم المشرف الأكاديمي — يظهر بصفحة عنوان المقترح المُصدَّرة */
+  supervisorName: string;
 }
 
 export type StageKey =
@@ -276,7 +286,7 @@ export interface DriveFile {
   name: string;
   mimeType: string;
   sizeBytes: number;
-  category: "general" | "meeting-minutes";
+  category: "general" | "meeting-minutes" | "ethical-approval";
   driveFileId: string;
   driveViewLink: string;
   uploadedById: string;
@@ -296,5 +306,63 @@ export interface MeetingMinutesRow {
   driveFileId: string | null;
   driveViewLink: string | null;
   createdAt: string;
+}
+
+export type PiType = "faculty" | "graduate" | "undergraduate";
+export type EthicalPrincipleAnswer = "yes" | "no" | "na" | null;
+export type EthicalOutcome = "pending" | "granted" | "amendments" | "rejected";
+
+/** بنود القسم الثاني بنموذج طلب الموافقة الأخلاقية الرسمي — نفس الترتيب
+    والصياغة بالضبط، كل بند يُجاب بـ yes/no/na */
+export interface EthicalPrinciples {
+  writtenExplanation: EthicalPrincipleAnswer;
+  oralExplanation: EthicalPrincipleAnswer;
+  writtenConsent: EthicalPrincipleAnswer;
+  oralConsent: EthicalPrincipleAnswer;
+  voluntaryInformed: EthicalPrincipleAnswer;
+  withdrawOption: EthicalPrincipleAnswer;
+  harmInformed: EthicalPrincipleAnswer;
+  confidentialityGuaranteed: EthicalPrincipleAnswer;
+  anonymityGuaranteed: EthicalPrincipleAnswer;
+  vulnerableGroupsInformed: EthicalPrincipleAnswer;
+  interviewNoExplanationNeeded: EthicalPrincipleAnswer;
+  safeDataStorage: EthicalPrincipleAnswer;
+  willPublish: EthicalPrincipleAnswer;
+}
+
+/** بنود القسم الثالث — قائمة المرفقات المطلوبة بنموذج الموافقة الأخلاقية */
+export interface EthicalAttachments {
+  protocolOrProposal: boolean;
+  participantInfoSheet: boolean;
+  consentForm: boolean;
+  studyTools: boolean;
+  otherSupportiveDocs: boolean;
+}
+
+/** طلب الموافقة الأخلاقية الحقيقي — نفس حقول نموذج KAU الرسمي بالضبط،
+    صف واحد لكل مشروع بحث */
+export interface EthicalApproval {
+  researchProjectId: string;
+  applicationDate: string | null;
+  piName: string;
+  piAffiliation: string;
+  piEmail: string;
+  piType: PiType;
+  /** سطر لكل باحث إضافي — "الاسم — الجهة — البريد" */
+  otherResearchers: string;
+  supervisorNames: string;
+  registrationNo: string;
+  expectedStartDate: string | null;
+  expectedEndDate: string | null;
+  personsInvolved: string;
+  dataManagementConfidentiality: string;
+  fundingDetails: string;
+  principles: EthicalPrinciples;
+  attachments: EthicalAttachments;
+  outcome: EthicalOutcome;
+  refNumber: string | null;
+  meetingDate: string | null;
+  approvalLetterFileId: string | null;
+  updatedAt: string;
 }
 

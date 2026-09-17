@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Sparkles,
   NotebookPen,
+  FileCheck2,
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
@@ -45,6 +46,7 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
       { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
       { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
       { to: "/methodology", label: "المنهجية", icon: FlaskConical },
+      { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
       { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
     ],
   },

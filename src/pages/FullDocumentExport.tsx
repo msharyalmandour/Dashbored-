@@ -1,32 +1,26 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, Circle, FileDown, FileType2, Loader2, RefreshCw, ArrowRight } from "lucide-react";
+import { FileDown, FileType2, Loader2, ArrowRight } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
-import {
-  evidenceLibrary,
-  methodology,
-  proposalSections,
-  researchGap,
-  studyAim,
-  teamMembers,
-  projectMeta,
-} from "../data/mockData";
-import type { SectionStatus } from "../data/types";
+import { useResearchProject } from "../hooks/useResearchProject";
+import { useProposal } from "../hooks/useProposal";
+import { useMethodology } from "../hooks/useMethodology";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { buildReferenceList } from "../lib/citation";
 import { formatDateLong } from "../lib/date";
 import { buildProposalWordDoc, downloadWordDoc } from "../lib/wordExport";
 
-const statusLabel: Record<SectionStatus, string> = {
-  done: "مكتمل",
-  "in-progress": "قيد العمل",
-  "not-started": "لم يبدأ",
-};
+function sectionContent(sections: { key: string; content: string }[], key: string): string {
+  return sections.find((s) => s.key === key)?.content ?? "";
+}
 
-function StatusIcon({ status }: { status: SectionStatus }) {
-  if (status === "done") return <CheckCircle2 size={16} className="shrink-0 text-brand-500" />;
-  if (status === "in-progress")
-    return <RefreshCw size={15} className="shrink-0 text-amber-accent-500" />;
-  return <Circle size={15} className="shrink-0 text-brand-950/25" />;
+function Narrative({ text }: { text: string }) {
+  return text.trim() ? (
+    <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-950/80">{text}</p>
+  ) : (
+    <p className="text-sm italic text-brand-950/35">لم يُكتب بعد.</p>
+  );
 }
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -63,23 +57,31 @@ function ListField({ label, items }: { label: string; items: string[] }) {
 }
 
 export default function FullDocumentExport() {
-  const references = buildReferenceList(evidenceLibrary, "apa").split("\n\n");
+  const { project } = useResearchProject();
+  const { sections, gap, aim, questions } = useProposal();
+  const { methodology } = useMethodology();
+  const { roster } = useTeamRoster();
+  const { papers } = useEvidencePapers();
+
+  const references = buildReferenceList(papers, "apa").split("\n\n").filter(Boolean);
   const [exportingWord, setExportingWord] = useState(false);
 
   const exportWord = async () => {
     setExportingWord(true);
     try {
       const blob = await buildProposalWordDoc({
-        projectName: projectMeta.name,
-        projectSubtitle: projectMeta.subtitle,
-        teamNames: teamMembers.map((m) => m.name),
-        proposalSections,
-        researchGap,
-        studyAim,
+        projectTitle: project?.title ?? "",
+        abstract: project?.abstract ?? "",
+        supervisorName: project?.supervisorName ?? "",
+        teamNames: roster.map((m) => m.name),
+        sections,
+        researchGap: gap,
+        studyAim: aim,
+        researchQuestions: questions,
         methodology,
-        evidenceLibrary,
+        evidenceLibrary: papers,
       });
-      downloadWordDoc(blob, `${projectMeta.name}.docx`);
+      downloadWordDoc(blob, `${project?.title || "المقترح البحثي"}.docx`);
     } finally {
       setExportingWord(false);
     }
@@ -117,120 +119,121 @@ export default function FullDocumentExport() {
       {/* غلاف الوثيقة */}
       <Card tone="cream" className="text-center">
         <p className="text-xs font-bold uppercase tracking-widest text-brand-950/40">
-          Wesync — الوثيقة البحثية الكاملة
+          Wesync — المقترح البحثي
         </p>
         <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-950">
-          {projectMeta.name}
+          {project?.title || "المقترح البحثي"}
         </h1>
-        <p className="mt-1 text-sm text-brand-950/60" dir="ltr">
-          {projectMeta.subtitle}
-        </p>
         <p className="mt-4 text-xs text-brand-950/45">
-          الفريق البحثي: {teamMembers.map((m) => m.name).join("، ")}
+          الفريق البحثي: {roster.map((m) => m.name).join("، ")}
         </p>
+        <p className="mt-1 text-xs text-brand-950/45">المشرف الأكاديمي: {project?.supervisorName || "—"}</p>
         <p className="mt-1 text-xs text-brand-950/45">
           تم إنشاء هذه النسخة بتاريخ {formatDateLong(new Date().toISOString().slice(0, 10))}
         </p>
       </Card>
 
-      {/* القسم 1: المقترح البحثي */}
+      {/* الملخص */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title="١. مكونات المقترح البحثي" subtitle="Proposal Components" />
-        <ul className="divide-y divide-brand-50">
-          {proposalSections.map((section) => (
-            <li key={section.key} className="flex items-center gap-3 py-2.5">
-              <StatusIcon status={section.status} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-brand-950">{section.labelAr}</p>
-                <p className="text-xs text-brand-950/45">{section.labelEn}</p>
-              </div>
-              <span className="whitespace-nowrap text-xs font-bold text-brand-950/50">
-                {statusLabel[section.status]}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <CardHeader title="الملخص" subtitle="Abstract" />
+        <Narrative text={project?.abstract ?? ""} />
       </Card>
 
-      <Card tone="amber" className="print:break-inside-avoid">
-        <CardHeader title="الفجوة البحثية" subtitle="Research Gap" />
-        <div className="rounded-2xl bg-paper p-4">
-          <p className="mb-1.5 text-sm font-bold text-amber-accent-700">Research Gap</p>
-          <p className="text-sm text-brand-950/80">{researchGap.gapStatement}</p>
-        </div>
-        <div className="mt-3 rounded-2xl bg-paper p-4">
-          <p className="mb-1.5 text-sm font-bold text-brand-950">ما ستدرسه — Your Study</p>
-          <p className="text-sm text-brand-950/80">{researchGap.studyConnection}</p>
-        </div>
-      </Card>
-
+      {/* ١. الخلفية ومراجعة الأدبيات */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title="هدف الدراسة وأسئلة البحث" subtitle="Aim & Research Questions" />
-        <div className="rounded-2xl bg-surface-muted p-4">
-          <p className="mb-1.5 text-sm font-bold text-brand-950">هدف الدراسة — Purpose / Aim</p>
-          {studyAim.statement ? (
-            <p className="text-sm text-brand-950/80">{studyAim.statement}</p>
-          ) : (
-            <p className="text-sm italic text-brand-950/40">لم تتم صياغته بعد.</p>
-          )}
-        </div>
-        <div className="mt-3 rounded-2xl bg-surface-muted p-4">
-          <p className="mb-1.5 text-sm font-bold text-brand-950">أسئلة البحث — Research Questions</p>
-          {studyAim.questions.length > 0 ? (
-            <ol className="space-y-1.5">
-              {studyAim.questions.map((q) => (
-                <li key={q.id} className="flex gap-2 text-sm text-brand-950/80">
-                  <span className="font-bold text-brand-600">{q.order}.</span>
-                  {q.text}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="text-sm italic text-brand-950/40">لم تتم صياغتها بعد.</p>
-          )}
+        <CardHeader title="١. الخلفية ومراجعة الأدبيات" subtitle="Background and Literature Review" />
+        <div className="space-y-3">
+          <Narrative text={sectionContent(sections, "background")} />
+          <Narrative text={sectionContent(sections, "literature-review")} />
         </div>
       </Card>
 
-      {/* القسم 2: المنهجية */}
+      {/* ٢. مشكلة البحث */}
+      <Card className="print:break-inside-avoid">
+        <CardHeader title="٢. مشكلة البحث" subtitle="Statement of Problem" />
+        <Narrative text={sectionContent(sections, "problem")} />
+        {gap.gapStatement.trim() && (
+          <div className="mt-3 rounded-2xl bg-amber-accent-50 p-4">
+            <p className="mb-1.5 text-sm font-bold text-amber-accent-700">الفجوة البحثية — Research Gap</p>
+            <Narrative text={gap.gapStatement} />
+          </div>
+        )}
+      </Card>
+
+      {/* ٣. هدف الدراسة */}
+      <Card className="print:break-inside-avoid">
+        <CardHeader title="٣. هدف الدراسة" subtitle="Purpose of the Study" />
+        <Narrative text={aim.statement} />
+      </Card>
+
+      {/* ٤. سؤال البحث */}
+      <Card className="print:break-inside-avoid">
+        <CardHeader title="٤. سؤال البحث" subtitle="Research Question" />
+        {questions.length > 0 ? (
+          <ol className="space-y-1.5">
+            {questions.map((q) => (
+              <li key={q.id} className="flex gap-2 text-sm text-brand-950/80">
+                <span className="font-bold text-brand-600">{q.order}.</span>
+                {q.text}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="text-sm italic text-brand-950/40">لم تتم صياغتها بعد.</p>
+        )}
+      </Card>
+
+      {/* ٥. المنهجية */}
       <div className="space-y-5 print:break-before-page">
         <Card className="print:break-inside-avoid">
-          <CardHeader title="٢. المنهجية" subtitle="Methodology" />
-          <Field label="نوع التصميم (كمي / كيفي / مختلط)" value={methodology.studyDesign} />
-        </Card>
-
-        <Card className="print:break-inside-avoid">
+          <CardHeader title="٥. المنهجية" subtitle="Methods" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <Field label="مكان الدراسة — Study Setting" value={methodology.studySetting} />
-            <Field label="مجتمع الدراسة — Population" value={methodology.population} />
+            <Field label="أ. تصميم الدراسة — Design" value={methodology.studyDesign} />
+            <Field label="ب. مكان الدراسة — Setting" value={methodology.studySetting} />
           </div>
         </Card>
 
         <Card className="print:break-inside-avoid">
-          <CardHeader title="العينة" subtitle="Sampling" />
+          <CardHeader title="العينة" subtitle="Sample & Sample Size" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <Field label="مجتمع الدراسة" value={methodology.population} />
+            <Field label="حجم العينة" value={methodology.sampling.sampleSize} />
             <ListField label="معايير الاشتمال" items={methodology.sampling.inclusionCriteria} />
             <ListField label="معايير الاستبعاد" items={methodology.sampling.exclusionCriteria} />
-            <Field label="حجم العينة" value={methodology.sampling.sampleSize} />
             <Field label="أسلوب اختيار العينة" value={methodology.sampling.samplingTechnique} />
           </div>
         </Card>
 
         <Card className="print:break-inside-avoid">
-          <CardHeader title="جمع البيانات" subtitle="Data Collection" />
-          <ListField label="طريقة الجمع" items={methodology.dataCollectionMethods} />
+          <CardHeader title="ج/د. جمع البيانات" subtitle="Data Collection Method/Tool" />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <ListField label="طريقة الجمع" items={methodology.dataCollectionMethods} />
+            <Field label="إجراء جمع البيانات" value={methodology.dataCollectionProcedure} />
+          </div>
+        </Card>
+
+        <Card className="print:break-inside-avoid">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <Field label="و. تحليل البيانات — Data Analysis" value={methodology.dataAnalysis} />
+            <Field label="ز. الاعتبارات الأخلاقية — Ethical Considerations" value={methodology.ethicalConsiderations} />
+          </div>
         </Card>
       </div>
 
-      {/* القسم 3: قائمة المراجع */}
+      {/* قائمة المراجع */}
       <div className="print:break-before-page">
         <Card className="print:break-inside-avoid">
-          <CardHeader title="٣. قائمة المراجع" subtitle={`References — APA (${evidenceLibrary.length})`} />
+          <CardHeader title="قائمة المراجع" subtitle={`References — APA (${papers.length})`} />
           <div className="space-y-3">
-            {references.map((ref, i) => (
-              <p key={i} className="text-sm leading-relaxed text-brand-950/80" dir="ltr">
-                {ref}
-              </p>
-            ))}
+            {references.length > 0 ? (
+              references.map((ref, i) => (
+                <p key={i} className="text-sm leading-relaxed text-brand-950/80" dir="ltr">
+                  {ref}
+                </p>
+              ))
+            ) : (
+              <p className="text-sm italic text-brand-950/35">لم تُضَف مراجع بعد.</p>
+            )}
           </div>
         </Card>
       </div>

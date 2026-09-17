@@ -15,6 +15,9 @@ function mapRow(row: {
   data_collection_methods: string[];
   study_tool_type: Methodology["studyTool"]["type"];
   study_tool_name: string;
+  data_collection_procedure: string;
+  data_analysis: string;
+  ethical_considerations: string;
 }): Methodology {
   return {
     studyDesign: row.study_design,
@@ -29,6 +32,9 @@ function mapRow(row: {
     },
     dataCollectionMethods: row.data_collection_methods ?? [],
     studyTool: { type: row.study_tool_type, name: row.study_tool_name },
+    dataCollectionProcedure: row.data_collection_procedure,
+    dataAnalysis: row.data_analysis,
+    ethicalConsiderations: row.ethical_considerations,
   };
 }
 
@@ -69,6 +75,9 @@ export function useMethodology() {
     if (updates.dataCollectionMethods !== undefined) dbUpdates.data_collection_methods = updates.dataCollectionMethods;
     if (updates.studyTool?.type !== undefined) dbUpdates.study_tool_type = updates.studyTool.type;
     if (updates.studyTool?.name !== undefined) dbUpdates.study_tool_name = updates.studyTool.name;
+    if (updates.dataCollectionProcedure !== undefined) dbUpdates.data_collection_procedure = updates.dataCollectionProcedure;
+    if (updates.dataAnalysis !== undefined) dbUpdates.data_analysis = updates.dataAnalysis;
+    if (updates.ethicalConsiderations !== undefined) dbUpdates.ethical_considerations = updates.ethicalConsiderations;
 
     const { data: projectId } = await supabase!.rpc("my_research_project_id");
     const { error } = await supabase!.from("methodology").update(dbUpdates).eq("research_project_id", projectId);

@@ -18,6 +18,7 @@ import {
   Milestone,
   Moon,
   PartyPopper,
+  Sparkles,
   TrendingUp,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
@@ -29,6 +30,7 @@ import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import GrowingPlant from "../components/GrowingPlant";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
+import RingProgress from "../components/ui/RingProgress";
 import StatCard from "../components/StatCard";
 import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
@@ -38,14 +40,7 @@ import { useMouseParallax } from "../hooks/useMouseParallax";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTour } from "../context/TourContext";
-import {
-  evidenceLibrary,
-  projectMeta,
-  recentActivity,
-  researchStages,
-  tasks,
-  teamMembers,
-} from "../data/mockData";
+import { recentActivity, teamMembers as mockTeamMembers } from "../data/mockData";
 import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
 import { getDailyQuote } from "../data/motivation";
 import { useVisitGap } from "../hooks/useVisitGap";
@@ -55,11 +50,15 @@ import { useResearchStages } from "../hooks/useResearchStages";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
+import { useTasksData } from "../hooks/useTasksData";
+import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useResearchProject } from "../hooks/useResearchProject";
 import { getCurrentStage, getOverallProgress } from "../lib/progress";
+import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { g, isFemaleUser } from "../lib/gender";
 import { achievements, getUnlockedAchievementIds } from "../lib/achievements";
 
-const today = new Date(2026, 7, 22);
+const today = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22);
 const todayIso = toISODate(today);
 
 const statusStyle: Record<string, string> = {
@@ -100,6 +99,9 @@ export default function Overview() {
   const { papers: realEvidencePapers } = useEvidencePapers();
   const { sections: realProposalSections, gap: realResearchGap, questions: realResearchQuestions } = useProposal();
   const { methodology: realMethodology } = useMethodology();
+  const { tasks: realTasks } = useTasksData();
+  const { roster } = useTeamRoster();
+  const { project } = useResearchProject();
   const currentStage = getCurrentStage(realStages);
   const realOverallProgress = getOverallProgress(realStages, {
     proposalSections: realProposalSections,
@@ -151,10 +153,10 @@ export default function Overview() {
   };
 
   const unlockedAchievementIds = getUnlockedAchievementIds({
-    tasks,
-    evidenceLibrary,
-    researchStages,
-    overallProgress: projectMeta.overallProgress,
+    tasks: realTasks,
+    evidenceLibrary: realEvidencePapers,
+    researchStages: realStages,
+    overallProgress: realOverallProgress,
   });
   const unlockedAchievements = achievements.filter((a) => unlockedAchievementIds.has(a.id));
   const { showToast } = useToast();
@@ -179,39 +181,46 @@ export default function Overview() {
       return;
     }
 
-    const lastSeenStage = localStorage.getItem(LAST_SEEN_STAGE_KEY);
-    if (lastSeenStage && lastSeenStage !== projectMeta.currentStageAr) {
-      showToast({
-        title: "🎉 أنجزتم مرحلة بحثية كاملة!",
-        desc: `وصلتوا لمرحلة ${projectMeta.currentStageAr}`,
-        icon: PartyPopper,
-        tone: "amber",
-      });
-      localStorage.setItem(LAST_SEEN_STAGE_KEY, projectMeta.currentStageAr);
-      return;
+    if (currentStage) {
+      const lastSeenStage = localStorage.getItem(LAST_SEEN_STAGE_KEY);
+      if (lastSeenStage && lastSeenStage !== currentStage.titleAr) {
+        showToast({
+          title: "🎉 أنجزتم مرحلة بحثية كاملة!",
+          desc: `وصلتوا لمرحلة ${currentStage.titleAr}`,
+          icon: PartyPopper,
+          tone: "amber",
+        });
+        localStorage.setItem(LAST_SEEN_STAGE_KEY, currentStage.titleAr);
+        return;
+      }
+      localStorage.setItem(LAST_SEEN_STAGE_KEY, currentStage.titleAr);
     }
-    localStorage.setItem(LAST_SEEN_STAGE_KEY, projectMeta.currentStageAr);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const weekNumber = Math.floor(daysSinceFirstVisit / 7) + 1;
-  const topPerformer = [...teamMembers].sort((a, b) => b.tasksDone - a.tasksDone)[0];
+  const topPerformer = [...roster].sort((a, b) => b.tasksDone - a.tasksDone)[0];
+  const topPerformerId = topPerformer && topPerformer.tasksDone > 0 ? topPerformer.id : null;
 
-  const remainingDays = daysUntil(projectMeta.deadline, today);
-  const nextDeadlineDays = daysUntil(projectMeta.nextDeadlineDate, today);
+  const projectTitle = project?.title || "مشروعكم البحثي";
+  const projectSubtitle = project?.description ?? "";
+  const deadline = project?.targetSubmissionDate ?? null;
+  const remainingDays = deadline ? daysUntil(deadline, today) : null;
 
   const reviewedCount = realEvidencePapers.filter((p) => p.reviewStatus === "reviewed").length;
   const collectedCount = realEvidencePapers.length;
   const remainingCount = collectedCount - reviewedCount;
   const litReviewPct = collectedCount > 0 ? Math.round((reviewedCount / collectedCount) * 100) : 0;
 
-  const priorities = [...tasks]
+  const priorities = [...realTasks]
     .filter((t) => t.status !== "done")
     .sort((a, b) => {
       const order = { overdue: 0, "in-progress": 1, todo: 2, done: 3 };
       return order[a.status] - order[b.status];
     })
     .slice(0, 5);
+  const currentTask = priorities[0]?.title;
+  const nextStep = priorities[1]?.title;
 
   const upcoming = calendarEvents
     .filter((e) => e.date >= todayIso)
@@ -222,11 +231,12 @@ export default function Overview() {
     .filter((e) => e.date === selectedDate)
     .sort((a, b) => a.time.localeCompare(b.time));
 
-  const memberById = (id: string) => teamMembers.find((m) => m.id === id)!;
+  const memberById = (id: string) => roster.find((m) => m.id === id);
+  const mockMemberById = (id: string) => mockTeamMembers.find((m) => m.id === id)!;
 
   const greeting = getGreeting();
   const dailyQuote = getDailyQuote(new Date(), greeting.period);
-  const overdueCount = tasks.filter((t) => t.status === "overdue").length;
+  const overdueCount = realTasks.filter((t) => t.status === "overdue").length;
 
   const nearestDeadlineEvent = calendarEvents
     .filter((e) => e.type === "deadline" && e.date >= todayIso)
@@ -248,6 +258,8 @@ export default function Overview() {
           : priorities.length === 0
             ? `ما عليك شي مستعجل اليوم — وقت زين ${g(isFemale, "تراجعين", "تراجع")} المقترح البحثي أو ${g(isFemale, "ترتاحين", "ترتاح")} شوي ☕`
             : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
+
+  const showEmptyProgressState = realOverallProgress === 0 && !currentStage;
 
   return (
     <div className="space-y-6">
@@ -362,17 +374,19 @@ export default function Overview() {
           />
           <GrowingPlant className="pointer-events-none absolute left-4 top-2 h-28 w-28 opacity-90" />
           <div className="relative">
-            <p className="flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950">
+            <p className="flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
               <TimeOfDayBadge period={greeting.period} />
               {greeting.text}، {currentUser?.name.split(" ")[0]}
             </p>
-            <p className="mt-1 text-sm text-brand-950/55">{heroMessage}</p>
+            <p className="mt-1.5 text-sm text-brand-950/55">{heroMessage}</p>
 
             <div className="mt-6">
-              <p className="text-sm font-semibold text-brand-950/70">{projectMeta.name}</p>
-              <p className="text-xs text-brand-700" dir="ltr">
-                {projectMeta.subtitle}
-              </p>
+              <p className="text-sm font-semibold text-brand-950/70">{projectTitle}</p>
+              {projectSubtitle && (
+                <p className="text-xs text-brand-700" dir="ltr">
+                  {projectSubtitle}
+                </p>
+              )}
               {weekNumber >= 1 && (
                 <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-950/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">
                   🌱 أسبوع رقم {weekNumber} من رحلتكم البحثية
@@ -401,24 +415,41 @@ export default function Overview() {
               </p>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-4">
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث</p>
-                  <p className="font-display text-4xl font-extrabold text-brand-950">
-                    <CountUp value={realOverallProgress} suffix="%" />
-                  </p>
-                </div>
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-brand-950/70">
-                  <CalendarClock size={15} />
-                  الموعد النهائي — {formatDateLong(projectMeta.deadline)} (متبقٍ {remainingDays} يومًا)
+            <div className="mt-5 flex flex-wrap items-center gap-5 rounded-2xl border border-[var(--color-overlay-soft)] bg-[var(--color-overlay-soft)] p-5">
+              <RingProgress value={realOverallProgress} size={104} strokeWidth={9}>
+                <span className="font-display text-xl font-extrabold text-brand-950">
+                  <CountUp value={realOverallProgress} suffix="%" />
                 </span>
+              </RingProgress>
+              <div className="min-w-0 flex-1">
+                {showEmptyProgressState ? (
+                  <>
+                    <p className="font-display text-base font-bold text-brand-950">
+                      ابدأوا رحلتكم البحثية اليوم 🌱
+                    </p>
+                    <p className="mt-1 text-sm text-brand-950/55">
+                      كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.
+                    </p>
+                    <Link
+                      to="/proposal"
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-bold text-white hover:bg-brand-600"
+                    >
+                      <Sparkles size={14} />
+                      ابدأوا بالمقترح البحثي
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث الكلية</p>
+                    <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/70">
+                      <CalendarClock size={15} className="shrink-0" />
+                      {deadline
+                        ? `الموعد النهائي — ${formatDateLong(deadline)} (متبقٍ ${remainingDays} يومًا)`
+                        : "ما فيه موعد نهائي محدد بعد"}
+                    </p>
+                  </>
+                )}
               </div>
-              <ProgressBar
-                value={realOverallProgress}
-                className="mt-3"
-                track="bg-[var(--color-track)]"
-              />
             </div>
           </div>
         </Card>
@@ -430,8 +461,8 @@ export default function Overview() {
               <StatCard
                 icon={Milestone}
                 label="المرحلة الحالية"
-                value={currentStage?.titleAr ?? projectMeta.currentStageAr}
-                sub={currentStage?.titleEn ?? projectMeta.currentStageEn}
+                value={currentStage?.titleAr ?? "لم تبدأ مرحلة بعد"}
+                sub={currentStage?.titleEn ?? "Not started yet"}
                 color="brand"
                 tone="teal"
               />
@@ -442,8 +473,8 @@ export default function Overview() {
               <StatCard
                 icon={ListTodo}
                 label="المهمة الحالية"
-                value={projectMeta.currentTask}
-                sub="قيد التنفيذ الآن"
+                value={currentTask ?? "ما فيه مهمة نشطة الحين"}
+                sub={currentTask ? "قيد التنفيذ الآن" : "أسندوا أول مهمة من صفحة المهام"}
                 color="amber-accent"
                 tone="cream"
               />
@@ -454,8 +485,8 @@ export default function Overview() {
               <StatCard
                 icon={TrendingUp}
                 label="الخطوة التالية"
-                value={projectMeta.nextStep}
-                sub="بعد إكمال الحالية"
+                value={nextStep ?? "—"}
+                sub={nextStep ? "بعد إكمال الحالية" : "ما فيه خطوة تالية محددة"}
                 color="sky-accent"
                 tone="sky"
               />
@@ -466,8 +497,12 @@ export default function Overview() {
               <StatCard
                 icon={CalendarClock}
                 label="الموعد القادم"
-                value={formatDateShort(projectMeta.nextDeadlineDate)}
-                sub={`${projectMeta.nextDeadlineLabel} — متبقٍ ${nextDeadlineDays} أيام`}
+                value={nearestDeadlineEvent ? formatDateShort(nearestDeadlineEvent.date) : "لا يوجد"}
+                sub={
+                  nearestDeadlineEvent
+                    ? `${nearestDeadlineEvent.title} — متبقٍ ${nearestDeadlineEventDays} ${nearestDeadlineEventDays === 1 ? "يوم" : "أيام"}`
+                    : "أضيفوا موعدًا بالتقويم"
+                }
                 color="brand"
                 tone="violet"
               />
@@ -488,7 +523,7 @@ export default function Overview() {
               title="رحلة تقدم البحث"
               subtitle="Research Progress Journey"
             />
-            <PhaseTracker stages={researchStages} />
+            <PhaseTracker stages={realStages} />
           </Card>
 
           <Card interactive>
@@ -519,7 +554,7 @@ export default function Overview() {
                       {task.title}
                     </span>
                     <div className="flex items-center gap-2">
-                      <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
+                      {assignee && <Avatar initials={assignee.initials} color={assignee.color} size="sm" />}
                       <span
                         className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}
                       >
@@ -587,7 +622,7 @@ export default function Overview() {
         <Card tone="violet" interactive>
           <CardHeader
             title="تقدم الفريق"
-            subtitle={topPerformer ? `🌟 ${topPerformer.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
+            subtitle={topPerformerId ? `🌟 ${topPerformer!.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
             action={
               <Link
                 to="/team"
@@ -598,10 +633,10 @@ export default function Overview() {
             }
           />
           <div className="flex justify-between">
-            {teamMembers.map((m) => (
+            {roster.map((m) => (
               <div key={m.id} className="flex flex-col items-center gap-2">
                 <div className="relative">
-                  {m.id === topPerformer?.id && (
+                  {m.id === topPerformerId && (
                     <Crown
                       size={14}
                       className="absolute -top-2 start-1/2 -translate-x-1/2 -translate-y-1/2 rotate-0 fill-amber-accent-400 text-amber-accent-500"
@@ -638,7 +673,7 @@ export default function Overview() {
             </p>
           </div>
           <p className="mb-3 text-xs text-brand-950/45">دراسة تمت مراجعتها من إجمالي المجمّعة</p>
-          <ProgressBar value={litReviewPct} />
+          <ProgressBar value={litReviewPct} color="amber-accent" track="bg-[var(--color-track)]" />
           <div className="mt-4 flex items-center justify-between text-sm">
             <span className="text-brand-950/70">الدراسات المتبقية</span>
             <span className="font-semibold text-brand-950">{remainingCount}</span>
@@ -659,7 +694,7 @@ export default function Overview() {
           />
           <ul className="space-y-3">
             {recentActivity.map((activity) => {
-              const member = memberById(activity.memberId);
+              const member = mockMemberById(activity.memberId);
               return (
                 <li key={activity.id} className="flex items-start gap-3">
                   <Avatar initials={member.initials} color={member.color} size="sm" />

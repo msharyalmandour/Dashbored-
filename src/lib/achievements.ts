@@ -1,5 +1,5 @@
 import { Flame, Library, Rocket, Target, Trophy, type LucideIcon } from "lucide-react";
-import type { EvidencePaper, ResearchStage, Task } from "../data/types";
+import type { EvidencePaper, PhaseStatus, Task } from "../data/types";
 
 export interface Achievement {
   id: string;
@@ -19,7 +19,7 @@ export const achievements: Achievement[] = [
 export function getUnlockedAchievementIds(ctx: {
   tasks: Task[];
   evidenceLibrary: EvidencePaper[];
-  researchStages: ResearchStage[];
+  researchStages: { status: PhaseStatus }[];
   overallProgress: number;
 }): Set<string> {
   const unlocked = new Set<string>();

@@ -1,8 +1,15 @@
 import { Check } from "lucide-react";
 import clsx from "clsx";
-import type { ResearchStage } from "../data/types";
+import type { PhaseStatus } from "../data/types";
 
-export default function PhaseTracker({ stages }: { stages: ResearchStage[] }) {
+interface PhaseTrackerStage {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  status: PhaseStatus;
+}
+
+export default function PhaseTracker({ stages }: { stages: PhaseTrackerStage[] }) {
   return (
     <div className="flex items-start justify-between overflow-x-auto pb-1">
       {stages.map((stage, i) => (

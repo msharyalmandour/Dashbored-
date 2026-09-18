@@ -673,7 +673,7 @@ export default function Overview() {
             </p>
           </div>
           <p className="mb-3 text-xs text-brand-950/45">دراسة تمت مراجعتها من إجمالي المجمّعة</p>
-          <ProgressBar value={litReviewPct} color="amber-accent" track="bg-[var(--color-track)]" />
+          <ProgressBar value={litReviewPct} color="amber-accent" track="bg-surface-muted" />
           <div className="mt-4 flex items-center justify-between text-sm">
             <span className="text-brand-950/70">الدراسات المتبقية</span>
             <span className="font-semibold text-brand-950">{remainingCount}</span>
@@ -692,27 +692,33 @@ export default function Overview() {
               </Link>
             }
           />
-          <ul className="space-y-3">
-            {recentActivity.map((activity) => {
-              const member = mockMemberById(activity.memberId);
-              return (
-                <li key={activity.id} className="flex items-start gap-3">
-                  <Avatar initials={member.initials} color={member.color} size="sm" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm text-brand-950">
-                      <span className="font-semibold">{member.name.split(" ")[0]}</span>{" "}
-                      {activity.action}{" "}
-                      <span className="font-semibold text-brand-700">"{activity.target}"</span>
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1 text-xs text-brand-950/40">
-                      <CheckCircle2 size={12} />
-                      {activity.timeAgo}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          {isSupabaseConfigured ? (
+            <p className="py-6 text-center text-sm text-brand-950/40">
+              ما فيه نشاط مسجَّل للفريق بعد — بيظهر هنا أول ما يبدأ الفريق يشتغل 🌱
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {recentActivity.map((activity) => {
+                const member = mockMemberById(activity.memberId);
+                return (
+                  <li key={activity.id} className="flex items-start gap-3">
+                    <Avatar initials={member.initials} color={member.color} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-brand-950">
+                        <span className="font-semibold">{member.name.split(" ")[0]}</span>{" "}
+                        {activity.action}{" "}
+                        <span className="font-semibold text-brand-700">"{activity.target}"</span>
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1 text-xs text-brand-950/40">
+                        <CheckCircle2 size={12} />
+                        {activity.timeAgo}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </Card>
       </div>
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   BadgeCheck,
   CalendarClock,
+  Check,
   CreditCard,
   FolderClosed,
   GraduationCap,
@@ -10,10 +11,12 @@ import {
   Users2,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import Avatar from "../components/ui/Avatar";
 import GrowingPlant from "../components/GrowingPlant";
 import CheckoutModal from "../components/CheckoutModal";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useTeamPayments } from "../hooks/useTeamPayments";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
 import { daysUntil, formatDateLong } from "../lib/date";
 
@@ -25,8 +28,9 @@ const includedFeatures = [
 ];
 
 export default function Pricing() {
-  const { team, isLeader } = useAuth();
+  const { team } = useAuth();
   const { roster } = useTeamRoster();
+  const { paidProfileIds } = useTeamPayments();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const state = getTeamSubscriptionState(team?.subscriptionEndDate);
@@ -114,26 +118,57 @@ export default function Pricing() {
             </p>
           )}
 
-          {isLeader ? (
-            <button
-              onClick={() => setCheckoutOpen(true)}
-              disabled={isActive}
-              className="relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 py-3.5 text-sm font-extrabold text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_16px_-4px_rgba(0,0,0,0.25)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4),0_8px_20px_-4px_rgba(0,0,0,0.3)] disabled:cursor-default disabled:opacity-70 disabled:shadow-none"
-            >
-              <CreditCard size={16} />
-              {isActive ? "اشتراككم مفعّل ✓" : "فعّلوا الاشتراك الآن"}
-            </button>
-          ) : (
-            <p className="mt-6 rounded-2xl bg-surface-muted px-3.5 py-3 text-center text-xs font-semibold text-brand-950/50">
-              خلّوا قائد فريقكم يفعّل الاشتراك بالبطاقة.
-            </p>
-          )}
+          <button
+            onClick={() => setCheckoutOpen(true)}
+            disabled={isActive}
+            className="relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 py-3.5 text-sm font-extrabold text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_16px_-4px_rgba(0,0,0,0.25)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4),0_8px_20px_-4px_rgba(0,0,0,0.3)] disabled:cursor-default disabled:opacity-70 disabled:shadow-none"
+          >
+            <CreditCard size={16} />
+            {isActive ? "اشتراككم مفعّل ✓" : "ادفعوا حصتكم الآن"}
+          </button>
 
           <p className="mt-3 text-center text-[11px] text-brand-950/40">
             ٧ أيام تجربة مجانية كاملة المزايا عند بداية الفريق · دفع آمن عبر Moyasar
           </p>
         </div>
       </div>
+
+      {/* Split payment roster — مين دفع حصته */}
+      <Card>
+        <CardHeader title="حصص الأعضاء هالشهر" subtitle="Who's paid" />
+        <ul className="space-y-2.5">
+          {roster.map((member) => {
+            const hasPaid = paidProfileIds.has(member.id);
+            return (
+              <li
+                key={member.id}
+                className="flex items-center justify-between gap-3 rounded-2xl bg-surface-muted p-3"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar initials={member.initials} color={member.color} size="sm" />
+                  <span className="truncate text-sm font-semibold text-brand-950">
+                    {member.name}
+                  </span>
+                </div>
+                {hasPaid ? (
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm shadow-brand-500/30">
+                    <Check size={12} />
+                    دفع حصته
+                  </span>
+                ) : (
+                  <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-brand-950/40">
+                    لسا
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-3 text-xs text-brand-950/45">
+          كل عضو يدفع نصيبه ({pricePerPerson} ريال) بشكل مستقل — يمدد اشتراك الفريق بحصته مباشرة،
+          بدون انتظار البقية.
+        </p>
+      </Card>
 
       <Card>
         <CardHeader title="أسئلة شائعة" subtitle="FAQ" />
@@ -142,6 +177,13 @@ export default function Pricing() {
             <p className="font-bold text-brand-950">هل السعر ثابت مهما كان عدد الفريق؟</p>
             <p className="mt-1 text-brand-950/55">
               لا، السعر {pricePerPerson} ريال لكل شخص، فيتغيّر تلقائيًا حسب عدد أعضاء فريقكم.
+            </p>
+          </div>
+          <div>
+            <p className="font-bold text-brand-950">لازم قائد الفريق يدفع، ولا أي عضو يقدر؟</p>
+            <p className="mt-1 text-brand-950/55">
+              أي عضو يقدر يدفع حصته بنفسه بأي وقت — ما يحتاج ينتظر قائد الفريق. قائد الفريق بس هو
+              اللي يقدر يدفع الفاتورة كاملة عن الكل دفعة وحدة لو حبى.
             </p>
           </div>
           <div>
@@ -159,7 +201,7 @@ export default function Pricing() {
         </div>
       </Card>
 
-      {checkoutOpen && isLeader && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
+      {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
   );
 }

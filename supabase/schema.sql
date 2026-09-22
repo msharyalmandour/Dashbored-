@@ -1527,3 +1527,15 @@ begin
     alter publication supabase_realtime add table public.ai_usage_daily;
   end if;
 end $$;
+
+-- ============================================================
+-- 10) دفع كل عضو حصته — بدل ما شخص واحد يدفع فاتورة الفريق كاملة، أي عضو
+--    يقدر يدفع نصيبه فقط. نربط كل دفعة بصاحبها (profile_id) عشان: (أ)
+--    نعرض قائمة "مين دفع حصته هالشهر" بصفحة الأسعار، و(ب) الـ webhook يمدد
+--    الاشتراك تراكميًا حسب نسبة المبلغ المدفوع من إجمالي فاتورة الفريق —
+--    مو شرط الكل يدفعون قبل لا يتفعّل أي شيء (تفصيل الحساب بـ
+--    moyasar-webhook، هذا فقط عمود التتبع).
+-- ============================================================
+alter table public.payments add column if not exists profile_id uuid references public.profiles (id) on delete set null;
+create index if not exists payments_profile_id_idx on public.payments (profile_id);
+create index if not exists payments_team_created_idx on public.payments (team_id, created_at);

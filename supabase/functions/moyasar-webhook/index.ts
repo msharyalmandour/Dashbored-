@@ -71,6 +71,9 @@ Deno.serve(async (req: Request) => {
   const amountHalalas = payment.amount as number | undefined;
   const metadata = payment.metadata as Record<string, unknown> | undefined;
   const teamId = metadata?.team_id as string | undefined;
+  // مين دفع بالضبط — يجي من الواجهة (MoyasarPayment.tsx يمرره ضمن metadata)، يخلي
+  // كل دفعة مربوطة بعضوها الصحيح بدل ما تكون مجهولة على مستوى الفريق فقط
+  const profileId = metadata?.profile_id as string | undefined;
 
   if (status !== "paid" || !teamId) {
     // نتجاهل أي حدث غير "paid" أو ناقص بيانات — نرجّع 200 عشان Moyasar ما يعيد المحاولة
@@ -82,7 +85,7 @@ Deno.serve(async (req: Request) => {
   // idempotency — لو نفس الدفعة وصلت أكتر من مرة (إعادة محاولة من Moyasar)، ما نمدد الاشتراك مرتين
   const { data: inserted, error: insertError } = await supabaseAdmin
     .from("payments")
-    .insert({ team_id: teamId, moyasar_payment_id: moyasarPaymentId, amount, status })
+    .insert({ team_id: teamId, moyasar_payment_id: moyasarPaymentId, amount, status, profile_id: profileId ?? null })
     .select("id")
     .maybeSingle();
 
@@ -100,7 +103,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: team, error: teamError } = await supabaseAdmin
     .from("teams")
-    .select("subscription_end_date, referred_by_team_id, referral_reward_granted")
+    .select("subscription_end_date, monthly_price, referred_by_team_id, referral_reward_granted")
     .eq("id", teamId)
     .single();
 
@@ -109,13 +112,26 @@ Deno.serve(async (req: Request) => {
     return new Response("error", { status: 500, headers: corsHeaders });
   }
 
+  // كل عضو يقدر يدفع حصته لحاله بدل ما شخص واحد يدفع الفاتورة كاملة — فبدل
+  // ما كل دفعة تمدد شهر كامل بشكل ثابت، نمدد بالتناسب: دفعة = حصة شخص واحد
+  // من أصل N أعضاء تمدد (١/N) من الشهر، ودفعة الفاتورة كاملة تمدد شهر كامل
+  // زي قبل. هذا يخلي الاشتراك تراكمي — كل عضو يدفع يزيد رصيد الأيام مباشرة،
+  // بدون ما ننتظر الكل يدفعون قبل لا يستفيد الفريق من أي شيء.
+  const { count: memberCount } = await supabaseAdmin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("team_id", teamId);
+  const totalMonthlyCost = (team.monthly_price as number) * Math.max(memberCount ?? 1, 1);
+  const daysToAdd =
+    totalMonthlyCost > 0 ? Math.max(Math.round((amount / totalMonthlyCost) * 30), 1) : 30;
+
   const currentEnd = team.subscription_end_date
     ? new Date(team.subscription_end_date as string)
     : new Date();
   const today = new Date();
   const base = currentEnd > today ? currentEnd : today;
   const newEnd = new Date(base);
-  newEnd.setMonth(newEnd.getMonth() + 1);
+  newEnd.setDate(newEnd.getDate() + daysToAdd);
   const newEndStr = newEnd.toISOString().slice(0, 10);
 
   await supabaseAdmin

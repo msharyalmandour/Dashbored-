@@ -9,9 +9,12 @@ import MoyasarPayment from "./MoyasarPayment";
     عبر callback_url). التحقق الحقيقي من نجاح الدفع وتفعيل الاشتراك يبقى
     بالكامل عند الـ webhook — هذا فقط تحسين للواجهة. */
 export default function CheckoutModal({ onClose }: { onClose: () => void }) {
-  const { team } = useAuth();
+  const { team, isLeader } = useAuth();
   const { roster } = useTeamRoster();
   const [paid, setPaid] = useState(false);
+  // أي عضو يدفع حصته بشكل افتراضي — دفع الفاتورة كاملة اختيار إضافي لقائد
+  // الفريق فقط (قرار يخص الفريق كله، مو كل عضو يقدر يسويه بالعفوية)
+  const [mode, setMode] = useState<"share" | "full">("share");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,7 +32,8 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   if (!team) return null;
 
   const memberCount = roster.length || 1;
-  const total = (team.monthlyPrice ?? 40) * memberCount;
+  const pricePerPerson = team.monthlyPrice ?? 40;
+  const total = mode === "full" ? pricePerPerson * memberCount : pricePerPerson;
 
   return (
     <div
@@ -81,26 +85,56 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div className="p-5">
+            {isLeader && (
+              <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-surface-muted p-1">
+                <button
+                  onClick={() => setMode("share")}
+                  className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                    mode === "share" ? "bg-white text-brand-700 shadow-sm" : "text-brand-950/50"
+                  }`}
+                >
+                  ادفع حصتك بس
+                </button>
+                <button
+                  onClick={() => setMode("full")}
+                  className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                    mode === "full" ? "bg-white text-brand-700 shadow-sm" : "text-brand-950/50"
+                  }`}
+                >
+                  ادفع للفريق كامل
+                </button>
+              </div>
+            )}
             <div className="mb-4 rounded-2xl bg-surface-muted p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-brand-950/60">الفريق</span>
                 <span className="font-semibold text-brand-950">{team.name}</span>
               </div>
               <div className="mt-1.5 flex items-center justify-between text-sm">
-                <span className="text-brand-950/60">عدد الأعضاء</span>
-                <span className="font-semibold text-brand-950">{memberCount}</span>
+                <span className="text-brand-950/60">
+                  {mode === "full" ? "عدد الأعضاء" : "حصتك أنت"}
+                </span>
+                <span className="font-semibold text-brand-950">
+                  {mode === "full" ? memberCount : `${pricePerPerson} ريال`}
+                </span>
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-brand-100 pt-3">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-950">
                   <CreditCard size={14} />
-                  الإجمالي شهريًا
+                  {mode === "full" ? "الإجمالي شهريًا" : "المبلغ الآن"}
                 </span>
                 <span className="font-display text-lg font-extrabold text-brand-700">
                   {total} ريال
                 </span>
               </div>
+              {mode === "share" && (
+                <p className="mt-3 text-[11px] text-brand-950/45">
+                  دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد
+                  الأيام تلقائيًا، بدون انتظار البقية.
+                </p>
+              )}
             </div>
-            <MoyasarPayment />
+            <MoyasarPayment mode={mode} />
           </div>
         )}
       </div>

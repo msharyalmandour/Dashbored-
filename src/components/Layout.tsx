@@ -96,31 +96,22 @@ export default function Layout() {
                 tone="info"
                 icon={GiftMotion}
                 action={
-                  isLeader && (
-                    <button
-                      onClick={() => setCheckoutOpen(true)}
-                      className="flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
-                    >
-                      <CreditCard size={13} />
-                      فعّلوا الاشتراك الآن
-                    </button>
-                  )
+                  <button
+                    onClick={() => setCheckoutOpen(true)}
+                    className="flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
+                  >
+                    <CreditCard size={13} />
+                    {isLeader ? "فعّلوا الاشتراك الآن" : "ادفعوا حصتكم"}
+                  </button>
                 }
               >
                 أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
                 {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
-                .{" "}
-                {isLeader ? (
-                  <>
-                    فعّلوا الاشتراك بأي وقت قبل ما تنتهي عشان ما تنقطع الخدمة، أو{" "}
-                    <Link to="/pricing" className="underline underline-offset-2">
-                      شوفوا الباقات
-                    </Link>
-                    .
-                  </>
-                ) : (
-                  "خلّوا قائد فريقكم يفعّل الاشتراك قبل ما تنتهي التجربة."
-                )}
+                . أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو{" "}
+                <Link to="/pricing" className="underline underline-offset-2">
+                  شوفوا الباقات
+                </Link>
+                .
               </AlertCard>
             )}
             {showReadOnlyBanner && (
@@ -130,9 +121,8 @@ export default function Layout() {
                     <>
                       اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
                       المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
-                      {isLeader
-                        ? "ادفعوا الآن بالبطاقة لتفعيل فوري، أو حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل."
-                        : "خلّوا قائد فريقكم يفعّل الاشتراك بالبطاقة أو تحويل STC Pay."}
+                      ادفعوا الآن بالبطاقة لتفعيل فوري — أي عضو يقدر يدفع حصته بس، مو لازم قائد
+                      الفريق.
                     </>
                   ) : (
                     <>
@@ -141,20 +131,20 @@ export default function Layout() {
                       للاستمرار في استخدام كل المزايا.
                     </>
                   )}
-                  {isLeader && (
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <button
-                        onClick={() => setCheckoutOpen(true)}
-                        className="flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
-                      >
-                        <CreditCard size={13} />
-                        ادفعوا الآن بالبطاقة
-                      </button>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={() => setCheckoutOpen(true)}
+                      className="flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
+                    >
+                      <CreditCard size={13} />
+                      {isLeader ? "ادفعوا الآن بالبطاقة" : "ادفعوا حصتكم بالبطاقة"}
+                    </button>
+                    {isLeader && (
                       <span className="text-xs font-semibold text-brand-950/45">
                         أو الطريقة اليدوية بالأسفل
                       </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   {isLeader && isSupabaseConfigured && (
                     <div className="mt-3">
                       <PaymentProofUpload />
@@ -169,7 +159,7 @@ export default function Layout() {
           </div>
         </main>
       </div>
-      {checkoutOpen && isLeader && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
+      {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
   );
 }

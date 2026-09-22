@@ -272,7 +272,7 @@ export default function Overview() {
             !tourFinished && (
               <button
                 onClick={startTour}
-                className="shrink-0 rounded-xl bg-amber-accent-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-accent-600"
+                className="shrink-0 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
               >
                 ابدأ الجولة
               </button>

@@ -41,6 +41,7 @@ export default function Pricing() {
       {/* Hero */}
       <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-gradient-to-b from-brand-50 to-paper px-6 py-10 text-center sm:px-10">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-accent-200/40 blur-3xl motion-reduce:animate-none" />
           <div className="pointer-events-none absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-brand-200/30 blur-3xl" />
 
@@ -57,7 +58,7 @@ export default function Pricing() {
             </span>
           </h1>
           <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">
-            باقة واحدة بسيطة تجمع فريقكم كامل — {pricePerPerson} ريال شهريًا لكل عضو، بدون شروط معقّدة.
+            باقة واحدة بسيطة تجمع فريقكم كامل — {pricePerPerson} ريال شهريًا لكل عضو، وجنبكم من أول يوم لآخر تسليم 🌱
           </p>
 
           <div className="relative mx-auto mt-7 flex w-fit items-center justify-center">
@@ -72,7 +73,7 @@ export default function Pricing() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {includedFeatures.map((f) => (
             <div key={f.label} className="flex items-start gap-3 rounded-2xl bg-surface-muted p-3.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-sm shadow-brand-500/30">
                 <f.icon size={15} />
               </span>
               <p className="mt-1 text-sm font-semibold text-brand-950/75">{f.label}</p>
@@ -84,11 +85,13 @@ export default function Pricing() {
       {/* Price card */}
       <div className="rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper p-6 sm:p-8">
-          <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-amber-accent-400 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-950/10 to-transparent" />
+          <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-accent-100/70 blur-3xl" />
+          <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
             الأكثر قيمة
           </span>
 
-          <div className="flex flex-col items-start gap-1">
+          <div className="relative flex flex-col items-start gap-1">
             <p className="flex items-center gap-1.5 text-xs font-bold text-brand-950/50">
               <BadgeCheck size={14} className="text-brand-500" />
               حالة الاشتراك: {subscriptionStateLabel[state]}
@@ -115,7 +118,7 @@ export default function Pricing() {
             <button
               onClick={() => setCheckoutOpen(true)}
               disabled={isActive}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 py-3.5 text-sm font-extrabold text-white shadow-md shadow-brand-500/30 transition-shadow hover:shadow-lg hover:shadow-brand-500/40 disabled:cursor-default disabled:opacity-70 disabled:shadow-none"
+              className="relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 py-3.5 text-sm font-extrabold text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_16px_-4px_rgba(0,0,0,0.25)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4),0_8px_20px_-4px_rgba(0,0,0,0.3)] disabled:cursor-default disabled:opacity-70 disabled:shadow-none"
             >
               <CreditCard size={16} />
               {isActive ? "اشتراككم مفعّل ✓" : "فعّلوا الاشتراك الآن"}

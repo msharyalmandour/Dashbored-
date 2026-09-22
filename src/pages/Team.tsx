@@ -50,7 +50,8 @@ function InviteCard() {
   };
 
   return (
-    <Card tone="cream" className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-4 rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <Card tone="cream" className="flex flex-col gap-3 !rounded-[calc(1.75rem-1.5px)] !shadow-none sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-100 text-amber-accent-700">
           <UserPlus size={18} />
@@ -64,12 +65,13 @@ function InviteCard() {
       </div>
       <button
         onClick={copy}
-        className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+        className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
       >
-        {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
+        {copied ? <Check size={15} /> : <Copy size={15} />}
         {copied ? "تم النسخ" : "نسخ رابط الدعوة"}
       </button>
     </Card>
+    </div>
   );
 }
 
@@ -98,7 +100,8 @@ function SupervisorLinkCard() {
   };
 
   return (
-    <Card tone="sky" className="mb-4 flex flex-col gap-3">
+    <div className="mb-4 rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <Card tone="sky" className="flex flex-col gap-3 !rounded-[calc(1.75rem-1.5px)] !shadow-none">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-100 text-sky-accent-700">
@@ -123,21 +126,22 @@ function SupervisorLinkCard() {
         <div className="flex shrink-0 items-center gap-2">
           <button
             onClick={copyReminder}
-            className="flex items-center justify-center gap-2 rounded-xl border border-sky-accent-200 bg-white px-4 py-2.5 text-sm font-bold text-sky-accent-700 hover:bg-sky-accent-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
           >
             {reminderCopied ? <Check size={15} /> : <Bell size={15} />}
             {reminderCopied ? "تم النسخ" : "نسخ رسالة تذكير"}
           </button>
           <button
             onClick={copy}
-            className="flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
           >
-            {copied ? <Check size={15} className="text-brand-600" /> : <Copy size={15} />}
+            {copied ? <Check size={15} /> : <Copy size={15} />}
             {copied ? "تم النسخ" : "نسخ الرابط"}
           </button>
         </div>
       </div>
     </Card>
+    </div>
   );
 }
 
@@ -157,7 +161,8 @@ function ReferralCard() {
   };
 
   return (
-    <Card tone="amber" className="mb-4">
+    <div className="mb-4 rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <Card tone="amber" className="!rounded-[calc(1.75rem-1.5px)] !shadow-none">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
@@ -176,14 +181,14 @@ function ReferralCard() {
             href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white hover:brightness-95"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
           >
             <MessageCircle size={15} />
             واتساب
           </a>
           <button
             onClick={copy}
-            className="flex items-center justify-center gap-2 rounded-xl border border-amber-accent-300 bg-white px-4 py-2.5 text-sm font-bold text-amber-accent-700 hover:bg-amber-accent-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
             {copied ? "تم النسخ" : "نسخ الرابط"}
@@ -210,6 +215,7 @@ function ReferralCard() {
         </div>
       )}
     </Card>
+    </div>
   );
 }
 

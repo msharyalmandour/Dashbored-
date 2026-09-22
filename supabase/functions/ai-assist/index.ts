@@ -31,6 +31,10 @@ const supabaseAdmin = createClient(
 // الرسائل ودّية بقصد (مو خطأ أحمر) عشان الطالبة تعرف بالضبط وش صار ومتى يرجع يشتغل.
 const CHAT_DAILY_LIMIT = 50;
 const SEARCH_MONTHLY_LIMIT = 10;
+// آخر ٢٠ رسالة (~١٠ تبادلات) تكفي كسياق لشات دعم بحثي — نحدّها عشان
+// محادثة طويلة جدًا ما تخلي تكلفة كل رسالة جديدة تكبر بلا حد (كل رسالة
+// جديدة أصلًا ترسل كل السجل قبلها)
+const MAX_CHAT_HISTORY = 20;
 const CHAT_LIMIT_MESSAGE =
   "وصلتوا للحد اليومي لرسائل المساعد الذكي (٥٠ رسالة) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
 const SEARCH_LIMIT_MESSAGE =
@@ -334,7 +338,9 @@ Deno.serve(async (req: Request) => {
       // content ممكن يكون نص عادي، أو مصفوفة أجزاء (نص + صورة base64) لما
       // الطالبة ترفق صورة (زي سكرين شوت تعليمات المشرفة) — Claude يدعم فهم
       // الصور مباشرة ضمن نفس المحادثة بدون أي معالجة إضافية من طرفنا
-      const messages = body.messages as Anthropic.MessageParam[];
+      const rawMessages = body.messages as Anthropic.MessageParam[];
+      const messages =
+        rawMessages.length > MAX_CHAT_HISTORY ? rawMessages.slice(-MAX_CHAT_HISTORY) : rawMessages;
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 2000,

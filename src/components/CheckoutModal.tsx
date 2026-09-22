@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, CreditCard, X } from "lucide-react";
+import { CheckCircle2, CreditCard, Sparkles, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import MoyasarPayment from "./MoyasarPayment";
@@ -37,16 +37,19 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-3xl border border-brand-100 bg-paper shadow-2xl shadow-black/20"
+        className="w-full max-w-md rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-2xl shadow-black/25"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-brand-100 px-5 py-4">
-          <p className="font-display text-base font-extrabold text-brand-950">
+      <div className="overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper">
+        <div className="relative flex items-center justify-between overflow-hidden bg-gradient-to-b from-brand-50 to-paper px-5 py-4">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-amber-accent-200/40 blur-2xl" />
+          <p className="relative flex items-center gap-1.5 font-display text-base font-extrabold text-brand-950">
+            <Sparkles size={15} className="text-amber-accent-500" />
             {paid ? "تم الدفع بنجاح" : "إتمام الاشتراك"}
           </p>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-brand-950/40 hover:bg-surface-muted"
+            className="relative rounded-lg p-1.5 text-brand-950/40 hover:bg-surface-muted"
           >
             <X size={18} />
           </button>
@@ -71,7 +74,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
             </p>
             <button
               onClick={onClose}
-              className="mt-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
+              className="mt-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
             >
               تمام
             </button>
@@ -100,6 +103,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
             <MoyasarPayment />
           </div>
         )}
+      </div>
       </div>
     </div>
   );

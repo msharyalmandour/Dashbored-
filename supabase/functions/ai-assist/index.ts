@@ -338,7 +338,12 @@ Deno.serve(async (req: Request) => {
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 2000,
-        system: CHAT_SYSTEM,
+        // نفس مرجع البروتوكولات يتكرر بكل رسالة — نكاشه (cache_control) عشان
+        // ما ندفع سعره كامل إلا أول مرة، والتكرارات تكلفتها أقل بكثير
+        system: [{ type: "text", text: CHAT_SYSTEM, cache_control: { type: "ephemeral" } }],
+        // effort منخفض يكفي لأسئلة الشات المباشرة (مو استنتاج معقّد متعدد
+        // الخطوات) — يوفر بدون ما يأثر على جودة إجابة سؤال عادي
+        output_config: { effort: "low" },
         messages,
       });
       return new Response(JSON.stringify({ text: textFrom(response.content) }), {
@@ -392,7 +397,9 @@ Deno.serve(async (req: Request) => {
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 2000,
-        system: IMPROVE_SYSTEM,
+        system: [{ type: "text", text: IMPROVE_SYSTEM, cache_control: { type: "ephemeral" } }],
+        // إعادة صياغة نص — مهمة ميكانيكية مباشرة، effort منخفض يعطي نفس الجودة بتكلفة أقل
+        output_config: { effort: "low" },
         messages: [{ role: "user", content: input }],
       });
       return new Response(JSON.stringify({ text: textFrom(response.content) }), {
@@ -430,7 +437,9 @@ Deno.serve(async (req: Request) => {
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 4000,
-        system: RESEARCH_SEARCH_SYSTEM,
+        system: [{ type: "text", text: RESEARCH_SEARCH_SYSTEM, cache_control: { type: "ephemeral" } }],
+        // effort بدون تخفيض هنا عمدًا — هذي هي الميزة الرئيسية اللي تعتمد
+        // على تحليل ومقارنة حقيقية لنتائج البحث، مو مهمة بسيطة
         tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 5 }],
         messages: [{ role: "user", content: `عنوان البحث: ${topic}` }],
       });

@@ -1419,3 +1419,51 @@ begin
     alter publication supabase_realtime add table public.ethical_approval;
   end if;
 end $$;
+
+-- =============================================================
+-- وكيل البحث العلمي — research_search_queries
+--
+-- كل صف نتيجة بحث ويب حقيقي (Claude web search) عن دراسات قريبة
+-- من عنوان بحث الفريق. results عبارة عن jsonb (استثناء متعمد عن
+-- النمط المعتاد بهذا الملف من أعمدة نصية مسطّحة) لأن كل نتيجة
+-- بحث سجل متعدد الحقول (عنوان، رابط، مؤلفين، ملخص، سبب الصلة،
+-- نوع المصدر) وعددها متغيّر لكل بحث — يحتاج يبقى بنية JSON
+-- عشان الواجهة تعرض كل حقل بشكل منفصل.
+-- =============================================================
+
+create table if not exists public.research_search_queries (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  query_text text not null,
+  results jsonb not null default '[]'::jsonb,
+  novelty_note text,
+  created_by uuid references public.profiles (id),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists research_search_queries_project_idx on public.research_search_queries (research_project_id);
+
+alter table public.research_search_queries enable row level security;
+
+drop policy if exists "research search queries viewable by the team" on public.research_search_queries;
+create policy "research search queries viewable by the team"
+  on public.research_search_queries for select
+  to authenticated
+  using (research_project_id = public.my_research_project_id());
+
+drop policy if exists "team can add research search queries" on public.research_search_queries;
+create policy "team can add research search queries"
+  on public.research_search_queries for insert
+  to authenticated
+  with check (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and created_by = auth.uid()
+  );
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'research_search_queries') then
+    alter publication supabase_realtime add table public.research_search_queries;
+  end if;
+end $$;

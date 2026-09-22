@@ -30,6 +30,7 @@ const baseItems = [
   { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
   { to: "/tasks", label: "مهامي", icon: ListChecks },
   { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
+  { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
   { to: "/team", label: "الفريق", icon: Users },
   { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
   { to: "/fieldwork", label: "الميدان", icon: MapPinned },

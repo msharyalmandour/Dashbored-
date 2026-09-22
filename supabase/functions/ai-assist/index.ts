@@ -190,6 +190,48 @@ const IMPROVE_SYSTEM = `أنت مساعد كتابة أكاديمية. تستل�
 أو تضيف معلومات جديدة. حافظ على نفس لغة النص المُدخل. رجّع النص المحسّن فقط،
 بدون مقدمات أو شرح.`;
 
+const RESEARCH_SEARCH_SYSTEM = `أنت وكيل بحث علمي داخل تطبيق Wesync. تستلم
+عنوان بحث تخرج تمريضي من فريق طلاب/طالبات، ومهمتك تبحثين فعليًا بالويب
+(مو تخمين أو معرفة سابقة) عن دراسات حقيقية وحديثة وثيقة الصلة بهذا العنوان.
+
+خطوات العمل:
+1. ابحثي بالويب عن دراسات منشورة قريبة من موضوع العنوان المُعطى — فضّلي
+   مصادر أكاديمية محكّمة (PubMed, CINAHL, Scopus, مجلات علمية) قدر الإمكان.
+2. رتّبي النتائج حسب القرب الفعلي من موضوع البحث (مو حسب الحداثة الزمنية).
+3. لكل دراسة حقيقية وجدتيها بالبحث: العنوان، الرابط الفعلي (URL حقيقي من
+   نتيجة البحث، لا تختلقي رابط أبدًا)، المؤلفين إن وُجدوا، سنة النشر إن
+   وُجدت، ملخص بالعربية بسطر أو سطرين، سبب قصير ليش هذي الدراسة ذات صلة،
+   وتصنيف نوع المصدر: "peer-reviewed" لو مجلة علمية محكّمة معروفة،
+   "general" لو مصدر عام موثوق لكن مو محكّم، أو "other" لأي مصدر آخر —
+   هذا التصنيف مهم عشان الطالبة تفرّق بين مصدر قوي وضعيف بوضوح، لا تخفي
+   المصادر الضعيفة، صنّفيها بصراحة.
+4. اكتبي أيضًا "novelty note" قصيرة بالعربية توضّح وش الجديد أو المختلف
+   ببحث الفريق مقارنة بالدراسات اللي طلعت بالبحث.
+
+قاعدة صارمة: لا تختلقي أي دراسة أو رابط أو مؤلف. إذا ما لقيتي نتائج كافية
+بالبحث الفعلي، رجّعي أقل عدد نتائج حقيقية بدل ما تخترعي نتائج وهمية.
+
+بعد ما تخلّصين شرحك، اختمي ردك بـ fenced code block بصيغة json بالضبط
+بهذا الشكل (بدون أي نص بعده):
+
+\`\`\`json
+{
+  "results": [
+    {
+      "title": "...",
+      "url": "...",
+      "authors": "...",
+      "year": 2024,
+      "summaryAr": "...",
+      "relevanceReason": "...",
+      "sourceType": "peer-reviewed"
+    }
+  ],
+  "noveltyNote": "..."
+}
+\`\`\`
+`;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -198,6 +240,38 @@ const corsHeaders = {
 function textFrom(content: Anthropic.ContentBlock[]): string {
   const block = content.find((b): b is Anthropic.TextBlock => b.type === "text");
   return block?.text ?? "";
+}
+
+// ردّ البحث بالويب يجي كذا كتلة نصية متفرقة بين نتائج البحث — نجمعها كلها
+function allTextFrom(content: Anthropic.ContentBlock[]): string {
+  return content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("\n");
+}
+
+interface ResearchSearchResultItem {
+  title: string;
+  url: string;
+  authors?: string;
+  year?: number | null;
+  summaryAr: string;
+  relevanceReason: string;
+  sourceType: "peer-reviewed" | "general" | "other";
+}
+
+function parseResearchSearchJson(
+  text: string,
+): { results: ResearchSearchResultItem[]; noveltyNote: string } | null {
+  const match = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (!match) return null;
+  try {
+    const parsed = JSON.parse(match[1]);
+    if (!Array.isArray(parsed.results)) return null;
+    return { results: parsed.results, noveltyNote: parsed.noveltyNote ?? "" };
+  } catch {
+    return null;
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -288,6 +362,35 @@ Deno.serve(async (req: Request) => {
         messages: [{ role: "user", content: input }],
       });
       return new Response(JSON.stringify({ text: textFrom(response.content) }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (body.action === "research-search") {
+      const topic = ((body.topic as string) ?? "").trim();
+      if (!topic) {
+        return new Response(JSON.stringify({ error: "العنوان مطلوب" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-5",
+        max_tokens: 4000,
+        system: RESEARCH_SEARCH_SYSTEM,
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 5 }],
+        messages: [{ role: "user", content: `عنوان البحث: ${topic}` }],
+      });
+      const fullText = allTextFrom(response.content);
+      const parsed = parseResearchSearchJson(fullText);
+      if (!parsed) {
+        // نرجّع النص الخام بدل ما نكسر الطلب — نفس أسلوب الدالة بكل مكان
+        return new Response(
+          JSON.stringify({ results: [], noveltyNote: "", rawText: fullText }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify(parsed), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

@@ -18,6 +18,7 @@ import {
   Sparkles,
   NotebookPen,
   FileCheck2,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
@@ -48,6 +49,7 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
       { to: "/methodology", label: "المنهجية", icon: FlaskConical },
       { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
       { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
+      { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
     ],
   },
   {

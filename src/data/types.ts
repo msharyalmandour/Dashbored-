@@ -295,6 +295,25 @@ export interface DriveFile {
 
 /** محضر اجتماع حقيقي — يُحفظ بقاعدة البيانات فورًا، وملف .docx يتولّد
     ويُرفع لنفس مجلد الفريق بدرايف بعدها */
+export interface ResearchSearchResult {
+  title: string;
+  url: string;
+  authors?: string;
+  year?: number | null;
+  summaryAr: string;
+  relevanceReason: string;
+  sourceType: "peer-reviewed" | "general" | "other";
+}
+
+export interface ResearchSearchQuery {
+  id: string;
+  queryText: string;
+  results: ResearchSearchResult[];
+  noveltyNote: string | null;
+  createdById: string;
+  createdAt: string;
+}
+
 export interface MeetingMinutesRow {
   id: string;
   meetingDate: string;

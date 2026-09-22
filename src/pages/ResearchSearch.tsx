@@ -147,12 +147,18 @@ export default function ResearchSearch() {
     noveltyNote: string | null;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
 
   const handleSearch = async () => {
     if (!topic.trim() || !currentUser || searching) return;
     setError(null);
+    setLimitMessage(null);
     setActiveResult(null);
-    const { row, error: searchError } = await runSearch(topic.trim(), currentUser.id);
+    const { row, error: searchError, limitMessage: limitMsg } = await runSearch(topic.trim(), currentUser.id);
+    if (limitMsg) {
+      setLimitMessage(limitMsg);
+      return;
+    }
     if (searchError || !row) {
       setError("تعذّر إتمام البحث — حاولوا مرة ثانية.");
       return;
@@ -198,6 +204,12 @@ export default function ResearchSearch() {
         )}
         {error && (
           <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">{error}</p>
+        )}
+        {limitMessage && (
+          <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">
+            <Sparkles size={15} className="mt-0.5 shrink-0" />
+            {limitMessage}
+          </p>
         )}
       </Card>
 

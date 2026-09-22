@@ -20,6 +20,22 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 
+// عميل صلاحيات كاملة — يُستخدم فقط لتسجيل/فحص حدود الاستخدام (usage caps)،
+// عشان الفحص يكون ذرّي وموثوق بغض النظر عن صلاحيات الطالب/ة نفسها
+const supabaseAdmin = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+);
+
+// حدود استخدام يومية/شهرية لكل فريق — تحكّم بتكلفة Anthropic API الحقيقية.
+// الرسائل ودّية بقصد (مو خطأ أحمر) عشان الطالبة تعرف بالضبط وش صار ومتى يرجع يشتغل.
+const CHAT_DAILY_LIMIT = 50;
+const SEARCH_MONTHLY_LIMIT = 10;
+const CHAT_LIMIT_MESSAGE =
+  "وصلتوا للحد اليومي لرسائل المساعد الذكي (٥٠ رسالة) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
+const SEARCH_LIMIT_MESSAGE =
+  "وصلتوا للحد الشهري لعمليات وكيل البحث العلمي (١٠ عمليات) — يتجدد أول الشهر الجاي. تقدرون ترجعون لعمليات البحث السابقة بالأسفل بأي وقت.";
+
 const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
 // صوت افتراضي عام يدعم العربية عبر نموذج eleven_multilingual_v2 — بدّليه
 // برمز صوت تختارينه من مكتبة ElevenLabs لو تبين صوت مختلف
@@ -294,9 +310,27 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("team_id")
+      .eq("id", user.id)
+      .single();
+    const teamId = profile?.team_id as string | undefined;
+
     const body = await req.json();
 
     if (body.action === "chat") {
+      if (teamId) {
+        const { data: usageResult } = await supabaseAdmin.rpc("increment_ai_chat_usage", {
+          p_team_id: teamId,
+          p_limit: CHAT_DAILY_LIMIT,
+        });
+        if (typeof usageResult === "number" && usageResult < 0) {
+          return new Response(JSON.stringify({ text: CHAT_LIMIT_MESSAGE, limitReached: true }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
       // content ممكن يكون نص عادي، أو مصفوفة أجزاء (نص + صورة base64) لما
       // الطالبة ترفق صورة (زي سكرين شوت تعليمات المشرفة) — Claude يدعم فهم
       // الصور مباشرة ضمن نفس المحادثة بدون أي معالجة إضافية من طرفنا
@@ -374,6 +408,25 @@ Deno.serve(async (req: Request) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+
+      const { data: projectId } = await supabase.rpc("my_research_project_id");
+      if (projectId) {
+        const monthStart = new Date();
+        monthStart.setDate(1);
+        monthStart.setHours(0, 0, 0, 0);
+        const { count } = await supabase
+          .from("research_search_queries")
+          .select("id", { count: "exact", head: true })
+          .eq("research_project_id", projectId)
+          .gte("created_at", monthStart.toISOString());
+        if ((count ?? 0) >= SEARCH_MONTHLY_LIMIT) {
+          return new Response(
+            JSON.stringify({ results: [], noveltyNote: "", limitReached: true, message: SEARCH_LIMIT_MESSAGE }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      }
+
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 4000,

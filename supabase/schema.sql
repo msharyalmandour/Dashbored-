@@ -1467,3 +1467,63 @@ begin
     alter publication supabase_realtime add table public.research_search_queries;
   end if;
 end $$;
+
+-- =============================================================
+-- حدود استخدام الذكاء الاصطناعي — تحكّم بتكلفة Anthropic API
+--
+-- المساعد الذكي (شات): حد يومي لكل فريق، يُحسب بجدول ai_usage_daily.
+-- وكيل البحث العلمي: حد شهري لكل فريق، يُحسب مباشرة من عدد صفوف
+-- research_search_queries هذا الشهر (ما يحتاج جدول عدّاد منفصل لأن
+-- كل عملية بحث أصلًا تتسجّل هناك).
+-- =============================================================
+
+create table if not exists public.ai_usage_daily (
+  team_id uuid not null references public.teams (id) on delete cascade,
+  usage_date date not null default current_date,
+  chat_count int not null default 0,
+  primary key (team_id, usage_date)
+);
+
+alter table public.ai_usage_daily enable row level security;
+
+drop policy if exists "team can view own ai usage" on public.ai_usage_daily;
+create policy "team can view own ai usage"
+  on public.ai_usage_daily for select
+  to authenticated
+  using (team_id = public.my_team_id());
+
+-- دالة الزيادة الذرّية — تُستدعى فقط من دالة ai-assist Edge Function عبر
+-- service role (ما فيها grant لـ authenticated/anon عن قصد). ترجّع الرقم
+-- الجديد لو زادت، أو رقم سالب (= -العدد الحالي) لو وصل الحد.
+create or replace function public.increment_ai_chat_usage(p_team_id uuid, p_limit int)
+returns int
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_count int;
+begin
+  insert into public.ai_usage_daily (team_id, usage_date, chat_count)
+  values (p_team_id, current_date, 1)
+  on conflict (team_id, usage_date)
+  do update set chat_count = ai_usage_daily.chat_count + 1
+  where ai_usage_daily.chat_count < p_limit
+  returning chat_count into v_count;
+
+  if v_count is null then
+    select chat_count into v_count from public.ai_usage_daily
+    where team_id = p_team_id and usage_date = current_date;
+    return -coalesce(v_count, p_limit);
+  end if;
+
+  return v_count;
+end;
+$$;
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'ai_usage_daily') then
+    alter publication supabase_realtime add table public.ai_usage_daily;
+  end if;
+end $$;

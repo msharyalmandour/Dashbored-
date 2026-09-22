@@ -57,6 +57,14 @@ export function useResearchSearch() {
       setSearching(false);
       return { row: null as ResearchSearchQuery | null, error: data?.error ?? fnError?.message };
     }
+    if (data?.limitReached) {
+      setSearching(false);
+      return {
+        row: null as ResearchSearchQuery | null,
+        error: undefined as string | undefined,
+        limitMessage: data.message as string,
+      };
+    }
 
     const { data: projectId } = await supabase!.rpc("my_research_project_id");
     const { data: inserted, error: insertError } = await supabase!

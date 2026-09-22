@@ -401,11 +401,12 @@ Deno.serve(async (req: Request) => {
     if (body.action === "improve") {
       const input = body.text as string;
       const response = await anthropic.messages.create({
-        model: "claude-sonnet-5",
+        // إعادة صياغة نص مهمة ميكانيكية مباشرة — Haiku 4.5 أرخص بكثير من Sonnet
+        // ويكفيها لهذي المهمة بالذات (بموافقة صريحة، مو تغيير افتراضي).
+        // ملاحظة: effort مو مدعوم على Haiku 4.5 (يرجّع خطأ لو انبعث) فحذفناه هنا
+        model: "claude-haiku-4-5",
         max_tokens: 2000,
         system: [{ type: "text", text: IMPROVE_SYSTEM, cache_control: { type: "ephemeral" } }],
-        // إعادة صياغة نص — مهمة ميكانيكية مباشرة، effort منخفض يعطي نفس الجودة بتكلفة أقل
-        output_config: { effort: "low" },
         messages: [{ role: "user", content: input }],
       });
       return new Response(JSON.stringify({ text: textFrom(response.content) }), {

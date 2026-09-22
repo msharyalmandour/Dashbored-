@@ -643,6 +643,7 @@ declare
   v_team_name text;
   v_note text;
   v_note_at timestamptz;
+  v_project_id uuid;
   result json;
 begin
   select id, name, supervisor_note, supervisor_note_at
@@ -651,6 +652,8 @@ begin
   if v_team_id is null then
     return null;
   end if;
+
+  select id into v_project_id from public.research_projects where team_id = v_team_id;
 
   select json_build_object(
     'teamName', v_team_name,
@@ -671,6 +674,36 @@ begin
       from public.tasks t
       left join public.profiles p on p.id = t.assignee_id
       where t.team_id = v_team_id
+    ),
+    'proposalSections', (
+      select coalesce(json_agg(json_build_object(
+        'key', ps.section_key,
+        'labelAr', ps.label_ar,
+        'labelEn', ps.label_en,
+        'status', ps.status,
+        'content', ps.content
+      ) order by ps.order_index), '[]'::json)
+      from public.proposal_sections ps
+      where ps.research_project_id = v_project_id
+    ),
+    'methodology', (
+      select json_build_object(
+        'studyDesign', m.study_design,
+        'studySetting', m.study_setting,
+        'population', m.population,
+        'samplingInclusion', m.sampling_inclusion,
+        'samplingExclusion', m.sampling_exclusion,
+        'sampleSize', m.sample_size,
+        'samplingTechnique', m.sampling_technique,
+        'dataCollectionMethods', m.data_collection_methods,
+        'dataCollectionProcedure', m.data_collection_procedure,
+        'dataAnalysis', m.data_analysis,
+        'ethicalConsiderations', m.ethical_considerations,
+        'studyToolType', m.study_tool_type,
+        'studyToolName', m.study_tool_name
+      )
+      from public.methodology m
+      where m.research_project_id = v_project_id
     )
   ) into result;
 

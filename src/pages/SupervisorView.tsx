@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   AlertTriangle,
+  BookOpenText,
   Check,
   CheckCircle2,
   Circle,
   Clock,
+  FlaskConical,
   MessageSquareText,
   ShieldCheck,
   Users,
@@ -27,12 +29,38 @@ interface SnapshotMember {
   role: string;
 }
 
+interface SnapshotProposalSection {
+  key: string;
+  labelAr: string;
+  labelEn: string;
+  status: "not-started" | "in-progress" | "done";
+  content: string;
+}
+
+type SnapshotMethodology = {
+  studyDesign: string;
+  studySetting: string;
+  population: string;
+  samplingInclusion: string[];
+  samplingExclusion: string[];
+  sampleSize: string;
+  samplingTechnique: string;
+  dataCollectionMethods: string[];
+  dataCollectionProcedure: string;
+  dataAnalysis: string;
+  ethicalConsiderations: string;
+  studyToolType: string;
+  studyToolName: string;
+} | null;
+
 interface Snapshot {
   teamName: string;
   supervisorNote: string | null;
   supervisorNoteAt: string | null;
   members: SnapshotMember[];
   tasks: SnapshotTask[];
+  proposalSections: SnapshotProposalSection[];
+  methodology: SnapshotMethodology;
 }
 
 const statusStyle: Record<SnapshotTask["status"], string> = {
@@ -48,6 +76,32 @@ const statusLabel: Record<SnapshotTask["status"], string> = {
   done: "مكتملة",
   overdue: "متأخرة",
 };
+
+const sectionStatusStyle: Record<SnapshotProposalSection["status"], string> = {
+  "not-started": "text-neutral-400 bg-neutral-100",
+  "in-progress": "text-amber-600 bg-amber-50",
+  done: "text-emerald-600 bg-emerald-50",
+};
+
+const sectionStatusLabel: Record<SnapshotProposalSection["status"], string> = {
+  "not-started": "لم يبدأ",
+  "in-progress": "قيد التنفيذ",
+  done: "مكتملة",
+};
+
+function methodologyField(label: string, value: string | string[]) {
+  const text = Array.isArray(value) ? value.join("، ") : value;
+  return (
+    <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-3.5">
+      <p className="text-xs font-bold text-neutral-400">{label}</p>
+      {text ? (
+        <p className="mt-1 text-sm font-semibold text-neutral-800">{text}</p>
+      ) : (
+        <p className="mt-1 text-sm italic text-neutral-300">لم يُحدد بعد</p>
+      )}
+    </div>
+  );
+}
 
 export default function SupervisorView() {
   const { token } = useParams<{ token: string }>();
@@ -228,6 +282,61 @@ export default function SupervisorView() {
             </ul>
           </div>
         </div>
+
+        <div className="mt-4 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-neutral-700">
+            <BookOpenText size={14} />
+            المقترح البحثي
+          </p>
+          <ul className="divide-y divide-neutral-100">
+            {snapshot.proposalSections.map((s) => (
+              <li key={s.key} className="py-3">
+                <div className="flex items-center gap-3">
+                  <span className="min-w-0 flex-1 text-sm font-semibold text-neutral-800">
+                    {s.labelAr}
+                    <span className="ms-1.5 text-xs font-normal text-neutral-400">{s.labelEn}</span>
+                  </span>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${sectionStatusStyle[s.status]}`}
+                  >
+                    {sectionStatusLabel[s.status]}
+                  </span>
+                </div>
+                {s.content ? (
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-neutral-600">{s.content}</p>
+                ) : (
+                  <p className="mt-2 text-sm italic text-neutral-300">لم يُكتب بعد</p>
+                )}
+              </li>
+            ))}
+            {snapshot.proposalSections.length === 0 && (
+              <p className="py-6 text-center text-sm text-neutral-400">ما فيه مقترح بحثي مسجّل بعد</p>
+            )}
+          </ul>
+        </div>
+
+        {snapshot.methodology && (
+          <div className="mt-4 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
+            <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-neutral-700">
+              <FlaskConical size={14} />
+              المنهجية
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {methodologyField("تصميم الدراسة", snapshot.methodology.studyDesign)}
+              {methodologyField("مكان الدراسة", snapshot.methodology.studySetting)}
+              {methodologyField("مجتمع الدراسة", snapshot.methodology.population)}
+              {methodologyField("حجم العينة", snapshot.methodology.sampleSize)}
+              {methodologyField("أسلوب اختيار العينة", snapshot.methodology.samplingTechnique)}
+              {methodologyField("معايير الاشتمال", snapshot.methodology.samplingInclusion)}
+              {methodologyField("معايير الاستبعاد", snapshot.methodology.samplingExclusion)}
+              {methodologyField("طريقة جمع البيانات", snapshot.methodology.dataCollectionMethods)}
+              {methodologyField("إجراء جمع البيانات", snapshot.methodology.dataCollectionProcedure)}
+              {methodologyField("تحليل البيانات", snapshot.methodology.dataAnalysis)}
+              {methodologyField("الاعتبارات الأخلاقية", snapshot.methodology.ethicalConsiderations)}
+              {methodologyField("أداة الدراسة", snapshot.methodology.studyToolName)}
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
           <p className="flex items-center gap-1.5 text-sm font-bold text-neutral-700">

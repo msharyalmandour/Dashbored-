@@ -61,6 +61,7 @@ interface AdminTeamRow {
   monthly_price: number;
   is_founder: boolean;
   on_trial: boolean;
+  university: string | null;
 }
 
 export function useAdminTeams() {
@@ -81,6 +82,7 @@ export function useAdminTeams() {
           monthlyPrice: Number(row.monthly_price),
           isFounder: row.is_founder,
           isOnTrial: row.on_trial,
+          university: row.university,
         })),
       );
     }

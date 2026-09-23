@@ -36,6 +36,8 @@ export interface Team {
   supervisorNoteAt?: string | null;
   /** رمز دعوة الفريق لفرق ثانية — يُستخدم برابط الإحالة (وضع Supabase الحقيقي فقط) */
   referralCode?: string;
+  /** جامعة الفريق — اختياري، تُدخل وقت التسجيل أو تُعدَّل لاحقًا من القائد */
+  university?: string | null;
 }
 
 /** إحصائيات إحالة فريق المستخدم الحالي — من دالة get_my_referral_stats */

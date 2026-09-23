@@ -38,10 +38,13 @@ interface AuthContextValue {
     gender: "male" | "female",
     teamId?: string,
     referralCode?: string,
+    university?: string,
   ) => Promise<AuthResult>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
   cancelPasswordRecovery: () => void;
+  /** قائد الفريق فقط — يعدّل جامعة الفريق من صفحة الفريق */
+  updateTeamUniversity: (university: string) => Promise<AuthResult>;
   logout: () => void;
 }
 
@@ -101,6 +104,7 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
     resetPassword: async () => ({ error: "Supabase غير مفعّل" }),
     updatePassword: async () => ({ error: "Supabase غير مفعّل" }),
     cancelPasswordRecovery: () => {},
+    updateTeamUniversity: async () => ({ error: "Supabase غير مفعّل" }),
     logout,
   };
 
@@ -164,7 +168,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           const { data: teamRow } = await supabase!
             .from("teams")
             .select(
-              "id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code",
+              "id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code, university",
             )
             .eq("id", team_id)
             .single();
@@ -181,6 +185,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               supervisorNote: teamRow.supervisor_note,
               supervisorNoteAt: teamRow.supervisor_note_at,
               referralCode: teamRow.referral_code,
+              university: teamRow.university,
             });
           }
         } else {
@@ -203,6 +208,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     gender: "male" | "female",
     teamId?: string,
     referralCode?: string,
+    university?: string,
   ) => {
     const { error } = await supabase!.auth.signUp({
       email,
@@ -214,9 +220,16 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           gender,
           ...(teamId ? { team_id: teamId } : {}),
           ...(referralCode ? { referral_code: referralCode } : {}),
+          ...(university?.trim() ? { university: university.trim() } : {}),
         },
       },
     });
+    return error ? { error: error.message } : {};
+  };
+
+  const updateTeamUniversity = async (university: string) => {
+    const { error } = await supabase!.rpc("update_team_university", { p_university: university });
+    if (!error) setTeam((prev) => (prev ? { ...prev, university: university.trim() || null } : prev));
     return error ? { error: error.message } : {};
   };
 
@@ -260,6 +273,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     resetPassword,
     updatePassword,
     cancelPasswordRecovery,
+    updateTeamUniversity,
     logout,
   };
 

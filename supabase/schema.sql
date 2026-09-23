@@ -233,6 +233,7 @@ declare
   new_team_id uuid;
   meta_team_id text := new.raw_user_meta_data ->> 'team_id';
   meta_referral_code text := new.raw_user_meta_data ->> 'referral_code';
+  meta_university text := nullif(trim(new.raw_user_meta_data ->> 'university'), '');
   referrer_team_id uuid;
   new_role text := 'member';
 begin
@@ -246,11 +247,13 @@ begin
     end if;
 
     -- أول شخص يسجل بدون رابط دعوة هو من ينشئ الفريق، فيصير تلقائيًا قائد الفريق
-    -- (تاريخ انتهاء الاشتراك يتحدد تلقائيًا بواسطة set_team_founder_flag — تجربة ٧ أيام لكل فريق جديد)
-    insert into public.teams (name, referred_by_team_id)
+    -- (تاريخ انتهاء الاشتراك يتحدد تلقائيًا بواسطة set_team_founder_flag — تجربة ٧ أيام لكل فريق جديد).
+    -- الجامعة تُسجَّل هنا بس لفريق جديد — عضو منضم لفريق موجود يرث جامعة فريقه.
+    insert into public.teams (name, referred_by_team_id, university)
     values (
       coalesce(new.raw_user_meta_data ->> 'name', split_part(new.email, '@', 1)) || ' — فريق بحثي',
-      referrer_team_id
+      referrer_team_id,
+      meta_university
     )
     returning id into new_team_id;
     new_role := 'leader';
@@ -467,7 +470,8 @@ end $$;
 -- 6) دوال صفحة "إدارة الاشتراكات" — Super Admin فقط
 -- ============================================================
 -- ترجّع كل الفرق مع حالتهم — يرفضها تلقائيًا لو المستخدم مو Super Admin
-create or replace function public.admin_list_teams()
+drop function if exists public.admin_list_teams();
+create function public.admin_list_teams()
 returns table (
   id uuid,
   name text,
@@ -475,18 +479,19 @@ returns table (
   member_count bigint,
   monthly_price numeric,
   is_founder boolean,
-  on_trial boolean
+  on_trial boolean,
+  university text
 )
 language sql
 security definer set search_path = public
 stable
 as $$
   select t.id, t.name, t.subscription_end_date, count(p.id) as member_count,
-         t.monthly_price, t.is_founder, t.on_trial
+         t.monthly_price, t.is_founder, t.on_trial, t.university
   from public.teams t
   left join public.profiles p on p.team_id = t.id
   where public.is_super_admin()
-  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder, t.on_trial
+  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder, t.on_trial, t.university
   order by t.subscription_end_date nulls first;
 $$;
 
@@ -1612,3 +1617,33 @@ end;
 $$;
 
 grant execute on function public.remove_team_member(uuid) to authenticated;
+
+-- ============================================================
+-- 12) جامعة الفريق — حقل اختياري بسيط (مو إعادة هيكلة لمجلدات Drive،
+--    بس لعرض/فلترة الفرق حسب جامعتها بصفحة الفريق ولوحة الأدمن).
+--    تُسجَّل تلقائيًا وقت إنشاء فريق جديد (handle_new_user فوق)، وقابلة
+--    للتعديل لاحقًا من قائد الفريق عبر update_team_university.
+-- ============================================================
+alter table public.teams add column if not exists university text;
+
+create or replace function public.update_team_university(p_university text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_role text;
+  v_team_id uuid;
+begin
+  select role, team_id into v_role, v_team_id from public.profiles where id = auth.uid();
+
+  if v_role is distinct from 'leader' or v_team_id is null then
+    raise exception 'قائد الفريق فقط يقدر يعدّل جامعة الفريق';
+  end if;
+
+  update public.teams set university = nullif(trim(p_university), '') where id = v_team_id;
+end;
+$$;
+
+grant execute on function public.update_team_university(text) to authenticated;

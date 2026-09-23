@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bell,
   Check,
@@ -74,6 +74,42 @@ function InviteCard() {
       </button>
     </Card>
     </div>
+  );
+}
+
+/** جامعة الفريق — عرض للجميع، وتعديل بسيط (onBlur) لقائد الفريق بس */
+function UniversityField() {
+  const { team, isLeader, updateTeamUniversity } = useAuth();
+  const [draft, setDraft] = useState(team?.university ?? "");
+
+  useEffect(() => {
+    setDraft(team?.university ?? "");
+  }, [team?.university]);
+
+  if (!team) return null;
+
+  if (!isLeader) {
+    return team.university ? (
+      <p className="mb-4 flex items-center gap-1.5 text-sm font-semibold text-brand-950/50">
+        <GraduationCap size={14} className="text-brand-500" />
+        {team.university}
+      </p>
+    ) : null;
+  }
+
+  return (
+    <label className="mb-4 flex items-center gap-2 text-sm">
+      <GraduationCap size={14} className="shrink-0 text-brand-500" />
+      <input
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          if (draft.trim() !== (team.university ?? "")) updateTeamUniversity(draft);
+        }}
+        placeholder="أضيفوا جامعة فريقكم (اختياري)"
+        className="w-full max-w-xs border-b border-dashed border-brand-200 bg-transparent font-semibold text-brand-950/70 outline-none focus:border-brand-400 placeholder:font-normal placeholder:italic placeholder:text-brand-950/35"
+      />
+    </label>
   );
 }
 
@@ -356,6 +392,7 @@ export default function Team() {
 
   return (
     <div>
+      {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
         <>
           <InviteCard />

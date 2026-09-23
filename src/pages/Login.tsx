@@ -28,6 +28,32 @@ const signupFeatures = [
   { icon: GraduationCap, label: "رابط قراءة لمشرفكم بدون دخول" },
 ];
 
+/** اقتراحات جاهزة بخانة "الجامعة" وقت التسجيل — الحقل نص حر أصلًا
+    (datalist)، فأي جامعة مو بالقائمة تُكتب يدويًا بدون أي قيد */
+const saudiUniversities = [
+  "جامعة الملك سعود",
+  "جامعة الملك عبدالعزيز",
+  "جامعة الملك فيصل",
+  "جامعة الملك خالد",
+  "جامعة الأميرة نورة بنت عبدالرحمن",
+  "جامعة أم القرى",
+  "جامعة طيبة",
+  "جامعة القصيم",
+  "جامعة الجوف",
+  "جامعة تبوك",
+  "جامعة نجران",
+  "جامعة الباحة",
+  "جامعة حائل",
+  "جامعة جازان",
+  "جامعة الحدود الشمالية",
+  "جامعة شقراء",
+  "جامعة الإمام عبدالرحمن بن فيصل",
+  "جامعة الطائف",
+  "الجامعة السعودية الإلكترونية",
+  "جامعة الأمير سطام بن عبدالعزيز",
+  "جامعة الإمام محمد بن سعود الإسلامية",
+];
+
 /** أشكال هندسية شفافة توحي بـ"شبكة بحثية" — دوائر متراكبة وخطوط منحنية،
     بحركة انسياب بطيئة جدًا لإحساس عمق بدون ما تشتت */
 function NetworkBackdrop() {
@@ -96,6 +122,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"male" | "female">("female");
+  const [university, setUniversity] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -133,6 +160,7 @@ export default function Login() {
           gender,
           inviteTeamId ?? undefined,
           referralCode ?? undefined,
+          university || undefined,
         )
       : await signInWithPassword(email, password);
 
@@ -380,6 +408,25 @@ export default function Login() {
                           </button>
                         </div>
                       </div>
+                    )}
+                    {isSignUp && !inviteTeamId && (
+                      <label className="block text-sm">
+                        <span className="mb-1 block font-semibold text-white/70">
+                          الجامعة <span className="font-normal text-white/40">(اختياري)</span>
+                        </span>
+                        <input
+                          list="university-options"
+                          value={university}
+                          onChange={(e) => setUniversity(e.target.value)}
+                          className={inputClass}
+                          placeholder="مثال: جامعة الملك سعود"
+                        />
+                        <datalist id="university-options">
+                          {saudiUniversities.map((u) => (
+                            <option key={u} value={u} />
+                          ))}
+                        </datalist>
+                      </label>
                     )}
                     <label className="block text-sm">
                       <span className="mb-1 block font-semibold text-white/70">البريد الجامعي</span>

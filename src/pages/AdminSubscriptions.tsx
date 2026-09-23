@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Gift,
+  GraduationCap,
   RefreshCw,
   ShieldCheck,
   Trophy,
@@ -171,7 +172,7 @@ export default function AdminSubscriptions() {
                       </span>
                     )}
                   </p>
-                  <p className="mt-0.5 flex items-center gap-3 text-xs text-brand-950/45">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-brand-950/45">
                     <span className="flex items-center gap-1.5">
                       <Users size={12} />
                       {team.memberCount} أعضاء
@@ -182,6 +183,12 @@ export default function AdminSubscriptions() {
                         {team.monthlyPrice * team.memberCount} ريال/شهر
                       </span>
                     </span>
+                    {team.university && (
+                      <span className="flex items-center gap-1.5">
+                        <GraduationCap size={12} />
+                        {team.university}
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="text-sm text-brand-950/60">

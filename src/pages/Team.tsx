@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Mail,
   MessageCircle,
+  MessageSquareQuote,
   ShieldCheck,
   UserMinus,
   UserPlus,
@@ -24,6 +25,7 @@ import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
+import { formatDateLong } from "../lib/date";
 
 function daysAgo(iso: string): number {
   const diff = Date.now() - new Date(iso).getTime();
@@ -176,6 +178,111 @@ function SupervisorLinkCard() {
               {copied ? "تم النسخ" : "نسخ الرابط"}
             </button>
           </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/** قسم أوسع ومفصّل للتواصل مع المشرف الأكاديمي — يضيف إرسال واتساب مباشر
+    (بدون رقم محدد، يفتح جهات الاتصال) وعرض آخر ملاحظة كاملة منه/منها،
+    بدل بطاقة "رابط المشرف" المدمجة أعلاه اللي تبقى كما هي. */
+function SupervisorContactSection() {
+  const { team } = useAuth();
+  const [copied, setCopied] = useState(false);
+  const [reminderCopied, setReminderCopied] = useState(false);
+
+  if (!team?.shareToken) return null;
+  const shareLink = `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}`;
+  const waitingDays = team.supervisorNoteAt ? daysAgo(team.supervisorNoteAt) : null;
+  const reminderMessage = team.supervisorNote
+    ? `مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n${shareLink}`
+    : `مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على Wesync — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n${shareLink}`;
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(shareLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyReminder = async () => {
+    await navigator.clipboard.writeText(reminderMessage);
+    setReminderCopied(true);
+    setTimeout(() => setReminderCopied(false), 2000);
+  };
+
+  return (
+    <div className="mb-4 rounded-[1.75rem] bg-gradient-to-br from-sky-accent-300 via-brand-300 to-sky-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+      <Card
+        tone="paper"
+        className="card-terra relative grid grid-cols-1 gap-6 overflow-hidden !rounded-[calc(1.75rem-1.5px)] md:grid-cols-2"
+      >
+        <div className="pointer-events-none absolute -top-10 -start-10 h-40 w-40 rounded-full bg-gradient-to-br from-sky-accent-400/30 to-brand-500/15 blur-2xl" />
+
+        <div className="relative">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-accent-100 text-sky-accent-700">
+              <GraduationCap size={18} />
+            </span>
+            <div>
+              <p className="font-display font-bold text-brand-950">التواصل مع المشرف الأكاديمي</p>
+              <p className="text-xs text-brand-950/45">Academic Supervisor</p>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-brand-950/55">
+            شاركوه مع مشرفكم بأي وسيلة تناسبكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.
+          </p>
+          <p dir="ltr" className="mt-3 truncate rounded-xl bg-surface-muted px-3 py-2 text-start text-xs text-brand-950/60">
+            {shareLink}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(reminderMessage)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
+            >
+              <MessageCircle size={13} />
+              إرسال واتساب
+            </a>
+            <button
+              onClick={copyReminder}
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
+            >
+              {reminderCopied ? <Check size={13} /> : <Bell size={13} />}
+              {reminderCopied ? "تم النسخ" : "نسخ رسالة تذكير"}
+            </button>
+            <button
+              onClick={copy}
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
+            >
+              {copied ? <Check size={13} /> : <Copy size={13} />}
+              {copied ? "تم النسخ" : "نسخ الرابط"}
+            </button>
+          </div>
+        </div>
+
+        <div className="relative flex flex-col rounded-2xl bg-surface-muted p-4">
+          <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-950/50">
+            <MessageSquareQuote size={13} className="text-sky-accent-600" />
+            آخر ملاحظة من المشرف
+          </p>
+          {team.supervisorNote ? (
+            <>
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-brand-950/80">{team.supervisorNote}</p>
+              {team.supervisorNoteAt && (
+                <p className="mt-3 text-xs font-semibold text-sky-accent-700">
+                  {formatDateLong(team.supervisorNoteAt.slice(0, 10))} — قبل{" "}
+                  {waitingDays === 0 ? "أقل من يوم" : `${waitingDays} ${waitingDays === 1 ? "يوم" : "أيام"}`}
+                </p>
+              )}
+            </>
+          ) : (
+            <div className="mt-3 flex flex-1 flex-col items-start justify-center gap-1.5">
+              <p className="text-sm font-semibold text-amber-accent-600">لسا ما وصلتكم ملاحظة من مشرفكم</p>
+              <p className="text-xs text-brand-950/45">ذكّروه بالرابط عبر واتساب أو رسالة التذكير الجاهزة.</p>
+            </div>
+          )}
         </div>
       </Card>
     </div>
@@ -380,11 +487,14 @@ export default function Team() {
     <div>
       {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
-        <div className="mb-4 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
-          <InviteCard />
-          <SupervisorLinkCard />
-          <ReferralCard />
-        </div>
+        <>
+          <div className="mb-4 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
+            <InviteCard />
+            <SupervisorLinkCard />
+            <ReferralCard />
+          </div>
+          <SupervisorContactSection />
+        </>
       )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {roster.map((member, i) => {

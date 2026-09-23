@@ -468,7 +468,10 @@ Deno.serve(async (req: Request) => {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch {
+  } catch (err) {
+    // نسجّل تفاصيل الخطأ الفعلية بالسجلات (logs) بس ما نرجّعها للمستخدم —
+    // عشان نقدر نشخّص مشاكل زي نفاد رصيد Anthropic أو مفتاح غير صالح بسرعة
+    console.error("ai-assist error:", err instanceof Error ? err.message : err);
     return new Response(JSON.stringify({ error: "صار خطأ غير متوقع، حاول مرة ثانية" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

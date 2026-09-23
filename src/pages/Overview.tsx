@@ -363,46 +363,49 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Welcome + progress — WESYNC OBSIDIAN × EMBER hero */}
-      <div className="theme-obsidian-ember space-y-4">
+      {/* Welcome + progress — WESYNC OBSIDIAN × EMBER hero. يستخدم متغيرات
+          الثيم القياسية (brand-*) مباشرة، مو نسخة محلية — فلو غيّرتوا الثيم
+          من المبدّل (أخضر/كحلي/أساسي) الهيرو يتلوّن معه تلقائيًا بدل ما
+          يبقى برتقالي ثابت. */}
+      <div className="space-y-4">
         <div
           ref={heroParallaxRef}
-          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[var(--ws-orange)]/50 via-white/5 to-[var(--ws-amber)]/40 p-[1px] shadow-2xl shadow-black/50"
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-500/50 via-white/5 to-brand-700/40 p-[1px] shadow-2xl shadow-black/50"
         >
-          <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-[var(--ws-bg)] p-6 sm:p-8">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-[ember-drift_13s_ease-in-out_infinite] rounded-full bg-[var(--ws-orange)]/25 blur-[90px] motion-reduce:animate-none" />
+          <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-paper p-6 sm:p-8">
+            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-[ember-drift_13s_ease-in-out_infinite] rounded-full bg-brand-500/25 blur-[90px] motion-reduce:animate-none" />
             <div
               className="pointer-events-none absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-[var(--color-overlay-soft)] blur-[80px] transition-transform duration-300 ease-out motion-reduce:transition-none"
               style={{ transform: `translate3d(${heroOffset.x * 0.5}px, ${heroOffset.y * 0.5}px, 0)` }}
             />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--ws-ember)]/60 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-600/60 to-transparent" />
 
             <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-3">
               {/* Greeting + progress */}
               <div className="lg:col-span-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ws-orange)]/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--ws-amber)] backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-700 backdrop-blur-sm">
                   <Sparkles size={11} />
                   مساحتكم البحثية
                 </span>
 
-                <p className="mt-3 flex items-center gap-2.5 font-display text-2xl font-extrabold text-[var(--ws-text)] sm:text-3xl">
+                <p className="mt-3 flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
                   <TimeOfDayBadge period={greeting.period} />
                   {greeting.text}،{" "}
-                  <span className="bg-gradient-to-l from-[var(--ws-orange)] to-[var(--ws-amber)] bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-l from-brand-500 to-brand-700 bg-clip-text text-transparent">
                     {currentUser?.name.split(" ")[0]}
                   </span>
                 </p>
-                <p className="mt-1.5 text-sm text-[var(--ws-muted)]">{heroMessage}</p>
+                <p className="mt-1.5 text-sm text-brand-950/50">{heroMessage}</p>
 
                 <div className="mt-6">
-                  <p className="text-sm font-semibold text-white/80">{projectTitle}</p>
+                  <p className="text-sm font-semibold text-brand-950/80">{projectTitle}</p>
                   {projectSubtitle && (
-                    <p className="text-xs text-[var(--ws-amber)]" dir="ltr">
+                    <p className="text-xs text-brand-700" dir="ltr">
                       {projectSubtitle}
                     </p>
                   )}
                   {weekNumber >= 1 && (
-                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-[var(--ws-muted)]">
+                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">
                       🔥 أسبوع رقم {weekNumber} من رحلتكم البحثية
                     </span>
                   )}
@@ -410,31 +413,31 @@ export default function Overview() {
 
                 <div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/5 bg-white/[0.03] px-3.5 py-2.5 backdrop-blur-sm">
                   {greeting.period === "night" ? (
-                    <Moon size={16} className="shrink-0 text-[var(--ws-amber)]" />
+                    <Moon size={16} className="shrink-0 text-brand-700" />
                   ) : (
-                    <Coffee size={16} className="shrink-0 text-[var(--ws-ember)]" />
+                    <Coffee size={16} className="shrink-0 text-brand-600" />
                   )}
-                  <p className="text-sm font-medium italic text-white/70">{dailyQuote}</p>
+                  <p className="text-sm font-medium italic text-brand-950/70">{dailyQuote}</p>
                 </div>
 
                 <div className="mt-5 flex flex-wrap items-center gap-5 rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
                   <RingProgress value={realOverallProgress} size={104} strokeWidth={9}>
-                    <span className="font-display text-xl font-extrabold text-[var(--ws-text)]">
+                    <span className="font-display text-xl font-extrabold text-brand-950">
                       <CountUp value={realOverallProgress} suffix="%" />
                     </span>
                   </RingProgress>
                   <div className="min-w-0 flex-1">
                     {showEmptyProgressState ? (
                       <>
-                        <p className="font-display text-base font-bold text-[var(--ws-text)]">
+                        <p className="font-display text-base font-bold text-brand-950">
                           ابدأوا رحلتكم البحثية اليوم
                         </p>
-                        <p className="mt-1 text-sm text-[var(--ws-muted)]">
+                        <p className="mt-1 text-sm text-brand-950/50">
                           كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.
                         </p>
                         <Link
                           to="/proposal"
-                          className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-[var(--ws-orange)] to-[var(--ws-ember)] px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
+                          className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
                         >
                           <Sparkles size={14} />
                           ابدأوا بالمقترح البحثي
@@ -442,8 +445,8 @@ export default function Overview() {
                       </>
                     ) : (
                       <>
-                        <p className="text-xs font-semibold text-[var(--ws-muted)]">نسبة تقدم البحث الكلية</p>
-                        <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-white/80">
+                        <p className="text-xs font-semibold text-brand-950/50">نسبة تقدم البحث الكلية</p>
+                        <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/80">
                           <CalendarClock size={15} className="shrink-0" />
                           {deadline
                             ? `الموعد النهائي — ${formatDateLong(deadline)} (متبقٍ ${remainingDays} يومًا)`
@@ -456,9 +459,9 @@ export default function Overview() {
 
                 <Link
                   to="/files"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-white/70 backdrop-blur-sm transition-colors hover:border-[var(--ws-orange)]/40 hover:text-[var(--ws-amber)]"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-brand-950/70 backdrop-blur-sm transition-colors hover:border-brand-500/40 hover:text-brand-700"
                 >
-                  <UploadCloud size={14} className="text-[var(--ws-ember)]" />
+                  <UploadCloud size={14} className="text-brand-600" />
                   اسحبوا أي ملف هنا
                 </Link>
               </div>
@@ -466,34 +469,34 @@ export default function Overview() {
               {/* Next meeting — real data, integrated into the hero */}
               <div className="flex flex-col justify-center">
                 <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
-                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[var(--ws-muted)]">
-                    <Video size={13} className="text-[var(--ws-ember)]" />
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-950/50">
+                    <Video size={13} className="text-brand-600" />
                     الاجتماع القادم
                   </p>
                   {nextMeeting ? (
                     <>
-                      <p className="mt-3 font-display text-lg font-extrabold text-[var(--ws-text)]">
+                      <p className="mt-3 font-display text-lg font-extrabold text-brand-950">
                         {nextMeeting.title}
                       </p>
-                      <p className="mt-1 text-sm text-[var(--ws-amber)]">
+                      <p className="mt-1 text-sm text-brand-700">
                         {formatDateLong(nextMeeting.date)} — {nextMeeting.time}
                       </p>
                       {nextMeeting.location && (
-                        <p className="mt-1 truncate text-xs text-[var(--ws-muted)]">{nextMeeting.location}</p>
+                        <p className="mt-1 truncate text-xs text-brand-950/50">{nextMeeting.location}</p>
                       )}
                       <Link
                         to="/calendar"
-                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-[var(--ws-orange)] to-[var(--ws-ember)] px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
                       >
                         افتحوا التقويم
                       </Link>
                     </>
                   ) : (
                     <>
-                      <p className="mt-3 text-sm text-white/60">ما فيه اجتماع مجدول قريب.</p>
+                      <p className="mt-3 text-sm text-brand-950/60">ما فيه اجتماع مجدول قريب.</p>
                       <Link
                         to="/calendar"
-                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3.5 py-2 text-xs font-bold text-[var(--ws-amber)] transition-colors hover:border-[var(--ws-orange)]/40"
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3.5 py-2 text-xs font-bold text-brand-700 transition-colors hover:border-brand-500/40"
                       >
                         جدولوا اجتماعًا
                       </Link>

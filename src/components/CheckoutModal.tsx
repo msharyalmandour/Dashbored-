@@ -90,7 +90,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
                 <button
                   onClick={() => setMode("share")}
                   className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-                    mode === "share" ? "bg-white text-brand-700 shadow-sm" : "text-brand-950/50"
+                    mode === "share" ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
                   }`}
                 >
                   ادفع حصتك بس
@@ -98,7 +98,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
                 <button
                   onClick={() => setMode("full")}
                   className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
-                    mode === "full" ? "bg-white text-brand-700 shadow-sm" : "text-brand-950/50"
+                    mode === "full" ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
                   }`}
                 >
                   ادفع للفريق كامل

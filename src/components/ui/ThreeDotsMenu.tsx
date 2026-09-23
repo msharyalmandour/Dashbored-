@@ -57,7 +57,7 @@ export default function ThreeDotsMenu({ items }: { items: ThreeDotsMenuItem[] })
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute end-0 top-full z-20 mt-1 min-w-[11rem] overflow-hidden rounded-xl border border-brand-100 bg-white py-1 shadow-lg shadow-brand-950/10"
+          className="absolute end-0 top-full z-20 mt-1 min-w-[11rem] overflow-hidden rounded-xl border border-brand-100 bg-paper py-1 shadow-lg shadow-brand-950/10"
         >
           {items.map((item, i) => {
             const isConfirming = confirmingIndex === i;

@@ -66,9 +66,9 @@ function NetworkBackdrop() {
     >
       <g className="animate-[network-drift_46s_ease-in-out_infinite]" strokeWidth="1">
         <circle cx="150" cy="180" r="130" stroke="#5eead4" />
-        <circle cx="640" cy="640" r="190" stroke="#fbbf24" />
+        <circle cx="640" cy="640" r="190" stroke="#ff6a00" />
         <circle cx="690" cy="130" r="90" stroke="#5eead4" />
-        <path d="M110 410 C 260 320, 420 490, 630 260" stroke="#fcd34d" />
+        <path d="M110 410 C 260 320, 420 490, 630 260" stroke="#ffb547" />
         <path d="M50 630 C 240 560, 380 710, 710 560" stroke="#5eead4" />
       </g>
     </svg>

@@ -100,7 +100,7 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
   if (!team || !currentUser) return null;
 
   return (
-    <div key={mode} className="mt-3 rounded-2xl border border-amber-accent-200 bg-white p-4">
+    <div key={mode} className="mt-3 rounded-2xl border border-amber-accent-200 bg-paper p-4">
       <div className="mb-3 flex items-center gap-2">
         <CreditCard size={16} className="text-amber-accent-600" />
         <p className="text-sm font-bold text-brand-950">

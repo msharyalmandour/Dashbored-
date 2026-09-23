@@ -10,16 +10,16 @@ import { CatmullRomCurve3, TubeGeometry, Vector3, type Mesh } from "three";
 export function LocalEnvironment() {
   return (
     <Environment resolution={256} frames={1}>
-      <Lightformer intensity={5} color="#fbbf24" position={[0, 3, -4]} scale={[9, 4, 1]} />
-      <Lightformer intensity={3} color="#fcd34d" position={[-5, 1, 3]} scale={[5, 5, 1]} rotation={[0, Math.PI / 2, 0]} />
+      <Lightformer intensity={5} color="#ff6a00" position={[0, 3, -4]} scale={[9, 4, 1]} />
+      <Lightformer intensity={3} color="#ffb547" position={[-5, 1, 3]} scale={[5, 5, 1]} rotation={[0, Math.PI / 2, 0]} />
       <Lightformer intensity={3} color="#ffffff" position={[5, -1, 3]} scale={[5, 5, 1]} rotation={[0, -Math.PI / 2, 0]} />
       <Lightformer intensity={2} color="#ffffff" position={[0, -5, 2]} scale={[6, 3, 1]} rotation={[Math.PI / 2, 0, 0]} />
     </Environment>
   );
 }
 
-export const GOLD = "#fbbf24";
-export const GOLD_LIGHT = "#fcd34d";
+export const GOLD = "#ff6a00";
+export const GOLD_LIGHT = "#ffb547";
 
 /** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار Wesync — عشان أي مشهد
     ثلاثي الأبعاد بالتطبيق (تسجيل الدخول، الهيرو، شعار المرشد الصوتي)

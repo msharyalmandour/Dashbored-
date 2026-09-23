@@ -156,7 +156,7 @@ export default function Pricing() {
                     دفع حصته
                   </span>
                 ) : (
-                  <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-brand-950/40">
+                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-bold text-brand-950/40">
                     لسا
                   </span>
                 )}

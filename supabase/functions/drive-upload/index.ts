@@ -42,6 +42,35 @@ async function getDriveAccessToken(): Promise<string | null> {
   return token ?? null;
 }
 
+/** يتأكد إن مجلد الفريق مُشارك بصيغة "أي حد يملك الرابط: مشاهدة" — بدون
+    هذا، الملفات تُنشأ داخل الـ Shared Drive اللي حساب الخدمة عضو فيه بس،
+    فأي رابط "افتح بدرايف" يوصّل الطالب/ة لشاشة "تحتاج صلاحية وصول" بدل
+    الملف الفعلي (الطلاب ما عندهم حساب Google مشترك بنفس الـ Workspace،
+    فعضوية الـ Shared Drive وحدها ما تكفي). نتحقق أول إذا الصلاحية موجودة
+    مسبقًا (نتجنب تكرارها بكل رفعة)، ونضيفها بس أول مرة — هذا يصلح تلقائيًا
+    حتى مجلدات فرق أُنشئت قبل هذا التعديل، أول ما أي عضو فيها يرفع ملف جديد. */
+async function ensureFolderIsLinkShared(accessToken: string, folderId: string): Promise<void> {
+  const listRes = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${folderId}/permissions?supportsAllDrives=true&fields=permissions(type)`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  if (listRes.ok) {
+    const { permissions } = (await listRes.json()) as { permissions?: { type: string }[] };
+    if (permissions?.some((p) => p.type === "anyone")) return;
+  }
+  const createRes = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${folderId}/permissions?supportsAllDrives=true`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "anyone", role: "reader" }),
+    },
+  );
+  if (!createRes.ok) {
+    console.error("Drive folder sharing failed:", await createRes.text());
+  }
+}
+
 /** ينشئ مجلد فرعي جديد باسم الفريق تحت الـ Shared Drive الرئيسي، ويربطه
     بمشروع الفريق — يصير أول ما فريق جديد (ما أعددنا له مجلد يدويًا) يحاول
     يرفع أي ملف لأول مرة. آمن من التسابق: لو فريقين حاولوا بنفس اللحظة،
@@ -151,6 +180,10 @@ Deno.serve(async (req: Request) => {
     if (!folderId) {
       return jsonError("رفع الملفات لدرايف غير مفعّل بعد على هذا المشروع — تواصلوا مع الدعم", 503);
     }
+    // نتأكد إن الطلاب فعليًا يقدرون يفتحون روابط الملفات (مو بس يُنشأ الملف
+    // داخل Shared Drive ما لهم عضوية فيه) — يشمل مجلدات فرق قديمة أُنشئت
+    // قبل ما نضيف هذا الجزء، تُصلَح تلقائيًا أول رفعة جديدة لها
+    await ensureFolderIsLinkShared(accessToken, folderId);
 
     const metadata = { name: file.name, parents: [folderId] };
     const boundary = `wesync-${crypto.randomUUID()}`;

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FileSpreadsheet, FileText, FileImage, File as FileIcon, ExternalLink } from "lucide-react";
+import { FileSpreadsheet, FileText, FileImage, File as FileIcon, ExternalLink, FolderOpen } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -7,6 +7,7 @@ import EmptyState from "../components/ui/EmptyState";
 import FileAttach from "../components/FileAttach";
 import { useFiles } from "../hooks/useFiles";
 import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useResearchProject } from "../hooks/useResearchProject";
 import type { DriveFile } from "../data/types";
 import { formatDateShort } from "../lib/date";
 
@@ -47,8 +48,12 @@ function categoryLabel(f: DriveFile) {
 export default function Files() {
   const { files, reload } = useFiles();
   const { roster } = useTeamRoster();
+  const { project } = useResearchProject();
   const memberById = (id: string) => roster.find((m) => m.id === id);
   const [folder, setFolder] = useState("all");
+  const teamFolderLink = project?.driveFolderId
+    ? `https://drive.google.com/drive/folders/${project.driveFolderId}`
+    : null;
 
   const folders = useMemo(
     () => ["all", ...Array.from(new Set(files.map(categoryLabel)))],
@@ -60,6 +65,25 @@ export default function Files() {
   return (
     <div className="space-y-5">
       <FileAttach onAttach={reload} />
+
+      {teamFolderLink ? (
+        <a
+          href={teamFolderLink}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-3 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
+        >
+          <span className="flex items-center gap-2">
+            <FolderOpen size={16} />
+            افتحوا مجلد الفريق كامل بدرايف
+          </span>
+          <ExternalLink size={15} />
+        </a>
+      ) : (
+        <p className="rounded-2xl bg-surface-muted px-4 py-3 text-xs font-semibold text-brand-950/45">
+          مجلد الفريق بدرايف يُنشأ تلقائيًا أول ما ترفعون أول ملف — بعدها يظهر هنا رابط لفتحه كامل.
+        </p>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {folders.map((f) => (

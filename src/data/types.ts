@@ -248,6 +248,8 @@ export interface ResearchProject {
   abstract: string;
   /** اسم المشرف الأكاديمي — يظهر بصفحة عنوان المقترح المُصدَّرة */
   supervisorName: string;
+  /** معرّف مجلد Google Drive الخاص بالفريق — null لين أول رفع ملف فعلي (يُنشأ تلقائيًا وقتها) */
+  driveFolderId?: string | null;
 }
 
 export type StageKey =

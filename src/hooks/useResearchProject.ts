@@ -16,6 +16,7 @@ interface ResearchProjectRow {
   updated_at: string;
   abstract: string;
   supervisor_name: string;
+  drive_folder_id: string | null;
 }
 
 function mapRow(row: ResearchProjectRow): ResearchProject {
@@ -32,6 +33,7 @@ function mapRow(row: ResearchProjectRow): ResearchProject {
     updatedAt: row.updated_at,
     abstract: row.abstract,
     supervisorName: row.supervisor_name,
+    driveFolderId: row.drive_folder_id,
   };
 }
 

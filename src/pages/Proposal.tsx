@@ -268,9 +268,12 @@ export default function Proposal() {
         </div>
 
         {!gap.connectsToAim && (
-          <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 p-3.5">
-            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-rose-500" />
-            <p className="text-sm font-semibold text-rose-600">
+          <div className="relative mt-4 flex items-start gap-3 overflow-hidden rounded-2xl border border-rose-100 bg-rose-50/80 px-4 py-3.5 backdrop-blur-md">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-400/40 to-transparent" />
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-[0_0_0_4px_rgba(244,63,94,0.14)]">
+              <AlertTriangle size={16} />
+            </span>
+            <p className="self-center text-sm font-semibold text-rose-600">
               تنبيه: الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة (Aim) — لازم تُصاغ الفجوة أولًا
               بشكل نهائي قبل كتابة الهدف.
             </p>

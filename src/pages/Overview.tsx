@@ -584,14 +584,20 @@ export default function Overview() {
           interactive
           className="card-terra grid grid-cols-1 divide-y divide-brand-100/40 !rounded-[calc(1.75rem-1.5px)] !p-0 lg:grid-cols-3 lg:divide-x lg:divide-x-reverse lg:divide-y-0"
         >
-          <div className="p-5">
-            <FocusSession />
+          <div className="relative overflow-hidden p-5">
+            <div className="pointer-events-none absolute -bottom-8 -end-8 h-36 w-36 rounded-full bg-gradient-to-br from-amber-accent-400/35 to-brand-600/20 blur-2xl" />
+            <div className="relative">
+              <FocusSession />
+            </div>
           </div>
           <div className="p-5">
             <ShareUpdate />
           </div>
-          <div className="p-5">
-            <TimeCapsule />
+          <div className="relative overflow-hidden p-5">
+            <div className="pointer-events-none absolute -top-8 -start-8 h-36 w-36 rounded-full bg-gradient-to-br from-brand-500/30 to-amber-accent-500/15 blur-2xl" />
+            <div className="relative">
+              <TimeCapsule />
+            </div>
           </div>
         </Card>
       </div>

@@ -9,12 +9,14 @@ import {
   Mail,
   MessageCircle,
   ShieldCheck,
+  UserMinus,
   UserPlus,
 } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader, type CardTone } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
+import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useReferralStats } from "../hooks/useReferralStats";
@@ -348,9 +350,9 @@ function ActivityLog() {
 }
 
 export default function Team() {
-  const { roster } = useTeamRoster();
+  const { roster, removeMember } = useTeamRoster();
   const { tasks } = useTasksData();
-  const { isLeader, mode } = useAuth();
+  const { isLeader, mode, currentUser } = useAuth();
 
   return (
     <div>
@@ -388,6 +390,19 @@ export default function Team() {
                   {member.title}
                 </p>
               </div>
+              {isLeader && mode === "supabase" && member.id !== currentUser?.id && (
+                <ThreeDotsMenu
+                  items={[
+                    {
+                      label: "إزالة من الفريق",
+                      confirmLabel: "تأكيد الإزالة؟",
+                      icon: UserMinus,
+                      tone: "danger",
+                      onClick: () => removeMember(member.id),
+                    },
+                  ]}
+                />
+              )}
             </div>
 
             <a

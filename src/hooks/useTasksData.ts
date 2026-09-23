@@ -113,5 +113,22 @@ export function useTasksData() {
     return { error: error?.message };
   };
 
-  return { tasks, loading, addTask, updateStatus };
+  const deleteTask = async (taskId: string) => {
+    if (!isSupabaseConfigured) {
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      return { error: undefined as string | undefined };
+    }
+
+    // حذف فوري بالواجهة (تفاؤلي) قبل انتظار رد الخادم — لو فشل نرجّعها
+    let previous: Task[] = [];
+    setTasks((prev) => {
+      previous = prev;
+      return prev.filter((t) => t.id !== taskId);
+    });
+    const { error } = await supabase!.from("tasks").delete().eq("id", taskId);
+    if (error) setTasks(previous);
+    return { error: error?.message };
+  };
+
+  return { tasks, loading, addTask, updateStatus, deleteTask };
 }

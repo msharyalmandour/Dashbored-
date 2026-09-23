@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { BookMarked, Check, Copy, Plus, Quote, X } from "lucide-react";
+import { BookMarked, Check, Copy, Plus, Quote, Trash2, X } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import EmptyState from "../components/ui/EmptyState";
+import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useTeamRoster } from "../hooks/useTeamRoster";
@@ -41,9 +42,9 @@ const emptyForm = {
 };
 
 export default function EvidenceLibrary() {
-  const { currentUser } = useAuth();
+  const { currentUser, isLeader } = useAuth();
   const isFemale = isFemaleUser(currentUser);
-  const { papers, addPaper, updateReviewStatus } = useEvidencePapers();
+  const { papers, addPaper, updateReviewStatus, deletePaper } = useEvidencePapers();
   const { roster } = useTeamRoster();
   const [filter, setFilter] = useState<"all" | EvidenceSection>("all");
   const [citationStyle, setCitationStyle] = useState<CitationStyle>("apa");
@@ -246,7 +247,22 @@ export default function EvidenceLibrary() {
                 <BookMarked size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-semibold leading-snug text-brand-950">{paper.title}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold leading-snug text-brand-950">{paper.title}</p>
+                  {(isLeader || paper.addedById === currentUser?.id) && (
+                    <ThreeDotsMenu
+                      items={[
+                        {
+                          label: "حذف الدراسة",
+                          confirmLabel: "تأكيد الحذف؟",
+                          icon: Trash2,
+                          tone: "danger",
+                          onClick: () => deletePaper(paper.id),
+                        },
+                      ]}
+                    />
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-brand-950/50">
                   {paper.authors} · {paper.year} · {paper.studyDesign}
                 </p>

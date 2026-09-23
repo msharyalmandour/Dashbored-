@@ -1539,3 +1539,76 @@ end $$;
 alter table public.payments add column if not exists profile_id uuid references public.profiles (id) on delete set null;
 create index if not exists payments_profile_id_idx on public.payments (profile_id);
 create index if not exists payments_team_created_idx on public.payments (team_id, created_at);
+
+-- ============================================================
+-- 11) حذف — tasks و evidence_papers عندها سياسات حذف من قبل، بس
+--    meeting_minutes وresearch_search_queries ما عندها. نضيفها هنا بنفس
+--    نمط "الكاتب أو القائد يقدر يحذف، والفريق لازم يقدر يكتب (اشتراك فعّال)"
+--    المستخدم بباقي الجداول. + دالة لإزالة عضو من الفريق (قائد الفريق بس،
+--    ومو نفسه) عشان قائمة النقاط الثلاث بصفحة الفريق.
+--
+--    ملاحظة: جدول task_comments معرّف بقسم (٣) فوق لكنه ما انطبّق فعليًا
+--    على قاعدة البيانات الحية (تحقّقنا مباشرة) — ميزة "تعليقات المهام"
+--    معطّلة بالإنتاج حاليًا بصمت. ما أضفنا سياسة حذف له هنا لنفس السبب —
+--    يحتاج قرار منفصل: نطبّق الجدول فعليًا أو نشيله من الواجهة.
+-- ============================================================
+drop policy if exists "author or leader can delete meeting minutes" on public.meeting_minutes;
+create policy "author or leader can delete meeting minutes"
+  on public.meeting_minutes for delete
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and (
+      created_by = auth.uid()
+      or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+    )
+  );
+
+drop policy if exists "author or leader can delete research search queries" on public.research_search_queries;
+create policy "author or leader can delete research search queries"
+  on public.research_search_queries for delete
+  to authenticated
+  using (
+    research_project_id = public.my_research_project_id()
+    and public.team_can_write(public.my_team_id())
+    and (
+      created_by = auth.uid()
+      or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+    )
+  );
+
+-- إزالة عضو من الفريق: قائد الفريق بس، وعلى عضو غيره (مو نفسه). نخلي
+-- team_id = null بدل حذف الـ profile نفسه — يحافظ على أي مهام/دفعات قديمة
+-- مرتبطة فيه بدون كسر أي مرجع (foreign key)، وبس يوقف وصوله لبيانات الفريق.
+create or replace function public.remove_team_member(target_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_caller_role text;
+  v_caller_team uuid;
+  v_target_team uuid;
+begin
+  select role, team_id into v_caller_role, v_caller_team from public.profiles where id = auth.uid();
+  select team_id into v_target_team from public.profiles where id = target_id;
+
+  if v_caller_role is distinct from 'leader' then
+    raise exception 'قائد الفريق فقط يقدر يزيل عضو';
+  end if;
+
+  if v_caller_team is null or v_caller_team is distinct from v_target_team then
+    raise exception 'العضو مو بنفس فريقك';
+  end if;
+
+  if target_id = auth.uid() then
+    raise exception 'ما تقدر تزيل نفسك';
+  end if;
+
+  update public.profiles set team_id = null where id = target_id;
+end;
+$$;
+
+grant execute on function public.remove_team_member(uuid) to authenticated;

@@ -41,5 +41,20 @@ export function useTeamRoster() {
     });
   }, []);
 
-  return { roster, loading };
+  const removeMember = async (memberId: string) => {
+    if (!isSupabaseConfigured) {
+      setRoster((prev) => prev.filter((m) => m.id !== memberId));
+      return { error: undefined as string | undefined };
+    }
+    let previous: TeamMember[] = [];
+    setRoster((prev) => {
+      previous = prev;
+      return prev.filter((m) => m.id !== memberId);
+    });
+    const { error } = await supabase!.rpc("remove_team_member", { target_id: memberId });
+    if (error) setRoster(previous);
+    return { error: error?.message };
+  };
+
+  return { roster, loading, removeMember };
 }

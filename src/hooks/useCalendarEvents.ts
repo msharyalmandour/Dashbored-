@@ -30,5 +30,13 @@ export function useCalendarEvents() {
     });
   };
 
-  return { events, addEvent };
+  const deleteEvent = (id: string) => {
+    setLocalEvents((prev) => {
+      const updated = prev.filter((e) => e.id !== id);
+      localStorage.setItem(LOCAL_EVENTS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  return { events, addEvent, deleteEvent };
 }

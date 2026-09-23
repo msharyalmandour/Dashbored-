@@ -100,5 +100,20 @@ export function useEvidencePapers() {
     return { error: error?.message };
   };
 
-  return { papers, loading, addPaper, updateReviewStatus };
+  const deletePaper = async (paperId: string) => {
+    if (!isSupabaseConfigured) {
+      setPapers((prev) => prev.filter((p) => p.id !== paperId));
+      return { error: undefined as string | undefined };
+    }
+    let previous: EvidencePaper[] = [];
+    setPapers((prev) => {
+      previous = prev;
+      return prev.filter((p) => p.id !== paperId);
+    });
+    const { error } = await supabase!.from("evidence_papers").delete().eq("id", paperId);
+    if (error) setPapers(previous);
+    return { error: error?.message };
+  };
+
+  return { papers, loading, addPaper, updateReviewStatus, deletePaper };
 }

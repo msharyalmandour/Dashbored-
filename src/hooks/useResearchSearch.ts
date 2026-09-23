@@ -87,5 +87,16 @@ export function useResearchSearch() {
     return { row: null as ResearchSearchQuery | null, error: insertError?.message };
   };
 
-  return { searches, loading, searching, runSearch };
+  const deleteSearch = async (id: string) => {
+    let previous: ResearchSearchQuery[] = [];
+    setSearches((prev) => {
+      previous = prev;
+      return prev.filter((s) => s.id !== id);
+    });
+    const { error } = await supabase!.from("research_search_queries").delete().eq("id", id);
+    if (error) setSearches(previous);
+    return { error: error?.message };
+  };
+
+  return { searches, loading, searching, runSearch, deleteSearch };
 }

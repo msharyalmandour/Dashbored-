@@ -2,7 +2,8 @@ import { useState } from "react";
 import clsx from "clsx";
 import Avatar from "./ui/Avatar";
 import EmptyState from "./ui/EmptyState";
-import { Inbox } from "lucide-react";
+import ThreeDotsMenu from "./ui/ThreeDotsMenu";
+import { Inbox, Trash2 } from "lucide-react";
 import type { Task, TaskStatus, TeamMember } from "../data/types";
 import { formatDateShort } from "../lib/date";
 
@@ -24,11 +25,15 @@ export default function TasksKanban({
   memberById,
   canToggleTask,
   onChangeStatus,
+  isLeader,
+  onDelete,
 }: {
   tasks: Task[];
   memberById: (id: string) => Pick<TeamMember, "id" | "name" | "initials" | "color">;
   canToggleTask: (task: Task) => boolean;
   onChangeStatus: (task: Task, nextStatus: TaskStatus) => void;
+  isLeader?: boolean;
+  onDelete?: (taskId: string) => void;
 }) {
   const [dragOverCol, setDragOverCol] = useState<TaskStatus | null>(null);
 
@@ -84,7 +89,22 @@ export default function TasksKanban({
                     draggable ? "cursor-grab active:cursor-grabbing" : "opacity-80",
                   )}
                 >
-                  <p className="text-sm font-semibold text-brand-950">{task.title}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-brand-950">{task.title}</p>
+                    {isLeader && onDelete && (
+                      <ThreeDotsMenu
+                        items={[
+                          {
+                            label: "حذف المهمة",
+                            confirmLabel: "تأكيد الحذف؟",
+                            icon: Trash2,
+                            tone: "danger",
+                            onClick: () => onDelete(task.id),
+                          },
+                        ]}
+                      />
+                    )}
+                  </div>
                   <div className="flex items-center justify-between gap-2">
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${priorityStyle[task.priority]}`}>
                       {task.priority === "low" ? "منخفضة" : task.priority === "medium" ? "متوسطة" : "عالية"}

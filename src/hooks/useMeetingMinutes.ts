@@ -74,5 +74,16 @@ export function useMeetingMinutes() {
     return { row: data ? mapRow(data as MinutesRowDb) : null, error: error?.message };
   };
 
-  return { minutes, loading, addMinutes, reload: load };
+  const deleteMinutes = async (id: string) => {
+    let previous: MeetingMinutesRow[] = [];
+    setMinutes((prev) => {
+      previous = prev;
+      return prev.filter((m) => m.id !== id);
+    });
+    const { error } = await supabase!.from("meeting_minutes").delete().eq("id", id);
+    if (error) setMinutes(previous);
+    return { error: error?.message };
+  };
+
+  return { minutes, loading, addMinutes, deleteMinutes, reload: load };
 }

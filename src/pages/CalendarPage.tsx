@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { CalendarClock, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, X } from "lucide-react";
+import { CalendarClock, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, Trash2, X } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
+import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import MiniCalendar from "../components/MiniCalendar";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useAuth } from "../context/AuthContext";
@@ -34,7 +35,7 @@ const typeLabel: Record<CalendarEventType, string> = {
 
 export default function CalendarPage() {
   const { canWrite } = useAuth();
-  const { events, addEvent } = useCalendarEvents();
+  const { events, addEvent, deleteEvent } = useCalendarEvents();
   const [selectedDate, setSelectedDate] = useState(toISODate(today));
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -188,6 +189,19 @@ export default function CalendarPage() {
                     </p>
                     <p className="mt-0.5 text-xs text-brand-950/40">{event.location}</p>
                   </div>
+                  {event.id.startsWith("local-") && (
+                    <ThreeDotsMenu
+                      items={[
+                        {
+                          label: "حذف الحدث",
+                          confirmLabel: "تأكيد الحذف؟",
+                          icon: Trash2,
+                          tone: "danger",
+                          onClick: () => deleteEvent(event.id),
+                        },
+                      ]}
+                    />
+                  )}
                 </li>
               );
             })}

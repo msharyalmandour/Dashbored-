@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { CalendarDays, Check, ExternalLink, Loader2, NotebookPen, Users2 } from "lucide-react";
+import { CalendarDays, Check, ExternalLink, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
+import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useMeetingMinutes } from "../hooks/useMeetingMinutes";
@@ -15,11 +16,11 @@ const inputClass =
   "w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300";
 
 export default function MeetingMinutes() {
-  const { currentUser } = useAuth();
+  const { currentUser, isLeader } = useAuth();
   const isFemale = isFemaleUser(currentUser);
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
-  const { minutes, loading, addMinutes, reload } = useMeetingMinutes();
+  const { minutes, loading, addMinutes, deleteMinutes, reload } = useMeetingMinutes();
 
   const [meetingDate, setMeetingDate] = useState(toISODate(new Date()));
   const [attendeeIds, setAttendeeIds] = useState<string[]>([]);
@@ -224,6 +225,19 @@ export default function MeetingMinutes() {
                   </a>
                 ) : (
                   <span className="text-xs text-brand-950/40">جاري الرفع لدرايف...</span>
+                )}
+                {(isLeader || m.createdById === currentUser?.id) && (
+                  <ThreeDotsMenu
+                    items={[
+                      {
+                        label: "حذف المحضر",
+                        confirmLabel: "تأكيد الحذف؟",
+                        icon: Trash2,
+                        tone: "danger",
+                        onClick: () => deleteMinutes(m.id),
+                      },
+                    ]}
+                  />
                 )}
               </div>
               {m.attendees.length > 0 && (

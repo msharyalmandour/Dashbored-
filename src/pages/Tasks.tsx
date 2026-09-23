@@ -10,6 +10,7 @@ import {
   MessageCircle,
   PartyPopper as PartyPopperIcon,
   Plus,
+  Trash2,
   X,
 } from "lucide-react";
 import clsx from "clsx";
@@ -22,6 +23,7 @@ import ImproveWritingButton from "../components/ImproveWritingButton";
 import TaskComments from "../components/TaskComments";
 import ConfettiBurst from "../components/cinematic/ConfettiBurst";
 import TasksKanban from "../components/TasksKanban";
+import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
@@ -92,7 +94,7 @@ const filters: { id: string; label: string }[] = [
 export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
-  const { tasks, loading, addTask, updateStatus } = useTasksData();
+  const { tasks, loading, addTask, updateStatus, deleteTask } = useTasksData();
   const { comments, addComment } = useTaskComments();
   const { showToast } = useToast();
   const [filter, setFilter] = useState("all");
@@ -334,6 +336,8 @@ export default function Tasks() {
           memberById={memberById}
           canToggleTask={canToggleTask}
           onChangeStatus={changeStatus}
+          isLeader={isLeader}
+          onDelete={deleteTask}
         />
       ) : (
         <div className="grid grid-cols-1 gap-3">
@@ -414,6 +418,19 @@ export default function Tasks() {
                     <MessageCircle size={16} />
                     {taskComments.length > 0 && taskComments.length}
                   </button>
+                  {isLeader && (
+                    <ThreeDotsMenu
+                      items={[
+                        {
+                          label: "حذف المهمة",
+                          confirmLabel: "تأكيد الحذف؟",
+                          icon: Trash2,
+                          tone: "danger",
+                          onClick: () => deleteTask(task.id),
+                        },
+                      ]}
+                    />
+                  )}
                 </div>
                 {isExpanded && (
                   <TaskComments

@@ -7,9 +7,11 @@ import {
   Loader2,
   Search,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
+import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -136,10 +138,10 @@ function ResultCard({
 }
 
 export default function ResearchSearch() {
-  const { currentUser } = useAuth();
+  const { currentUser, isLeader } = useAuth();
   const isFemale = isFemaleUser(currentUser);
   const { project } = useResearchProject();
-  const { searches, loading, searching, runSearch } = useResearchSearch();
+  const { searches, loading, searching, runSearch, deleteSearch } = useResearchSearch();
 
   const [topic, setTopic] = useState(project?.title ?? "");
   const [activeResult, setActiveResult] = useState<{
@@ -258,20 +260,30 @@ export default function ResearchSearch() {
           </Card>
         ) : (
           searches.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setActiveResult({ results: s.results, noveltyNote: s.noveltyNote })}
-              className="block w-full text-start"
-            >
-              <Card interactive className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-brand-950">{s.queryText}</p>
-                  <p className="text-xs text-brand-950/45">
-                    {formatDateLong(s.createdAt)} · {s.results.length} نتيجة
-                  </p>
-                </div>
-              </Card>
-            </button>
+            <Card key={s.id} interactive className="flex items-center justify-between gap-3">
+              <button
+                onClick={() => setActiveResult({ results: s.results, noveltyNote: s.noveltyNote })}
+                className="min-w-0 flex-1 text-start"
+              >
+                <p className="truncate text-sm font-bold text-brand-950">{s.queryText}</p>
+                <p className="text-xs text-brand-950/45">
+                  {formatDateLong(s.createdAt)} · {s.results.length} نتيجة
+                </p>
+              </button>
+              {(isLeader || s.createdById === currentUser?.id) && (
+                <ThreeDotsMenu
+                  items={[
+                    {
+                      label: "حذف عملية البحث",
+                      confirmLabel: "تأكيد الحذف؟",
+                      icon: Trash2,
+                      tone: "danger",
+                      onClick: () => deleteSearch(s.id),
+                    },
+                  ]}
+                />
+              )}
+            </Card>
           ))
         )}
       </div>

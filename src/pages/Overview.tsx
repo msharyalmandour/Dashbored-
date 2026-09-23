@@ -446,12 +446,24 @@ export default function Overview() {
                     ) : (
                       <>
                         <p className="text-xs font-semibold text-brand-950/50">نسبة تقدم البحث الكلية</p>
-                        <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/80">
-                          <CalendarClock size={15} className="shrink-0" />
-                          {deadline
-                            ? `الموعد النهائي — ${formatDateLong(deadline)} (متبقٍ ${remainingDays} يومًا)`
-                            : "ما فيه موعد نهائي محدد بعد"}
-                        </p>
+                        {deadline ? (
+                          <div className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-1.5 pe-3 ps-2 backdrop-blur-sm">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_10px_-2px_rgba(255,106,0,0.6)]">
+                              <CalendarClock size={13} />
+                            </span>
+                            <span className="text-sm font-semibold text-brand-950/80">
+                              {formatDateLong(deadline)}
+                            </span>
+                            <span className="rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2 py-0.5 text-[11px] font-extrabold text-white">
+                              متبقٍ {remainingDays} يومًا
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/80">
+                            <CalendarClock size={15} className="shrink-0" />
+                            ما فيه موعد نهائي محدد بعد
+                          </p>
+                        )}
                       </>
                     )}
                   </div>
@@ -564,14 +576,30 @@ export default function Overview() {
         </div>
       </div>
 
-      <FocusSession />
-      <ShareUpdate />
-      <TimeCapsule />
+      {/* قسم واحد مدمج بدل ثلاث مستطيلات مكدّسة — "جهّز قهوتك" + مشاركة
+          التحديث + رسالة المستقبل، بإطار زجاجي ترابي واحد */}
+      <div className="rounded-[1.75rem] bg-gradient-to-br from-brand-300/40 via-brand-500/10 to-brand-600/30 p-[1.5px] shadow-md shadow-brand-950/10">
+        <Card
+          tone="paper"
+          interactive
+          className="card-terra grid grid-cols-1 divide-y divide-brand-100/40 !rounded-[calc(1.75rem-1.5px)] !p-0 lg:grid-cols-3 lg:divide-x lg:divide-x-reverse lg:divide-y-0"
+        >
+          <div className="p-5">
+            <FocusSession />
+          </div>
+          <div className="p-5">
+            <ShareUpdate />
+          </div>
+          <div className="p-5">
+            <TimeCapsule />
+          </div>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Research journey + priorities */}
         <div className="space-y-4 lg:col-span-2">
-          <Card tone="cream">
+          <Card tone="paper" className="card-terra">
             <CardHeader
               title="رحلة تقدم البحث"
               subtitle="Research Progress Journey"

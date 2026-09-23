@@ -136,40 +136,45 @@ export type AlertTone = "info" | "warning" | "danger" | "success" | "violet";
 
 const alertToneClasses: Record<
   AlertTone,
-  { border: string; bg: string; chip: string; text: string; iconText: string }
+  { border: string; bg: string; chip: string; glow: string; text: string; iconText: string }
 > = {
   info: {
-    border: "border-sky-accent-200",
-    bg: "bg-sky-accent-50",
-    chip: "bg-sky-accent-500",
+    border: "border-sky-accent-200/70",
+    bg: "bg-sky-accent-50/80",
+    chip: "bg-gradient-to-br from-sky-accent-400 to-sky-accent-600",
+    glow: "shadow-[0_0_0_4px_rgba(59,130,246,0.12)]",
     text: "text-sky-accent-700",
     iconText: "text-sky-accent-600",
   },
   warning: {
-    border: "border-amber-accent-200",
-    bg: "bg-amber-accent-100",
-    chip: "bg-amber-accent-500",
+    border: "border-amber-accent-300/70",
+    bg: "bg-amber-accent-100/80",
+    chip: "bg-gradient-to-br from-amber-accent-400 to-amber-accent-600",
+    glow: "shadow-[0_0_0_4px_rgba(251,191,36,0.14)]",
     text: "text-amber-accent-700",
     iconText: "text-amber-accent-600",
   },
   danger: {
-    border: "border-rose-200",
-    bg: "bg-rose-50",
-    chip: "bg-rose-500",
+    border: "border-rose-300/70",
+    bg: "bg-rose-50/80",
+    chip: "bg-gradient-to-br from-rose-400 to-rose-600",
+    glow: "shadow-[0_0_0_4px_rgba(244,63,94,0.14)]",
     text: "text-rose-700",
     iconText: "text-rose-600",
   },
   success: {
-    border: "border-brand-200",
-    bg: "bg-brand-50",
-    chip: "bg-brand-500",
+    border: "border-brand-300/70",
+    bg: "bg-brand-50/80",
+    chip: "bg-gradient-to-br from-brand-400 to-brand-600",
+    glow: "shadow-[0_0_0_4px_rgba(255,106,0,0.14)]",
     text: "text-brand-700",
     iconText: "text-brand-600",
   },
   violet: {
-    border: "border-violet-100",
-    bg: "bg-violet-50",
-    chip: "bg-violet-500",
+    border: "border-violet-200/70",
+    bg: "bg-violet-50/80",
+    chip: "bg-gradient-to-br from-violet-400 to-violet-600",
+    glow: "shadow-[0_0_0_4px_rgba(139,92,246,0.14)]",
     text: "text-violet-700",
     iconText: "text-violet-600",
   },
@@ -194,21 +199,25 @@ export function AlertCard({
   return (
     <div
       className={clsx(
-        "flex items-start gap-4 rounded-3xl border px-5 py-4 print:hidden",
+        "relative flex items-start gap-4 overflow-hidden rounded-2xl border px-5 py-4 backdrop-blur-md [animation:banner-in_0.4s_ease-out] print:hidden",
         t.border,
         t.bg,
         className,
       )}
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
       <span
         className={clsx(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white",
           t.chip,
+          t.glow,
         )}
       >
         <Icon size={18} />
       </span>
-      <div className={clsx("min-w-0 flex-1 text-sm font-semibold", t.text)}>{children}</div>
+      <div className={clsx("min-w-0 flex-1 self-center text-sm font-semibold", t.text)}>
+        {children}
+      </div>
       {action}
       {onDismiss && (
         <button

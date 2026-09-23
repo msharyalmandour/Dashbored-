@@ -1,6 +1,6 @@
-import { BookMarked, CheckCircle2, Circle, ExternalLink } from "lucide-react";
+import { BookMarked, CheckCircle2, Circle, ExternalLink, FileStack, Library, TrendingUp } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
-import ProgressBar from "../components/ui/ProgressBar";
+import PeakBar from "../components/ui/PeakBar";
 import EmptyState from "../components/ui/EmptyState";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme } from "../data/types";
@@ -41,34 +41,59 @@ export default function LiteratureReview() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card tone="teal">
-          <p className="text-sm font-semibold text-brand-950/60">الدراسات التي تم جمعها</p>
-          <p className="font-display mt-2 text-3xl font-extrabold text-brand-950">{collected}</p>
+        <Card tone="paper" interactive className="card-terra flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-2px_rgba(255,106,0,0.55)]">
+            <Library size={17} />
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-brand-950/55">الدراسات التي تم جمعها</p>
+            <p className="font-display mt-0.5 text-2xl font-extrabold text-brand-950">{collected}</p>
+          </div>
         </Card>
-        <Card tone="cream">
-          <p className="text-sm font-semibold text-brand-950/60">الدراسات التي تمت مراجعتها</p>
-          <p className="font-display mt-2 text-3xl font-extrabold text-brand-950">{reviewed}</p>
+        <Card
+          tone="paper"
+          interactive
+          className="card-terra flex items-center gap-3"
+          style={{ animationDelay: "1.4s" }}
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-2px_rgba(255,106,0,0.55)]">
+            <FileStack size={17} />
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-brand-950/55">الدراسات التي تمت مراجعتها</p>
+            <p className="font-display mt-0.5 text-2xl font-extrabold text-brand-950">{reviewed}</p>
+          </div>
         </Card>
-        <Card tone="sky">
-          <p className="text-sm font-semibold text-brand-950/60">الدراسات المتبقية</p>
-          <p className="font-display mt-2 text-3xl font-extrabold text-brand-950">{remaining}</p>
+        <Card
+          tone="paper"
+          interactive
+          className="card-terra flex items-center gap-3"
+          style={{ animationDelay: "2.8s" }}
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-2px_rgba(255,106,0,0.55)]">
+            <TrendingUp size={17} />
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-brand-950/55">الدراسات المتبقية</p>
+            <p className="font-display mt-0.5 text-2xl font-extrabold text-brand-950">{remaining}</p>
+          </div>
         </Card>
       </div>
 
-      <Card>
+      <Card tone="paper" className="card-terra">
         <div className="flex items-center justify-between text-sm font-semibold text-brand-950/60">
           <span>نسبة الإنجاز في مراجعة الأدبيات</span>
-          <span className="text-brand-600">{pct}%</span>
+          <span className="font-display text-base font-extrabold text-brand-600">{pct}%</span>
         </div>
-        <ProgressBar value={pct} className="mt-2" />
+        <PeakBar value={pct} height="h-3" />
       </Card>
 
-      {themeOrder.map((theme) => {
+      {themeOrder.map((theme, i) => {
         const studies = papers.filter((p) => p.theme === theme);
         if (studies.length === 0) return null;
 
         return (
-          <Card key={theme}>
+          <Card key={theme} tone="paper" className="card-terra" style={{ animationDelay: `${(i % 5) * 1.6}s` }}>
             <CardHeader
               title={`${themeLabelAr[theme]}`}
               subtitle={`${theme} · ${studies.length} ${studies.length === 1 ? "دراسة" : "دراسات"}`}

@@ -341,14 +341,20 @@ export default function Tasks() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-3">
-          {filtered.map((task) => {
+          {filtered.map((task, i) => {
             const assignee = memberById(task.assigneeId);
             const canToggle = canToggleTask(task);
             const taskComments = comments.filter((c) => c.taskId === task.id);
             const isExpanded = expandedTaskId === task.id;
             return (
-              <Card key={task.id} className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-4">
+              <Card
+                key={task.id}
+                tone="paper"
+                interactive
+                className="card-terra flex flex-col gap-3"
+                style={{ animationDelay: `${(i % 6) * 1.2}s` }}
+              >
+                <div className="flex items-start gap-3">
                   <button
                     onClick={() => toggleDone(task)}
                     disabled={!canToggle}
@@ -360,7 +366,7 @@ export default function Tasks() {
                         : undefined
                     }
                     className={clsx(
-                      "shrink-0",
+                      "mt-0.5 shrink-0",
                       canToggle ? "cursor-pointer" : "cursor-default opacity-60",
                     )}
                   >
@@ -372,7 +378,7 @@ export default function Tasks() {
                       <Circle size={20} className="text-brand-950/25" />
                     )}
                   </button>
-                  <div className="min-w-[200px] flex-1">
+                  <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold text-brand-950">{task.title}</p>
                       {task.sectionKey && sectionLabel[task.sectionKey] && (
@@ -391,33 +397,6 @@ export default function Tasks() {
                       </p>
                     )}
                   </div>
-                  {canToggle && !taskAttachments[task.id] && (
-                    <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
-                  )}
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
-                    {priorityLabel[task.priority]}
-                  </span>
-                  <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
-                  <div className="flex items-center gap-2">
-                    <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
-                    <span className="hidden text-sm font-medium text-brand-950/70 sm:block">
-                      {assignee.name.split(" ")[0]}
-                    </span>
-                  </div>
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
-                    {statusLabel[task.status]}
-                  </span>
-                  <button
-                    onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
-                    title="التعليقات"
-                    className={clsx(
-                      "flex items-center gap-1 text-xs font-semibold",
-                      isExpanded ? "text-brand-600" : "text-brand-950/45 hover:text-brand-600",
-                    )}
-                  >
-                    <MessageCircle size={16} />
-                    {taskComments.length > 0 && taskComments.length}
-                  </button>
                   {isLeader && (
                     <ThreeDotsMenu
                       items={[
@@ -431,6 +410,36 @@ export default function Tasks() {
                       ]}
                     />
                   )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 border-t border-brand-100/40 pt-3">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
+                    {statusLabel[task.status]}
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
+                    {priorityLabel[task.priority]}
+                  </span>
+                  <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
+                  {canToggle && !taskAttachments[task.id] && (
+                    <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
+                  )}
+                  <button
+                    onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                    title="التعليقات"
+                    className={clsx(
+                      "flex items-center gap-1 text-xs font-semibold",
+                      isExpanded ? "text-brand-600" : "text-brand-950/45 hover:text-brand-600",
+                    )}
+                  >
+                    <MessageCircle size={16} />
+                    {taskComments.length > 0 && taskComments.length}
+                  </button>
+                  <div className="ms-auto flex items-center gap-2">
+                    <span className="hidden text-sm font-medium text-brand-950/70 sm:block">
+                      {assignee.name.split(" ")[0]}
+                    </span>
+                    <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
+                  </div>
                 </div>
                 {isExpanded && (
                   <TaskComments

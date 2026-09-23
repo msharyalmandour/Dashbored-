@@ -3,7 +3,7 @@ import { BookMarked, Check, Copy, Plus, Quote, Trash2, X } from "lucide-react";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
-import ProgressBar from "../components/ui/ProgressBar";
+import PeakBar from "../components/ui/PeakBar";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
@@ -94,17 +94,17 @@ export default function EvidenceLibrary() {
   return (
     <div className="space-y-5">
       {papers.length > 0 && (
-        <div className="flex items-center gap-4 rounded-2xl bg-surface-muted px-4 py-3">
+        <Card tone="paper" className="card-terra flex items-center gap-4">
           <div className="min-w-0 flex-1">
             <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-brand-950/50">
               <span>تقدم المراجعة</span>
-              <span className="text-brand-600">
+              <span className="font-display text-sm font-extrabold text-brand-600">
                 {reviewedCount} من {papers.length} دراسة
               </span>
             </div>
-            <ProgressBar value={(reviewedCount / papers.length) * 100} />
+            <PeakBar value={(reviewedCount / papers.length) * 100} />
           </div>
-        </div>
+        </Card>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
@@ -239,10 +239,16 @@ export default function EvidenceLibrary() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {filtered.map((paper) => {
+        {filtered.map((paper, i) => {
           const addedBy = memberById(paper.addedById);
           return (
-            <Card key={paper.id} className="flex gap-3">
+            <Card
+              key={paper.id}
+              tone="paper"
+              interactive
+              className="card-terra flex gap-3"
+              style={{ animationDelay: `${(i % 6) * 1.2}s` }}
+            >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                 <BookMarked size={18} />
               </div>

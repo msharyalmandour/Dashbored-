@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Check, Copy, MessageCircle, Share2 } from "lucide-react";
-import Card from "./ui/Card";
 import { projectMeta, recentActivity, teamMembers } from "../data/mockData";
 import { formatDateLong } from "../lib/date";
 
@@ -42,7 +41,7 @@ export default function ShareUpdate() {
   };
 
   return (
-    <Card>
+    <div>
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between gap-3"
@@ -85,6 +84,6 @@ export default function ShareUpdate() {
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

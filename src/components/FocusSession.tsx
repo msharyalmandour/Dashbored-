@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Coffee, Moon, Pause, Play, RotateCcw, Square } from "lucide-react";
 import clsx from "clsx";
-import Card from "./ui/Card";
 import { useAuth } from "../context/AuthContext";
 import { getGreeting } from "../lib/date";
 import { g, isFemaleUser } from "../lib/gender";
@@ -76,7 +75,7 @@ export default function FocusSession() {
 
   if (state === "idle") {
     return (
-      <Card tone="cream" className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span
             className={clsx(
@@ -135,13 +134,13 @@ export default function FocusSession() {
               : `${g(isFemale, "ابدئي", "ابدأ")} الجلسة ☕`}
           </button>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (state === "done") {
     return (
-      <Card tone={isNight ? "teal" : "amber"} className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
             {isNight ? <Moon size={20} /> : <Coffee size={20} />}
@@ -170,12 +169,12 @@ export default function FocusSession() {
           <RotateCcw size={16} />
           جلسة جديدة
         </button>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card tone="teal" className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-4">
         <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
           <svg viewBox="0 0 56 56" className="h-14 w-14 -rotate-90">
@@ -223,6 +222,6 @@ export default function FocusSession() {
           إنهاء
         </button>
       </div>
-    </Card>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Lock, Mail, PenLine, Sparkles } from "lucide-react";
-import Card from "./ui/Card";
 import { useAuth } from "../context/AuthContext";
 import { g, isFemaleUser } from "../lib/gender";
 
@@ -73,7 +72,7 @@ export default function TimeCapsule() {
 
   if (composing) {
     return (
-      <Card tone="violet" className="space-y-3">
+      <div className="space-y-3">
         <div className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
             <Mail size={16} />
@@ -117,13 +116,13 @@ export default function TimeCapsule() {
             لاحقًا
           </button>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (!capsule) {
     return (
-      <Card tone="violet" className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
             <Mail size={18} />
@@ -144,14 +143,14 @@ export default function TimeCapsule() {
           <PenLine size={16} />
           اكتب رسالتي
         </button>
-      </Card>
+      </div>
     );
   }
 
   if (!unlocked) {
     const remaining = UNLOCK_DAYS - daysSinceWritten;
     return (
-      <Card tone="violet" className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-400 text-white shadow-sm shadow-brand-400/30">
             <Lock size={18} />
@@ -163,13 +162,13 @@ export default function TimeCapsule() {
             </p>
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (!capsule.readAt) {
     return (
-      <Card tone="violet" className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
             <Sparkles size={18} />
@@ -185,12 +184,12 @@ export default function TimeCapsule() {
         >
           {g(isFemale, "افتحي رسالتي", "افتح رسالتي")}
         </button>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card tone="violet" className="space-y-3">
+    <div className="space-y-3">
       <div className="flex items-center gap-2.5">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
           <Mail size={16} />
@@ -210,6 +209,6 @@ export default function TimeCapsule() {
       <button onClick={writeNew} className="text-xs font-semibold text-brand-600 hover:underline">
         {g(isFemale, "اكتبي رسالة جديدة", "اكتب رسالة جديدة")}
       </button>
-    </Card>
+    </div>
   );
 }

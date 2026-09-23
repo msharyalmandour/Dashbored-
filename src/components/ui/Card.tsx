@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import clsx from "clsx";
 
 export type CardTone = "paper" | "cream" | "teal" | "sky" | "amber" | "violet" | "rose";
@@ -19,12 +19,14 @@ export default function Card({
   as: As = "div",
   tone = "paper",
   interactive = false,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "section";
   tone?: CardTone;
   interactive?: boolean;
+  style?: CSSProperties;
 }) {
   return (
     <As
@@ -34,6 +36,7 @@ export default function Card({
         interactive && "card-interactive",
         className,
       )}
+      style={style}
     >
       {children}
     </As>

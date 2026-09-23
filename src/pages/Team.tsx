@@ -12,10 +12,9 @@ import {
   UserMinus,
   UserPlus,
 } from "lucide-react";
-import clsx from "clsx";
-import Card, { CardHeader, type CardTone } from "../components/ui/Card";
+import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
-import ProgressBar from "../components/ui/ProgressBar";
+import PeakBar from "../components/ui/PeakBar";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
@@ -35,8 +34,6 @@ function daysAgo(iso: string): number {
 function lastActivityFor(memberId: string): string | null {
   return recentActivity.find((a) => a.memberId === memberId)?.timeAgo ?? null;
 }
-
-const tones: CardTone[] = ["teal", "sky", "cream", "violet", "rose"];
 
 function InviteCard() {
   const { team } = useAuth();
@@ -295,7 +292,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
   };
 
   return (
-    <Card className="mt-4">
+    <Card className="card-terra mt-4">
       <CardHeader
         title="موازنة حمل الفريق"
         subtitle="Workload Balance"
@@ -310,7 +307,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
         }
       />
       <ul className="space-y-3">
-        {rows.map(({ member, open, overdue }, i) => (
+        {rows.map(({ member, open, overdue }) => (
           <li key={member.id} className="flex items-center gap-3">
             <Avatar initials={member.initials} color={member.color} size="sm" />
             <div className="min-w-0 flex-1">
@@ -323,19 +320,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
                   {overdue > 0 && <span className="text-rose-500"> · {overdue} متأخرة</span>}
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
-                <div
-                  className={clsx(
-                    "h-full rounded-full",
-                    overdue > 0
-                      ? "bg-rose-400"
-                      : i === 0 && open > 0
-                        ? "bg-amber-accent-400"
-                        : "bg-brand-400",
-                  )}
-                  style={{ width: `${open === 0 ? 0 : Math.max(6, (open / maxOpen) * 100)}%` }}
-                />
-              </div>
+              <PeakBar value={open === 0 ? 0 : Math.max(6, (open / maxOpen) * 100)} height="h-2" />
             </div>
           </li>
         ))}
@@ -415,7 +400,13 @@ export default function Team() {
           : member.progress;
 
         return (
-          <Card key={member.id} tone={tones[i % tones.length]} className="flex flex-col">
+          <Card
+            key={member.id}
+            tone="paper"
+            interactive
+            className="card-terra flex flex-col"
+            style={{ animationDelay: `${(i % 5) * 1.4}s` }}
+          >
             <div className="flex items-center gap-3">
               <Avatar initials={member.initials} color={member.color} size="lg" />
               <div className="min-w-0 flex-1">
@@ -460,7 +451,7 @@ export default function Team() {
                 <span>نسبة الإنجاز</span>
                 <span className="text-brand-600">{progress}%</span>
               </div>
-              <ProgressBar value={progress} color={member.color} />
+              <PeakBar value={progress} />
             </div>
 
             <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-50 rounded-xl bg-surface-muted py-3 text-center">

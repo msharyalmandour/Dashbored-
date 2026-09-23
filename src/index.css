@@ -207,6 +207,85 @@
   --color-track: rgba(255, 255, 255, 0.12);
 }
 
+/* ===================================================================
+   WESYNC — OBSIDIAN × EMBER
+   هوية بصرية محلية (مو ثيم عام) — تُطبَّق فقط على غلاف هيرو الصفحة
+   الرئيسية كتجربة أولى، عبر class محلي بدل [data-theme] العام. نفس
+   أسلوب متغيرات الألوان المستخدم بكل الثيمات فوق، فكل المكوّنات الجاهزة
+   (Card, StatCard, RingProgress, ProgressBar, Avatar...) تلبس الهوية
+   الجديدة تلقائيًا بدون أي تعديل عليها — لأنها مبنية على نفس متغيرات
+   --color-* من الأساس.
+   =================================================================== */
+.theme-obsidian-ember {
+  /* الرموز الأساسية المطلوبة، متاحة أيضًا كمتغيرات مباشرة لو احتجناها */
+  --ws-bg: #080808;
+  --ws-surface: #121212;
+  --ws-orange: #ff6a00;
+  --ws-ember: #ff8a24;
+  --ws-amber: #ffb547;
+  --ws-text: #f5f5f5;
+  --ws-muted: #929292;
+
+  --color-brand-50: #170d06;
+  --color-brand-100: #21130a;
+  --color-brand-200: #391e0d;
+  --color-brand-300: #6b3414;
+  --color-brand-400: var(--ws-orange);
+  --color-brand-500: var(--ws-orange);
+  --color-brand-600: var(--ws-ember);
+  --color-brand-700: var(--ws-amber);
+  --color-brand-800: #ffd9a8;
+  --color-brand-900: #fff1de;
+  --color-brand-950: var(--ws-text);
+
+  --color-sky-accent-50: #0d1a24;
+  --color-sky-accent-100: #142433;
+  --color-sky-accent-200: #1c3348;
+  --color-sky-accent-300: #2f4f6e;
+  --color-sky-accent-400: #7ec2ff;
+  --color-sky-accent-500: #3fa2ff;
+  --color-sky-accent-600: #b6dcff;
+
+  --color-amber-accent-50: #1f1207;
+  --color-amber-accent-100: #2e1a0a;
+  --color-amber-accent-200: #47270f;
+  --color-amber-accent-300: #8a4d13;
+  --color-amber-accent-400: var(--ws-amber);
+  --color-amber-accent-500: var(--ws-ember);
+  --color-amber-accent-600: var(--ws-amber);
+  --color-amber-accent-700: #ffd9a8;
+
+  --color-violet-50: #130f1c;
+  --color-violet-100: #1d1830;
+  --color-rose-50: #1c0f10;
+  --color-rose-100: #2c1416;
+  --color-rose-500: #f87171;
+  --color-rose-600: #fca5a5;
+
+  --color-surface: var(--ws-bg);
+  --color-surface-muted: var(--ws-surface);
+  --color-paper: #0f0f0f;
+  --color-ink: var(--ws-text);
+  --color-overlay-soft: rgba(255, 138, 36, 0.1);
+  --color-track: rgba(245, 245, 245, 0.12);
+}
+
+@keyframes ember-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -14px) scale(1.05); }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 106, 0, 0.45), 0 0 18px 2px rgba(255, 138, 36, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 106, 0, 0), 0 0 26px 6px rgba(255, 138, 36, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-obsidian-ember [class*="animate-"] {
+    animation: none !important;
+  }
+}
+
 html {
   direction: rtl;
 }

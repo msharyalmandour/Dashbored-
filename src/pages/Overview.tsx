@@ -1,6 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import clsx from "clsx";
 import {
   AlertCircle,
   AlertTriangle,
@@ -20,6 +19,8 @@ import {
   PartyPopper,
   Sparkles,
   TrendingUp,
+  UploadCloud,
+  Video,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import { AlertCard } from "../components/ui/cards";
@@ -27,7 +28,6 @@ import FocusSession from "../components/FocusSession";
 import TimeCapsule from "../components/TimeCapsule";
 import ShareUpdate from "../components/ShareUpdate";
 import TimeOfDayBadge from "../components/TimeOfDayBadge";
-import GrowingPlant from "../components/GrowingPlant";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import RingProgress from "../components/ui/RingProgress";
@@ -238,6 +238,10 @@ export default function Overview() {
   const dailyQuote = getDailyQuote(new Date(), greeting.period);
   const overdueCount = realTasks.filter((t) => t.status === "overdue").length;
 
+  const nextMeeting = calendarEvents
+    .filter((e) => e.type === "meeting" && e.date >= todayIso)
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0];
+
   const nearestDeadlineEvent = calendarEvents
     .filter((e) => e.type === "deadline" && e.date >= todayIso)
     .sort((a, b) => a.date.localeCompare(b.date))[0];
@@ -359,117 +363,149 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Welcome + progress */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div ref={heroParallaxRef} className="lg:col-span-2">
-        <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
-        <Card
-          tone="teal"
-          className="relative overflow-hidden !rounded-[calc(2rem-1.5px)] !shadow-none"
+      {/* Welcome + progress — WESYNC OBSIDIAN × EMBER hero */}
+      <div className="theme-obsidian-ember space-y-4">
+        <div
+          ref={heroParallaxRef}
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[var(--ws-orange)]/50 via-white/5 to-[var(--ws-amber)]/40 p-[1px] shadow-2xl shadow-black/50"
         >
-          <div className="pointer-events-none absolute -right-14 -top-14 h-52 w-52 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-400/10 blur-3xl motion-reduce:animate-none" />
-          <div
-            className="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-[var(--color-overlay-soft)] transition-transform duration-300 ease-out motion-reduce:transition-none"
-            style={{ transform: `translate3d(${heroOffset.x * 0.6}px, ${heroOffset.y * 0.6}px, 0)` }}
-          />
-          <div
-            className="pointer-events-none absolute -bottom-16 left-28 h-32 w-32 rounded-full bg-amber-accent-200/50 transition-transform duration-300 ease-out motion-reduce:transition-none"
-            style={{ transform: `translate3d(${heroOffset.x * -0.4}px, ${heroOffset.y * -0.4}px, 0)` }}
-          />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
-          <GrowingPlant className="pointer-events-none absolute left-4 top-2 h-28 w-28 opacity-90" />
-          <div className="relative">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
-              <Sparkles size={11} />
-              مساحتكم البحثية
-            </span>
-
-            <p className="mt-3 flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
-              <TimeOfDayBadge period={greeting.period} />
-              {greeting.text}،{" "}
-              <span className="bg-gradient-to-l from-brand-600 to-amber-accent-600 bg-clip-text text-transparent">
-                {currentUser?.name.split(" ")[0]}
-              </span>
-            </p>
-            <p className="mt-1.5 text-sm text-brand-950/55">{heroMessage}</p>
-
-            <div className="mt-6">
-              <p className="text-sm font-semibold text-brand-950/70">{projectTitle}</p>
-              {projectSubtitle && (
-                <p className="text-xs text-brand-700" dir="ltr">
-                  {projectSubtitle}
-                </p>
-              )}
-              {weekNumber >= 1 && (
-                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-950/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">
-                  🌱 أسبوع رقم {weekNumber} من رحلتكم البحثية
-                </span>
-              )}
-            </div>
-
+          <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-[var(--ws-bg)] p-6 sm:p-8">
+            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-[ember-drift_13s_ease-in-out_infinite] rounded-full bg-[var(--ws-orange)]/25 blur-[90px] motion-reduce:animate-none" />
             <div
-              className={clsx(
-                "mt-4 flex items-center gap-2 rounded-2xl px-3.5 py-2.5",
-                greeting.period === "night" ? "bg-brand-100/70" : "bg-amber-accent-100/70",
-              )}
-            >
-              {greeting.period === "night" ? (
-                <Moon size={16} className="shrink-0 text-brand-700" />
-              ) : (
-                <Coffee size={16} className="shrink-0 text-amber-accent-600" />
-              )}
-              <p
-                className={clsx(
-                  "text-sm font-medium italic",
-                  greeting.period === "night" ? "text-brand-700" : "text-amber-accent-700",
-                )}
-              >
-                {dailyQuote}
-              </p>
-            </div>
+              className="pointer-events-none absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-[var(--color-overlay-soft)] blur-[80px] transition-transform duration-300 ease-out motion-reduce:transition-none"
+              style={{ transform: `translate3d(${heroOffset.x * 0.5}px, ${heroOffset.y * 0.5}px, 0)` }}
+            />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--ws-ember)]/60 to-transparent" />
 
-            <div className="mt-5 flex flex-wrap items-center gap-5 rounded-[1.4rem] border border-white/60 bg-white/45 p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)] backdrop-blur-md">
-              <RingProgress value={realOverallProgress} size={104} strokeWidth={9}>
-                <span className="font-display text-xl font-extrabold text-brand-950">
-                  <CountUp value={realOverallProgress} suffix="%" />
+            <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-3">
+              {/* Greeting + progress */}
+              <div className="lg:col-span-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ws-orange)]/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--ws-amber)] backdrop-blur-sm">
+                  <Sparkles size={11} />
+                  مساحتكم البحثية
                 </span>
-              </RingProgress>
-              <div className="min-w-0 flex-1">
-                {showEmptyProgressState ? (
-                  <>
-                    <p className="font-display text-base font-bold text-brand-950">
-                      ابدأوا رحلتكم البحثية اليوم 🌱
+
+                <p className="mt-3 flex items-center gap-2.5 font-display text-2xl font-extrabold text-[var(--ws-text)] sm:text-3xl">
+                  <TimeOfDayBadge period={greeting.period} />
+                  {greeting.text}،{" "}
+                  <span className="bg-gradient-to-l from-[var(--ws-orange)] to-[var(--ws-amber)] bg-clip-text text-transparent">
+                    {currentUser?.name.split(" ")[0]}
+                  </span>
+                </p>
+                <p className="mt-1.5 text-sm text-[var(--ws-muted)]">{heroMessage}</p>
+
+                <div className="mt-6">
+                  <p className="text-sm font-semibold text-white/80">{projectTitle}</p>
+                  {projectSubtitle && (
+                    <p className="text-xs text-[var(--ws-amber)]" dir="ltr">
+                      {projectSubtitle}
                     </p>
-                    <p className="mt-1 text-sm text-brand-950/55">
-                      كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.
-                    </p>
-                    <Link
-                      to="/proposal"
-                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
-                    >
-                      <Sparkles size={14} />
-                      ابدأوا بالمقترح البحثي
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-xs font-semibold text-brand-950/60">نسبة تقدم البحث الكلية</p>
-                    <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/70">
-                      <CalendarClock size={15} className="shrink-0" />
-                      {deadline
-                        ? `الموعد النهائي — ${formatDateLong(deadline)} (متبقٍ ${remainingDays} يومًا)`
-                        : "ما فيه موعد نهائي محدد بعد"}
-                    </p>
-                  </>
-                )}
+                  )}
+                  {weekNumber >= 1 && (
+                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-[var(--ws-muted)]">
+                      🔥 أسبوع رقم {weekNumber} من رحلتكم البحثية
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/5 bg-white/[0.03] px-3.5 py-2.5 backdrop-blur-sm">
+                  {greeting.period === "night" ? (
+                    <Moon size={16} className="shrink-0 text-[var(--ws-amber)]" />
+                  ) : (
+                    <Coffee size={16} className="shrink-0 text-[var(--ws-ember)]" />
+                  )}
+                  <p className="text-sm font-medium italic text-white/70">{dailyQuote}</p>
+                </div>
+
+                <div className="mt-5 flex flex-wrap items-center gap-5 rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
+                  <RingProgress value={realOverallProgress} size={104} strokeWidth={9}>
+                    <span className="font-display text-xl font-extrabold text-[var(--ws-text)]">
+                      <CountUp value={realOverallProgress} suffix="%" />
+                    </span>
+                  </RingProgress>
+                  <div className="min-w-0 flex-1">
+                    {showEmptyProgressState ? (
+                      <>
+                        <p className="font-display text-base font-bold text-[var(--ws-text)]">
+                          ابدأوا رحلتكم البحثية اليوم
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--ws-muted)]">
+                          كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.
+                        </p>
+                        <Link
+                          to="/proposal"
+                          className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-[var(--ws-orange)] to-[var(--ws-ember)] px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
+                        >
+                          <Sparkles size={14} />
+                          ابدأوا بالمقترح البحثي
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs font-semibold text-[var(--ws-muted)]">نسبة تقدم البحث الكلية</p>
+                        <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-white/80">
+                          <CalendarClock size={15} className="shrink-0" />
+                          {deadline
+                            ? `الموعد النهائي — ${formatDateLong(deadline)} (متبقٍ ${remainingDays} يومًا)`
+                            : "ما فيه موعد نهائي محدد بعد"}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <Link
+                  to="/files"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-white/70 backdrop-blur-sm transition-colors hover:border-[var(--ws-orange)]/40 hover:text-[var(--ws-amber)]"
+                >
+                  <UploadCloud size={14} className="text-[var(--ws-ember)]" />
+                  اسحبوا أي ملف هنا
+                </Link>
+              </div>
+
+              {/* Next meeting — real data, integrated into the hero */}
+              <div className="flex flex-col justify-center">
+                <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[var(--ws-muted)]">
+                    <Video size={13} className="text-[var(--ws-ember)]" />
+                    الاجتماع القادم
+                  </p>
+                  {nextMeeting ? (
+                    <>
+                      <p className="mt-3 font-display text-lg font-extrabold text-[var(--ws-text)]">
+                        {nextMeeting.title}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--ws-amber)]">
+                        {formatDateLong(nextMeeting.date)} — {nextMeeting.time}
+                      </p>
+                      {nextMeeting.location && (
+                        <p className="mt-1 truncate text-xs text-[var(--ws-muted)]">{nextMeeting.location}</p>
+                      )}
+                      <Link
+                        to="/calendar"
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-[var(--ws-orange)] to-[var(--ws-ember)] px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
+                      >
+                        افتحوا التقويم
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-3 text-sm text-white/60">ما فيه اجتماع مجدول قريب.</p>
+                      <Link
+                        to="/calendar"
+                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3.5 py-2 text-xs font-bold text-[var(--ws-amber)] transition-colors hover:border-[var(--ws-orange)]/40"
+                      >
+                        جدولوا اجتماعًا
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </Card>
-        </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="stagger-in" style={{ "--stagger-i": 0 } as CSSProperties}>
             <TiltCard maxTilt={4}>
               <StatCard

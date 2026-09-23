@@ -103,12 +103,15 @@ export default function AiAssistant() {
 
   return (
     <>
+      {/* AI Orb — زر عائم مستقل عن ثيم الصفحة عمدًا (ألوان مباشرة مو متغيرات)
+          عشان يبان بنفس الهوية "Obsidian × Ember" بأي صفحة يظهر فيها */}
       <button
         onClick={() => setOpen(true)}
-        className={`fixed bottom-6 start-6 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-lg shadow-brand-500/30 transition-transform hover:scale-105 print:hidden ${open ? "hidden" : ""}`}
+        className={`fixed bottom-6 start-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#0c0c0c] text-[#ff8a24] ring-1 ring-white/10 transition-transform animate-[orb-pulse_3.2s_ease-in-out_infinite] hover:scale-105 motion-reduce:animate-none print:hidden ${open ? "hidden" : ""}`}
         title="المساعد البحثي"
       >
-        <Bot size={24} />
+        <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-[#ff6a00]/25 via-transparent to-transparent" />
+        <Bot size={24} className="relative" />
       </button>
 
       {open && (

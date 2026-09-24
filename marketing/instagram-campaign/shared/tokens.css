@@ -1,0 +1,68 @@
+/* Wesync — Instagram campaign design tokens (Cinematic Orange / Human Motion / Academic Innovation) */
+:root {
+  --c-orange: #FF6A00;   /* primary accent */
+  --c-burnt: #C83E00;    /* deep accent / shadow warmth */
+  --c-amber: #FFB347;    /* glow highlight */
+  --c-warm: #FFE0A3;     /* hottest highlight, used sparingly */
+  --c-black: #080808;    /* base background */
+  --c-charcoal: #14110F; /* secondary surface */
+  --c-muted: #A6A09B;    /* secondary text */
+  --c-white: #F5F2ED;    /* primary text */
+}
+
+html, body { margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+
+.canvas {
+  width: 1080px;
+  height: 1350px;
+  position: relative;
+  overflow: hidden;
+  font-family: "Cairo", sans-serif;
+  background: var(--c-black);
+  color: var(--c-white);
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.brand-sig { position: absolute; display: flex; align-items: center; gap: 10px; z-index: 5; }
+.brand-sig svg { filter: drop-shadow(0 0 8px rgba(255,106,0,.6)); }
+.brand-sig span { font-size: 19px; font-weight: 600; letter-spacing: .04em; color: var(--c-white); }
+
+.kicker {
+  display: inline-flex;
+  padding: 7px 20px;
+  border: 1px solid rgba(255,138,36,.4);
+  border-radius: 999px;
+  background: rgba(255,106,0,.07);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  color: var(--c-amber);
+}
+
+.footer-line {
+  position: absolute;
+  left: 76px; right: 76px; bottom: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid rgba(245,242,237,.1);
+  z-index: 5;
+}
+.footer-line .handle { font-size: 15px; color: rgba(245,242,237,.38); }
+.footer-line .idx {
+  direction: ltr; unicode-bidi: isolate;
+  font-size: 15px; font-weight: 600; letter-spacing: .05em; color: rgba(255,138,36,.65);
+}
+
+.accent {
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--c-amber), var(--c-orange));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}

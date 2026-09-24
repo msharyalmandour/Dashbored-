@@ -1583,9 +1583,10 @@ create policy "author or leader can delete research search queries"
     )
   );
 
--- إزالة عضو من الفريق: قائد الفريق بس، وعلى عضو غيره (مو نفسه). نخلي
--- team_id = null بدل حذف الـ profile نفسه — يحافظ على أي مهام/دفعات قديمة
--- مرتبطة فيه بدون كسر أي مرجع (foreign key)، وبس يوقف وصوله لبيانات الفريق.
+-- إزالة عضو من الفريق: قائد الفريق بس، وعلى عضو غيره (مو نفسه). العضو
+-- المُزال ما يُحذف ولا يُعلّق بـ team_id = null (كان يسيبه بحساب معطّل
+-- بلا فريق ولا طريقة رجوع) — يصير تلقائيًا قائد فريق بحثي جديد ومستقل
+-- له لحاله، بنفس منطق handle_new_user بالضبط.
 create or replace function public.remove_team_member(target_id uuid)
 returns void
 language plpgsql
@@ -1596,9 +1597,11 @@ declare
   v_caller_role text;
   v_caller_team uuid;
   v_target_team uuid;
+  v_target_name text;
+  v_new_team_id uuid;
 begin
   select role, team_id into v_caller_role, v_caller_team from public.profiles where id = auth.uid();
-  select team_id into v_target_team from public.profiles where id = target_id;
+  select team_id, name into v_target_team, v_target_name from public.profiles where id = target_id;
 
   if v_caller_role is distinct from 'leader' then
     raise exception 'قائد الفريق فقط يقدر يزيل عضو';
@@ -1612,7 +1615,13 @@ begin
     raise exception 'ما تقدر تزيل نفسك';
   end if;
 
-  update public.profiles set team_id = null where id = target_id;
+  insert into public.teams (name)
+  values (coalesce(v_target_name, 'عضو') || ' — فريق بحثي')
+  returning id into v_new_team_id;
+
+  update public.profiles
+  set team_id = v_new_team_id, role = 'leader'
+  where id = target_id;
 end;
 $$;
 

@@ -194,6 +194,18 @@ export default function Login() {
     loginAsMock(match.memberId);
   };
 
+  /** رسائل تحقق المتصفح الافتراضية (زي "Please fill out this field") تطلع
+      بلغة المتصفح نفسه مو بلغة الصفحة — فتظهر بالإنجليزي لأي زائر متصفحه
+      مو عربي، بموقع عربي بالكامل. نستبدلها برسالة عربية واضحة بدل كذا. */
+  const arabicInvalidHandler =
+    (requiredMsg: string, formatMsg?: string) => (e: React.InvalidEvent<HTMLInputElement>) => {
+      const el = e.currentTarget;
+      if (el.validity.valueMissing) el.setCustomValidity(requiredMsg);
+      else if ((el.validity.typeMismatch || el.validity.tooShort) && formatMsg) el.setCustomValidity(formatMsg);
+      else el.setCustomValidity("");
+    };
+  const clearValidity = (e: React.ChangeEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity("");
+
   const inputClass =
     "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-amber-400/50";
   const glowButtonClass =
@@ -333,7 +345,14 @@ export default function Login() {
                           required
                           type="email"
                           value={resetEmail}
-                          onChange={(e) => setResetEmail(e.target.value)}
+                          onChange={(e) => {
+                            clearValidity(e);
+                            setResetEmail(e.target.value);
+                          }}
+                          onInvalid={arabicInvalidHandler(
+                            "البريد الإلكتروني مطلوب",
+                            "صيغة البريد الإلكتروني غير صحيحة",
+                          )}
                           className={inputClass}
                           placeholder="you@example.com"
                           dir="ltr"
@@ -372,7 +391,11 @@ export default function Login() {
                         <input
                           required
                           value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          onChange={(e) => {
+                            clearValidity(e);
+                            setName(e.target.value);
+                          }}
+                          onInvalid={arabicInvalidHandler("الاسم الكامل مطلوب")}
                           className={inputClass}
                           placeholder="مثال: سارة العتيبي"
                         />
@@ -434,7 +457,14 @@ export default function Login() {
                         required
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          clearValidity(e);
+                          setEmail(e.target.value);
+                        }}
+                        onInvalid={arabicInvalidHandler(
+                          "البريد الإلكتروني مطلوب",
+                          "صيغة البريد الإلكتروني غير صحيحة",
+                        )}
                         className={inputClass}
                         placeholder="you@example.com"
                         dir="ltr"
@@ -447,7 +477,14 @@ export default function Login() {
                         type="password"
                         minLength={6}
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          clearValidity(e);
+                          setPassword(e.target.value);
+                        }}
+                        onInvalid={arabicInvalidHandler(
+                          "كلمة المرور مطلوبة",
+                          "كلمة المرور لازم تكون ٦ أحرف على الأقل",
+                        )}
                         className={inputClass}
                         placeholder="••••••••"
                         dir="ltr"

@@ -3,7 +3,17 @@ import { Check, Copy, MessageCircle, Share2 } from "lucide-react";
 import { projectMeta, recentActivity, teamMembers } from "../data/mockData";
 import { formatDateLong } from "../lib/date";
 
-function buildMessage(): string {
+interface ShareUpdateProps {
+  mode: "supabase" | "mock";
+  projectTitle: string;
+  overallProgress: number;
+  currentStageAr: string | null;
+  currentTaskTitle: string | null;
+  nextLabel: string | null;
+  nextDate: string | null;
+}
+
+function buildMockMessage(): string {
   const memberName = (id: string) => teamMembers.find((m) => m.id === id)?.name ?? id;
   const activityLines = recentActivity
     .slice(0, 5)
@@ -23,12 +33,27 @@ ${activityLines}
 تم إنشاؤه عبر Wesync`;
 }
 
+function buildRealMessage(props: Omit<ShareUpdateProps, "mode">): string {
+  const { projectTitle, overallProgress, currentStageAr, currentTaskTitle, nextLabel, nextDate } = props;
+  const nextLine =
+    nextLabel && nextDate ? `الموعد القادم: ${nextLabel} — ${formatDateLong(nextDate)}\n\n` : "";
+
+  return `📋 تحديث تقدم بحث: ${projectTitle}
+
+نسبة التقدم: ${overallProgress}%
+المرحلة الحالية: ${currentStageAr ?? "لم تبدأ مرحلة بعد"}
+المهمة الحالية: ${currentTaskTitle ?? "ما فيه مهمة نشطة الحين"}
+
+${nextLine}تم إنشاؤه عبر Wesync`;
+}
+
 /** يصيغ رسالة تحديث جاهزة (تقدم + آخر التحديثات) عشان تُرسل للمشرف/ة بضغطة،
-    بدل ما تُكتب يدويًا كل مرة */
-export default function ShareUpdate() {
+    بدل ما تُكتب يدويًا كل مرة — من بيانات الفريق الحقيقية في وضع supabase،
+    ومن بيانات تجريبية في وضع mock فقط */
+export default function ShareUpdate(props: ShareUpdateProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const message = buildMessage();
+  const message = props.mode === "mock" ? buildMockMessage() : buildRealMessage(props);
 
   const copy = async () => {
     try {

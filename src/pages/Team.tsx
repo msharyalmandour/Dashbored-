@@ -540,7 +540,7 @@ export default function Team() {
       </div>
 
       <WorkloadBalance roster={roster} tasks={tasks} />
-      <ActivityLog />
+      {mode === "mock" && <ActivityLog />}
     </div>
   );
 }

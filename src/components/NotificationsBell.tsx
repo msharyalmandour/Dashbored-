@@ -18,10 +18,10 @@ function dueLabel(days: number): string {
 
 export default function NotificationsBell() {
   const [open, setOpen] = useState(false);
-  const { currentUser } = useAuth();
+  const { currentUser, mode } = useAuth();
   const { tasks } = useTasksData();
   const memberById = (id: string) => teamMembers.find((m) => m.id === id);
-  const activityItems = recentActivity.slice(0, 5);
+  const activityItems = mode === "mock" ? recentActivity.slice(0, 5) : [];
 
   const urgentTasks = tasks
     .filter((t) => t.assigneeId === currentUser?.id && t.status !== "done")

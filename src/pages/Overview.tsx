@@ -87,7 +87,7 @@ const DEADLINE_ALERT_RESURFACE_DAYS = 2;
 const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
-  const { currentUser, team } = useAuth();
+  const { currentUser, team, mode } = useAuth();
   const { startTour, finished: tourFinished } = useTour();
   const isFemale = isFemaleUser(currentUser);
   const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
@@ -591,7 +591,15 @@ export default function Overview() {
             </div>
           </div>
           <div className="p-5">
-            <ShareUpdate />
+            <ShareUpdate
+              mode={mode}
+              projectTitle={projectTitle}
+              overallProgress={realOverallProgress}
+              currentStageAr={currentStage?.titleAr ?? null}
+              currentTaskTitle={currentTask ?? null}
+              nextLabel={upcoming[0]?.title ?? null}
+              nextDate={upcoming[0]?.date ?? null}
+            />
           </div>
           <div className="relative overflow-hidden p-5">
             <div className="pointer-events-none absolute -top-8 -start-8 h-36 w-36 rounded-full bg-gradient-to-br from-brand-500/30 to-amber-accent-500/15 blur-2xl" />

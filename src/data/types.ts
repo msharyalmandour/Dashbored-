@@ -25,6 +25,8 @@ export interface Team {
   subscriptionEndDate: string | null;
   memberCount: number;
   monthlyPrice: number;
+  /** الباقة: basic (بدون ميزات الذكاء الاصطناعي) أو ai — الفرق الجديدة تبدأ بتجربة كاملة المزايا */
+  plan: "basic" | "ai";
   /** من أول 15 فريق اشتركوا — سعرهم ثابت مدى الاشتراك */
   isFounder: boolean;
   /** true لين أول تفعيل اشتراك حقيقي — يميّز الأيام الثلاثة المجانية عن التجديد */

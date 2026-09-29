@@ -10,6 +10,8 @@ import {
   Trash2,
 } from "lucide-react";
 import Card from "../components/ui/Card";
+import AiLockedCard from "../components/AiLockedCard";
+import { hasAiAccess } from "../lib/plans";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
@@ -138,7 +140,7 @@ function ResultCard({
 }
 
 export default function ResearchSearch() {
-  const { currentUser, isLeader } = useAuth();
+  const { currentUser, isLeader, team } = useAuth();
   const isFemale = isFemaleUser(currentUser);
   const { project } = useResearchProject();
   const { searches, loading, searching, runSearch, deleteSearch } = useResearchSearch();
@@ -177,6 +179,8 @@ export default function ResearchSearch() {
         </p>
       </div>
 
+      {!hasAiAccess(team) && <AiLockedCard feature="وكيل البحث العلمي" />}
+      {hasAiAccess(team) && (
       <Card tone="cream">
         <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-brand-950">
           <Search size={18} className="text-brand-500" />
@@ -214,6 +218,7 @@ export default function ResearchSearch() {
           </p>
         )}
       </Card>
+      )}
 
       {activeResult && (
         <div className="space-y-3">

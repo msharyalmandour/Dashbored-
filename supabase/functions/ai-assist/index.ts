@@ -45,6 +45,8 @@ const SEARCH_MONTHLY_LIMIT = 10;
 const MAX_CHAT_HISTORY = 20;
 const CHAT_LIMIT_MESSAGE =
   "وصلتوا للحد اليومي لرسائل المساعد الذكي (٥٠ رسالة) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
+const AI_PLAN_REQUIRED_MESSAGE =
+  "المساعد الذكي وباقي ميزات الذكاء الاصطناعي متاحة بباقة AI (٥٩ ريال شهريًا لكل عضو). تقدر قائدة الفريق تنتقل لها من صفحة «الباقات والاشتراك».";
 const SEARCH_LIMIT_MESSAGE =
   "وصلتوا للحد الشهري لعمليات وكيل البحث العلمي (١٠ عمليات) — يتجدد أول الشهر الجاي. تقدرون ترجعون لعمليات البحث السابقة بالأسفل بأي وقت.";
 
@@ -333,7 +335,7 @@ async function loadBillingFacts(
 ): Promise<string | null> {
   try {
     const [teamRes, membersRes, paymentsRes] = await Promise.all([
-      db.from("teams").select("subscription_end_date, on_trial, monthly_price").eq("id", teamId).single(),
+      db.from("teams").select("subscription_end_date, on_trial, monthly_price, plan").eq("id", teamId).single(),
       db.from("profiles").select("id", { count: "exact", head: true }).eq("team_id", teamId),
       db
         .from("payments")
@@ -344,7 +346,7 @@ async function loadBillingFacts(
         .limit(5),
     ]);
     if (teamRes.error || !teamRes.data) return null;
-    const team = teamRes.data as { subscription_end_date: string | null; on_trial: boolean; monthly_price: number | string };
+    const team = teamRes.data as { subscription_end_date: string | null; on_trial: boolean; monthly_price: number | string; plan: string };
 
     const sk = Deno.env.get("MOYASAR_SECRET_KEY") ?? "";
     const gateway = sk.startsWith("sk_live_") ? "live" : sk.startsWith("sk_test_") ? "test" : "unknown";
@@ -353,6 +355,7 @@ async function loadBillingFacts(
       gateway,
       subscriptionEndDate: team.subscription_end_date,
       onTrial: !!team.on_trial,
+      plan: team.plan === "basic" ? "basic" : "ai",
       monthlyPrice: Number(team.monthly_price),
       memberCount: membersRes.count ?? 1,
       todayISO: new Date().toISOString().slice(0, 10),
@@ -395,6 +398,24 @@ Deno.serve(async (req: Request) => {
     const teamId = profile?.team_id as string | undefined;
 
     const body = await req.json();
+
+    // ميزات الذكاء الاصطناعي حصرية لباقة AI (أو أيام التجربة كاملة المزايا) —
+    // القفل هنا بالسيرفر مو بالواجهة بس، عشان ما أحد يتجاوزه باستدعاء الدالة
+    // مباشرة. لو فشلت قراءة الباقة نسمح (نفضّل ما نعطّل فريق بسبب عطل مؤقت)
+    if (teamId) {
+      const { data: planRow, error: planError } = await supabase
+        .from("teams")
+        .select("plan, on_trial")
+        .eq("id", teamId)
+        .single();
+      if (planError) console.error("plan lookup failed", planError);
+      if (planRow && planRow.plan !== "ai" && !planRow.on_trial) {
+        return new Response(
+          JSON.stringify({ text: AI_PLAN_REQUIRED_MESSAGE, message: AI_PLAN_REQUIRED_MESSAGE, upgradeRequired: true, limitReached: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
 
     if (body.action === "chat") {
       if (teamId) {

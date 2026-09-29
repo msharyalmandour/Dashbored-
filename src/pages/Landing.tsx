@@ -27,12 +27,12 @@ import tasksShot from "../assets/landing/tasks.webp";
 import evidenceShot from "../assets/landing/evidence.webp";
 import celebrationShot from "../assets/landing/celebration.webp";
 import heroArt from "../assets/landing/hero.webp";
+import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures } from "../lib/plans";
 
 const StarsBackdrop = lazy(() =>
   import("../components/cinematic/Scene3D").then((m) => ({ default: m.StarsBackdrop })),
 );
 
-const PRICE_PER_PERSON = 40;
 const TEAM_SIZE = 5;
 
 const stageBlurbs: Record<string, string> = {
@@ -202,7 +202,7 @@ const faqs = [
   },
   {
     q: "ينفع نستخدمه لو فريقنا أكبر أو أصغر من ٥ أعضاء؟",
-    a: `أكيد، السعر ${PRICE_PER_PERSON} ريال لكل شخص، فتقدرون تضيفون أو تحذفون أعضاء ويتغيّر السعر تلقائيًا حسب عدد فريقكم.`,
+    a: `أكيد، السعر لكل شخص (${BASIC_PRICE} ريال Basic، أو ${AI_PRICE} ريال AI)، فتقدرون تضيفون أو تحذفون أعضاء ويتغيّر السعر تلقائيًا حسب عدد فريقكم.`,
   },
   {
     q: "لو واجهنا مشكلة أو سؤال، كيف الدعم؟",
@@ -324,7 +324,7 @@ export default function Landing() {
             </div>
             <span className="mt-7 inline-flex items-center gap-1.5 text-xs font-semibold text-white/45">
               <Check size={12} className="text-amber-400" />
-              {PRICE_PER_PERSON} ريال شهريًا لكل شخص — تجربة مجانية ٧ أيام
+              تبدأ من {BASIC_PRICE} ريال شهريًا لكل شخص — تجربة مجانية ٧ أيام كاملة المزايا
             </span>
           </div>
 
@@ -356,7 +356,7 @@ export default function Landing() {
             { icon: Milestone, value: 8, label: "مراحل بحثية واضحة" },
             { icon: Users, value: TEAM_SIZE, label: "أعضاء بكل فريق" },
             { icon: Trophy, value: 15, label: "مقعد بسعر المؤسسين" },
-            { icon: BookOpenCheck, value: PRICE_PER_PERSON, label: "ريال شهريًا لكل شخص" },
+            { icon: BookOpenCheck, value: BASIC_PRICE, label: "ريال شهريًا، تبدأ منها الباقات" },
           ].map((f) => (
             <div key={f.label} className="text-center">
               <f.icon size={18} className="mx-auto text-amber-300/80" />
@@ -544,54 +544,100 @@ export default function Landing() {
       </section>
 
       {/* Pricing */}
-      <Reveal className="mx-auto max-w-3xl px-6 py-16">
-        <section id="pricing" className="glass-panel rounded-[2rem] border border-amber-400/30 bg-white/[0.04] p-8 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12),0_0_80px_-30px_rgba(251,191,36,0.45)] backdrop-blur-2xl lg:p-12">
+      <Reveal className="mx-auto max-w-5xl px-6 py-16">
+        <section id="pricing" className="text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3.5 py-1.5 text-xs font-bold text-amber-300">
             <Trophy size={13} />
-            أول ١٥ فريق يحصلون على سعر المؤسسين — ثابت مدى اشتراككم
+            أول ١٥ فريق: باقة AI بـ {FOUNDER_AI_PRICE} ريال ثابتة مدى اشتراككم
           </span>
-          <p className="mt-6 flex items-center justify-center gap-2 font-display text-white">
-            <span className="text-5xl font-extrabold">{PRICE_PER_PERSON}</span>
-            <span className="text-lg font-semibold text-white/55">ريال / شهريًا لكل شخص</span>
+          <h2 className="mt-5 font-display text-3xl font-extrabold text-white sm:text-4xl">
+            باقتين، وتجربة مجانية ٧ أيام بكل المزايا
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm text-white/50">
+            الأسعار شهريًا لكل عضو — فريق من {TEAM_SIZE} أعضاء يدفع {BASIC_PRICE * TEAM_SIZE} ريال بـ Basic
+            أو {AI_PRICE * TEAM_SIZE} ريال بـ AI.
           </p>
-          <p className="mt-1 text-sm text-white/40">
-            يعني {PRICE_PER_PERSON * TEAM_SIZE} ريال شهريًا للفريق كامل ({TEAM_SIZE} أعضاء)
+
+          <div className="mt-10 grid gap-5 text-start md:grid-cols-2">
+            {/* Basic */}
+            <div className="glass-panel flex flex-col rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-2xl">
+              <p className="font-display text-lg font-extrabold text-white">Basic</p>
+              <p className="mt-1 text-xs text-white/45">كل أدوات إدارة البحث، بدون ذكاء اصطناعي</p>
+              <p className="mt-5 flex items-baseline gap-2 font-display text-white">
+                <span className="text-5xl font-extrabold">{BASIC_PRICE}</span>
+                <span className="text-sm font-semibold text-white/55">ريال / شهريًا لكل عضو</span>
+              </p>
+              <ul className="mt-7 flex-1 space-y-3">
+                {[
+                  "كل صفحات المقترح والمنهجية والمهام والأدلة",
+                  "دعوة كل أعضاء الفريق بدون حد",
+                  "رابط قراءة لمشرفكم بدون اشتراك منها",
+                  "تصدير المستندات والتقويم ومحاضر الاجتماعات",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-white/70">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/70">
+                      <Check size={12} strokeWidth={3} />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/login"
+                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 py-3 text-sm font-bold text-white/85 hover:bg-white/10"
+              >
+                ابدأوا بـ Basic
+              </Link>
+            </div>
+
+            {/* AI */}
+            <div className="glass-panel relative flex flex-col rounded-[2rem] border border-amber-400/40 bg-white/[0.05] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12),0_0_80px_-30px_rgba(251,191,36,0.5)] backdrop-blur-2xl">
+              <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-3 py-1 text-[11px] font-extrabold text-neutral-950">
+                <Sparkles size={11} />
+                الأكثر قيمة
+              </span>
+              <p className="font-display text-lg font-extrabold text-white">AI</p>
+              <p className="mt-1 text-xs text-white/45">كل شي بالإضافة لمساعد بحثي ذكي</p>
+              <p className="mt-5 flex items-baseline gap-2 font-display text-white">
+                <span className="text-5xl font-extrabold">{AI_PRICE}</span>
+                <span className="text-sm font-semibold text-white/55">ريال / شهريًا لكل عضو</span>
+              </p>
+              <ul className="mt-7 flex-1 space-y-3">
+                <li className="flex items-start gap-2.5 text-sm text-white/70">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-amber-300">
+                    <Check size={12} strokeWidth={3} />
+                  </span>
+                  كل مزايا Basic
+                </li>
+                {aiFeatures.map((f) => (
+                  <li key={f.title} className="flex items-start gap-2.5 text-sm text-white/70">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-amber-300">
+                      <Sparkles size={11} />
+                    </span>
+                    <span>
+                      <b className="font-bold text-white">{f.title}</b> — {f.desc}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/login"
+                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-bold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-all duration-300 hover:scale-[1.03]"
+              >
+                ابدأوا تجربة AI المجانية
+                <ArrowLeft size={16} />
+              </Link>
+            </div>
+          </div>
+
+          <p className="mt-6 text-xs text-white/40">
+            التجربة ٧ أيام كاملة المزايا (بما فيها الذكاء الاصطناعي) لأي فريق جديد — وبعدها تختارون الباقة.
           </p>
 
-          <ul className="mx-auto mt-8 max-w-xs space-y-3 text-start">
-            {[
-              "وصول كامل لكل أعضاء الفريق",
-              "تتبع مراحل البحث والمهام لحظيًا",
-              "مكتبة أدلة ومرفقات بلا حدود",
-              "دعم مباشر وتحديثات مستمرة",
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-2.5 text-sm text-white/70">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-amber-300">
-                  <Check size={12} strokeWidth={3} />
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-
-          <Link
-            to="/login"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] px-8 py-3 text-sm font-bold text-neutral-950 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
-          >
-            ابدأ فريقك الآن — تجربة مجانية ٧ أيام
-            <ArrowLeft size={16} />
-          </Link>
-          <Link
-            to="/login"
-            className="mt-3 block text-center text-xs font-semibold text-white/40 hover:text-amber-300 hover:underline"
-          >
-            متأكدين؟ فعّلوا الاشتراك مباشرة بدون تجربة
-          </Link>
-
-          <div className="mt-8 border-t border-amber-400/15 pt-6 text-start text-sm text-white/50">
+          <div className="mx-auto mt-10 max-w-md border-t border-amber-400/15 pt-6 text-start text-sm text-white/50">
             <p className="mb-3 font-bold text-white">كيف يتم الدفع؟</p>
             <ol className="space-y-2.5">
-              {["ادفعوا فورًا بالبطاقة (تفعيل لحظي)", "أو حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل", "نفعّل اشتراك فريقكم خلال ساعة كحد أقصى"].map(
+              {["حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل من داخل التطبيق", "نفعّل اشتراك فريقكم خلال ساعة كحد أقصى", "الدفع المباشر بالبطاقة قريبًا"].map(
                 (step, i) => (
                   <li key={step} className="flex items-center gap-2.5">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-[11px] font-bold text-amber-300">

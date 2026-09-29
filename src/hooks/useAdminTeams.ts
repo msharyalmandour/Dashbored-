@@ -9,6 +9,7 @@ const mockTeams: Team[] = [
     subscriptionEndDate: "2030-01-01",
     memberCount: 5,
     monthlyPrice: 40,
+    plan: "ai",
     isFounder: true,
     isOnTrial: false,
   },
@@ -18,6 +19,7 @@ const mockTeams: Team[] = [
     subscriptionEndDate: fromToday(2),
     memberCount: 4,
     monthlyPrice: 40,
+    plan: "ai",
     isFounder: true,
     isOnTrial: true,
   },
@@ -27,6 +29,7 @@ const mockTeams: Team[] = [
     subscriptionEndDate: fromToday(-10),
     memberCount: 6,
     monthlyPrice: 40,
+    plan: "ai",
     isFounder: false,
     isOnTrial: false,
   },
@@ -36,6 +39,7 @@ const mockTeams: Team[] = [
     subscriptionEndDate: null,
     memberCount: 3,
     monthlyPrice: 40,
+    plan: "ai",
     isFounder: false,
     isOnTrial: true,
   },
@@ -62,6 +66,7 @@ interface AdminTeamRow {
   is_founder: boolean;
   on_trial: boolean;
   university: string | null;
+  plan: string;
 }
 
 export function useAdminTeams() {
@@ -80,6 +85,7 @@ export function useAdminTeams() {
           subscriptionEndDate: row.subscription_end_date,
           memberCount: Number(row.member_count),
           monthlyPrice: Number(row.monthly_price),
+          plan: row.plan === "basic" ? ("basic" as const) : ("ai" as const),
           isFounder: row.is_founder,
           isOnTrial: row.on_trial,
           university: row.university,

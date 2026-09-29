@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Bot, ImagePlus, Send, Sparkles, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
+import { hasAiAccess } from "../lib/plans";
+import AiLockedCard from "./AiLockedCard";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -42,7 +44,7 @@ function contentFor(m: ChatMessage): string | ContentBlock[] {
     (supabase/functions/ai-assist) عشان مفتاح Anthropic ما يظهر بالمتصفح.
     يقدر يفهم صور ترفعينها (زي سكرين شوت تعليمات المشرفة) مو بس نص. */
 export default function AiAssistant() {
-  const { mode, currentUser } = useAuth();
+  const { mode, currentUser, team } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -136,6 +138,12 @@ export default function AiAssistant() {
             </button>
           </div>
 
+          {!hasAiAccess(team) ? (
+            <div className="flex-1 overflow-y-auto p-4">
+              <AiLockedCard feature="المساعد البحثي" />
+            </div>
+          ) : (
+            <>
           <div className="flex-1 space-y-3 overflow-y-auto p-4">
             {messages.length === 0 && (
               <div className="space-y-2">
@@ -227,6 +235,8 @@ export default function AiAssistant() {
               </button>
             </div>
           </div>
+            </>
+          )}
         </div>
       )}
     </>

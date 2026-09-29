@@ -177,6 +177,9 @@ export default function AdminSubscriptions() {
                       <Users size={12} />
                       {team.memberCount} أعضاء
                     </span>
+                    <span className="rounded-full bg-surface-muted px-2 py-0.5 font-bold text-brand-700">
+                      {team.plan === "ai" ? "باقة AI" : "باقة Basic"}
+                    </span>
                     <span>
                       {team.monthlyPrice} ريال/شخص —{" "}
                       <span className="font-bold text-brand-700">

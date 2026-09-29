@@ -4,12 +4,15 @@ import {
   CalendarClock,
   Check,
   CreditCard,
+  FileDown,
   FolderClosed,
   GraduationCap,
+  Lock,
   ShieldCheck,
   Sparkles,
   Users2,
 } from "lucide-react";
+import { AI_PRICE, BASIC_PRICE, aiFeatures, planPrice, type PlanId } from "../lib/plans";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import GrowingPlant from "../components/GrowingPlant";
@@ -20,22 +23,36 @@ import { useTeamPayments } from "../hooks/useTeamPayments";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
 import { daysUntil, formatDateLong } from "../lib/date";
 
-const includedFeatures = [
+/** مشتركة بين الباقتين — كل أدوات إدارة البحث */
+const baseFeatures = [
   { icon: FolderClosed, label: "كل صفحات إدارة البحث — مقترح، منهجية، مهام، أدلة" },
   { icon: Users2, label: "دعوة كل أعضاء الفريق بدون حد" },
   { icon: GraduationCap, label: "رابط قراءة لمشرفكم بدون أي اشتراك منها" },
-  { icon: Sparkles, label: "تصدير المستندات والتقويم، ومساعد ذكي مدمج" },
+  { icon: FileDown, label: "تصدير المستندات والتقويم ومحاضر الاجتماعات" },
 ];
 
 export default function Pricing() {
-  const { team } = useAuth();
+  const { team, isLeader, setTeamPlan } = useAuth();
   const { roster } = useTeamRoster();
   const { paidProfileIds } = useTeamPayments();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [planBusy, setPlanBusy] = useState<PlanId | null>(null);
+  const [planError, setPlanError] = useState<string | null>(null);
 
   const state = getTeamSubscriptionState(team?.subscriptionEndDate);
   const daysLeft = team?.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
-  const pricePerPerson = team?.monthlyPrice ?? 40;
+  const currentPlan: PlanId = team?.plan ?? "ai";
+  const isFounder = team?.isFounder ?? false;
+  const pricePerPerson = team?.monthlyPrice ?? planPrice(currentPlan, isFounder);
+
+  const choosePlan = async (plan: PlanId) => {
+    if (planBusy || plan === currentPlan) return;
+    setPlanError(null);
+    setPlanBusy(plan);
+    const { error } = await setTeamPlan(plan);
+    setPlanBusy(null);
+    if (error) setPlanError(error);
+  };
   const memberCount = roster.length || 1;
   const total = pricePerPerson * memberCount;
   const isActive = state === "active";
@@ -62,7 +79,7 @@ export default function Pricing() {
             </span>
           </h1>
           <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">
-            باقة واحدة بسيطة تجمع فريقكم كامل — {pricePerPerson} ريال شهريًا لكل عضو، وجنبكم من أول يوم لآخر تسليم 🌱
+            باقتين بسيطتين لفريقكم كامل — Basic من {BASIC_PRICE} ريال، وAI بكل ميزات الذكاء الاصطناعي، شهريًا لكل عضو 🌱
           </p>
 
           <div className="relative mx-auto mt-7 flex w-fit items-center justify-center">
@@ -71,20 +88,103 @@ export default function Pricing() {
         </div>
       </div>
 
-      {/* Feature checklist */}
-      <Card>
-        <CardHeader title="كل هذا مشمول" subtitle="What's included" />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {includedFeatures.map((f) => (
-            <div key={f.label} className="flex items-start gap-3 rounded-2xl bg-surface-muted p-3.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-sm shadow-brand-500/30">
-                <f.icon size={15} />
-              </span>
-              <p className="mt-1 text-sm font-semibold text-brand-950/75">{f.label}</p>
+      {/* Plans */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {(["basic", "ai"] as const).map((plan) => {
+          const isAi = plan === "ai";
+          const selected = currentPlan === plan;
+          const price = planPrice(plan, isFounder);
+          return (
+            <div
+              key={plan}
+              className={`relative flex flex-col rounded-[1.75rem] p-[1.5px] ${
+                isAi
+                  ? "bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 shadow-lg shadow-brand-950/10"
+                  : "bg-brand-100/60"
+              }`}
+            >
+              <div className="glass-panel relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper/80 p-6 backdrop-blur-xl">
+                {isAi && (
+                  <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
+                    <Sparkles size={11} />
+                    الأكثر قيمة
+                  </span>
+                )}
+                <p className="font-display text-lg font-extrabold text-brand-950">
+                  {isAi ? "باقة AI" : "باقة Basic"}
+                </p>
+                <p className="mt-0.5 text-xs text-brand-950/50">
+                  {isAi ? "كل شي بالإضافة للذكاء الاصطناعي" : "كل أدوات إدارة البحث"}
+                </p>
+                <div className="mt-4 flex items-baseline gap-1.5">
+                  <span className="font-display text-4xl font-extrabold text-brand-950">{price}</span>
+                  <span className="text-sm font-semibold text-brand-950/50">ريال / شهريًا لكل عضو</span>
+                </div>
+                {isAi && isFounder && (
+                  <p className="mt-1 text-[11px] font-bold text-amber-accent-700">
+                    سعر المؤسسين — بدل {AI_PRICE} ريال، ثابت مدى اشتراككم
+                  </p>
+                )}
+
+                <ul className="mt-5 flex-1 space-y-2.5">
+                  {baseFeatures.map((f) => (
+                    <li key={f.label} className="flex items-start gap-2.5 text-sm text-brand-950/70">
+                      <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />
+                      {f.label}
+                    </li>
+                  ))}
+                  {isAi ? (
+                    aiFeatures.map((f) => (
+                      <li key={f.title} className="flex items-start gap-2.5 text-sm text-brand-950/70">
+                        <Sparkles size={15} className="mt-0.5 shrink-0 text-amber-accent-500" />
+                        <span>
+                          <b className="font-bold text-brand-950">{f.title}</b> — {f.desc}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="flex items-start gap-2.5 text-sm text-brand-950/40">
+                      <Lock size={15} className="mt-0.5 shrink-0" />
+                      بدون المساعد الذكي ووكيل البحث وتحسين الصياغة
+                    </li>
+                  )}
+                </ul>
+
+                <button
+                  onClick={() => choosePlan(plan)}
+                  disabled={selected || !isLeader || planBusy !== null}
+                  className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-extrabold transition-colors disabled:cursor-default ${
+                    selected
+                      ? "bg-brand-100 text-brand-700"
+                      : "bg-gradient-to-l from-brand-500 to-brand-600 text-white disabled:opacity-50"
+                  }`}
+                >
+                  {selected ? (
+                    <>
+                      <BadgeCheck size={16} />
+                      باقتكم الحالية
+                    </>
+                  ) : planBusy === plan ? (
+                    "جاري التغيير..."
+                  ) : isLeader ? (
+                    `انتقلوا لباقة ${isAi ? "AI" : "Basic"}`
+                  ) : (
+                    "التغيير من قائدة الفريق"
+                  )}
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
-      </Card>
+          );
+        })}
+      </div>
+      {planError && (
+        <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{planError}</p>
+      )}
+      {team?.isOnTrial && (
+        <p className="rounded-2xl bg-amber-accent-50 px-4 py-3 text-xs font-semibold text-amber-accent-700">
+          أنتم الحين بفترة التجربة — كل ميزات AI مفتوحة لكم مهما كانت الباقة المختارة، واختياركم يبدأ يسري مع أول اشتراك.
+        </p>
+      )}
 
       {/* Price card */}
       <div className="rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
@@ -92,7 +192,7 @@ export default function Pricing() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-950/10 to-transparent" />
           <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-accent-100/70 blur-3xl" />
           <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-            الأكثر قيمة
+            {currentPlan === "ai" ? "باقة AI" : "باقة Basic"}
           </span>
 
           <div className="relative flex flex-col items-start gap-1">
@@ -189,7 +289,15 @@ export default function Pricing() {
           <div>
             <p className="font-bold text-brand-950">كيف يتفعّل الاشتراك بعد الدفع؟</p>
             <p className="mt-1 text-brand-950/55">
-              فورًا خلال ثوانٍ بعد نجاح الدفع بالبطاقة — بدون انتظار مراجعة يدوية.
+              بالتحويل عبر STC Pay وإرسال إثبات التحويل نفعّل اشتراككم خلال ساعة كحد أقصى. الدفع
+              بالبطاقة يتفعّل خلال ثوانٍ فور نجاحه، وهو قيد التشغيل.
+            </p>
+          </div>
+          <div>
+            <p className="font-bold text-brand-950">أقدر أغيّر الباقة؟</p>
+            <p className="mt-1 text-brand-950/55">
+              قائدة الفريق تغيّرها أثناء التجربة، أو قبل التجديد بأسبوع، أو بعد انتهاء الاشتراك.
+              نمنع التبديل بنص الشهر عشان الحسبة تبقى عادلة لكل الفرق.
             </p>
           </div>
           <div className="flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5">

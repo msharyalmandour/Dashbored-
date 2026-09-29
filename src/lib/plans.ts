@@ -1,0 +1,42 @@
+import type { Team } from "../data/types";
+
+export type PlanId = "basic" | "ai";
+
+/** أسعار الباقات بالريال شهريًا لكل عضو — لازم تطابق public.plan_price() بقاعدة
+    البيانات (هي المصدر الفعلي للسعر المحسوب؛ هنا للعرض فقط) */
+export const BASIC_PRICE = 19;
+export const AI_PRICE = 59;
+/** سعر باقة AI للفرق المؤسسة (أول ١٥ فريق) — ثابت مدى اشتراكهم */
+export const FOUNDER_AI_PRICE = 40;
+
+export function planPrice(plan: PlanId, isFounder: boolean): number {
+  if (plan === "basic") return BASIC_PRICE;
+  return isFounder ? FOUNDER_AI_PRICE : AI_PRICE;
+}
+
+/** ميزات الذكاء الاصطناعي الحصرية لباقة AI — تُعرض بصفحة الباقات والصفحة الرئيسية */
+export const aiFeatures = [
+  {
+    title: "المساعد البحثي",
+    desc: "يجاوب أسئلتكم ويلخّص الدراسات ويشرح المنهجية، ويفهم الصور (زي تعليمات المشرفة). حتى ٥٠ رسالة يوميًا للفريق.",
+  },
+  {
+    title: "وكيل البحث العلمي",
+    desc: "يبحث بالويب عن دراسات حقيقية قريبة من عنوان بحثكم، مع ملخص عربي وسبب الصلة وتصنيف المصدر، ويقول لكم وش الجديد بدراستكم. ١٠ عمليات شهريًا للفريق.",
+  },
+  {
+    title: "تحسين الصياغة الأكاديمية",
+    desc: "بضغطة زر يحوّل نصكم لصياغة أوضح وأدق بنفس لغته.",
+  },
+  {
+    title: "صوت طبيعي",
+    desc: "قراءة صوتية بصوت مشاري الطبيعي بدل صوت المتصفح الآلي.",
+  },
+] as const;
+
+/** هل فريق المستخدم يقدر يستخدم ميزات الـ AI؟ — أيام التجربة كاملة المزايا.
+    (السيرفر هو اللي يفرض القفل فعليًا؛ هذي للواجهة فقط.) */
+export function hasAiAccess(team: Pick<Team, "plan" | "isOnTrial"> | null | undefined): boolean {
+  if (!team) return true;
+  return team.plan === "ai" || team.isOnTrial;
+}

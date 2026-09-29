@@ -45,6 +45,8 @@ interface AuthContextValue {
   cancelPasswordRecovery: () => void;
   /** قائد الفريق فقط — يعدّل جامعة الفريق من صفحة الفريق */
   updateTeamUniversity: (university: string) => Promise<AuthResult>;
+  /** قائد الفريق فقط — يختار باقة Basic أو AI (السيرفر يحسب السعر ويرفض التبديل بنص الشهر) */
+  setTeamPlan: (plan: "basic" | "ai") => Promise<AuthResult>;
   logout: () => void;
 }
 
@@ -58,6 +60,7 @@ const mockTeam: Team = {
   subscriptionEndDate: "2030-01-01",
   memberCount: teamMembers.length,
   monthlyPrice: 40,
+  plan: "ai",
   isFounder: true,
   isOnTrial: false,
   referralCode: "DEMO01",
@@ -105,6 +108,7 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
     updatePassword: async () => ({ error: "Supabase غير مفعّل" }),
     cancelPasswordRecovery: () => {},
     updateTeamUniversity: async () => ({ error: "Supabase غير مفعّل" }),
+    setTeamPlan: async () => ({ error: "Supabase غير مفعّل" }),
     logout,
   };
 
@@ -168,7 +172,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           const { data: teamRow } = await supabase!
             .from("teams")
             .select(
-              "id, name, subscription_end_date, monthly_price, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code, university",
+              "id, name, subscription_end_date, monthly_price, plan, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code, university",
             )
             .eq("id", team_id)
             .single();
@@ -178,7 +182,8 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               name: teamRow.name,
               subscriptionEndDate: teamRow.subscription_end_date,
               memberCount: 0,
-              monthlyPrice: teamRow.monthly_price,
+              monthlyPrice: Number(teamRow.monthly_price),
+              plan: teamRow.plan === "basic" ? "basic" : "ai",
               isFounder: teamRow.is_founder,
               isOnTrial: teamRow.on_trial,
               shareToken: teamRow.share_token,
@@ -233,6 +238,13 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     return error ? { error: error.message } : {};
   };
 
+  const setTeamPlan = async (plan: "basic" | "ai") => {
+    const { data, error } = await supabase!.rpc("set_team_plan", { p_plan: plan });
+    if (error) return { error: error.message };
+    setTeam((prev) => (prev ? { ...prev, plan, monthlyPrice: Number(data) } : prev));
+    return {};
+  };
+
   const logout = () => {
     supabase!.auth.signOut();
   };
@@ -274,6 +286,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     updatePassword,
     cancelPasswordRecovery,
     updateTeamUniversity,
+    setTeamPlan,
     logout,
   };
 

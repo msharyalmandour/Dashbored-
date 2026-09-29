@@ -99,6 +99,7 @@ begin
   if new.subscription_end_date is null then
     new.subscription_end_date := current_date + 7;
   end if;
+  new.monthly_price := public.plan_price(new.plan, new.is_founder);
   return new;
 end;
 $$;
@@ -107,6 +108,70 @@ drop trigger if exists set_team_founder_flag on public.teams;
 create trigger set_team_founder_flag
   before insert on public.teams
   for each row execute procedure public.set_team_founder_flag();
+
+-- الباقات: Basic (بدون ذكاء اصطناعي) 19 ريال/شخص/شهر، و AI 59 ريال (المؤسسون 40).
+-- الفرق الحالية تبقى على باقة AI بنفس سعرها، والفرق الجديدة تبدأ بتجربة ٧ أيام
+-- كاملة المزايا (باقة AI) ثم تختار قائدتها الباقة من صفحة "الباقات والاشتراك"
+alter table public.teams add column if not exists plan text not null default 'ai';
+alter table public.teams drop constraint if exists teams_plan_check;
+alter table public.teams add constraint teams_plan_check check (plan in ('basic', 'ai'));
+
+-- سعر الباقة لفريق معيّن (مصدر واحد للأسعار بقاعدة البيانات)
+create or replace function public.plan_price(p_plan text, p_is_founder boolean)
+returns numeric
+language sql
+immutable
+as $$
+  select case
+    when p_plan = 'basic' then 19
+    when p_is_founder then 40
+    else 59
+  end::numeric;
+$$;
+
+-- قائدة الفريق تختار الباقة. التبديل مسموح فقط أثناء التجربة أو لما الاشتراك
+-- منتهي/قريب الانتهاء (٧ أيام أو أقل) — عشان ما أحد يدفع Basic ثم يرقّي
+-- لـ AI بنص الشهر ويرجع يدفع Basic
+create or replace function public.set_team_plan(p_plan text)
+returns numeric
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_role text;
+  v_team_id uuid;
+  v_team public.teams;
+  v_price numeric;
+begin
+  if p_plan not in ('basic', 'ai') then
+    raise exception 'باقة غير معروفة';
+  end if;
+
+  select role, team_id into v_role, v_team_id from public.profiles where id = auth.uid();
+  if v_role is distinct from 'leader' or v_team_id is null then
+    raise exception 'قائد الفريق فقط يقدر يغيّر الباقة';
+  end if;
+
+  select * into v_team from public.teams where id = v_team_id;
+  v_price := public.plan_price(p_plan, v_team.is_founder);
+
+  if v_team.plan = p_plan then
+    return v_team.monthly_price;
+  end if;
+
+  if not v_team.on_trial
+     and v_team.subscription_end_date is not null
+     and v_team.subscription_end_date > current_date + 7 then
+    raise exception 'تغيير الباقة يتاح قبل التجديد بأسبوع أو عند انتهاء الاشتراك — تواصلوا مع الفريق لو تحتاجون ترقية الحين';
+  end if;
+
+  update public.teams set plan = p_plan, monthly_price = v_price where id = v_team_id;
+  return v_price;
+end;
+$$;
+
+grant execute on function public.set_team_plan(text) to authenticated;
 
 -- ============================================================
 -- 2) الملفات الشخصية (profile لكل مستخدم في auth.users)
@@ -480,18 +545,19 @@ returns table (
   monthly_price numeric,
   is_founder boolean,
   on_trial boolean,
-  university text
+  university text,
+  plan text
 )
 language sql
 security definer set search_path = public
 stable
 as $$
   select t.id, t.name, t.subscription_end_date, count(p.id) as member_count,
-         t.monthly_price, t.is_founder, t.on_trial, t.university
+         t.monthly_price, t.is_founder, t.on_trial, t.university, t.plan
   from public.teams t
   left join public.profiles p on p.team_id = t.id
   where public.is_super_admin()
-  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder, t.on_trial, t.university
+  group by t.id, t.name, t.subscription_end_date, t.monthly_price, t.is_founder, t.on_trial, t.university, t.plan
   order by t.subscription_end_date nulls first;
 $$;
 

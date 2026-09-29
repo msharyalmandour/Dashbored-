@@ -125,6 +125,7 @@ export default function Login() {
   const [university, setUniversity] = useState("");
   const [showManualTeamCode, setShowManualTeamCode] = useState(false);
   const [manualTeamCode, setManualTeamCode] = useState("");
+  const [showStory, setShowStory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -286,6 +287,24 @@ export default function Login() {
                   </div>
                 ))}
               </div>
+
+              <button
+                onClick={() => setShowStory((s) => !s)}
+                className="mx-auto mt-10 block text-xs font-semibold text-white/35 underline decoration-white/20 underline-offset-4 hover:text-amber-300"
+              >
+                {showStory ? "إخفاء القصة" : "ليش سوّينا Wesync؟"}
+              </button>
+              {showStory && (
+                <div className="mx-auto mt-4 max-w-md animate-[panel-in_0.4s_ease-out] rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-start backdrop-blur-sm">
+                  <p className="text-sm leading-relaxed text-white/60">
+                    عشنا فوضى بحث التخرج زي أي طالبات تمريض — رسائل واتساب ضايعة،
+                    مستندات متكررة بين عضوات الفريق، ومواعيد تسليم تفوتنا بدون سبب
+                    وجيه. بنينا Wesync عشان يصير لفريقكم مكان واحد يجمع كل شي:
+                    خطوات بحثكم، أدلتكم، واجتماعاتكم — بدون فوضى، وبدون ما
+                    تحسّي إنك لحالك فيه.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="w-full max-w-md animate-[panel-in_0.5s_ease-out] rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">

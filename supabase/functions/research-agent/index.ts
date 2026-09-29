@@ -335,7 +335,15 @@ async function handleAsk(body: any): Promise<any> {
   if (!pdf && !body.abstract) return { error: "ما فيه ملخص لهذي الدراسة — ارفعوا ملف PDF لها عشان أقدر أجاوب." };
 
   const content: Anthropic.MessageParam["content"] = [];
-  if (pdf) content.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: pdf } });
+  // الـ PDF أغلى جزء بالطلب — نكاشه (cache_control) عشان الأسئلة المتتابعة عن نفس الدراسة
+  // خلال دقائق تدفع ~١٠٪ من سعره بدل ما تعيد دفعه كامل مع كل سؤال
+  if (pdf) {
+    content.push({
+      type: "document",
+      source: { type: "base64", media_type: "application/pdf", data: pdf },
+      cache_control: { type: "ephemeral" },
+    });
+  }
   content.push({ type: "text", text: `${context ? context + "\n\n" : ""}السؤال: ${clip(question, 600)}` });
 
   const answer = await askModel({ model: SONNET, system: ASK_SYSTEM, content, maxTokens: 1500, lowEffort: true });

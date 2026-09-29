@@ -66,10 +66,11 @@ export default function FullDocumentExport() {
   const references = buildReferenceList(papers, "apa").split("\n\n").filter(Boolean);
   const [exportingWord, setExportingWord] = useState(false);
 
-  const exportWord = async () => {
+  const exportWord = async (style: "dark" | "official") => {
     setExportingWord(true);
     try {
-      const blob = await buildProposalWordDoc({
+      const blob = await buildProposalWordDoc(
+        {
         projectTitle: project?.title ?? "",
         abstract: project?.abstract ?? "",
         supervisorName: project?.supervisorName ?? "",
@@ -80,8 +81,11 @@ export default function FullDocumentExport() {
         researchQuestions: questions,
         methodology,
         evidenceLibrary: papers,
-      });
-      downloadWordDoc(blob, `${project?.title || "المقترح البحثي"}.docx`);
+        },
+        style,
+      );
+      const base = project?.title || "المقترح البحثي";
+      downloadWordDoc(blob, style === "dark" ? `${base} — Wesync.docx` : `${base}.docx`);
     } finally {
       setExportingWord(false);
     }
@@ -99,12 +103,22 @@ export default function FullDocumentExport() {
         </Link>
         <div className="flex items-center gap-2">
           <button
-            onClick={exportWord}
+            onClick={() => exportWord("dark")}
             disabled={exportingWord}
+            title="تصميم Wesync الداكن — للقراءة على الشاشة وللعرض"
             className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950 hover:bg-surface-muted disabled:opacity-60"
           >
             {exportingWord ? <Loader2 size={16} className="animate-spin" /> : <FileType2 size={16} />}
-            تصدير Word
+            Word — تصميم Wesync
+          </button>
+          <button
+            onClick={() => exportWord("official")}
+            disabled={exportingWord}
+            title="أبيض بنسق الروبريك الرسمي — للتسليم والطباعة"
+            className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950/70 hover:bg-surface-muted disabled:opacity-60"
+          >
+            <FileType2 size={16} />
+            Word رسمي للتسليم
           </button>
           <button
             onClick={() => window.print()}

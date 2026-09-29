@@ -17,12 +17,13 @@ import type { MeetingMinutesRow } from "../data/types";
     ننفذه) */
 async function downloadMinutesDoc(
   input: Pick<MeetingMinutesRow, "meetingDate" | "attendees" | "discussion" | "decisions" | "actionItems">,
+  style: "dark" | "official" = "dark",
 ) {
-  const blob = await buildMeetingMinutesDoc(input);
+  const blob = await buildMeetingMinutesDoc(input, style);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `محضر اجتماع - ${input.meetingDate}.docx`;
+  a.download = `محضر اجتماع - ${input.meetingDate}${style === "dark" ? " — Wesync" : ""}.docx`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -220,6 +221,13 @@ export default function MeetingMinutes() {
                 >
                   <Download size={12} />
                   تنزيل Word
+                </button>
+                <button
+                  onClick={() => downloadMinutesDoc(m, "official")}
+                  title="نسخة بيضاء بسيطة للطباعة"
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-950/45 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  نسخة فاتحة للطباعة
                 </button>
                 {(isLeader || m.createdById === currentUser?.id) && (
                   <ThreeDotsMenu

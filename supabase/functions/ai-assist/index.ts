@@ -283,15 +283,26 @@ interface ResearchSearchResultItem {
 function parseResearchSearchJson(
   text: string,
 ): { results: ResearchSearchResultItem[]; noveltyNote: string } | null {
-  const match = text.match(/```json\s*([\s\S]*?)\s*```/);
-  if (!match) return null;
-  try {
-    const parsed = JSON.parse(match[1]);
-    if (!Array.isArray(parsed.results)) return null;
-    return { results: parsed.results, noveltyNote: parsed.noveltyNote ?? "" };
-  } catch {
-    return null;
-  }
+  // نلقط آخر كتلة ```json``` (مو أول وحدة) — لو كلود ذكر مثال أو نموذج
+  // بشرحه قبل النتيجة الفعلية، آخر كتلة هي الصحيحة دايمًا
+  const matches = [...text.matchAll(/```json\s*([\s\S]*?)\s*```/g)];
+  if (matches.length === 0) return null;
+  const raw = matches[matches.length - 1][1];
+
+  const tryParse = (s: string) => {
+    try {
+      const parsed = JSON.parse(s);
+      return Array.isArray(parsed.results) ? parsed : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // أول محاولة عادية، وإذا فشلت نجرب تنظيف فواصل زايدة قبل } أو ] —
+  // أشيع خطأ JSON تسويه نماذج اللغة
+  const parsed = tryParse(raw) ?? tryParse(raw.replace(/,(\s*[}\]])/g, "$1"));
+  if (!parsed) return null;
+  return { results: parsed.results, noveltyNote: parsed.noveltyNote ?? "" };
 }
 
 Deno.serve(async (req: Request) => {
@@ -447,7 +458,10 @@ Deno.serve(async (req: Request) => {
         system: [{ type: "text", text: RESEARCH_SEARCH_SYSTEM, cache_control: { type: "ephemeral" } }],
         // effort بدون تخفيض هنا عمدًا — هذي هي الميزة الرئيسية اللي تعتمد
         // على تحليل ومقارنة حقيقية لنتائج البحث، مو مهمة بسيطة
-        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 5 }],
+        // عمليات البحث بالويب هي أغلى جزء بهذي الدالة (تكلفة الأداة نفسها +
+        // كل نتيجة تُحقن كسياق إضافي) — خفّضناها من 5 لـ 3 لتقليل التكلفة
+        // الحقيقية مع بقاء تغطية كافية لعناوين رسائل التخرج
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
         messages: [{ role: "user", content: `عنوان البحث: ${topic}` }],
       });
       const fullText = allTextFrom(response.content);

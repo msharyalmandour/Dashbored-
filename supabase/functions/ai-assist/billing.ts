@@ -26,7 +26,7 @@ export function lastUserText(
 ): string {
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];
-    if (m.role !== "user") continue;
+    if (!m || m.role !== "user") continue;
     if (typeof m.content === "string") return m.content;
     if (Array.isArray(m.content)) {
       return m.content

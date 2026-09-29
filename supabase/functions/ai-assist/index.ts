@@ -417,10 +417,14 @@ Deno.serve(async (req: Request) => {
       // معلومات الاشتراك الفعلية تنجاب فقط لأسئلة الدفع (مو كل رسالة) —
       // وتنحط ككتلة نظام ثانية "بدون كاش" بعد الكتلة الثابتة، عشان ما
       // تكسر الكاش (الكتلة الأولى هي اللي تتكرر وتتكاش)
-      const billingFacts =
-        teamId && isBillingQuestion(lastUserText(messages))
-          ? await loadBillingFacts(supabase, teamId, user.id)
-          : null;
+      let billingFacts: string | null = null;
+      try {
+        if (teamId && isBillingQuestion(lastUserText(messages))) {
+          billingFacts = await loadBillingFacts(supabase, teamId, user.id);
+        }
+      } catch (err) {
+        console.error("billing facts skipped", err);
+      }
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 2000,

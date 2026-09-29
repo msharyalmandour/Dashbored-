@@ -658,6 +658,12 @@ export default function Landing() {
           صُنعت لفرق بحث التخرج التمريضي
         </p>
         <ShareSiteRow />
+        <nav className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-semibold text-white/45">
+          <Link to="/legal/terms" className="hover:text-amber-300">شروط الاستخدام</Link>
+          <Link to="/legal/privacy" className="hover:text-amber-300">سياسة الخصوصية</Link>
+          <Link to="/legal/refund" className="hover:text-amber-300">الإلغاء والاسترداد</Link>
+          <Link to="/legal/contact" className="hover:text-amber-300">تواصل معنا</Link>
+        </nav>
       </footer>
     </div>
   );

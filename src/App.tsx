@@ -26,6 +26,7 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 import Pricing from "./pages/Pricing";
 import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
+import Legal from "./pages/Legal";
 
 export default function App() {
   const { currentUser, passwordRecovery } = useAuth();
@@ -47,6 +48,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/legal/:doc" element={<Legal />} />
       <Route path="/celebration" element={<Celebration />} />
       <Route path="/supervisor/:token" element={<SupervisorView />} />
       <Route element={<Layout />}>

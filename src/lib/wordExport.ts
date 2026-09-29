@@ -1,6 +1,8 @@
+import type { Paragraph, Table } from "docx";
 import type { EvidencePaper, Methodology, ProposalSectionRow, ResearchGap, ResearchQuestion, StudyAim } from "../data/types";
 import { buildReferenceList } from "./citation";
 import { formatDateLong } from "./date";
+import { C, loadWesyncKit, type WordStyle } from "./wordTheme";
 
 export interface WordExportInput {
   projectTitle: string;
@@ -28,7 +30,7 @@ function sectionContent(sections: ProposalSectionRow[], key: ProposalSectionRow[
     مكتبة docx ثقيلة (~350 كيلوبايت) ونادر إنها تُستخدم أصلاً، فنحمّلها
     ديناميكيًا هنا بس وقت الحاجة الفعلية — بدل ما تدخل حزمة التطبيق
     الرئيسية اللي تحمّل بكل صفحة */
-export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob> {
+async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
   const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } = await import("docx");
 
   function ar(text: string, opts: { bold?: boolean; size?: number; color?: string } = {}) {
@@ -209,6 +211,80 @@ export async function buildProposalWordDoc(input: WordExportInput): Promise<Blob
   });
 
   return Packer.toBlob(doc);
+}
+
+/** نسخة Wesync الداكنة: غلاف، خلفية سوداء دافئة، عناوين برتقالية، ترويسة وتذييل
+    برقم الصفحة. للقراءة على الشاشة والعرض على المشرفة — للتسليم والطباعة
+    استخدموا النسخة الرسمية (style: "official"). */
+async function buildProposalDark(input: WordExportInput): Promise<Blob> {
+  const k = await loadWesyncKit({ label: "المقترح البحثي — Research Proposal", title: input.projectTitle || "المقترح البحثي" });
+  const dateLine = formatDateLong(new Date().toISOString().slice(0, 10));
+  const references = buildReferenceList(input.evidenceLibrary, "apa").split("\n\n").filter(Boolean);
+  const gap = input.researchGap.gapStatement.trim();
+  const children: (Paragraph | Table)[] = [
+    ...k.cover({
+      kicker: "المقترح البحثي — RESEARCH PROPOSAL",
+      title: input.projectTitle || "بدون عنوان بعد",
+      meta: [
+        ["الفريق البحثي", input.teamNames.join("، ")],
+        ["المشرف الأكاديمي", input.supervisorName],
+        ["تاريخ النسخة", dateLine],
+      ],
+      note: "أُنشئ بواسطة Wesync — منصة إدارة أبحاث التخرج التمريضي",
+    }),
+
+    k.heading("الملخص — Abstract"),
+    ...k.narrative(input.abstract),
+
+    k.heading("الخلفية ومراجعة الأدبيات — Background and Literature Review", "١"),
+    ...k.narrative(sectionContent(input.sections, "background")),
+    ...k.narrative(sectionContent(input.sections, "literature-review")),
+
+    k.heading("مشكلة البحث — Statement of Problem", "٢"),
+    ...k.narrative(sectionContent(input.sections, "problem")),
+    ...(gap ? [k.para([k.run("")], { after: 60 }), k.callout("الفجوة البحثية — Research Gap", gap)] : []),
+
+    k.heading("هدف الدراسة — Purpose of the Study", "٣"),
+    ...k.narrative(input.studyAim.statement),
+
+    k.heading("سؤال البحث — Research Question", "٤"),
+    ...(input.researchQuestions.length > 0
+      ? input.researchQuestions.map((q) => k.para([k.run(`${q.order}.  `, { bold: true, color: C.ember }), k.run(q.text)]))
+      : k.empty("لم تتم صياغتها بعد.")),
+
+    k.heading("المنهجية — Methods", "٥"),
+    k.label("أ. تصميم الدراسة — Design"),
+    ...k.narrative(input.methodology.studyDesign),
+    k.label("ب. مكان الدراسة — Setting"),
+    ...k.narrative(input.methodology.studySetting),
+    k.label("مجتمع الدراسة — Population"),
+    ...k.narrative(input.methodology.population),
+    k.label("ج. معايير الاشتمال — Inclusion Criteria"),
+    ...k.bullets(input.methodology.sampling.inclusionCriteria),
+    k.label("معايير الاستبعاد — Exclusion Criteria"),
+    ...k.bullets(input.methodology.sampling.exclusionCriteria),
+    k.label("حجم العينة — Sample Size"),
+    ...k.narrative(input.methodology.sampling.sampleSize),
+    k.label("أسلوب اختيار العينة — Sampling Technique"),
+    ...k.narrative(input.methodology.sampling.samplingTechnique),
+    k.label("د. طريقة/أداة جمع البيانات — Data Collection Method/Tool"),
+    ...k.bullets(input.methodology.dataCollectionMethods),
+    k.label("هـ. إجراء جمع البيانات — Data Collection Procedure"),
+    ...k.narrative(input.methodology.dataCollectionProcedure),
+    k.label("و. تحليل البيانات — Data Analysis"),
+    ...k.narrative(input.methodology.dataAnalysis),
+    k.label("ز. الاعتبارات الأخلاقية — Ethical Considerations"),
+    ...k.narrative(input.methodology.ethicalConsiderations),
+
+    k.heading(`قائمة المراجع (APA) — References (${input.evidenceLibrary.length})`),
+    ...(references.length > 0 ? references.map((r) => k.latin(r)) : k.empty("لم تُضَف مراجع بعد.")),
+  ];
+  return k.build(children, { hasCover: true });
+}
+
+/** style: "dark" (الافتراضي، هوية Wesync) أو "official" (أبيض بنسق الروبريك الرسمي للتسليم) */
+export function buildProposalWordDoc(input: WordExportInput, style: WordStyle = "dark"): Promise<Blob> {
+  return style === "official" ? buildProposalOfficial(input) : buildProposalDark(input);
 }
 
 export function downloadWordDoc(blob: Blob, filename = "nursync-proposal.docx") {

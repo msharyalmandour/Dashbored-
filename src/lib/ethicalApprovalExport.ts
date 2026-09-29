@@ -1,5 +1,7 @@
+import type { Paragraph, Table } from "docx";
 import type { EthicalApproval, EthicalPrincipleAnswer } from "../data/types";
 import { formatDateLong } from "./date";
+import { loadWesyncKit, type WordStyle } from "./wordTheme";
 
 export interface EthicalApprovalExportInput {
   projectTitle: string;
@@ -42,7 +44,7 @@ const attachmentLabels: { key: keyof EthicalApproval["attachments"]; text: strin
 /** يبني نموذج طلب الموافقة الأخلاقية الحقيقي (.docx) بنفس ترتيب وحقول
     نموذج KAU الرسمي بالضبط — نفس أسلوب buildProposalWordDoc بـ wordExport.ts،
     بخط Times New Roman حجم ١٢ وتباعد سطر ١.٥ (يطابق معيار التنسيق بالروبريك) */
-export async function buildEthicalApprovalDoc(input: EthicalApprovalExportInput): Promise<Blob> {
+async function buildEthicalOfficial(input: EthicalApprovalExportInput): Promise<Blob> {
   const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } = await import("docx");
   const { ethicalApproval: ea } = input;
 
@@ -141,4 +143,65 @@ export async function buildEthicalApprovalDoc(input: EthicalApprovalExportInput)
   });
 
   return Packer.toBlob(doc);
+}
+
+/** نسخة Wesync الداكنة: نفس الأقسام والحقول بالضبط، بجداول مقروءة. النموذج الرسمي
+    للتقديم للجنة يبقى بنسخة "official" (أبيض بنسق KAU) */
+async function buildEthicalDark(input: EthicalApprovalExportInput): Promise<Blob> {
+  const { ethicalApproval: ea } = input;
+  const k = await loadWesyncKit({ label: "طلب الموافقة الأخلاقية — Ethical Approval", title: "طلب الموافقة الأخلاقية" });
+  const piType =
+    ea.piType === "faculty" ? "عضو هيئة تدريس" : ea.piType === "graduate" ? "طالب دراسات عليا" : "طالب بكالوريوس";
+  const others = ea.otherResearchers ? ea.otherResearchers.split("\n").filter(Boolean).join("، ") : "";
+  const date = (d: string | null | undefined) => (d ? formatDateLong(d) : "");
+
+  const children: (Paragraph | Table)[] = [
+    ...k.masthead({
+      kicker: "ETHICAL APPROVAL — طلب موافقة أخلاقية",
+      title: "طلب الموافقة الأخلاقية",
+      sub: "Application for Nursing Research Ethical Approval — King Abdulaziz University, Faculty of Nursing",
+    }),
+
+    k.heading("بيانات الطلب — Section One", "١"),
+    k.card([
+      ["تاريخ الطلب", date(ea.applicationDate)],
+      ["عنوان الدراسة", input.projectTitle],
+      ["هدف الدراسة", input.aim],
+      ["اسم الباحث الرئيسي", ea.piName],
+      ["جهة الباحث الرئيسي", ea.piAffiliation],
+      ["بريد الباحث الرئيسي", ea.piEmail],
+      ["نوع الباحث الرئيسي", piType],
+      ["باحثون آخرون", others],
+      ["المشرف الأكاديمي", ea.supervisorNames],
+      ["الرقم الجامعي", ea.registrationNo],
+      ["تاريخ البدء المتوقع", date(ea.expectedStartDate)],
+      ["تاريخ الانتهاء المتوقع", date(ea.expectedEndDate)],
+      ["التصميم", input.design],
+      ["مكان الدراسة", input.setting],
+      ["الأشخاص المشاركون بإجراء الدراسة", ea.personsInvolved],
+      ["إدارة البيانات وسريتها", ea.dataManagementConfidentiality],
+      ["تفاصيل التمويل", ea.fundingDetails],
+    ]),
+
+    k.heading("المبادئ الأخلاقية — Section Two", "٢"),
+    k.card(
+      principleLabels.map((p) => [
+        p.text,
+        ea.principles[p.key] ? answerLabel[ea.principles[p.key] as Exclude<EthicalPrincipleAnswer, null>] : "لم يُحدد",
+      ]),
+      { labelWidth: 68 },
+    ),
+
+    k.heading("المرفقات — Section Three", "٣"),
+    k.card(
+      attachmentLabels.map((a) => [a.text, ea.attachments[a.key] ? "مرفق" : "غير مرفق"]),
+      { labelWidth: 68 },
+    ),
+  ];
+  return k.build(children);
+}
+
+/** style: "dark" (الافتراضي، هوية Wesync) أو "official" (نسق KAU الرسمي للتقديم) */
+export function buildEthicalApprovalDoc(input: EthicalApprovalExportInput, style: WordStyle = "dark"): Promise<Blob> {
+  return style === "official" ? buildEthicalOfficial(input) : buildEthicalDark(input);
 }

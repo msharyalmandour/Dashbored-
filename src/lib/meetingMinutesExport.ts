@@ -1,4 +1,6 @@
+import type { Paragraph, Table } from "docx";
 import { formatDateLong } from "./date";
+import { loadWesyncKit, type WordStyle } from "./wordTheme";
 
 export interface MeetingMinutesExportInput {
   meetingDate: string;
@@ -11,7 +13,7 @@ export interface MeetingMinutesExportInput {
 /** يبني محضر اجتماع حقيقي (.docx) من البيانات المُدخلة — نفس أسلوب
     buildProposalWordDoc بـ wordExport.ts بالضبط (تحميل مكتبة docx
     ديناميكيًا وقت الحاجة فقط)، يُرفع بعدها لمجلد الفريق بدرايف. */
-export async function buildMeetingMinutesDoc(input: MeetingMinutesExportInput): Promise<Blob> {
+async function buildMinutesOfficial(input: MeetingMinutesExportInput): Promise<Blob> {
   const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } = await import("docx");
 
   function ar(text: string, opts: { bold?: boolean; size?: number; color?: string } = {}) {
@@ -87,4 +89,37 @@ export async function buildMeetingMinutesDoc(input: MeetingMinutesExportInput): 
   });
 
   return Packer.toBlob(doc);
+}
+
+const lines = (text: string) => text.split(/\n+/).map((l) => l.replace(/^[-•*\d.)\s]+/, "").trim()).filter(Boolean);
+
+/** نسخة Wesync الداكنة من المحضر: رأس بالتاريخ، بطاقة حضور، ومهام كقائمة */
+async function buildMinutesDark(input: MeetingMinutesExportInput): Promise<Blob> {
+  const k = await loadWesyncKit({ label: "محضر اجتماع — Meeting Minutes", title: `محضر اجتماع ${input.meetingDate}` });
+  const actions = lines(input.actionItems);
+  const children: (Paragraph | Table)[] = [
+    ...k.masthead({
+      kicker: "محضر اجتماع — MEETING MINUTES",
+      title: formatDateLong(input.meetingDate),
+      sub: `${input.attendees.length} ${input.attendees.length === 1 ? "حاضر" : "حاضرين"}`,
+    }),
+
+    k.heading("الحاضرون"),
+    ...k.bullets(input.attendees, "لم يُحدد أحد."),
+
+    k.heading("ماذا ناقشنا"),
+    ...k.narrative(input.discussion, "لا يوجد."),
+
+    k.heading("القرارات"),
+    k.callout("القرارات المتخذة", input.decisions),
+
+    k.heading("المهام المطلوبة"),
+    ...k.bullets(actions, "لا يوجد."),
+  ];
+  return k.build(children);
+}
+
+/** style: "dark" (الافتراضي، هوية Wesync) أو "official" (أبيض بسيط) */
+export function buildMeetingMinutesDoc(input: MeetingMinutesExportInput, style: WordStyle = "dark"): Promise<Blob> {
+  return style === "official" ? buildMinutesOfficial(input) : buildMinutesDark(input);
 }

@@ -178,17 +178,20 @@ export default function EthicalApprovalPage() {
     });
   };
 
-  const exportWord = async () => {
+  const exportWord = async (style: "dark" | "official") => {
     setExporting(true);
     try {
-      const blob = await buildEthicalApprovalDoc({
-        projectTitle: project?.title ?? "",
-        aim: aim.statement,
-        design: methodology.studyDesign,
-        setting: methodology.studySetting,
-        ethicalApproval,
-      });
-      downloadWordDoc(blob, "طلب-الموافقة-الأخلاقية.docx");
+      const blob = await buildEthicalApprovalDoc(
+        {
+          projectTitle: project?.title ?? "",
+          aim: aim.statement,
+          design: methodology.studyDesign,
+          setting: methodology.studySetting,
+          ethicalApproval,
+        },
+        style,
+      );
+      downloadWordDoc(blob, style === "dark" ? "طلب-الموافقة-الأخلاقية — Wesync.docx" : "طلب-الموافقة-الأخلاقية.docx");
     } finally {
       setExporting(false);
     }
@@ -217,12 +220,21 @@ export default function EthicalApprovalPage() {
             تعبئة تلقائية من الفريق
           </button>
           <button
-            onClick={exportWord}
+            onClick={() => exportWord("official")}
             disabled={exporting}
+            title="نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة"
             className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
           >
             {exporting ? <Loader2 size={15} className="animate-spin" /> : <FileCheck2 size={15} />}
-            تصدير نموذج التقديم (Word)
+            نموذج التقديم الرسمي (Word)
+          </button>
+          <button
+            onClick={() => exportWord("dark")}
+            disabled={exporting}
+            title="نسخة بتصميم Wesync الداكن للمراجعة على الشاشة"
+            className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-700 hover:bg-brand-50 disabled:opacity-60"
+          >
+            نسخة Wesync
           </button>
         </div>
       </Card>

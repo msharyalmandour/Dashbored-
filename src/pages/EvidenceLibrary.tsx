@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
-import { BookMarked, Check, Copy, Plus, Quote, Trash2, X } from "lucide-react";
+import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Plus, Quote, Table2, Trash2, X } from "lucide-react";
+import PaperQA from "../components/research/PaperQA";
+import { useResearchProject } from "../hooks/useResearchProject";
+import { hasAiAccess } from "../lib/plans";
 import clsx from "clsx";
 import Card from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
@@ -42,8 +45,12 @@ const emptyForm = {
 };
 
 export default function EvidenceLibrary() {
-  const { currentUser, isLeader } = useAuth();
+  const { currentUser, isLeader, team, mode } = useAuth();
   const isFemale = isFemaleUser(currentUser);
+  const { project } = useResearchProject();
+  const canAsk = mode === "supabase" && hasAiAccess(team);
+  const [view, setView] = useState<"cards" | "table">("cards");
+  const [copiedTable, setCopiedTable] = useState(false);
   const { papers, addPaper, updateReviewStatus, deletePaper } = useEvidencePapers();
   const { roster } = useTeamRoster();
   const [filter, setFilter] = useState<"all" | EvidenceSection>("all");
@@ -69,6 +76,22 @@ export default function EvidenceLibrary() {
       await navigator.clipboard.writeText(buildReferenceList(list, citationStyle));
       setCopiedList(true);
       setTimeout(() => setCopiedList(false), 1800);
+    } catch {
+      // نسخ يدوي لو الحافظة غير متاحة
+    }
+  };
+
+  /** جدول مقارنة الدراسات كنص مفصول بـ Tab — يلصق مباشرة بـ Word أو Excel */
+  const copyComparisonTable = async (list: EvidencePaper[]) => {
+    const clean = (s: string) => s.replace(/[\t\r\n]+/g, " ").trim();
+    const rows = [
+      ["الدراسة", "المؤلفون", "السنة", "التصميم والعينة", "أهم النتائج", "الصلة ببحثنا"],
+      ...list.map((p) => [p.title, p.authors, String(p.year), p.studyDesign, p.keyFinding, p.relevance]),
+    ];
+    try {
+      await navigator.clipboard.writeText(rows.map((r) => r.map(clean).join("\t")).join("\n"));
+      setCopiedTable(true);
+      setTimeout(() => setCopiedTable(false), 1800);
     } catch {
       // نسخ يدوي لو الحافظة غير متاحة
     }
@@ -229,16 +252,78 @@ export default function EvidenceLibrary() {
             ))}
           </div>
         </div>
-        <button
-          onClick={() => copyReferenceList(filtered)}
-          className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 text-xs font-bold text-brand-700 hover:bg-paper"
-        >
-          {copiedList ? <Check size={13} /> : <Copy size={13} />}
-          {copiedList ? "تم نسخ القائمة" : "نسخ كل المراجع"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex overflow-hidden rounded-lg border border-brand-100">
+            {(
+              [
+                ["cards", "بطاقات", LayoutGrid],
+                ["table", "جدول مقارنة", Table2],
+              ] as const
+            ).map(([id, label, Icon]) => (
+              <button
+                key={id}
+                onClick={() => setView(id)}
+                className={clsx(
+                  "flex items-center gap-1 px-3 py-1.5 text-xs font-bold transition-colors",
+                  view === id ? "bg-brand-500 text-white" : "bg-paper text-brand-950/55 hover:bg-surface-muted",
+                )}
+              >
+                <Icon size={12} />
+                {label}
+              </button>
+            ))}
+          </div>
+          {view === "table" && (
+            <button
+              onClick={() => copyComparisonTable(filtered)}
+              className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 text-xs font-bold text-brand-700 hover:bg-paper"
+            >
+              {copiedTable ? <Check size={13} /> : <Copy size={13} />}
+              {copiedTable ? "تم نسخ الجدول" : "نسخ الجدول (Word / Excel)"}
+            </button>
+          )}
+          <button
+            onClick={() => copyReferenceList(filtered)}
+            className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 text-xs font-bold text-brand-700 hover:bg-paper"
+          >
+            {copiedList ? <Check size={13} /> : <Copy size={13} />}
+            {copiedList ? "تم نسخ القائمة" : "نسخ كل المراجع"}
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {view === "table" && filtered.length > 0 && (
+        <Card className="overflow-x-auto p-0">
+          <table className="w-full min-w-[720px] border-collapse text-start text-xs">
+            <thead>
+              <tr className="bg-surface-muted text-brand-950/55">
+                {["الدراسة", "التصميم والعينة", "أهم النتائج", "الصلة ببحثنا"].map((h) => (
+                  <th key={h} className="px-3 py-2.5 text-start font-extrabold">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((paper) => (
+                <tr key={paper.id} className="border-t border-brand-100/60 align-top">
+                  <td className="w-[28%] px-3 py-2.5">
+                    <p className="font-bold leading-snug text-brand-950">{paper.title}</p>
+                    <p className="mt-0.5 text-[11px] text-brand-950/45">
+                      {paper.authors} · {paper.year}
+                    </p>
+                  </td>
+                  <td className="w-[16%] px-3 py-2.5 text-brand-950/70">{paper.studyDesign || "—"}</td>
+                  <td className="w-[28%] px-3 py-2.5 text-brand-950/70">{paper.keyFinding || "—"}</td>
+                  <td className="px-3 py-2.5 text-brand-950/70">{paper.relevance || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
+
+      <div className={view === "cards" || filtered.length === 0 ? "grid grid-cols-1 gap-4 md:grid-cols-2" : "hidden"}>
         {filtered.map((paper, i) => {
           const addedBy = memberById(paper.addedById);
           return (
@@ -254,7 +339,19 @@ export default function EvidenceLibrary() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold leading-snug text-brand-950">{paper.title}</p>
+                  {paper.link ? (
+                    <a
+                      href={paper.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-start gap-1.5 font-semibold leading-snug text-brand-950 hover:text-brand-600"
+                    >
+                      {paper.title}
+                      <ExternalLink size={12} className="mt-1 shrink-0 text-brand-950/35" />
+                    </a>
+                  ) : (
+                    <p className="font-semibold leading-snug text-brand-950">{paper.title}</p>
+                  )}
                   {(isLeader || paper.addedById === currentUser?.id) && (
                     <ThreeDotsMenu
                       items={[
@@ -317,6 +414,15 @@ export default function EvidenceLibrary() {
                     {copiedId === paper.id ? "تم النسخ" : "نسخ الاقتباس"}
                   </button>
                 </div>
+                {canAsk && (
+                  <PaperQA
+                    title={paper.title}
+                    keyFinding={paper.keyFinding}
+                    relevance={paper.relevance}
+                    projectTitle={project?.title}
+                    allowPdf
+                  />
+                )}
               </div>
             </Card>
           );

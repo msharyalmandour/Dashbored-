@@ -309,6 +309,43 @@ export interface ResearchSearchResult {
   summaryAr: string;
   relevanceReason: string;
   sourceType: "peer-reviewed" | "general" | "other";
+  /** الحقول التالية تجي من وكيل المصادر الحقيقية (PubMed/OpenAlex) — اختيارية عشان نتائج بحث الويب القديمة تبقى تشتغل */
+  journal?: string;
+  doi?: string | null;
+  source?: "pubmed" | "openalex" | "web";
+  studyDesign?: string;
+  sampleSize?: string;
+  keyFinding?: string;
+  abstract?: string;
+  pubTypes?: string[];
+}
+
+/** أداة قياس معتمدة يقترحها وكيل البحث (من ملخصات دراسات حقيقية) */
+export interface ToolFinding {
+  toolName: string;
+  measures: string;
+  items: string;
+  reliability: string;
+  languages: string;
+  population: string;
+  notes: string;
+  sourceTitle: string;
+  sourceUrl: string;
+  year: number | null;
+  journal: string;
+  authors: string;
+}
+
+/** استراتيجية بحث بأسلوب PRISMA يبنيها الوكيل من عنوان البحث */
+export interface SearchStrategy {
+  pico?: { population?: string; intervention?: string; comparison?: string; outcome?: string; note?: string };
+  keywordsEn?: string[];
+  keywordsAr?: string[];
+  meshTerms?: string[];
+  searchStrings?: { pubmed?: string; cinahl?: string; scopus?: string };
+  inclusion?: string[];
+  exclusion?: string[];
+  tips?: string[];
 }
 
 export interface ResearchSearchQuery {

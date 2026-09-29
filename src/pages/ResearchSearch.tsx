@@ -4,13 +4,18 @@ import {
   Check,
   ExternalLink,
   Library,
+  ListTree,
   Loader2,
+  Ruler,
   Search,
   Sparkles,
   Trash2,
 } from "lucide-react";
 import Card from "../components/ui/Card";
 import AiLockedCard from "../components/AiLockedCard";
+import PaperQA from "../components/research/PaperQA";
+import ToolsFinder from "../components/research/ToolsFinder";
+import SearchStrategy from "../components/research/SearchStrategy";
 import { hasAiAccess } from "../lib/plans";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -46,9 +51,11 @@ const sourceTypeLabel: Record<ResearchSearchResult["sourceType"], string> = {
 function ResultCard({
   result,
   addedById,
+  projectTitle,
 }: {
   result: ResearchSearchResult;
   addedById: string;
+  projectTitle?: string;
 }) {
   const { addPaper } = useEvidencePapers();
   const { showToast } = useToast();
@@ -64,11 +71,13 @@ function ResultCard({
       authors: result.authors || "غير معروف",
       year: result.year ?? new Date().getFullYear(),
       theme,
-      studyDesign: "",
-      keyFinding: result.summaryAr,
+      // التصميم والعينة يجون من الملخص الأصلي (لو مذكورين) — الطالبة تراجعهم بعد الإضافة
+      studyDesign: [result.studyDesign, result.sampleSize].filter(Boolean).join(" · "),
+      keyFinding: result.keyFinding || result.summaryAr,
       relevance: result.relevanceReason,
       section: "literature-review",
       addedById,
+      link: result.url,
     });
     setAdding(false);
     if (!error) {
@@ -96,10 +105,31 @@ function ResultCard({
         </span>
       </div>
 
-      {(result.authors || result.year) && (
+      {(result.authors || result.year || result.journal) && (
         <p className="text-xs text-brand-950/45">
-          {[result.authors, result.year].filter(Boolean).join(" · ")}
+          {[result.authors, result.year, result.journal].filter(Boolean).join(" · ")}
         </p>
+      )}
+
+      {(result.studyDesign || result.sampleSize || result.source || result.doi) && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+          {result.studyDesign && (
+            <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-sky-accent-600">{result.studyDesign}</span>
+          )}
+          {result.sampleSize && (
+            <span className="rounded-full bg-surface-muted px-2 py-0.5 text-brand-950/60">{result.sampleSize}</span>
+          )}
+          {result.source && (
+            <span className="rounded-full bg-surface-muted px-2 py-0.5 text-brand-950/40">
+              {result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : "بحث ويب"}
+            </span>
+          )}
+          {result.doi && (
+            <span dir="ltr" className="rounded-full bg-surface-muted px-2 py-0.5 font-mono text-brand-950/40">
+              DOI {result.doi}
+            </span>
+          )}
+        </div>
       )}
 
       <p className="text-sm text-brand-950/70">{result.summaryAr}</p>
@@ -134,6 +164,14 @@ function ResultCard({
           )}
           {added ? "انضافت" : "أضف لمكتبة الأدلة"}
         </button>
+        {result.abstract && (
+          <PaperQA
+            title={result.title}
+            abstract={result.abstract}
+            keyFinding={result.keyFinding}
+            projectTitle={projectTitle}
+          />
+        )}
       </div>
     </Card>
   );
@@ -145,6 +183,7 @@ export default function ResearchSearch() {
   const { project } = useResearchProject();
   const { searches, loading, searching, runSearch, deleteSearch } = useResearchSearch();
 
+  const [tab, setTab] = useState<"papers" | "tools" | "strategy">("papers");
   const [topic, setTopic] = useState(project?.title ?? "");
   const [activeResult, setActiveResult] = useState<{
     results: ResearchSearchResult[];
@@ -175,12 +214,39 @@ export default function ResearchSearch() {
       <div>
         <h1 className="text-xl font-extrabold text-brand-950">وكيل البحث العلمي</h1>
         <p className="text-sm text-brand-950/50">
-          اكتبوا عنوان بحثكم، ووكيل الذكاء الاصطناعي يبحث فعليًا بالويب عن دراسات حقيقية قريبة من موضوعكم.
+          اكتبوا عنوان بحثكم، والوكيل يبحث بقواعد أبحاث حقيقية (PubMed وOpenAlex) ويلخّص لكم أقرب الدراسات بالعربي،
+          ويساعدكم بأدوات القياس واستراتيجية البحث.
         </p>
       </div>
 
       {!hasAiAccess(team) && <AiLockedCard feature="وكيل البحث العلمي" />}
+
       {hasAiAccess(team) && (
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              ["papers", "دراسات قريبة", Search],
+              ["tools", "أدوات القياس", Ruler],
+              ["strategy", "استراتيجية البحث", ListTree],
+            ] as const
+          ).map(([id, label, Icon]) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+                tab === id ? "bg-brand-500 text-white" : "bg-paper text-brand-950/60 hover:bg-surface-muted"
+              }`}
+            >
+              <Icon size={14} />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+      {hasAiAccess(team) && tab === "tools" && <ToolsFinder />}
+      {hasAiAccess(team) && tab === "strategy" && <SearchStrategy defaultTopic={project?.title ?? ""} />}
+
+      {hasAiAccess(team) && tab === "papers" && (
       <Card tone="cream">
         <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-brand-950">
           <Search size={18} className="text-brand-500" />
@@ -205,7 +271,7 @@ export default function ResearchSearch() {
         </div>
         {searching && (
           <p className="mt-3 text-xs text-brand-950/45">
-            بحث ويب حقيقي ممكن ياخذ لحظات أطول من باقي أدوات الموقع — نتصفح مصادر فعلية، مو نتخمّن. 🌐
+            نبحث في PubMed وOpenAlex، ثم نرتّب الدراسات ونلخّصها بالعربي من ملخصاتها الأصلية — ياخذ غالبًا ١٠–٢٠ ثانية. 🔎
           </p>
         )}
         {error && (
@@ -220,7 +286,7 @@ export default function ResearchSearch() {
       </Card>
       )}
 
-      {activeResult && (
+      {tab === "papers" && activeResult && (
         <div className="space-y-3">
           {activeResult.noveltyNote && (
             <Card tone="teal" className="flex items-start gap-3">
@@ -242,13 +308,18 @@ export default function ResearchSearch() {
             </Card>
           ) : (
             activeResult.results.map((r, i) => (
-              <ResultCard key={`${r.url}-${i}`} result={r} addedById={currentUser?.id ?? ""} />
+              <ResultCard
+                key={`${r.url}-${i}`}
+                result={r}
+                addedById={currentUser?.id ?? ""}
+                projectTitle={project?.title}
+              />
             ))
           )}
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className={tab === "papers" ? "space-y-3" : "hidden"}>
         <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
           <BadgeCheck size={16} className="text-brand-500" />
           عمليات البحث السابقة

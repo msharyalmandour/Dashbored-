@@ -22,10 +22,11 @@ function mapRow(row: SearchRowDb): ResearchSearchQuery {
   };
 }
 
-/** وكيل البحث العلمي الحقيقي — كل بحث يستدعي فعليًا الويب عبر Claude (دالة
-    ai-assist)، فما فيه بديل تجريبي: بحث ويب حي ما له معنى بوضع العرض
-    التجريبي. النتائج تُخزَّن بجدول research_search_queries عشان الفريق
-    يقدر يرجع لها بدون إعادة البحث (وإعادة استهلاك رصيد الـ API). */
+/** وكيل البحث العلمي الحقيقي — يبحث بقواعد PubMed وOpenAlex عبر دالة
+    research-agent، وإذا رجّعت أقل من ٣ نتائج يكمّل ببحث الويب (ai-assist).
+    ما فيه بديل تجريبي: بحث حي ما له معنى بوضع العرض التجريبي. النتائج
+    تُخزَّن بجدول research_search_queries عشان الفريق يرجع لها بدون إعادة
+    البحث (وإعادة استهلاك رصيد الـ API). */
 export function useResearchSearch() {
   const [searches, setSearches] = useState<ResearchSearchQuery[]>([]);
   const [loading, setLoading] = useState(isSupabaseConfigured);
@@ -50,20 +51,50 @@ export function useResearchSearch() {
       return { row: null as ResearchSearchQuery | null, error: "البحث متاح فقط بالوضع الحقيقي" };
     }
     setSearching(true);
-    const { data, error: fnError } = await supabase!.functions.invoke("ai-assist", {
-      body: { action: "research-search", topic },
+
+    // المصدر الأول: قواعد أبحاث حقيقية (PubMed + OpenAlex) عبر research-agent
+    const primary = await supabase!.functions.invoke("research-agent", {
+      body: { action: "search", topic },
     });
-    if (fnError || data?.error) {
+    const p = primary.data as {
+      results?: ResearchSearchResult[];
+      noveltyNote?: string;
+      limitReached?: boolean;
+      message?: string;
+      error?: string;
+    } | null;
+    if (p?.limitReached) {
       setSearching(false);
-      return { row: null as ResearchSearchQuery | null, error: data?.error ?? fnError?.message };
+      return { row: null as ResearchSearchQuery | null, error: undefined as string | undefined, limitMessage: p.message as string };
     }
-    if (data?.limitReached) {
-      setSearching(false);
-      return {
-        row: null as ResearchSearchQuery | null,
-        error: undefined as string | undefined,
-        limitMessage: data.message as string,
-      };
+
+    let results: ResearchSearchResult[] = !primary.error && !p?.error ? (p?.results ?? []) : [];
+    let noveltyNote = results.length > 0 ? (p?.noveltyNote ?? "") : "";
+
+    // احتياطي: لو المصادر الأكاديمية رجّعت أقل من ٣ (مثلًا موضوع سعودي/عربي
+    // محلي)، نكمّل ببحث الويب القديم بدل ما نرجّع الطالبة بيد فاضية
+    if (results.length < 3) {
+      const fb = await supabase!.functions.invoke("ai-assist", {
+        body: { action: "research-search", topic },
+      });
+      const f = fb.data as { results?: ResearchSearchResult[]; noveltyNote?: string; limitReached?: boolean; message?: string; error?: string } | null;
+      if (f?.limitReached && results.length === 0) {
+        setSearching(false);
+        return { row: null as ResearchSearchQuery | null, error: undefined as string | undefined, limitMessage: f.message as string };
+      }
+      if (!fb.error && !f?.error && f?.results) {
+        const seen = new Set(results.map((r) => r.url));
+        const web = f.results.filter((r) => !seen.has(r.url)).map((r) => ({ ...r, source: "web" as const }));
+        results = [...results, ...web];
+        noveltyNote = noveltyNote || f.noveltyNote || "";
+      }
+      if (results.length === 0) {
+        setSearching(false);
+        return {
+          row: null as ResearchSearchQuery | null,
+          error: f?.error ?? p?.error ?? fb.error?.message ?? primary.error?.message ?? "تعذّر إتمام البحث",
+        };
+      }
     }
 
     const { data: projectId } = await supabase!.rpc("my_research_project_id");
@@ -72,8 +103,8 @@ export function useResearchSearch() {
       .insert({
         research_project_id: projectId,
         query_text: topic,
-        results: data.results ?? [],
-        novelty_note: data.noveltyNote || null,
+        results,
+        novelty_note: noveltyNote || null,
         created_by: createdById,
       })
       .select()

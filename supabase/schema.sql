@@ -173,6 +173,18 @@ $$;
 
 grant execute on function public.set_team_plan(text) to authenticated;
 
+-- سجل استخدام وكيل البحث (research-agent) لحدود التكلفة الشهرية — يكتب ويقرأ منه
+-- service role فقط (RLS مفعّلة بدون سياسات)
+create table if not exists public.agent_runs (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  profile_id uuid references public.profiles (id) on delete set null,
+  action text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists agent_runs_team_action_created_idx on public.agent_runs (team_id, action, created_at desc);
+alter table public.agent_runs enable row level security;
+
 -- ============================================================
 -- 2) الملفات الشخصية (profile لكل مستخدم في auth.users)
 -- ============================================================

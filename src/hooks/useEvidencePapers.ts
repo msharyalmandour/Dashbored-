@@ -65,6 +65,7 @@ export function useEvidencePapers() {
     relevance: string;
     section: EvidencePaper["section"];
     addedById: string;
+    link?: string;
   }) => {
     if (!isSupabaseConfigured) {
       const newPaper: EvidencePaper = { ...input, id: `local-${Date.now()}`, reviewStatus: "collected" };
@@ -83,6 +84,7 @@ export function useEvidencePapers() {
       key_finding: input.keyFinding,
       relevance: input.relevance,
       section: input.section,
+      link: input.link ?? null,
       added_by: input.addedById,
     });
     if (!error) load();

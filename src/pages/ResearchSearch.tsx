@@ -3,6 +3,7 @@ import {
   BadgeCheck,
   Check,
   ExternalLink,
+  GraduationCap,
   Library,
   ListTree,
   Loader2,
@@ -164,6 +165,16 @@ function ResultCard({
           )}
           {added ? "انضافت" : "أضف لمكتبة الأدلة"}
         </button>
+        <a
+          href={`https://scholar.google.com/scholar?q=${encodeURIComponent(`"${result.title}"`)}`}
+          target="_blank"
+          rel="noreferrer"
+          title="افتحوا الدراسة في Google Scholar لتشوفون كم مرة اقتُبست"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-brand-600 hover:bg-surface-muted"
+        >
+          <GraduationCap size={13} />
+          Google Scholar
+        </a>
         {result.abstract && (
           <PaperQA
             title={result.title}
@@ -269,6 +280,17 @@ export default function ResearchSearch() {
             {searching ? "جاري البحث..." : "ابحث"}
           </button>
         </div>
+        {topic.trim() && (
+          <a
+            href={`https://scholar.google.com/scholar?q=${encodeURIComponent(topic.trim())}`}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline"
+          >
+            <GraduationCap size={13} />
+            ابحثوا بنفس العنوان في Google Scholar (يفتح بنافذة جديدة)
+          </a>
+        )}
         {searching && (
           <p className="mt-3 text-xs text-brand-950/45">
             نبحث في PubMed وOpenAlex، ثم نرتّب الدراسات ونلخّصها بالعربي من ملخصاتها الأصلية — ياخذ غالبًا ١٠–٢٠ ثانية. 🔎

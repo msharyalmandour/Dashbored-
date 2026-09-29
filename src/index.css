@@ -1,0 +1,597 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Tajawal", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+
+  /* Primary — dusty rose (الوضع الأساسي الافتراضي) */
+  --color-brand-50: #fdf2f4;
+  --color-brand-100: #fce3e8;
+  --color-brand-200: #f8c2cd;
+  --color-brand-300: #f097ab;
+  --color-brand-400: #e26884;
+  --color-brand-500: #c93f64;
+  --color-brand-600: #a52f4f;
+  --color-brand-700: #832540;
+  --color-brand-800: #6b2036;
+  --color-brand-900: #591d2e;
+  --color-brand-950: #34101a;
+
+  /* Secondary — light blue */
+  --color-sky-accent-50: #eff8ff;
+  --color-sky-accent-100: #dcedff;
+  --color-sky-accent-200: #b6dcff;
+  --color-sky-accent-300: #7ec2ff;
+  --color-sky-accent-400: #3fa2ff;
+  --color-sky-accent-500: #1683f5;
+  --color-sky-accent-600: #0666d1;
+
+  /* Accent — warm yellow */
+  --color-amber-accent-50: #fefaec;
+  --color-amber-accent-100: #fdf1c9;
+  --color-amber-accent-200: #fbe08e;
+  --color-amber-accent-300: #f8c953;
+  --color-amber-accent-400: #f4b02a;
+  --color-amber-accent-500: #ec9312;
+  --color-amber-accent-600: #cc700d;
+  --color-amber-accent-700: #a85a0a;
+
+  --color-surface: #fdf0f3;
+  --color-surface-muted: #f9dfe6;
+  --color-paper: #fcedf1;
+  --color-ink: #33141d;
+  --color-overlay-soft: rgba(255, 255, 255, 0.55);
+  --color-track: rgba(255, 255, 255, 0.7);
+}
+
+/* ===================================================================
+   الثيمات — كل ثيم يعيد تعريف نفس المتغيرات فوق، فالمكونات ما تتغير أبدًا.
+   =================================================================== */
+
+/* الوضع الأساسي (الفاتح) يتلوّن تلقائيًا حسب جنس المستخدم — زيتوني للذكور،
+   وردي (الافتراضي أعلاه) للإناث. ينطبق فقط لما ما يكون فيه ثيم داكن مُختار. */
+:root[data-gender="male"]:not([data-theme]) {
+  --color-brand-50: #f8f8ee;
+  --color-brand-100: #eef0d6;
+  --color-brand-200: #dde2ac;
+  --color-brand-300: #c4cd7a;
+  --color-brand-400: #a8b452;
+  --color-brand-500: #7f8c36;
+  --color-brand-600: #656f2a;
+  --color-brand-700: #505822;
+  --color-brand-800: #42481e;
+  --color-brand-900: #383c1c;
+  --color-brand-950: #1d1f0f;
+
+  --color-surface: #f7f7e9;
+  --color-surface-muted: #edefd8;
+  --color-paper: #f2f3e0;
+  --color-ink: #23260f;
+}
+
+/* أسود — الثيم الافتراضي. هوية WESYNC OBSIDIAN × EMBER: أسود دامس +
+   برتقالي متوهج (بدل الذهبي القديم) — نفس بنية المتغيرات بالضبط، بس
+   بلمسة الألوان الجديدة. كل مكوّن بالموقع (البطاقات، الأزرار، حلقة
+   التقدم...) يلبسها تلقائيًا لأنها كلها مبنية على نفس هذي المتغيرات. */
+:root[data-theme="black"] {
+  --ws-bg: #080808;
+  --ws-surface: #121212;
+  --ws-orange: #ff6a00;
+  --ws-ember: #ff8a24;
+  --ws-amber: #ffb547;
+  --ws-text: #f5f5f5;
+  --ws-muted: #929292;
+
+  --color-brand-50: #170d06;
+  --color-brand-100: #21130a;
+  --color-brand-200: #391e0d;
+  --color-brand-300: #6b3414;
+  --color-brand-400: var(--ws-orange);
+  --color-brand-500: var(--ws-orange);
+  --color-brand-600: var(--ws-ember);
+  --color-brand-700: var(--ws-amber);
+  --color-brand-800: #ffd9a8;
+  --color-brand-900: #fff1de;
+  --color-brand-950: var(--ws-text);
+
+  --color-sky-accent-50: #101822;
+  --color-sky-accent-100: #182233;
+  --color-sky-accent-200: #24344c;
+  --color-sky-accent-300: #3c5a86;
+  --color-sky-accent-400: #60a5fa;
+  --color-sky-accent-500: #3b82f6;
+  --color-sky-accent-600: #93c5fd;
+
+  --color-amber-accent-50: #1f1207;
+  --color-amber-accent-100: #2e1a0a;
+  --color-amber-accent-200: #47270f;
+  --color-amber-accent-300: #8a4d13;
+  --color-amber-accent-400: var(--ws-amber);
+  --color-amber-accent-500: var(--ws-ember);
+  --color-amber-accent-600: var(--ws-amber);
+  --color-amber-accent-700: #ffd9a8;
+
+  --color-violet-50: #17131f;
+  --color-violet-100: #221c30;
+  --color-rose-50: #200f12;
+  --color-rose-100: #331419;
+  --color-rose-500: #f87171;
+  --color-rose-600: #fca5a5;
+
+  --color-surface: var(--ws-bg);
+  --color-surface-muted: var(--ws-surface);
+  --color-paper: #0f0f0f;
+  --color-ink: var(--ws-text);
+  --color-overlay-soft: rgba(255, 138, 36, 0.1);
+  --color-track: rgba(245, 245, 245, 0.12);
+}
+
+/* أخضر غامق */
+:root[data-theme="dark-green"] {
+  --color-brand-50: #0e241c;
+  --color-brand-100: #143529;
+  --color-brand-200: #1d4c3a;
+  --color-brand-300: #276650;
+  --color-brand-400: #2f8c68;
+  --color-brand-500: #34d399;
+  --color-brand-600: #6ee7b7;
+  --color-brand-700: #9df3cf;
+  --color-brand-800: #cffae4;
+  --color-brand-900: #e8fdf3;
+  --color-brand-950: #f3fdf8;
+
+  --color-sky-accent-50: #0d1e2c;
+  --color-sky-accent-100: #123049;
+  --color-sky-accent-200: #1a4568;
+  --color-sky-accent-300: #2f6aa0;
+  --color-sky-accent-400: #4fb8ff;
+  --color-sky-accent-500: #38bdf8;
+  --color-sky-accent-600: #7dd3fc;
+
+  --color-amber-accent-50: #241a0a;
+  --color-amber-accent-100: #3a2a10;
+  --color-amber-accent-200: #5c4118;
+  --color-amber-accent-300: #97690f;
+  --color-amber-accent-400: #f4b02a;
+  --color-amber-accent-500: #fbbf24;
+  --color-amber-accent-600: #fcd34d;
+  --color-amber-accent-700: #fde68a;
+
+  --color-violet-50: #1c1530;
+  --color-violet-100: #2a1f47;
+  --color-rose-50: #2a1116;
+  --color-rose-100: #3d1920;
+  --color-rose-500: #fb7185;
+  --color-rose-600: #fda4af;
+
+  --color-surface: #071410;
+  --color-surface-muted: #0f221a;
+  --color-paper: #0c1c16;
+  --color-ink: #f3fdf8;
+  --color-overlay-soft: rgba(0, 0, 0, 0.3);
+  --color-track: rgba(255, 255, 255, 0.12);
+}
+
+/* كحلي — أزرق داكن بلمسة ذهبية */
+:root[data-theme="navy"] {
+  --color-brand-50: #101d33;
+  --color-brand-100: #16294a;
+  --color-brand-200: #1f3a68;
+  --color-brand-300: #2c4f8c;
+  --color-brand-400: #f4b02a;
+  --color-brand-500: #f4b02a;
+  --color-brand-600: #f8c953;
+  --color-brand-700: #fbe08e;
+  --color-brand-800: #fef3c7;
+  --color-brand-900: #fffbea;
+  --color-brand-950: #f8fafc;
+
+  --color-sky-accent-50: #0e1a2e;
+  --color-sky-accent-100: #142544;
+  --color-sky-accent-200: #1c3560;
+  --color-sky-accent-300: #305490;
+  --color-sky-accent-400: #60a5fa;
+  --color-sky-accent-500: #3b82f6;
+  --color-sky-accent-600: #93c5fd;
+
+  --color-amber-accent-50: #1f150d;
+  --color-amber-accent-100: #2f2012;
+  --color-amber-accent-200: #4a3419;
+  --color-amber-accent-300: #93540f;
+  --color-amber-accent-400: #fb923c;
+  --color-amber-accent-500: #fb923c;
+  --color-amber-accent-600: #fdba74;
+  --color-amber-accent-700: #fed7aa;
+
+  --color-violet-50: #16172e;
+  --color-violet-100: #212347;
+  --color-rose-50: #200f16;
+  --color-rose-100: #33141f;
+  --color-rose-500: #fb7185;
+  --color-rose-600: #fda4af;
+
+  --color-surface: #0a1220;
+  --color-surface-muted: #101c30;
+  --color-paper: #0d1728;
+  --color-ink: #f8fafc;
+  --color-overlay-soft: rgba(0, 0, 0, 0.3);
+  --color-track: rgba(255, 255, 255, 0.12);
+}
+
+/* حركات "Obsidian × Ember" — تنحدر البرتقالي الطافي بالهيرو، ونبض
+   عائم لكرة المساعد الذكي (AI Orb). تُقيَّد بـ prefers-reduced-motion
+   بنفس أسلوب باقي الملف تحت. */
+@keyframes ember-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -14px) scale(1.05); }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 106, 0, 0.45), 0 0 18px 2px rgba(255, 138, 36, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 106, 0, 0), 0 0 26px 6px rgba(255, 138, 36, 0.5); }
+}
+
+/* زجاج — الشكل المشترك لكل بطاقات الموقع الآن: حافة علوية مضيئة خفيفة
+   (إحساس "ضوء ينعكس على حافة زجاج") + ظل ناعم عميق تحتها. يشتغل مع أي
+   خلفية شفافة (bg-X/NN) والـ backdrop-blur المطبّقة بمكوّن Card نفسه —
+   يحتاج شي خلفه يتلبلر (الفقاعات المضيئة بـ Layout) عشان يبين تأثيره
+   فعليًا، مو بس تعتيم عادي. */
+.glass-panel {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 20px 44px -28px rgba(0, 0, 0, 0.55);
+}
+
+/* ===================================================================
+   لغة "الزجاج الكهرماني" للحقول والأزرار — مكتوبة هنا خارج أي @layer
+   عن قصد: تيلويند v4 يحط الـ utilities داخل cascade layer، والقواعد
+   اللي برا الطبقات تغلبها دايمًا. كذا كل حقل بالموقع (كلها تشترك بكلاس
+   border-brand-100) وكل زر أساسي (bg-brand-500) ياخذ نفس الشكل من مكان
+   واحد، بدل تعديل عشرات الكلاسات المتفرقة بكل صفحة.
+   =================================================================== */
+:root[data-theme="black"],
+:root[data-theme="navy"],
+:root[data-theme="dark-green"] {
+  color-scheme: dark;
+}
+
+input.border-brand-100,
+select.border-brand-100,
+textarea.border-brand-100 {
+  background-color: color-mix(in srgb, var(--color-paper) 55%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-500) 20%, transparent);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+input.border-brand-100,
+select.border-brand-100 {
+  border-radius: 9999px;
+  padding-inline: 1rem;
+}
+
+textarea.border-brand-100 {
+  border-radius: 1.25rem;
+}
+
+input.border-brand-100:focus,
+select.border-brand-100:focus,
+textarea.border-brand-100:focus {
+  outline: none;
+  background-color: color-mix(in srgb, var(--color-paper) 75%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-500) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 0 0 4px color-mix(in srgb, var(--color-brand-500) 14%, transparent),
+    0 0 24px -6px color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+}
+
+button.bg-brand-500,
+a.bg-brand-500 {
+  border-radius: 9999px;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 60%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    0 10px 26px -12px color-mix(in srgb, var(--color-brand-500) 80%, transparent);
+}
+
+button.bg-brand-500:not(:disabled):hover,
+a.bg-brand-500:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    0 12px 32px -10px color-mix(in srgb, var(--color-brand-500) 95%, transparent);
+}
+
+/* بطاقة "Terra" — عمق تدرّجي دافئ (ورقي إلى عنبري داكن) بدل سطح مسطّح
+   بلون واحد، مع تحوّل بطيء وخفيف بموضع التدرّج (إحساس "حي" بدون إلهاء) —
+   تُستخدم بالبطاقات اللي تحتاج إبراز أكثر (أعضاء الفريق، صفوف المهام،
+   بطاقات القياس). لمعان الحافة العلوية يضيف عمق زجاجي خفيف. */
+.card-terra {
+  position: relative;
+  background-image: linear-gradient(
+    135deg,
+    var(--color-paper) 0%,
+    color-mix(in srgb, var(--color-brand-500) 9%, var(--color-paper)) 55%,
+    color-mix(in srgb, var(--color-brand-600) 15%, var(--color-paper)) 100%
+  );
+  background-size: 200% 200%;
+  animation: terra-shift 10s ease-in-out infinite;
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 16%, transparent);
+}
+
+.card-terra::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-brand-500) 55%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+@keyframes terra-shift {
+  0%, 100% { background-position: 0% 30%; }
+  50% { background-position: 100% 70%; }
+}
+
+@keyframes banner-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-terra {
+    animation: none;
+  }
+}
+
+html {
+  direction: rtl;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-300) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-brand-300);
+  border-radius: 999px;
+}
+
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(24px, -18px); }
+}
+
+@keyframes card-float {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, -3deg)); }
+  50% { transform: translateY(-16px) rotate(var(--tilt, -3deg)); }
+}
+
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(251, 191, 36, 0); }
+}
+
+/* موشن صندوق الهدية — يسكن أغلب الدورة، وقرب النهاية الغطا يقفز وينفتح شوي
+    مع بريق وشرر صغير يطير حواليه، زي لحظة "افتحوها!" */
+@keyframes gift-lid-pop {
+  0%, 80%, 100% { transform: translateY(0) rotate(0deg); }
+  85% { transform: translateY(-2.5px) rotate(-8deg); }
+  90% { transform: translateY(-3.5px) rotate(8deg); }
+  95% { transform: translateY(-1.5px) rotate(-3deg); }
+}
+
+@keyframes gift-box-bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  87% { transform: translateY(-1px); }
+  93% { transform: translateY(0.5px); }
+}
+
+@keyframes gift-glow-burst {
+  0%, 82%, 100% { opacity: 0; transform: scale(0.6); }
+  88% { opacity: 0.85; transform: scale(1.35); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+
+@keyframes gift-spark {
+  0%, 80% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  86% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(1); }
+}
+
+@keyframes plant-grow {
+  from { transform: scaleY(0.35); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes leaf-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes bud-glow {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes draw-line {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes confetti-pop {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+}
+
+@keyframes toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* حركة "كين بيرنز" بطيئة للوحة الهيرو — تكبير خفيف يهدأ تدريجيًا */
+@keyframes hero-zoom {
+  from { transform: scale(1.08); }
+  to { transform: scale(1); }
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* انتقال ناعم خفيف بين الصفحات — يشتغل تلقائيًا كل ما تغيّر المسار
+    (Layout.tsx يعيد إنشاء العنصر بمفتاح route جديد فيعيد تشغيل الحركة) */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes network-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-16px, 12px) rotate(2deg); }
+}
+
+@keyframes success-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes success-pulse {
+  0% { opacity: 0; transform: scale(0.75); }
+  60% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* حلقة تركيز واضحة بلون البراند لكل عناصر الكيبورد */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible:not(.outline-none),
+textarea:focus-visible:not(.outline-none),
+select:focus-visible:not(.outline-none),
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* ردة فعل لمسية خفيفة لكل الأزرار عند الضغط */
+button:not(:disabled) {
+  transition: transform 100ms ease;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+/* طباعة/تصدير PDF — نفرض ألوان واضحة للطباعة بغض النظر عن الثيم المفعّل
+   (أسود/كحلي/أخضر...) عشان ما نطبع خلفية داكنة تبذّر حبر */
+@media print {
+  :root {
+    --color-surface: #ffffff !important;
+    --color-surface-muted: #f3f3f3 !important;
+    --color-paper: #ffffff !important;
+    --color-ink: #171717 !important;
+    --color-overlay-soft: rgba(0, 0, 0, 0.06) !important;
+    --color-track: rgba(0, 0, 0, 0.1) !important;
+
+    --color-brand-50: #f7f7f7 !important;
+    --color-brand-100: #ececec !important;
+    --color-brand-200: #d8d8d8 !important;
+    --color-brand-300: #b8b8b8 !important;
+    --color-brand-400: #8a8a8a !important;
+    --color-brand-500: #4b5563 !important;
+    --color-brand-600: #374151 !important;
+    --color-brand-700: #1f2937 !important;
+    --color-brand-800: #171717 !important;
+    --color-brand-900: #0f0f0f !important;
+    --color-brand-950: #0a0a0a !important;
+
+    --color-amber-accent-50: #fefaec !important;
+    --color-amber-accent-100: #fdf1c9 !important;
+    --color-amber-accent-200: #fbe08e !important;
+    --color-amber-accent-300: #f8c953 !important;
+    --color-amber-accent-400: #d97706 !important;
+    --color-amber-accent-500: #b45309 !important;
+    --color-amber-accent-600: #92400e !important;
+    --color-amber-accent-700: #78350f !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+  }
+}
+
+/* ===================================================================
+   نظام الحركة المتقدّم — استخدام premium (دخول متتابع + رفعة عند التحويم)
+   يعتمد بالكامل على متغيرات الثيم الحالي، فيشتغل بنفس الجودة بكل الأوضاع
+   الأربعة بدون أي لون مثبّت يدويًا.
+   =================================================================== */
+
+/* دخول متتابع للبطاقات — كل بطاقة توخّر شوي عن اللي قبلها عبر --stagger-i */
+.stagger-in {
+  animation: panel-in 0.45s ease-out both;
+  animation-delay: calc(var(--stagger-i, 0) * 70ms);
+}
+
+/* بطاقة تفاعلية — رفعة خفيفة + توهج بلون البراند الحالي عند التحويم */
+.card-interactive {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  will-change: transform;
+}
+.card-interactive:hover,
+.card-interactive:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -16px color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled) {
+    transition: none;
+  }
+  button:not(:disabled):active {
+    transform: none;
+  }
+  .stagger-in {
+    animation: none;
+  }
+  .card-interactive {
+    transition: none;
+  }
+  .card-interactive:hover,
+  .card-interactive:focus-visible {
+    transform: none;
+  }
+}

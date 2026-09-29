@@ -1,0 +1,269 @@
+import { Suspense, useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles, Stars } from "@react-three/drei";
+import { CatmullRomCurve3, TubeGeometry, Vector3, type Mesh } from "three";
+
+/** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
+    شي تعكسه، وإلا تطلع رمادية باهتة على أي كرت رسومات حقيقي (خلاف المحاكاة البرمجية).
+    مُصدّرة عشان مشاهد ثلاثية الأبعاد ثانية (زي شعار المرشد الصوتي) تستخدم
+    نفس الإضاءة المدروسة بدل ما تكرر الإعداد */
+export function LocalEnvironment() {
+  return (
+    <Environment resolution={256} frames={1}>
+      <Lightformer intensity={5} color="#ff6a00" position={[0, 3, -4]} scale={[9, 4, 1]} />
+      <Lightformer intensity={3} color="#ffb547" position={[-5, 1, 3]} scale={[5, 5, 1]} rotation={[0, Math.PI / 2, 0]} />
+      <Lightformer intensity={3} color="#ffffff" position={[5, -1, 3]} scale={[5, 5, 1]} rotation={[0, -Math.PI / 2, 0]} />
+      <Lightformer intensity={2} color="#ffffff" position={[0, -5, 2]} scale={[6, 3, 1]} rotation={[Math.PI / 2, 0, 0]} />
+    </Environment>
+  );
+}
+
+export const GOLD = "#ff6a00";
+export const GOLD_LIGHT = "#ffb547";
+
+/** منحنى رمز اللانهاية (∞) نفسه المستخدم بشعار Wesync — عشان أي مشهد
+    ثلاثي الأبعاد بالتطبيق (تسجيل الدخول، الهيرو، شعار المرشد الصوتي)
+    يكون مرتبط بهوية البراند الفعلية، مو شكل مجرد بدون معنى */
+export function buildInfinityGeometry(): TubeGeometry {
+  const segments = 220;
+  const points: Vector3[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const t = (i / segments) * Math.PI * 2;
+    points.push(new Vector3(Math.cos(t) * 1.35, Math.sin(t) * Math.cos(t) * 1.35, 0));
+  }
+  const curve = new CatmullRomCurve3(points, true, "catmullrom", 0.2);
+  return new TubeGeometry(curve, 220, 0.24, 24, true);
+}
+
+function CenterpieceKnot({ scale = 1.7, y = 0 }: { scale?: number; y?: number }) {
+  const ref = useRef<Mesh>(null);
+  const geometry = useMemo(() => buildInfinityGeometry(), []);
+  useFrame((state, delta) => {
+    if (!ref.current) return;
+    // منحنى مسطّح (z=0) — ندوّره بمحور Z (زي عقرب ساعة) عشان يفضل يواجه
+    // الكاميرا دايمًا، ونميّله بزوايا صغيرة بس على X/Y (بدون ما يوصل حرف
+    // ٩٠ درجة) عشان يعطي عمق خفيف بدون ما يختفي الشكل من الجانب. نضيف
+    // تأثير خفيف لمتابعة الماوس فوق الميلان الطبيعي عشان يحس المستخدم
+    // إن الشكل "حي" ويتفاعل معه
+    ref.current.rotation.z += delta * 0.15;
+    ref.current.rotation.x =
+      Math.sin(state.clock.elapsedTime * 0.3) * 0.12 + state.pointer.y * 0.12;
+    ref.current.rotation.y =
+      Math.cos(state.clock.elapsedTime * 0.25) * 0.1 + state.pointer.x * 0.12;
+  });
+  return (
+    <Float speed={1.3} rotationIntensity={0.2} floatIntensity={0.8}>
+      <mesh ref={ref} geometry={geometry} scale={scale} position={[0, y, 0]}>
+        <MeshDistortMaterial
+          color={GOLD}
+          metalness={0.55}
+          roughness={0.25}
+          distort={0.06}
+          speed={1.1}
+          emissive={GOLD}
+          emissiveIntensity={0.55}
+        />
+      </mesh>
+    </Float>
+  );
+}
+
+interface RingSpec {
+  radius: number;
+  z: number;
+  tiltX: number;
+  phase: number;
+  speed: number;
+  opacity: number;
+}
+
+const RING_SPECS: RingSpec[] = [
+  { radius: 2.05, z: 0.55, tiltX: 0.18, phase: 0, speed: 0.5, opacity: 0.22 },
+  { radius: 2.55, z: -0.7, tiltX: -0.22, phase: 1.7, speed: 0.4, opacity: 0.15 },
+  { radius: 3.1, z: -1.7, tiltX: 0.28, phase: 3.1, speed: 0.32, opacity: 0.1 },
+];
+
+/** حلقة توهج طائفة حول العقدة المركزية — بعضها أقرب للكاميرا من الشكل
+    وبعضها أبعد، تنبض بحجمها ببطء وتنجرف خفيف نحو موضع الماوس، عشان تعطي
+    إحساس "موجات طاقة" عضوية حول المركز بدل حلقة ثابتة جامدة */
+function WaveRing({ radius, z, tiltX, phase, speed, opacity }: RingSpec) {
+  const ref = useRef<Mesh>(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const pulse = 1 + Math.sin(t * speed + phase) * 0.05;
+    ref.current.scale.setScalar(pulse);
+    ref.current.rotation.z = t * 0.04 * (phase % 2 === 0 ? 1 : -1);
+    const targetX = state.pointer.x * 0.25;
+    const targetY = -state.pointer.y * 0.18;
+    ref.current.position.x += (targetX - ref.current.position.x) * 0.02;
+    ref.current.position.y += (targetY - ref.current.position.y) * 0.02;
+  });
+  return (
+    <mesh ref={ref} position={[0, 0, z]} rotation={[tiltX, 0, 0]}>
+      <torusGeometry args={[radius, 0.012, 16, 100]} />
+      <meshBasicMaterial color={GOLD_LIGHT} transparent opacity={opacity} />
+    </mesh>
+  );
+}
+
+function WaveRings({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {RING_SPECS.slice(0, count).map((r, i) => (
+        <WaveRing key={i} {...r} />
+      ))}
+    </>
+  );
+}
+
+interface ShapeSpec {
+  position: [number, number, number];
+  scale: number;
+  speed: number;
+  geo: "octahedron" | "icosahedron";
+}
+
+function FloatingShapes({ count }: { count: number }) {
+  const shapes = useMemo<ShapeSpec[]>(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        position: [(Math.random() - 0.5) * 9, (Math.random() - 0.5) * 5, -2 - Math.random() * 4],
+        scale: 0.18 + Math.random() * 0.26,
+        speed: 0.6 + Math.random() * 0.8,
+        geo: i % 2 === 0 ? "octahedron" : "icosahedron",
+      })),
+    [count],
+  );
+
+  return (
+    <>
+      {shapes.map((s, i) => (
+        <Float key={i} speed={s.speed} rotationIntensity={0.6} floatIntensity={1.5}>
+          <mesh position={s.position} scale={s.scale}>
+            {s.geo === "octahedron" ? (
+              <octahedronGeometry args={[1, 0]} />
+            ) : (
+              <icosahedronGeometry args={[1, 0]} />
+            )}
+            <meshStandardMaterial
+              color={GOLD_LIGHT}
+              metalness={0.45}
+              roughness={0.3}
+              emissive={GOLD_LIGHT}
+              emissiveIntensity={0.2}
+              transparent
+              opacity={0.6}
+            />
+          </mesh>
+        </Float>
+      ))}
+    </>
+  );
+}
+
+const INTRO_START_Z = 2.2;
+const INTRO_REST_Z = 6;
+const INTRO_DURATION = 1.3;
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+/** لقطة افتتاحية سينمائية: الكاميرا تبدأ قريبة جدًا (تكبير كبير) وتتراجع بسلاسة
+    للمسافة الطبيعية، وبعدها تتبع حركة الماوس بخفة (parallax) */
+function CameraRig() {
+  useFrame((state) => {
+    const elapsed = state.clock.getElapsedTime();
+    const introT = Math.min(elapsed / INTRO_DURATION, 1);
+    const targetZ = INTRO_START_Z + (INTRO_REST_Z - INTRO_START_Z) * easeOutCubic(introT);
+
+    const x = state.pointer.x * 0.4;
+    const y = state.pointer.y * 0.25;
+    state.camera.position.x += (x - state.camera.position.x) * 0.06;
+    state.camera.position.y += (-y - state.camera.position.y) * 0.06;
+    state.camera.position.z += (targetZ - state.camera.position.z) * (introT < 1 ? 0.14 : 0.06);
+    state.camera.lookAt(0, 0, 0);
+  });
+  return null;
+}
+
+/** مشهد ثلاثي الأبعاد سينمائي — عقدة ذهبية دوّارة وسط أشكال هندسية عائمة وبريق خفيف،
+    يتبع حركة الماوس بخفة. يعتمد على WebGL محليًا بدون تحميل أي موارد خارجية.
+    ملاحظة: تعمّدنا عدم استخدام EffectComposer/Bloom — تسبب بشاشة نصفها أسود على
+    الشاشات عالية الدقة (Retina/DPR=2)؛ التوهج هنا كله عبر emissive + الإضاءة. */
+export default function Scene3D({
+  density = "full",
+  centerpieceScale = 1.7,
+  centerpieceY = 0,
+  waveRings = false,
+}: {
+  density?: "full" | "light";
+  centerpieceScale?: number;
+  centerpieceY?: number;
+  waveRings?: boolean;
+}) {
+  const reducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reducedMotion) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0">
+      <Canvas
+        dpr={[1, 2]}
+        camera={{ position: [0, 0, INTRO_START_Z], fov: 45 }}
+        gl={{ antialias: true, alpha: true }}
+        // نحدد document.body كهدف تانبت للأحداث بدل ديف R3F الداخلي — الديف
+        // ذاك ممكن يكون لسا ما اتعلّق بالـ DOM لحظة اتصال الأحداث، وقتها
+        // R3F يحاول يستدعي addEventListener على null وتنهار الصفحة كاملة
+        eventSource={document.body}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.35} />
+          <pointLight position={[4, 3, 5]} intensity={90} color={GOLD_LIGHT} />
+          <pointLight position={[-4, -2, -3]} intensity={35} color="#ffffff" />
+          <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
+          <LocalEnvironment />
+          <Stars radius={80} depth={40} count={density === "full" ? 4500 : 2500} factor={3} saturation={0} fade speed={0.4} />
+          <CenterpieceKnot scale={centerpieceScale} y={centerpieceY} />
+          {waveRings && <WaveRings count={density === "full" ? 3 : 1} />}
+          {density === "full" && <FloatingShapes count={7} />}
+          <Sparkles
+            count={density === "full" ? 110 : 55}
+            scale={9}
+            size={2.2}
+            speed={0.3}
+            color={GOLD_LIGHT}
+            opacity={0.55}
+          />
+          <CameraRig />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
+
+/** طبقة نجوم ثابتة (fixed) خفيفة تغطي الصفحة كاملة خلف كل المحتوى — بدون العقدة
+    ثلاثية الأبعاد الثقيلة، بس نجوم متلألئة براحة. تبقى بمكانها حتى لو تمرّرين. */
+export function StarsBackdrop() {
+  const reducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reducedMotion) return null;
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0">
+      <Canvas
+        dpr={[1, 2]}
+        camera={{ position: [0, 0, 1], fov: 60 }}
+        gl={{ antialias: false, alpha: true }}
+        eventSource={document.body}
+      >
+        <Suspense fallback={null}>
+          <Stars radius={60} depth={30} count={3500} factor={2.5} saturation={0} fade speed={0.3} />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}

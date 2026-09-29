@@ -1,0 +1,57 @@
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFB347" />
+      <stop offset="100%" stop-color="#FF6A00" />
+    </linearGradient>
+
+    <filter id="grainNoise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0"/>
+    </filter>
+
+    <!-- original walking-silhouette figure, reused across the hero/vision posts -->
+    <g id="walker" fill="#000">
+      <ellipse cx="248" cy="86" rx="34" ry="38" transform="rotate(6 248 86)"/>
+      <path d="M234 116 Q238 128 244 138 L266 136 Q268 124 262 114 Z"/>
+      <path d="M188 150
+               C 184 190, 190 232, 210 268
+               C 222 288, 236 300, 252 308
+               C 272 298, 286 280, 292 254
+               C 300 214, 296 176, 272 144
+               C 258 134, 238 132, 224 138
+               C 208 142, 196 146, 188 150 Z"/>
+      <path d="M206 158
+               C 176 172, 150 194, 134 226
+               C 130 234, 132 244, 140 248
+               C 148 252, 156 248, 160 240
+               C 174 214, 196 196, 220 184 Z"/>
+      <path d="M264 156
+               C 288 168, 306 186, 314 210
+               C 318 220, 314 230, 304 232
+               C 296 234, 288 228, 286 220
+               C 278 200, 264 186, 246 176 Z"/>
+      <path d="M214 272
+               C 206 312, 196 352, 176 388
+               C 160 416, 142 442, 128 470
+               C 122 482, 126 492, 138 494
+               C 148 496, 156 490, 160 480
+               C 178 448, 198 418, 216 388
+               C 232 358, 244 322, 250 288 Z"/>
+      <path d="M128 470 C 116 476, 100 480, 88 486 C 82 489, 84 496, 92 497 L 140 496 C 144 490, 142 480, 138 472 Z"/>
+      <path d="M248 290
+               C 256 330, 262 372, 266 416
+               C 269 448, 271 478, 272 508
+               C 272 520, 280 526, 290 524
+               C 298 522, 302 514, 301 504
+               C 298 468, 296 430, 292 392
+               C 288 352, 280 314, 268 282 Z"/>
+      <path d="M272 508 C 270 518, 272 528, 282 531 L 336 531 C 344 531, 346 522, 338 518 L 284 505 Z"/>
+    </g>
+
+    <!-- Wesync infinity brand mark -->
+    <g id="mark">
+      <path d="M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8" stroke="url(#brandGrad)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+  </defs>
+</svg>

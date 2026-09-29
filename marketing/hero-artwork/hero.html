@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #040404; }
+  .canvas {
+    position: relative; width: 2560px; height: 1440px; overflow: hidden;
+    background:
+      radial-gradient(ellipse 1400px 900px at 22% 18%, rgba(255, 150, 60, 0.10), transparent 70%),
+      linear-gradient(180deg, #060708 0%, #050506 55%, #0a0604 100%);
+  }
+  .layer { position: absolute; inset: 0; }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <svg width="2560" height="1440" viewBox="0 0 2560 1440">
+    <defs>
+      <filter id="blur120" filterUnits="userSpaceOnUse" x="-400" y="-400" width="3360" height="2240"><feGaussianBlur stdDeviation="120"/></filter>
+      <filter id="blur60" filterUnits="userSpaceOnUse" x="-400" y="-400" width="3360" height="2240"><feGaussianBlur stdDeviation="60"/></filter>
+      <filter id="blur24" filterUnits="userSpaceOnUse" x="-400" y="-400" width="3360" height="2240"><feGaussianBlur stdDeviation="24"/></filter>
+      <filter id="blur8" filterUnits="userSpaceOnUse" x="-400" y="-400" width="3360" height="2240"><feGaussianBlur stdDeviation="8"/></filter>
+      <filter id="blur3" filterUnits="userSpaceOnUse" x="-400" y="-400" width="3360" height="2240"><feGaussianBlur stdDeviation="3"/></filter>
+      <filter id="grain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="n"/>
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0"/>
+      </filter>
+      <filter id="rim" x="-20%" y="-20%" width="140%" height="140%">
+        <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="d"/>
+        <feFlood flood-color="#ff9a3c" flood-opacity="0.95"/>
+        <feComposite in2="d" operator="in" result="glow"/>
+        <feGaussianBlur in="glow" stdDeviation="4" result="g"/>
+        <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+
+      <radialGradient id="stageTop" cx="0.38" cy="0.35" r="0.75">
+        <stop offset="0%" stop-color="#ff7a1a" stop-opacity="0.95"/>
+        <stop offset="30%" stop-color="#e2470d" stop-opacity="0.75"/>
+        <stop offset="65%" stop-color="#6b1f06" stop-opacity="0.45"/>
+        <stop offset="100%" stop-color="#140602" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="rimLine" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#ffb547" stop-opacity="0"/>
+        <stop offset="22%" stop-color="#ffd08a" stop-opacity="0.9"/>
+        <stop offset="45%" stop-color="#ff8a24" stop-opacity="1"/>
+        <stop offset="75%" stop-color="#ff6a00" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#ff6a00" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="beam" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#fff4e2" stop-opacity="0.85"/>
+        <stop offset="45%" stop-color="#ffcf8f" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#ff8a24" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="reflect" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#000" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+      </linearGradient>
+
+      <g id="walker" fill="#050403">
+        <ellipse cx="248" cy="86" rx="34" ry="38" transform="rotate(6 248 86)"/>
+        <path d="M234 116 Q238 128 244 138 L266 136 Q268 124 262 114 Z"/>
+        <path d="M188 150 C 184 190, 190 232, 210 268 C 222 288, 236 300, 252 308 C 272 298, 286 280, 292 254 C 300 214, 296 176, 272 144 C 258 134, 238 132, 224 138 C 208 142, 196 146, 188 150 Z"/>
+        <path d="M206 158 C 176 172, 150 194, 134 226 C 130 234, 132 244, 140 248 C 148 252, 156 248, 160 240 C 174 214, 196 196, 220 184 Z"/>
+        <path d="M264 156 C 288 168, 306 186, 314 210 C 318 220, 314 230, 304 232 C 296 234, 288 228, 286 220 C 278 200, 264 186, 246 176 Z"/>
+        <path d="M214 272 C 206 312, 196 352, 176 388 C 160 416, 142 442, 128 470 C 122 482, 126 492, 138 494 C 148 496, 156 490, 160 480 C 178 448, 198 418, 216 388 C 232 358, 244 322, 250 288 Z"/>
+        <path d="M128 470 C 116 476, 100 480, 88 486 C 82 489, 84 496, 92 497 L 140 496 C 144 490, 142 480, 138 472 Z"/>
+        <path d="M248 290 C 256 330, 262 372, 266 416 C 269 448, 271 478, 272 508 C 272 520, 280 526, 290 524 C 298 522, 302 514, 301 504 C 298 468, 296 430, 292 392 C 288 352, 280 314, 268 282 Z"/>
+        <path d="M272 508 C 270 518, 272 528, 282 531 L 336 531 C 344 531, 346 522, 338 518 L 284 505 Z"/>
+      </g>
+    </defs>
+
+    <!-- distant stars -->
+    <g fill="#fff">
+      <circle cx="1480" cy="160" r="1.4" opacity="0.5"/><circle cx="1720" cy="310" r="1.1" opacity="0.35"/>
+      <circle cx="2040" cy="120" r="1.6" opacity="0.45"/><circle cx="2310" cy="260" r="1.2" opacity="0.3"/>
+      <circle cx="1890" cy="520" r="1.1" opacity="0.25"/><circle cx="2420" cy="610" r="1.4" opacity="0.3"/>
+      <circle cx="1560" cy="640" r="1" opacity="0.2"/><circle cx="2180" cy="820" r="1.2" opacity="0.2"/>
+      <circle cx="1340" cy="420" r="1" opacity="0.3"/><circle cx="2500" cy="90" r="1" opacity="0.4"/>
+    </g>
+
+    <!-- light source bloom, upper left -->
+    <ellipse cx="300" cy="-80" rx="480" ry="300" fill="#ffd9a6" opacity="0.22" filter="url(#blur120)"/>
+    <ellipse cx="250" cy="-40" rx="170" ry="110" fill="#fff3e0" opacity="0.40" filter="url(#blur60)"/>
+
+    <!-- volumetric shaft falling onto the figure -->
+    <polygon points="120,-60 470,-60 990,1000 760,1010" fill="url(#beam)" opacity="0.30" filter="url(#blur60)"/>
+    <polygon points="250,-60 360,-60 905,995 835,1000" fill="url(#beam)" opacity="0.38" filter="url(#blur24)"/>
+
+    <!-- dust in the beam -->
+    <g fill="#ffe7c2">
+      <circle cx="520" cy="420" r="2" opacity="0.6" filter="url(#blur3)"/>
+      <circle cx="640" cy="560" r="1.4" opacity="0.55"/>
+      <circle cx="590" cy="300" r="1.3" opacity="0.5"/>
+      <circle cx="760" cy="720" r="1.8" opacity="0.45" filter="url(#blur3)"/>
+      <circle cx="700" cy="480" r="1.1" opacity="0.55"/>
+      <circle cx="455" cy="250" r="2.6" opacity="0.35" filter="url(#blur3)"/>
+      <circle cx="800" cy="840" r="1.3" opacity="0.45"/>
+    </g>
+
+    <!-- the stage: a vast dark horizon disc, lit only near its far edge -->
+    <radialGradient id="pool" cx="0.36" cy="0.06" r="0.55">
+      <stop offset="0%" stop-color="#e44d27" stop-opacity="0.75"/>
+      <stop offset="35%" stop-color="#8a260c" stop-opacity="0.40"/>
+      <stop offset="100%" stop-color="#140502" stop-opacity="0"/>
+    </radialGradient>
+    <ellipse cx="1050" cy="1330" rx="1900" ry="330" fill="#070302"/>
+    <ellipse cx="1050" cy="1330" rx="1900" ry="330" fill="url(#pool)"/>
+
+    <!-- horizon haze the figure is silhouetted against (gradients, no hard ends) -->
+    <radialGradient id="hazeWide" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ff5a14" stop-opacity="0.42"/>
+      <stop offset="55%" stop-color="#ff5a14" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#ff5a14" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="hazeCore" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffd2a1" stop-opacity="0.75"/>
+      <stop offset="40%" stop-color="#ff9a4d" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff7a1a" stop-opacity="0"/>
+    </radialGradient>
+    <ellipse cx="900" cy="1000" rx="1500" ry="150" fill="url(#hazeWide)"/>
+    <ellipse cx="860" cy="1000" rx="520" ry="80" fill="url(#hazeCore)"/>
+
+    <!-- glowing rim -->
+    <path d="M -850 1330 A 1900 330 0 0 1 2950 1330" fill="none" stroke="#ff6a1a" stroke-width="18" opacity="0.45" filter="url(#blur24)"/>
+    <path d="M -850 1330 A 1900 330 0 0 1 2950 1330" fill="none" stroke="url(#rimLine)" stroke-width="3" filter="url(#blur3)"/>
+    <path d="M -850 1330 A 1900 330 0 0 1 2950 1330" fill="none" stroke="url(#rimLine)" stroke-width="1.4"/>
+    <ellipse cx="1050" cy="1360" rx="1650" ry="260" fill="none" stroke="#ffb547" stroke-opacity="0.06" stroke-width="2"/>
+
+    <!-- figure walking toward the light, silhouetted against the haze -->
+    <ellipse cx="860" cy="1013" rx="46" ry="5" fill="#000" opacity="0.8" filter="url(#blur3)"/>
+    <g transform="translate(920 866) scale(-0.275 0.275)">
+      <use href="#walker" fill="#020101"/>
+    </g>
+    <!-- faint reflection on the stage -->
+    <g transform="translate(920 1160) scale(-0.275 -0.22)" opacity="0.22" filter="url(#blur3)">
+      <use href="#walker" fill="#000"/>
+    </g>
+
+    <!-- vignette -->
+    <radialGradient id="vig" cx="0.4" cy="0.5" r="0.85">
+      <stop offset="60%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.75"/>
+    </radialGradient>
+    <rect width="2560" height="1440" fill="url(#vig)"/>
+
+    <!-- film grain -->
+    <rect width="2560" height="1440" filter="url(#grain)" opacity="0.08"/>
+  </svg>
+</div>
+</body>
+</html>

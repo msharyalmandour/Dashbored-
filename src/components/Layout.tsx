@@ -82,12 +82,22 @@ export default function Layout() {
   const trialDaysLeft = team?.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="relative flex min-h-screen overflow-hidden bg-surface">
+      {/* فقاعات ضوء موزّعة على طول الصفحة كاملة (absolute على الحاوية
+          الخارجية اللي طولها = طول المحتوى الفعلي، مو fixed على الشاشة
+          فقط) — عشان تأثير الزجاج (backdrop-blur) بالبطاقات يبين بأي
+          سكرول موضع، مو بس أعلى الصفحة. النسب المئوية تتكيف تلقائيًا
+          مع طول أي صفحة كانت */}
+      <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] animate-[blob-drift_13s_ease-in-out_infinite] rounded-full bg-brand-500/30 blur-3xl motion-reduce:animate-none" />
+      <div className="pointer-events-none absolute -left-20 top-[22%] h-96 w-96 animate-[blob-drift_10s_ease-in-out_infinite] rounded-full bg-amber-accent-400/28 blur-3xl motion-reduce:animate-none" />
+      <div className="pointer-events-none absolute right-1/4 top-[45%] h-[26rem] w-[26rem] animate-[blob-drift_15s_ease-in-out_infinite] rounded-full bg-sky-accent-500/20 blur-3xl motion-reduce:animate-none" />
+      <div className="pointer-events-none absolute -left-16 top-[65%] h-80 w-80 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-accent-500/26 blur-3xl motion-reduce:animate-none" />
+      <div className="pointer-events-none absolute -right-20 top-[85%] h-96 w-96 animate-[blob-drift_12s_ease-in-out_infinite] rounded-full bg-brand-500/24 blur-3xl motion-reduce:animate-none" />
       <CommandPalette />
       <AiAssistant />
       <TourGuide />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <Header title={title} onMenuClick={() => setMobileNavOpen(true)} />
         <main className="flex-1 px-4 py-6 sm:px-8">
           <div className="space-y-6">

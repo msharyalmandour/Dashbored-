@@ -15,7 +15,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-import ErrorBoundary from "../components/ErrorBoundary";
 import Reveal from "../components/Reveal";
 import RevealRotate from "../components/RevealRotate";
 import Logo from "../components/Logo";
@@ -23,12 +22,12 @@ import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
 import CursorGlow from "../components/cinematic/CursorGlow";
 import { researchStages } from "../data/mockData";
-import overviewShot from "../assets/landing/overview.png";
-import tasksShot from "../assets/landing/tasks.png";
-import evidenceShot from "../assets/landing/evidence.png";
-import celebrationShot from "../assets/landing/celebration.png";
+import overviewShot from "../assets/landing/overview.webp";
+import tasksShot from "../assets/landing/tasks.webp";
+import evidenceShot from "../assets/landing/evidence.webp";
+import celebrationShot from "../assets/landing/celebration.webp";
+import heroArt from "../assets/landing/hero.webp";
 
-const Scene3D = lazy(() => import("../components/cinematic/Scene3D"));
 const StarsBackdrop = lazy(() =>
   import("../components/cinematic/Scene3D").then((m) => ({ default: m.StarsBackdrop })),
 );
@@ -63,16 +62,6 @@ function BrowserFrame({ src, alt }: { src: string; alt: string }) {
 function GoldDivider() {
   return (
     <div className="mx-auto h-px w-full max-w-3xl bg-gradient-to-r from-transparent via-amber-400/25 to-transparent" />
-  );
-}
-
-/** بديل خفيف يبين وقت تحميل مشهد الـ3D الثقيل (~950 كيلوبايت) — عشان ما تبين
-    منطقة الهيرو فاضية لحظة أو لحظتين عند اتصال بطيء */
-function ScenePlaceholder() {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
-      <div className="h-40 w-40 animate-pulse rounded-full bg-amber-400/10 blur-3xl" />
-    </div>
   );
 }
 
@@ -251,17 +240,6 @@ export default function Landing() {
   const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // نخفف كثافة موجات وجزيئات المشهد ثلاثي الأبعاد على الشاشات الصغيرة
-  // (أداء أفضل، وموجات أقل ازدحامًا حوالين النص على الجوال)
-  const [heroDensity, setHeroDensity] = useState<"full" | "light">("full");
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setHeroDensity(mq.matches ? "light" : "full");
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
   return (
     <div className="relative min-h-screen bg-neutral-950 text-white">
       <Suspense fallback={null}>
@@ -269,75 +247,100 @@ export default function Landing() {
       </Suspense>
       <CursorGlow />
       <StickyCTA />
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-2.5">
-          <Logo size={40} />
-          <span className="font-display text-lg font-extrabold tracking-tight text-white">
-            Wesync
-          </span>
-        </div>
-        <Link
-          to="/login"
-          className="rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-sm font-bold text-white/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10"
-        >
-          تسجيل الدخول
-        </Link>
-      </header>
+      {/* Hero — لوحة سينمائية بعرض الشاشة (شخص يمشي باتجاه أفق مضيء) بدل
+          المشهد ثلاثي الأبعاد: أخف بكثير (~33KB) وأقرب للغة "الزجاج
+          الكهرماني". مركز اللوحة يسار الصورة عمدًا، عشان النص العربي
+          (اليمين) يقعد على مساحة داكنة ومقروءة */}
+      <section className="relative isolate min-h-[100svh] overflow-hidden">
+        <img
+          src={heroArt}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 -z-10 h-[62%] w-full animate-[hero-zoom_22s_ease-out_both] object-cover object-[30%_center] motion-reduce:animate-none md:inset-0 md:h-full"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-l from-black/75 via-black/25 to-transparent" />
+        {/* على الجوال اللوحة تقعد بالنص السفلي تحت الكلام، عشان الشخص ما يختفي ورا الأزرار */}
+        <div className="absolute inset-x-0 top-[38%] -z-10 h-28 bg-gradient-to-b from-neutral-950 to-transparent md:hidden" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-transparent" />
 
-      {/* Hero — ارتفاع محدود بمقاس الشاشة عشان المشهد ثلاثي الأبعاد يتناسب
-          دايمًا مع حجم معقول، ما يكبر بشكل عشوائي حسب طول المحتوى تحته */}
-      <section className="relative flex min-h-[88vh] flex-col items-center justify-center overflow-hidden lg:min-h-[820px]">
-        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-500/10 blur-3xl motion-reduce:animate-none" />
-        <div className="pointer-events-none absolute -right-16 top-40 h-56 w-56 animate-[blob-drift_9s_ease-in-out_infinite] rounded-full bg-rose-500/10 blur-3xl motion-reduce:animate-none" />
-        <ErrorBoundary fallback={<ScenePlaceholder />}>
-          <Suspense fallback={<ScenePlaceholder />}>
-            <Scene3D density={heroDensity} waveRings centerpieceScale={0.25} centerpieceY={1} />
-          </Suspense>
-        </ErrorBoundary>
-        {/* تعتيم خفيف خلف النص عشان يفضل واضح ومقروء فوق توهج الشكل ثلاثي
-            الأبعاد، مهما كانت شدة الإضاءة خلفه */}
-        <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_60%_55%_at_50%_42%,rgba(10,10,10,0.55),transparent_70%)]" />
-        <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center px-6 text-center">
-          <div className="animate-[hero-in_0.9s_ease-out] [text-shadow:0_4px_28px_rgba(3,6,10,0.85)]">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-bold text-white/80 backdrop-blur">
-              <Sparkles size={13} />
+        <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-6">
+          <div className="flex items-center gap-2.5">
+            <Logo size={40} />
+            <span className="font-display text-lg font-extrabold tracking-tight text-white">
+              Wesync
+            </span>
+          </div>
+          <nav className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1 text-xs font-semibold text-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-xl md:flex">
+            {[
+              { href: "#journey", label: "كيف يشتغل" },
+              { href: "#features", label: "المزايا" },
+              { href: "#faq", label: "الأسئلة" },
+              { href: "#pricing", label: "الأسعار" },
+            ].map((l) => (
+              <a key={l.href} href={l.href} className="rounded-full px-4 py-2 transition-colors hover:bg-white/10 hover:text-white">
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <Link
+            to="/login"
+            className="rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-sm font-bold text-white/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10"
+          >
+            تسجيل الدخول
+          </Link>
+        </header>
+
+        <div className="relative z-10 mx-auto flex min-h-[calc(100svh-96px)] max-w-6xl flex-col justify-start px-6 pb-28 pt-6 md:justify-center md:pt-0">
+          <div className="max-w-xl animate-[hero-in_0.9s_ease-out] [text-shadow:0_4px_28px_rgba(0,0,0,0.6)]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-xs font-bold text-white/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md">
+              <Sparkles size={13} className="text-amber-300" />
               مبنية خصيصًا لفرق بحث التخرج التمريضي
             </span>
-            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.15] tracking-tight text-white lg:text-6xl">
+            <h1 className="mt-7 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-white lg:text-7xl">
               حوّلوا بحثكم
               <br />
-              <span className="bg-gradient-to-l from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-l from-amber-200 via-amber-400 to-orange-500 bg-clip-text font-bold text-transparent">
                 لرؤية واضحة
               </span>
             </h1>
-            <p className="mx-auto mt-5 max-w-lg text-lg text-white/60">
-              Wesync تنظّم رحلة بحث فريقكم البحثي كامل — من المقترح للتسليم
-              النهائي — بمكان واحد يشوفه الجميع.
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-white/65">
+              Wesync تنظّم رحلة بحث فريقكم كامل — من المقترح للتسليم النهائي —
+              بمكان واحد هادي يشوفه الجميع.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 to="/login"
-                className="flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] px-7 py-3 text-sm font-bold text-neutral-950 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
+                className="flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-7 py-3.5 text-sm font-bold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_14px_40px_-8px_rgba(251,191,36,0.8)]"
               >
                 ابدأ فريقك الآن
                 <ArrowLeft size={16} />
               </Link>
               <a
                 href="#pricing"
-                className="rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white/80 backdrop-blur-md hover:bg-white/10"
+                className="rounded-full border border-white/15 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-white/85 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10"
               >
                 شوفوا السعر
               </a>
             </div>
-            <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 px-3.5 py-1.5 text-xs font-semibold text-white/50 backdrop-blur">
+            <span className="mt-7 inline-flex items-center gap-1.5 text-xs font-semibold text-white/45">
               <Check size={12} className="text-amber-400" />
-              {PRICE_PER_PERSON} ريال شهريًا لكل شخص — {PRICE_PER_PERSON * TEAM_SIZE} ريال للفريق كامل ({TEAM_SIZE} أعضاء)
+              {PRICE_PER_PERSON} ريال شهريًا لكل شخص — تجربة مجانية ٧ أيام
             </span>
+          </div>
+
+          <div className="absolute inset-x-6 bottom-10 hidden items-end justify-between gap-6 border-t border-white/10 pt-5 md:flex">
+            <p className="max-w-xs text-xs leading-relaxed text-white/45">
+              من أول فكرة لآخر صفحة — فريقكم يمشي بنفس الاتجاه، وما تضيع خطوة بالطريق.
+            </p>
+            <a href="#journey" className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] text-white/40 hover:text-white/70">
+              اكتشفوا الرحلة
+              <ChevronDown size={14} className="animate-bounce motion-reduce:animate-none" />
+            </a>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto -mt-10 max-w-4xl px-6 pb-16 lg:-mt-16 lg:pb-24">
+      <section className="relative z-10 mx-auto max-w-4xl px-6 pb-16 pt-6 lg:pb-24">
         <TiltCard maxTilt={3}>
           <RevealRotate direction="left">
             <BrowserFrame src={overviewShot} alt="لوحة تحكم Wesync" />
@@ -367,7 +370,7 @@ export default function Landing() {
       </Reveal>
 
       {/* Research journey constellation */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
+      <section id="journey" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-6 py-16">
         <Reveal className="mb-12 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             رحلتكم البحثية، متصلة
@@ -485,7 +488,7 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 py-14">
+      <section id="features" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-6 py-14">
         <div className="mb-14 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             كل شي يحتاجه فريقكم، بمكان واحد
@@ -519,7 +522,7 @@ export default function Landing() {
 
       {/* FAQ */}
       <GoldDivider />
-      <section className="relative z-10 mx-auto max-w-2xl px-6 py-16">
+      <section id="faq" className="relative z-10 mx-auto max-w-2xl scroll-mt-8 px-6 py-16">
         <Reveal className="mb-10 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             أسئلة يسألونها كل الفرق

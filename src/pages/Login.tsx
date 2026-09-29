@@ -123,6 +123,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"male" | "female">("female");
   const [university, setUniversity] = useState("");
+  const [showManualTeamCode, setShowManualTeamCode] = useState(false);
+  const [manualTeamCode, setManualTeamCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -147,20 +149,31 @@ export default function Login() {
     return <SuccessTransition />;
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSubmitting(true);
 
+    // احتياط لو رابط الدعوة ما وصل بالتاق (مثلًا انفتح داخل متصفح واتساب
+    // وضاع جزء الرابط) — العضو يقدر يلصق رمز الفريق يدويًا بدلًا منه
+    const trimmedManualCode = manualTeamCode.trim();
+    if (isSignUp && !inviteTeamId && trimmedManualCode && !UUID_RE.test(trimmedManualCode)) {
+      setError("رمز الفريق غير صحيح — تأكدي إنك نسختيه كامل من صفحة الفريق.");
+      return;
+    }
+    const effectiveTeamId = inviteTeamId ?? (trimmedManualCode || undefined);
+
+    setSubmitting(true);
     const result = isSignUp
       ? await signUpWithPassword(
           email,
           password,
           name,
           gender,
-          inviteTeamId ?? undefined,
+          effectiveTeamId,
           referralCode ?? undefined,
-          university || undefined,
+          effectiveTeamId ? undefined : university || undefined,
         )
       : await signInWithPassword(email, password);
 
@@ -432,7 +445,7 @@ export default function Login() {
                         </div>
                       </div>
                     )}
-                    {isSignUp && !inviteTeamId && (
+                    {isSignUp && !inviteTeamId && !manualTeamCode.trim() && (
                       <label className="block text-sm">
                         <span className="mb-1 block font-semibold text-white/70">
                           الجامعة <span className="font-normal text-white/40">(اختياري)</span>
@@ -449,6 +462,27 @@ export default function Login() {
                             <option key={u} value={u} />
                           ))}
                         </datalist>
+                      </label>
+                    )}
+                    {isSignUp && !inviteTeamId && !showManualTeamCode && (
+                      <button
+                        type="button"
+                        onClick={() => setShowManualTeamCode(true)}
+                        className="block text-xs font-semibold text-white/40 hover:text-amber-300 hover:underline"
+                      >
+                        عندك رمز دعوة فريق؟ اضغطي هنا
+                      </button>
+                    )}
+                    {isSignUp && !inviteTeamId && showManualTeamCode && (
+                      <label className="block text-sm">
+                        <span className="mb-1 block font-semibold text-white/70">رمز دعوة الفريق</span>
+                        <input
+                          value={manualTeamCode}
+                          onChange={(e) => setManualTeamCode(e.target.value)}
+                          className={inputClass}
+                          placeholder="الصقيه من صفحة الفريق عند قائدة فريقكم"
+                          dir="ltr"
+                        />
                       </label>
                     )}
                     <label className="block text-sm">

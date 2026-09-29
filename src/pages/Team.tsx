@@ -41,6 +41,7 @@ function lastActivityFor(memberId: string): string | null {
 function InviteCard() {
   const { team } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   if (!team) return null;
   const inviteLink = `${window.location.origin}${window.location.pathname}#/login?team=${team.id}`;
@@ -49,6 +50,12 @@ function InviteCard() {
     await navigator.clipboard.writeText(inviteLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyCode = async () => {
+    await navigator.clipboard.writeText(team.id);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
   };
 
   return (
@@ -72,6 +79,13 @@ function InviteCard() {
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
             {copied ? "تم النسخ" : "نسخ رابط الدعوة"}
+          </button>
+          <button
+            onClick={copyCode}
+            className="mt-2 flex items-center gap-1.5 self-start text-xs font-semibold text-brand-950/45 hover:text-brand-700 hover:underline"
+          >
+            {codeCopied ? <Check size={12} /> : <Copy size={12} />}
+            {codeCopied ? "تم نسخ الرمز" : "الرابط ما اشتغل معهم؟ انسخي رمز الفريق"}
           </button>
         </div>
       </Card>

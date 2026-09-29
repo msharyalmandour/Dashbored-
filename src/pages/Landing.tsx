@@ -469,6 +469,21 @@ export default function Landing() {
         </Reveal>
       </section>
 
+      {/* Our story */}
+      <section className="relative z-10 mx-auto max-w-3xl px-6 py-14">
+        <Reveal className="rounded-3xl border border-amber-400/15 bg-neutral-900/70 p-8 text-center lg:p-10">
+          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
+            ليش Wesync؟
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl leading-relaxed text-white/60">
+            عشنا فوضى بحث التخرج زي أي فريق تمريض — رسائل واتساب ضايعة، مستندات
+            متكررة بين أعضاء الفريق، ومواعيد تسليم تفوتنا بدون سبب وجيه. بنينا
+            Wesync عشان يصير لفريقكم مكان واحد يجمع بحثكم كامل — بدون فوضى،
+            وبدون ما تحسّون إنكم لحالكم فيه.
+          </p>
+        </Reveal>
+      </section>
+
       {/* Features */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-14">
         <div className="mb-14 text-center">

@@ -26,8 +26,10 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface px-4">
-      <div className="w-full max-w-md rounded-3xl border border-brand-100 bg-paper p-8 shadow-sm shadow-brand-950/5">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface px-4">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-500/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-20 h-80 w-80 rounded-full bg-amber-accent-400/20 blur-3xl" />
+      <div className="glass-panel relative w-full max-w-md rounded-[2rem] border border-brand-100/50 bg-paper/60 p-8 backdrop-blur-2xl backdrop-saturate-150">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3">
             <Logo size={48} />

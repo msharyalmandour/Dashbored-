@@ -92,7 +92,7 @@ export default function Sidebar({
       )}
       <aside
         className={clsx(
-          "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/70 bg-paper transition-transform duration-300 print:hidden md:static md:z-auto md:w-64 md:translate-x-0",
+          "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/50 bg-paper/55 backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 print:hidden md:static md:z-auto md:w-64 md:translate-x-0",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -123,7 +123,7 @@ export default function Sidebar({
                   onClick={onClose}
                   className={({ isActive }) =>
                     clsx(
-                      "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                      "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
                       isActive
                         ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
                         : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
@@ -144,7 +144,7 @@ export default function Sidebar({
             onClick={onClose}
             className={({ isActive }) =>
               clsx(
-                "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
                 isActive
                   ? "bg-amber-accent-400 text-white shadow-sm shadow-amber-accent-400/30"
                   : "text-amber-accent-600 hover:bg-amber-accent-50",
@@ -161,7 +161,7 @@ export default function Sidebar({
               onClick={onClose}
               className={({ isActive }) =>
                 clsx(
-                  "flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                  "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
                   isActive
                     ? "bg-brand-700 text-white shadow-sm shadow-brand-700/30"
                     : "text-brand-700 hover:bg-brand-50",
@@ -176,7 +176,7 @@ export default function Sidebar({
 
         {currentUser && (
           <div className="border-t border-brand-100/70 p-4">
-            <div className="flex items-center gap-3 rounded-2xl bg-surface-muted p-3">
+            <div className="glass-panel flex items-center gap-3 rounded-full border border-brand-100/50 bg-surface-muted/60 p-2 pe-3">
               <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-brand-950">
@@ -187,7 +187,7 @@ export default function Sidebar({
               <button
                 onClick={logout}
                 title="تسجيل الخروج"
-                className="rounded-lg p-1.5 text-brand-950/40 hover:bg-paper hover:text-brand-700"
+                className="rounded-full p-2 text-brand-950/40 hover:bg-paper hover:text-brand-700"
               >
                 <LogOut size={16} />
               </button>

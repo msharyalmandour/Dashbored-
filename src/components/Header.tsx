@@ -19,11 +19,11 @@ export default function Header({
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-brand-100/70 bg-paper/85 px-4 py-4 backdrop-blur print:hidden sm:gap-4 sm:px-8">
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-brand-100/40 bg-paper/45 px-4 py-4 backdrop-blur-2xl backdrop-saturate-150 print:hidden sm:gap-4 sm:px-8">
       <div className="flex min-w-0 items-center gap-2">
         <button
           onClick={onMenuClick}
-          className="shrink-0 rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted md:hidden"
+          className="shrink-0 rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted md:hidden"
         >
           <Menu size={18} />
         </button>
@@ -33,13 +33,13 @@ export default function Header({
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
         <button
           onClick={() => window.dispatchEvent(new Event("nursync:open-command-palette"))}
-          className="hidden w-full max-w-sm items-center gap-2 rounded-xl border border-brand-100 bg-surface-muted py-2 pe-2.5 ps-3 text-sm md:flex"
+          className="hidden w-full max-w-sm items-center gap-2 rounded-full border border-brand-100/60 bg-paper/40 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] pe-2.5 ps-3 text-sm md:flex"
         >
           <Search size={16} className="shrink-0 text-brand-950/30" />
           <span className="flex-1 truncate text-start text-brand-950/30">
             ابحث أو انتقل بسرعة...
           </span>
-          <kbd className="shrink-0 rounded-md border border-brand-200 bg-paper px-1.5 py-0.5 text-[10px] font-bold text-brand-950/40">
+          <kbd className="shrink-0 rounded-full border border-brand-200/60 bg-paper/60 px-2 py-0.5 text-[10px] font-bold text-brand-950/40">
             Ctrl K
           </kbd>
         </button>
@@ -55,7 +55,7 @@ export default function Header({
             setSoundOn(next);
           }}
           title={soundOn ? "إيقاف أصوات التفاعل" : "تشغيل أصوات التفاعل"}
-          className="rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted"
+          className="rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted"
         >
           {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>

@@ -16,7 +16,7 @@ export default function ThemeSwitcher() {
       <button
         onClick={() => setOpen((o) => !o)}
         title="ثيم الموقع"
-        className="rounded-xl border border-brand-100 p-2 text-brand-950/60 hover:bg-surface-muted"
+        className="rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted"
       >
         <Palette size={18} />
       </button>
@@ -24,7 +24,7 @@ export default function ThemeSwitcher() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute start-0 top-12 z-20 w-48 rounded-2xl border border-brand-100 bg-paper p-2 shadow-lg shadow-brand-950/10">
+          <div className="absolute start-0 top-12 z-20 w-48 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
             <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">اختر لون الثيم</p>
             {themes.map((t) => (
               <button

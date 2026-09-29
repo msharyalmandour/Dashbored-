@@ -120,7 +120,7 @@ export default function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-brand-100 bg-paper shadow-2xl shadow-black/20"
+        className="w-full max-w-lg overflow-hidden glass-panel rounded-[1.75rem] border border-brand-100/50 bg-paper/75 backdrop-blur-2xl backdrop-saturate-150"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2.5 border-b border-brand-100 px-4 py-3">

@@ -221,9 +221,9 @@ export default function Login() {
   const clearValidity = (e: React.ChangeEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity("");
 
   const inputClass =
-    "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-amber-400/50";
+    "w-full rounded-full border border-white/15 bg-white/[0.06] px-5 py-3 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] outline-none backdrop-blur-md transition-[border-color,box-shadow] placeholder:text-white/30 focus:border-amber-400/60 focus:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_0_0_4px_rgba(251,191,36,0.12),0_0_26px_-6px_rgba(251,191,36,0.5)]";
   const glowButtonClass =
-    "w-full rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-neutral-950 transition-shadow hover:bg-amber-300 hover:shadow-[0_0_28px_-6px_rgba(251,191,36,0.6)] disabled:opacity-60";
+    "w-full rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3 text-sm font-bold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.65)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_14px_36px_-8px_rgba(251,191,36,0.85)] disabled:opacity-60";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050b12]">
@@ -307,7 +307,7 @@ export default function Login() {
               )}
             </div>
           ) : (
-            <div className="w-full max-w-md animate-[panel-in_0.5s_ease-out] rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/50 backdrop-blur-xl">
+            <div className="w-full max-w-md animate-[panel-in_0.5s_ease-out] rounded-[2rem] border border-white/15 bg-white/[0.06] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14),0_30px_80px_-30px_rgba(0,0,0,0.85),0_0_70px_-25px_rgba(255,138,36,0.45)] backdrop-blur-2xl backdrop-saturate-150">
               <div className="mb-6 flex flex-col items-center text-center">
                 {!inviteTeamId && !referralCode && (
                   <button
@@ -345,14 +345,14 @@ export default function Login() {
                     {signupFeatures.map((f) => (
                       <div
                         key={f.label}
-                        className="flex items-center gap-2 rounded-xl bg-white/5 px-2.5 py-2"
+                        className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-2"
                       >
                         <f.icon size={14} className="shrink-0 text-amber-300" />
                         <span className="text-[11px] font-semibold text-white/70">{f.label}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="flex animate-[node-pulse_2.2s_ease-in-out_infinite] items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-3 py-2.5 text-center">
+                  <div className="flex animate-[node-pulse_2.2s_ease-in-out_infinite] items-center justify-center gap-2 rounded-[1.75rem] border border-amber-400/25 bg-amber-400/10 px-4 py-2.5 text-center">
                     <GiftMotion size={20} />
                     <p className="text-xs font-bold text-amber-300">
                       جربوا Wesync مجانًا ٧ أيام كاملة — بدون أي التزام، وبعدها اشتراك بسيط
@@ -442,7 +442,7 @@ export default function Login() {
                           <button
                             type="button"
                             onClick={() => setGender("female")}
-                            className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                            className={`flex-1 rounded-full border px-3 py-2.5 text-sm font-semibold transition-colors ${
                               gender === "female"
                                 ? "border-amber-400 bg-amber-400/10 text-amber-300"
                                 : "border-white/15 text-white/50 hover:bg-white/5"
@@ -453,7 +453,7 @@ export default function Login() {
                           <button
                             type="button"
                             onClick={() => setGender("male")}
-                            className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-colors ${
+                            className={`flex-1 rounded-full border px-3 py-2.5 text-sm font-semibold transition-colors ${
                               gender === "male"
                                 ? "border-amber-400 bg-amber-400/10 text-amber-300"
                                 : "border-white/15 text-white/50 hover:bg-white/5"

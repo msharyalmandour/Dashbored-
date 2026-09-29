@@ -115,7 +115,7 @@ export default function AiAssistant() {
       </button>
 
       {open && (
-        <div className="fixed inset-y-0 start-0 z-40 flex w-full max-w-sm flex-col border-e border-brand-100 bg-paper shadow-2xl">
+        <div className="fixed inset-y-0 start-0 z-40 flex w-full max-w-sm flex-col border-e border-brand-100/50 bg-paper/75 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
           <div className="flex items-center justify-between border-b border-brand-100 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-100 text-brand-600">

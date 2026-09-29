@@ -133,7 +133,7 @@ function StickyCTA() {
     >
       <Link
         to="/login"
-        className="flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg shadow-black/40 transition-all duration-300 hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
+        className="flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] px-6 py-3 text-sm font-bold text-neutral-950 transition-all duration-300 hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
       >
         ابدأ فريقك الآن
         <ArrowLeft size={16} />
@@ -144,7 +144,7 @@ function StickyCTA() {
 
 function FaqItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: () => void }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-amber-400/10 bg-neutral-900">
+    <div className="glass-panel overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl">
       <button
         onClick={onToggle}
         className="flex w-full items-center justify-between gap-3 px-5 py-4 text-start"
@@ -278,7 +278,7 @@ export default function Landing() {
         </div>
         <Link
           to="/login"
-          className="rounded-xl border border-white/15 px-4 py-2 text-sm font-bold text-white/90 hover:bg-white/5"
+          className="rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-sm font-bold text-white/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10"
         >
           تسجيل الدخول
         </Link>
@@ -317,14 +317,14 @@ export default function Landing() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/login"
-                className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
+                className="flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] px-7 py-3 text-sm font-bold text-neutral-950 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
               >
                 ابدأ فريقك الآن
                 <ArrowLeft size={16} />
               </Link>
               <a
                 href="#pricing"
-                className="rounded-xl px-5 py-3 text-sm font-bold text-white/75 hover:bg-white/5"
+                className="rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white/80 backdrop-blur-md hover:bg-white/10"
               >
                 شوفوا السعر
               </a>
@@ -406,7 +406,7 @@ export default function Landing() {
             ))}
           </div>
 
-          <div className="mx-auto mt-8 max-w-md rounded-2xl border border-amber-400/10 bg-neutral-900/80 p-5 text-center backdrop-blur transition-all">
+          <div className="mx-auto mt-8 max-w-md glass-panel rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center backdrop-blur-xl transition-all">
             <p className="font-display font-bold text-amber-300">{activeStage.titleAr}</p>
             <p className="mt-1.5 text-sm text-white/55">{stageBlurbs[activeStage.id]}</p>
           </div>
@@ -425,7 +425,7 @@ export default function Landing() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           {problems.map((p, i) => (
             <Reveal key={p.title} delay={i * 120}>
-              <div className="rounded-3xl border border-amber-400/10 bg-neutral-900 p-6 shadow-sm shadow-black/20">
+              <div className="glass-panel h-full rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-400/10 text-rose-300">
                   <p.icon size={20} />
                 </span>
@@ -439,7 +439,7 @@ export default function Landing() {
         {/* Before / after */}
         <Reveal delay={200} className="mt-14">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-neutral-900/60 p-6">
+            <div className="glass-panel rounded-3xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl">
               <p className="mb-4 text-sm font-bold text-white/40">قبل Wesync</p>
               <ul className="space-y-3">
                 {beforeAfter.before.map((item) => (
@@ -452,7 +452,7 @@ export default function Landing() {
                 ))}
               </ul>
             </div>
-            <div className="rounded-3xl border border-amber-400/25 bg-neutral-900 p-6">
+            <div className="glass-panel rounded-3xl border border-amber-400/25 bg-amber-400/[0.05] p-6 backdrop-blur-xl">
               <p className="mb-4 text-sm font-bold text-amber-300">بعد Wesync</p>
               <ul className="space-y-3">
                 {beforeAfter.after.map((item) => (
@@ -471,7 +471,7 @@ export default function Landing() {
 
       {/* Our story */}
       <section className="relative z-10 mx-auto max-w-3xl px-6 py-14">
-        <Reveal className="rounded-3xl border border-amber-400/15 bg-neutral-900/70 p-8 text-center lg:p-10">
+        <Reveal className="glass-panel rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur-xl lg:p-10">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             ليش Wesync؟
           </h2>
@@ -542,7 +542,7 @@ export default function Landing() {
 
       {/* Pricing */}
       <Reveal className="mx-auto max-w-3xl px-6 py-16">
-        <section id="pricing" className="rounded-3xl border-2 border-amber-400/25 bg-neutral-900 p-8 text-center shadow-lg shadow-black/30 lg:p-12">
+        <section id="pricing" className="glass-panel rounded-[2rem] border border-amber-400/30 bg-white/[0.04] p-8 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12),0_0_80px_-30px_rgba(251,191,36,0.45)] backdrop-blur-2xl lg:p-12">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3.5 py-1.5 text-xs font-bold text-amber-300">
             <Trophy size={13} />
             أول ١٥ فريق يحصلون على سعر المؤسسين — ثابت مدى اشتراككم
@@ -573,7 +573,7 @@ export default function Landing() {
 
           <Link
             to="/login"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-amber-400 px-8 py-3 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.6)] px-8 py-3 text-sm font-bold text-neutral-950 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]"
           >
             ابدأ فريقك الآن — تجربة مجانية ٧ أيام
             <ArrowLeft size={16} />

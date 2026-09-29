@@ -237,10 +237,71 @@
    يحتاج شي خلفه يتلبلر (الفقاعات المضيئة بـ Layout) عشان يبين تأثيره
    فعليًا، مو بس تعتيم عادي. */
 .glass-panel {
-  position: relative;
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
     0 20px 44px -28px rgba(0, 0, 0, 0.55);
+}
+
+/* ===================================================================
+   لغة "الزجاج الكهرماني" للحقول والأزرار — مكتوبة هنا خارج أي @layer
+   عن قصد: تيلويند v4 يحط الـ utilities داخل cascade layer، والقواعد
+   اللي برا الطبقات تغلبها دايمًا. كذا كل حقل بالموقع (كلها تشترك بكلاس
+   border-brand-100) وكل زر أساسي (bg-brand-500) ياخذ نفس الشكل من مكان
+   واحد، بدل تعديل عشرات الكلاسات المتفرقة بكل صفحة.
+   =================================================================== */
+:root[data-theme="black"],
+:root[data-theme="navy"],
+:root[data-theme="dark-green"] {
+  color-scheme: dark;
+}
+
+input.border-brand-100,
+select.border-brand-100,
+textarea.border-brand-100 {
+  background-color: color-mix(in srgb, var(--color-paper) 55%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-500) 20%, transparent);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+input.border-brand-100,
+select.border-brand-100 {
+  border-radius: 9999px;
+  padding-inline: 1rem;
+}
+
+textarea.border-brand-100 {
+  border-radius: 1.25rem;
+}
+
+input.border-brand-100:focus,
+select.border-brand-100:focus,
+textarea.border-brand-100:focus {
+  outline: none;
+  background-color: color-mix(in srgb, var(--color-paper) 75%, transparent);
+  border-color: color-mix(in srgb, var(--color-brand-500) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 0 0 4px color-mix(in srgb, var(--color-brand-500) 14%, transparent),
+    0 0 24px -6px color-mix(in srgb, var(--color-brand-500) 45%, transparent);
+}
+
+button.bg-brand-500,
+a.bg-brand-500 {
+  border-radius: 9999px;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 60%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+    0 10px 26px -12px color-mix(in srgb, var(--color-brand-500) 80%, transparent);
+}
+
+button.bg-brand-500:not(:disabled):hover,
+a.bg-brand-500:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    0 12px 32px -10px color-mix(in srgb, var(--color-brand-500) 95%, transparent);
 }
 
 /* بطاقة "Terra" — عمق تدرّجي دافئ (ورقي إلى عنبري داكن) بدل سطح مسطّح
@@ -428,9 +489,9 @@ h1, h2, h3, .font-display {
 /* حلقة تركيز واضحة بلون البراند لكل عناصر الكيبورد */
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
+input:focus-visible:not(.outline-none),
+textarea:focus-visible:not(.outline-none),
+select:focus-visible:not(.outline-none),
 [tabindex]:focus-visible {
   outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;

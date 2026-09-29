@@ -57,7 +57,7 @@ export default function ThreeDotsMenu({ items }: { items: ThreeDotsMenuItem[] })
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute end-0 top-full z-20 mt-1 min-w-[11rem] overflow-hidden rounded-xl border border-brand-100 bg-paper py-1 shadow-lg shadow-brand-950/10"
+          className="absolute end-0 top-full z-20 mt-1 min-w-[11rem] overflow-hidden glass-panel rounded-2xl border border-brand-100/50 bg-paper/75 p-1 backdrop-blur-2xl backdrop-saturate-150"
         >
           {items.map((item, i) => {
             const isConfirming = confirmingIndex === i;
@@ -73,7 +73,7 @@ export default function ThreeDotsMenu({ items }: { items: ThreeDotsMenuItem[] })
                   setOpen(false);
                   setConfirmingIndex(null);
                 }}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-start text-sm font-semibold transition-colors ${
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-start text-sm font-semibold transition-colors ${
                   item.tone === "danger" || isConfirming
                     ? "text-rose-600 hover:bg-rose-50"
                     : "text-brand-950/75 hover:bg-surface-muted"

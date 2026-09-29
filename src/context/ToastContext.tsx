@@ -44,10 +44,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="pointer-events-auto flex max-w-sm items-center gap-3 rounded-2xl border border-brand-100 bg-paper px-5 py-3.5 shadow-lg shadow-brand-950/10 motion-safe:animate-[toast-in_250ms_ease-out]"
+            className="pointer-events-auto flex max-w-sm items-center gap-3 glass-panel rounded-full border border-brand-100/50 bg-paper/75 py-3 pe-6 ps-3 backdrop-blur-2xl backdrop-saturate-150 motion-safe:animate-[toast-in_250ms_ease-out]"
           >
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white ${toneClasses[t.tone ?? "brand"]}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white ${toneClasses[t.tone ?? "brand"]}`}
             >
               <t.icon size={18} />
             </span>

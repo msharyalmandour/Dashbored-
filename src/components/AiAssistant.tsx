@@ -157,7 +157,7 @@ export default function AiAssistant() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                   m.role === "user"
                     ? "ms-auto bg-brand-500 text-white"
                     : "bg-surface-muted text-brand-950/80"

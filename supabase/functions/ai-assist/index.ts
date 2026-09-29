@@ -9,6 +9,13 @@
 //   ELEVENLABS_VOICE_ID  اختياري — رمز صوت من مكتبة ElevenLabs
 //                        (elevenlabs.io/app/voice-library)، افتراضيًا صوت
 //                        عام يدعم العربية عبر eleven_multilingual_v2
+//   SUPPORT_CONTACT      اختياري — قناة تواصل حقيقية (رقم واتساب أو إيميل)
+//                        يعطيها المساعد للمستخدمة لما تحتاج مراجعة بشرية
+//                        لمبلغ منسحب. بدونها يقول لها "تواصلي مع فريق Wesync"
+//                        بدون ما يختلق رقم.
+//   MOYASAR_SECRET_KEY   (موجود أصلًا لدالة الـ webhook) — المساعد يقرأ منه
+//                        بس نوعه (sk_test_/sk_live_) عشان يعرف هل بوابة
+//                        الدفع تجريبية أو حقيقية، ما يطبع المفتاح أبدًا.
 // (SUPABASE_URL و SUPABASE_ANON_KEY متوفرة تلقائيًا داخل بيئة الدالة)
 //
 // هذي الدالة هي الطبقة الوحيدة اللي تتكلم مع Claude API وElevenLabs —
@@ -17,6 +24,7 @@
 
 import Anthropic from "npm:@anthropic-ai/sdk@^0.68.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { BILLING_GUIDE, buildBillingFacts, isBillingQuestion, lastUserText } from "./billing.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 
@@ -201,9 +209,17 @@ const CHAT_SYSTEM = `أنت مساعد بحثي داخل تطبيق Wesync، ي�
 الفعلي، وإذا كان فيها نص غير واضح أو مقطوع، وضّحي إنك ما قدرتي تقرأينه
 كامل بدل ما تخمّني.
 
+شكل الإجابة: واجهة المحادثة تعرض نص عادي فقط، فلا تستخدمين Markdown أبدًا
+(لا نجوم ** ولا # ولا جداول). للخطوات استخدمي أرقام بسيطة (١) ٢) ٣)) كل خطوة
+بسطر مستقل، وافصلي بين الفقرات بسطر فارغ. ابدئي بالجواب مباشرة بدون مقدمات.
+
 استخدمي المرجع التالي (بروتوكولات ومعايير بحث معتمدة) كأساس موثوق
 لإجاباتك عن خطوات ومعايير البحث العلمي التمريضي:
-${RESEARCH_PROTOCOLS}`;
+${RESEARCH_PROTOCOLS}
+
+وإذا سألتك المستخدمة عن الاشتراك أو الدفع أو المبالغ المسحوبة، فهذا الدليل
+هو مرجعك الوحيد (لا تعتمدين على معرفتك العامة بشأن Moyasar أو غيرها):
+${BILLING_GUIDE}`;
 
 const IMPROVE_SYSTEM = `أنت مساعد كتابة أكاديمية. تستلم فقرة من بحث تخرج
 تمريضي وتحسّن صياغتها الأكاديمية (وضوح، ترابط، رسمية) بدون ما تغيّر المعنى
@@ -305,6 +321,52 @@ function parseResearchSearchJson(
   return { results: parsed.results, noveltyNote: parsed.noveltyNote ?? "" };
 }
 
+/** معلومات الاشتراك الفعلية لفريق المستخدمة — تنقرأ من قاعدة البيانات
+    بصلاحياتها هي (RLS) ومع فلتر team_id صريح (نفس درس الأدمن اللي يتجاوز
+    السياسة)، مو من الواجهة، عشان ما أحد يقدر يزوّر "معلوماته" للمساعد.
+    أي فشل هنا يرجّع null والمحادثة تكمل عادي بدون هذي الكتلة. */
+async function loadBillingFacts(
+  // deno-lint-ignore no-explicit-any
+  db: any,
+  teamId: string,
+  userId: string,
+): Promise<string | null> {
+  try {
+    const [teamRes, membersRes, paymentsRes] = await Promise.all([
+      db.from("teams").select("subscription_end_date, on_trial, monthly_price").eq("id", teamId).single(),
+      db.from("profiles").select("id", { count: "exact", head: true }).eq("team_id", teamId),
+      db
+        .from("payments")
+        .select("amount, created_at, profile_id")
+        .eq("team_id", teamId)
+        .eq("status", "paid")
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+    if (teamRes.error || !teamRes.data) return null;
+    const team = teamRes.data as { subscription_end_date: string | null; on_trial: boolean; monthly_price: number | string };
+
+    const sk = Deno.env.get("MOYASAR_SECRET_KEY") ?? "";
+    const gateway = sk.startsWith("sk_live_") ? "live" : sk.startsWith("sk_test_") ? "test" : "unknown";
+
+    return buildBillingFacts({
+      gateway,
+      subscriptionEndDate: team.subscription_end_date,
+      onTrial: !!team.on_trial,
+      monthlyPrice: Number(team.monthly_price),
+      memberCount: membersRes.count ?? 1,
+      todayISO: new Date().toISOString().slice(0, 10),
+      payments: ((paymentsRes.data ?? []) as Array<{ amount: number | string; created_at: string; profile_id: string | null }>).map(
+        (p) => ({ amount: Number(p.amount), createdAtISO: p.created_at, byMe: p.profile_id === userId }),
+      ),
+      supportContact: Deno.env.get("SUPPORT_CONTACT") || null,
+    });
+  } catch (err) {
+    console.error("loadBillingFacts failed", err);
+    return null;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -352,12 +414,22 @@ Deno.serve(async (req: Request) => {
       const rawMessages = body.messages as Anthropic.MessageParam[];
       const messages =
         rawMessages.length > MAX_CHAT_HISTORY ? rawMessages.slice(-MAX_CHAT_HISTORY) : rawMessages;
+      // معلومات الاشتراك الفعلية تنجاب فقط لأسئلة الدفع (مو كل رسالة) —
+      // وتنحط ككتلة نظام ثانية "بدون كاش" بعد الكتلة الثابتة، عشان ما
+      // تكسر الكاش (الكتلة الأولى هي اللي تتكرر وتتكاش)
+      const billingFacts =
+        teamId && isBillingQuestion(lastUserText(messages))
+          ? await loadBillingFacts(supabase, teamId, user.id)
+          : null;
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 2000,
         // نفس مرجع البروتوكولات يتكرر بكل رسالة — نكاشه (cache_control) عشان
         // ما ندفع سعره كامل إلا أول مرة، والتكرارات تكلفتها أقل بكثير
-        system: [{ type: "text", text: CHAT_SYSTEM, cache_control: { type: "ephemeral" } }],
+        system: [
+          { type: "text", text: CHAT_SYSTEM, cache_control: { type: "ephemeral" } },
+          ...(billingFacts ? [{ type: "text" as const, text: billingFacts }] : []),
+        ],
         // effort منخفض يكفي لأسئلة الشات المباشرة (مو استنتاج معقّد متعدد
         // الخطوات) — يوفر بدون ما يأثر على جودة إجابة سؤال عادي
         output_config: { effort: "low" },

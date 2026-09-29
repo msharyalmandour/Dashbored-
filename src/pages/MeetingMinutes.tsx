@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarDays, Check, ExternalLink, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
+import { CalendarDays, Check, Download, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -10,7 +10,22 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { buildMeetingMinutesDoc } from "../lib/meetingMinutesExport";
 import { formatDateLong, toISODate } from "../lib/date";
 import { g, isFemaleUser } from "../lib/gender";
-import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import type { MeetingMinutesRow } from "../data/types";
+
+/** ينزّل ملف Word مباشرة على جهاز المستخدمة — بدون أي رفع لخدمة خارجية
+    (Google Drive يحتاج Google Workspace، مو متوفر، فما نعد بشي ما نقدر
+    ننفذه) */
+async function downloadMinutesDoc(
+  input: Pick<MeetingMinutesRow, "meetingDate" | "attendees" | "discussion" | "decisions" | "actionItems">,
+) {
+  const blob = await buildMeetingMinutesDoc(input);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `محضر اجتماع - ${input.meetingDate}.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 const inputClass =
   "w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300";
@@ -20,7 +35,7 @@ export default function MeetingMinutes() {
   const isFemale = isFemaleUser(currentUser);
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
-  const { minutes, loading, addMinutes, deleteMinutes, reload } = useMeetingMinutes();
+  const { minutes, loading, addMinutes, deleteMinutes } = useMeetingMinutes();
 
   const [meetingDate, setMeetingDate] = useState(toISODate(new Date()));
   const [attendeeIds, setAttendeeIds] = useState<string[]>([]);
@@ -64,31 +79,17 @@ export default function MeetingMinutes() {
       return;
     }
 
-    // المحضر انحفظ بالموقع فعليًا الآن — نولّد ملف Word حقيقي ونرفعه لنفس
-    // مجلد الفريق بدرايف، ونربطه بالسجل اللي حفظناه للتو
+    // المحضر انحفظ بالموقع فعليًا الآن — ننزّل نسخة Word حقيقية مباشرة
+    // (بدون رفع درايف، غير متاح حاليًا)
     try {
-      const blob = await buildMeetingMinutesDoc({
-        meetingDate,
-        attendees: attendeeNames,
-        discussion,
-        decisions,
-        actionItems,
-      });
-      if (isSupabaseConfigured && supabase) {
-        const formData = new FormData();
-        formData.append("file", blob, `محضر اجتماع - ${meetingDate}.docx`);
-        formData.append("category", "meeting-minutes");
-        formData.append("meeting_minutes_id", row.id);
-        await supabase.functions.invoke("drive-upload", { body: formData });
-        await reload();
-      }
+      await downloadMinutesDoc({ meetingDate, attendees: attendeeNames, discussion, decisions, actionItems });
     } catch {
-      // السجل محفوظ بالموقع بنجاح بأي حال — رفع درايف يمكن يُعاد لاحقًا يدويًا
+      // السجل محفوظ بالموقع بنجاح بأي حال — التنزيل يقدرون يعيدونه من القائمة تحت
     }
 
     showToast({
       title: g(isFemale, "تم حفظ المحضر", "تم حفظ المحضر"),
-      desc: "انحفظ بالموقع، وجاري رفعه لدرايف.",
+      desc: "انحفظ بالموقع، ونزّلنا لكم نسخة Word.",
       icon: Check,
       tone: "brand",
     });
@@ -101,7 +102,7 @@ export default function MeetingMinutes() {
       <div>
         <h1 className="text-xl font-extrabold text-brand-950">محاضر الاجتماعات</h1>
         <p className="text-sm text-brand-950/50">
-          كل اجتماع = سجل هنا بالموقع + ملف Word حقيقي بمجلد الفريق على Google Drive، بضغطة حفظ وحدة.
+          كل اجتماع = سجل هنا بالموقع + نسخة Word حقيقية تنزّل لجهازكم فورًا، بضغطة حفظ وحدة.
         </p>
       </div>
 
@@ -213,19 +214,13 @@ export default function MeetingMinutes() {
             <Card key={m.id} className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-bold text-brand-950">{formatDateLong(m.meetingDate)}</p>
-                {m.driveViewLink ? (
-                  <a
-                    href={m.driveViewLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 hover:bg-brand-50 hover:text-brand-700"
-                  >
-                    <ExternalLink size={12} />
-                    افتح بدرايف
-                  </a>
-                ) : (
-                  <span className="text-xs text-brand-950/40">جاري الرفع لدرايف...</span>
-                )}
+                <button
+                  onClick={() => downloadMinutesDoc(m)}
+                  className="flex items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  <Download size={12} />
+                  تنزيل Word
+                </button>
                 {(isLeader || m.createdById === currentUser?.id) && (
                   <ThreeDotsMenu
                     items={[

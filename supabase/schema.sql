@@ -1734,3 +1734,42 @@ end;
 $$;
 
 grant execute on function public.update_team_university(text) to authenticated;
+
+-- ============================================================
+-- سجل محادثات المساعد الذكي — خاص بكل مستخدم (ما يشوفه زملاؤه)
+-- الصور ما تنحفظ (تنحفظ إشارة نصية فقط) عشان حجم القاعدة وخصوصية المرفقات
+-- ============================================================
+create table if not exists public.ai_conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  title text not null default 'محادثة جديدة',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists ai_conversations_user_idx on public.ai_conversations (user_id, updated_at desc);
+alter table public.ai_conversations enable row level security;
+
+drop policy if exists "own ai conversations" on public.ai_conversations;
+create policy "own ai conversations"
+  on public.ai_conversations for all
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+create table if not exists public.ai_messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.ai_conversations (id) on delete cascade,
+  role text not null check (role in ('user', 'assistant')),
+  content text not null default '',
+  had_image boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists ai_messages_conv_idx on public.ai_messages (conversation_id, created_at);
+alter table public.ai_messages enable row level security;
+
+drop policy if exists "own ai messages" on public.ai_messages;
+create policy "own ai messages"
+  on public.ai_messages for all
+  to authenticated
+  using (exists (select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = auth.uid()))
+  with check (exists (select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = auth.uid()));

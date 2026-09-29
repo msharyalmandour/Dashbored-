@@ -10,6 +10,7 @@ import CheckoutModal from "./CheckoutModal";
 import { AlertCard } from "./ui/cards";
 import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
+import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import Skeleton from "./ui/Skeleton";
 import { useAuth } from "../context/AuthContext";
@@ -86,6 +87,7 @@ export default function Layout() {
   const trialDaysLeft = team?.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
 
   return (
+    <ResearchAgentProvider>
     <div className="relative flex min-h-screen overflow-hidden bg-surface">
       {/* فقاعات ضوء موزّعة على طول الصفحة كاملة (absolute على الحاوية
           الخارجية اللي طولها = طول المحتوى الفعلي، مو fixed على الشاشة
@@ -175,5 +177,6 @@ export default function Layout() {
       </div>
       {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
+    </ResearchAgentProvider>
   );
 }

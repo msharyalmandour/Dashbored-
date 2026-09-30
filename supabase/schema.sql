@@ -1876,3 +1876,179 @@ begin
     alter publication supabase_realtime add table public.supervisor_feedback;
   end if;
 end $$;
+-- ============================================================
+-- رسائل المشرفة (محادثة عبر رابطها) + تقويم الجوال (رابط اشتراك ICS)
+-- ============================================================
+
+create table if not exists public.supervisor_messages (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  sender text not null check (sender in ('supervisor', 'team')),
+  sender_name text not null default '' check (char_length(sender_name) <= 80),
+  body text not null check (char_length(body) between 1 and 1500),
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  read_at timestamptz
+);
+create index if not exists supervisor_messages_team_idx on public.supervisor_messages (team_id, created_at desc);
+alter table public.supervisor_messages enable row level security;
+
+drop policy if exists "team sees supervisor messages" on public.supervisor_messages;
+create policy "team sees supervisor messages" on public.supervisor_messages for select to authenticated
+  using (team_id = public.my_team_id());
+drop policy if exists "team replies to supervisor" on public.supervisor_messages;
+create policy "team replies to supervisor" on public.supervisor_messages for insert to authenticated
+  with check (sender = 'team' and created_by = auth.uid() and team_id = public.my_team_id() and public.team_can_write(team_id));
+
+-- المشرفة (برمزها فقط، بدون حساب) تقرأ المحادثة
+create or replace function public.get_supervisor_thread(p_token uuid)
+returns jsonb
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id', m.id, 'sender', m.sender, 'senderName', m.sender_name, 'body', m.body, 'createdAt', m.created_at
+  ) order by m.created_at), '[]'::jsonb)
+  from (
+    select * from public.supervisor_messages
+    where team_id = (select id from public.teams where share_token = p_token)
+    order by created_at desc limit 100
+  ) m;
+$$;
+grant execute on function public.get_supervisor_thread(uuid) to anon, authenticated;
+
+-- المشرفة ترسل رسالة — حد ٢٠ رسالة بالساعة لكل فريق (حماية من إساءة استخدام الرابط)
+create or replace function public.submit_supervisor_message(p_token uuid, p_body text, p_name text default '')
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid;
+  v_body text := trim(coalesce(p_body, ''));
+begin
+  select id into v_team from public.teams where share_token = p_token;
+  if v_team is null then
+    raise exception 'invalid token';
+  end if;
+  if char_length(v_body) < 1 or char_length(v_body) > 1500 then
+    raise exception 'invalid length';
+  end if;
+  if (select count(*) from public.supervisor_messages
+      where team_id = v_team and sender = 'supervisor' and created_at > now() - interval '1 hour') >= 20 then
+    raise exception 'rate limit';
+  end if;
+  insert into public.supervisor_messages (team_id, sender, sender_name, body)
+  values (v_team, 'supervisor', left(trim(coalesce(p_name, '')), 80), v_body);
+  -- توافق مع لوحة الفريق القديمة (آخر ملاحظة)
+  update public.teams set supervisor_note = v_body, supervisor_note_at = now() where id = v_team;
+end;
+$$;
+grant execute on function public.submit_supervisor_message(uuid, text, text) to anon, authenticated;
+
+-- الفريق يعلّم رسائل المشرفة كمقروءة
+create or replace function public.mark_supervisor_messages_read()
+returns void
+language sql
+security definer set search_path = public
+as $$
+  update public.supervisor_messages set read_at = now()
+  where team_id = public.my_team_id() and sender = 'supervisor' and read_at is null;
+$$;
+grant execute on function public.mark_supervisor_messages_read() to authenticated;
+
+-- قائدة الفريق تغيّر رابط المشرفة لو تسرّب (الرابط القديم يتعطل)
+create or replace function public.rotate_share_token()
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_new uuid := gen_random_uuid();
+begin
+  if not exists (select 1 from public.profiles where id = auth.uid() and role = 'leader') then
+    raise exception 'leader only';
+  end if;
+  update public.teams set share_token = v_new where id = public.my_team_id();
+  return v_new;
+end;
+$$;
+grant execute on function public.rotate_share_token() to authenticated;
+
+-- ترحيل آخر ملاحظة قديمة كرسالة أولى (مرة وحدة)
+insert into public.supervisor_messages (team_id, sender, body, created_at, read_at)
+select t.id, 'supervisor', left(t.supervisor_note, 1500), coalesce(t.supervisor_note_at, now()), now()
+from public.teams t
+where t.supervisor_note is not null and trim(t.supervisor_note) <> ''
+  and not exists (select 1 from public.supervisor_messages m where m.team_id = t.id);
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'supervisor_messages') then
+    alter publication supabase_realtime add table public.supervisor_messages;
+  end if;
+end $$;
+
+-- رمز اشتراك تقويم الجوال — جدول منفصل عشان ما يظهر لزميلات الفريق (profiles تنقرأ من الفريق كله)
+create table if not exists public.calendar_feeds (
+  profile_id uuid primary key references public.profiles (id) on delete cascade,
+  token uuid not null unique default gen_random_uuid(),
+  created_at timestamptz not null default now()
+);
+alter table public.calendar_feeds enable row level security;
+-- بدون سياسات: الوصول فقط عبر الدوال أدناه ودالة calendar-feed (service role)
+
+create or replace function public.get_or_create_calendar_token()
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_token uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'not signed in';
+  end if;
+  insert into public.calendar_feeds (profile_id) values (auth.uid()) on conflict (profile_id) do nothing;
+  select token into v_token from public.calendar_feeds where profile_id = auth.uid();
+  return v_token;
+end;
+$$;
+grant execute on function public.get_or_create_calendar_token() to authenticated;
+
+create or replace function public.rotate_calendar_token()
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_token uuid := gen_random_uuid();
+begin
+  if auth.uid() is null then
+    raise exception 'not signed in';
+  end if;
+  insert into public.calendar_feeds (profile_id, token) values (auth.uid(), v_token)
+  on conflict (profile_id) do update set token = excluded.token, created_at = now();
+  return v_token;
+end;
+$$;
+grant execute on function public.rotate_calendar_token() to authenticated;
+
+-- الدالة القديمة (نسخ الواجهة القديمة المخزّنة) تمر الآن عبر الدالة الجديدة عشان يسري الحد وتنحفظ بالسجل
+create or replace function public.submit_supervisor_note(p_token uuid, p_note text)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  perform public.submit_supervisor_message(p_token, p_note, '');
+end;
+$$;
+grant execute on function public.submit_supervisor_note(uuid, text) to anon, authenticated;
+
+-- دوال الأعضاء فقط: نسحب التنفيذ من anon/public
+revoke execute on function public.mark_supervisor_messages_read() from public, anon;
+revoke execute on function public.rotate_share_token() from public, anon;
+revoke execute on function public.get_or_create_calendar_token() from public, anon;
+revoke execute on function public.rotate_calendar_token() from public, anon;

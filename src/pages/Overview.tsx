@@ -55,6 +55,7 @@ import { useMethodology } from "../hooks/useMethodology";
 import { useTasksData } from "../hooks/useTasksData";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
+import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { g, isFemaleUser } from "../lib/gender";
@@ -90,6 +91,9 @@ const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
   const { currentUser, team, mode } = useAuth();
+  const { messages: supervisorMsgs, unread: unreadSupervisor } = useSupervisorMessages();
+  const latestSupervisorMsg = [...supervisorMsgs].reverse().find((m) => m.sender === "supervisor") ?? null;
+  const supervisorMsgAt = latestSupervisorMsg?.createdAt ?? team?.supervisorNoteAt ?? null;
   const { startTour, finished: tourFinished } = useTour();
   const isFemale = isFemaleUser(currentUser);
   const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
@@ -343,19 +347,30 @@ export default function Overview() {
         </AlertCard>
       )}
 
-      {team?.supervisorNote && (
-        <div className="flex items-start gap-4 rounded-3xl border border-violet-100 bg-violet-50 px-5 py-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white">
+      {(latestSupervisorMsg || team?.supervisorNote) && (
+        <Link
+          to="/feedback"
+          className="flex items-start gap-4 rounded-3xl border border-violet-100 bg-violet-50 px-5 py-4 transition-colors hover:bg-violet-100/60"
+        >
+          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-white">
             <GraduationCap size={18} />
+            {unreadSupervisor > 0 && (
+              <span className="absolute -top-1 -end-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                {unreadSupervisor}
+              </span>
+            )}
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-violet-500">
-              ملاحظة من مشرفكم
-              {team.supervisorNoteAt && ` — ${formatDateLong(team.supervisorNoteAt.slice(0, 10))}`}
+              {unreadSupervisor > 0 ? `رسالة جديدة من مشرفكم${unreadSupervisor > 1 ? ` (${unreadSupervisor})` : ""}` : "آخر رسالة من مشرفكم"}
+              {supervisorMsgAt && ` — ${formatDateLong(supervisorMsgAt.slice(0, 10))}`}
             </p>
-            <p className="mt-1 text-sm font-semibold text-violet-800">{team.supervisorNote}</p>
+            <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-sm font-semibold text-violet-800">
+              {latestSupervisorMsg?.body ?? team?.supervisorNote}
+            </p>
+            <p className="mt-1 text-xs font-bold text-violet-500 underline underline-offset-2">افتحوا المحادثة وردّوا</p>
           </div>
-        </div>
+        </Link>
       )}
 
       {/* Welcome + progress — WESYNC OBSIDIAN × EMBER hero. يستخدم متغيرات

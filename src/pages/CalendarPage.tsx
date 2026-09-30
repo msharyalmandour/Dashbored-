@@ -4,6 +4,7 @@ import Card, { CardHeader } from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import MiniCalendar from "../components/MiniCalendar";
+import PhoneCalendarCard from "../components/PhoneCalendarCard";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useAuth } from "../context/AuthContext";
 import type { CalendarEventType } from "../data/types";
@@ -85,6 +86,8 @@ export default function CalendarPage() {
           </button>
         )}
       </div>
+
+      <PhoneCalendarCard />
 
       {showForm && canWrite && (
         <Card tone="cream" className="relative">

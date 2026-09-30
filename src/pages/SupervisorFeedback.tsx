@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Check, ClipboardCheck, Copy, Loader2, Mail, Plus, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, Plus, Send, Sparkles, Trash2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import AiLockedCard from "../components/AiLockedCard";
@@ -9,6 +9,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { basicSplit, sectionLabels, useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
 import { callStudy } from "../hooks/useStudyTools";
+import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { formatDateLong } from "../lib/date";
@@ -26,6 +27,10 @@ export default function SupervisorFeedback() {
   const { roster } = useTeamRoster();
   const { items, loading, addItems, patch, remove } = useSupervisorFeedback();
   const aiOk = hasAiAccess(team) && isSupabaseConfigured;
+  const { messages, unread, markRead, reply } = useSupervisorMessages();
+  const [replyText, setReplyText] = useState("");
+  const [replyBusy, setReplyBusy] = useState(false);
+  const [replyErr, setReplyErr] = useState<string | null>(null);
 
   const [raw, setRaw] = useState("");
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
@@ -45,6 +50,27 @@ export default function SupervisorFeedback() {
   const pct = items.length ? Math.round((done.length / items.length) * 100) : 0;
   const shown = filter === "all" ? items : items.filter((i) => i.status === filter);
   const memberName = (id: string | null) => roster.find((m) => m.id === id)?.name;
+
+  // فتح الصفحة = قراءة الرسائل (يطفّي عدّاد الجرس)
+  useEffect(() => {
+    if (unread > 0) markRead();
+  }, [unread, markRead]);
+
+  const sendReply = async () => {
+    if (!replyText.trim() || replyBusy) return;
+    setReplyBusy(true);
+    setReplyErr(null);
+    const r = await reply(replyText);
+    setReplyBusy(false);
+    if (r.error) setReplyErr(r.error);
+    else setReplyText("");
+  };
+
+  const toTasks = (body: string) => {
+    setRaw(body);
+    setDrafts(null);
+    setTimeout(() => document.getElementById("feedback-raw")?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+  };
 
   const splitBasic = () => {
     const parts = basicSplit(raw);
@@ -128,6 +154,72 @@ export default function SupervisorFeedback() {
         </Card>
       )}
 
+      {(messages.length > 0 || isSupabaseConfigured) && (
+        <Card tone="paper" className="space-y-3">
+          <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
+            <GraduationCap size={18} className="text-violet-500" />
+            رسائل المشرفة
+          </h3>
+          {messages.length === 0 ? (
+            <p className="text-xs leading-relaxed text-brand-950/55">
+              لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.
+            </p>
+          ) : (
+            <ul className="max-h-96 space-y-2.5 overflow-y-auto pe-1">
+              {messages.map((m) => {
+                const fromSup = m.sender === "supervisor";
+                return (
+                  <li key={m.id} className={`flex ${fromSup ? "justify-start" : "justify-end"}`}>
+                    <div
+                      className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 ${
+                        fromSup ? "bg-violet-50 text-brand-950" : "border border-brand-100 bg-surface-muted text-brand-950"
+                      }`}
+                    >
+                      <p className="text-[11px] font-bold text-brand-950/45">
+                        {fromSup ? m.senderName || "المشرفة" : m.senderName ? `أنتم — ${m.senderName}` : "أنتم"}
+                        <span className="ms-2 font-medium">{formatDateLong(m.createdAt.slice(0, 10))}</span>
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{m.body}</p>
+                      {fromSup && (
+                        <button
+                          onClick={() => toTasks(m.body)}
+                          className="mt-2 flex items-center gap-1.5 text-xs font-bold text-violet-600 underline underline-offset-2 hover:text-violet-700"
+                        >
+                          <ClipboardCheck size={12} />
+                          حوّلوها لمهام
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div className="flex items-end gap-2">
+            <textarea
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              rows={2}
+              maxLength={1500}
+              placeholder="ردّوا على المشرفة (تشوفه لما تفتح رابطها)"
+              className="min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            />
+            <button
+              onClick={sendReply}
+              disabled={replyBusy || !replyText.trim()}
+              className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-50"
+            >
+              {replyBusy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+              إرسال
+            </button>
+          </div>
+          {replyErr && <p className="text-xs font-semibold text-rose-600">{replyErr}</p>}
+          <p className="text-[11px] text-brand-950/40">
+            ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.
+          </p>
+        </Card>
+      )}
+
       <Card tone="cream" className="space-y-3">
         <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
           <ClipboardCheck size={18} className="text-brand-500" />
@@ -137,6 +229,7 @@ export default function SupervisorFeedback() {
           انسخوا الملاحظات من الإيميل أو الواتساب أو الورقة (ولو مكتوبة عربي وإنجليزي مخلوط عادي). نقسّمها لمهام واضحة تراجعونها قبل الحفظ.
         </p>
         <textarea
+          id="feedback-raw"
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
           rows={5}

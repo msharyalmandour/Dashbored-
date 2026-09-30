@@ -21,7 +21,8 @@ import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useReferralStats } from "../hooks/useReferralStats";
-import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
@@ -157,11 +158,27 @@ function SupervisorVisualPanel() {
     (بدون رقم محدد، يفتح جهات الاتصال) وعرض آخر ملاحظة كاملة منه/منها،
     بدل بطاقة "رابط المشرف" المدمجة أعلاه اللي تبقى كما هي. */
 function SupervisorContactSection() {
-  const { team } = useAuth();
+  const { team, isLeader } = useAuth();
   const [copied, setCopied] = useState(false);
   const [reminderCopied, setReminderCopied] = useState(false);
+  const [rotating, setRotating] = useState(false);
+  const [rotateError, setRotateError] = useState(false);
 
   if (!team?.shareToken) return null;
+
+  const rotate = async () => {
+    if (!supabase || rotating) return;
+    if (!window.confirm("تغيير الرابط يعطّل الرابط القديم فورًا — لازم ترسلون الجديد للمشرفة. نكمل؟")) return;
+    setRotating(true);
+    setRotateError(false);
+    const { error } = await supabase.rpc("rotate_share_token");
+    if (error) {
+      setRotating(false);
+      setRotateError(true);
+      return;
+    }
+    window.location.reload();
+  };
   const shareLink = `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}`;
   const waitingDays = team.supervisorNoteAt ? daysAgo(team.supervisorNoteAt) : null;
   const reminderMessage = team.supervisorNote
@@ -229,6 +246,15 @@ function SupervisorContactSection() {
               {copied ? "تم النسخ" : "نسخ الرابط"}
             </button>
           </div>
+          {isLeader && (
+            <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">
+              أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم{" "}
+              <button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
+                {rotating ? "جاري التغيير..." : "غيّروا الرابط"}
+              </button>
+              .{rotateError && <span className="font-bold text-rose-600"> تعذّر التغيير — حاولوا مرة ثانية.</span>}
+            </p>
+          )}
         </div>
 
         <div className="relative flex flex-col rounded-2xl bg-surface-muted p-4">
@@ -238,13 +264,16 @@ function SupervisorContactSection() {
           </p>
           {team.supervisorNote ? (
             <>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-brand-950/80">{team.supervisorNote}</p>
+              <p className="mt-3 line-clamp-6 flex-1 whitespace-pre-wrap text-sm leading-relaxed text-brand-950/80">{team.supervisorNote}</p>
               {team.supervisorNoteAt && (
                 <p className="mt-3 text-xs font-semibold text-sky-accent-700">
                   {formatDateLong(team.supervisorNoteAt.slice(0, 10))} — قبل{" "}
                   {waitingDays === 0 ? "أقل من يوم" : `${waitingDays} ${waitingDays === 1 ? "يوم" : "أيام"}`}
                 </p>
               )}
+              <Link to="/feedback" className="mt-2 text-xs font-bold text-brand-700 underline underline-offset-2">
+                افتحوا المحادثة كاملة وردّوا
+              </Link>
             </>
           ) : (
             <div className="mt-3 flex flex-1 flex-col items-start justify-center gap-1.5">

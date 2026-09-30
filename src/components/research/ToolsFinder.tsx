@@ -5,6 +5,7 @@ import Card from "../ui/Card";
 import EmptyState from "../ui/EmptyState";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
 import { useAuth } from "../../context/AuthContext";
+import Term from "../Term";
 import { saveToolToLibrary } from "../../hooks/useValidatedTools";
 import type { ToolFinding } from "../../data/types";
 
@@ -136,7 +137,7 @@ export default function ToolsFinder() {
                     ["الفئة", t.population],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl bg-surface-muted p-2">
-                      <p className="font-bold text-brand-950/40">{label}</p>
+                      <p className="font-bold text-brand-950/40">{label === "الثبات" ? <Term id="reliability">الثبات</Term> : label}</p>
                       <p className="mt-0.5 text-brand-950/75">{value || "غير مذكور بالملخص"}</p>
                     </div>
                   ))}

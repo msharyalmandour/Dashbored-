@@ -1,6 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { BarChart3, Calculator, Check, Copy, Compass, FileUp, FlaskConical, Lightbulb, TableProperties, TriangleAlert } from "lucide-react";
 import Card from "../components/ui/Card";
+import Term from "../components/Term";
 import {
   alphaLabel,
   anovaOneWay,
@@ -75,7 +76,7 @@ function NumberField({
   step,
   suffix,
 }: {
-  label: string;
+  label: ReactNode;
   hint?: string;
   value: number;
   onChange: (v: number) => void;
@@ -206,7 +207,7 @@ function SampleSizeTab() {
           {kind === "prop" && (
             <>
               <NumberField label="النسبة المتوقعة %" hint="لو ما تعرفون اتركوها ٥٠ — أحفظ خيار يعطي أكبر عينة." value={p} onChange={setP} suffix="%" />
-              <NumberField label="هامش الخطأ المقبول %" hint="عادةً ٥٪." value={margin} onChange={setMargin} suffix="%" />
+              <NumberField label={<Term id="margin">هامش الخطأ المقبول %</Term>} hint="عادةً ٥٪." value={margin} onChange={setMargin} suffix="%" />
             </>
           )}
           {kind === "mean" && (
@@ -216,11 +217,11 @@ function SampleSizeTab() {
             </>
           )}
           {(kind === "prop" || kind === "mean") && (
-            <NumberField label="مستوى الثقة %" hint="عادةً ٩٥٪." value={confidence} onChange={setConfidence} suffix="%" />
+            <NumberField label={<Term id="confidence">مستوى الثقة %</Term>} hint="عادةً ٩٥٪." value={confidence} onChange={setConfidence} suffix="%" />
           )}
           {kind === "two" && (
             <NumberField
-              label="حجم الأثر المتوقع (d)"
+              label={<Term id="effect-size">حجم الأثر المتوقع (d)</Term>}
               hint="٠٫٢ صغير، ٠٫٥ متوسط (الأشهر)، ٠٫٨ كبير. الأفضل تأخذونه من دراسة مشابهة."
               value={d}
               onChange={setD}
@@ -231,7 +232,7 @@ function SampleSizeTab() {
             <NumberField label="قوة الارتباط المتوقعة (r)" hint="٠٫١ ضعيف، ٠٫٣ متوسط، ٠٫٥ قوي." value={r} onChange={setR} step={0.05} />
           )}
           {(kind === "two" || kind === "corr") && (
-            <NumberField label="قوة الاختبار (Power) %" hint="عادةً ٨٠٪." value={power} onChange={setPower} suffix="%" />
+            <NumberField label={<Term id="power">قوة الاختبار (Power) %</Term>} hint="عادةً ٨٠٪." value={power} onChange={setPower} suffix="%" />
           )}
           <NumberField
             label="نسبة الانسحاب أو الاستبيانات الناقصة %"
@@ -379,7 +380,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
 
         {needNormal && (
           <div>
-            <p className="mb-2 text-sm font-bold text-brand-950">هل بياناتكم موزعة طبيعيًا تقريبًا (أو العينة ٣٠ فأكثر بكل مجموعة)؟</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">هل بياناتكم <Term id="normal">موزعة طبيعيًا</Term> تقريبًا (أو العينة ٣٠ فأكثر بكل مجموعة)؟</p>
             <div className="flex flex-wrap gap-2">
               <Opt v={true} cur={normal} set={setNormal}>إيه / ما أدري</Opt>
               <Opt v={false} cur={normal} set={setNormal}>لا (ملتوية أو رتبية أو عينة صغيرة)</Opt>

@@ -25,6 +25,8 @@ import {
   CalendarClock,
   GraduationCap,
   Ruler,
+  FileDown,
+  BookA,
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
@@ -49,42 +51,54 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
     items: [{ to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true }],
   },
   {
-    label: "البحث",
+    label: "١. أفهم موضوعي",
+    items: [
+      { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
+      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
+      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
+    ],
+  },
+  {
+    label: "٢. أكتب وأخطط",
     items: [
       { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
-      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
       { to: "/methodology", label: "المنهجية", icon: FlaskConical },
       { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
-      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
-      { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
+      { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
     ],
   },
   {
-    label: "أدوات الدراسة",
+    label: "٣. أجمع وأحلل",
     items: [
-      { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
-      { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
       { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
       { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
-      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
-      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
+      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
+      { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
     ],
   },
   {
-    label: "العمل والفريق",
+    label: "٤. أسلّم",
+    items: [
+      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
+      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
+      { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
+    ],
+  },
+  {
+    label: "الفريق",
     items: [
       { to: "/tasks", label: "مهامي", icon: ListChecks },
       { to: "/team", label: "الفريق", icon: Users },
       { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
+      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
+      { to: "/calendar", label: "التقويم", icon: CalendarDays },
+      { to: "/files", label: "الملفات", icon: FolderClosed },
     ],
   },
   {
     label: "أخرى",
     items: [
-      { to: "/files", label: "الملفات", icon: FolderClosed },
-      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
-      { to: "/calendar", label: "التقويم", icon: CalendarDays },
+      { to: "/glossary", label: "قاموس المصطلحات", icon: BookA },
       { to: "/story", label: "قصة بحثك", icon: Sparkles },
       { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
     ],

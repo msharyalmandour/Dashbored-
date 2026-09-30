@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
+import Term from "../Term";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
 
 function CopyBlock({ label, text }: { label: string; text: string }) {
@@ -70,7 +71,7 @@ export default function SearchStrategy() {
       <Card tone="cream">
         <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-950">
           <ListTree size={18} className="text-brand-500" />
-          ابنوا خطة البحث (PRISMA)
+          ابنوا خطة البحث (<Term id="prisma">PRISMA</Term>)
         </h3>
         <p className="mb-4 text-xs text-brand-950/50">
           هذي «خطة» تبحثون بها بأنفسكم بقواعد البيانات (PubMed وCINAHL وScopus): كلمات مفتاحية، وجمل بحث جاهزة تنسخونها
@@ -108,7 +109,7 @@ export default function SearchStrategy() {
         <div className="space-y-4">
           {pico && (
             <Card>
-              <p className="text-sm font-extrabold text-brand-950">إطار PICO</p>
+              <p className="text-sm font-extrabold text-brand-950">إطار <Term id="pico">PICO</Term></p>
               <p className="mb-3 text-[11px] text-brand-950/45">طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(

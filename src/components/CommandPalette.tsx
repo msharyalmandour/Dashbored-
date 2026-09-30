@@ -19,30 +19,50 @@ import {
   NotebookPen,
   FileCheck2,
   Search,
-  BarChart3,
   ClipboardList,
   MessageSquareText,
   CalendarClock,
   GraduationCap,
   Ruler,
+  Plus,
+  Calculator,
+  BookA,
+  FileDown,
+  type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const baseItems = [
+interface PaletteItem {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  /** كلمات بحث إضافية (مرادفات) */
+  keywords?: string;
+  /** أمر مباشر (مو مجرد انتقال لصفحة) */
+  action?: boolean;
+}
+
+const baseItems: PaletteItem[] = [
+  { to: "/tasks?new=1", label: "مهمة جديدة", icon: Plus, action: true, keywords: "اضافة اضف مهمة task new" },
+  { to: "/research-search", label: "ابحث عن دراسات لبحثكم", icon: Search, action: true, keywords: "بحث دراسات ابحاث pubmed scholar" },
+  { to: "/stats", label: "احسب حجم العينة", icon: Calculator, action: true, keywords: "عينة sample size كوكران" },
+  { to: "/feedback", label: "أضف ملاحظات المشرفة", icon: MessageSquareText, action: true, keywords: "ملاحظات دكتورة مشرفة feedback" },
   { to: "/", label: "الرئيسية", icon: LayoutDashboard },
-  { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
-  { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
-  { to: "/methodology", label: "المنهجية", icon: FlaskConical },
-  { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
-  { to: "/tasks", label: "مهامي", icon: ListChecks },
-  { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
-  { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
-  { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
+  { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText, keywords: "proposal بروبوزل" },
+  { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked, keywords: "literature review" },
+  { to: "/methodology", label: "المنهجية", icon: FlaskConical, keywords: "methods تصميم عينة" },
+  { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2, keywords: "irb ethics اخلاقيات" },
+  { to: "/tasks", label: "مهامي", icon: ListChecks, keywords: "tasks" },
+  { to: "/evidence", label: "مكتبة الأدلة", icon: Library, keywords: "مراجع references papers" },
+  { to: "/research-search", label: "وكيل البحث العلمي", icon: Search, keywords: "agent" },
+  { to: "/stats", label: "استوديو الإحصاء", icon: Calculator, keywords: "spss احصاء تحليل statistics t-test" },
   { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
-  { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
-  { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
-  { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
-  { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
+  { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList, keywords: "consent موافقة استبيان ترجمة" },
+  { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler, keywords: "scale questionnaire مقياس" },
+  { to: "/planner", label: "مخطط الموعد", icon: CalendarClock, keywords: "deadline جدول تسليم" },
+  { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap, keywords: "viva defense مناقشة" },
+  { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown, keywords: "word pdf تحميل" },
+  { to: "/glossary", label: "قاموس المصطلحات", icon: BookA, keywords: "معنى مصطلح" },
   { to: "/team", label: "الفريق", icon: Users },
   { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
   { to: "/fieldwork", label: "الميدان", icon: MapPinned },
@@ -62,7 +82,7 @@ export default function CommandPalette() {
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const items = useMemo(
+  const items = useMemo<PaletteItem[]>(
     () =>
       isSuperAdmin
         ? [...baseItems, { to: "/admin/subscriptions", label: "إدارة الاشتراكات", icon: ShieldCheck }]
@@ -70,10 +90,12 @@ export default function CommandPalette() {
     [isSuperAdmin],
   );
 
-  const filtered = useMemo(
-    () => items.filter((i) => i.label.includes(query.trim())),
-    [items, query],
-  );
+  // بدون كتابة: الأوامر السريعة أولًا. مع الكتابة: نطابق الاسم أو المرادفات (عربي/إنجليزي)
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((i) => i.label.toLowerCase().includes(q) || (i.keywords ?? "").toLowerCase().includes(q));
+  }, [items, query]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -142,7 +164,7 @@ export default function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKeyDown}
-            placeholder="اكتب عشان تنتقل بسرعة..."
+            placeholder="اكتب أمر أو صفحة… (مثلًا: مهمة، عينة، spss، موافقة)"
             className="w-full bg-transparent text-sm text-brand-950 outline-none placeholder:text-brand-950/35"
           />
           <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[10px] font-bold text-brand-950/40">
@@ -151,7 +173,7 @@ export default function CommandPalette() {
         </div>
         <ul className="max-h-80 overflow-y-auto p-2">
           {filtered.map((item, i) => (
-            <li key={item.to}>
+            <li key={`${item.to}-${item.label}`}>
               <button
                 onClick={() => go(item.to)}
                 onMouseEnter={() => setActiveIndex(i)}
@@ -162,7 +184,10 @@ export default function CommandPalette() {
                 }`}
               >
                 <item.icon size={16} />
-                {item.label}
+                <span className="flex-1 text-start">{item.label}</span>
+                {item.action && (
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>أمر</span>
+                )}
               </button>
             </li>
           ))}

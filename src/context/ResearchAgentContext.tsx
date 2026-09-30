@@ -189,7 +189,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
         <Link
           to="/research-search"
           onClick={() => setTab(pillTarget)}
-          className="fixed bottom-6 end-6 z-40 flex max-w-[calc(100vw-7rem)] items-center gap-2.5 rounded-full border border-brand-200/60 bg-paper/85 py-2.5 pe-5 ps-3 text-sm font-bold text-brand-950 shadow-xl backdrop-blur-xl transition-transform hover:scale-[1.02] print:hidden"
+          className="fixed bottom-20 end-4 z-40 flex max-w-[calc(100vw-7rem)] items-center gap-2.5 rounded-full border border-brand-200/60 bg-paper/85 py-2.5 pe-5 ps-3 text-sm font-bold text-brand-950 shadow-xl backdrop-blur-xl transition-transform hover:scale-[1.02] print:hidden md:bottom-6 md:end-6"
         >
           <span
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${

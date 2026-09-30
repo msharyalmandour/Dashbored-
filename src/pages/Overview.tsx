@@ -34,6 +34,8 @@ import RingProgress from "../components/ui/RingProgress";
 import StatCard from "../components/StatCard";
 import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
+import NextStepCard from "../components/NextStepCard";
+import { computeNextSteps } from "../lib/nextSteps";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
 import { useMouseParallax } from "../hooks/useMouseParallax";
@@ -103,6 +105,14 @@ export default function Overview() {
   const { roster } = useTeamRoster();
   const { project } = useResearchProject();
   const currentStage = getCurrentStage(realStages);
+  const nextSteps = computeNextSteps({
+    todayIso,
+    currentUserId: currentUser?.id ?? "",
+    tasks: realTasks,
+    stages: realStages,
+    sections: realProposalSections,
+    hasDeadline: !!project?.targetSubmissionDate,
+  });
   const realOverallProgress = getOverallProgress(realStages, {
     proposalSections: realProposalSections,
     researchGap: realResearchGap,
@@ -267,6 +277,7 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
+      <NextStepCard steps={nextSteps} isFemale={isFemale} />
       {showGuideBanner && (
         <AlertCard
           tone="warning"
@@ -321,30 +332,14 @@ export default function Overview() {
         </AlertCard>
       )}
 
-      {showDeadlineAlert && deadlineAlertActive && (
-        <AlertCard
-          tone={overdueCount > 0 ? "danger" : "warning"}
-          icon={AlertTriangle}
-          onDismiss={dismissDeadlineAlert}
-        >
-          {overdueCount > 0 ? (
-            <>
-              عندكم {overdueCount} {overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} —{" "}
-              <Link to="/tasks" className="underline underline-offset-2">
-                راجعوها أول شي
-              </Link>{" "}
-              قبل أي شي ثاني.
-            </>
-          ) : (
-            <>
-              موعد قريب: <span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{" "}
-              بعد {nearestDeadlineEventDays} {nearestDeadlineEventDays === 1 ? "يوم" : "أيام"} —{" "}
-              <Link to="/calendar" className="underline underline-offset-2">
-                شوفوا التقويم
-              </Link>
-              .
-            </>
-          )}
+      {showDeadlineAlert && deadlineAlertActive && overdueCount === 0 && (
+        <AlertCard tone="warning" icon={AlertTriangle} onDismiss={dismissDeadlineAlert}>
+          موعد قريب: <span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{" "}
+          بعد {nearestDeadlineEventDays} {nearestDeadlineEventDays === 1 ? "يوم" : "أيام"} —{" "}
+          <Link to="/calendar" className="underline underline-offset-2">
+            شوفوا التقويم
+          </Link>
+          .
         </AlertCard>
       )}
 

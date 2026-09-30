@@ -17,6 +17,7 @@ import StudyKit from "./pages/StudyKit";
 import ToolsLibrary from "./pages/ToolsLibrary";
 import Planner from "./pages/Planner";
 import Viva from "./pages/Viva";
+import Glossary from "./pages/Glossary";
 import Tasks from "./pages/Tasks";
 import EvidenceLibrary from "./pages/EvidenceLibrary";
 import Team from "./pages/Team";
@@ -71,6 +72,7 @@ export default function App() {
         <Route path="/tools-library" element={<ToolsLibrary />} />
         <Route path="/planner" element={<Planner />} />
         <Route path="/viva" element={<Viva />} />
+        <Route path="/glossary" element={<Glossary />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/evidence" element={<EvidenceLibrary />} />
         <Route path="/team" element={<Team />} />

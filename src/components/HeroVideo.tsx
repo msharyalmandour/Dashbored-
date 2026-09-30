@@ -16,7 +16,15 @@ const FADE_SEC = 0.9;
 
 /** خلفية سينمائية: صورة ثابتة فورًا، والفيديو يطلع فوقها لما يجهز.
     فيديوين متراكبين يتبادلون بتلاشي قرب نهاية المقطع عشان ما يبان قفز عند التكرار. */
-export default function HeroVideo() {
+export default function HeroVideo({
+  poster = HERO_POSTER,
+  video = HERO_VIDEO,
+  objectPosition = "center",
+}: {
+  poster?: string;
+  video?: string;
+  objectPosition?: string;
+} = {}) {
   const skip = useRef(shouldSkipVideo()).current;
   const refs = [useRef<HTMLVideoElement>(null), useRef<HTMLVideoElement>(null)];
   const [active, setActive] = useState(0);
@@ -50,9 +58,10 @@ export default function HeroVideo() {
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#03060a]" aria-hidden>
       <img
-        src={HERO_POSTER}
+        src={poster}
         alt=""
         className="absolute inset-0 h-full w-full animate-[cine-zoom_14s_ease-out_forwards] object-cover motion-reduce:animate-none"
+        style={{ objectPosition }}
         fetchPriority="high"
       />
       {!skip && !failed &&
@@ -60,13 +69,13 @@ export default function HeroVideo() {
           <video
             key={i}
             ref={refs[i]}
-            src={HERO_VIDEO}
-            poster={HERO_POSTER}
+            src={video}
+            poster={poster}
             muted
             playsInline
             preload="auto"
             className={vidClass(i)}
-            style={{ transitionDuration: `${FADE_SEC}s` }}
+            style={{ transitionDuration: `${FADE_SEC}s`, objectPosition }}
             onCanPlay={() => i === 0 && setReady(true)}
             onError={() => setFailed(true)}
           />

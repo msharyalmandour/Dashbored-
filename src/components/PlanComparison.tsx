@@ -47,7 +47,7 @@ export default function PlanComparison({ variant = "dark" }: { variant?: Variant
   const t = tone[variant];
   return (
     <div className={`overflow-hidden rounded-[1.75rem] border text-start ${t.wrap}`}>
-      <div className="grid grid-cols-[1fr_5.5rem_6.5rem] items-end gap-2 px-4 py-4 sm:grid-cols-[1fr_9rem_10rem] sm:px-6">
+      <div className="grid grid-cols-[minmax(0,1fr)_4.5rem_5.5rem] items-end gap-2 px-3 py-4 sm:grid-cols-[minmax(0,1fr)_9rem_10rem] sm:px-6 sm:px-6">
         <p className={`font-display text-base font-extrabold ${t.head}`}>الفرق بنظرة</p>
         <div className="text-center">
           <p className={`text-xs font-extrabold ${t.head}`}>Basic</p>
@@ -67,7 +67,7 @@ export default function PlanComparison({ variant = "dark" }: { variant?: Variant
           {g.rows.map((r) => (
             <div
               key={r.label}
-              className={`grid grid-cols-[1fr_5.5rem_6.5rem] items-center gap-2 border-t px-4 py-3 text-xs leading-relaxed sm:grid-cols-[1fr_9rem_10rem] sm:px-6 sm:text-sm ${t.row}`}
+              className={`grid grid-cols-[minmax(0,1fr)_4.5rem_5.5rem] items-center gap-2 border-t px-3 py-3 text-xs leading-relaxed sm:grid-cols-[minmax(0,1fr)_9rem_10rem] sm:px-6 sm:text-sm ${t.row}`}
             >
               <span>{r.label}</span>
               <span className="flex justify-center text-center">

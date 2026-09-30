@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
+import ScrollDashboard3D from "../components/ScrollDashboard3D";
 import RevealRotate from "../components/RevealRotate";
 import Logo from "../components/Logo";
 import TiltCard from "../components/cinematic/TiltCard";
@@ -243,7 +244,7 @@ export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
-    <div className="relative min-h-screen bg-neutral-950 text-white">
+    <div className="relative min-h-screen overflow-x-clip bg-neutral-950 text-white">
       <Suspense fallback={null}>
         <StarsBackdrop />
       </Suspense>
@@ -345,13 +346,8 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-4xl px-6 pb-16 pt-6 lg:pb-24">
-        <TiltCard maxTilt={3}>
-          <RevealRotate direction="left">
-            <BrowserFrame src={overviewShot} alt="لوحة تحكم Wesync" />
-          </RevealRotate>
-        </TiltCard>
-      </section>
+      {/* جولة التمرير ثلاثية الأبعاد: لوحة التحكم + الميزات + الباقات */}
+      <ScrollDashboard3D />
 
       {/* Facts strip */}
       <GoldDivider />
@@ -493,7 +489,7 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-6 py-14">
+      <section id="features-more" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-6 py-14">
         <div className="mb-14 text-center">
           <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
             كل شي يحتاجه فريقكم، بمكان واحد

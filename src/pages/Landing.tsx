@@ -255,18 +255,17 @@ export default function Landing() {
           <div className="max-w-xl animate-[hero-in_0.9s_ease-out] [text-shadow:0_4px_28px_rgba(0,0,0,0.6)]">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-xs font-bold text-white/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md">
               <Sparkles size={13} className="text-amber-300" />
-              مبنية خصيصًا لفرق بحث التخرج التمريضي
+              لفرق بحث التخرج في كل التخصصات — بدأنا من التمريض
             </span>
             <h1 className="mt-7 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-white lg:text-7xl">
-              حوّلوا بحثكم
+              بحثكم يخلص
               <br />
               <span className="bg-gradient-to-l from-amber-200 via-amber-400 to-orange-500 bg-clip-text font-bold text-transparent">
-                لرؤية واضحة
+                بوقته، مو بآخر ليلة
               </span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-white/65">
-              Wesync تنظّم رحلة بحث فريقكم كامل — من المقترح للتسليم النهائي —
-              بمكان واحد هادي يشوفه الجميع.
+              مكان واحد لفريقكم: مهام، مقترح، منهجية، إحصاء، وملاحظات المشرفة — ومعاهم كوتش ذكي يقول لكم وش تسوون الحين.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link

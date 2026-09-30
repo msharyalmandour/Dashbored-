@@ -5,7 +5,7 @@ export const HERO_POSTER = `${BASE}/login-hero-b.png`;
 export const HERO_VIDEO = `${BASE}/login-hero.mp4`;
 export const LANDING_POSTER = `${BASE}/landing-hero.png`;
 export const LANDING_VIDEO = `${BASE}/landing-hero.mp4`;
-export const WELCOME_AUDIO = `${BASE}/welcome-ainsley.mp3`;
+export const WELCOME_AUDIO = `${BASE}/welcome-desmond.mp3`;
 
 /** توفير بيانات أو "تقليل الحركة" = نكتفي بالصورة الثابتة بدون تحميل الفيديو. */
 function shouldSkipVideo(): boolean {

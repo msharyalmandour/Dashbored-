@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
 import InstallAppButton from "../components/InstallAppButton";
+import CinematicOverlay from "../components/CinematicOverlay";
 import Logo from "../components/Logo";
 
 const Scene3D = lazy(() => import("../components/cinematic/Scene3D"));
@@ -84,6 +85,13 @@ function SuccessTransition() {
       </div>
     </div>
   );
+}
+
+/** بقعة ضوء تتبع المؤشر على البطاقات */
+function spot(e: React.MouseEvent<HTMLElement>) {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
 }
 
 export default function Login() {
@@ -235,6 +243,7 @@ export default function Login() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_640px_320px_at_center,rgba(3,6,10,0.72),transparent_75%)]" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03060a] via-transparent to-[#03060a]/50" />
       {!showForm && <div className="pointer-events-none absolute inset-0 bg-[#03060a]/60 sm:hidden" />}
+      {!showForm && <CinematicOverlay />}
 
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
         <header className="flex w-full max-w-6xl items-center justify-between">
@@ -247,24 +256,37 @@ export default function Login() {
         <main className="flex w-full flex-1 flex-col items-center justify-center py-10">
           {!showForm ? (
             <div className="w-full max-w-3xl animate-[hero-in_0.9s_ease-out] text-center [text-shadow:0_4px_28px_rgba(3,6,10,0.9)]">
-              <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-amber-200/80">
+              <p className="cine-rise mb-4 text-xs font-semibold tracking-[0.2em] text-amber-200/80" style={{ animationDelay: "0.9s" }}>
                 لفرق بحث التخرج في التمريض
               </p>
               <h1 className="font-display text-4xl font-extrabold leading-[1.2] text-white sm:text-5xl md:text-6xl">
-                بحثكم يخلص <span className="text-amber-300">بوقته</span>
-                <br className="hidden sm:block" /> مو بآخر ليلة
+                {[
+                  { w: "بحثكم" }, { w: "يخلص" }, { w: "بوقته", hl: true }, { br: true }, { w: "مو" }, { w: "بآخر" }, { w: "ليلة" },
+                ].map((t, i) =>
+                  "br" in t ? (
+                    <br key={i} className="hidden sm:block" />
+                  ) : (
+                    <span
+                      key={i}
+                      className={`cine-word ${t.hl ? "text-amber-300" : ""}`}
+                      style={{ animationDelay: `${1.0 + i * 0.16}s`, marginInlineEnd: "0.25em" }}
+                    >
+                      {t.w}
+                    </span>
+                  ),
+                )}
               </h1>
-              <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base">
+              <p className="cine-rise mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base" style={{ animationDelay: "2.1s" }}>
                 مكان واحد لفريقكم: مهام، مقترح، منهجية، إحصاء، وملاحظات المشرفة — ومعاهم كوتش ذكي يعرف وضع بحثكم بالضبط ويقول لكم وش تسوون الحين.
               </p>
 
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <div className="cine-rise mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ animationDelay: "2.4s" }}>
                 <button
                   onClick={() => {
                     setIsSignUp(true);
                     setShowForm(true);
                   }}
-                  className="group relative rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-9 py-3.5 text-sm font-extrabold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.65)] transition-all hover:scale-[1.03] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_14px_40px_-8px_rgba(251,191,36,0.85)]"
+                  className="cine-cta group relative rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-9 py-3.5 text-sm font-extrabold text-neutral-950 transition-transform hover:scale-[1.04]"
                 >
                   ابدأوا مجانًا ٧ أيام
                 </button>
@@ -278,13 +300,18 @@ export default function Login() {
                   عندي حساب
                 </button>
               </div>
-              <p className="mt-3 text-[11px] font-semibold text-white/45">
+              <p className="cine-rise mt-3 text-[11px] font-semibold text-white/45" style={{ animationDelay: "2.6s" }}>
                 كل المزايا مفتوحة بالتجربة (بما فيها الذكاء الاصطناعي) — بدون أي التزام
               </p>
 
               <div className="mt-10 grid grid-cols-1 gap-3 text-start sm:grid-cols-3">
-                {pitch.map((c) => (
-                  <div key={c.title} className="rounded-3xl border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md">
+                {pitch.map((c, i) => (
+                  <div
+                    key={c.title}
+                    onMouseMove={spot}
+                    style={{ animationDelay: `${2.7 + i * 0.15}s` }}
+                    className="cine-rise cine-spot rounded-3xl border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md"
+                  >
                     <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300">
                       <c.icon size={17} />
                     </span>
@@ -294,7 +321,7 @@ export default function Login() {
                 ))}
               </div>
 
-              <div className="mt-4 grid grid-cols-1 gap-3 text-start sm:grid-cols-2">
+              <div className="cine-rise mt-4 grid grid-cols-1 gap-3 text-start sm:grid-cols-2" style={{ animationDelay: "3.2s" }}>
                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
                   <p className="flex items-baseline justify-between text-white">
                     <span className="text-sm font-extrabold">Basic</span>
@@ -320,7 +347,7 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+              <div className="cine-rise mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" style={{ animationDelay: "3.4s" }}>
                 <InstallAppButton />
                 <button
                   onClick={() => setShowStory((s) => !s)}

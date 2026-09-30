@@ -19,6 +19,12 @@ import {
   NotebookPen,
   FileCheck2,
   Search,
+  BarChart3,
+  ClipboardList,
+  MessageSquareText,
+  CalendarClock,
+  GraduationCap,
+  Ruler,
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
@@ -28,6 +34,7 @@ import { getResearcherTitle } from "../lib/identity";
 import { isFemaleUser } from "../lib/gender";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
+import IdeaButton from "./IdeaButton";
 
 interface NavItem {
   to: string;
@@ -50,6 +57,17 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
       { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
       { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
       { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
+    ],
+  },
+  {
+    label: "أدوات الدراسة",
+    items: [
+      { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
+      { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
+      { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
+      { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
+      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
+      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
     ],
   },
   {
@@ -192,6 +210,7 @@ export default function Sidebar({
                 <LogOut size={16} />
               </button>
             </div>
+            <IdeaButton />
             <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
               <Sparkles size={12} />
               {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}

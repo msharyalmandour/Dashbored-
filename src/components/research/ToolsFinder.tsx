@@ -1,7 +1,32 @@
-import { ExternalLink, Loader2, Ruler, Search, ShieldAlert } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { BookmarkPlus, Check, ExternalLink, Loader2, Ruler, Search, ShieldAlert } from "lucide-react";
 import Card from "../ui/Card";
 import EmptyState from "../ui/EmptyState";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
+import { useAuth } from "../../context/AuthContext";
+import { saveToolToLibrary } from "../../hooks/useValidatedTools";
+import type { ToolFinding } from "../../data/types";
+
+function SaveToLibrary({ tool }: { tool: ToolFinding }) {
+  const { currentUser } = useAuth();
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "dup" | "error">("idle");
+  if (!currentUser) return null;
+  return (
+    <button
+      disabled={state === "saving" || state === "saved" || state === "dup"}
+      onClick={async () => {
+        setState("saving");
+        const r = await saveToolToLibrary(tool, currentUser.id);
+        setState(r.error ? "error" : r.duplicate ? "dup" : "saved");
+      }}
+      className="flex items-center gap-1.5 text-[11px] font-bold text-brand-600 hover:underline disabled:opacity-70"
+    >
+      {state === "saving" ? <Loader2 size={12} className="animate-spin" /> : state === "saved" || state === "dup" ? <Check size={12} /> : <BookmarkPlus size={12} />}
+      {state === "saved" ? "انحفظت بالمكتبة المشتركة" : state === "dup" ? "موجودة بالمكتبة أصلًا" : state === "error" ? "تعذّر الحفظ — حاولوا مرة ثانية" : "احفظوها بمكتبة الأدوات"}
+    </button>
+  );
+}
 
 const examples: [string, string][] = [
   ["الاحتراق الوظيفي", "ممرضات العناية المركزة"],
@@ -93,6 +118,9 @@ export default function ToolsFinder() {
             «الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً ٠٫٧ فأكثر (Cronbach's α).
             وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.
           </p>
+          <p className="text-xs text-brand-950/50">
+            الأدوات اللي تحفظونها تنضاف لـ <Link to="/tools-library" className="font-bold text-brand-600 hover:underline">مكتبة أدوات القياس</Link> المشتركة.
+          </p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {tools.map((t, i) => (
               <Card key={`${t.toolName}-${i}`} className="space-y-2.5">
@@ -114,6 +142,7 @@ export default function ToolsFinder() {
                   ))}
                 </div>
                 {t.notes && <p className="text-xs text-brand-950/60">{t.notes}</p>}
+                <SaveToLibrary tool={t} />
                 <a
                   href={t.sourceUrl}
                   target="_blank"

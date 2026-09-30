@@ -11,6 +11,12 @@ import LiteratureReview from "./pages/LiteratureReview";
 import Methodology from "./pages/Methodology";
 import EthicalApprovalPage from "./pages/EthicalApproval";
 import ResearchSearch from "./pages/ResearchSearch";
+import StatsStudio from "./pages/StatsStudio";
+import SupervisorFeedback from "./pages/SupervisorFeedback";
+import StudyKit from "./pages/StudyKit";
+import ToolsLibrary from "./pages/ToolsLibrary";
+import Planner from "./pages/Planner";
+import Viva from "./pages/Viva";
 import Tasks from "./pages/Tasks";
 import EvidenceLibrary from "./pages/EvidenceLibrary";
 import Team from "./pages/Team";
@@ -59,6 +65,12 @@ export default function App() {
         <Route path="/methodology" element={<Methodology />} />
         <Route path="/ethical-approval" element={<EthicalApprovalPage />} />
         <Route path="/research-search" element={<ResearchSearch />} />
+        <Route path="/stats" element={<StatsStudio />} />
+        <Route path="/feedback" element={<SupervisorFeedback />} />
+        <Route path="/study-kit" element={<StudyKit />} />
+        <Route path="/tools-library" element={<ToolsLibrary />} />
+        <Route path="/planner" element={<Planner />} />
+        <Route path="/viva" element={<Viva />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/evidence" element={<EvidenceLibrary />} />
         <Route path="/team" element={<Team />} />

@@ -19,6 +19,12 @@ import {
   NotebookPen,
   FileCheck2,
   Search,
+  BarChart3,
+  ClipboardList,
+  MessageSquareText,
+  CalendarClock,
+  GraduationCap,
+  Ruler,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -31,6 +37,12 @@ const baseItems = [
   { to: "/tasks", label: "مهامي", icon: ListChecks },
   { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
   { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
+  { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
+  { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
+  { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
+  { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
+  { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
+  { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
   { to: "/team", label: "الفريق", icon: Users },
   { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
   { to: "/fieldwork", label: "الميدان", icon: MapPinned },

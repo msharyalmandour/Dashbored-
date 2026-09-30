@@ -1773,3 +1773,106 @@ create policy "own ai messages"
   to authenticated
   using (exists (select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = auth.uid()))
   with check (exists (select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = auth.uid()));
+-- ============================================================
+-- أدوات الدراسة: ملاحظات المشرف، قوائم التحقق، مكتبة الأدوات المعتمدة، اقتراحات الميزات
+-- ============================================================
+
+-- ملاحظات المشرف — كل ملاحظة صف مستقل يتتبعه الفريق حتى ينحل
+create table if not exists public.supervisor_feedback (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  comment text not null check (char_length(comment) between 1 and 1000),
+  section_key text,
+  status text not null default 'open' check (status in ('open', 'done')),
+  assignee_id uuid references public.profiles (id) on delete set null,
+  feedback_date date not null default current_date,
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+create index if not exists supervisor_feedback_project_idx on public.supervisor_feedback (research_project_id, status, created_at desc);
+alter table public.supervisor_feedback enable row level security;
+
+drop policy if exists "feedback viewable by the team" on public.supervisor_feedback;
+create policy "feedback viewable by the team" on public.supervisor_feedback for select to authenticated
+  using (research_project_id = public.my_research_project_id());
+drop policy if exists "team can add feedback" on public.supervisor_feedback;
+create policy "team can add feedback" on public.supervisor_feedback for insert to authenticated
+  with check (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()) and created_by = auth.uid());
+drop policy if exists "team can update feedback" on public.supervisor_feedback;
+create policy "team can update feedback" on public.supervisor_feedback for update to authenticated
+  using (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+drop policy if exists "team can delete feedback" on public.supervisor_feedback;
+create policy "team can delete feedback" on public.supervisor_feedback for delete to authenticated
+  using (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+
+-- قوائم تحقق مشتركة للفريق (ترجمة الاستبيان، تجهيز الموافقات…)
+create table if not exists public.project_checklists (
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  list_key text not null,
+  item_key text not null,
+  done boolean not null default false,
+  updated_by uuid references public.profiles (id) on delete set null,
+  updated_at timestamptz not null default now(),
+  primary key (research_project_id, list_key, item_key)
+);
+alter table public.project_checklists enable row level security;
+
+drop policy if exists "checklists viewable by the team" on public.project_checklists;
+create policy "checklists viewable by the team" on public.project_checklists for select to authenticated
+  using (research_project_id = public.my_research_project_id());
+drop policy if exists "team can add checklist items" on public.project_checklists;
+create policy "team can add checklist items" on public.project_checklists for insert to authenticated
+  with check (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+drop policy if exists "team can update checklist items" on public.project_checklists;
+create policy "team can update checklist items" on public.project_checklists for update to authenticated
+  using (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+
+-- مكتبة أدوات القياس المعتمدة — مشتركة بين كل الفرق (بيانات مستخرجة من دراسات منشورة، ما فيها أي بيانات فريق)
+create table if not exists public.validated_tools (
+  id uuid primary key default gen_random_uuid(),
+  tool_key text not null unique,
+  tool_name text not null check (char_length(tool_name) between 2 and 200),
+  measures text not null default '' check (char_length(measures) <= 400),
+  items text not null default '' check (char_length(items) <= 120),
+  reliability text not null default '' check (char_length(reliability) <= 300),
+  languages text not null default '' check (char_length(languages) <= 200),
+  population text not null default '' check (char_length(population) <= 300),
+  source_title text not null default '' check (char_length(source_title) <= 400),
+  source_url text not null default '' check (char_length(source_url) <= 600 and (source_url = '' or source_url ~* '^https?://')),
+  year int,
+  is_arabic boolean not null default false,
+  saved_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+alter table public.validated_tools enable row level security;
+
+drop policy if exists "tools library readable by members" on public.validated_tools;
+create policy "tools library readable by members" on public.validated_tools for select to authenticated using (true);
+drop policy if exists "members can add tools" on public.validated_tools;
+create policy "members can add tools" on public.validated_tools for insert to authenticated with check (saved_by = auth.uid());
+drop policy if exists "admin can delete tools" on public.validated_tools;
+create policy "admin can delete tools" on public.validated_tools for delete to authenticated using (public.is_super_admin());
+
+-- اقتراحات الميزات من المستخدمات — تُقرأ من صاحب النظام فقط
+create table if not exists public.feature_ideas (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  idea text not null check (char_length(idea) between 3 and 600),
+  page text,
+  created_at timestamptz not null default now()
+);
+alter table public.feature_ideas enable row level security;
+
+drop policy if exists "users add own ideas" on public.feature_ideas;
+create policy "users add own ideas" on public.feature_ideas for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists "users see own ideas or admin all" on public.feature_ideas;
+create policy "users see own ideas or admin all" on public.feature_ideas for select to authenticated
+  using (user_id = auth.uid() or public.is_super_admin());
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'supervisor_feedback') then
+    alter publication supabase_realtime add table public.supervisor_feedback;
+  end if;
+end $$;

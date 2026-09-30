@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   AlertTriangle,
@@ -15,7 +15,7 @@ import {
 import Logo from "../components/Logo";
 import Avatar from "../components/ui/Avatar";
 import { supabase } from "../lib/supabaseClient";
-import { formatDateLong, formatDateShort } from "../lib/date";
+import { formatDateShort } from "../lib/date";
 import type { AccentColor } from "../lib/colors";
 
 interface SnapshotTask {
@@ -54,6 +54,14 @@ type SnapshotMethodology = {
   studyToolType: string;
   studyToolName: string;
 } | null;
+
+interface ThreadMessage {
+  id: string;
+  sender: "supervisor" | "team";
+  senderName: string;
+  body: string;
+  createdAt: string;
+}
 
 interface Snapshot {
   teamName: string;
@@ -113,8 +121,23 @@ export default function SupervisorView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
+  const [nameDraft, setNameDraft] = useState(() => {
+    try {
+      return localStorage.getItem("wesync-supervisor-name") ?? "";
+    } catch {
+      return "";
+    }
+  });
   const [noteSubmitting, setNoteSubmitting] = useState(false);
   const [noteSent, setNoteSent] = useState(false);
+  const [noteError, setNoteError] = useState<string | null>(null);
+  const [thread, setThread] = useState<ThreadMessage[]>([]);
+
+  const loadThread = useCallback(async () => {
+    if (!supabase || !token) return;
+    const { data } = await supabase.rpc("get_supervisor_thread", { p_token: token });
+    if (Array.isArray(data)) setThread(data as ThreadMessage[]);
+  }, [token]);
 
   useEffect(() => {
     if (!supabase || !token) {
@@ -133,27 +156,44 @@ export default function SupervisorView() {
           setError("الرابط غير صالح أو منتهي.");
         } else {
           setSnapshot(data as Snapshot);
-          setNoteDraft((data as Snapshot).supervisorNote ?? "");
         }
         setLoading(false);
       });
-  }, [token]);
+    loadThread();
+    // نحدّث المحادثة كل نصف دقيقة عشان ترى ردود الفريق بدون ما تعيد فتح الرابط
+    const timer = setInterval(loadThread, 30_000);
+    return () => clearInterval(timer);
+  }, [token, loadThread]);
 
   const submitNote = async () => {
-    if (!supabase || !token) return;
+    if (!supabase || !token || noteSubmitting) return;
+    const body = noteDraft.trim();
+    if (!body) return;
     setNoteSubmitting(true);
-    const { error: rpcError } = await supabase.rpc("submit_supervisor_note", {
+    setNoteError(null);
+    const { error: rpcError } = await supabase.rpc("submit_supervisor_message", {
       p_token: token,
-      p_note: noteDraft,
+      p_body: body,
+      p_name: nameDraft.trim(),
     });
     setNoteSubmitting(false);
-    if (!rpcError) {
-      setSnapshot((prev) =>
-        prev ? { ...prev, supervisorNote: noteDraft.trim() || null, supervisorNoteAt: new Date().toISOString() } : prev,
+    if (rpcError) {
+      setNoteError(
+        rpcError.message.includes("rate limit")
+          ? "أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي."
+          : "ما انرسلت الرسالة — تأكدوا من الرابط وحاولوا مرة ثانية.",
       );
-      setNoteSent(true);
-      setTimeout(() => setNoteSent(false), 2500);
+      return;
     }
+    try {
+      if (nameDraft.trim()) localStorage.setItem("wesync-supervisor-name", nameDraft.trim());
+    } catch {
+      // ما يهم
+    }
+    setNoteDraft("");
+    setNoteSent(true);
+    setTimeout(() => setNoteSent(false), 2500);
+    loadThread();
   };
 
   if (loading) {
@@ -363,28 +403,58 @@ export default function SupervisorView() {
         <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
             <MessageSquareText size={15} className="text-brand-500" />
-            ملاحظة لفريقكم
+            محادثتكم مع الفريق
           </p>
           <p className="mt-1 text-xs text-brand-950/40">
-            تظهر لكل الفريق بلوحتهم الرئيسية — أرسلوا واحدة جديدة تستبدل القديمة.
-            {snapshot.supervisorNoteAt && (
-              <> آخر تحديث: {formatDateLong(snapshot.supervisorNoteAt.slice(0, 10))}</>
-            )}
+            رسائلكم توصل للفريق كتنبيه بلوحتهم، وردودهم تظهر هنا. كل الرسائل محفوظة — ما تنمسح برسالة جديدة.
           </p>
+
+          {thread.length > 0 && (
+            <ul className="mt-4 max-h-96 space-y-2.5 overflow-y-auto pe-1">
+              {thread.map((m) => {
+                const mine = m.sender === "supervisor";
+                return (
+                  <li key={m.id} className={`flex ${mine ? "justify-start" : "justify-end"}`}>
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
+                        mine ? "bg-brand-500/10 text-brand-950" : "border border-brand-100 bg-surface-muted text-brand-950"
+                      }`}
+                    >
+                      <p className="text-[11px] font-bold text-brand-950/45">
+                        {mine ? m.senderName || "أنتم" : m.senderName ? `الفريق — ${m.senderName}` : "الفريق"}
+                        <span className="ms-2 font-medium">{formatDateShort(m.createdAt.slice(0, 10))}</span>
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{m.body}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <input
+            value={nameDraft}
+            onChange={(e) => setNameDraft(e.target.value)}
+            maxLength={80}
+            placeholder="اسمكم (اختياري) — مثل: د. نورة"
+            className="mt-4 w-full rounded-2xl border border-brand-100 px-3.5 py-2.5 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
+          />
           <textarea
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
             rows={3}
+            maxLength={1500}
             placeholder="مثال: راجعوا صياغة الفجوة البحثية قبل الاجتماع الجاي، وركّزوا على ربطها بالهدف."
-            className="mt-3 w-full rounded-2xl border border-brand-100 px-3.5 py-3 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
+            className="mt-2 w-full rounded-2xl border border-brand-100 px-3.5 py-3 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
           />
+          {noteError && <p className="mt-2 text-xs font-semibold text-rose-600">{noteError}</p>}
           <button
             onClick={submitNote}
-            disabled={noteSubmitting}
+            disabled={noteSubmitting || !noteDraft.trim()}
             className="mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700 disabled:opacity-50"
           >
             {noteSent ? <Check size={15} /> : null}
-            {noteSubmitting ? "..." : noteSent ? "تم الإرسال" : "إرسال الملاحظة"}
+            {noteSubmitting ? "..." : noteSent ? "تم الإرسال" : "إرسال للفريق"}
           </button>
         </div>
 

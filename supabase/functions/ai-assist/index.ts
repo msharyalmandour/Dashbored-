@@ -25,6 +25,7 @@
 import Anthropic from "npm:@anthropic-ai/sdk@^0.68.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { BILLING_GUIDE, buildBillingFacts, isBillingQuestion, lastUserText } from "./billing.ts";
+import { COACH_PERSONA, loadTeamSnapshot } from "./coach.ts";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 
@@ -37,14 +38,14 @@ const supabaseAdmin = createClient(
 
 // حدود استخدام يومية/شهرية لكل فريق — تحكّم بتكلفة Anthropic API الحقيقية.
 // الرسائل ودّية بقصد (مو خطأ أحمر) عشان الطالبة تعرف بالضبط وش صار ومتى يرجع يشتغل.
-const CHAT_DAILY_LIMIT = 50;
+const CHAT_DAILY_LIMIT = 20;
 const SEARCH_MONTHLY_LIMIT = 10;
 // آخر ٢٠ رسالة (~١٠ تبادلات) تكفي كسياق لشات دعم بحثي — نحدّها عشان
 // محادثة طويلة جدًا ما تخلي تكلفة كل رسالة جديدة تكبر بلا حد (كل رسالة
 // جديدة أصلًا ترسل كل السجل قبلها)
 const MAX_CHAT_HISTORY = 20;
 const CHAT_LIMIT_MESSAGE =
-  "وصلتوا للحد اليومي لرسائل المساعد الذكي (٥٠ رسالة) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
+  "وصلتوا للحد اليومي لرسائل المساعد الذكي (٢٠ رسالة) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
 const AI_PLAN_REQUIRED_MESSAGE =
   "المساعد الذكي وباقي ميزات الذكاء الاصطناعي متاحة بباقة AI (٥٩ ريال شهريًا لكل عضو). تقدر قائدة الفريق تنتقل لها من صفحة «الباقات والاشتراك».";
 const SEARCH_LIMIT_MESSAGE =
@@ -201,11 +202,11 @@ translation).
   PICO، NCBE) عشان تعرف الطالبة إن الجواب موثوق ومو تخمين.
 `;
 
-const CHAT_SYSTEM = `أنت مساعد بحثي داخل تطبيق Wesync، يساعد فرق طلاب/طالبات
+const CHAT_SYSTEM = `أنت مساعد بحثي وكوتش داخل تطبيق Wesync، يساعد فرق طلاب/طالبات
 التمريض في بحث التخرج (المقترح، مراجعة الأدبيات، المنهجية). جاوب بإيجاز
 ووضوح، بالعربية إلا إذا كتب المستخدم بالإنجليزية، وركّز على مساعدتهم
 يفهمون ويتقدمون ببحثهم — لا تكتب لهم البحث كامل نيابة عنهم.
-
+${COACH_PERSONA}
 أحيانًا ترفق الطالبة صورة مع سؤالها (زي سكرين شوت تعليمات المشرفة، صفحة من
 دراسة، أو جزء من مقترحهم). اقرئي الصورة بعناية واربطي شرحك بمحتواها
 الفعلي، وإذا كان فيها نص غير واضح أو مقطوع، وضّحي إنك ما قدرتي تقرأينه
@@ -446,6 +447,12 @@ Deno.serve(async (req: Request) => {
       } catch (err) {
         console.error("billing facts skipped", err);
       }
+      // لقطة حيّة لوضع الفريق — تتغير كل مرة فما تنكاش (كتلة ثانية بعد الثابتة)
+      let teamSnapshot: string | null = null;
+      if (teamId) {
+        const page = typeof body.page === "string" ? body.page : undefined;
+        teamSnapshot = await loadTeamSnapshot(supabase, teamId, user.id, page);
+      }
       const response = await anthropic.messages.create({
         model: "claude-sonnet-5",
         max_tokens: 2000,
@@ -453,6 +460,7 @@ Deno.serve(async (req: Request) => {
         // ما ندفع سعره كامل إلا أول مرة، والتكرارات تكلفتها أقل بكثير
         system: [
           { type: "text", text: CHAT_SYSTEM, cache_control: { type: "ephemeral" } },
+          ...(teamSnapshot ? [{ type: "text" as const, text: teamSnapshot }] : []),
           ...(billingFacts ? [{ type: "text" as const, text: billingFacts }] : []),
         ],
         // effort منخفض يكفي لأسئلة الشات المباشرة (مو استنتاج معقّد متعدد

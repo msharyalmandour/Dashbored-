@@ -19,6 +19,15 @@ import {
   NotebookPen,
   FileCheck2,
   Search,
+  BarChart3,
+  ClipboardList,
+  ClipboardPen,
+  MessageSquareText,
+  CalendarClock,
+  GraduationCap,
+  Ruler,
+  FileDown,
+  BookA,
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
@@ -28,6 +37,8 @@ import { getResearcherTitle } from "../lib/identity";
 import { isFemaleUser } from "../lib/gender";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
+import IdeaButton from "./IdeaButton";
+import InstallAppButton from "./InstallAppButton";
 
 interface NavItem {
   to: string;
@@ -42,31 +53,55 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
     items: [{ to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true }],
   },
   {
-    label: "البحث",
+    label: "١. أفهم موضوعي",
     items: [
-      { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
-      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
-      { to: "/methodology", label: "المنهجية", icon: FlaskConical },
-      { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
-      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
       { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
+      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
+      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
     ],
   },
   {
-    label: "العمل والفريق",
+    label: "٢. أكتب وأخطط",
+    items: [
+      { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
+      { to: "/methodology", label: "المنهجية", icon: FlaskConical },
+      { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
+      { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
+    ],
+  },
+  {
+    label: "٣. أجمع وأحلل",
+    items: [
+      { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
+      { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardPen },
+      { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
+      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
+      { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "٤. أسلّم",
+    items: [
+      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
+      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
+      { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
+    ],
+  },
+  {
+    label: "الفريق",
     items: [
       { to: "/tasks", label: "مهامي", icon: ListChecks },
       { to: "/team", label: "الفريق", icon: Users },
       { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
+      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
+      { to: "/calendar", label: "التقويم", icon: CalendarDays },
+      { to: "/files", label: "الملفات", icon: FolderClosed },
     ],
   },
   {
     label: "أخرى",
     items: [
-      { to: "/files", label: "الملفات", icon: FolderClosed },
-      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
-      { to: "/calendar", label: "التقويم", icon: CalendarDays },
+      { to: "/glossary", label: "قاموس المصطلحات", icon: BookA },
       { to: "/story", label: "قصة بحثك", icon: Sparkles },
       { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
     ],
@@ -192,6 +227,8 @@ export default function Sidebar({
                 <LogOut size={16} />
               </button>
             </div>
+            <IdeaButton />
+            <InstallAppButton variant="light" className="mt-2 w-full" />
             <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
               <Sparkles size={12} />
               {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}

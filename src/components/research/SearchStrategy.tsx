@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
-import { useResearchAgent } from "../../hooks/useResearchAgent";
-import type { SearchStrategy as Strategy } from "../../data/types";
+import Term from "../Term";
+import { useResearchAgentState } from "../../context/ResearchAgentContext";
 
 function CopyBlock({ label, text }: { label: string; text: string }) {
   const [copied, setCopied] = useState(false);
@@ -54,23 +54,15 @@ function ListBlock({ title, items, tone }: { title: string; items?: string[]; to
 
 /** استراتيجية بحث بأسلوب PRISMA من عنوان بحثكم: PICO، كلمات مفتاحية عربي/إنجليزي،
     جمل بحث جاهزة للصق بـ PubMed/CINAHL/Scopus، ومعايير القبول والاستبعاد. */
-export default function SearchStrategy({ defaultTopic }: { defaultTopic: string }) {
-  const { busy, buildStrategy } = useResearchAgent();
-  const [topic, setTopic] = useState(defaultTopic);
-  const [strategy, setStrategy] = useState<Strategy | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-
-  const run = async () => {
-    if (!topic.trim() || busy) return;
-    setMessage(null);
-    setStrategy(null);
-    const r = await buildStrategy(topic.trim());
-    if (r.message || !r.strategy) {
-      setMessage(r.message ?? "تعذّر بناء الاستراتيجية — حاولوا مرة ثانية.");
-      return;
-    }
-    setStrategy(r.strategy);
-  };
+export default function SearchStrategy() {
+  const {
+    strategyTopic: topic,
+    setStrategyTopic: setTopic,
+    strategyBusy: busy,
+    strategy,
+    strategyMessage: message,
+    startStrategy: run,
+  } = useResearchAgentState();
 
   const pico = strategy?.pico;
 
@@ -79,10 +71,11 @@ export default function SearchStrategy({ defaultTopic }: { defaultTopic: string 
       <Card tone="cream">
         <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-950">
           <ListTree size={18} className="text-brand-500" />
-          ابنوا استراتيجية البحث (PRISMA)
+          ابنوا خطة البحث (<Term id="prisma">PRISMA</Term>)
         </h3>
         <p className="mb-4 text-xs text-brand-950/50">
-          كلمات مفتاحية وجمل بحث جاهزة ومعايير قبول واستبعاد — الدكاترة يطلبونها بمراجعة الأدبيات.
+          هذي «خطة» تبحثون بها بأنفسكم بقواعد البيانات (PubMed وCINAHL وScopus): كلمات مفتاحية، وجمل بحث جاهزة تنسخونها
+          وتلصقونها، ومعايير تقررون فيها أي دراسة تدخل مراجعتكم. الدكاترة غالبًا يطلبونها بمراجعة الأدبيات.
         </p>
         <div className="flex flex-col gap-3 md:flex-row">
           <input
@@ -98,9 +91,15 @@ export default function SearchStrategy({ defaultTopic }: { defaultTopic: string 
             className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-            {busy ? "جاري البناء..." : "ابنِ الاستراتيجية"}
+            {busy ? "جاري البناء..." : "ابنوا الخطة"}
           </button>
         </div>
+        {busy && (
+          <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
+            <Loader2 size={13} className="animate-spin" />
+            نجهّز لكم الخطة — ياخذ حوالي ١٠ ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.
+          </p>
+        )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
         )}
@@ -110,7 +109,8 @@ export default function SearchStrategy({ defaultTopic }: { defaultTopic: string 
         <div className="space-y-4">
           {pico && (
             <Card>
-              <p className="mb-3 text-sm font-extrabold text-brand-950">إطار PICO</p>
+              <p className="text-sm font-extrabold text-brand-950">إطار <Term id="pico">PICO</Term></p>
+              <p className="mb-3 text-[11px] text-brand-950/45">طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(
                   [

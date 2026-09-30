@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
   CheckCircle2,
@@ -100,6 +101,14 @@ export default function Tasks() {
   const [filter, setFilter] = useState("all");
   const [view, setView] = useState<"list" | "board">("list");
   const [showForm, setShowForm] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // ?new=1 (من البحث السريع Ctrl+K) يفتح نموذج مهمة جديدة مباشرة
+  useEffect(() => {
+    if (searchParams.get("new")) {
+      setShowForm(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [formError, setFormError] = useState<string | null>(null);
   const [justCompleted, setJustCompleted] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);

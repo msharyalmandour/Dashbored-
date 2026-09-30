@@ -1734,3 +1734,327 @@ end;
 $$;
 
 grant execute on function public.update_team_university(text) to authenticated;
+
+-- ============================================================
+-- سجل محادثات المساعد الذكي — خاص بكل مستخدم (ما يشوفه زملاؤه)
+-- الصور ما تنحفظ (تنحفظ إشارة نصية فقط) عشان حجم القاعدة وخصوصية المرفقات
+-- ============================================================
+create table if not exists public.ai_conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  title text not null default 'محادثة جديدة',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists ai_conversations_user_idx on public.ai_conversations (user_id, updated_at desc);
+alter table public.ai_conversations enable row level security;
+
+drop policy if exists "own ai conversations" on public.ai_conversations;
+create policy "own ai conversations"
+  on public.ai_conversations for all
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+create table if not exists public.ai_messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.ai_conversations (id) on delete cascade,
+  role text not null check (role in ('user', 'assistant')),
+  content text not null default '',
+  had_image boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists ai_messages_conv_idx on public.ai_messages (conversation_id, created_at);
+alter table public.ai_messages enable row level security;
+
+drop policy if exists "own ai messages" on public.ai_messages;
+create policy "own ai messages"
+  on public.ai_messages for all
+  to authenticated
+  using (exists (select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = auth.uid()))
+  with check (exists (select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = auth.uid()));
+-- ============================================================
+-- أدوات الدراسة: ملاحظات المشرف، قوائم التحقق، مكتبة الأدوات المعتمدة، اقتراحات الميزات
+-- ============================================================
+
+-- ملاحظات المشرف — كل ملاحظة صف مستقل يتتبعه الفريق حتى ينحل
+create table if not exists public.supervisor_feedback (
+  id uuid primary key default gen_random_uuid(),
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  comment text not null check (char_length(comment) between 1 and 1000),
+  section_key text,
+  status text not null default 'open' check (status in ('open', 'done')),
+  assignee_id uuid references public.profiles (id) on delete set null,
+  feedback_date date not null default current_date,
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+create index if not exists supervisor_feedback_project_idx on public.supervisor_feedback (research_project_id, status, created_at desc);
+alter table public.supervisor_feedback enable row level security;
+
+drop policy if exists "feedback viewable by the team" on public.supervisor_feedback;
+create policy "feedback viewable by the team" on public.supervisor_feedback for select to authenticated
+  using (research_project_id = public.my_research_project_id());
+drop policy if exists "team can add feedback" on public.supervisor_feedback;
+create policy "team can add feedback" on public.supervisor_feedback for insert to authenticated
+  with check (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()) and created_by = auth.uid());
+drop policy if exists "team can update feedback" on public.supervisor_feedback;
+create policy "team can update feedback" on public.supervisor_feedback for update to authenticated
+  using (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+drop policy if exists "team can delete feedback" on public.supervisor_feedback;
+create policy "team can delete feedback" on public.supervisor_feedback for delete to authenticated
+  using (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+
+-- قوائم تحقق مشتركة للفريق (ترجمة الاستبيان، تجهيز الموافقات…)
+create table if not exists public.project_checklists (
+  research_project_id uuid not null references public.research_projects (id) on delete cascade,
+  list_key text not null,
+  item_key text not null,
+  done boolean not null default false,
+  updated_by uuid references public.profiles (id) on delete set null,
+  updated_at timestamptz not null default now(),
+  primary key (research_project_id, list_key, item_key)
+);
+alter table public.project_checklists enable row level security;
+
+drop policy if exists "checklists viewable by the team" on public.project_checklists;
+create policy "checklists viewable by the team" on public.project_checklists for select to authenticated
+  using (research_project_id = public.my_research_project_id());
+drop policy if exists "team can add checklist items" on public.project_checklists;
+create policy "team can add checklist items" on public.project_checklists for insert to authenticated
+  with check (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+drop policy if exists "team can update checklist items" on public.project_checklists;
+create policy "team can update checklist items" on public.project_checklists for update to authenticated
+  using (research_project_id = public.my_research_project_id() and public.team_can_write(public.my_team_id()));
+
+-- مكتبة أدوات القياس المعتمدة — مشتركة بين كل الفرق (بيانات مستخرجة من دراسات منشورة، ما فيها أي بيانات فريق)
+create table if not exists public.validated_tools (
+  id uuid primary key default gen_random_uuid(),
+  tool_key text not null unique,
+  tool_name text not null check (char_length(tool_name) between 2 and 200),
+  measures text not null default '' check (char_length(measures) <= 400),
+  items text not null default '' check (char_length(items) <= 120),
+  reliability text not null default '' check (char_length(reliability) <= 300),
+  languages text not null default '' check (char_length(languages) <= 200),
+  population text not null default '' check (char_length(population) <= 300),
+  source_title text not null default '' check (char_length(source_title) <= 400),
+  source_url text not null default '' check (char_length(source_url) <= 600 and (source_url = '' or source_url ~* '^https?://')),
+  year int,
+  is_arabic boolean not null default false,
+  saved_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+alter table public.validated_tools enable row level security;
+
+drop policy if exists "tools library readable by members" on public.validated_tools;
+create policy "tools library readable by members" on public.validated_tools for select to authenticated using (true);
+drop policy if exists "members can add tools" on public.validated_tools;
+create policy "members can add tools" on public.validated_tools for insert to authenticated with check (saved_by = auth.uid());
+drop policy if exists "admin can delete tools" on public.validated_tools;
+create policy "admin can delete tools" on public.validated_tools for delete to authenticated using (public.is_super_admin());
+
+-- اقتراحات الميزات من المستخدمات — تُقرأ من صاحب النظام فقط
+create table if not exists public.feature_ideas (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  idea text not null check (char_length(idea) between 3 and 600),
+  page text,
+  created_at timestamptz not null default now()
+);
+alter table public.feature_ideas enable row level security;
+
+drop policy if exists "users add own ideas" on public.feature_ideas;
+create policy "users add own ideas" on public.feature_ideas for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists "users see own ideas or admin all" on public.feature_ideas;
+create policy "users see own ideas or admin all" on public.feature_ideas for select to authenticated
+  using (user_id = auth.uid() or public.is_super_admin());
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'supervisor_feedback') then
+    alter publication supabase_realtime add table public.supervisor_feedback;
+  end if;
+end $$;
+-- ============================================================
+-- رسائل المشرفة (محادثة عبر رابطها) + تقويم الجوال (رابط اشتراك ICS)
+-- ============================================================
+
+create table if not exists public.supervisor_messages (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  sender text not null check (sender in ('supervisor', 'team')),
+  sender_name text not null default '' check (char_length(sender_name) <= 80),
+  body text not null check (char_length(body) between 1 and 1500),
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  read_at timestamptz
+);
+create index if not exists supervisor_messages_team_idx on public.supervisor_messages (team_id, created_at desc);
+alter table public.supervisor_messages enable row level security;
+
+drop policy if exists "team sees supervisor messages" on public.supervisor_messages;
+create policy "team sees supervisor messages" on public.supervisor_messages for select to authenticated
+  using (team_id = public.my_team_id());
+drop policy if exists "team replies to supervisor" on public.supervisor_messages;
+create policy "team replies to supervisor" on public.supervisor_messages for insert to authenticated
+  with check (sender = 'team' and created_by = auth.uid() and team_id = public.my_team_id() and public.team_can_write(team_id));
+
+-- المشرفة (برمزها فقط، بدون حساب) تقرأ المحادثة
+create or replace function public.get_supervisor_thread(p_token uuid)
+returns jsonb
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id', m.id, 'sender', m.sender, 'senderName', m.sender_name, 'body', m.body, 'createdAt', m.created_at
+  ) order by m.created_at), '[]'::jsonb)
+  from (
+    select * from public.supervisor_messages
+    where team_id = (select id from public.teams where share_token = p_token)
+    order by created_at desc limit 100
+  ) m;
+$$;
+grant execute on function public.get_supervisor_thread(uuid) to anon, authenticated;
+
+-- المشرفة ترسل رسالة — حد ٢٠ رسالة بالساعة لكل فريق (حماية من إساءة استخدام الرابط)
+create or replace function public.submit_supervisor_message(p_token uuid, p_body text, p_name text default '')
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid;
+  v_body text := trim(coalesce(p_body, ''));
+begin
+  select id into v_team from public.teams where share_token = p_token;
+  if v_team is null then
+    raise exception 'invalid token';
+  end if;
+  if char_length(v_body) < 1 or char_length(v_body) > 1500 then
+    raise exception 'invalid length';
+  end if;
+  if (select count(*) from public.supervisor_messages
+      where team_id = v_team and sender = 'supervisor' and created_at > now() - interval '1 hour') >= 20 then
+    raise exception 'rate limit';
+  end if;
+  insert into public.supervisor_messages (team_id, sender, sender_name, body)
+  values (v_team, 'supervisor', left(trim(coalesce(p_name, '')), 80), v_body);
+  -- توافق مع لوحة الفريق القديمة (آخر ملاحظة)
+  update public.teams set supervisor_note = v_body, supervisor_note_at = now() where id = v_team;
+end;
+$$;
+grant execute on function public.submit_supervisor_message(uuid, text, text) to anon, authenticated;
+
+-- الفريق يعلّم رسائل المشرفة كمقروءة
+create or replace function public.mark_supervisor_messages_read()
+returns void
+language sql
+security definer set search_path = public
+as $$
+  update public.supervisor_messages set read_at = now()
+  where team_id = public.my_team_id() and sender = 'supervisor' and read_at is null;
+$$;
+grant execute on function public.mark_supervisor_messages_read() to authenticated;
+
+-- قائدة الفريق تغيّر رابط المشرفة لو تسرّب (الرابط القديم يتعطل)
+create or replace function public.rotate_share_token()
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_new uuid := gen_random_uuid();
+begin
+  if not exists (select 1 from public.profiles where id = auth.uid() and role = 'leader') then
+    raise exception 'leader only';
+  end if;
+  update public.teams set share_token = v_new where id = public.my_team_id();
+  return v_new;
+end;
+$$;
+grant execute on function public.rotate_share_token() to authenticated;
+
+-- ترحيل آخر ملاحظة قديمة كرسالة أولى (مرة وحدة)
+insert into public.supervisor_messages (team_id, sender, body, created_at, read_at)
+select t.id, 'supervisor', left(t.supervisor_note, 1500), coalesce(t.supervisor_note_at, now()), now()
+from public.teams t
+where t.supervisor_note is not null and trim(t.supervisor_note) <> ''
+  and not exists (select 1 from public.supervisor_messages m where m.team_id = t.id);
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'supervisor_messages') then
+    alter publication supabase_realtime add table public.supervisor_messages;
+  end if;
+end $$;
+
+-- رمز اشتراك تقويم الجوال — جدول منفصل عشان ما يظهر لزميلات الفريق (profiles تنقرأ من الفريق كله)
+create table if not exists public.calendar_feeds (
+  profile_id uuid primary key references public.profiles (id) on delete cascade,
+  token uuid not null unique default gen_random_uuid(),
+  created_at timestamptz not null default now()
+);
+alter table public.calendar_feeds enable row level security;
+-- بدون سياسات: الوصول فقط عبر الدوال أدناه ودالة calendar-feed (service role)
+
+create or replace function public.get_or_create_calendar_token()
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_token uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'not signed in';
+  end if;
+  insert into public.calendar_feeds (profile_id) values (auth.uid()) on conflict (profile_id) do nothing;
+  select token into v_token from public.calendar_feeds where profile_id = auth.uid();
+  return v_token;
+end;
+$$;
+grant execute on function public.get_or_create_calendar_token() to authenticated;
+
+create or replace function public.rotate_calendar_token()
+returns uuid
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_token uuid := gen_random_uuid();
+begin
+  if auth.uid() is null then
+    raise exception 'not signed in';
+  end if;
+  insert into public.calendar_feeds (profile_id, token) values (auth.uid(), v_token)
+  on conflict (profile_id) do update set token = excluded.token, created_at = now();
+  return v_token;
+end;
+$$;
+grant execute on function public.rotate_calendar_token() to authenticated;
+
+-- الدالة القديمة (نسخ الواجهة القديمة المخزّنة) تمر الآن عبر الدالة الجديدة عشان يسري الحد وتنحفظ بالسجل
+create or replace function public.submit_supervisor_note(p_token uuid, p_note text)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  perform public.submit_supervisor_message(p_token, p_note, '');
+end;
+$$;
+grant execute on function public.submit_supervisor_note(uuid, text) to anon, authenticated;
+
+-- دوال الأعضاء فقط: نسحب التنفيذ من anon/public
+revoke execute on function public.mark_supervisor_messages_read() from public, anon;
+revoke execute on function public.rotate_share_token() from public, anon;
+revoke execute on function public.get_or_create_calendar_token() from public, anon;
+revoke execute on function public.rotate_calendar_token() from public, anon;
+
+-- ============================================================
+-- منشئ استبيانات البحث + استبيان عام (pain-points) — مطبّق على القاعدة عبر migrations
+-- survey_responses / research_surveys / research_survey_responses
+-- (انظر الدوال submit_survey, get_public_survey, submit_survey_response)
+-- ============================================================

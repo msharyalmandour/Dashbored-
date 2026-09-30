@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Bell, Clock } from "lucide-react";
+import { AlertTriangle, Bell, Clock, GraduationCap } from "lucide-react";
 import { recentActivity, teamMembers } from "../data/mockData";
 import { useAuth } from "../context/AuthContext";
 import { useTasksData } from "../hooks/useTasksData";
+import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { daysUntil } from "../lib/date";
 import Avatar from "./ui/Avatar";
 
@@ -20,6 +21,8 @@ export default function NotificationsBell() {
   const [open, setOpen] = useState(false);
   const { currentUser, mode } = useAuth();
   const { tasks } = useTasksData();
+  const { messages: supervisorMsgs, unread: unreadSupervisor } = useSupervisorMessages();
+  const latestSupervisorMsg = [...supervisorMsgs].reverse().find((m) => m.sender === "supervisor" && !m.readAt) ?? null;
   const memberById = (id: string) => teamMembers.find((m) => m.id === id);
   const activityItems = mode === "mock" ? recentActivity.slice(0, 5) : [];
 
@@ -30,7 +33,8 @@ export default function NotificationsBell() {
     .sort((a, b) => a.days - b.days)
     .slice(0, 4);
 
-  const badgeCount = urgentTasks.length > 0 ? urgentTasks.length : activityItems.length;
+  const attention = urgentTasks.length + unreadSupervisor;
+  const badgeCount = attention > 0 ? attention : activityItems.length;
 
   return (
     <div className="relative">
@@ -43,7 +47,7 @@ export default function NotificationsBell() {
         {badgeCount > 0 && (
           <span
             className={`absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white ${
-              urgentTasks.length > 0 ? "bg-rose-500" : "bg-amber-accent-500"
+              attention > 0 ? "bg-rose-500" : "bg-amber-accent-500"
             }`}
           >
             {badgeCount}
@@ -55,10 +59,27 @@ export default function NotificationsBell() {
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute end-0 top-12 z-20 w-80 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
-            {urgentTasks.length > 0 && (
+            {attention > 0 && (
               <>
                 <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">يحتاج انتباهك</p>
                 <div className="mb-2 space-y-1">
+                  {latestSupervisorMsg && (
+                    <Link
+                      to="/feedback"
+                      onClick={() => setOpen(false)}
+                      className="flex items-start gap-2.5 rounded-xl bg-violet-50 px-2 py-2 hover:bg-violet-100/70"
+                    >
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-violet-500 text-white">
+                        <GraduationCap size={13} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-brand-950">
+                          {unreadSupervisor > 1 ? `${unreadSupervisor} رسائل جديدة من المشرفة` : "رسالة جديدة من المشرفة"}
+                        </p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-brand-950/55">{latestSupervisorMsg.body}</p>
+                      </div>
+                    </Link>
+                  )}
                   {urgentTasks.map(({ task, days }) => (
                     <Link
                       key={task.id}

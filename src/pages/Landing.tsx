@@ -16,18 +16,16 @@ import {
   X,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
-import RevealRotate from "../components/RevealRotate";
+import ScrollDashboard3D from "../components/ScrollDashboard3D";
+import HeroVideo, { LANDING_POSTER, LANDING_VIDEO } from "../components/HeroVideo";
+import WelcomeVoice from "../components/WelcomeVoice";
 import Logo from "../components/Logo";
-import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
 import CursorGlow from "../components/cinematic/CursorGlow";
 import { researchStages } from "../data/mockData";
-import overviewShot from "../assets/landing/overview.webp";
-import tasksShot from "../assets/landing/tasks.webp";
-import evidenceShot from "../assets/landing/evidence.webp";
-import celebrationShot from "../assets/landing/celebration.webp";
-import heroArt from "../assets/landing/hero.webp";
-import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures } from "../lib/plans";
+import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures, basicHighlights } from "../lib/plans";
+import PlanComparison from "../components/PlanComparison";
+import InstallAppButton from "../components/InstallAppButton";
 
 const StarsBackdrop = lazy(() =>
   import("../components/cinematic/Scene3D").then((m) => ({ default: m.StarsBackdrop })),
@@ -45,19 +43,6 @@ const stageBlurbs: Record<string, string> = {
   analysis: "تحللون النتائج وتستخرجون الدلالات",
   final: "تجمعون كل شي بتقرير نهائي جاهز للتسليم",
 };
-
-function BrowserFrame({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-amber-400/10 bg-neutral-900 shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.02]">
-      <div className="flex items-center gap-1.5 border-b border-amber-400/10 bg-neutral-800/70 px-3.5 py-2.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-      </div>
-      <img src={src} alt={alt} className="block w-full" loading="lazy" />
-    </div>
-  );
-}
 
 function GoldDivider() {
   return (
@@ -210,38 +195,13 @@ const faqs = [
   },
 ];
 
-const features: { image: string; title: string; desc: string; reverse?: boolean }[] = [
-  {
-    image: overviewShot,
-    title: "رحلة بحث واضحة من أول يوم للتسليم",
-    desc: "٨ مراحل بحثية واضحة، تعرفون وين وصلتوا بالضبط ووش الخطوة الجاية — بدون ما تسألون حد.",
-  },
-  {
-    image: tasksShot,
-    title: "مهام موزعة، واضح مين مسؤول عن وش",
-    desc: "كل عضو يشوف مهامه بالضبط، بأولويتها وتاريخ استحقاقها — وقائد الفريق يسند ويتابع بضغطة.",
-    reverse: true,
-  },
-  {
-    image: evidenceShot,
-    title: "مكتبة أدلة منظمة، مو ملفات مبعثرة",
-    desc: "كل دراسة تجمعونها مصنّفة حسب موضوعها وحالة مراجعتها — تلقونها بثوانٍ وقت الكتابة.",
-  },
-  {
-    image: celebrationShot,
-    title: "لحظات نفتخر فيها فعلاً",
-    desc: "من أول رسالة تكتبونها لنفسكم، للاحتفال الحقيقي يوم تسلّمون البحث النهائي.",
-    reverse: true,
-  },
-];
-
 export default function Landing() {
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
   const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
-    <div className="relative min-h-screen bg-neutral-950 text-white">
+    <div className="relative min-h-screen overflow-x-clip bg-neutral-950 text-white">
       <Suspense fallback={null}>
         <StarsBackdrop />
       </Suspense>
@@ -252,12 +212,9 @@ export default function Landing() {
           الكهرماني". مركز اللوحة يسار الصورة عمدًا، عشان النص العربي
           (اليمين) يقعد على مساحة داكنة ومقروءة */}
       <section className="relative isolate min-h-[100svh] overflow-hidden">
-        <img
-          src={heroArt}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 -z-10 h-[62%] w-full animate-[hero-zoom_22s_ease-out_both] object-cover object-[30%_center] motion-reduce:animate-none md:inset-0 md:h-full"
-        />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-[62%] w-full md:inset-0 md:h-full">
+          <HeroVideo poster={LANDING_POSTER} video={LANDING_VIDEO} objectPosition="30% center" />
+        </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-l from-black/75 via-black/25 to-transparent" />
         {/* على الجوال اللوحة تقعد بالنص السفلي تحت الكلام، عشان الشخص ما يختفي ورا الأزرار */}
         <div className="absolute inset-x-0 top-[38%] -z-10 h-28 bg-gradient-to-b from-neutral-950 to-transparent md:hidden" />
@@ -282,30 +239,33 @@ export default function Landing() {
               </a>
             ))}
           </nav>
+          <div className="flex items-center gap-2">
+          <WelcomeVoice />
+          <InstallAppButton className="hidden lg:inline-flex" />
           <Link
             to="/login"
             className="rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-sm font-bold text-white/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10"
           >
             تسجيل الدخول
           </Link>
+          </div>
         </header>
 
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-96px)] max-w-6xl flex-col justify-start px-6 pb-28 pt-6 md:justify-center md:pt-0">
           <div className="max-w-xl animate-[hero-in_0.9s_ease-out] [text-shadow:0_4px_28px_rgba(0,0,0,0.6)]">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-xs font-bold text-white/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md">
               <Sparkles size={13} className="text-amber-300" />
-              مبنية خصيصًا لفرق بحث التخرج التمريضي
+              لفرق بحث التخرج في كل التخصصات — بدأنا من التمريض
             </span>
             <h1 className="mt-7 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-white lg:text-7xl">
-              حوّلوا بحثكم
+              بحثكم يخلص
               <br />
               <span className="bg-gradient-to-l from-amber-200 via-amber-400 to-orange-500 bg-clip-text font-bold text-transparent">
-                لرؤية واضحة
+                بوقته، مو بآخر ليلة
               </span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-white/65">
-              Wesync تنظّم رحلة بحث فريقكم كامل — من المقترح للتسليم النهائي —
-              بمكان واحد هادي يشوفه الجميع.
+              مكان واحد لفريقكم: مهام، مقترح، منهجية، إحصاء، وملاحظات المشرفة — ومعاهم كوتش ذكي يقول لكم وش تسوون الحين.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
@@ -340,13 +300,8 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-4xl px-6 pb-16 pt-6 lg:pb-24">
-        <TiltCard maxTilt={3}>
-          <RevealRotate direction="left">
-            <BrowserFrame src={overviewShot} alt="لوحة تحكم Wesync" />
-          </RevealRotate>
-        </TiltCard>
-      </section>
+      {/* جولة التمرير ثلاثية الأبعاد: لوحة التحكم + الميزات + الباقات */}
+      <ScrollDashboard3D />
 
       {/* Facts strip */}
       <GoldDivider />
@@ -488,38 +443,6 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-6 py-14">
-        <div className="mb-14 text-center">
-          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
-            كل شي يحتاجه فريقكم، بمكان واحد
-          </h2>
-        </div>
-        <div className="space-y-20">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className={`grid grid-cols-1 items-center gap-10 lg:grid-cols-2 ${
-                f.reverse ? "lg:[&>*:first-child]:order-2" : ""
-              }`}
-            >
-              <RevealRotate direction={f.reverse ? "right" : "left"}>
-                <TiltCard maxTilt={3}>
-                  <BrowserFrame src={f.image} alt={f.title} />
-                </TiltCard>
-              </RevealRotate>
-              <Reveal delay={150}>
-                <div>
-                  <h3 className="font-display text-xl font-extrabold text-white lg:text-2xl">
-                    {f.title}
-                  </h3>
-                  <p className="mt-3 max-w-md text-white/55">{f.desc}</p>
-                </div>
-              </Reveal>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* FAQ */}
       <GoldDivider />
       <section id="faq" className="relative z-10 mx-auto max-w-2xl scroll-mt-8 px-6 py-16">
@@ -568,12 +491,7 @@ export default function Landing() {
                 <span className="text-sm font-semibold text-white/55">ريال / شهريًا لكل عضو</span>
               </p>
               <ul className="mt-7 flex-1 space-y-3">
-                {[
-                  "كل صفحات المقترح والمنهجية والمهام والأدلة",
-                  "دعوة كل أعضاء الفريق بدون حد",
-                  "رابط قراءة لمشرفكم بدون اشتراك منها",
-                  "تصدير المستندات والتقويم ومحاضر الاجتماعات",
-                ].map((item) => (
+                {basicHighlights.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-white/70">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/70">
                       <Check size={12} strokeWidth={3} />
@@ -629,6 +547,12 @@ export default function Landing() {
               </Link>
             </div>
           </div>
+
+          <h3 className="mt-14 font-display text-2xl font-extrabold text-white">وش الفرق بين Basic وAI؟</h3>
+          <p className="mx-auto mb-6 mt-2 max-w-md text-sm text-white/50">
+            Basic يدير بحثكم كامل. AI يضيف عليه كوتش يفكّر معكم ويدرّبكم ويختصر عليكم ساعات.
+          </p>
+          <PlanComparison variant="dark" />
 
           <p className="mt-6 text-xs text-white/40">
             التجربة ٧ أيام كاملة المزايا (بما فيها الذكاء الاصطناعي) لأي فريق جديد — وبعدها تختارون الباقة.

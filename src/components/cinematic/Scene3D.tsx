@@ -250,18 +250,23 @@ export function StarsBackdrop() {
   const reducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (reducedMotion) return null;
+  // على الجوال / الأجهزة الضعيفة / توفير البيانات: نتخطى WebGL تمامًا (الخلفية الداكنة كافية)
+  const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } }) : undefined;
+  const lowPower =
+    typeof window !== "undefined" &&
+    (window.innerWidth < 900 || (nav?.deviceMemory !== undefined && nav.deviceMemory <= 4) || (nav?.hardwareConcurrency ?? 8) <= 4 || nav?.connection?.saveData === true);
+  if (reducedMotion || lowPower) return null;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
       <Canvas
-        dpr={[1, 2]}
+        dpr={[1, 1.25]}
         camera={{ position: [0, 0, 1], fov: 60 }}
         gl={{ antialias: false, alpha: true }}
         eventSource={document.body}
       >
         <Suspense fallback={null}>
-          <Stars radius={60} depth={30} count={3500} factor={2.5} saturation={0} fade speed={0.3} />
+          <Stars radius={60} depth={30} count={1800} factor={2.5} saturation={0} fade speed={0.3} />
         </Suspense>
       </Canvas>
     </div>

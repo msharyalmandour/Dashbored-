@@ -8,7 +8,7 @@ const grainSvg =
 export default function CinematicOverlay() {
   const dust = useMemo(
     () =>
-      Array.from({ length: 14 }, (_, i) => ({
+      Array.from({ length: 6 }, (_, i) => ({
         left: `${(i * 37 + 11) % 100}%`,
         bottom: `${(i * 23) % 40}%`,
         size: 2 + ((i * 7) % 3),
@@ -52,7 +52,7 @@ export default function CinematicOverlay() {
       {/* حبيبات الفيلم */}
       <div
         className="absolute -inset-[10%] opacity-[0.07] mix-blend-overlay"
-        style={{ backgroundImage: grainSvg, animation: "cine-grain 0.9s steps(1) infinite" }}
+        style={{ backgroundImage: grainSvg, animation: "cine-grain 0.9s steps(1) 7" }}
       />
 
       {/* فينيت */}

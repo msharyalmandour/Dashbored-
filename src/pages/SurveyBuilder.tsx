@@ -11,10 +11,12 @@ import {
   Download,
   Eye,
   Lightbulb,
+  Loader2,
   Lock,
   MessageCircle,
   Plus,
   Send,
+  Sparkles,
   Target,
   Trash2,
   X,
@@ -22,6 +24,9 @@ import {
 import Card from "../components/ui/Card";
 import Term from "../components/Term";
 import SurveyRunner from "../components/survey/SurveyRunner";
+import AiLockedCard from "../components/AiLockedCard";
+import { callStudy } from "../hooks/useStudyTools";
+import { hasAiAccess } from "../lib/plans";
 import { useAuth } from "../context/AuthContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useSurveyResponses, useSurveys, type Survey } from "../hooks/useSurveys";
@@ -204,7 +209,7 @@ ${supervisor ? `المشرفة على الدراسة: ${supervisor}.\n` : ""}ل�
 export default function SurveyBuilder() {
   const { id } = useParams<{ id: string }>();
   const nav = useNavigate();
-  const { canWrite, currentUser } = useAuth();
+  const { canWrite, currentUser, team } = useAuth();
   const { project } = useResearchProject();
   const { surveys, loading, saving, update } = useSurveys();
   const { responses, reload, clear } = useSurveyResponses(id);
@@ -213,6 +218,9 @@ export default function SurveyBuilder() {
   const [pop, setPop] = useState("");
   const [margin, setMargin] = useState("5");
   const [loss, setLoss] = useState("10");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiMsg, setAiMsg] = useState<string | null>(null);
+  const [aiRes, setAiRes] = useState<{ overall: string; items: { id: string; issue: string; better: string; why: string }[]; missing: { question: string; why: string }[] } | null>(null);
 
   const s = surveys.find((x) => x.id === id);
   const results = useMemo(() => (s ? summarize(s.questions, responses) : []), [s, responses]);
@@ -243,6 +251,21 @@ export default function SurveyBuilder() {
   const link = `${window.location.origin}${window.location.pathname}#/s/${s.publicToken}`;
   const canOpen = s.title.trim() && s.questions.length > 0 && s.consentText.trim() && s.questions.every((q) => q.text.trim());
   const sample = sampleSizeProportion({ population: pop ? Number(pop) : null, margin: Number(margin) / 100 || 0.05, loss: Number(loss) / 100 || 0 });
+
+  const aiOk = hasAiAccess(team) && isSupabaseConfigured;
+  const reviewAi = async () => {
+    setAiBusy(true);
+    setAiMsg(null);
+    setAiRes(null);
+    const r = await callStudy<{ overall: string; items: { id: string; issue: string; better: string; why: string }[]; missing: { question: string; why: string }[] }>({
+      action: "survey",
+      goal: s.goal,
+      questions: s.questions.map((q) => ({ id: q.id, type: q.type, text: q.text, options: q.options })),
+    });
+    setAiBusy(false);
+    if (r.message || !r.data) setAiMsg(r.message ?? "تعذّرت المراجعة.");
+    else setAiRes({ overall: r.data.overall, items: r.data.items ?? [], missing: r.data.missing ?? [] });
+  };
 
   const copyLink = async () => {
     try {
@@ -403,6 +426,65 @@ export default function SurveyBuilder() {
                   </button>
                 ))}
               </div>
+            </Card>
+          )}
+
+          {isSupabaseConfigured && !hasAiAccess(team) && <AiLockedCard feature="مراجعة أسئلة الاستبيان بالذكاء الاصطناعي" />}
+          {aiOk && s.questions.length > 0 && (
+            <Card className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
+                    <Sparkles size={15} className="text-amber-accent-500" />
+                    مراجعة الذكاء الاصطناعي
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-brand-950/50">يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.</p>
+                </div>
+                <button onClick={reviewAi} disabled={aiBusy} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600 disabled:opacity-60">
+                  {aiBusy && <Loader2 size={13} className="animate-spin" />}
+                  راجعوا أسئلتي
+                </button>
+              </div>
+              {aiMsg && <p className="rounded-xl bg-surface-muted px-3 py-2 text-xs font-semibold text-brand-950/70">{aiMsg}</p>}
+              {aiRes && (
+                <div className="space-y-2.5">
+                  {aiRes.overall && <p className="rounded-xl bg-brand-500/10 px-3 py-2 text-xs leading-relaxed text-brand-950/80">{aiRes.overall}</p>}
+                  {aiRes.items.length === 0 && <p className="text-xs font-semibold text-emerald-600">ما لقينا مشاكل واضحة بالصياغة — أحسنتم 👏</p>}
+                  {aiRes.items.map((it) => {
+                    const idx = s.questions.findIndex((q) => q.id === it.id);
+                    return (
+                      <div key={it.id} className="rounded-xl border border-brand-100 p-3 text-xs">
+                        <p className="font-extrabold text-brand-950">
+                          سؤال {idx + 1}: <span className="text-amber-accent-600">{it.issue}</span>
+                        </p>
+                        <p className="mt-1 leading-relaxed text-brand-950/65">{it.why}</p>
+                        {it.better && (
+                          <div className="mt-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-emerald-600">
+                            <p className="leading-relaxed">✓ {it.better}</p>
+                            {!locked && (
+                              <button onClick={() => idx >= 0 && setQ(idx, { ...s.questions[idx], text: it.better })} className="mt-1.5 font-extrabold underline">
+                                استبدلوا سؤالي بهذي الصياغة
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {aiRes.missing.length > 0 && (
+                    <div className="rounded-xl border border-dashed border-brand-200 p-3 text-xs">
+                      <p className="font-extrabold text-brand-950">أسئلة ممكن تكون ناقصة لهدفكم:</p>
+                      <ul className="mt-1.5 space-y-1.5 text-brand-950/70">
+                        {aiRes.missing.map((m, k) => (
+                          <li key={k}>
+                            • {m.question} <span className="text-brand-950/45">— {m.why}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </Card>
           )}
 

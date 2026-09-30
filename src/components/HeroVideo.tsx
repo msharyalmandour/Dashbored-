@@ -11,6 +11,8 @@ export const WELCOME_AUDIO = `${BASE}/welcome-desmond.mp3`;
 function shouldSkipVideo(): boolean {
   if (typeof window === "undefined") return true;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return true;
+  // الجوال: صورة ثابتة فقط (يوفّر بطارية وبيانات ~٣ ميجا)
+  if (window.innerWidth < 768) return true;
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   return Boolean(c?.saveData || c?.effectiveType === "slow-2g" || c?.effectiveType === "2g");
 }
@@ -33,6 +35,32 @@ export default function HeroVideo({
   const [active, setActive] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+
+  // نوقف الفيديو لما الخلفية تطلع من الشاشة أو التبويب ينخفي — نفس الصورة بس بدون استهلاك
+  useEffect(() => {
+    if (skip || failed) return;
+    const el = box.current;
+    if (!el) return;
+    let visible = true;
+    const apply = () => {
+      const v = refs[active].current;
+      if (!v) return;
+      if (visible && !document.hidden) v.play().catch(() => {});
+      else v.pause();
+    };
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      apply();
+    }, { threshold: 0.05 });
+    io.observe(el);
+    document.addEventListener("visibilitychange", apply);
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", apply);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, skip, failed]);
 
   useEffect(() => {
     if (skip || failed) return;
@@ -59,7 +87,7 @@ export default function HeroVideo({
     }`;
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#03060a]" aria-hidden>
+    <div ref={box} className="absolute inset-0 overflow-hidden bg-[#03060a]" aria-hidden>
       <img
         src={poster}
         alt=""
@@ -76,7 +104,7 @@ export default function HeroVideo({
             poster={poster}
             muted
             playsInline
-            preload="auto"
+            preload={i === 0 ? "auto" : "metadata"}
             className={vidClass(i)}
             style={{ transitionDuration: `${FADE_SEC}s`, objectPosition }}
             onCanPlay={() => i === 0 && setReady(true)}

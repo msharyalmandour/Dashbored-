@@ -52,7 +52,7 @@ const prefersReduced = () => typeof window !== "undefined" && window.matchMedia?
 function Frame({ src, alt, chip }: { src: string; alt: string; chip?: string }) {
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-2xl border border-amber-300/20 bg-neutral-900 shadow-[0_40px_120px_-30px_rgba(251,146,60,0.45),0_20px_60px_-20px_rgba(0,0,0,0.9)]">
+      <div className="overflow-hidden rounded-2xl border border-amber-300/20 bg-neutral-900 shadow-[0_24px_60px_-28px_rgba(251,146,60,0.4)]">
         <div className="flex items-center gap-1.5 border-b border-white/10 bg-neutral-800/80 px-3.5 py-2">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
@@ -173,6 +173,7 @@ export default function ScrollDashboard3D() {
         }
         el.style.transform = `translate(-50%, -50%) translate3d(${x}%, ${y}%, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${sc})`;
         el.style.opacity = String(clamp(op, 0, 1));
+        el.style.visibility = op <= 0.01 ? "hidden" : "visible";
         el.style.zIndex = String(100 - Math.round(Math.abs(d) * 10));
       }
 
@@ -244,8 +245,8 @@ export default function ScrollDashboard3D() {
     <section ref={sectionRef} id="features" className="relative z-10 scroll-mt-0" style={{ height: "520vh" }}>
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
         {/* توهّج خلفي */}
-        <div className="pointer-events-none absolute -start-32 top-1/4 h-96 w-96 rounded-full bg-amber-500/15 blur-[120px]" />
-        <div className="pointer-events-none absolute -end-24 bottom-0 h-80 w-80 rounded-full bg-teal-400/10 blur-[110px]" />
+        <div className="pointer-events-none absolute -start-32 top-1/4 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(closest-side,rgba(245,158,11,0.16),transparent)]" />
+        <div className="pointer-events-none absolute -end-24 bottom-0 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(closest-side,rgba(45,212,191,0.10),transparent)]" />
 
         <div className="mx-auto grid h-full w-full max-w-6xl grid-cols-[minmax(0,1fr)] grid-rows-[auto_1fr] gap-2 px-5 py-6 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:grid-rows-1 lg:items-center lg:gap-10 lg:py-0">
           {/* النص — يمين بالعربي */}
@@ -298,7 +299,7 @@ export default function ScrollDashboard3D() {
                   ref={(el) => {
                     layerRefs.current[i] = el;
                   }}
-                  className="absolute left-1/2 top-1/2 w-[96%] max-w-[900px] will-change-transform lg:w-[112%]"
+                  className="absolute left-1/2 top-1/2 w-[96%] max-w-[900px] lg:w-[112%]"
                   style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden" }}
                 >
                   <Frame src={s.image!} alt={s.title} chip={s.chip} />

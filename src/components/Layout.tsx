@@ -102,11 +102,11 @@ export default function Layout() {
           فقط) — عشان تأثير الزجاج (backdrop-blur) بالبطاقات يبين بأي
           سكرول موضع، مو بس أعلى الصفحة. النسب المئوية تتكيف تلقائيًا
           مع طول أي صفحة كانت */}
-      <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] animate-[blob-drift_13s_ease-in-out_infinite] rounded-full bg-brand-500/30 blur-3xl motion-reduce:animate-none" />
-      <div className="pointer-events-none absolute -left-20 top-[22%] h-96 w-96 animate-[blob-drift_10s_ease-in-out_infinite] rounded-full bg-amber-accent-400/28 blur-3xl motion-reduce:animate-none" />
-      <div className="pointer-events-none absolute right-1/4 top-[45%] h-[26rem] w-[26rem] animate-[blob-drift_15s_ease-in-out_infinite] rounded-full bg-sky-accent-500/20 blur-3xl motion-reduce:animate-none" />
-      <div className="pointer-events-none absolute -left-16 top-[65%] h-80 w-80 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-accent-500/26 blur-3xl motion-reduce:animate-none" />
-      <div className="pointer-events-none absolute -right-20 top-[85%] h-96 w-96 animate-[blob-drift_12s_ease-in-out_infinite] rounded-full bg-brand-500/24 blur-3xl motion-reduce:animate-none" />
+      <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] rounded-full bg-brand-500/30 blur-3xl" />
+      <div className="pointer-events-none absolute -left-20 top-[22%] h-96 w-96 rounded-full bg-amber-accent-400/28 blur-3xl" />
+      <div className="pointer-events-none absolute right-1/4 top-[45%] h-[26rem] w-[26rem] rounded-full bg-sky-accent-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -left-16 top-[65%] h-80 w-80 rounded-full bg-amber-accent-500/26 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 top-[85%] h-96 w-96 rounded-full bg-brand-500/24 blur-3xl" />
       <CommandPalette />
       <AiAssistant />
       <TourGuide />

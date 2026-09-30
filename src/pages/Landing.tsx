@@ -17,17 +17,12 @@ import {
 } from "lucide-react";
 import Reveal from "../components/Reveal";
 import ScrollDashboard3D from "../components/ScrollDashboard3D";
-import RevealRotate from "../components/RevealRotate";
+import HeroVideo, { LANDING_POSTER, LANDING_VIDEO } from "../components/HeroVideo";
+import WelcomeVoice from "../components/WelcomeVoice";
 import Logo from "../components/Logo";
-import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
 import CursorGlow from "../components/cinematic/CursorGlow";
 import { researchStages } from "../data/mockData";
-import overviewShot from "../assets/landing/overview.webp";
-import tasksShot from "../assets/landing/tasks.webp";
-import evidenceShot from "../assets/landing/evidence.webp";
-import celebrationShot from "../assets/landing/celebration.webp";
-import heroArt from "../assets/landing/hero.webp";
 import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures, basicHighlights } from "../lib/plans";
 import PlanComparison from "../components/PlanComparison";
 import InstallAppButton from "../components/InstallAppButton";
@@ -48,19 +43,6 @@ const stageBlurbs: Record<string, string> = {
   analysis: "تحللون النتائج وتستخرجون الدلالات",
   final: "تجمعون كل شي بتقرير نهائي جاهز للتسليم",
 };
-
-function BrowserFrame({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-amber-400/10 bg-neutral-900 shadow-2xl shadow-black/40 transition-transform duration-300 hover:scale-[1.02]">
-      <div className="flex items-center gap-1.5 border-b border-amber-400/10 bg-neutral-800/70 px-3.5 py-2.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-        <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-      </div>
-      <img src={src} alt={alt} className="block w-full" loading="lazy" />
-    </div>
-  );
-}
 
 function GoldDivider() {
   return (
@@ -213,31 +195,6 @@ const faqs = [
   },
 ];
 
-const features: { image: string; title: string; desc: string; reverse?: boolean }[] = [
-  {
-    image: overviewShot,
-    title: "رحلة بحث واضحة من أول يوم للتسليم",
-    desc: "٨ مراحل بحثية واضحة، تعرفون وين وصلتوا بالضبط ووش الخطوة الجاية — بدون ما تسألون حد.",
-  },
-  {
-    image: tasksShot,
-    title: "مهام موزعة، واضح مين مسؤول عن وش",
-    desc: "كل عضو يشوف مهامه بالضبط، بأولويتها وتاريخ استحقاقها — وقائد الفريق يسند ويتابع بضغطة.",
-    reverse: true,
-  },
-  {
-    image: evidenceShot,
-    title: "مكتبة أدلة منظمة، مو ملفات مبعثرة",
-    desc: "كل دراسة تجمعونها مصنّفة حسب موضوعها وحالة مراجعتها — تلقونها بثوانٍ وقت الكتابة.",
-  },
-  {
-    image: celebrationShot,
-    title: "لحظات نفتخر فيها فعلاً",
-    desc: "من أول رسالة تكتبونها لنفسكم، للاحتفال الحقيقي يوم تسلّمون البحث النهائي.",
-    reverse: true,
-  },
-];
-
 export default function Landing() {
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
   const activeStage = researchStages.find((s) => s.id === hoveredStage) ?? researchStages[1];
@@ -255,12 +212,9 @@ export default function Landing() {
           الكهرماني". مركز اللوحة يسار الصورة عمدًا، عشان النص العربي
           (اليمين) يقعد على مساحة داكنة ومقروءة */}
       <section className="relative isolate min-h-[100svh] overflow-hidden">
-        <img
-          src={heroArt}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 -z-10 h-[62%] w-full animate-[hero-zoom_22s_ease-out_both] object-cover object-[30%_center] motion-reduce:animate-none md:inset-0 md:h-full"
-        />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-[62%] w-full md:inset-0 md:h-full">
+          <HeroVideo poster={LANDING_POSTER} video={LANDING_VIDEO} objectPosition="30% center" />
+        </div>
         <div className="absolute inset-0 -z-10 bg-gradient-to-l from-black/75 via-black/25 to-transparent" />
         {/* على الجوال اللوحة تقعد بالنص السفلي تحت الكلام، عشان الشخص ما يختفي ورا الأزرار */}
         <div className="absolute inset-x-0 top-[38%] -z-10 h-28 bg-gradient-to-b from-neutral-950 to-transparent md:hidden" />
@@ -286,6 +240,7 @@ export default function Landing() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
+          <WelcomeVoice />
           <InstallAppButton className="hidden lg:inline-flex" />
           <Link
             to="/login"
@@ -489,38 +444,6 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features-more" className="relative z-10 mx-auto max-w-6xl scroll-mt-8 px-6 py-14">
-        <div className="mb-14 text-center">
-          <h2 className="font-display text-2xl font-extrabold text-white lg:text-3xl">
-            كل شي يحتاجه فريقكم، بمكان واحد
-          </h2>
-        </div>
-        <div className="space-y-20">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className={`grid grid-cols-1 items-center gap-10 lg:grid-cols-2 ${
-                f.reverse ? "lg:[&>*:first-child]:order-2" : ""
-              }`}
-            >
-              <RevealRotate direction={f.reverse ? "right" : "left"}>
-                <TiltCard maxTilt={3}>
-                  <BrowserFrame src={f.image} alt={f.title} />
-                </TiltCard>
-              </RevealRotate>
-              <Reveal delay={150}>
-                <div>
-                  <h3 className="font-display text-xl font-extrabold text-white lg:text-2xl">
-                    {f.title}
-                  </h3>
-                  <p className="mt-3 max-w-md text-white/55">{f.desc}</p>
-                </div>
-              </Reveal>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* FAQ */}
       <GoldDivider />
       <section id="faq" className="relative z-10 mx-auto max-w-2xl scroll-mt-8 px-6 py-16">

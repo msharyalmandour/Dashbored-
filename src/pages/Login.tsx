@@ -1,22 +1,21 @@
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowRight, BookMarked, Coffee, Gift, GraduationCap, Moon, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, BookMarked, Gift, GraduationCap, ListChecks, Sparkles, TrendingUp, Users } from "lucide-react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
-import { getGreeting } from "../lib/date";
+import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
+import InstallAppButton from "../components/InstallAppButton";
 import Logo from "../components/Logo";
 
 const Scene3D = lazy(() => import("../components/cinematic/Scene3D"));
 
-/** ثلاث محطات حقيقية من رحلة المستخدمة بالتطبيق — نفس روح مؤشر "01/04"
-    بمرجع Slider Revolution، بس مربوطة بخطوات فعلية موجودة (مو رمز تحقق وهمي
-    مالنا نظام له أصلًا) */
-const journeySteps = [
-  { n: "01", label: "سجّلي دخولك" },
-  { n: "02", label: "افتحي لوحة فريقك" },
-  { n: "03", label: "أنجزوا بحثكم" },
+/** ثلاث وعود رئيسية بواجهة الدخول — كلها ميزات موجودة فعلًا بالتطبيق */
+const pitch = [
+  { icon: ListChecks, title: "من الفوضى لخطة", desc: "مهام موزّعة وتنبيه قبل ما تتأخرون، ومخطط يرجّعكم أسبوع بأسبوع من يوم التسليم." },
+  { icon: GraduationCap, title: "مشرفتكم بالصورة", desc: "رابط لها بدون حساب تشوف فيه تقدمكم وتراسلكم، وملاحظاتها تتحوّل لمهام تخلّصونها." },
+  { icon: Sparkles, title: "كوتش يعرف بحثكم", desc: "يشوف مهامكم ومراحلكم وينصحكم بالأولويات، ويدرّبكم على أسئلة المناقشة من مقترحكم." },
 ];
 
 /** أبرز مزايا Wesync — تظهر لأي فريق جديد وقت التسجيل عشان يعرفون وش
@@ -94,7 +93,6 @@ export default function Login() {
   const [searchParams] = useSearchParams();
   const inviteTeamId = searchParams.get("team");
   const referralCode = searchParams.get("ref");
-  const isNight = getGreeting().period === "night";
 
   // نلتقط هل المستخدمة كانت مسجلة دخولها أصلًا وقت أول تحميل للصفحة (زي
   // استرجاع جلسة محفوظة) — عشان ما نشغّل حركة الاحتفال إلا لما تسجّل دخول
@@ -236,6 +234,7 @@ export default function Login() {
       </ErrorBoundary>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_640px_320px_at_center,rgba(3,6,10,0.72),transparent_75%)]" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03060a] via-transparent to-[#03060a]/50" />
+      {!showForm && <div className="pointer-events-none absolute inset-0 bg-[#03060a]/60 sm:hidden" />}
 
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
         <header className="flex w-full max-w-6xl items-center justify-between">
@@ -247,53 +246,89 @@ export default function Login() {
 
         <main className="flex w-full flex-1 flex-col items-center justify-center py-10">
           {!showForm ? (
-            <div className="w-full max-w-2xl animate-[hero-in_0.9s_ease-out] text-center [text-shadow:0_4px_28px_rgba(3,6,10,0.9)]">
-              <p className="mb-4 text-xs italic tracking-[0.35em] text-amber-200/70">
-                منصة أبحاث التمريض
+            <div className="w-full max-w-3xl animate-[hero-in_0.9s_ease-out] text-center [text-shadow:0_4px_28px_rgba(3,6,10,0.9)]">
+              <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-amber-200/80">
+                لفرق بحث التخرج في التمريض
               </p>
-              <h1 className="font-display text-4xl font-extrabold leading-[1.15] text-white sm:text-6xl md:text-7xl">
-                فريقك <span className="text-amber-300">بانتظارك</span>
+              <h1 className="font-display text-4xl font-extrabold leading-[1.2] text-white sm:text-5xl md:text-6xl">
+                بحثكم يخلص <span className="text-amber-300">بوقته</span>
+                <br className="hidden sm:block" /> مو بآخر ليلة
               </h1>
-              <p className="mt-5 flex items-center justify-center gap-1.5 text-sm text-white/60">
-                {isNight ? (
-                  <>
-                    تسهر على بحثك؟ لا تنسى راحتك <Moon size={14} className="text-amber-300" />
-                  </>
-                ) : (
-                  <>
-                    جهّز فنجان قهوتك، ونبدأ رحلة بحثك <Coffee size={14} className="text-amber-300" />
-                  </>
-                )}
+              <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base">
+                مكان واحد لفريقكم: مهام، مقترح، منهجية، إحصاء، وملاحظات المشرفة — ومعاهم كوتش ذكي يعرف وضع بحثكم بالضبط ويقول لكم وش تسوون الحين.
               </p>
 
-              <button
-                onClick={() => setShowForm(true)}
-                className="group relative mt-10 rounded-full border border-white/25 px-10 py-3.5 text-sm font-bold tracking-wide text-white transition-colors hover:border-amber-300/70"
-              >
-                <span className="absolute inset-0 rounded-full bg-amber-400/0 blur-md transition-colors group-hover:bg-amber-400/25" />
-                <span className="relative">ابدأ</span>
-              </button>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <button
+                  onClick={() => {
+                    setIsSignUp(true);
+                    setShowForm(true);
+                  }}
+                  className="group relative rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-9 py-3.5 text-sm font-extrabold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.65)] transition-all hover:scale-[1.03] hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_14px_40px_-8px_rgba(251,191,36,0.85)]"
+                >
+                  ابدأوا مجانًا ٧ أيام
+                </button>
+                <button
+                  onClick={() => {
+                    setIsSignUp(false);
+                    setShowForm(true);
+                  }}
+                  className="rounded-full border border-white/25 px-8 py-3.5 text-sm font-bold text-white transition-colors hover:border-amber-300/70"
+                >
+                  عندي حساب
+                </button>
+              </div>
+              <p className="mt-3 text-[11px] font-semibold text-white/45">
+                كل المزايا مفتوحة بالتجربة (بما فيها الذكاء الاصطناعي) — بدون أي التزام
+              </p>
 
-              <div className="mx-auto mt-16 flex max-w-md items-start justify-between">
-                {journeySteps.map((step, i) => (
-                  <div key={step.n} className="flex flex-1 items-start">
-                    <div className="text-center">
-                      <p className="font-display text-lg font-bold text-white/30">{step.n}</p>
-                      <p className="mt-1 text-[11px] text-white/35">{step.label}</p>
-                    </div>
-                    {i < journeySteps.length - 1 && (
-                      <div className="mt-2.5 h-px flex-1 bg-white/10" />
-                    )}
+              <div className="mt-10 grid grid-cols-1 gap-3 text-start sm:grid-cols-3">
+                {pitch.map((c) => (
+                  <div key={c.title} className="rounded-3xl border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300">
+                      <c.icon size={17} />
+                    </span>
+                    <p className="mt-3 text-sm font-extrabold text-white">{c.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-white/55">{c.desc}</p>
                   </div>
                 ))}
               </div>
 
-              <button
-                onClick={() => setShowStory((s) => !s)}
-                className="mx-auto mt-10 block text-xs font-semibold text-white/35 underline decoration-white/20 underline-offset-4 hover:text-amber-300"
-              >
-                {showStory ? "إخفاء القصة" : "ليش سوّينا Wesync؟"}
-              </button>
+              <div className="mt-4 grid grid-cols-1 gap-3 text-start sm:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="flex items-baseline justify-between text-white">
+                    <span className="text-sm font-extrabold">Basic</span>
+                    <span className="text-xs font-semibold text-white/55">
+                      <b className="font-display text-lg text-white">{BASIC_PRICE}</b> ريال / شهريًا لكل عضو
+                    </span>
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-white/55">كل أدوات إدارة البحث: مهام، مقترح، منهجية، إحصاء، مشرفة، وتقويم جوالكم.</p>
+                </div>
+                <div className="rounded-3xl border border-amber-400/40 bg-amber-400/[0.07] p-4 shadow-[0_0_50px_-25px_rgba(251,191,36,0.6)]">
+                  <p className="flex items-baseline justify-between text-white">
+                    <span className="flex items-center gap-1.5 text-sm font-extrabold text-amber-200">
+                      <Sparkles size={13} /> AI
+                    </span>
+                    <span className="text-xs font-semibold text-white/55">
+                      <b className="font-display text-lg text-white">{AI_PRICE}</b> ريال / شهريًا لكل عضو
+                    </span>
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-white/60">
+                    كل Basic + كوتش يعرف بحثكم، وكيل يجيب دراسات حقيقية، تدريب مناقشة من مقترحكم، وتحسين الصياغة.
+                  </p>
+                  <p className="mt-1 text-[11px] font-bold text-amber-300">أول ١٥ فريق: {FOUNDER_AI_PRICE} ريال ثابتة</p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+                <InstallAppButton />
+                <button
+                  onClick={() => setShowStory((s) => !s)}
+                  className="text-xs font-semibold text-white/35 underline decoration-white/20 underline-offset-4 hover:text-amber-300"
+                >
+                  {showStory ? "إخفاء القصة" : "ليش سوّينا Wesync؟"}
+                </button>
+              </div>
               {showStory && (
                 <div className="mx-auto mt-4 max-w-md animate-[panel-in_0.4s_ease-out] rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-start backdrop-blur-sm">
                   <p className="text-sm leading-relaxed text-white/60">

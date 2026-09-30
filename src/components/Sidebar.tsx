@@ -37,6 +37,7 @@ import { isFemaleUser } from "../lib/gender";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
 import IdeaButton from "./IdeaButton";
+import InstallAppButton from "./InstallAppButton";
 
 interface NavItem {
   to: string;
@@ -225,6 +226,7 @@ export default function Sidebar({
               </button>
             </div>
             <IdeaButton />
+            <InstallAppButton variant="light" className="mt-2 w-full" />
             <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
               <Sparkles size={12} />
               {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}

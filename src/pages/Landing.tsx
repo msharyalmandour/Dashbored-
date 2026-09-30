@@ -27,7 +27,9 @@ import tasksShot from "../assets/landing/tasks.webp";
 import evidenceShot from "../assets/landing/evidence.webp";
 import celebrationShot from "../assets/landing/celebration.webp";
 import heroArt from "../assets/landing/hero.webp";
-import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures } from "../lib/plans";
+import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures, basicHighlights } from "../lib/plans";
+import PlanComparison from "../components/PlanComparison";
+import InstallAppButton from "../components/InstallAppButton";
 
 const StarsBackdrop = lazy(() =>
   import("../components/cinematic/Scene3D").then((m) => ({ default: m.StarsBackdrop })),
@@ -282,12 +284,15 @@ export default function Landing() {
               </a>
             ))}
           </nav>
+          <div className="flex items-center gap-2">
+          <InstallAppButton className="hidden lg:inline-flex" />
           <Link
             to="/login"
             className="rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-sm font-bold text-white/90 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10"
           >
             تسجيل الدخول
           </Link>
+          </div>
         </header>
 
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-96px)] max-w-6xl flex-col justify-start px-6 pb-28 pt-6 md:justify-center md:pt-0">
@@ -568,12 +573,7 @@ export default function Landing() {
                 <span className="text-sm font-semibold text-white/55">ريال / شهريًا لكل عضو</span>
               </p>
               <ul className="mt-7 flex-1 space-y-3">
-                {[
-                  "كل صفحات المقترح والمنهجية والمهام والأدلة",
-                  "دعوة كل أعضاء الفريق بدون حد",
-                  "رابط قراءة لمشرفكم بدون اشتراك منها",
-                  "تصدير المستندات والتقويم ومحاضر الاجتماعات",
-                ].map((item) => (
+                {basicHighlights.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-white/70">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/70">
                       <Check size={12} strokeWidth={3} />
@@ -629,6 +629,12 @@ export default function Landing() {
               </Link>
             </div>
           </div>
+
+          <h3 className="mt-14 font-display text-2xl font-extrabold text-white">وش الفرق بين Basic وAI؟</h3>
+          <p className="mx-auto mb-6 mt-2 max-w-md text-sm text-white/50">
+            Basic يدير بحثكم كامل. AI يضيف عليه كوتش يفكّر معكم ويدرّبكم ويختصر عليكم ساعات.
+          </p>
+          <PlanComparison variant="dark" />
 
           <p className="mt-6 text-xs text-white/40">
             التجربة ٧ أيام كاملة المزايا (بما فيها الذكاء الاصطناعي) لأي فريق جديد — وبعدها تختارون الباقة.

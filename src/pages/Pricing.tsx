@@ -4,15 +4,12 @@ import {
   CalendarClock,
   Check,
   CreditCard,
-  FileDown,
-  FolderClosed,
-  GraduationCap,
   Lock,
   ShieldCheck,
   Sparkles,
-  Users2,
 } from "lucide-react";
-import { AI_PRICE, BASIC_PRICE, aiFeatures, planPrice, type PlanId } from "../lib/plans";
+import { AI_PRICE, BASIC_PRICE, aiFeatures, basicHighlights, planPrice, type PlanId } from "../lib/plans";
+import PlanComparison from "../components/PlanComparison";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import GrowingPlant from "../components/GrowingPlant";
@@ -22,14 +19,6 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTeamPayments } from "../hooks/useTeamPayments";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
 import { daysUntil, formatDateLong } from "../lib/date";
-
-/** مشتركة بين الباقتين — كل أدوات إدارة البحث */
-const baseFeatures = [
-  { icon: FolderClosed, label: "كل صفحات إدارة البحث — مقترح، منهجية، مهام، أدلة" },
-  { icon: Users2, label: "دعوة كل أعضاء الفريق بدون حد" },
-  { icon: GraduationCap, label: "رابط قراءة لمشرفكم بدون أي اشتراك منها" },
-  { icon: FileDown, label: "تصدير المستندات والتقويم ومحاضر الاجتماعات" },
-];
 
 export default function Pricing() {
   const { team, isLeader, setTeamPlan } = useAuth();
@@ -127,12 +116,19 @@ export default function Pricing() {
                 )}
 
                 <ul className="mt-5 flex-1 space-y-2.5">
-                  {baseFeatures.map((f) => (
-                    <li key={f.label} className="flex items-start gap-2.5 text-sm text-brand-950/70">
+                  {isAi ? (
+                    <li className="flex items-start gap-2.5 text-sm font-bold text-brand-950/80">
                       <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />
-                      {f.label}
+                      كل مزايا Basic
                     </li>
-                  ))}
+                  ) : (
+                    basicHighlights.map((label) => (
+                      <li key={label} className="flex items-start gap-2.5 text-sm text-brand-950/70">
+                        <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />
+                        {label}
+                      </li>
+                    ))
+                  )}
                   {isAi ? (
                     aiFeatures.map((f) => (
                       <li key={f.title} className="flex items-start gap-2.5 text-sm text-brand-950/70">
@@ -177,6 +173,8 @@ export default function Pricing() {
           );
         })}
       </div>
+      <PlanComparison variant="light" />
+
       {planError && (
         <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{planError}</p>
       )}

@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { ArrowRight, BookMarked, Gift, GraduationCap, ListChecks, Sparkles, TrendingUp, Users } from "lucide-react";
-import ErrorBoundary from "../components/ErrorBoundary";
+import HeroVideo from "../components/HeroVideo";
 import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
@@ -9,8 +9,6 @@ import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
 import InstallAppButton from "../components/InstallAppButton";
 import CinematicOverlay from "../components/CinematicOverlay";
 import Logo from "../components/Logo";
-
-const Scene3D = lazy(() => import("../components/cinematic/Scene3D"));
 
 /** ثلاث وعود رئيسية بواجهة الدخول — كلها ميزات موجودة فعلًا بالتطبيق */
 const pitch = [
@@ -53,27 +51,6 @@ const saudiUniversities = [
   "جامعة الأمير سطام بن عبدالعزيز",
   "جامعة الإمام محمد بن سعود الإسلامية",
 ];
-
-/** أشكال هندسية شفافة توحي بـ"شبكة بحثية" — دوائر متراكبة وخطوط منحنية،
-    بحركة انسياب بطيئة جدًا لإحساس عمق بدون ما تشتت */
-function NetworkBackdrop() {
-  return (
-    <svg
-      className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.14]"
-      viewBox="0 0 800 800"
-      fill="none"
-      aria-hidden="true"
-    >
-      <g className="animate-[network-drift_46s_ease-in-out_infinite]" strokeWidth="1">
-        <circle cx="150" cy="180" r="130" stroke="#5eead4" />
-        <circle cx="640" cy="640" r="190" stroke="#ff6a00" />
-        <circle cx="690" cy="130" r="90" stroke="#5eead4" />
-        <path d="M110 410 C 260 320, 420 490, 630 260" stroke="#ffb547" />
-        <path d="M50 630 C 240 560, 380 710, 710 560" stroke="#5eead4" />
-      </g>
-    </svg>
-  );
-}
 
 /** لحظة انتقال سينمائية عند نجاح الدخول: تلاشي لطبقة داكنة + تكبير خفيف
     للشعار — بدل القطع الفجائي المباشر للوحة الفريق */
@@ -234,12 +211,8 @@ export default function Login() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050b12]">
       <div className="absolute inset-0 bg-gradient-to-b from-[#08211d] via-[#061318] to-[#03060a]" />
-      <NetworkBackdrop />
-      <ErrorBoundary>
-        <Suspense fallback={null}>
-          <Scene3D density="light" centerpieceScale={0.95} />
-        </Suspense>
-      </ErrorBoundary>
+      <HeroVideo />
+      <div className="pointer-events-none absolute inset-0 bg-[#03060a]/35" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_640px_320px_at_center,rgba(3,6,10,0.72),transparent_75%)]" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03060a] via-transparent to-[#03060a]/50" />
       {!showForm && <div className="pointer-events-none absolute inset-0 bg-[#03060a]/60 sm:hidden" />}

@@ -35,6 +35,9 @@ import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
 import Legal from "./pages/Legal";
 import Survey from "./pages/Survey";
+import SurveyPublic from "./pages/SurveyPublic";
+import Surveys from "./pages/Surveys";
+import SurveyBuilder from "./pages/SurveyBuilder";
 
 export default function App() {
   const { currentUser, passwordRecovery } = useAuth();
@@ -58,6 +61,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/legal/:doc" element={<Legal />} />
       <Route path="/survey" element={<Survey />} />
+      <Route path="/s/:token" element={<SurveyPublic />} />
       <Route path="/celebration" element={<Celebration />} />
       <Route path="/supervisor/:token" element={<SupervisorView />} />
       <Route element={<Layout />}>
@@ -71,6 +75,8 @@ export default function App() {
         <Route path="/stats" element={<StatsStudio />} />
         <Route path="/feedback" element={<SupervisorFeedback />} />
         <Route path="/study-kit" element={<StudyKit />} />
+        <Route path="/surveys" element={<Surveys />} />
+        <Route path="/surveys/:id" element={<SurveyBuilder />} />
         <Route path="/tools-library" element={<ToolsLibrary />} />
         <Route path="/planner" element={<Planner />} />
         <Route path="/viva" element={<Viva />} />

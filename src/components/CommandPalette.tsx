@@ -58,6 +58,7 @@ const baseItems: PaletteItem[] = [
   { to: "/stats", label: "استوديو الإحصاء", icon: Calculator, keywords: "spss احصاء تحليل statistics t-test" },
   { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
   { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList, keywords: "consent موافقة استبيان ترجمة" },
+  { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardList, keywords: "survey questionnaire استبيان استمارة اسئلة ليكرت عينة" },
   { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler, keywords: "scale questionnaire مقياس" },
   { to: "/planner", label: "مخطط الموعد", icon: CalendarClock, keywords: "deadline جدول تسليم" },
   { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap, keywords: "viva defense مناقشة" },

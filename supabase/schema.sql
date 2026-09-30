@@ -2052,3 +2052,9 @@ revoke execute on function public.mark_supervisor_messages_read() from public, a
 revoke execute on function public.rotate_share_token() from public, anon;
 revoke execute on function public.get_or_create_calendar_token() from public, anon;
 revoke execute on function public.rotate_calendar_token() from public, anon;
+
+-- ============================================================
+-- منشئ استبيانات البحث + استبيان عام (pain-points) — مطبّق على القاعدة عبر migrations
+-- survey_responses / research_surveys / research_survey_responses
+-- (انظر الدوال submit_survey, get_public_survey, submit_survey_response)
+-- ============================================================

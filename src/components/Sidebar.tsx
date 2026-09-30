@@ -21,6 +21,7 @@ import {
   Search,
   BarChart3,
   ClipboardList,
+  ClipboardPen,
   MessageSquareText,
   CalendarClock,
   GraduationCap,
@@ -72,6 +73,7 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
     label: "٣. أجمع وأحلل",
     items: [
       { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
+      { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardPen },
       { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
       { to: "/fieldwork", label: "الميدان", icon: MapPinned },
       { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },

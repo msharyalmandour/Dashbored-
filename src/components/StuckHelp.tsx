@@ -118,16 +118,12 @@ export default function StuckHelp({ isFemale, supervisorName, projectTitle }: St
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-3 rounded-2xl border border-brand-100 bg-paper/70 px-4 py-3 text-start hover:bg-surface-muted"
+        aria-label="أنا عالق — اختاروا وين علقتم"
+        title="أنا عالق؟ نوجّهك للأداة المناسبة أو نجهّز لك رسالة للمشرف/ة"
+        className="fixed bottom-[9.25rem] start-4 z-40 flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-paper/90 px-3.5 py-2 text-xs font-extrabold text-amber-accent-700 shadow-lg shadow-brand-950/15 backdrop-blur-xl transition-transform hover:scale-105 motion-reduce:transition-none md:bottom-[5.75rem] md:start-6 print:hidden"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-accent-50 text-amber-accent-600">
-          <LifeBuoy size={18} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-extrabold text-brand-950">أنا عالق</span>
-          <span className="block text-xs text-brand-950/55">{g(isFemale, "اختاري", "اختر")} وين علقت، ونوجّهك للأداة المناسبة أو نجهّز لك رسالة للمشرف/ة</span>
-        </span>
-        <ArrowLeft size={16} className="text-brand-950/40" />
+        <LifeBuoy size={16} />
+        {g(isFemale, "عالقة؟", "عالق؟")}
       </button>
 
       {open && (

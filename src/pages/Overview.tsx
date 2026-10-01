@@ -34,10 +34,8 @@ import RingProgress from "../components/ui/RingProgress";
 import StatCard from "../components/StatCard";
 import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
-import NextStepCard from "../components/NextStepCard";
 import StuckHelp from "../components/StuckHelp";
-import StageAdvanceCard from "../components/StageAdvanceCard";
-import GettingStarted from "../components/GettingStarted";
+import TodayCard from "../components/TodayCard";
 import { isStageReady } from "../lib/stageAdvance";
 import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
 import { summarizeCollection } from "../lib/dataCollection";
@@ -293,24 +291,6 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
-      {mode === "supabase" && (
-        <GettingStarted
-          hasTitle={!!project?.title?.trim()}
-          hasSupervisor={!!project?.supervisorName?.trim()}
-          hasMyTask={realTasks.some((t) => t.assigneeId === currentUser?.id)}
-        />
-      )}
-      <StageAdvanceCard
-        stages={realStages}
-        autoData={stageAutoData}
-        projectTitle={project?.title ?? ""}
-        isLeader={isLeader}
-        isFemale={isFemale}
-        updateStage={updateStage}
-        saveTitle={(title) => updateProject({ title })}
-      />
-      <NextStepCard steps={nextSteps} isFemale={isFemale} />
-      <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
       {showGuideBanner && (
         <AlertCard
           tone="warning"
@@ -614,6 +594,28 @@ export default function Overview() {
           </div>
         </div>
       </div>
+
+      {/* بطاقة «اليوم» تحت الهيرو: خطوة وحدة بدل أربع بطاقات متكدّسة فوقه */}
+      <TodayCard
+        stages={realStages}
+        autoData={stageAutoData}
+        projectTitle={project?.title ?? ""}
+        isLeader={isLeader}
+        isFemale={isFemale}
+        updateStage={updateStage}
+        saveTitle={(title) => updateProject({ title })}
+        nextSteps={nextSteps}
+        onboarding={
+          mode === "supabase"
+            ? {
+                hasTitle: !!project?.title?.trim(),
+                hasSupervisor: !!project?.supervisorName?.trim(),
+                hasMyTask: realTasks.some((t) => t.assigneeId === currentUser?.id),
+              }
+            : null
+        }
+      />
+      <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
 
       {/* قسم واحد مدمج بدل ثلاث مستطيلات مكدّسة — "جهّز قهوتك" + مشاركة
           التحديث + رسالة المستقبل، بإطار زجاجي ترابي واحد */}

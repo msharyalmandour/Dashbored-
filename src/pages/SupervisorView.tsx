@@ -257,7 +257,29 @@ export default function SupervisorView() {
           </span>
         </div>
 
-        <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
+        <nav aria-label="أقسام التقرير" className="sticky top-2 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto rounded-full border border-brand-100/70 bg-paper/85 p-1.5 shadow-sm shadow-brand-950/5 backdrop-blur-xl">
+          {[
+            ["sv-summary", "الملخص"],
+            ["sv-tasks", "المهام"],
+            ["sv-proposal", "المقترح"],
+            ...(snapshot.methodology ? [["sv-methodology", "المنهجية"]] : []),
+            ["sv-chat", "راسلوا الفريق"],
+          ].map(([id, label]) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold text-brand-950/60 hover:bg-brand-50 hover:text-brand-900"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+
+        <div id="sv-summary" className="scroll-mt-16 rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
           <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-paper p-6 sm:p-8">
             <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-accent-100/60 blur-2xl" />
             <div className="relative">
@@ -308,7 +330,7 @@ export default function SupervisorView() {
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div id="sv-tasks" className="mt-8 scroll-mt-16">
                 <p className="mb-3 text-sm font-bold text-brand-950/80">المهام</p>
                 <ul className="divide-y divide-brand-50">
                   {snapshot.tasks.map((t, i) => (
@@ -345,7 +367,7 @@ export default function SupervisorView() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
+        <div id="sv-proposal" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
             <BookOpenText size={14} className="text-brand-500" />
             المقترح البحثي
@@ -378,7 +400,7 @@ export default function SupervisorView() {
         </div>
 
         {snapshot.methodology && (
-          <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
+          <div id="sv-methodology" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
             <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
               <FlaskConical size={14} className="text-brand-500" />
               المنهجية
@@ -400,7 +422,7 @@ export default function SupervisorView() {
           </div>
         )}
 
-        <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
+        <div id="sv-chat" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
             <MessageSquareText size={15} className="text-brand-500" />
             محادثتكم مع الفريق

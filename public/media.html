@@ -34,14 +34,21 @@
   <p class="lead">كاروسيل، بوستات، وفيديو التعريف. اضغطوا «تحميل» لكل ملف.</p>
   <div class="tip">على الآيفون: إذا ما نزّل الملف، افتحوا الصورة واضغطوا عليها مطوّلاً ثم «إضافة إلى الصور». على الأندرويد: اضغطوا عليها مطوّلاً ثم «تنزيل الصورة».</div>
 
-  <h2>الكاروسيل (٧ شرائح)</h2>
-  <div class="grid" id="carousel"></div>
+  <h2>الهوية الموحّدة — Obsidian × Ember (٣ صور)</h2>
+  <p class="lead">أسود الموقع + برتقالي ember، نفس الخط، نفس القالب. هذي المعتمدة.</p>
+  <div class="grid" id="brand"></div>
 
-  <h2>بوست «Literature search» (٣ نسخ)</h2>
-  <div class="grid" id="ads"></div>
+  <details style="margin-top:36px">
+    <summary style="cursor:pointer;color:var(--mut)">صور قديمة خارج الهوية الموحّدة (للأرشيف فقط)</summary>
+    <h2>الكاروسيل (٧ شرائح)</h2>
+    <div class="grid" id="carousel"></div>
 
-  <h2>Editorial Cobalt (٣ صور جديدة)</h2>
-  <div class="grid" id="cobalt"></div>
+    <h2>بوست «Literature search» (٣ نسخ)</h2>
+    <div class="grid" id="ads"></div>
+
+    <h2>Editorial Cobalt (٣ صور)</h2>
+    <div class="grid" id="cobalt"></div>
+  </details>
 
   <h2>فيديو التعريف</h2>
   <video controls playsinline preload="metadata" src="https://uwdejlkvhsiqolmgihjq.supabase.co/storage/v1/object/public/site-media/films/wesync-brand-film-v5.mp4"></video>
@@ -63,6 +70,10 @@
     card("wesync-20s-woman-v2.png", "طالبة", "wesync-woman.png") +
     card("wesync-20s-man-v2.png", "طالب", "wesync-man.png") +
     card("wesync-20s-duo-v2.png", "الاثنين", "wesync-duo.png");
+  document.getElementById("brand").innerHTML =
+    card("wesync-brand-journal.png", "بحثكم يخلص بوقته", "wesync-brand-journal.png") +
+    card("wesync-brand-ai-search.png", "بحث الذكاء الاصطناعي", "wesync-brand-ai-search.png") +
+    card("wesync-brand-journey.png", "رحلة البحث", "wesync-brand-journey.png");
   document.getElementById("cobalt").innerHTML =
     card("wesync-cobalt-journal.png", "المجلة", "wesync-cobalt-journal.png") +
     card("wesync-cobalt-ai-search.png", "بحث الذكاء الاصطناعي", "wesync-cobalt-ai-search.png") +

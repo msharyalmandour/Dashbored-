@@ -1,11 +1,9 @@
 # Wesync — notes for Claude
 
 - Reply to the owner in Saudi-dialect Arabic; use they/them for unknown pronouns.
-- Marketing/ad visuals must follow `marketing/AD_STYLE.md` (owner asked on
-  2026-10-01): **A. Surreal Burnout** (humour: Arabic brush headline + English
-  system-message line over a photoreal meadow scene with funny micro-details) and
-  **B. Editorial Cobalt** (premium: cobalt-blue magazine look, one hero object,
-  condensed caps headline in amber, tiny uppercase micro-copy, Arabic in caption).
+- Marketing/ad visuals follow `marketing/AD_STYLE.md`: **one fixed identity** — Obsidian × Ember
+  (black `#080808`, orange `#ff6a00`/`#ff8a24`/`#ffb547`, Tajawal) taken from the site itself. Owner decided
+  (2026-10-01) it must never change: no cobalt blue, no meadow/green, no per-post style switching.
 - Existing Instagram posts workspace: `marketing/instagram-campaign/`.
 - Arabic text in generated media must be rendered by our own pipeline (Playwright +
   local font opened via `file://`), never by the image/video model.

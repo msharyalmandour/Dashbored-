@@ -1,9 +1,21 @@
-# Wesync — Ad Style Guide ("Surreal Burnout")
+# Wesync — Ad Style Guide
 
-**Standing direction from the owner (2026-10-01):** future Wesync ads should follow
-this style. It was given as a reference post (a surreal composite of an exhausted
-student asleep at a desk in a flower meadow, headline "عاجل / You've hit your usage
-limit"). We borrow the *formula*, never the artwork or its exact composition/text.
+Two approved directions, both given by the owner as reference posts (2026-10-01).
+We borrow the *taste and formula*, never the artwork, wording, name or logo of the
+reference accounts.
+
+| Mode | Use for | Feel |
+|---|---|---|
+| **A. Surreal Burnout** (below) | problem / humour / relatable posts | funny, photoreal, meadow, sticky notes |
+| **B. Editorial Cobalt** (section further down) | brand, launch, feature, "new release" posts | premium, minimal, magazine-like, cobalt blue |
+
+Rule of thumb: A makes people laugh and tag a friend; B makes the brand look
+expensive. Alternate them; resolution posts may mix (B layout, A micro-jokes).
+
+# A. Surreal Burnout
+
+**Reference:** a surreal composite of an exhausted student asleep at a desk in a
+flower meadow, headline "عاجل / You've hit your usage limit".
 
 ## The formula
 
@@ -84,3 +96,89 @@ CTA "جرّبوه ٧ أيام ببلاش — الرابط بالبايو".
 - Both genders and modest dress represented across the series.
 - Marketing claims must be true (AI features are in the AI plan; the search speed
   claim is unmeasured — don't state a number in ads until measured).
+
+---
+
+# B. Editorial Cobalt (premium brand look)
+
+**Reference (owner, 2026-10-01):** a Saudi specialty-coffee brand's Instagram grid:
+one electric cobalt-blue "magazine" as the hero object, a woman half-hidden behind
+an open print publication, a tall condensed headline in red-orange on blue, a
+glass of matcha held up against a flat sky-blue field, a drive-through lifestyle
+still with tiny captions. Everything is calm, sparse and expensive. Arabic lives in
+the caption; the artwork itself is English-led with tiny Arabic details.
+
+## Principles
+
+1. **One colour world per post.** A saturated *cobalt / ultramarine* field
+   (gradient from electric blue to deep navy) or a flat *sky blue / teal* wall.
+   Photos are colour-graded to sit inside that world (blue jacket on teal wall,
+   green drink on sky blue).
+2. **One hero object, lots of empty colour.** A single thing carries the post: a
+   printed publication / thesis binder, a phone, a cup, a hand holding the thing up.
+   Negative space is the luxury.
+3. **Print / magazine concept.** Publications, spines, covers, open spreads held in
+   front of faces. For Wesync: a "research journal" or thesis binder in cobalt with
+   the Wesync mark on the spine, issues like "The Journey of a Thesis" (carousel).
+4. **Typography does the talking, small and precise.**
+   - Headline: tall, tightly-leaded **condensed grotesque, ALL CAPS** (e.g. League
+     Gothic / Anton / Bebas Neue) in a *contrasting* colour — red-orange on cobalt
+     (for us: **Wesync amber/orange** `#f59e0b`–`#ff6a1a` on cobalt).
+   - Product/feature name: **tall condensed high-contrast display serif** in white
+     (e.g. Bodoni Moda condensed / Playfair Display narrow / Abril), 2 lines, very
+     large, on sky blue.
+   - Micro-copy: tiny **UPPERCASE, wide-tracked** sans lines ("NEW RELEASE", one
+     descriptive sentence, small brand mark top-centre like "92°" → ours: "WESYNC°"
+     or the ∞ mark). 3–4 text tiers max.
+   - Arabic: same restraint — Reem Kufi / IBM Plex Sans Arabic (not brush) for any
+     Arabic on art; the long Arabic copy goes in the caption.
+5. **Photography:** real-feeling, soft grain, natural light, modest people in
+   everyday moments (Saudi women incl. hijab, men in thobe/casual), hands holding
+   objects, car/café/campus lifestyle stills. No stock-photo gloss.
+6. **Copy voice:** short, warm, slightly poetic one-liners. *"A magazine brewed with
+   stories."* → *"A thesis organised with care."* *"Made for the morning rush."* →
+   *"Made for the all-nighters."* Never shout; no emoji on the art.
+7. **Series logic:** a 7-slide carousel (cover → story spreads → product slide →
+   CTA), identical grid and type system across slides, a tiny slide label.
+
+## Palette (tokens)
+
+| Token | Value | Use |
+|---|---|---|
+| cobalt | `#1d2bd8` → `#0a1470` gradient | main field |
+| ultramarine-deep | `#060b3a` | gradient floor / dark slides |
+| sky | `#6fa8dc` | flat field for product shots |
+| teal-wall | `#3f8f9a` | photo backdrops |
+| amber (Wesync) | `#f59e0b` / `#ff6a1a` | headline on cobalt, small accents |
+| white | `#ffffff` | serif display + micro-copy |
+
+## Wesync concept bank for this mode
+
+- **"YOUR THESIS JUST GOT A WHOLE NEW WORKFLOW."** — woman behind an open cobalt
+  journal (cover blank, spread with the headline in amber condensed caps).
+- **NEW RELEASE — AI LITERATURE SEARCH** (serif display on sky blue) with a hand
+  holding a phone against the sky; micro-copy: *"Type your title. Get related
+  studies."* (no number until the speed is measured).
+- **"THE JOURNEY OF A THESIS"** — 7-slide carousel: cobalt book on a gradient,
+  spine text "9 months · 1 research", spreads for Team · Tasks · Supervisor ·
+  Survey · Stats · AI Search, final CTA "Try 7 days free".
+- **Drive-through-style lifestyle:** students in a café/campus car-park moment,
+  caption "Made for the all-nighters."
+- **Supervisor spread:** a hand holding a printed "Chapter 3" with a sticky
+  "approved" — micro-copy "Feedback, in one place."
+
+## Image-generation recipe (mode B)
+
+- `gpt_image_2_5`, 4:5, quality high. Prompt skeleton: *"Editorial photograph,
+  minimal composition, [colour world], single hero object [object], [person]
+  half-hidden behind it, soft natural light, subtle film grain, generous empty
+  colour field for text. No text."* Then compose all type with Playwright
+  (condensed grotesque + serif + micro-copy), exactly like mode A.
+- Keep Wesync's own mark/name; never use the reference brand's name, logo or "92°".
+
+## Guardrails (both modes)
+
+- Original work only; references are mood, not templates.
+- True claims only (AI features need the AI plan; the "20 seconds" figure is not
+  yet measured — avoid it on art until it is).
+- No real university/brand marks, no real people, both genders and modest dress.

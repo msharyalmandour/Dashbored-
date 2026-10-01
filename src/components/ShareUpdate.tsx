@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, MessageCircle, Share2 } from "lucide-react";
+import { Check, Copy, ImageDown, MessageCircle, Share2 } from "lucide-react";
 import { projectMeta, recentActivity, teamMembers } from "../data/mockData";
 import { formatDateLong } from "../lib/date";
 
@@ -47,6 +47,47 @@ function buildRealMessage(props: Omit<ShareUpdateProps, "mode">): string {
 ${nextLine}تم إنشاؤه عبر Wesync`;
 }
 
+/** بطاقة تقدّم قابلة للنشر (1080×1350) بهوية Wesync — بدون عنوان البحث ولا أسماء، فقط النسبة والمرحلة. */
+async function makeProgressCard(percent: number, stageAr: string | null): Promise<Blob | null> {
+  const W = 1080;
+  const H = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  try {
+    await Promise.all([document.fonts.load("900 200px Tajawal"), document.fonts.load("700 44px Tajawal")]);
+  } catch {
+    // نكمل بالخط الاحتياطي
+  }
+  const bg = ctx.createLinearGradient(0, 0, W * 0.3, H);
+  bg.addColorStop(0, "#1d2bd8");
+  bg.addColorStop(1, "#0a1470");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = "center";
+  ctx.direction = "rtl";
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "700 30px Tajawal, sans-serif";
+  ctx.fillText("W E S Y N C  ∞", W / 2, 120);
+  ctx.fillStyle = "#f59e0b";
+  ctx.font = "900 330px Tajawal, sans-serif";
+  ctx.fillText(`${percent}%`, W / 2, 700);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 58px Tajawal, sans-serif";
+  ctx.fillText("من رحلة بحثنا انتهت", W / 2, 810);
+  if (stageAr) {
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.font = "500 44px Tajawal, sans-serif";
+    ctx.fillText(`مرحلتنا الحالية: ${stageAr}`, W / 2, 900);
+  }
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "500 34px Tajawal, sans-serif";
+  ctx.fillText("بحثكم يخلص بوقته.. مو بآخر ليلة", W / 2, H - 110);
+  return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+}
+
 /** يصيغ رسالة تحديث جاهزة (تقدم + آخر التحديثات) عشان تُرسل للمشرف/ة بضغطة،
     بدل ما تُكتب يدويًا كل مرة — من بيانات الفريق الحقيقية في وضع supabase،
     ومن بيانات تجريبية في وضع mock فقط */
@@ -54,6 +95,25 @@ export default function ShareUpdate(props: ShareUpdateProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const message = props.mode === "mock" ? buildMockMessage() : buildRealMessage(props);
+
+  const shareCard = async () => {
+    const blob = await makeProgressCard(props.overallProgress, props.currentStageAr);
+    if (!blob) return;
+    const file = new File([blob], "wesync-progress.png", { type: "image/png" });
+    try {
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
+      }
+    } catch {
+      // المستخدم أغلق نافذة المشاركة، أو غير مدعومة — ننزّل الصورة
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "wesync-progress.png";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  };
 
   const copy = async () => {
     try {
@@ -106,6 +166,13 @@ export default function ShareUpdate(props: ShareUpdateProps) {
               <MessageCircle size={16} />
               مشاركة عبر واتساب
             </a>
+            <button
+              onClick={shareCard}
+              className="flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-surface-muted"
+            >
+              <ImageDown size={16} />
+              بطاقة تقدّم (صورة)
+            </button>
           </div>
         </div>
       )}

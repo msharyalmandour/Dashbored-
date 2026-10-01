@@ -37,6 +37,7 @@ import PhaseTracker from "../components/PhaseTracker";
 import NextStepCard from "../components/NextStepCard";
 import StuckHelp from "../components/StuckHelp";
 import StageAdvanceCard from "../components/StageAdvanceCard";
+import GettingStarted from "../components/GettingStarted";
 import { isStageReady } from "../lib/stageAdvance";
 import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
 import { summarizeCollection } from "../lib/dataCollection";
@@ -292,6 +293,13 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
+      {mode === "supabase" && (
+        <GettingStarted
+          hasTitle={!!project?.title?.trim()}
+          hasSupervisor={!!project?.supervisorName?.trim()}
+          hasMyTask={realTasks.some((t) => t.assigneeId === currentUser?.id)}
+        />
+      )}
       <StageAdvanceCard
         stages={realStages}
         autoData={stageAutoData}

@@ -165,6 +165,19 @@ export default function Proposal() {
             <option value="mixed-methods">مختلط — Mixed methods</option>
           </select>
         </label>
+        <label className="mt-3 block text-sm">
+          <span className="mb-1 block font-semibold text-brand-950/70">حالة المشروع — Project Status</span>
+          <select
+            value={project?.status ?? "planning"}
+            onChange={(e) => updateProject({ status: e.target.value as NonNullable<typeof project>["status"] })}
+            className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+          >
+            <option value="planning">تخطيط</option>
+            <option value="active">جارٍ العمل</option>
+            <option value="writing">كتابة</option>
+            <option value="submitted">تم التسليم</option>
+          </select>
+        </label>
       </Card>
 
       {/* الملخص — Abstract: ١٥٠-٢٥٠ كلمة تغطي الخلفية والهدف والمنهج والخلاصة، مطلوب رسميًا وأول بند يُقيَّم بالروبريك */}

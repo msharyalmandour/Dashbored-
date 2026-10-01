@@ -73,7 +73,7 @@ export function useResearchProject() {
       });
   }, []);
 
-  const updateProject = async (updates: { title?: string; abstract?: string; supervisorName?: string; targetSubmissionDate?: string; researchType?: ResearchProject["researchType"] }) => {
+  const updateProject = async (updates: { title?: string; abstract?: string; supervisorName?: string; targetSubmissionDate?: string; researchType?: ResearchProject["researchType"]; status?: ResearchProject["status"] }) => {
     if (!isSupabaseConfigured) {
       setProject((prev) => (prev ? { ...prev, ...updates } : prev));
       return { error: undefined as string | undefined };
@@ -82,6 +82,7 @@ export function useResearchProject() {
     const dbUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (updates.title !== undefined) dbUpdates.title = updates.title;
     if (updates.targetSubmissionDate !== undefined) dbUpdates.target_submission_date = updates.targetSubmissionDate;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.researchType !== undefined) dbUpdates.research_type = updates.researchType;
     if (updates.abstract !== undefined) dbUpdates.abstract = updates.abstract;
     if (updates.supervisorName !== undefined) dbUpdates.supervisor_name = updates.supervisorName;

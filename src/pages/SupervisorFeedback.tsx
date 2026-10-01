@@ -12,6 +12,7 @@ import { callStudy } from "../hooks/useStudyTools";
 import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { notifySupervisor } from "../lib/supervisorEmail";
 import { formatDateLong } from "../lib/date";
 
 interface Draft {
@@ -32,6 +33,7 @@ export default function SupervisorFeedback() {
   const [replyBusy, setReplyBusy] = useState(false);
   const [replyErr, setReplyErr] = useState<string | null>(null);
   const [nudge, setNudge] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const [raw, setRaw] = useState("");
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
@@ -67,6 +69,9 @@ export default function SupervisorFeedback() {
     else {
       setReplyText("");
       setNudge(true);
+      setEmailSent(false);
+      // لو المشرفة مفعّلة الإيميل يوصلها تنبيه تلقائي (بحد زمني)، وإلا يبقى الواتساب
+      if (isSupabaseConfigured) notifySupervisor().then((res) => setEmailSent(!!res.data?.sent));
     }
   };
 
@@ -223,7 +228,7 @@ export default function SupervisorFeedback() {
           {replyErr && <p className="text-xs font-semibold text-rose-600">{replyErr}</p>}
           {nudge && supervisorLink && (
             <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/70 p-3">
-              <p className="min-w-0 flex-1 text-xs font-semibold text-brand-950/70">انرسل ردّكم. المشرفة ما يجيها إشعار — نبّهوها بواتساب عشان تشوفه.</p>
+              <p className="min-w-0 flex-1 text-xs font-semibold text-brand-950/70">{emailSent ? "انرسل ردّكم ووصلها إيميل تنبيه ✓ — تقدرون تنبّهونها بواتساب أيضًا لو الموضوع عاجل." : "انرسل ردّكم. لو المشرفة مفعّلة إشعارات الإيميل يوصلها تنبيه، وإلا نبّهوها بواتساب عشان تشوفه."}</p>
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(nudgeMessage)}`}
                 target="_blank"

@@ -28,6 +28,7 @@ import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { formatDateLong } from "../lib/date";
+import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
 
 function daysAgo(iso: string): number {
   const diff = Date.now() - new Date(iso).getTime();
@@ -163,6 +164,11 @@ function SupervisorContactSection() {
   const [reminderCopied, setReminderCopied] = useState(false);
   const [rotating, setRotating] = useState(false);
   const [rotateError, setRotateError] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<EmailStatus | null>(null);
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    getMyEmailStatus().then(setEmailStatus);
+  }, []);
 
   if (!team?.shareToken) return null;
 
@@ -245,7 +251,21 @@ function SupervisorContactSection() {
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? "تم النسخ" : "نسخ الرابط"}
             </button>
+            <a
+              href={`mailto:?subject=${encodeURIComponent("رابط متابعة فريقنا البحثي على Wesync")}&body=${encodeURIComponent(reminderMessage)}`}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-brand-100 px-3.5 py-2 text-xs font-bold text-brand-700 hover:bg-surface-muted"
+            >
+              <Mail size={13} />
+              إرسال بالإيميل
+            </a>
           </div>
+          <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
+            {emailStatus?.state === "active"
+              ? `إشعارات الإيميل مفعّلة للمشرفة (${emailStatus.emailMasked}) — يوصلها تنبيه كل ما تردّون عليها.`
+              : emailStatus?.state === "pending"
+                ? `المشرفة طلبت إشعارات الإيميل (${emailStatus.emailMasked}) وما أكّدتها بعد.`
+                : "المشرفة تقدر تفعّل إشعارات الإيميل بنفسها من رابطها، وبعدها يوصلها تنبيه كل ما تردّون عليها."}
+          </p>
           {isLeader && (
             <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">
               أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم{" "}

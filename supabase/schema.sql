@@ -2058,3 +2058,74 @@ revoke execute on function public.rotate_calendar_token() from public, anon;
 -- survey_responses / research_surveys / research_survey_responses
 -- (انظر الدوال submit_survey, get_public_survey, submit_survey_response)
 -- ============================================================
+
+-- ============================================================
+-- إشعارات الإيميل للمشرفة — تشترك بنفسها من رابطها (تأكيد مزدوج)
+-- الوصول للجدول فقط من دالة Edge باسم supervisor-email (service role)؛ الإيميل ما يظهر لأي عميل.
+-- ============================================================
+create table if not exists public.supervisor_email_subscriptions (
+  team_id uuid primary key references public.teams (id) on delete cascade,
+  email text not null check (char_length(email) between 5 and 254),
+  confirm_token uuid not null default gen_random_uuid(),
+  confirmed_at timestamptz,
+  unsubscribed_at timestamptz,
+  requested_at timestamptz not null default now(),
+  requests_day date not null default current_date,
+  requests_today int not null default 0,
+  last_notified_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.supervisor_email_subscriptions enable row level security;
+
+create or replace function public._mask_email(p_email text)
+returns text
+language sql
+immutable
+as $$
+  select case
+    when p_email is null or position('@' in p_email) < 2 then ''
+    else left(split_part(p_email, '@', 1), 1) || '***@' || split_part(p_email, '@', 2)
+  end;
+$$;
+
+create or replace function public.get_supervisor_email_status(p_token uuid)
+returns jsonb
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce((
+    select jsonb_build_object(
+      'state', case
+        when s.unsubscribed_at is not null then 'off'
+        when s.confirmed_at is not null then 'active'
+        else 'pending' end,
+      'emailMasked', public._mask_email(s.email)
+    )
+    from public.supervisor_email_subscriptions s
+    join public.teams t on t.id = s.team_id
+    where t.share_token = p_token
+  ), jsonb_build_object('state', 'none', 'emailMasked', ''));
+$$;
+grant execute on function public.get_supervisor_email_status(uuid) to anon, authenticated;
+
+create or replace function public.get_my_supervisor_email_status()
+returns jsonb
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce((
+    select jsonb_build_object(
+      'state', case
+        when s.unsubscribed_at is not null then 'off'
+        when s.confirmed_at is not null then 'active'
+        else 'pending' end,
+      'emailMasked', public._mask_email(s.email)
+    )
+    from public.supervisor_email_subscriptions s
+    where s.team_id = public.my_team_id()
+  ), jsonb_build_object('state', 'none', 'emailMasked', ''));
+$$;
+grant execute on function public.get_my_supervisor_email_status() to authenticated;
+revoke execute on function public.get_my_supervisor_email_status() from anon;

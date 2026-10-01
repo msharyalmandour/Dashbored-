@@ -9,9 +9,9 @@ import { backwardPlan, daysBetweenIso } from "../lib/planner";
 import { formatDateShort, toISODate } from "../lib/date";
 
 export default function Planner() {
-  const { canWrite } = useAuth();
+  const { canWrite, isLeader } = useAuth();
   const { showToast } = useToast();
-  const { project } = useResearchProject();
+  const { project, updateProject } = useResearchProject();
   const { stages, updateStage } = useResearchStages();
 
   const todayIso = toISODate(new Date());
@@ -47,6 +47,11 @@ export default function Planner() {
     let failed = 0;
     for (const r of plan.rows.filter((x) => !x.isBuffer)) {
       const { error } = await updateStage(r.id, { startDate: r.start, targetDate: r.target });
+      if (error) failed++;
+    }
+    // موعد التسليم نفسه كان ما ينحفظ بأي مكان — بدونه يظل تنبيه «حدّدوا الموعد» وعدّاد الأيام فاضيين
+    if (isLeader && endISO && endISO !== project?.targetSubmissionDate) {
+      const { error } = await updateProject({ targetSubmissionDate: endISO });
       if (error) failed++;
     }
     setApplying(false);

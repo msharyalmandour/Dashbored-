@@ -112,6 +112,17 @@ export default function Tasks() {
   const [formError, setFormError] = useState<string | null>(null);
   const [justCompleted, setJustCompleted] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  // ?task=<id> (من تنبيهات الرئيسية والجرس) يفتح المهمة نفسها وينزل لها
+  const [scrollToTaskId, setScrollToTaskId] = useState<string | null>(null);
+  useEffect(() => {
+    const id = searchParams.get("task");
+    if (id) {
+      setFilter("all");
+      setExpandedTaskId(id);
+      setScrollToTaskId(id);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [taskAttachments, setTaskAttachments] =
     useState<Record<string, AttachedFileMeta>>(loadTaskAttachments);
 
@@ -128,6 +139,15 @@ export default function Tasks() {
     const timer = setTimeout(() => setJustCompleted(false), 1000);
     return () => clearTimeout(timer);
   }, [justCompleted]);
+
+  useEffect(() => {
+    if (!scrollToTaskId) return;
+    const el = document.getElementById(`task-${scrollToTaskId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setScrollToTaskId(null);
+    }
+  }, [scrollToTaskId, tasks]);
 
   const assignableMembers = roster.filter((m) => m.id !== currentUser?.id);
 
@@ -358,9 +378,10 @@ export default function Tasks() {
             return (
               <Card
                 key={task.id}
+                id={`task-${task.id}`}
                 tone="paper"
                 interactive
-                className="card-terra flex flex-col gap-3"
+                className="card-terra flex scroll-mt-24 flex-col gap-3"
                 style={{ animationDelay: `${(i % 6) * 1.2}s` }}
               >
                 <div className="flex items-start gap-3">

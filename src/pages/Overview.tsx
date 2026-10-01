@@ -676,9 +676,9 @@ export default function Overview() {
                     ) : (
                       <Circle size={18} className="shrink-0 text-sky-accent-400" />
                     )}
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-brand-950">
+                    <Link to={`/tasks?task=${task.id}`} className="min-w-0 flex-1 truncate text-sm font-medium text-brand-950 hover:text-brand-700">
                       {task.title}
-                    </span>
+                    </Link>
                     <div className="flex items-center gap-2">
                       {assignee && <Avatar initials={assignee.initials} color={assignee.color} size="sm" />}
                       <span

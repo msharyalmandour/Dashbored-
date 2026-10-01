@@ -43,7 +43,7 @@ export function computeNextSteps(input: {
       id: "my-late",
       title: myLate.length === 1 ? "عندك مهمة متأخرة" : `عندك ${myLate.length} مهام متأخرة`,
       why: `«${myLate[0].title}»${myLate.length > 1 ? " وغيرها" : ""} — خلّصوها أول شي أو غيّروا موعدها لو ما تناسب.`,
-      to: "/tasks",
+      to: myLate.length === 1 ? `/tasks?task=${myLate[0].id}` : "/tasks",
       cta: "افتحوا مهامكم",
       tone: "urgent",
     });

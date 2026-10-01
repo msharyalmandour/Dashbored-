@@ -33,6 +33,7 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 import Pricing from "./pages/Pricing";
 import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
+import SupervisorTeams from "./pages/SupervisorTeams";
 import Legal from "./pages/Legal";
 import Survey from "./pages/Survey";
 import SurveyPublic from "./pages/SurveyPublic";
@@ -63,6 +64,7 @@ export default function App() {
       <Route path="/survey" element={<Survey />} />
       <Route path="/s/:token" element={<SurveyPublic />} />
       <Route path="/celebration" element={<Celebration />} />
+      <Route path="/supervisor" element={<SupervisorTeams />} />
       <Route path="/supervisor/:token" element={<SupervisorView />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Overview />} />

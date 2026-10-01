@@ -10,3 +10,5 @@
 - Arabic text in generated media must be rendered by our own pipeline (Playwright +
   local font opened via `file://`), never by the image/video model.
 - Don't push to `main` directly; PRs only when the owner asks.
+- Long-term goals (Wesync Meet vs Zoom/Teams, wow features, 10 usability ideas) live
+  in `docs/ROADMAP.md` — owner asked to keep them (2026-10-01). Proposals only; not built.

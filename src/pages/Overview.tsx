@@ -38,6 +38,8 @@ import NextStepCard from "../components/NextStepCard";
 import StuckHelp from "../components/StuckHelp";
 import StageAdvanceCard from "../components/StageAdvanceCard";
 import { isStageReady } from "../lib/stageAdvance";
+import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
+import { summarizeCollection } from "../lib/dataCollection";
 import { computeNextSteps } from "../lib/nextSteps";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
@@ -112,7 +114,11 @@ export default function Overview() {
   const { roster } = useTeamRoster();
   const { project, updateProject } = useResearchProject();
   const currentStage = getCurrentStage(realStages);
+  const { surveys } = useSurveys();
+  const surveyCounts = useSurveyResponseCounts(surveys);
+  const collection = summarizeCollection(surveys, surveyCounts, realMethodology.sampling.sampleSize);
   const stageAutoData = {
+    dataCollection: { collected: collection.collected, target: collection.target },
     proposalSections: realProposalSections,
     researchGap: realResearchGap,
     researchQuestions: realResearchQuestions,
@@ -128,13 +134,7 @@ export default function Overview() {
     sections: realProposalSections,
     hasDeadline: !!project?.targetSubmissionDate,
   });
-  const realOverallProgress = getOverallProgress(realStages, {
-    proposalSections: realProposalSections,
-    researchGap: realResearchGap,
-    researchQuestions: realResearchQuestions,
-    methodology: realMethodology,
-    evidencePapers: realEvidencePapers,
-  });
+  const realOverallProgress = getOverallProgress(realStages, stageAutoData);
   const [showGuideBanner, setShowGuideBanner] = useState(
     () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
   );

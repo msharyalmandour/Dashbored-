@@ -152,6 +152,19 @@ export default function Proposal() {
             className="w-full rounded-lg border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
           />
         </label>
+        <label className="mt-3 block text-sm">
+          <span className="mb-1 block font-semibold text-brand-950/70">نوع البحث — Research Type</span>
+          <select
+            value={project?.researchType ?? ""}
+            onChange={(e) => updateProject({ researchType: e.target.value as NonNullable<typeof project>["researchType"] })}
+            className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+          >
+            <option value="">اختاروا النوع</option>
+            <option value="quantitative">كمّي — Quantitative</option>
+            <option value="qualitative">نوعي — Qualitative</option>
+            <option value="mixed-methods">مختلط — Mixed methods</option>
+          </select>
+        </label>
       </Card>
 
       {/* الملخص — Abstract: ١٥٠-٢٥٠ كلمة تغطي الخلفية والهدف والمنهج والخلاصة، مطلوب رسميًا وأول بند يُقيَّم بالروبريك */}

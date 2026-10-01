@@ -36,6 +36,8 @@ import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
 import NextStepCard from "../components/NextStepCard";
 import StuckHelp from "../components/StuckHelp";
+import StageAdvanceCard from "../components/StageAdvanceCard";
+import { isStageReady } from "../lib/stageAdvance";
 import { computeNextSteps } from "../lib/nextSteps";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
@@ -91,7 +93,7 @@ const DEADLINE_ALERT_RESURFACE_DAYS = 2;
 const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
-  const { currentUser, team, mode } = useAuth();
+  const { currentUser, team, mode, isLeader } = useAuth();
   const { messages: supervisorMsgs, unread: unreadSupervisor } = useSupervisorMessages();
   const latestSupervisorMsg = [...supervisorMsgs].reverse().find((m) => m.sender === "supervisor") ?? null;
   const supervisorMsgAt = latestSupervisorMsg?.createdAt ?? team?.supervisorNoteAt ?? null;
@@ -102,15 +104,23 @@ export default function Overview() {
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const { events: calendarEvents } = useCalendarEvents();
-  const { stages: realStages } = useResearchStages();
+  const { stages: realStages, updateStage } = useResearchStages();
   const { papers: realEvidencePapers } = useEvidencePapers();
   const { sections: realProposalSections, gap: realResearchGap, questions: realResearchQuestions } = useProposal();
   const { methodology: realMethodology } = useMethodology();
   const { tasks: realTasks } = useTasksData();
   const { roster } = useTeamRoster();
-  const { project } = useResearchProject();
+  const { project, updateProject } = useResearchProject();
   const currentStage = getCurrentStage(realStages);
+  const stageAutoData = {
+    proposalSections: realProposalSections,
+    researchGap: realResearchGap,
+    researchQuestions: realResearchQuestions,
+    methodology: realMethodology,
+    evidencePapers: realEvidencePapers,
+  };
   const nextSteps = computeNextSteps({
+    stageReady: !!currentStage && isStageReady(currentStage, stageAutoData, project?.title ?? ""),
     todayIso,
     currentUserId: currentUser?.id ?? "",
     tasks: realTasks,
@@ -282,6 +292,15 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
+      <StageAdvanceCard
+        stages={realStages}
+        autoData={stageAutoData}
+        projectTitle={project?.title ?? ""}
+        isLeader={isLeader}
+        isFemale={isFemale}
+        updateStage={updateStage}
+        saveTitle={(title) => updateProject({ title })}
+      />
       <NextStepCard steps={nextSteps} isFemale={isFemale} />
       <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
       {showGuideBanner && (

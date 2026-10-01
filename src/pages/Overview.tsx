@@ -35,6 +35,7 @@ import StatCard from "../components/StatCard";
 import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
 import NextStepCard from "../components/NextStepCard";
+import StuckHelp from "../components/StuckHelp";
 import { computeNextSteps } from "../lib/nextSteps";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
@@ -282,6 +283,7 @@ export default function Overview() {
   return (
     <div className="space-y-6">
       <NextStepCard steps={nextSteps} isFemale={isFemale} />
+      <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
       {showGuideBanner && (
         <AlertCard
           tone="warning"

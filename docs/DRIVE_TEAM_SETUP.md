@@ -29,3 +29,12 @@
 - الصلاحية `drive.file`: لو القائد نقل/حذف المجلد من درايفه ينكسر الرفع حتى يعيد الربط (يُنشأ مجلد جديد عند تغيير الحساب فقط).
 - ما انجرّب بحساب Google حقيقي بعد (يحتاج مفاتيح المالك).
 - صفحة «الملفات» القديمة تستخدم `drive-upload` (حساب خدمة/Workspace) وما تغيّرت.
+
+## حالة الإعداد (2026-10-21)
+- ✅ مشروع Google Cloud باسم Wesync (project id: wesync-512311)، وDrive API مفعّل.
+- ✅ OAuth consent: External، والصلاحيات `userinfo.email` و`openid` و`drive.file` (كلها non-sensitive).
+- ✅ جدول `drive_connections` منشور بقاعدة البيانات؛ الكود بالمستودع (الدالة `drive-team` **غير منشورة بعد**، تنتظر الأسرار).
+- ⏳ Branding: الحقول معبّاة (الاسم، البريد، الصفحة الرئيسية، الخصوصية، الشروط، النطاق `dashbored-sigma.vercel.app`، بريد المطوّر). **لازم يُشال اللوقو** (رفعه يفرض مراجعة Google) ثم Save، وبعدها يتفعّل زر Publish app.
+- ⏳ Audience ← Publish app (In production). لو زر النشر ظل معطّل بعد حفظ Branding فالسبب غالبًا النطاق المشترك `vercel.app`؛ الحل: التحقق من ملكية النطاق بـ Google Search Console أو استخدام نطاق خاص.
+- ⏳ Clients ← Create client (Web) بـ redirect URI المذكور أعلاه، ثم الأسرار الثلاثة بـ Supabase، ثم نشر الدالة وتجربة الربط.
+- لوقو جاهز (120 و512) بـ `marketing/brand/` لكن لا يُرفع لـ Google قبل التوثيق.

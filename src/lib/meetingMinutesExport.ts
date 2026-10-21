@@ -1,5 +1,5 @@
 import type { Paragraph, Table } from "docx";
-import { formatDateLong } from "./date";
+import { formatDateFull, formatHijri } from "./date";
 import { loadWesyncKit, type WordStyle } from "./wordTheme";
 
 export interface MeetingMinutesExportInput {
@@ -66,9 +66,10 @@ async function buildMinutesOfficial(input: MeetingMinutesExportInput): Promise<B
             bidirectional: true,
             spacing: { after: 240 },
             children: [
-              new TextRun({ text: formatDateLong(input.meetingDate), bold: true, rightToLeft: true }),
+              new TextRun({ text: formatDateFull(input.meetingDate), bold: true, rightToLeft: true }),
             ],
           }),
+          ...(formatHijri(input.meetingDate) ? [ar(`الموافق ${formatHijri(input.meetingDate)}`, { color: "666666" })] : []),
 
           arHeading("الحاضرون"),
           ...(input.attendees.length > 0
@@ -100,8 +101,10 @@ async function buildMinutesDark(input: MeetingMinutesExportInput): Promise<Blob>
   const children: (Paragraph | Table)[] = [
     ...k.masthead({
       kicker: "محضر اجتماع — MEETING MINUTES",
-      title: formatDateLong(input.meetingDate),
-      sub: `${input.attendees.length} ${input.attendees.length === 1 ? "حاضر" : "حاضرين"}`,
+      title: formatDateFull(input.meetingDate),
+      sub: [formatHijri(input.meetingDate), `${input.attendees.length} ${input.attendees.length === 1 ? "حاضر" : "حاضرين"}`]
+        .filter(Boolean)
+        .join(" · "),
     }),
 
     k.heading("الحاضرون"),

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { CalendarDays, Check, Download, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
@@ -8,7 +8,15 @@ import { useToast } from "../context/ToastContext";
 import { useMeetingMinutes } from "../hooks/useMeetingMinutes";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { buildMeetingMinutesDoc } from "../lib/meetingMinutesExport";
-import { formatDateLong, toISODate } from "../lib/date";
+import {
+  addDaysISO,
+  formatDateFull,
+  formatHijri,
+  formatMonthYear,
+  isValidISODate,
+  relativeDayLabel,
+  toISODate,
+} from "../lib/date";
 import { g, isFemaleUser } from "../lib/gender";
 import type { MeetingMinutesRow } from "../data/types";
 
@@ -58,8 +66,24 @@ export default function MeetingMinutes() {
     setActionItems("");
   };
 
+  const today = toISODate(new Date());
+  const dateProblem = !isValidISODate(meetingDate)
+    ? "اختاروا تاريخ اجتماع صحيح."
+    : meetingDate > today
+      ? "المحضر يُسجَّل بعد الاجتماع — تاريخه ما يكون بالمستقبل."
+      : null;
+  const datePresets = [
+    { label: "اليوم", value: today },
+    { label: "أمس", value: addDaysISO(today, -1) },
+    { label: "قبل يومين", value: addDaysISO(today, -2) },
+  ];
+
   const handleSave = async () => {
     if (!currentUser || !discussion.trim() || saving) return;
+    if (dateProblem) {
+      setError(dateProblem);
+      return;
+    }
     setError(null);
     setSaving(true);
 
@@ -75,7 +99,11 @@ export default function MeetingMinutes() {
     });
 
     if (saveError || !row) {
-      setError("تعذّر حفظ المحضر — حاولوا مرة ثانية.");
+      setError(
+        saveError === "no research project"
+          ? "ما لقينا مشروع بحث مربوط بحسابكم — تأكدوا إنكم داخل فريق."
+          : "تعذّر حفظ المحضر — حاولوا مرة ثانية.",
+      );
       setSaving(false);
       return;
     }
@@ -114,18 +142,45 @@ export default function MeetingMinutes() {
         </h3>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="block text-sm">
-            <span className="mb-1 flex items-center gap-1.5 font-semibold text-brand-950/70">
+          <div className="block text-sm">
+            <label htmlFor="meeting-date" className="mb-1 flex items-center gap-1.5 font-semibold text-brand-950/70">
               <CalendarDays size={14} />
               تاريخ الاجتماع
-            </span>
+            </label>
             <input
+              id="meeting-date"
               type="date"
               value={meetingDate}
+              max={today}
               onChange={(e) => setMeetingDate(e.target.value)}
-              className={inputClass}
+              aria-invalid={!!dateProblem}
+              className={`${inputClass} ${dateProblem ? "!border-rose-300" : ""}`}
             />
-          </label>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {datePresets.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => setMeetingDate(p.value)}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                    meetingDate === p.value
+                      ? "bg-brand-500 text-white"
+                      : "bg-surface-muted text-brand-950/60 hover:bg-brand-50"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <p className={`mt-2 text-xs leading-relaxed ${dateProblem ? "font-semibold text-rose-600" : "text-brand-950/55"}`} aria-live="polite">
+              {dateProblem ?? (
+                <>
+                  {formatDateFull(meetingDate)}
+                  {formatHijri(meetingDate) && <> · {formatHijri(meetingDate)}</>}
+                </>
+              )}
+            </p>
+          </div>
 
           <div className="block text-sm">
             <span className="mb-1 flex items-center gap-1.5 font-semibold text-brand-950/70">
@@ -190,7 +245,7 @@ export default function MeetingMinutes() {
 
         <button
           onClick={handleSave}
-          disabled={saving || !discussion.trim()}
+          disabled={saving || !discussion.trim() || !!dateProblem}
           className="mt-4 flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
@@ -211,10 +266,20 @@ export default function MeetingMinutes() {
             />
           </Card>
         ) : (
-          minutes.map((m) => (
-            <Card key={m.id} className="space-y-2">
+          minutes.map((m, i) => (
+            <Fragment key={m.id}>
+            {(i === 0 || formatMonthYear(minutes[i - 1].meetingDate) !== formatMonthYear(m.meetingDate)) && (
+              <h4 className="pt-2 text-xs font-extrabold tracking-wide text-brand-950/45">{formatMonthYear(m.meetingDate)}</h4>
+            )}
+            <Card className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-bold text-brand-950">{formatDateLong(m.meetingDate)}</p>
+                <div>
+                  <p className="font-bold text-brand-950">{formatDateFull(m.meetingDate)}</p>
+                  <p className="text-xs text-brand-950/45">
+                    {relativeDayLabel(m.meetingDate)}
+                    {formatHijri(m.meetingDate) && <> · {formatHijri(m.meetingDate)}</>}
+                  </p>
+                </div>
                 <button
                   onClick={() => downloadMinutesDoc(m)}
                   className="flex items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 hover:bg-brand-50 hover:text-brand-700"
@@ -252,6 +317,7 @@ export default function MeetingMinutes() {
                 <p className="text-sm text-brand-950/70"><b>المهام:</b> {m.actionItems}</p>
               )}
             </Card>
+            </Fragment>
           ))
         )}
       </div>

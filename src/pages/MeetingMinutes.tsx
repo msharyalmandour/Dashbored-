@@ -1,5 +1,8 @@
-import { Fragment, useState } from "react";
-import { CalendarDays, Check, Download, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { CalendarDays, Check, CloudUpload, Download, ExternalLink, HardDrive, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
+import DriveCard from "../components/DriveCard";
+import { driveErrorMessage, getDriveStatus, uploadMinutesToDrive, type DriveStatus } from "../lib/driveTeam";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -20,18 +23,19 @@ import {
 import { g, isFemaleUser } from "../lib/gender";
 import type { MeetingMinutesRow } from "../data/types";
 
-/** ينزّل ملف Word مباشرة على جهاز المستخدمة — بدون أي رفع لخدمة خارجية
-    (Google Drive يحتاج Google Workspace، مو متوفر، فما نعد بشي ما نقدر
-    ننفذه) */
-async function downloadMinutesDoc(
-  input: Pick<MeetingMinutesRow, "meetingDate" | "attendees" | "discussion" | "decisions" | "actionItems">,
-  style: "dark" | "official" = "dark",
-) {
+type MinutesDocInput = Pick<MeetingMinutesRow, "meetingDate" | "attendees" | "discussion" | "decisions" | "actionItems">;
+
+const minutesFileName = (date: string, style: "dark" | "official" = "dark") =>
+  `محضر اجتماع - ${date}${style === "dark" ? " — Wesync" : ""}.docx`;
+
+/** ينزّل ملف Word مباشرة على جهاز المستخدمة — نسخة محلية دائمًا،
+    وربط درايف الفريق (لو مفعّل) يرفع نسخة ثانية للمجلد المشترك */
+async function downloadMinutesDoc(input: MinutesDocInput, style: "dark" | "official" = "dark") {
   const blob = await buildMeetingMinutesDoc(input, style);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `محضر اجتماع - ${input.meetingDate}${style === "dark" ? " — Wesync" : ""}.docx`;
+  a.download = minutesFileName(input.meetingDate, style);
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -44,7 +48,7 @@ export default function MeetingMinutes() {
   const isFemale = isFemaleUser(currentUser);
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
-  const { minutes, loading, addMinutes, deleteMinutes } = useMeetingMinutes();
+  const { minutes, loading, addMinutes, deleteMinutes, reload } = useMeetingMinutes();
 
   const [meetingDate, setMeetingDate] = useState(toISODate(new Date()));
   const [attendeeIds, setAttendeeIds] = useState<string[]>([]);
@@ -53,6 +57,36 @@ export default function MeetingMinutes() {
   const [actionItems, setActionItems] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [driveStatus, setDriveStatus] = useState<DriveStatus | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const refreshDrive = useCallback(() => {
+    getDriveStatus().then(setDriveStatus);
+  }, []);
+
+  useEffect(() => {
+    refreshDrive();
+  }, [refreshDrive]);
+
+  // رجعة من شاشة موافقة Google (?drive=connected | error)
+  useEffect(() => {
+    const result = searchParams.get("drive");
+    if (!result) return;
+    const reason = searchParams.get("reason");
+    showToast(
+      result === "connected"
+        ? { title: "انربط درايف الفريق", desc: "أنشأنا مجلد Wesync وشاركناه مع الأعضاء.", icon: Check, tone: "brand" }
+        : {
+            title: "ما انربط الدرايف",
+            desc: reason === "denied" ? "ما وافقتم على الصلاحية." : "صار خطأ أثناء الربط — جرّبوا مرة ثانية.",
+            icon: HardDrive,
+            tone: "rose",
+          },
+    );
+    setSearchParams({}, { replace: true });
+    refreshDrive();
+  }, [searchParams, setSearchParams, showToast, refreshDrive]);
 
   const toggleAttendee = (id: string) => {
     setAttendeeIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -77,6 +111,29 @@ export default function MeetingMinutes() {
     { label: "أمس", value: addDaysISO(today, -1) },
     { label: "قبل يومين", value: addDaysISO(today, -2) },
   ];
+
+  /** يرفع المحضر لمجلد الفريق بدرايف. يرجّع رسالة خطأ أو null لو نجح */
+  const pushToDrive = async (id: string, input: MinutesDocInput): Promise<string | null> => {
+    try {
+      const blob = await buildMeetingMinutesDoc(input);
+      const r = await uploadMinutesToDrive(blob, minutesFileName(input.meetingDate), id);
+      await reload();
+      return r.error ? driveErrorMessage(r.error) : null;
+    } catch {
+      return driveErrorMessage(undefined);
+    }
+  };
+
+  const uploadExisting = async (m: MeetingMinutesRow) => {
+    setUploadingId(m.id);
+    const err = await pushToDrive(m.id, m);
+    setUploadingId(null);
+    showToast(
+      err
+        ? { title: "ما انرفع لدرايف", desc: err, icon: CloudUpload, tone: "rose" }
+        : { title: "انرفع لدرايف", desc: "المحضر الحين بمجلد الفريق.", icon: Check, tone: "brand" },
+    );
+  };
 
   const handleSave = async () => {
     if (!currentUser || !discussion.trim() || saving) return;
@@ -116,9 +173,14 @@ export default function MeetingMinutes() {
       // السجل محفوظ بالموقع بنجاح بأي حال — التنزيل يقدرون يعيدونه من القائمة تحت
     }
 
+    let driveNote = "";
+    if (driveStatus?.connected) {
+      const driveErr = await pushToDrive(row.id, { meetingDate, attendees: attendeeNames, discussion, decisions, actionItems });
+      driveNote = driveErr ? ` (ما انرفع لدرايف: ${driveErr})` : " ورفعناه لدرايف الفريق.";
+    }
     showToast({
       title: g(isFemale, "تم حفظ المحضر", "تم حفظ المحضر"),
-      desc: "انحفظ بالموقع، ونزّلنا لكم نسخة Word.",
+      desc: `انحفظ بالموقع، ونزّلنا لكم نسخة Word.${driveNote}`,
       icon: Check,
       tone: "brand",
     });
@@ -134,6 +196,8 @@ export default function MeetingMinutes() {
           كل اجتماع = سجل هنا بالموقع + نسخة Word حقيقية تنزّل لجهازكم فورًا، بضغطة حفظ وحدة.
         </p>
       </div>
+
+      {driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
 
       <Card tone="cream">
         <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-brand-950">
@@ -287,6 +351,28 @@ export default function MeetingMinutes() {
                   <Download size={12} />
                   تنزيل Word
                 </button>
+                {m.driveViewLink ? (
+                  <a
+                    href={m.driveViewLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    <ExternalLink size={12} />
+                    فتح بدرايف
+                  </a>
+                ) : (
+                  driveStatus?.connected && (
+                    <button
+                      onClick={() => uploadExisting(m)}
+                      disabled={uploadingId === m.id}
+                      className="flex items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-50"
+                    >
+                      {uploadingId === m.id ? <Loader2 size={12} className="animate-spin" /> : <CloudUpload size={12} />}
+                      رفع لدرايف
+                    </button>
+                  )
+                )}
                 <button
                   onClick={() => downloadMinutesDoc(m, "official")}
                   title="نسخة بيضاء بسيطة للطباعة"

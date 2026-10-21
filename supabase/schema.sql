@@ -2129,3 +2129,20 @@ as $$
 $$;
 grant execute on function public.get_my_supervisor_email_status() to authenticated;
 revoke execute on function public.get_my_supervisor_email_status() from anon;
+
+-- ============================================================
+-- ربط درايف الفريق (قائد الفريق يربط حساب Google حقه — مجلد مشترك للأعضاء)
+-- رموز التحديث مشفّرة (AES-GCM) من دالة drive-team؛ RLS مفعّل بدون أي policy
+-- يعني ما أحد يقرأ الجدول من الواجهة — الدالة وحدها (service_role) تقرأ وتكتب.
+-- ============================================================
+create table if not exists public.drive_connections (
+  research_project_id uuid primary key references public.research_projects (id) on delete cascade,
+  connected_by uuid references public.profiles (id) on delete set null,
+  google_email text not null,
+  refresh_token_enc text not null,
+  folder_id text not null,
+  folder_link text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.drive_connections enable row level security;

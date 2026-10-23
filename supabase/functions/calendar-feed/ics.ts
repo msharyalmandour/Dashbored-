@@ -4,8 +4,13 @@ export interface FeedEvent {
   uid: string;
   title: string;
   description?: string;
-  /** YYYY-MM-DD — كل الأحداث "طوال اليوم" */
+  /** YYYY-MM-DD */
   date: string;
+  /** HH:MM بتوقيت الرياض — لو موجود يصير حدث بساعة محددة، وإلا «طوال اليوم» */
+  time?: string;
+  /** مدة الحدث بالدقايق (افتراضي ٦٠) — للأحداث ذات الساعة فقط */
+  durationMin?: number;
+  location?: string;
   /** إزاحات التنبيه، مثل "-PT15H" (قبل ١٥ ساعة من بداية اليوم = ٩ م اليوم السابق) */
   alarms?: string[];
 }
@@ -48,6 +53,14 @@ function nextDay(date: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** وقت الرياض (ثابت UTC+3 بدون توقيت صيفي) ← صيغة UTC بدون الحاجة لتعريف VTIMEZONE */
+export function riyadhToUtc(date: string, time: string, addMinutes = 0): string {
+  const [h, m] = time.split(":").map((x) => Number(x));
+  const d = new Date(Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 1, +date.slice(8, 10), (h || 0) - 3, m || 0));
+  d.setUTCMinutes(d.getUTCMinutes() + addMinutes);
+  return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
 function stamp(now: Date): string {
   return now.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
@@ -61,8 +74,8 @@ export function buildCalendar(name: string, events: FeedEvent[], now = new Date(
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeText(name)}`,
     "X-WR-TIMEZONE:Asia/Riyadh",
-    "REFRESH-INTERVAL;VALUE=DURATION:PT1H",
-    "X-PUBLISHED-TTL:PT1H",
+    "REFRESH-INTERVAL;VALUE=DURATION:PT15M",
+    "X-PUBLISHED-TTL:PT15M",
   ];
   const dtstamp = stamp(now);
   for (const e of events) {
@@ -70,12 +83,17 @@ export function buildCalendar(name: string, events: FeedEvent[], now = new Date(
       "BEGIN:VEVENT",
       `UID:${e.uid}`,
       `DTSTAMP:${dtstamp}`,
-      `DTSTART;VALUE=DATE:${compact(e.date)}`,
-      `DTEND;VALUE=DATE:${compact(nextDay(e.date))}`,
-      `SUMMARY:${escapeText(e.title)}`,
     );
+    const timed = !!e.time && /^\d{1,2}:\d{2}$/.test(e.time);
+    if (timed) {
+      lines.push(`DTSTART:${riyadhToUtc(e.date, e.time!)}`, `DTEND:${riyadhToUtc(e.date, e.time!, e.durationMin ?? 60)}`);
+    } else {
+      lines.push(`DTSTART;VALUE=DATE:${compact(e.date)}`, `DTEND;VALUE=DATE:${compact(nextDay(e.date))}`);
+    }
+    lines.push(`SUMMARY:${escapeText(e.title)}`);
     if (e.description) lines.push(`DESCRIPTION:${escapeText(e.description)}`);
-    lines.push("TRANSP:TRANSPARENT");
+    if (e.location) lines.push(`LOCATION:${escapeText(e.location)}`);
+    lines.push(timed ? "TRANSP:OPAQUE" : "TRANSP:TRANSPARENT");
     for (const a of e.alarms ?? []) {
       lines.push("BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${escapeText(e.title)}`, `TRIGGER:${a}`, "END:VALARM");
     }

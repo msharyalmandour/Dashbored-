@@ -89,3 +89,28 @@ export async function runProjectAgent(
   }
   return { message: "ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية." };
 }
+
+export type AgentAction =
+  | { type: "set_aim"; text: string }
+  | { type: "add_questions"; texts: string[] }
+  | { type: "add_task"; title: string; description: string; days: number }
+  | { type: "open"; to: string; label: string };
+
+export interface AskTurn {
+  role: "user" | "agent";
+  text: string;
+}
+
+/** «اسألوا الوكيل عن مشروعكم»: جواب من لقطة المشروع الحقيقية + إجراءات مقترحة تنتظر موافقة الفريق */
+export async function askProjectAgent(
+  question: string,
+  history: AskTurn[],
+): Promise<{ data?: { answer: string; actions: AgentAction[] }; message?: string }> {
+  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
+  const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "ask", question, history } });
+  const reply = data as { answer?: string; actions?: AgentAction[]; error?: string; limitReached?: boolean; message?: string } | null;
+  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.error) return { message: reply.error };
+  if (reply?.answer) return { data: { answer: reply.answer, actions: reply.actions ?? [] } };
+  return { message: error ? "الوكيل غير متاح الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
+}

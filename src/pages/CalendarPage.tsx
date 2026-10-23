@@ -1,7 +1,7 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { CalendarClock, Check, Loader2, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, Trash2, X } from "lucide-react";
-import { HighlightCard, PageColumns, PageHeader, Panel, ghostBtn, primaryBtn, rowSurface } from "../components/ui/page";
+import { CalendarClock, Check, Loader2, MapPin, Users2, Flag, ClipboardCheck, Plus, Trash2, X } from "lucide-react";
+import { HighlightCard, PageColumns, PageHeader, Panel, primaryBtn, rowSurface } from "../components/ui/page";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import MiniCalendar from "../components/MiniCalendar";
@@ -12,7 +12,6 @@ import { useToast } from "../context/ToastContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import type { CalendarEventType } from "../data/types";
 import { formatDateLong, relativeDayLabel, toISODate } from "../lib/date";
-import { downloadICS } from "../lib/ics";
 
 /** بالحساب الحقيقي «اليوم» هو اليوم فعلًا؛ التاريخ الثابت للعرض التجريبي فقط */
 const today = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22);
@@ -99,14 +98,6 @@ export default function CalendarPage() {
         subtitle="مواعيد الفريق ومواعيد التسليم بمكان واحد."
         action={
           <>
-            <button
-              onClick={() => downloadICS(events)}
-              title="حمّلي ملف .ics تضيفينه لتقويم قوقل أو أبل أو أوتلوك"
-              className={ghostBtn}
-            >
-              <Download size={16} />
-              تصدير للتقويم
-            </button>
             {canWrite && (
               <button onClick={() => setShowForm((s) => !s)} className={primaryBtn}>
                 <Plus size={16} />

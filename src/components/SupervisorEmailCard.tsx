@@ -3,7 +3,7 @@ import { BellRing, Loader2, Mail } from "lucide-react";
 import { errorText, getSupervisorEmailStatus, subscribeSupervisor, type EmailStatus } from "../lib/supervisorEmail";
 
 /** المشرفة تشترك بنفسها بإيميل يوصلها عند كل رد جديد من الفريق (تأكيد مزدوج: ما نرسل لأي إيميل قبل ما صاحبه يؤكد). */
-export default function SupervisorEmailCard({ token }: { token: string }) {
+export default function SupervisorEmailCard({ token, onChanged, embedded = false }: { token: string; onChanged?: () => void; /** داخل لوحة الإعداد: بدون إطار خارجي */ embedded?: boolean }) {
   const [status, setStatus] = useState<EmailStatus | null>(null);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,17 +32,20 @@ export default function SupervisorEmailCard({ token }: { token: string }) {
     setJustSent(true);
     setEmail("");
     load();
+    onChanged?.();
   };
 
   const active = status?.state === "active";
   const pending = status?.state === "pending" || justSent;
 
   return (
-    <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
-      <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-        <Mail size={15} className="text-brand-500" />
-        إشعارات الإيميل
-      </p>
+    <div className={embedded ? "" : "mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8"}>
+      {!embedded && (
+        <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
+          <Mail size={15} className="text-brand-500" />
+          إشعارات الإيميل
+        </p>
+      )}
 
       {active ? (
         <p className="mt-2 flex items-start gap-2 text-sm text-brand-950/70">

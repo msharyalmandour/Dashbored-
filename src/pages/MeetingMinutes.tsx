@@ -10,6 +10,8 @@ import DecisionsTab from "../components/meetings/DecisionsTab";
 import MinutesForm, { type MinutesFormPayload } from "../components/meetings/MinutesForm";
 import MinutesList from "../components/meetings/MinutesList";
 import ReadinessCard from "../components/meetings/ReadinessCard";
+import SupervisorSetupCard from "../components/meetings/SupervisorSetupCard";
+import { useResearchProject } from "../hooks/useResearchProject";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useMeetingMinutes } from "../hooks/useMeetingMinutes";
@@ -47,6 +49,7 @@ const TABS: { id: Tab; label: string; icon: typeof NotebookPen }[] = [
 
 export default function MeetingMinutes() {
   const { currentUser, isLeader, canWrite, team } = useAuth();
+  const { project, updateProject } = useResearchProject();
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
   const { minutes, loading, addMinutes, deleteMinutes, reload } = useMeetingMinutes();
@@ -276,6 +279,15 @@ export default function MeetingMinutes() {
             onChange={setTab}
           />
         }
+      />
+
+      <SupervisorSetupCard
+        supervisorName={project?.supervisorName ?? ""}
+        onSaveName={(supervisorName) => updateProject({ supervisorName })}
+        supervisorUrl={supervisorUrl}
+        projectTitle={project?.title ?? ""}
+        hasAvailability={!!meetings.availability?.windows?.length}
+        canWrite={canWrite}
       />
 
       {tab === "minutes" && (

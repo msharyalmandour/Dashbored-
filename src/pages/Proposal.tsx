@@ -5,6 +5,8 @@ import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
+import QuestionSuggestions from "../components/QuestionSuggestions";
+import { useAuth } from "../context/AuthContext";
 import { useProposal } from "../hooks/useProposal";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -73,6 +75,7 @@ export default function Proposal() {
   const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } =
     useProposal();
   const { project, updateProject } = useResearchProject();
+  const { canWrite } = useAuth();
   const { roster } = useTeamRoster();
   const memberById = (id: string) => roster.find((m) => m.id === id);
   const doneCount = sections.filter((s) => s.status === "done").length;
@@ -323,10 +326,16 @@ export default function Proposal() {
         <div className="mt-3 rounded-2xl bg-surface-muted p-4">
           <p className="mb-1.5 text-sm font-bold text-brand-950">أسئلة البحث — Research Questions</p>
           <AutoSaveTextarea
+            key={questions.map((q) => q.text).join("|")}
             value={questions.map((q) => q.text).join("\n")}
             onSave={(v) => setResearchQuestions(v.split("\n").filter(Boolean))}
             placeholder={"سؤال بحث واحد بكل سطر..."}
             rows={4}
+          />
+          <QuestionSuggestions
+            existing={questions.map((q) => q.text)}
+            canWrite={canWrite}
+            onAdd={(text) => setResearchQuestions([...questions.map((q) => q.text), text])}
           />
         </div>
       </Card>

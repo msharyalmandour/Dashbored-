@@ -177,3 +177,10 @@ export const bookingRequestMessage = (dateLong: string, time: string, link: stri
 
 export const availabilityRequestMessage = (link: string) =>
   `السلام عليكم ورحمة الله،\nحتى نرتب مواعيد الاجتماعات بدون ما نأخذ من وقتكم، ممكن تحددون أوقاتكم المتاحة مرة وحدة من رابطكم (بدون تسجيل دخول)؟ بعدها نحجز من الأوقات اللي تحددونها فقط:\n${link}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+
+/** الدعوة الأولى للمشرف/ة: وش هذا الرابط وليش نرسله، بدون ما نفترض إنها تعرف Wesync */
+export const supervisorInviteMessage = (link: string, projectTitle?: string) =>
+  `السلام عليكم ورحمة الله،\nنستخدم منصة Wesync لتنظيم بحث تخرجنا${projectTitle ? ` («${projectTitle}»)` : ""}. هذا رابطكم الخاص (بدون تسجيل دخول ولا تنزيل برنامج) تشوفون منه تقدمنا، وتعتمدون محاضر اجتماعاتنا، وتجاوبون على أسئلتنا بضغطة، وتحددون أوقاتكم المتاحة للاجتماعات:\n${link}\n\nمن نفس الصفحة تقدرون تفعّلون تنبيهات الإيميل عشان يوصلكم كل طلب جديد.\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+
+export const mailtoUrl = (to: string, subject: string, body: string) =>
+  `mailto:${encodeURIComponent(to.trim())}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

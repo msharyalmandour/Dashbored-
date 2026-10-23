@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarCheck, CalendarClock, CalendarX, Check, CheckCheck, ChevronDown, Clock, HelpCircle, Inbox, Loader2, NotebookPen, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
+import SupervisorSetupPanel from "./SupervisorSetupPanel";
 import { formatDateFull, formatDateShort, relativeDayLabel } from "../../lib/date";
 import { APPROVAL_LABEL, WEEKDAY_NAMES } from "../../lib/meetings";
 import type { ApprovalStatus } from "../../data/types";
@@ -153,6 +154,17 @@ export default function SupervisorBoard({ token, name, onNameChange, onWaitingCo
 
   return (
     <>
+      <SupervisorSetupPanel
+        token={token}
+        name={name}
+        onNameChange={onNameChange}
+        hasWindows={!!board.availability?.windows.length}
+        onOpenAvailability={() => {
+          setShowSettings(true);
+          setTimeout(() => document.getElementById("sv-settings")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+        }}
+      />
+
       <div id="sv-waiting" className={`${card} mb-4 scroll-mt-16`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="flex items-center gap-2 font-display text-base font-extrabold text-brand-950">
@@ -162,7 +174,6 @@ export default function SupervisorBoard({ token, name, onNameChange, onWaitingCo
             تنتظركم
             {!empty && <span className="rounded-full bg-brand-500/15 px-2 py-0.5 text-xs font-bold text-brand-600">{waitingCount}</span>}
           </p>
-          <input value={name} onChange={(e) => onNameChange(e.target.value)} maxLength={80} placeholder="اسمكم (اختياري) — مثل: د. نورة" aria-label="اسمكم" className={`${inputClass} !w-full sm:!w-64`} />
         </div>
 
         {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm font-medium text-rose-600">{error}</p>}

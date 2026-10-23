@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import SupervisorEmailCard from "../components/SupervisorEmailCard";
 import SupervisorBoard from "../components/supervisor/SupervisorBoard";
 import {
   AlertTriangle,
@@ -519,8 +518,6 @@ export default function SupervisorView() {
             </div>
           </div>
         )}
-
-        {token && <SupervisorEmailCard token={token} />}
 
         <div id="sv-chat" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">

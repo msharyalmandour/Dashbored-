@@ -32,7 +32,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme, ResearchSearchResult } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
-import { formatDateLong } from "../lib/date";
+import { formatTimestampLong } from "../lib/date";
 
 const SEARCH_MONTHLY_LIMIT = 10;
 const GUIDE_KEY = "wesync.research.guide.dismissed";
@@ -548,7 +548,7 @@ export default function ResearchSearch() {
               >
                 <p className="truncate text-sm font-bold text-brand-950">{s.queryText}</p>
                 <p className="text-xs text-brand-950/45">
-                  {formatDateLong(s.createdAt)} · {s.results.length} نتيجة
+                  {[formatTimestampLong(s.createdAt), `${s.results.length} نتيجة`].filter(Boolean).join(" · ")}
                 </p>
               </button>
               {(isLeader || s.createdById === currentUser?.id) && (

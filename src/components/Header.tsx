@@ -13,11 +13,14 @@ export default function Header({
   title,
   onMenuClick,
   hideTitleOnDesktop = false,
+  hideTitle = false,
 }: {
   title: string;
   onMenuClick?: () => void;
   /** الصفحات اللي لها ترويسة خاصة فيها (PageHeader) ما تحتاج تكرار العنوان بالشريط على الشاشات الكبيرة */
   hideTitleOnDesktop?: boolean;
+  /** العنوان داخل الصفحة نفسها — ما نكرره بالشريط العلوي بأي حجم شاشة */
+  hideTitle?: boolean;
 }) {
   const { currentUser } = useAuth();
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
@@ -31,7 +34,7 @@ export default function Header({
         >
           <Menu size={18} />
         </button>
-        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden")}>{title}</p>
+        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden", hideTitle && "hidden")}>{title}</p>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">

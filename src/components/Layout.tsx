@@ -64,7 +64,7 @@ const pageHeaderRoutes = new Set([
 ]);
 
 /** صفحات عنوانها داخل الصفحة نفسها — الشريط العلوي ما يكرره (بدون تفعيل ستايل الترويسة الموحّدة) */
-const titleInPageRoutes = new Set(["/research-search"]);
+const titleInPageRoutes = new Set(["/research-search", "/evidence", "/literature-review"]);
 
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
@@ -135,7 +135,8 @@ export default function Layout() {
         <Header
           title={title}
           onMenuClick={() => setMobileNavOpen(true)}
-          hideTitleOnDesktop={pageHeaderRoutes.has(location.pathname) || titleInPageRoutes.has(location.pathname)}
+          hideTitleOnDesktop={pageHeaderRoutes.has(location.pathname)}
+          hideTitle={titleInPageRoutes.has(location.pathname)}
         />
         <main className="flex-1 px-4 py-6 pb-24 sm:px-8 md:pb-6">
           <div className="space-y-6">

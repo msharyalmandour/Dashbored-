@@ -1,7 +1,9 @@
-import { BookMarked, CheckCircle2, Circle, ExternalLink, FileStack, Library, TrendingUp } from "lucide-react";
-import Card, { CardHeader } from "../components/ui/Card";
-import PeakBar from "../components/ui/PeakBar";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import clsx from "clsx";
+import { BookMarked, ExternalLink } from "lucide-react";
 import EmptyState from "../components/ui/EmptyState";
+import { ResearchHeader, SourceBadge, glassCard, gradientPill, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme } from "../data/types";
 
@@ -13,152 +15,152 @@ const themeOrder: LiteratureTheme[] = [
   "Patient Outcomes",
 ];
 
-const themeLabelAr: Record<LiteratureTheme, string> = {
-  Delirium: "الهذيان",
-  "Nursing Knowledge": "معرفة الممرضات",
-  "Detection Tools": "أدوات الكشف",
-  "Tool Utilization": "استخدام الأدوات",
-  "Patient Outcomes": "نتائج المرضى",
-};
+const arDigit = (n: number) => String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 
 export default function LiteratureReview() {
   const { papers } = useEvidencePapers();
   const reviewed = papers.filter((p) => p.reviewStatus === "reviewed").length;
   const collected = papers.length;
-  const remaining = collected - reviewed;
   const pct = collected > 0 ? Math.round((reviewed / collected) * 100) : 0;
+
+  // المحاور اللي فيها دراسات فقط، بنفس الترتيب القديم
+  const themes = themeOrder
+    .map((theme) => ({ theme, studies: papers.filter((p) => p.theme === theme) }))
+    .filter((t) => t.studies.length > 0);
+  const [picked, setPicked] = useState<LiteratureTheme | null>(null);
+  const current = themes.find((t) => t.theme === picked) ?? themes[0];
 
   if (collected === 0) {
     return (
-      <EmptyState
-        icon={BookMarked}
-        title="ما فيه دراسات لسا"
-        desc="أضيفوا أول دراسة من مكتبة الأدلة عشان تبدأ مراجعة الأدبيات تتجمّع هنا."
-      />
+      <div className="space-y-6">
+        <ResearchHeader title="مراجعة الأدبيات" subtitle="المحاور وكل دراسة فيها، مجموعة من مكتبة أدلتكم." />
+        <div className={clsx(glassCard, "p-2")}>
+          <EmptyState
+            icon={BookMarked}
+            title="ما فيه دراسات لسا"
+            desc="أضيفوا أول دراسة من مكتبة الأدلة عشان تبدأ مراجعة الأدبيات تتجمّع هنا."
+          />
+        </div>
+      </div>
     );
   }
 
+  const statusOf = (studies: typeof papers) => {
+    const done = studies.filter((s) => s.reviewStatus === "reviewed").length;
+    return done === studies.length ? "تمت مراجعتها" : done > 0 ? "قيد المراجعة" : "لم تبدأ";
+  };
+
   return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card tone="paper" interactive className="card-terra flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-2px_rgba(255,106,0,0.55)]">
-            <Library size={17} />
-          </span>
-          <div>
-            <p className="text-xs font-semibold text-brand-950/55">الدراسات التي تم جمعها</p>
-            <p className="font-display mt-0.5 text-2xl font-extrabold text-brand-950">{collected}</p>
-          </div>
-        </Card>
-        <Card
-          tone="paper"
-          interactive
-          className="card-terra flex items-center gap-3"
-          style={{ animationDelay: "1.4s" }}
-        >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-2px_rgba(255,106,0,0.55)]">
-            <FileStack size={17} />
-          </span>
-          <div>
-            <p className="text-xs font-semibold text-brand-950/55">الدراسات التي تمت مراجعتها</p>
-            <p className="font-display mt-0.5 text-2xl font-extrabold text-brand-950">{reviewed}</p>
-          </div>
-        </Card>
-        <Card
-          tone="paper"
-          interactive
-          className="card-terra flex items-center gap-3"
-          style={{ animationDelay: "2.8s" }}
-        >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-2px_rgba(255,106,0,0.55)]">
-            <TrendingUp size={17} />
-          </span>
-          <div>
-            <p className="text-xs font-semibold text-brand-950/55">الدراسات المتبقية</p>
-            <p className="font-display mt-0.5 text-2xl font-extrabold text-brand-950">{remaining}</p>
-          </div>
-        </Card>
+    <div className="space-y-6">
+      <ResearchHeader
+        title="مراجعة الأدبيات"
+        subtitle={`المحاور وكل دراسة فيها. ${reviewed} من ${collected} دراسة تمت مراجعتها (${pct}%).`}
+        action={
+          <Link to="/evidence" className={gradientPill}>
+            مكتبة الأدلة
+          </Link>
+        }
+      />
+      <div className="h-1.5 max-w-md overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-full rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] transition-all duration-700" style={{ width: `${pct}%` }} />
       </div>
 
-      <Card tone="paper" className="card-terra">
-        <div className="flex items-center justify-between text-sm font-semibold text-brand-950/60">
-          <span>نسبة الإنجاز في مراجعة الأدبيات</span>
-          <span className="font-display text-base font-extrabold text-brand-600">{pct}%</span>
-        </div>
-        <PeakBar value={pct} height="h-3" />
-      </Card>
-
-      {themeOrder.map((theme, i) => {
-        const studies = papers.filter((p) => p.theme === theme);
-        if (studies.length === 0) return null;
-
-        return (
-          <Card key={theme} tone="paper" className="card-terra" style={{ animationDelay: `${(i % 5) * 1.6}s` }}>
-            <CardHeader
-              title={`${themeLabelAr[theme]}`}
-              subtitle={`${theme} · ${studies.length} ${studies.length === 1 ? "دراسة" : "دراسات"}`}
-            />
-            <div className="space-y-3">
-              {studies.map((study) => (
-                <div
-                  key={study.id}
-                  className="rounded-2xl border border-brand-100/70 bg-surface-muted p-4"
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+        <div>
+          <p className="mb-3 text-sm text-[#B8ADA2]">المحاور</p>
+          <div className="space-y-3">
+            {themes.map(({ theme, studies }, i) => {
+              const on = theme === current.theme;
+              return (
+                <button
+                  key={theme}
+                  type="button"
+                  onClick={() => setPicked(theme)}
+                  aria-pressed={on}
+                  className={clsx(
+                    "flex w-full items-center gap-3.5 rounded-2xl border px-4 py-3.5 text-start transition-colors",
+                    on
+                      ? "border-[#FF8A24]/70 bg-[#FF6B00]/[0.12]"
+                      : "border-[rgba(255,107,0,.2)] bg-[rgba(24,16,8,.88)] hover:border-[#FF8A24]/50",
+                  )}
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-brand-950">{study.title}</p>
-                      <p className="mt-0.5 text-xs text-brand-950/50">
-                        {study.authors} · {study.year} · {study.studyDesign}
-                      </p>
-                    </div>
-                    <span
-                      className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${
-                        study.reviewStatus === "reviewed"
-                          ? "bg-brand-50 text-brand-600"
-                          : "bg-amber-accent-50 text-amber-accent-600"
-                      }`}
-                    >
-                      {study.reviewStatus === "reviewed" ? (
-                        <CheckCircle2 size={13} />
-                      ) : (
-                        <Circle size={13} />
-                      )}
-                      {study.reviewStatus === "reviewed" ? "تمت مراجعتها" : "تم جمعها"}
+                  <span
+                    className={clsx(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold",
+                      on ? "border-[#FFB444] text-[#FFB444]" : "border-white/25 text-[#B8ADA2]",
+                    )}
+                  >
+                    {arDigit(i + 1)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-bold text-[#F4F0EC]">{themeLabelAr[theme]}</span>
+                    <span className="block text-xs text-[#B8ADA2]">
+                      {arDigit(studies.length)} {studies.length === 1 ? "دراسة" : "دراسات"} · {statusOf(studies)}
                     </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <section className={clsx(glassCard, "space-y-5 p-6 md:p-7")}>
+          <div>
+            <p className="text-sm text-[#FFB444]">المحور {arDigit(themes.indexOf(current) + 1)}</p>
+            <h2 className="mt-1 font-kufi text-3xl font-extrabold leading-tight">{themeLabelAr[current.theme]}</h2>
+            <p className="mt-1.5 text-sm text-[#B8ADA2]">
+              {arDigit(current.studies.length)} {current.studies.length === 1 ? "دراسة" : "دراسات"} · {statusOf(current.studies)}
+            </p>
+          </div>
+
+          <div className="space-y-3 border-t border-white/10 pt-5">
+            {current.studies.map((study) => {
+              const done = study.reviewStatus === "reviewed";
+              return (
+                <article key={study.id} className="rounded-2xl bg-white/[0.04] p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <SourceBadge>{sourceFromLink(study.link)}</SourceBadge>
+                      <span className={clsx("text-xs font-semibold", done ? "text-[#7fd6a0]" : "text-[#FFB444]")}>
+                        {done ? "✓ تمت مراجعتها" : "تم جمعها"}
+                      </span>
+                    </div>
+                    <span className="text-sm text-[#B8ADA2]">{study.year}</span>
                   </div>
+                  <h3 className="mt-3 text-[17px] font-bold leading-snug" dir="auto">
+                    {study.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-[#B8ADA2]" dir="auto">
+                    {[study.authors, study.studyDesign].filter(Boolean).join(" · ")}
+                  </p>
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <div className="rounded-xl bg-paper p-3">
-                      <p className="text-[11px] font-bold text-brand-950/45">أهم النتائج</p>
-                      <p className="mt-1 text-sm text-brand-950/75">{study.keyFinding || "—"}</p>
+                    <div className="rounded-2xl bg-white/[0.05] p-3.5">
+                      <p className="text-[11px] font-bold text-[#B8ADA2]">أهم النتائج</p>
+                      <p className="mt-1 text-sm leading-relaxed">{study.keyFinding || "—"}</p>
                     </div>
-                    <div className="rounded-xl bg-paper p-3">
-                      <p className="text-[11px] font-bold text-brand-950/45">الصلة بالبحث</p>
-                      <p className="mt-1 text-sm text-brand-950/75">{study.relevance || "—"}</p>
+                    <div className="rounded-2xl bg-white/[0.05] p-3.5">
+                      <p className="text-[11px] font-bold text-[#B8ADA2]">الصلة بالبحث</p>
+                      <p className="mt-1 text-sm leading-relaxed">{study.relevance || "—"}</p>
                     </div>
                   </div>
 
-                  <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-brand-600">
-                    <BookMarked size={13} />
+                  <div className="mt-3 text-sm">
                     {study.link ? (
-                      <a
-                        href={study.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:underline"
-                      >
-                        عرض المصدر <ExternalLink size={12} />
+                      <a href={study.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
+                        <ExternalLink size={13} />
+                        الأصل
                       </a>
                     ) : (
-                      <span className="text-brand-950/35">لا يوجد رابط مرفق</span>
+                      <span className="text-[#B8ADA2]/60">لا يوجد رابط مرفق</span>
                     )}
                   </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        );
-      })}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

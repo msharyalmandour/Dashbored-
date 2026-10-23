@@ -5,6 +5,8 @@ import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
+import QuestionSuggestions from "../components/QuestionSuggestions";
+import { useAuth } from "../context/AuthContext";
 import { useProposal } from "../hooks/useProposal";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -73,6 +75,7 @@ export default function Proposal() {
   const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } =
     useProposal();
   const { project, updateProject } = useResearchProject();
+  const { canWrite } = useAuth();
   const { roster } = useTeamRoster();
   const memberById = (id: string) => roster.find((m) => m.id === id);
   const doneCount = sections.filter((s) => s.status === "done").length;
@@ -151,6 +154,32 @@ export default function Proposal() {
             placeholder="اسم المشرف/ة"
             className="w-full rounded-lg border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
           />
+        </label>
+        <label className="mt-3 block text-sm">
+          <span className="mb-1 block font-semibold text-brand-950/70">نوع البحث — Research Type</span>
+          <select
+            value={project?.researchType ?? ""}
+            onChange={(e) => updateProject({ researchType: e.target.value as NonNullable<typeof project>["researchType"] })}
+            className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+          >
+            <option value="">اختاروا النوع</option>
+            <option value="quantitative">كمّي — Quantitative</option>
+            <option value="qualitative">نوعي — Qualitative</option>
+            <option value="mixed-methods">مختلط — Mixed methods</option>
+          </select>
+        </label>
+        <label className="mt-3 block text-sm">
+          <span className="mb-1 block font-semibold text-brand-950/70">حالة المشروع — Project Status</span>
+          <select
+            value={project?.status ?? "planning"}
+            onChange={(e) => updateProject({ status: e.target.value as NonNullable<typeof project>["status"] })}
+            className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+          >
+            <option value="planning">تخطيط</option>
+            <option value="active">جارٍ العمل</option>
+            <option value="writing">كتابة</option>
+            <option value="submitted">تم التسليم</option>
+          </select>
         </label>
       </Card>
 
@@ -297,10 +326,17 @@ export default function Proposal() {
         <div className="mt-3 rounded-2xl bg-surface-muted p-4">
           <p className="mb-1.5 text-sm font-bold text-brand-950">أسئلة البحث — Research Questions</p>
           <AutoSaveTextarea
+            key={questions.map((q) => q.text).join("|")}
             value={questions.map((q) => q.text).join("\n")}
             onSave={(v) => setResearchQuestions(v.split("\n").filter(Boolean))}
             placeholder={"سؤال بحث واحد بكل سطر..."}
             rows={4}
+          />
+          <QuestionSuggestions
+            topic={project?.title ?? ""}
+            existing={questions.map((q) => q.text)}
+            canWrite={canWrite}
+            onAdd={(text) => setResearchQuestions([...questions.map((q) => q.text), text])}
           />
         </div>
       </Card>

@@ -5,7 +5,7 @@ import {
   ExternalLink,
   FileCheck2,
   Loader2,
-  Sparkles,
+  Wand2,
   Users2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -216,7 +216,7 @@ export default function EthicalApprovalPage() {
             onClick={autoFillFromTeam}
             className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-700 hover:bg-brand-50"
           >
-            <Sparkles size={15} />
+            <Wand2 size={15} />
             تعبئة تلقائية من الفريق
           </button>
           <button

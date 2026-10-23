@@ -10,11 +10,11 @@ import {
   MessageCircle,
   MessageSquareQuote,
   ShieldCheck,
-  Sparkles,
   UserMinus,
   UserPlus,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import { PageHeader } from "../components/ui/page";
 import Avatar from "../components/ui/Avatar";
 import PeakBar from "../components/ui/PeakBar";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -28,6 +28,7 @@ import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { formatDateLong } from "../lib/date";
+import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
 
 function daysAgo(iso: string): number {
   const diff = Date.now() - new Date(iso).getTime();
@@ -130,39 +131,17 @@ function UniversityField() {
   );
 }
 
-/** لوحة تصميمية مجردة — بدل بطاقة "رابط المشرف" المضغوطة اللي صارت مكررة
-    مع قسم التواصل التفصيلي تحتها. توهج + أيقونة بس، بدون صورة فوتوغرافية
-    حقيقية (ما عندنا واحدة تتماشى مع هوية الموقع). */
-function SupervisorVisualPanel() {
-  return (
-    <div className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
-      <Card
-        tone="paper"
-        className="card-terra relative flex h-full flex-col items-center justify-center overflow-hidden !rounded-[calc(1.75rem-1.5px)] !shadow-none text-center"
-      >
-        <div className="pointer-events-none absolute -top-10 start-1/2 h-44 w-44 -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-500/25 to-amber-accent-500/20 blur-3xl [animation:ember-drift_13s_ease-in-out_infinite] motion-reduce:animate-none" />
-        <div className="pointer-events-none absolute -bottom-12 -end-12 h-40 w-40 rounded-full bg-gradient-to-br from-amber-accent-400/20 to-brand-700/15 blur-3xl" />
-        <span className="relative flex h-14 w-14 items-center justify-center rounded-full border border-brand-500/20 bg-white/[0.04] text-brand-600 shadow-[0_0_20px_-4px_rgba(255,106,0,0.45)] backdrop-blur-sm [animation:orb-pulse_3.2s_ease-in-out_infinite] motion-reduce:animate-none">
-          <Sparkles size={22} />
-        </span>
-        <p className="relative mt-4 font-display text-sm font-bold text-brand-950/80">فريقكم، إنجاز بإنجاز</p>
-        <p className="relative mt-1.5 max-w-[220px] text-xs leading-relaxed text-brand-950/45">
-          كل خطوة توثّقونها هنا تقرّبكم لتسليم بحث يستحق التعب 🌱
-        </p>
-      </Card>
-    </div>
-  );
-}
-
-/** قسم أوسع ومفصّل للتواصل مع المشرف الأكاديمي — يضيف إرسال واتساب مباشر
-    (بدون رقم محدد، يفتح جهات الاتصال) وعرض آخر ملاحظة كاملة منه/منها،
-    بدل بطاقة "رابط المشرف" المدمجة أعلاه اللي تبقى كما هي. */
 function SupervisorContactSection() {
   const { team, isLeader } = useAuth();
   const [copied, setCopied] = useState(false);
   const [reminderCopied, setReminderCopied] = useState(false);
   const [rotating, setRotating] = useState(false);
   const [rotateError, setRotateError] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<EmailStatus | null>(null);
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    getMyEmailStatus().then(setEmailStatus);
+  }, []);
 
   if (!team?.shareToken) return null;
 
@@ -245,7 +224,21 @@ function SupervisorContactSection() {
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? "تم النسخ" : "نسخ الرابط"}
             </button>
+            <a
+              href={`mailto:?subject=${encodeURIComponent("رابط متابعة فريقنا البحثي على Wesync")}&body=${encodeURIComponent(reminderMessage)}`}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-brand-100 px-3.5 py-2 text-xs font-bold text-brand-700 hover:bg-surface-muted"
+            >
+              <Mail size={13} />
+              إرسال بالإيميل
+            </a>
           </div>
+          <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
+            {emailStatus?.state === "active"
+              ? `إشعارات الإيميل مفعّلة للمشرفة (${emailStatus.emailMasked}) — يوصلها تنبيه كل ما تردّون عليها.`
+              : emailStatus?.state === "pending"
+                ? `المشرفة طلبت إشعارات الإيميل (${emailStatus.emailMasked}) وما أكّدتها بعد.`
+                : "المشرفة تقدر تفعّل إشعارات الإيميل بنفسها من رابطها، وبعدها يوصلها تنبيه كل ما تردّون عليها."}
+          </p>
           {isLeader && (
             <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">
               أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم{" "}
@@ -483,13 +476,14 @@ export default function Team() {
 
   return (
     <div>
+      <div className="mb-6">
+        <PageHeader kicker="الفريق" title="الفريق" subtitle="ادعوا فريقكم والمشرف/ة، وتابعوا إنجاز كل واحد منكم." />
+      </div>
       {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
         <>
-          <div className="mb-4 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
+          <div className="mb-4">
             <InviteCard />
-            <SupervisorVisualPanel />
-            <ReferralCard />
           </div>
           <SupervisorContactSection />
         </>
@@ -563,7 +557,7 @@ export default function Team() {
               <PeakBar value={progress} />
             </div>
 
-            <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-50 rounded-xl bg-surface-muted py-3 text-center">
+            <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-100/15 rounded-2xl bg-black/25 py-3 text-center">
               <div>
                 <p className="text-base font-extrabold text-brand-950">{tasksTotal}</p>
                 <p className="text-[11px] text-brand-950/45">إجمالي المهام</p>
@@ -583,6 +577,11 @@ export default function Team() {
       </div>
 
       <WorkloadBalance roster={roster} tasks={tasks} />
+      {isLeader && mode === "supabase" && (
+        <div className="mt-4">
+          <ReferralCard />
+        </div>
+      )}
       {mode === "mock" && <ActivityLog />}
     </div>
   );

@@ -198,3 +198,28 @@ export function useSurveyResponses(surveyId: string | undefined) {
 
   return { responses, loading, reload: load, clear };
 }
+
+/** عدد ردود كل استبيان (للفريق) — يغذّي تقدّم مرحلة جمع البيانات وصفحة الميدان. بالوضع التجريبي يرجّع أصفار. */
+export function useSurveyResponseCounts(surveys: Survey[]) {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const key = surveys.map((s) => s.id).join(",");
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !key) return;
+    let cancelled = false;
+    const ids = key.split(",").filter((id) => !id.startsWith("demo"));
+    Promise.all(
+      ids.map(async (id) => {
+        const { count } = await supabase!.from("research_survey_responses").select("id", { count: "exact", head: true }).eq("survey_id", id);
+        return [id, count ?? 0] as const;
+      }),
+    ).then((pairs) => {
+      if (!cancelled) setCounts(Object.fromEntries(pairs));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [key]);
+
+  return counts;
+}

@@ -83,7 +83,7 @@ export default function NotificationsBell() {
                   {urgentTasks.map(({ task, days }) => (
                     <Link
                       key={task.id}
-                      to="/tasks"
+                      to={`/tasks?task=${task.id}`}
                       onClick={() => setOpen(false)}
                       className="flex items-start gap-2.5 rounded-xl px-2 py-2 hover:bg-surface-muted"
                     >

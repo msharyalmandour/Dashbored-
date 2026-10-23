@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import SupervisorBoard from "../components/supervisor/SupervisorBoard";
 import {
   AlertTriangle,
   BookOpenText,
@@ -17,6 +18,7 @@ import Avatar from "../components/ui/Avatar";
 import { supabase } from "../lib/supabaseClient";
 import { formatDateShort } from "../lib/date";
 import type { AccentColor } from "../lib/colors";
+import { buildSeen, diffSince, loadApproved, loadSeen, loadTeams, rememberTeam, saveApproved, saveSeen } from "../lib/supervisorLocal";
 
 interface SnapshotTask {
   title: string;
@@ -132,11 +134,19 @@ export default function SupervisorView() {
   const [noteSent, setNoteSent] = useState(false);
   const [noteError, setNoteError] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[]>([]);
+  const [threadLoaded, setThreadLoaded] = useState(false);
+  const [digestDismissed, setDigestDismissed] = useState(false);
+  const [approved, setApproved] = useState<string[]>(() => (token ? loadApproved(token) : []));
+  const [approvingKey, setApprovingKey] = useState<string | null>(null);
+  const [waitingCount, setWaitingCount] = useState(0);
 
   const loadThread = useCallback(async () => {
     if (!supabase || !token) return;
     const { data } = await supabase.rpc("get_supervisor_thread", { p_token: token });
-    if (Array.isArray(data)) setThread(data as ThreadMessage[]);
+    if (Array.isArray(data)) {
+      setThread(data as ThreadMessage[]);
+      setThreadLoaded(true);
+    }
   }, [token]);
 
   useEffect(() => {
@@ -164,6 +174,52 @@ export default function SupervisorView() {
     const timer = setInterval(loadThread, 30_000);
     return () => clearInterval(timer);
   }, [token, loadThread]);
+
+  // نحفظ الفريق بقائمة «فرقي» على جهاز المشرف/ة
+  useEffect(() => {
+    if (token && snapshot) rememberTeam(token, snapshot.teamName);
+  }, [token, snapshot]);
+
+  const teamMsgCount = threadLoaded ? thread.filter((m) => m.sender === "team").length : null;
+  // آخر مرة شافت فيها المشرفة التقرير — تُلتقط مرة وحدة وقت فتح الصفحة
+  const [seenBefore] = useState(() => (token ? loadSeen(token) : null));
+  const digest = snapshot && seenBefore && !digestDismissed ? diffSince(seenBefore, snapshot, teamMsgCount) : null;
+
+  const markSeen = () => {
+    if (token && snapshot) saveSeen(token, buildSeen(snapshot, teamMsgCount ?? seenBefore?.teamMsgCount ?? 0));
+    setDigestDismissed(true);
+  };
+
+  // أول زيارة: نحفظ نقطة المقارنة فورًا عشان الزيارة الجاية يكون فيها «وش تغيّر»
+  useEffect(() => {
+    if (token && snapshot && threadLoaded && !seenBefore) saveSeen(token, buildSeen(snapshot, thread.filter((m) => m.sender === "team").length));
+  }, [token, snapshot, threadLoaded, seenBefore, thread]);
+
+  // لو ظلت الصفحة مفتوحة ٥ دقايق نعتبرها «مقروءة» حتى لو ما ضغطت الزر
+  useEffect(() => {
+    if (!token || !snapshot || !threadLoaded) return;
+    const t = setTimeout(() => saveSeen(token, buildSeen(snapshot, thread.filter((m) => m.sender === "team").length)), 5 * 60_000);
+    return () => clearTimeout(t);
+  }, [token, snapshot, threadLoaded, thread]);
+
+  const approveSection = async (key: string, label: string) => {
+    if (!supabase || !token || approvingKey) return;
+    setApprovingKey(key);
+    const { error: rpcError } = await supabase.rpc("submit_supervisor_message", {
+      p_token: token,
+      p_body: `✅ اعتمدنا قسم «${label}» — تقدرون تكملون للي بعده.`,
+      p_name: nameDraft.trim(),
+    });
+    setApprovingKey(null);
+    if (rpcError) {
+      setNoteError(rpcError.message.includes("rate limit") ? "أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي." : "ما انرسل الاعتماد — حاولوا مرة ثانية.");
+      return;
+    }
+    const next = [...approved, key];
+    setApproved(next);
+    saveApproved(token, next);
+    loadThread();
+  };
 
   const submitNote = async () => {
     if (!supabase || !token || noteSubmitting) return;
@@ -251,13 +307,64 @@ export default function SupervisorView() {
             </div>
             <span className="font-display text-base font-extrabold text-brand-950">Wesync</span>
           </div>
-          <span className="flex items-center gap-1.5 rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-950/55 shadow-sm shadow-brand-950/5">
-            <ShieldCheck size={13} className="text-brand-500" />
-            تقرير قراءة فقط
-          </span>
+          <div className="flex items-center gap-2">
+            {loadTeams().length > 1 && (
+              <Link to="/supervisor" className="rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm shadow-brand-950/5 hover:bg-brand-50">
+                فرقي ({loadTeams().length})
+              </Link>
+            )}
+            <span className="flex items-center gap-1.5 rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-950/55 shadow-sm shadow-brand-950/5">
+              <ShieldCheck size={13} className="text-brand-500" />
+              تقرير قراءة فقط
+            </span>
+          </div>
         </div>
 
-        <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
+        <nav aria-label="أقسام التقرير" className="sticky top-2 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto rounded-full border border-brand-100/70 bg-paper/85 p-1.5 shadow-sm shadow-brand-950/5 backdrop-blur-xl">
+          {[
+            ["sv-waiting", waitingCount > 0 ? `تنتظركم (${waitingCount})` : "تنتظركم"],
+            ["sv-summary", "الملخص"],
+            ["sv-tasks", "المهام"],
+            ["sv-proposal", "المقترح"],
+            ...(snapshot.methodology ? [["sv-methodology", "المنهجية"]] : []),
+            ["sv-chat", "راسلوا الفريق"],
+          ].map(([id, label]) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold text-brand-950/60 hover:bg-brand-50 hover:text-brand-900"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+
+        {token && <SupervisorBoard token={token} name={nameDraft} onNameChange={setNameDraft} onWaitingCount={setWaitingCount} />}
+
+        {seenBefore && !digestDismissed && digest && (
+          <div className="mb-4 rounded-3xl border border-amber-accent-200/70 bg-amber-accent-50/70 p-5">
+            <p className="text-xs font-extrabold text-amber-accent-700">منذ زيارتكم الأخيرة ({formatDateShort(seenBefore.at)})</p>
+            {digest.length > 0 ? (
+              <ul className="mt-2 space-y-1">
+                {digest.slice(0, 8).map((line, i) => (
+                  <li key={i} className="text-sm font-semibold text-brand-950/80">• {line}</li>
+                ))}
+                {digest.length > 8 && <li className="text-xs text-brand-950/50">و{digest.length - 8} تغييرات ثانية</li>}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-brand-950/60">ما تغيّر شي من زيارتكم الأخيرة.</p>
+            )}
+            <button onClick={markSeen} className="mt-3 rounded-full bg-amber-accent-500 px-4 py-1.5 text-xs font-bold text-white hover:bg-amber-accent-600">
+              تم الاطلاع
+            </button>
+          </div>
+        )}
+
+        <div id="sv-summary" className="scroll-mt-16 rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
           <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-paper p-6 sm:p-8">
             <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-accent-100/60 blur-2xl" />
             <div className="relative">
@@ -308,7 +415,7 @@ export default function SupervisorView() {
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div id="sv-tasks" className="mt-8 scroll-mt-16">
                 <p className="mb-3 text-sm font-bold text-brand-950/80">المهام</p>
                 <ul className="divide-y divide-brand-50">
                   {snapshot.tasks.map((t, i) => (
@@ -345,7 +452,7 @@ export default function SupervisorView() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
+        <div id="sv-proposal" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
             <BookOpenText size={14} className="text-brand-500" />
             المقترح البحثي
@@ -363,6 +470,18 @@ export default function SupervisorView() {
                   >
                     {sectionStatusLabel[s.status]}
                   </span>
+                  {s.status === "done" &&
+                    (approved.includes(s.key) ? (
+                      <span className="whitespace-nowrap rounded-full bg-brand-500 px-2.5 py-1 text-xs font-bold text-white">معتمد ✓</span>
+                    ) : (
+                      <button
+                        onClick={() => approveSection(s.key, s.labelAr)}
+                        disabled={approvingKey === s.key}
+                        className="whitespace-nowrap rounded-full border border-brand-300 px-2.5 py-1 text-xs font-bold text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+                      >
+                        اعتماد
+                      </button>
+                    ))}
                 </div>
                 {s.content ? (
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-brand-950/65">{s.content}</p>
@@ -378,7 +497,7 @@ export default function SupervisorView() {
         </div>
 
         {snapshot.methodology && (
-          <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
+          <div id="sv-methodology" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
             <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
               <FlaskConical size={14} className="text-brand-500" />
               المنهجية
@@ -400,7 +519,7 @@ export default function SupervisorView() {
           </div>
         )}
 
-        <div className="mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
+        <div id="sv-chat" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
             <MessageSquareText size={15} className="text-brand-500" />
             محادثتكم مع الفريق

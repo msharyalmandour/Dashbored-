@@ -49,6 +49,27 @@ Deno.serve(async (req: Request) => {
     });
   }
 
+  // مواعيد التقويم اللي يضيفونها (اجتماعات، مراجعات، ميداني، مواعيد نهائية) + الاجتماعات المؤكدة مع المشرف/ة — لكل الفريق
+  const { data: calEvents } = await admin
+    .from("calendar_events")
+    .select("id, title, event_date, event_time, event_type, location")
+    .eq("team_id", teamId)
+    .gte("event_date", cutoff)
+    .limit(500);
+  const typeIcon: Record<string, string> = { meeting: "👥", review: "🔍", fieldwork: "📍", deadline: "🏁" };
+  for (const ev of calEvents ?? []) {
+    const isDeadline = ev.event_type === "deadline";
+    events.push({
+      uid: `event-${ev.id}@wesync`,
+      title: `${typeIcon[ev.event_type] ?? "📅"} ${ev.title}`,
+      date: ev.event_date as string,
+      time: isDeadline ? undefined : (ev.event_time as string),
+      durationMin: 60,
+      location: ev.location || undefined,
+      alarms: isDeadline ? ["-PT15H"] : ["-PT1H", "-PT15M"],
+    });
+  }
+
   const { data: project } = await admin
     .from("research_projects")
     .select("id, title, target_submission_date")
@@ -88,7 +109,7 @@ Deno.serve(async (req: Request) => {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": 'inline; filename="wesync.ics"',
-      "Cache-Control": "private, max-age=600",
+      "Cache-Control": "private, max-age=300",
       "X-Content-Type-Options": "nosniff",
     },
   });

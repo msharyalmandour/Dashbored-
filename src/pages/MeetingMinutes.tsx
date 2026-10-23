@@ -1,260 +1,322 @@
-import { useState } from "react";
-import { CalendarDays, Check, Download, Loader2, NotebookPen, Trash2, Users2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import clsx from "clsx";
+import { CalendarClock, Check, CloudUpload, HardDrive, HelpCircle, MessageCircle, NotebookPen, X } from "lucide-react";
+import DriveCard from "../components/DriveCard";
 import Card from "../components/ui/Card";
-import EmptyState from "../components/ui/EmptyState";
-import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
+import { HighlightCard, PageColumns, PageHeader, Panel, Segmented, ghostBtn } from "../components/ui/page";
+import AppointmentsTab from "../components/meetings/AppointmentsTab";
+import DecisionsTab from "../components/meetings/DecisionsTab";
+import MinutesForm, { type MinutesFormPayload } from "../components/meetings/MinutesForm";
+import MinutesList from "../components/meetings/MinutesList";
+import ReadinessCard from "../components/meetings/ReadinessCard";
+import SupervisorSetupCard from "../components/meetings/SupervisorSetupCard";
+import { useResearchProject } from "../hooks/useResearchProject";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useMeetingMinutes } from "../hooks/useMeetingMinutes";
+import { useMeetings } from "../hooks/useMeetings";
+import { useResearchStages } from "../hooks/useResearchStages";
+import { useTasksData } from "../hooks/useTasksData";
 import { useTeamRoster } from "../hooks/useTeamRoster";
+import { driveErrorMessage, getDriveStatus, uploadMinutesToDrive, type DriveStatus } from "../lib/driveTeam";
 import { buildMeetingMinutesDoc } from "../lib/meetingMinutesExport";
-import { formatDateLong, toISODate } from "../lib/date";
-import { g, isFemaleUser } from "../lib/gender";
+import { formatDateFull, toISODate } from "../lib/date";
+import { approvalRequestMessage, buildReadiness, supervisorLink, whatsappUrl } from "../lib/meetings";
+import { getCurrentStage } from "../lib/progress";
+import { notifySupervisor } from "../lib/supervisorNotify";
 import type { MeetingMinutesRow } from "../data/types";
 
-/** ينزّل ملف Word مباشرة على جهاز المستخدمة — بدون أي رفع لخدمة خارجية
-    (Google Drive يحتاج Google Workspace، مو متوفر، فما نعد بشي ما نقدر
-    ننفذه) */
-async function downloadMinutesDoc(
-  input: Pick<MeetingMinutesRow, "meetingDate" | "attendees" | "discussion" | "decisions" | "actionItems">,
-  style: "dark" | "official" = "dark",
-) {
-  const blob = await buildMeetingMinutesDoc(input, style);
+type Tab = "minutes" | "decisions" | "appointments";
+type DocInput = Pick<MeetingMinutesRow, "meetingDate" | "agenda" | "attendees" | "discussion" | "decisions" | "actionItems">;
+
+const minutesFileName = (date: string, style: "dark" | "official" = "dark") => `محضر اجتماع - ${date}${style === "dark" ? " — Wesync" : ""}.docx`;
+
+function saveBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `محضر اجتماع - ${input.meetingDate}${style === "dark" ? " — Wesync" : ""}.docx`;
+  a.download = name;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-const inputClass =
-  "w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300";
+const TABS: { id: Tab; label: string; icon: typeof NotebookPen }[] = [
+  { id: "minutes", label: "المحاضر", icon: NotebookPen },
+  { id: "decisions", label: "قرارات للمشرف/ة", icon: HelpCircle },
+  { id: "appointments", label: "المواعيد", icon: CalendarClock },
+];
 
 export default function MeetingMinutes() {
-  const { currentUser, isLeader } = useAuth();
-  const isFemale = isFemaleUser(currentUser);
+  const { currentUser, isLeader, canWrite, team } = useAuth();
+  const { project, updateProject } = useResearchProject();
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
-  const { minutes, loading, addMinutes, deleteMinutes } = useMeetingMinutes();
+  const { minutes, loading, addMinutes, deleteMinutes, reload } = useMeetingMinutes();
+  const meetings = useMeetings();
+  const { tasks } = useTasksData();
+  const { stages } = useResearchStages();
 
-  const [meetingDate, setMeetingDate] = useState(toISODate(new Date()));
-  const [attendeeIds, setAttendeeIds] = useState<string[]>([]);
-  const [discussion, setDiscussion] = useState("");
-  const [decisions, setDecisions] = useState("");
-  const [actionItems, setActionItems] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab: Tab = (["minutes", "decisions", "appointments"] as const).find((t) => t === searchParams.get("tab")) ?? "minutes";
+  const [driveStatus, setDriveStatus] = useState<DriveStatus | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [agendaSeed, setAgendaSeed] = useState<{ text: string; n: number } | null>(null);
+  const [justSaved, setJustSaved] = useState<{ id: string; date: string; sent: boolean } | null>(null);
 
-  const toggleAttendee = (id: string) => {
-    setAttendeeIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const supervisorUrl = team?.shareToken ? supervisorLink(window.location.origin, team.shareToken) : null;
+  const memberName = useCallback((id: string | null | undefined) => roster.find((m) => m.id === id)?.name ?? "", [roster]);
+
+  const refreshDrive = useCallback(() => {
+    getDriveStatus().then(setDriveStatus);
+  }, []);
+  useEffect(() => {
+    refreshDrive();
+  }, [refreshDrive]);
+
+  // رجعة من شاشة موافقة Google (?drive=connected | error)
+  useEffect(() => {
+    const result = searchParams.get("drive");
+    if (!result) return;
+    const reason = searchParams.get("reason");
+    showToast(
+      result === "connected"
+        ? { title: "انربط درايف الفريق", desc: "أنشأنا مجلد Wesync وشاركناه مع الأعضاء.", icon: Check, tone: "brand" }
+        : { title: "ما انربط الدرايف", desc: reason === "denied" ? "ما وافقتم على الصلاحية." : "صار خطأ أثناء الربط — جرّبوا مرة ثانية.", icon: HardDrive, tone: "rose" },
+    );
+    const next = new URLSearchParams(searchParams);
+    next.delete("drive");
+    next.delete("reason");
+    setSearchParams(next, { replace: true });
+    refreshDrive();
+  }, [searchParams, setSearchParams, showToast, refreshDrive]);
+
+  const setTab = (t: Tab) => {
+    const next = new URLSearchParams(searchParams);
+    if (t === "minutes") next.delete("tab");
+    else next.set("tab", t);
+    setSearchParams(next, { replace: true });
   };
 
-  const reset = () => {
-    setMeetingDate(toISODate(new Date()));
-    setAttendeeIds([]);
-    setDiscussion("");
-    setDecisions("");
-    setActionItems("");
+  const today = toISODate(new Date());
+  const lastMinutes = minutes[0];
+  const readiness = useMemo(
+    () =>
+      buildReadiness({
+        today,
+        lastMeetingDate: lastMinutes?.meetingDate,
+        lastActions: lastMinutes ? meetings.actions.filter((a) => a.minutesId === lastMinutes.id) : [],
+        tasks,
+        memberName,
+        openDecisions: meetings.decisions.filter((d) => d.status === "open"),
+        stageKey: getCurrentStage(stages)?.stageKey,
+      }),
+    [today, lastMinutes, meetings.actions, meetings.decisions, tasks, memberName, stages],
+  );
+  const nextBooking = meetings.bookings.find((b) => b.status === "confirmed" && b.date >= today);
+
+  /** يبني Word مرة وحدة، وينزّله، ويرفعه لدرايف لو مربوط — كله بالخلفية بدون ما يعلّق الحفظ */
+  const exportInBackground = (minutesId: string, input: DocInput) => {
+    void (async () => {
+      try {
+        const blob = await buildMeetingMinutesDoc(input);
+        saveBlob(blob, minutesFileName(input.meetingDate));
+        if (driveStatus?.connected) {
+          const r = await uploadMinutesToDrive(blob, minutesFileName(input.meetingDate), minutesId);
+          await reload();
+          showToast(
+            r.error
+              ? { title: "ما انرفع لدرايف", desc: driveErrorMessage(r.error), icon: CloudUpload, tone: "rose" }
+              : { title: "انرفع لدرايف الفريق", desc: "المحضر الحين بمجلدكم المشترك.", icon: CloudUpload, tone: "brand" },
+          );
+        }
+      } catch {
+        // السجل محفوظ بالموقع بأي حال — التنزيل يقدرون يعيدونه من القائمة
+      }
+    })();
   };
 
-  const handleSave = async () => {
-    if (!currentUser || !discussion.trim() || saving) return;
-    setError(null);
-    setSaving(true);
-
-    const attendeeNames = roster.filter((m) => attendeeIds.includes(m.id)).map((m) => m.name);
-
-    const { row, error: saveError } = await addMinutes({
-      meetingDate,
+  const handleSubmit = async (p: MinutesFormPayload): Promise<string | null> => {
+    if (!currentUser) return "سجّلوا دخولكم أول.";
+    const attendeeNames = roster.filter((m) => p.attendeeIds.includes(m.id)).map((m) => m.name);
+    const actionsText = p.actions.map((a) => a.text).join("\n");
+    const { row, error } = await addMinutes({
+      meetingDate: p.meetingDate,
+      agenda: p.agenda.trim(),
       attendees: attendeeNames,
-      discussion,
-      decisions,
-      actionItems,
+      discussion: p.discussion,
+      decisions: p.decisions,
+      actionItems: actionsText,
       createdById: currentUser.id,
     });
+    if (error || !row) return error === "no research project" ? "ما لقينا مشروع بحث مربوط بحسابكم — تأكدوا إنكم داخل فريق." : "تعذّر حفظ المحضر — حاولوا مرة ثانية.";
 
-    if (saveError || !row) {
-      setError("تعذّر حفظ المحضر — حاولوا مرة ثانية.");
-      setSaving(false);
-      return;
+    let tasksCreated = 0;
+    if (p.actions.length > 0) {
+      const r = await meetings.createActions(row.id, p.actions);
+      tasksCreated = r.created;
+      if (r.error) showToast({ title: "انحفظ المحضر، لكن البنود ما تحولت لمهام", desc: r.error, icon: X, tone: "rose" });
+    }
+    let sent = false;
+    if (p.sendToSupervisor) {
+      const r = await meetings.requestApproval(row.id);
+      sent = !r.error;
+      if (sent) void notifySupervisor("minutes", row.id);
     }
 
-    // المحضر انحفظ بالموقع فعليًا الآن — ننزّل نسخة Word حقيقية مباشرة
-    // (بدون رفع درايف، غير متاح حاليًا)
-    try {
-      await downloadMinutesDoc({ meetingDate, attendees: attendeeNames, discussion, decisions, actionItems });
-    } catch {
-      // السجل محفوظ بالموقع بنجاح بأي حال — التنزيل يقدرون يعيدونه من القائمة تحت
-    }
-
+    setJustSaved({ id: row.id, date: p.meetingDate, sent });
     showToast({
-      title: g(isFemale, "تم حفظ المحضر", "تم حفظ المحضر"),
-      desc: "انحفظ بالموقع، ونزّلنا لكم نسخة Word.",
+      title: "تم حفظ المحضر",
+      desc: [tasksCreated > 0 ? `${tasksCreated} ${tasksCreated === 1 ? "بند صار مهمة" : "بنود صارت مهام"}` : "", sent ? "وانرسل للمشرف/ة للاعتماد" : "", "ونزّلنا لكم Word."].filter(Boolean).join("، "),
       icon: Check,
       tone: "brand",
     });
-    reset();
-    setSaving(false);
+    exportInBackground(row.id, { meetingDate: p.meetingDate, agenda: p.agenda.trim(), attendees: attendeeNames, discussion: p.discussion, decisions: p.decisions, actionItems: actionsText });
+    return null;
   };
 
+  const handleDownload = async (m: MeetingMinutesRow, style: "dark" | "official") => {
+    try {
+      saveBlob(await buildMeetingMinutesDoc(m, style), minutesFileName(m.meetingDate, style));
+    } catch {
+      showToast({ title: "ما قدرنا نجهّز الملف", desc: "حاولوا مرة ثانية.", icon: X, tone: "rose" });
+    }
+  };
+
+  const handleUploadDrive = async (m: MeetingMinutesRow) => {
+    setUploadingId(m.id);
+    let err: string | null = null;
+    try {
+      const blob = await buildMeetingMinutesDoc(m);
+      const r = await uploadMinutesToDrive(blob, minutesFileName(m.meetingDate), m.id);
+      await reload();
+      err = r.error ? driveErrorMessage(r.error) : null;
+    } catch {
+      err = driveErrorMessage(undefined);
+    }
+    setUploadingId(null);
+    showToast(err ? { title: "ما انرفع لدرايف", desc: err, icon: CloudUpload, tone: "rose" } : { title: "انرفع لدرايف", desc: "المحضر الحين بمجلد الفريق.", icon: Check, tone: "brand" });
+  };
+
+  const handleSendApproval = async (m: MeetingMinutesRow) => {
+    const r = await meetings.requestApproval(m.id);
+    if (r.error) {
+      showToast({ title: "ما انرسل للاعتماد", desc: r.error, icon: X, tone: "rose" });
+      return;
+    }
+    const n = await notifySupervisor("minutes", m.id);
+    showToast({ title: "انرسل للاعتماد", desc: n.sent ? "وصل المشرف/ة إيميل." : "اضغطوا «ذكّروها بواتساب» لإرسال الرابط لها.", icon: Check, tone: "brand" });
+  };
+
+  const openDecisions = meetings.decisions.filter((d) => d.status === "open").length;
+  const upcomingBookings = meetings.bookings.filter((b) => (b.status === "pending" || b.status === "confirmed") && b.date >= today).length;
+  const badge = (t: Tab) => (t === "decisions" ? openDecisions : t === "appointments" ? upcomingBookings : 0);
+  const driveOnTop = !!driveStatus?.configured && !driveStatus.connected;
+
+  const minutesMain = (
+    <>
+      {driveOnTop && driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
+
+      {canWrite && (
+        <MinutesForm roster={roster.map((m) => ({ id: m.id, name: m.name }))} currentUserId={currentUser?.id ?? ""} agendaSeed={agendaSeed} onSubmit={handleSubmit} />
+      )}
+
+      {justSaved && (
+        <Card tone="cream" className="relative !p-4">
+          <button onClick={() => setJustSaved(null)} aria-label="إغلاق" className="absolute end-3 top-3 text-brand-950/40 hover:text-brand-700">
+            <X size={16} />
+          </button>
+          <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
+            <Check size={16} className="text-emerald-500" />
+            انحفظ محضر {formatDateFull(justSaved.date)}
+          </p>
+          <p className="mt-1 text-xs text-brand-950/60">
+            {justSaved.sent ? "وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:" : "ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت."}
+          </p>
+          {justSaved.sent && supervisorUrl && (
+            <a href={whatsappUrl(approvalRequestMessage(formatDateFull(justSaved.date), supervisorUrl))} target="_blank" rel="noreferrer" className={clsx(ghostBtn, "mt-2.5")}>
+              <MessageCircle size={14} />
+              أرسلوا الرابط بواتساب
+            </a>
+          )}
+        </Card>
+      )}
+
+      <Panel title="المحاضر السابقة">
+        <MinutesList
+          minutes={minutes}
+          loading={loading}
+          actions={meetings.actions}
+          approvals={meetings.approvals}
+          tasks={tasks}
+          memberName={memberName}
+          canDelete={(m) => isLeader || m.createdById === currentUser?.id}
+          onDelete={(id) => void deleteMinutes(id)}
+          driveConnected={!!driveStatus?.connected}
+          uploadingId={uploadingId}
+          onUploadDrive={handleUploadDrive}
+          onDownload={handleDownload}
+          onSendApproval={handleSendApproval}
+          supervisorUrl={supervisorUrl}
+          highlightId={justSaved?.id}
+        />
+      </Panel>
+
+      {!driveOnTop && driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
+    </>
+  );
+
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">محاضر الاجتماعات</h1>
-        <p className="text-sm text-brand-950/50">
-          كل اجتماع = سجل هنا بالموقع + نسخة Word حقيقية تنزّل لجهازكم فورًا، بضغطة حفظ وحدة.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="الفريق · الاجتماعات"
+        title="الاجتماعات والمشرف/ة"
+        subtitle="محاضر منظّمة تتحول لمهام، وقرارات بضغطة، ومواعيد ما تفوتكم."
+        action={
+          <Segmented
+            items={TABS.map((t) => ({ id: t.id, label: t.label, badge: badge(t.id) }))}
+            value={tab}
+            onChange={setTab}
+          />
+        }
+      />
 
-      <Card tone="cream">
-        <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-brand-950">
-          <NotebookPen size={18} className="text-brand-500" />
-          محضر اجتماع جديد
-        </h3>
+      <SupervisorSetupCard
+        supervisorName={project?.supervisorName ?? ""}
+        onSaveName={(supervisorName) => updateProject({ supervisorName })}
+        supervisorUrl={supervisorUrl}
+        projectTitle={project?.title ?? ""}
+        hasAvailability={!!meetings.availability?.windows?.length}
+        canWrite={canWrite}
+      />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="block text-sm">
-            <span className="mb-1 flex items-center gap-1.5 font-semibold text-brand-950/70">
-              <CalendarDays size={14} />
-              تاريخ الاجتماع
-            </span>
-            <input
-              type="date"
-              value={meetingDate}
-              onChange={(e) => setMeetingDate(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-
-          <div className="block text-sm">
-            <span className="mb-1 flex items-center gap-1.5 font-semibold text-brand-950/70">
-              <Users2 size={14} />
-              الحاضرون
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {roster.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => toggleAttendee(m.id)}
-                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                    attendeeIds.includes(m.id)
-                      ? "bg-brand-500 text-white"
-                      : "bg-surface-muted text-brand-950/60 hover:bg-brand-50"
-                  }`}
-                >
-                  {m.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <label className="block text-sm md:col-span-2">
-            <span className="mb-1 block font-semibold text-brand-950/70">ماذا ناقشنا</span>
-            <textarea
-              value={discussion}
-              onChange={(e) => setDiscussion(e.target.value)}
-              rows={3}
-              className={inputClass}
-              placeholder="أبرز النقاط اللي انناقشت بالاجتماع"
-            />
-          </label>
-
-          <label className="block text-sm md:col-span-2">
-            <span className="mb-1 block font-semibold text-brand-950/70">القرارات</span>
-            <textarea
-              value={decisions}
-              onChange={(e) => setDecisions(e.target.value)}
-              rows={2}
-              className={inputClass}
-              placeholder="القرارات اللي اتفقنا عليها"
-            />
-          </label>
-
-          <label className="block text-sm md:col-span-2">
-            <span className="mb-1 block font-semibold text-brand-950/70">المهام المطلوبة</span>
-            <textarea
-              value={actionItems}
-              onChange={(e) => setActionItems(e.target.value)}
-              rows={2}
-              className={inputClass}
-              placeholder="اللي المفروض ينصاح بعد الاجتماع"
-            />
-          </label>
-        </div>
-
-        {error && (
-          <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">{error}</p>
-        )}
-
-        <button
-          onClick={handleSave}
-          disabled={saving || !discussion.trim()}
-          className="mt-4 flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-        >
-          {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-          {saving ? "جاري الحفظ..." : "حفظ المحضر"}
-        </button>
-      </Card>
-
-      <div className="space-y-3">
-        <h3 className="text-base font-bold text-brand-950">المحاضر السابقة</h3>
-        {loading ? (
-          <p className="text-sm text-brand-950/45">جاري التحميل...</p>
-        ) : minutes.length === 0 ? (
-          <Card>
-            <EmptyState
-              icon={NotebookPen}
-              title="ما فيه محاضر بعد"
-              desc="أول محضر اجتماع تحفظونه بيظهر هنا وبدرايف الفريق."
-            />
-          </Card>
-        ) : (
-          minutes.map((m) => (
-            <Card key={m.id} className="space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-bold text-brand-950">{formatDateLong(m.meetingDate)}</p>
-                <button
-                  onClick={() => downloadMinutesDoc(m)}
-                  className="flex items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 hover:bg-brand-50 hover:text-brand-700"
-                >
-                  <Download size={12} />
-                  تنزيل Word
-                </button>
-                <button
-                  onClick={() => downloadMinutesDoc(m, "official")}
-                  title="نسخة بيضاء بسيطة للطباعة"
-                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-950/45 hover:bg-brand-50 hover:text-brand-700"
-                >
-                  نسخة فاتحة للطباعة
-                </button>
-                {(isLeader || m.createdById === currentUser?.id) && (
-                  <ThreeDotsMenu
-                    items={[
-                      {
-                        label: "حذف المحضر",
-                        confirmLabel: "تأكيد الحذف؟",
-                        icon: Trash2,
-                        tone: "danger",
-                        onClick: () => deleteMinutes(m.id),
-                      },
-                    ]}
-                  />
-                )}
-              </div>
-              {m.attendees.length > 0 && (
-                <p className="text-xs text-brand-950/50">الحاضرون: {m.attendees.join("، ")}</p>
+      {tab === "minutes" && (
+        <PageColumns
+          main={<div className="space-y-6">{minutesMain}</div>}
+          side={
+            <>
+              {nextBooking ? (
+                <HighlightCard
+                  kicker="الاجتماع القادم"
+                  title="اجتماع مع المشرف/ة"
+                  subtitle={`${formatDateFull(nextBooking.date)} · ${nextBooking.time}`}
+                />
+              ) : (
+                <HighlightCard kicker="الاجتماع القادم" title="ما فيه اجتماع محجوز" subtitle="احجزوا موعد من تبويب «المواعيد»." />
               )}
-              <p className="text-sm text-brand-950/70">{m.discussion}</p>
-              {m.decisions && <p className="text-sm text-brand-950/70"><b>القرارات:</b> {m.decisions}</p>}
-              {m.actionItems && (
-                <p className="text-sm text-brand-950/70"><b>المهام:</b> {m.actionItems}</p>
-              )}
-            </Card>
-          ))
-        )}
-      </div>
+              {canWrite && <ReadinessCard readiness={readiness} nextBooking={nextBooking} onUseAgenda={(text) => setAgendaSeed({ text, n: (agendaSeed?.n ?? 0) + 1 })} />}
+            </>
+          }
+        />
+      )}
+
+      {tab === "decisions" && (
+        <DecisionsTab decisions={meetings.decisions} availability={meetings.availability} supervisorUrl={supervisorUrl} canWrite={canWrite} onAsk={meetings.askDecision} onCancel={meetings.cancelDecision} />
+      )}
+
+      {tab === "appointments" && (
+        <AppointmentsTab availability={meetings.availability} bookings={meetings.bookings} supervisorUrl={supervisorUrl} canWrite={canWrite} onBook={meetings.bookSlot} onCancel={meetings.cancelBooking} />
+      )}
     </div>
   );
 }

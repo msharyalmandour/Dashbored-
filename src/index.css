@@ -680,3 +680,51 @@ button:not(:disabled):active {
   .cine-word, .cine-rise { animation: none; opacity: 1; }
   .cine-cta { animation: none; }
 }
+
+/* بطاقة «اليوم»: انزلاق الشرائح + رسم علامة ✓ عند الإنجاز */
+@keyframes today-slide-in {
+  from { opacity: 0; transform: translateX(var(--today-dx, -28px)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes today-check-draw {
+  from { stroke-dashoffset: 30; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes today-check-pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.today-slide { animation: today-slide-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.today-check { animation: today-check-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.today-check-path { stroke-dasharray: 30; animation: today-check-draw 520ms 120ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .today-slide, .today-check, .today-check-path { animation: none; }
+}
+
+/* ===================================================================
+   التصميم الموحّد للصفحات الداخلية (كلها ما عدا الرئيسية): أي Card داخل
+   صفحة معلّمة data-redesign ياخذ زجاج داكن بحدّ برتقالي خفيف وزوايا ٢٨.
+   مكتوبة خارج الطبقات عشان تغلب ألوان tone القديمة (سماوي/كهرماني/بنفسجي).
+   =================================================================== */
+:root[data-theme="black"] [data-redesign] .glass-panel.rounded-3xl {
+  background-color: rgba(24, 16, 8, 0.6);
+  border-color: rgba(255, 106, 0, 0.3);
+  border-radius: 28px;
+}
+
+/* ===================================================================
+   حزوز ذهبية: خط منقوش (ظل داكن فوقه وذهبي تحته) يتلاشى من الأطراف —
+   يفصل الأقسام بهدوء وتبان بدون ما تثقل العين.
+   =================================================================== */
+.gold-groove {
+  height: 3px;
+  border: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.7) 18%, rgba(0, 0, 0, 0.7) 82%, transparent) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(255, 181, 71, 0.62) 18%, rgba(255, 181, 71, 0.62) 82%, transparent) bottom / 100% 1px no-repeat;
+}
+.gold-groove-soft {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 181, 71, 0.38) 20%, rgba(255, 181, 71, 0.38) 80%, transparent);
+}

@@ -106,7 +106,7 @@ export default function Legal() {
               )}
               {(BUSINESS_OWNER_NAME || FREELANCE_DOC_NUMBER) && (
                 <p className="pt-2 text-xs leading-relaxed text-white/40">
-                  {BUSINESS_OWNER_NAME && <>المالكة: {BUSINESS_OWNER_NAME}. </>}
+                  {BUSINESS_OWNER_NAME && <>المالك: {BUSINESS_OWNER_NAME}. </>}
                   {FREELANCE_DOC_NUMBER && <>وثيقة العمل الحر رقم: {FREELANCE_DOC_NUMBER}. </>}
                   المملكة العربية السعودية.
                 </p>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, Plus, Send, Sparkles, Trash2 } from "lucide-react";
+import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import AiLockedCard from "../components/AiLockedCard";
@@ -12,6 +12,7 @@ import { callStudy } from "../hooks/useStudyTools";
 import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { notifySupervisor } from "../lib/supervisorEmail";
 import { formatDateLong } from "../lib/date";
 
 interface Draft {
@@ -31,6 +32,8 @@ export default function SupervisorFeedback() {
   const [replyText, setReplyText] = useState("");
   const [replyBusy, setReplyBusy] = useState(false);
   const [replyErr, setReplyErr] = useState<string | null>(null);
+  const [nudge, setNudge] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const [raw, setRaw] = useState("");
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
@@ -63,8 +66,17 @@ export default function SupervisorFeedback() {
     const r = await reply(replyText);
     setReplyBusy(false);
     if (r.error) setReplyErr(r.error);
-    else setReplyText("");
+    else {
+      setReplyText("");
+      setNudge(true);
+      setEmailSent(false);
+      // لو المشرفة مفعّلة الإيميل يوصلها تنبيه تلقائي (بحد زمني)، وإلا يبقى الواتساب
+      if (isSupabaseConfigured) notifySupervisor().then((res) => setEmailSent(!!res.data?.sent));
+    }
   };
+
+  const supervisorLink = team?.shareToken ? `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}` : null;
+  const nudgeMessage = `مرحبًا دكتور/ة، رددنا على ملاحظتكم بخصوص بحثنا — تقدرون تشوفون الرد وتكملون المحادثة من هنا:\n${supervisorLink ?? ""}`;
 
   const toTasks = (body: string) => {
     setRaw(body);
@@ -214,6 +226,24 @@ export default function SupervisorFeedback() {
             </button>
           </div>
           {replyErr && <p className="text-xs font-semibold text-rose-600">{replyErr}</p>}
+          {nudge && supervisorLink && (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/70 p-3">
+              <p className="min-w-0 flex-1 text-xs font-semibold text-brand-950/70">{emailSent ? "انرسل ردّكم ووصلها إيميل تنبيه ✓ — تقدرون تنبّهونها بواتساب أيضًا لو الموضوع عاجل." : "انرسل ردّكم. لو المشرفة مفعّلة إشعارات الإيميل يوصلها تنبيه، وإلا نبّهوها بواتساب عشان تشوفه."}</p>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(nudgeMessage)}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setNudge(false)}
+                className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-brand-600"
+              >
+                <MessageCircle size={14} />
+                نبّهوها بواتساب
+              </a>
+              <button onClick={() => setNudge(false)} className="text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">
+                لاحقًا
+              </button>
+            </div>
+          )}
           <p className="text-[11px] text-brand-950/40">
             ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.
           </p>
@@ -244,7 +274,7 @@ export default function SupervisorFeedback() {
               disabled={!raw.trim() || splitting}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {splitting ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+              {splitting ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
               {splitting ? "جاري التقسيم..." : "قسّمها بالذكاء الاصطناعي"}
             </button>
           )}

@@ -21,13 +21,16 @@ interface AutoProgressInputs {
   researchQuestions?: ResearchQuestion[];
   methodology?: Methodology;
   evidencePapers?: EvidencePaper[];
+  /** ردود الاستبيانات الفعلية مقابل الهدف — تغذّي مرحلة جمع البيانات */
+  dataCollection?: { collected: number; target: number | null };
 }
 
 /**
  * نسبة تقدّم مرحلة واحدة من رحلة البحث.
  * - المراحل اللي عندها جدول حقيقي (proposal / research-gap / research-questions /
  *   methodology / literature-review): تُحسب مباشرة من البيانات الفعلية.
- * - باقي المراحل (topic / data-collection / analysis / writing / final-submission):
+ * - data-collection: من ردود الاستبيانات مقابل الهدف (لو انحدد هدف).
+ * - باقي المراحل (topic / analysis / writing / final-submission):
  *   ما فيها جدول بيانات مخصص بعد — تُرجع null، يعني "اعتمد على القيمة المخزّنة
  *   بجدول research_stages نفسه" (قيمة حقيقية بقاعدة البيانات، بس مو مُشتقّة تلقائيًا).
  */
@@ -58,6 +61,11 @@ export function getStageAutoProgress(
       if (!papers || papers.length === 0) return 0;
       const reviewed = papers.filter((p) => p.reviewStatus === "reviewed").length;
       return Math.round((reviewed / papers.length) * 100);
+    }
+    case "data-collection": {
+      const c = data.dataCollection;
+      if (!c || !c.target || c.target <= 0) return null;
+      return Math.min(100, Math.round((c.collected / c.target) * 100));
     }
     default:
       return null;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, CreditCard, Sparkles, X } from "lucide-react";
+import { CheckCircle2, CreditCard, Wand2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import MoyasarPayment from "./MoyasarPayment";
@@ -48,7 +48,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
         <div className="relative flex items-center justify-between overflow-hidden bg-gradient-to-b from-brand-50 to-paper px-5 py-4">
           <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-amber-accent-200/40 blur-2xl" />
           <p className="relative flex items-center gap-1.5 font-display text-base font-extrabold text-brand-950">
-            <Sparkles size={15} className="text-amber-accent-500" />
+            <Wand2 size={15} className="text-amber-accent-500" />
             {paid ? "تم الدفع بنجاح" : "إتمام الاشتراك"}
           </p>
           <button

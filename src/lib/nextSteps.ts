@@ -10,7 +10,7 @@ export interface NextStep {
 }
 
 /** وين تودّي المرحلة الحالية — الصفحة اللي فيها شغل هالمرحلة فعليًا */
-const STAGE_ACTION: Record<string, { title: string; why: string; to: string; cta: string }> = {
+export const STAGE_ACTION: Record<string, { title: string; why: string; to: string; cta: string }> = {
   topic: { title: "ثبّتوا عنوان بحثكم", why: "كل شي بعده يبني عليه — اكتبوه بجملة واضحة (الفئة + المتغير).", to: "/proposal", cta: "افتحوا المقترح" },
   proposal: { title: "كمّلوا أقسام المقترح", why: "المقترح هو أساس البحث، والمشرفة تراجعه أول شي.", to: "/proposal", cta: "افتحوا المقترح" },
   "literature-review": { title: "دوّروا دراسات وأضيفوها لمكتبتكم", why: "مراجعة الأدبيات تحدد فجوتكم البحثية.", to: "/research-search", cta: "ابدأوا البحث" },
@@ -30,6 +30,11 @@ export function computeNextSteps(input: {
   stages: ResearchStageRow[];
   sections: ProposalSectionRow[];
   hasDeadline: boolean;
+  /** المرحلة الحالية مكتملة — بطاقة «انتقلوا للجاية» تتولى التوجيه، فما نكرر الخطوة */
+  stageReady?: boolean;
+  /** عدد الدراسات المحفوظة بمكتبة الأدلة وهل كتبوا عنوان — لتقترح «جهّزوا البداية بالوكيل» لما العنوان جاهز والمكتبة فاضية */
+  evidenceCount?: number;
+  hasTitle?: boolean;
 }): NextStep[] {
   const steps: NextStep[] = [];
   const open = input.tasks.filter((t) => t.status !== "done");
@@ -41,7 +46,7 @@ export function computeNextSteps(input: {
       id: "my-late",
       title: myLate.length === 1 ? "عندك مهمة متأخرة" : `عندك ${myLate.length} مهام متأخرة`,
       why: `«${myLate[0].title}»${myLate.length > 1 ? " وغيرها" : ""} — خلّصوها أول شي أو غيّروا موعدها لو ما تناسب.`,
-      to: "/tasks",
+      to: myLate.length === 1 ? `/tasks?task=${myLate[0].id}` : "/tasks",
       cta: "افتحوا مهامكم",
       tone: "urgent",
     });
@@ -70,9 +75,20 @@ export function computeNextSteps(input: {
     });
   }
 
+  if (input.hasTitle && input.evidenceCount === 0) {
+    steps.push({
+      id: "agent-kickstart",
+      title: "خلّوا الوكيل يجهّز لكم البداية",
+      why: "يدوّر بدراسات منشورة عن عنوانكم ويطلّع دراسات ومسودة فجوة وأسئلة ومهام — وأنتم توافقون على اللي يعجبكم.",
+      to: "/research-search",
+      cta: "جهّزوا البداية",
+      tone: "normal",
+    });
+  }
+
   const active = input.stages.find((s) => s.status === "active") ?? input.stages.find((s) => s.status === "upcoming");
   const action = active ? STAGE_ACTION[active.stageKey] : undefined;
-  if (active && action) {
+  if (active && action && !input.stageReady) {
     steps.push({ id: `stage-${active.stageKey}`, title: action.title, why: `${action.why} (مرحلتكم الحالية: ${active.titleAr})`, to: action.to, cta: action.cta, tone: "normal" });
   }
 

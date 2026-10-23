@@ -16,7 +16,6 @@ import {
   MessageCircle,
   Plus,
   Send,
-  Sparkles,
   Target,
   Trash2,
   X,
@@ -435,7 +434,7 @@ export default function SurveyBuilder() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
-                    <Sparkles size={15} className="text-amber-accent-500" />
+                    <Lightbulb size={15} className="text-amber-accent-500" />
                     مراجعة الذكاء الاصطناعي
                   </p>
                   <p className="mt-0.5 text-[11px] text-brand-950/50">يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.</p>

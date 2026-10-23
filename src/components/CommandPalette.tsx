@@ -15,7 +15,7 @@ import {
   CreditCard,
   FlaskConical,
   ShieldCheck,
-  Sparkles,
+  Wand2,
   NotebookPen,
   FileCheck2,
   Search,
@@ -70,7 +70,7 @@ const baseItems: PaletteItem[] = [
   { to: "/files", label: "الملفات", icon: FolderClosed },
   { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
   { to: "/calendar", label: "التقويم", icon: CalendarDays },
-  { to: "/story", label: "قصة بحثك", icon: Sparkles },
+  { to: "/story", label: "قصة بحثك", icon: Wand2 },
   { to: "/guide", label: "دليل الطالب", icon: Compass },
   { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
 ];

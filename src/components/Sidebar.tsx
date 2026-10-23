@@ -1,112 +1,22 @@
-import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  BookOpenText,
-  BookMarked,
-  ListChecks,
-  Users,
-  MapPinned,
-  Library,
-  FolderClosed,
-  CalendarDays,
-  ListTree,
-  LogOut,
-  Compass,
-  CreditCard,
-  FlaskConical,
-  ShieldCheck,
-  Sparkles,
-  NotebookPen,
-  FileCheck2,
-  Search,
-  BarChart3,
-  ClipboardList,
-  ClipboardPen,
-  MessageSquareText,
-  CalendarClock,
-  GraduationCap,
-  Ruler,
-  FileDown,
-  BookA,
-  type LucideIcon,
-} from "lucide-react";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Check, ChevronDown, Compass, LogOut, ShieldCheck } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { researchStages } from "../data/mockData";
 import { getResearcherTitle } from "../lib/identity";
 import { isFemaleUser } from "../lib/gender";
+import { useResearchStages } from "../hooks/useResearchStages";
+import { getCurrentStage } from "../lib/progress";
+import { homeSection, isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
 import IdeaButton from "./IdeaButton";
 import InstallAppButton from "./InstallAppButton";
 
-interface NavItem {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  end?: boolean;
-}
-
-const navGroups: { label: string | null; items: NavItem[] }[] = [
-  {
-    label: null,
-    items: [{ to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true }],
-  },
-  {
-    label: "١. أفهم موضوعي",
-    items: [
-      { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
-      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
-      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
-    ],
-  },
-  {
-    label: "٢. أكتب وأخطط",
-    items: [
-      { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
-      { to: "/methodology", label: "المنهجية", icon: FlaskConical },
-      { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
-      { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
-    ],
-  },
-  {
-    label: "٣. أجمع وأحلل",
-    items: [
-      { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
-      { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardPen },
-      { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
-      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
-      { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
-    ],
-  },
-  {
-    label: "٤. أسلّم",
-    items: [
-      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
-      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
-      { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
-    ],
-  },
-  {
-    label: "الفريق",
-    items: [
-      { to: "/tasks", label: "مهامي", icon: ListChecks },
-      { to: "/team", label: "الفريق", icon: Users },
-      { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
-      { to: "/calendar", label: "التقويم", icon: CalendarDays },
-      { to: "/files", label: "الملفات", icon: FolderClosed },
-    ],
-  },
-  {
-    label: "أخرى",
-    items: [
-      { to: "/glossary", label: "قاموس المصطلحات", icon: BookA },
-      { to: "/story", label: "قصة بحثك", icon: Sparkles },
-      { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
-    ],
-  },
-];
+const linkBase = "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors";
+const linkOn = "bg-brand-500 text-white shadow-sm shadow-brand-500/30";
+const linkOff = "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900";
 
 export default function Sidebar({
   open = false,
@@ -116,6 +26,45 @@ export default function Sidebar({
   onClose?: () => void;
 }) {
   const { currentUser, isSuperAdmin, logout } = useAuth();
+  const { pathname } = useLocation();
+  const { stages } = useResearchStages();
+  const [moreOpen, setMoreOpen] = useState<boolean | null>(null);
+  const currentStage = getCurrentStage(stages);
+
+  const sectionState = (sec: NavSection): "done" | "current" | null => {
+    if (!sec.stages || stages.length === 0) return null;
+    const mine = stages.filter((st) => sec.stages!.includes(st.stageKey));
+    if (mine.length > 0 && mine.every((st) => st.status === "done")) return "done";
+    if (currentStage && sec.stages.includes(currentStage.stageKey)) return "current";
+    return null;
+  };
+
+  const moreHere = morePages.some((m) => isPathIn(pathname, m.to));
+  const moreExpanded = moreOpen ?? moreHere;
+
+  const renderSection = (sec: NavSection) => {
+    const active = sec.pages.some((pg) => isPathIn(pathname, pg.to));
+    const state = sectionState(sec);
+    return (
+      <NavLink
+        key={sec.id}
+        to={active ? pathname : sec.pages[0].to}
+        onClick={onClose}
+        className={clsx(linkBase, active ? linkOn : linkOff)}
+      >
+        <sec.icon size={18} />
+        <span className="flex-1">{sec.label}</span>
+        {state === "current" && (
+          <span className={clsx("rounded-full px-2 py-0.5 text-[10px] font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>أنتم هنا</span>
+        )}
+        {state === "done" && (
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title="خلصتوا هالجزء">
+            <Check size={11} />
+          </span>
+        )}
+      </NavLink>
+    );
+  };
 
   return (
     <>
@@ -143,36 +92,47 @@ export default function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          {navGroups.map((group, gi) => (
-            <div key={group.label ?? `group-${gi}`} className={gi > 0 ? "mt-3" : undefined}>
-              {group.label && (
-                <p className="mb-1 px-3 text-[11px] font-bold tracking-wide text-brand-950/35">
-                  {group.label}
-                </p>
-              )}
-              {group.items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    clsx(
-                      "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
-                      isActive
-                        ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
-                        : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
-                    )
-                  }
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                </NavLink>
-              ))}
-            </div>
-          ))}
+          <NavLink
+            to={homeSection.to}
+            end
+            onClick={onClose}
+            className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}
+          >
+            <homeSection.icon size={18} />
+            {homeSection.label}
+          </NavLink>
 
-          <div className="my-2 border-t border-brand-100/70" />
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">رحلة البحث</p>
+          {journeySections.map(renderSection)}
+
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">شغل الفريق</p>
+          {workSections.map(renderSection)}
+
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          <button
+            onClick={() => setMoreOpen(!moreExpanded)}
+            aria-expanded={moreExpanded}
+            className="flex w-full items-center gap-2 rounded-full px-4 py-1.5 text-start text-[11px] font-bold tracking-wide text-amber-accent-400/70 hover:bg-surface-muted/70"
+          >
+            <span className="flex-1">المزيد</span>
+            <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />
+          </button>
+          {moreExpanded &&
+            morePages.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={onClose}
+                className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}
+              >
+                <item.icon size={18} />
+                {item.label}
+              </NavLink>
+            ))}
+
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
 
           <NavLink
             to="/guide"
@@ -210,7 +170,7 @@ export default function Sidebar({
         </nav>
 
         {currentUser && (
-          <div className="border-t border-brand-100/70 p-4">
+          <div className="p-4 pt-0"><div aria-hidden className="gold-groove mb-4" />
             <div className="glass-panel flex items-center gap-3 rounded-full border border-brand-100/50 bg-surface-muted/60 p-2 pe-3">
               <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
               <div className="min-w-0 flex-1">
@@ -230,7 +190,7 @@ export default function Sidebar({
             <IdeaButton />
             <InstallAppButton variant="light" className="mt-2 w-full" />
             <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
-              <Sparkles size={12} />
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}
             </p>
           </div>

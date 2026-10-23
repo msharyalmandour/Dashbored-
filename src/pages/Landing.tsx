@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -10,7 +10,7 @@ import {
   MessageCircleWarning,
   Milestone,
   PartyPopper,
-  Sparkles,
+  Wand2,
   Trophy,
   Users,
   X,
@@ -27,9 +27,6 @@ import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures, basicHighlights } 
 import PlanComparison from "../components/PlanComparison";
 import InstallAppButton from "../components/InstallAppButton";
 
-const StarsBackdrop = lazy(() =>
-  import("../components/cinematic/Scene3D").then((m) => ({ default: m.StarsBackdrop })),
-);
 
 const TEAM_SIZE = 5;
 
@@ -202,9 +199,6 @@ export default function Landing() {
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-neutral-950 text-white">
-      <Suspense fallback={null}>
-        <StarsBackdrop />
-      </Suspense>
       <CursorGlow />
       <StickyCTA />
       {/* Hero — لوحة سينمائية بعرض الشاشة (شخص يمشي باتجاه أفق مضيء) بدل
@@ -254,7 +248,7 @@ export default function Landing() {
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-96px)] max-w-6xl flex-col justify-start px-6 pb-28 pt-6 md:justify-center md:pt-0">
           <div className="max-w-xl animate-[hero-in_0.9s_ease-out] [text-shadow:0_4px_28px_rgba(0,0,0,0.6)]">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-xs font-bold text-white/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md">
-              <Sparkles size={13} className="text-amber-300" />
+              <Wand2 size={13} className="text-amber-300" />
               لفرق بحث التخرج في كل التخصصات — بدأنا من التمريض
             </span>
             <h1 className="mt-7 font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-white lg:text-7xl">
@@ -511,7 +505,7 @@ export default function Landing() {
             {/* AI */}
             <div className="glass-panel relative flex flex-col rounded-[2rem] border border-amber-400/40 bg-white/[0.05] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12),0_0_80px_-30px_rgba(251,191,36,0.5)] backdrop-blur-2xl">
               <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-3 py-1 text-[11px] font-extrabold text-neutral-950">
-                <Sparkles size={11} />
+                <Wand2 size={11} />
                 الأكثر قيمة
               </span>
               <p className="font-display text-lg font-extrabold text-white">AI</p>
@@ -530,7 +524,7 @@ export default function Landing() {
                 {aiFeatures.map((f) => (
                   <li key={f.title} className="flex items-start gap-2.5 text-sm text-white/70">
                     <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-amber-300">
-                      <Sparkles size={11} />
+                      <Wand2 size={11} />
                     </span>
                     <span>
                       <b className="font-bold text-white">{f.title}</b> — {f.desc}

@@ -2,13 +2,13 @@
     ويراجعها على الموقع قبل الموافقة. عبّي القيم الحقيقية قبل الدمج بالإنتاج:
     الصفحة تخفي أي حقل فاضي، لكن بدون قناة تواصل واحدة على الأقل ترفض
     البوابات الموقع غالبًا. */
-export const SUPPORT_EMAIL = "Wesync112250@gmail.com";
+export const SUPPORT_EMAIL = "mesho112250@gmail.com";
 /** رقم واتساب بالصيغة الدولية بدون + (مثال: 9665XXXXXXXX) */
-export const SUPPORT_WHATSAPP = "";
-/** اسم صاحبة النشاط كما بوثيقة العمل الحر — اختياري، يظهر بصفحة التواصل */
-export const BUSINESS_OWNER_NAME = "";
+export const SUPPORT_WHATSAPP = "966535652125";
+/** اسم صاحب النشاط كما بوثيقة العمل الحر — اختياري، يظهر بصفحة التواصل */
+export const BUSINESS_OWNER_NAME = "مشاري ايمن فؤاد منضور";
 /** رقم وثيقة العمل الحر — اختياري */
-export const FREELANCE_DOC_NUMBER = "";
+export const FREELANCE_DOC_NUMBER = "FL-912927911";
 
 export const LAST_UPDATED = "٢٠٢٦/٠٩/٢٩";
 

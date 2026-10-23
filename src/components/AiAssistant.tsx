@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowRight, Bot, History, ImagePlus, MessageSquarePlus, Send, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowRight, Bot, History, ImagePlus, MessageSquarePlus, Send, Wand2, Trash2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import { hasAiAccess } from "../lib/plans";
@@ -211,7 +211,7 @@ export default function AiAssistant() {
                 </button>
               ) : (
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-600">
-                  <Sparkles size={16} />
+                  <Wand2 size={16} />
                 </span>
               )}
               <div className="min-w-0">

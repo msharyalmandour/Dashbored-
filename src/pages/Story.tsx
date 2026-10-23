@@ -3,7 +3,7 @@ import {
   BookOpenCheck,
   CalendarHeart,
   ListChecks,
-  Sparkles,
+  Wand2,
   TrendingUp,
   Trophy,
 } from "lucide-react";
@@ -28,7 +28,7 @@ export default function Story() {
   const firstVisitLabel = formatDateLong(toISODate(new Date(firstVisit)));
 
   const stats: {
-    icon: typeof Sparkles;
+    icon: typeof Wand2;
     label: string;
     value: string;
     sub: string;
@@ -70,7 +70,7 @@ export default function Story() {
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-[var(--color-overlay-soft)]" />
         <div className="relative flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
-            <Sparkles size={20} />
+            <Wand2 size={20} />
           </span>
           <div>
             <h1 className="font-display text-xl font-extrabold text-brand-950">قصة بحثك</h1>

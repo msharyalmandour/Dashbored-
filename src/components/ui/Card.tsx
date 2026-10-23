@@ -20,6 +20,7 @@ export default function Card({
   tone = "paper",
   interactive = false,
   style,
+  id,
 }: {
   children: ReactNode;
   className?: string;
@@ -27,6 +28,7 @@ export default function Card({
   tone?: CardTone;
   interactive?: boolean;
   style?: CSSProperties;
+  id?: string;
 }) {
   return (
     <As
@@ -37,6 +39,7 @@ export default function Card({
         className,
       )}
       style={style}
+      id={id}
     >
       {children}
     </As>

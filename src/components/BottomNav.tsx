@@ -1,13 +1,19 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, ListChecks, Menu, Search, Users } from "lucide-react";
+import { Compass, LayoutDashboard, ListChecks, Menu, Users } from "lucide-react";
 import clsx from "clsx";
+import { useResearchStages } from "../hooks/useResearchStages";
+import { getCurrentStage } from "../lib/progress";
+import { STAGE_ACTION } from "../lib/nextSteps";
 
-/** شريط تنقل سفلي بالجوال فقط — أهم ٤ صفحات + القائمة الكاملة. الديسكتوب يبقى على القائمة الجانبية. */
+/** شريط تنقل سفلي بالجوال فقط — أهم ٤ صفحات + القائمة الكاملة. خانة «مرحلتكم» تفتح شغل المرحلة الحالية. الديسكتوب يبقى على القائمة الجانبية. */
 export default function BottomNav({ onMenu }: { onMenu: () => void }) {
+  const { stages } = useResearchStages();
+  const current = getCurrentStage(stages);
+  const stageTo = current ? STAGE_ACTION[current.stageKey]?.to : undefined;
   const items = [
     { to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true },
     { to: "/tasks", label: "مهامي", icon: ListChecks },
-    { to: "/research-search", label: "بحث", icon: Search },
+    { to: stageTo ?? "/research-search", label: "مرحلتكم", icon: Compass },
     { to: "/team", label: "الفريق", icon: Users },
   ];
   return (

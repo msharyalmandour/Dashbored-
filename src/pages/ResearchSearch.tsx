@@ -11,7 +11,7 @@ import {
   Lightbulb,
   Ruler,
   Search,
-  Sparkles,
+  Wand2,
   Trash2,
   X,
 } from "lucide-react";
@@ -25,6 +25,8 @@ import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import AgentKickstart from "../components/AgentKickstart";
+import ProjectAgentChat from "../components/ProjectAgentChat";
 import { useResearchAgentState, type ResearchTab } from "../context/ResearchAgentContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
@@ -354,6 +356,10 @@ export default function ResearchSearch() {
 
       {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
 
+      {aiOk && <ProjectAgentChat />}
+
+      {aiOk && <AgentKickstart />}
+
       {aiOk && <HowItWorks />}
 
       {aiOk && (
@@ -456,7 +462,7 @@ export default function ResearchSearch() {
           )}
           {st.limitMessage && (
             <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">
-              <Sparkles size={15} className="mt-0.5 shrink-0" />
+              <Wand2 size={15} className="mt-0.5 shrink-0" />
               {st.limitMessage}
             </p>
           )}
@@ -478,7 +484,7 @@ export default function ResearchSearch() {
 
           {st.activeResult.noveltyNote && (
             <Card tone="teal" className="flex items-start gap-3">
-              <Sparkles size={18} className="mt-0.5 shrink-0 text-brand-600" />
+              <Wand2 size={18} className="mt-0.5 shrink-0 text-brand-600" />
               <div>
                 <p className="text-sm font-bold text-brand-950">وش يميّز بحثكم عن اللي انكتب؟</p>
                 <p className="mt-1 text-sm leading-relaxed text-brand-950/70">{st.activeResult.noveltyNote}</p>

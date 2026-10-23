@@ -1,4 +1,4 @@
-import { Check, Minus, Sparkles } from "lucide-react";
+import { Check, Minus, Wand2 } from "lucide-react";
 import { AI_PRICE, BASIC_PRICE, planComparison, type CompareRow } from "../lib/plans";
 
 type Variant = "dark" | "light";
@@ -55,7 +55,7 @@ export default function PlanComparison({ variant = "dark" }: { variant?: Variant
         </div>
         <div className="text-center">
           <p className={`inline-flex items-center gap-1 text-xs font-extrabold ${t.aiText}`}>
-            <Sparkles size={11} />
+            <Wand2 size={11} />
             AI
           </p>
           <p className={`text-[11px] ${t.basicText}`}>{AI_PRICE} ريال</p>

@@ -5,6 +5,7 @@ import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 interface MinutesRowDb {
   id: string;
   meeting_date: string;
+  agenda: string | null;
   attendees: string[];
   discussion: string;
   decisions: string;
@@ -19,6 +20,7 @@ function mapRow(row: MinutesRowDb): MeetingMinutesRow {
   return {
     id: row.id,
     meetingDate: row.meeting_date,
+    agenda: row.agenda ?? "",
     attendees: row.attendees,
     discussion: row.discussion,
     decisions: row.decisions,
@@ -41,7 +43,8 @@ export function useMeetingMinutes() {
     const { data } = await supabase!
       .from("meeting_minutes")
       .select("*")
-      .order("meeting_date", { ascending: false });
+      .order("meeting_date", { ascending: false })
+      .order("created_at", { ascending: false });
     if (data) setMinutes((data as MinutesRowDb[]).map(mapRow));
     setLoading(false);
   }, []);
@@ -52,16 +55,22 @@ export function useMeetingMinutes() {
 
   const addMinutes = async (input: {
     meetingDate: string;
+    agenda?: string;
     attendees: string[];
     discussion: string;
     decisions: string;
     actionItems: string;
     createdById: string;
   }) => {
+    // research_project_id إجباري بالجدول وما له قيمة افتراضية — بدونه كان كل حفظ يفشل
+    const { data: projectId } = await supabase!.rpc("my_research_project_id");
+    if (!projectId) return { row: null, error: "no research project" };
     const { data, error } = await supabase!
       .from("meeting_minutes")
       .insert({
+        research_project_id: projectId,
         meeting_date: input.meetingDate,
+        agenda: input.agenda ?? "",
         attendees: input.attendees,
         discussion: input.discussion,
         decisions: input.decisions,

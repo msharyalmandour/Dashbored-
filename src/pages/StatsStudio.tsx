@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { BarChart3, Calculator, Check, Copy, Compass, FileUp, FlaskConical, Lightbulb, TableProperties, TriangleAlert } from "lucide-react";
 import Card from "../components/ui/Card";
+import { PageHeader, Segmented } from "../components/ui/page";
 import Term from "../components/Term";
 import {
   alphaLabel,
@@ -848,37 +849,14 @@ export default function StatsStudio() {
   ];
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">استوديو الإحصاء</h1>
-        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">
-          الإحصاء أكثر شي يوقف الطلاب ببحث التخرج. هنا تحسبون حجم العينة، وتعرفون الاختبار المناسب، وتحللون بياناتكم وتاخذون النتيجة مشروحة
-          بالعربي وبصياغة جاهزة للبحث — بدون SPSS.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-        {tabs.map(({ id, label, when, icon: Icon }) => {
-          const active = tab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={`flex items-start gap-3 rounded-2xl border p-3.5 text-start transition-colors ${
-                active ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/40" : "border-brand-100 bg-paper hover:bg-surface-muted"
-              }`}
-            >
-              <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${active ? "bg-brand-500 text-white" : "bg-surface-muted text-brand-950/50"}`}>
-                <Icon size={17} />
-              </span>
-              <span>
-                <span className="block text-sm font-extrabold text-brand-950">{label}</span>
-                <span className="mt-0.5 block text-xs text-brand-950/55">{when}</span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="اجمع وحلّل"
+        title="استوديو الإحصاء"
+        subtitle="حلّلوا بياناتكم وخذوا النتيجة مكتوبة بالعربي وجاهزة للبحث — بدون SPSS."
+        action={<Segmented items={tabs.map((t) => ({ id: t.id, label: t.label }))} value={tab} onChange={setTab} />}
+      />
+      <p className="-mt-3 text-sm text-brand-950/50">{tabs.find((t) => t.id === tab)?.when}</p>
 
       {tab === "size" && <SampleSizeTab />}
       {tab === "choose" && <ChooserTab goToAnalyze={() => setTab("analyze")} />}

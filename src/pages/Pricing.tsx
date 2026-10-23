@@ -6,7 +6,7 @@ import {
   CreditCard,
   Lock,
   ShieldCheck,
-  Sparkles,
+  Wand2,
 } from "lucide-react";
 import { AI_PRICE, BASIC_PRICE, aiFeatures, basicHighlights, planPrice, type PlanId } from "../lib/plans";
 import PlanComparison from "../components/PlanComparison";
@@ -56,7 +56,7 @@ export default function Pricing() {
           <div className="pointer-events-none absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-brand-200/30 blur-3xl" />
 
           <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
-            <Sparkles size={12} />
+            <Wand2 size={12} />
             Wesync Premium
           </span>
 
@@ -95,7 +95,7 @@ export default function Pricing() {
               <div className="glass-panel relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper/80 p-6 backdrop-blur-xl">
                 {isAi && (
                   <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-                    <Sparkles size={11} />
+                    <Wand2 size={11} />
                     الأكثر قيمة
                   </span>
                 )}
@@ -132,7 +132,7 @@ export default function Pricing() {
                   {isAi ? (
                     aiFeatures.map((f) => (
                       <li key={f.title} className="flex items-start gap-2.5 text-sm text-brand-950/70">
-                        <Sparkles size={15} className="mt-0.5 shrink-0 text-amber-accent-500" />
+                        <Wand2 size={15} className="mt-0.5 shrink-0 text-amber-accent-500" />
                         <span>
                           <b className="font-bold text-brand-950">{f.title}</b> — {f.desc}
                         </span>

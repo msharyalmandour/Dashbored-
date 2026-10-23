@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lock, Mail, PenLine, Sparkles } from "lucide-react";
+import { Lock, Mail, PenLine, Wand2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { g, isFemaleUser } from "../lib/gender";
 
@@ -171,7 +171,7 @@ export default function TimeCapsule() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
-            <Sparkles size={18} />
+            <Wand2 size={18} />
           </span>
           <div>
             <p className="font-display font-bold text-brand-950">رسالتك جاهزة تُفتح! ✉️</p>

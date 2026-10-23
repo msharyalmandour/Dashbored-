@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   AlertCircle,
   AlertTriangle,
-  Award,
   BookOpenCheck,
   CalendarClock,
   CheckCircle2,
@@ -17,15 +16,13 @@ import {
   Milestone,
   Moon,
   PartyPopper,
-  Sparkles,
+  Wand2,
   TrendingUp,
   UploadCloud,
   Video,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import { AlertCard } from "../components/ui/cards";
-import FocusSession from "../components/FocusSession";
-import TimeCapsule from "../components/TimeCapsule";
 import ShareUpdate from "../components/ShareUpdate";
 import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import Avatar from "../components/ui/Avatar";
@@ -34,7 +31,11 @@ import RingProgress from "../components/ui/RingProgress";
 import StatCard from "../components/StatCard";
 import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
-import NextStepCard from "../components/NextStepCard";
+import StuckHelp from "../components/StuckHelp";
+import TodayCard from "../components/TodayCard";
+import { isStageReady } from "../lib/stageAdvance";
+import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
+import { summarizeCollection } from "../lib/dataCollection";
 import { computeNextSteps } from "../lib/nextSteps";
 import TiltCard from "../components/cinematic/TiltCard";
 import CountUp from "../components/cinematic/CountUp";
@@ -90,40 +91,48 @@ const DEADLINE_ALERT_RESURFACE_DAYS = 2;
 const DEADLINE_ALERT_WINDOW_DAYS = 3;
 
 export default function Overview() {
-  const { currentUser, team, mode } = useAuth();
+  const { currentUser, team, mode, isLeader } = useAuth();
   const { messages: supervisorMsgs, unread: unreadSupervisor } = useSupervisorMessages();
   const latestSupervisorMsg = [...supervisorMsgs].reverse().find((m) => m.sender === "supervisor") ?? null;
   const supervisorMsgAt = latestSupervisorMsg?.createdAt ?? team?.supervisorNoteAt ?? null;
   const { startTour, finished: tourFinished } = useTour();
   const isFemale = isFemaleUser(currentUser);
-  const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
+  const { ref: heroParallaxRef } = useMouseParallax(6);
   const visitGapDays = useVisitGap();
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const { events: calendarEvents } = useCalendarEvents();
-  const { stages: realStages } = useResearchStages();
+  const { stages: realStages, updateStage } = useResearchStages();
   const { papers: realEvidencePapers } = useEvidencePapers();
   const { sections: realProposalSections, gap: realResearchGap, questions: realResearchQuestions } = useProposal();
   const { methodology: realMethodology } = useMethodology();
   const { tasks: realTasks } = useTasksData();
   const { roster } = useTeamRoster();
-  const { project } = useResearchProject();
+  const { project, updateProject } = useResearchProject();
   const currentStage = getCurrentStage(realStages);
+  const { surveys } = useSurveys();
+  const surveyCounts = useSurveyResponseCounts(surveys);
+  const collection = summarizeCollection(surveys, surveyCounts, realMethodology.sampling.sampleSize);
+  const stageAutoData = {
+    dataCollection: { collected: collection.collected, target: collection.target },
+    proposalSections: realProposalSections,
+    researchGap: realResearchGap,
+    researchQuestions: realResearchQuestions,
+    methodology: realMethodology,
+    evidencePapers: realEvidencePapers,
+  };
   const nextSteps = computeNextSteps({
+    stageReady: !!currentStage && isStageReady(currentStage, stageAutoData, project?.title ?? ""),
     todayIso,
     currentUserId: currentUser?.id ?? "",
     tasks: realTasks,
     stages: realStages,
     sections: realProposalSections,
     hasDeadline: !!project?.targetSubmissionDate,
+    evidenceCount: realEvidencePapers.length,
+    hasTitle: !!project?.title?.trim(),
   });
-  const realOverallProgress = getOverallProgress(realStages, {
-    proposalSections: realProposalSections,
-    researchGap: realResearchGap,
-    researchQuestions: realResearchQuestions,
-    methodology: realMethodology,
-    evidencePapers: realEvidencePapers,
-  });
+  const realOverallProgress = getOverallProgress(realStages, stageAutoData);
   const [showGuideBanner, setShowGuideBanner] = useState(
     () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
   );
@@ -178,21 +187,13 @@ export default function Overview() {
   useEffect(() => {
     const seen: string[] = JSON.parse(localStorage.getItem(ACHIEVEMENTS_SEEN_KEY) ?? "[]");
     const seenSet = new Set(seen);
-    const freshlyUnlocked = achievements.find(
-      (a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id),
-    );
-    if (freshlyUnlocked) {
-      showToast({
-        title: `إنجاز جديد: ${freshlyUnlocked.title}`,
-        desc: freshlyUnlocked.desc,
-        icon: Award,
-        tone: "brand",
-      });
+    const fresh = achievements.filter((a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id));
+    if (fresh.length > 0) {
+      // نسجّلها «مشوفة» بدون إشعار منبثق — تظهر بقسم إنجازاتكم تحت، وما تغطي على المحتوى
       localStorage.setItem(
         ACHIEVEMENTS_SEEN_KEY,
-        JSON.stringify([...seenSet, freshlyUnlocked.id]),
+        JSON.stringify([...seenSet, ...fresh.map((a) => a.id)]),
       );
-      return;
     }
 
     if (currentStage) {
@@ -281,7 +282,6 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
-      <NextStepCard steps={nextSteps} isFemale={isFemale} />
       {showGuideBanner && (
         <AlertCard
           tone="warning"
@@ -321,7 +321,7 @@ export default function Overview() {
         </AlertCard>
       )}
 
-      {showFlashback && (
+      {showFlashback && !showGuideBanner && (
         <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>
           قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
           {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
@@ -386,7 +386,7 @@ export default function Overview() {
             <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-[ember-drift_13s_ease-in-out_infinite] rounded-full bg-brand-500/25 blur-[90px] motion-reduce:animate-none" />
             <div
               className="pointer-events-none absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-[var(--color-overlay-soft)] blur-[80px] transition-transform duration-300 ease-out motion-reduce:transition-none"
-              style={{ transform: `translate3d(${heroOffset.x * 0.5}px, ${heroOffset.y * 0.5}px, 0)` }}
+              style={{ transform: "translate3d(calc(var(--px, 0) * 0.5px), calc(var(--py, 0) * 0.5px), 0)" }}
             />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-600/60 to-transparent" />
 
@@ -394,7 +394,7 @@ export default function Overview() {
               {/* Greeting + progress */}
               <div className="lg:col-span-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-700 backdrop-blur-sm">
-                  <Sparkles size={11} />
+                  <Wand2 size={11} />
                   مساحتكم البحثية
                 </span>
 
@@ -449,7 +449,7 @@ export default function Overview() {
                           to="/proposal"
                           className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
                         >
-                          <Sparkles size={14} />
+                          <Wand2 size={14} />
                           ابدأوا بالمقترح البحثي
                         </Link>
                       </>
@@ -586,22 +586,30 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* قسم واحد مدمج بدل ثلاث مستطيلات مكدّسة — "جهّز قهوتك" + مشاركة
-          التحديث + رسالة المستقبل، بإطار زجاجي ترابي واحد */}
-      <div className="rounded-[1.75rem] bg-gradient-to-br from-brand-300/40 via-brand-500/10 to-brand-600/30 p-[1.5px] shadow-md shadow-brand-950/10">
-        <Card
-          tone="paper"
-          interactive
-          className="card-terra grid grid-cols-1 divide-y divide-brand-100/40 !rounded-[calc(1.75rem-1.5px)] !p-0 lg:grid-cols-3 lg:divide-x lg:divide-x-reverse lg:divide-y-0"
-        >
-          <div className="relative overflow-hidden p-5">
-            <div className="pointer-events-none absolute -bottom-8 -end-8 h-36 w-36 rounded-full bg-gradient-to-br from-amber-accent-400/35 to-brand-600/20 blur-2xl" />
-            <div className="relative">
-              <FocusSession />
-            </div>
-          </div>
-          <div className="p-5">
-            <ShareUpdate
+      {/* بطاقة «اليوم» تحت الهيرو: خطوة وحدة بدل أربع بطاقات متكدّسة فوقه */}
+      <TodayCard
+        stages={realStages}
+        autoData={stageAutoData}
+        projectTitle={project?.title ?? ""}
+        isLeader={isLeader}
+        isFemale={isFemale}
+        updateStage={updateStage}
+        saveTitle={(title) => updateProject({ title })}
+        nextSteps={nextSteps}
+        onboarding={
+          mode === "supabase"
+            ? {
+                hasTitle: !!project?.title?.trim(),
+                hasSupervisor: !!project?.supervisorName?.trim(),
+                hasMyTask: realTasks.some((t) => t.assigneeId === currentUser?.id),
+              }
+            : null
+        }
+      />
+      <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
+
+      <Card tone="paper" className="card-terra">
+        <ShareUpdate
               mode={mode}
               projectTitle={projectTitle}
               overallProgress={realOverallProgress}
@@ -610,15 +618,7 @@ export default function Overview() {
               nextLabel={upcoming[0]?.title ?? null}
               nextDate={upcoming[0]?.date ?? null}
             />
-          </div>
-          <div className="relative overflow-hidden p-5">
-            <div className="pointer-events-none absolute -top-8 -start-8 h-36 w-36 rounded-full bg-gradient-to-br from-brand-500/30 to-amber-accent-500/15 blur-2xl" />
-            <div className="relative">
-              <TimeCapsule />
-            </div>
-          </div>
-        </Card>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Research journey + priorities */}
@@ -655,9 +655,9 @@ export default function Overview() {
                     ) : (
                       <Circle size={18} className="shrink-0 text-sky-accent-400" />
                     )}
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-brand-950">
+                    <Link to={`/tasks?task=${task.id}`} className="min-w-0 flex-1 truncate text-sm font-medium text-brand-950 hover:text-brand-700">
                       {task.title}
-                    </span>
+                    </Link>
                     <div className="flex items-center gap-2">
                       {assignee && <Avatar initials={assignee.initials} color={assignee.color} size="sm" />}
                       <span
@@ -727,7 +727,7 @@ export default function Overview() {
         <Card tone="violet" interactive>
           <CardHeader
             title="تقدم الفريق"
-            subtitle={topPerformerId ? `🌟 ${topPerformer!.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
+            subtitle={topPerformerId ? `${topPerformer!.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
             action={
               <Link
                 to="/team"

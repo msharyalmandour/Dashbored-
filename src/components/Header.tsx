@@ -1,4 +1,5 @@
 import { useState } from "react";
+import clsx from "clsx";
 import { Menu, Search, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Avatar from "./ui/Avatar";
@@ -11,15 +12,18 @@ import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 export default function Header({
   title,
   onMenuClick,
+  hideTitleOnDesktop = false,
 }: {
   title: string;
   onMenuClick?: () => void;
+  /** الصفحات اللي لها ترويسة خاصة فيها (PageHeader) ما تحتاج تكرار العنوان بالشريط على الشاشات الكبيرة */
+  hideTitleOnDesktop?: boolean;
 }) {
   const { currentUser } = useAuth();
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-brand-100/40 bg-paper/45 px-4 py-4 backdrop-blur-2xl backdrop-saturate-150 print:hidden sm:gap-4 sm:px-8">
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-amber-accent-400/20 bg-paper/45 px-4 py-4 backdrop-blur-2xl backdrop-saturate-150 print:hidden sm:gap-4 sm:px-8">
       <div className="flex min-w-0 items-center gap-2">
         <button
           onClick={onMenuClick}
@@ -27,7 +31,7 @@ export default function Header({
         >
           <Menu size={18} />
         </button>
-        <h1 className="font-display truncate text-lg font-bold text-brand-950 sm:text-xl">{title}</h1>
+        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden")}>{title}</p>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">

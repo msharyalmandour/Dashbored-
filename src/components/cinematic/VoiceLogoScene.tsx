@@ -1,6 +1,5 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Sparkles } from "@react-three/drei";
 import {
   BoxGeometry,
   CapsuleGeometry,
@@ -347,14 +346,6 @@ export default function VoiceLogoScene({ speaking }: { speaking: boolean }) {
             <RippleField speaking={speaking} />
             <AmbientField />
           </EntranceGroup>
-          <Sparkles
-            count={70}
-            scale={6}
-            size={1.6}
-            speed={speaking ? 0.5 : 0.25}
-            color={GOLD_LIGHT}
-            opacity={0.4}
-          />
           <ParallaxCamera />
         </Suspense>
       </Canvas>

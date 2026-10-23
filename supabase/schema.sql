@@ -2058,3 +2058,663 @@ revoke execute on function public.rotate_calendar_token() from public, anon;
 -- survey_responses / research_surveys / research_survey_responses
 -- (انظر الدوال submit_survey, get_public_survey, submit_survey_response)
 -- ============================================================
+
+-- ============================================================
+-- إشعارات الإيميل للمشرفة — تشترك بنفسها من رابطها (تأكيد مزدوج)
+-- الوصول للجدول فقط من دالة Edge باسم supervisor-email (service role)؛ الإيميل ما يظهر لأي عميل.
+-- ============================================================
+create table if not exists public.supervisor_email_subscriptions (
+  team_id uuid primary key references public.teams (id) on delete cascade,
+  email text not null check (char_length(email) between 5 and 254),
+  confirm_token uuid not null default gen_random_uuid(),
+  confirmed_at timestamptz,
+  unsubscribed_at timestamptz,
+  requested_at timestamptz not null default now(),
+  requests_day date not null default current_date,
+  requests_today int not null default 0,
+  last_notified_at timestamptz,
+  created_at timestamptz not null default now()
+);
+alter table public.supervisor_email_subscriptions enable row level security;
+
+create or replace function public._mask_email(p_email text)
+returns text
+language sql
+immutable
+as $$
+  select case
+    when p_email is null or position('@' in p_email) < 2 then ''
+    else left(split_part(p_email, '@', 1), 1) || '***@' || split_part(p_email, '@', 2)
+  end;
+$$;
+
+create or replace function public.get_supervisor_email_status(p_token uuid)
+returns jsonb
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce((
+    select jsonb_build_object(
+      'state', case
+        when s.unsubscribed_at is not null then 'off'
+        when s.confirmed_at is not null then 'active'
+        else 'pending' end,
+      'emailMasked', public._mask_email(s.email)
+    )
+    from public.supervisor_email_subscriptions s
+    join public.teams t on t.id = s.team_id
+    where t.share_token = p_token
+  ), jsonb_build_object('state', 'none', 'emailMasked', ''));
+$$;
+grant execute on function public.get_supervisor_email_status(uuid) to anon, authenticated;
+
+create or replace function public.get_my_supervisor_email_status()
+returns jsonb
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce((
+    select jsonb_build_object(
+      'state', case
+        when s.unsubscribed_at is not null then 'off'
+        when s.confirmed_at is not null then 'active'
+        else 'pending' end,
+      'emailMasked', public._mask_email(s.email)
+    )
+    from public.supervisor_email_subscriptions s
+    where s.team_id = public.my_team_id()
+  ), jsonb_build_object('state', 'none', 'emailMasked', ''));
+$$;
+grant execute on function public.get_my_supervisor_email_status() to authenticated;
+revoke execute on function public.get_my_supervisor_email_status() from anon;
+
+-- ============================================================
+-- ربط درايف الفريق (قائد الفريق يربط حساب Google حقه — مجلد مشترك للأعضاء)
+-- رموز التحديث مشفّرة (AES-GCM) من دالة drive-team؛ RLS مفعّل بدون أي policy
+-- يعني ما أحد يقرأ الجدول من الواجهة — الدالة وحدها (service_role) تقرأ وتكتب.
+-- ============================================================
+create table if not exists public.drive_connections (
+  research_project_id uuid primary key references public.research_projects (id) on delete cascade,
+  connected_by uuid references public.profiles (id) on delete set null,
+  google_email text not null,
+  refresh_token_enc text not null,
+  folder_id text not null,
+  folder_link text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.drive_connections enable row level security;
+
+-- ============================================================
+-- تقويم الفريق الحقيقي (مواعيد/اجتماعات/مواعيد نهائية) — مشترك بين الأعضاء.
+-- كان محفوظًا بمتصفح كل مستخدم فقط (localStorage)، فما يظهر للفريق ولا بالرئيسية.
+-- ============================================================
+create table if not exists public.calendar_events (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  title text not null check (length(trim(title)) > 0),
+  event_date date not null,
+  event_time text not null default '09:00',
+  event_type text not null default 'meeting' check (event_type in ('meeting', 'review', 'fieldwork', 'deadline')),
+  location text not null default '',
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists calendar_events_team_date_idx on public.calendar_events (team_id, event_date);
+
+alter table public.calendar_events enable row level security;
+
+drop policy if exists "team can view calendar events" on public.calendar_events;
+create policy "team can view calendar events"
+  on public.calendar_events for select
+  to authenticated
+  using (team_id = public.my_team_id() or public.is_super_admin());
+
+drop policy if exists "team can add calendar events" on public.calendar_events;
+create policy "team can add calendar events"
+  on public.calendar_events for insert
+  to authenticated
+  with check (
+    team_id = public.my_team_id()
+    and public.team_can_write(team_id)
+    and created_by = auth.uid()
+  );
+
+drop policy if exists "team can update calendar events" on public.calendar_events;
+create policy "team can update calendar events"
+  on public.calendar_events for update
+  to authenticated
+  using (team_id = public.my_team_id() and public.team_can_write(team_id))
+  with check (team_id = public.my_team_id());
+
+drop policy if exists "author or leader can delete calendar events" on public.calendar_events;
+create policy "author or leader can delete calendar events"
+  on public.calendar_events for delete
+  to authenticated
+  using (
+    team_id = public.my_team_id()
+    and public.team_can_write(team_id)
+    and (
+      created_by = auth.uid()
+      or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+    )
+  );
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'calendar_events') then
+    alter publication supabase_realtime add table public.calendar_events;
+  end if;
+end $$;
+
+-- ============================================================
+-- الوضوح بين الفريق والمشرفة: محاضر منظّمة + اعتماد + قرارات + أوقات متاحة + حجز مواعيد.
+-- المشرفة بدون حساب: كل إجراءاتها عبر دوال SECURITY DEFINER تتحقق من رمز الرابط (share_token).
+-- الفريق يكتب فقط عبر دوال/سياسات تتحقق من الفريق والاشتراك، فما يقدر يزوّر اعتماد المشرفة.
+-- «الصمت = موافقة»: المحضر المعلّق أكثر من 48 ساعة يُحسب «اعتُمد تلقائيًا» عند القراءة (بدون جدولة).
+-- ============================================================
+alter table public.meeting_minutes add column if not exists agenda text not null default '';
+
+create table if not exists public.minutes_approvals (
+  minutes_id uuid primary key references public.meeting_minutes (id) on delete cascade,
+  team_id uuid not null references public.teams (id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'approved', 'changes_requested')),
+  requested_at timestamptz not null default now(),
+  resolved_at timestamptz,
+  note text not null default '' check (char_length(note) <= 1000),
+  supervisor_name text not null default '' check (char_length(supervisor_name) <= 80)
+);
+create index if not exists minutes_approvals_team_idx on public.minutes_approvals (team_id, requested_at desc);
+alter table public.minutes_approvals enable row level security;
+create policy "team sees minutes approvals" on public.minutes_approvals for select to authenticated
+  using (team_id = public.my_team_id());
+
+create table if not exists public.minutes_actions (
+  id uuid primary key default gen_random_uuid(),
+  minutes_id uuid not null references public.meeting_minutes (id) on delete cascade,
+  team_id uuid not null references public.teams (id) on delete cascade,
+  text text not null check (char_length(text) between 1 and 300),
+  assignee_id uuid references public.profiles (id) on delete set null,
+  due_date date,
+  task_id uuid references public.tasks (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+create index if not exists minutes_actions_minutes_idx on public.minutes_actions (minutes_id);
+create index if not exists minutes_actions_team_idx on public.minutes_actions (team_id);
+alter table public.minutes_actions enable row level security;
+create policy "team sees minutes actions" on public.minutes_actions for select to authenticated
+  using (team_id = public.my_team_id());
+
+create table if not exists public.decision_requests (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  question text not null check (char_length(question) between 3 and 400),
+  options text[] not null check (array_length(options, 1) between 2 and 4),
+  needed_by date,
+  status text not null default 'open' check (status in ('open', 'answered', 'cancelled')),
+  chosen_index int,
+  answer_note text not null default '' check (char_length(answer_note) <= 1000),
+  supervisor_name text not null default '' check (char_length(supervisor_name) <= 80),
+  answered_at timestamptz,
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+create index if not exists decision_requests_team_idx on public.decision_requests (team_id, created_at desc);
+alter table public.decision_requests enable row level security;
+create policy "team sees decision requests" on public.decision_requests for select to authenticated
+  using (team_id = public.my_team_id());
+create policy "team asks decision requests" on public.decision_requests for insert to authenticated
+  with check (
+    team_id = public.my_team_id() and public.team_can_write(team_id) and created_by = auth.uid()
+    and status = 'open' and chosen_index is null and answered_at is null and answer_note = '' and supervisor_name = ''
+  );
+
+create table if not exists public.supervisor_availability (
+  team_id uuid primary key references public.teams (id) on delete cascade,
+  windows jsonb not null default '[]'::jsonb,
+  slot_minutes int not null default 30 check (slot_minutes in (15, 20, 30, 45, 60)),
+  auto_confirm boolean not null default true,
+  reply_days int check (reply_days between 1 and 30),
+  note text not null default '' check (char_length(note) <= 300),
+  updated_at timestamptz not null default now()
+);
+alter table public.supervisor_availability enable row level security;
+create policy "team sees supervisor availability" on public.supervisor_availability for select to authenticated
+  using (team_id = public.my_team_id());
+
+create table if not exists public.meeting_bookings (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  booking_date date not null,
+  booking_time text not null check (booking_time ~ '^[0-2][0-9]:[0-5][0-9]$'),
+  duration_min int not null default 30,
+  status text not null default 'pending' check (status in ('pending', 'confirmed', 'declined', 'cancelled')),
+  note text not null default '' check (char_length(note) <= 300),
+  supervisor_note text not null default '' check (char_length(supervisor_note) <= 300),
+  requested_by uuid references public.profiles (id) on delete set null,
+  calendar_event_id uuid references public.calendar_events (id) on delete set null,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+create index if not exists meeting_bookings_team_idx on public.meeting_bookings (team_id, booking_date);
+alter table public.meeting_bookings enable row level security;
+create policy "team sees meeting bookings" on public.meeting_bookings for select to authenticated
+  using (team_id = public.my_team_id());
+
+-- ---------- دوال الفريق (مستخدم مسجّل) ----------
+create or replace function public.create_minutes_actions(p_minutes_id uuid, p_actions jsonb)
+returns jsonb
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid := public.my_team_id();
+  v_item jsonb;
+  v_task uuid;
+  v_assignee uuid;
+  v_due date;
+  v_text text;
+  v_count int := 0;
+begin
+  if auth.uid() is null or v_team is null or not public.team_can_write(v_team) then
+    raise exception 'not allowed';
+  end if;
+  if not exists (select 1 from public.meeting_minutes where id = p_minutes_id and research_project_id = public.my_research_project_id()) then
+    raise exception 'minutes not found';
+  end if;
+  if jsonb_typeof(p_actions) <> 'array' or jsonb_array_length(p_actions) > 20 then
+    raise exception 'bad actions';
+  end if;
+  for v_item in select * from jsonb_array_elements(p_actions) loop
+    v_text := left(trim(coalesce(v_item->>'text', '')), 300);
+    continue when v_text = '';
+    v_assignee := null;
+    if coalesce(v_item->>'assigneeId', '') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
+      select id into v_assignee from public.profiles where id = (v_item->>'assigneeId')::uuid and team_id = v_team;
+    end if;
+    v_due := null;
+    begin
+      if coalesce(v_item->>'dueDate', '') ~ '^\d{4}-\d{2}-\d{2}$' then
+        v_due := (v_item->>'dueDate')::date;
+      end if;
+    exception when others then
+      v_due := null;
+    end;
+    v_due := coalesce(v_due, current_date + 7);
+    insert into public.tasks (team_id, title, description, assignee_id, due_date, priority, created_by)
+    values (v_team, v_text, 'من محضر اجتماع', coalesce(v_assignee, auth.uid()), v_due, 'medium', auth.uid())
+    returning id into v_task;
+    insert into public.minutes_actions (minutes_id, team_id, text, assignee_id, due_date, task_id)
+    values (p_minutes_id, v_team, v_text, coalesce(v_assignee, auth.uid()), v_due, v_task);
+    v_count := v_count + 1;
+  end loop;
+  return jsonb_build_object('created', v_count);
+end;
+$$;
+grant execute on function public.create_minutes_actions(uuid, jsonb) to authenticated;
+
+create or replace function public.request_minutes_approval(p_minutes_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid := public.my_team_id();
+begin
+  if auth.uid() is null or v_team is null or not public.team_can_write(v_team) then
+    raise exception 'not allowed';
+  end if;
+  if not exists (select 1 from public.meeting_minutes where id = p_minutes_id and research_project_id = public.my_research_project_id()) then
+    raise exception 'minutes not found';
+  end if;
+  insert into public.minutes_approvals (minutes_id, team_id, status, requested_at)
+  values (p_minutes_id, v_team, 'pending', now())
+  on conflict (minutes_id) do update
+    set status = 'pending', requested_at = now(), resolved_at = null, note = '', supervisor_name = '';
+end;
+$$;
+grant execute on function public.request_minutes_approval(uuid) to authenticated;
+
+create or replace function public.cancel_decision_request(p_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid := public.my_team_id();
+begin
+  if auth.uid() is null or v_team is null or not public.team_can_write(v_team) then
+    raise exception 'not allowed';
+  end if;
+  update public.decision_requests set status = 'cancelled'
+  where id = p_id and team_id = v_team and status = 'open';
+end;
+$$;
+grant execute on function public.cancel_decision_request(uuid) to authenticated;
+
+create or replace function public.book_meeting_slot(p_date date, p_time text, p_note text default '')
+returns jsonb
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid := public.my_team_id();
+  v_today date := (now() at time zone 'Asia/Riyadh')::date;
+  v_av public.supervisor_availability%rowtype;
+  v_has_windows boolean := false;
+  v_ok boolean := false;
+  v_win jsonb;
+  v_mins int;
+  v_start int;
+  v_end int;
+  v_status text := 'pending';
+  v_event uuid;
+  v_id uuid;
+  v_dur int := 30;
+begin
+  if auth.uid() is null or v_team is null or not public.team_can_write(v_team) then
+    raise exception 'not allowed';
+  end if;
+  if p_date is null or p_date < v_today or p_date > v_today + 60 then
+    raise exception 'bad date';
+  end if;
+  if p_time is null or p_time !~ '^[0-2][0-9]:[0-5][0-9]$' or substr(p_time, 1, 2)::int > 23 then
+    raise exception 'bad time';
+  end if;
+  if (select count(*) from public.meeting_bookings where team_id = v_team and status in ('pending', 'confirmed') and booking_date >= v_today) >= 5 then
+    raise exception 'too many bookings';
+  end if;
+  if exists (select 1 from public.meeting_bookings where team_id = v_team and status in ('pending', 'confirmed') and booking_date = p_date and booking_time = p_time) then
+    raise exception 'already booked';
+  end if;
+
+  select * into v_av from public.supervisor_availability where team_id = v_team;
+  if found and jsonb_typeof(v_av.windows) = 'array' and jsonb_array_length(v_av.windows) > 0 then
+    v_has_windows := true;
+    v_dur := v_av.slot_minutes;
+    v_mins := substr(p_time, 1, 2)::int * 60 + substr(p_time, 4, 2)::int;
+    for v_win in select * from jsonb_array_elements(v_av.windows) loop
+      if (v_win->>'weekday')::int = extract(dow from p_date)::int then
+        v_start := substr(v_win->>'start', 1, 2)::int * 60 + substr(v_win->>'start', 4, 2)::int;
+        v_end := substr(v_win->>'end', 1, 2)::int * 60 + substr(v_win->>'end', 4, 2)::int;
+        if v_mins >= v_start and v_mins + v_dur <= v_end and (v_mins - v_start) % v_dur = 0 then
+          v_ok := true;
+        end if;
+      end if;
+    end loop;
+    if not v_ok then
+      raise exception 'outside availability';
+    end if;
+    if v_av.auto_confirm then
+      v_status := 'confirmed';
+    end if;
+  end if;
+
+  if v_status = 'confirmed' then
+    insert into public.calendar_events (team_id, title, event_date, event_time, event_type, location, created_by)
+    values (v_team, 'اجتماع مع المشرفة', p_date, p_time, 'meeting', '', auth.uid())
+    returning id into v_event;
+  end if;
+
+  insert into public.meeting_bookings (team_id, booking_date, booking_time, duration_min, status, note, requested_by, calendar_event_id, resolved_at)
+  values (v_team, p_date, p_time, v_dur, v_status, left(coalesce(p_note, ''), 300), auth.uid(), v_event, case when v_status = 'confirmed' then now() else null end)
+  returning id into v_id;
+
+  return jsonb_build_object('id', v_id, 'status', v_status, 'hasWindows', v_has_windows);
+end;
+$$;
+grant execute on function public.book_meeting_slot(date, text, text) to authenticated;
+
+create or replace function public.cancel_meeting_booking(p_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid := public.my_team_id();
+  v_event uuid;
+begin
+  if auth.uid() is null or v_team is null or not public.team_can_write(v_team) then
+    raise exception 'not allowed';
+  end if;
+  update public.meeting_bookings set status = 'cancelled', resolved_at = now()
+  where id = p_id and team_id = v_team and status in ('pending', 'confirmed')
+  returning calendar_event_id into v_event;
+  if v_event is not null then
+    delete from public.calendar_events where id = v_event and team_id = v_team;
+  end if;
+end;
+$$;
+grant execute on function public.cancel_meeting_booking(uuid) to authenticated;
+
+-- ---------- دوال المشرفة (برمز الرابط، بدون حساب) ----------
+create or replace function public.get_supervisor_board(p_token uuid)
+returns jsonb
+language plpgsql
+security definer set search_path = public
+stable
+as $$
+declare
+  v_team uuid;
+  v_name text;
+  v_today date := (now() at time zone 'Asia/Riyadh')::date;
+  v_last jsonb;
+begin
+  select id, name into v_team, v_name from public.teams where share_token = p_token;
+  if v_team is null then
+    return null;
+  end if;
+
+  select jsonb_build_object(
+    'meetingDate', m.meeting_date,
+    'total', (select count(*) from public.minutes_actions a where a.minutes_id = m.id),
+    'done', (select count(*) from public.minutes_actions a join public.tasks t on t.id = a.task_id where a.minutes_id = m.id and t.status = 'done')
+  ) into v_last
+  from public.meeting_minutes m
+  join public.research_projects rp on rp.id = m.research_project_id
+  where rp.team_id = v_team
+  order by m.meeting_date desc, m.created_at desc
+  limit 1;
+
+  return jsonb_build_object(
+    'teamName', v_name,
+    'today', v_today,
+    'waiting', jsonb_build_object(
+      'minutes', (
+        select coalesce(jsonb_agg(jsonb_build_object(
+          'id', m.id,
+          'meetingDate', m.meeting_date,
+          'attendees', to_jsonb(m.attendees),
+          'agenda', m.agenda,
+          'discussion', m.discussion,
+          'decisions', m.decisions,
+          'requestedAt', ap.requested_at,
+          'autoApprovesAt', ap.requested_at + interval '48 hours',
+          'actions', (
+            select coalesce(jsonb_agg(jsonb_build_object(
+              'text', a.text, 'assigneeName', pr.name, 'dueDate', a.due_date, 'done', coalesce(t.status = 'done', false)
+            ) order by a.created_at), '[]'::jsonb)
+            from public.minutes_actions a
+            left join public.profiles pr on pr.id = a.assignee_id
+            left join public.tasks t on t.id = a.task_id
+            where a.minutes_id = m.id
+          )
+        ) order by ap.requested_at desc), '[]'::jsonb)
+        from public.minutes_approvals ap
+        join public.meeting_minutes m on m.id = ap.minutes_id
+        where ap.team_id = v_team and ap.status = 'pending' and ap.requested_at >= now() - interval '48 hours'
+      ),
+      'decisions', (
+        select coalesce(jsonb_agg(jsonb_build_object(
+          'id', d.id, 'question', d.question, 'options', to_jsonb(d.options), 'neededBy', d.needed_by, 'createdAt', d.created_at
+        ) order by d.created_at desc), '[]'::jsonb)
+        from public.decision_requests d where d.team_id = v_team and d.status = 'open'
+      ),
+      'bookings', (
+        select coalesce(jsonb_agg(jsonb_build_object(
+          'id', b.id, 'date', b.booking_date, 'time', b.booking_time, 'durationMin', b.duration_min, 'note', b.note, 'createdAt', b.created_at
+        ) order by b.booking_date, b.booking_time), '[]'::jsonb)
+        from public.meeting_bookings b where b.team_id = v_team and b.status = 'pending' and b.booking_date >= v_today
+      )
+    ),
+    'recentMinutes', (
+      select coalesce(jsonb_agg(x order by x->>'meetingDate' desc), '[]'::jsonb) from (
+        select jsonb_build_object(
+          'id', m.id,
+          'meetingDate', m.meeting_date,
+          'status', case when ap.minutes_id is null then 'none'
+                         when ap.status = 'pending' and ap.requested_at < now() - interval '48 hours' then 'auto_approved'
+                         else ap.status end,
+          'total', (select count(*) from public.minutes_actions a where a.minutes_id = m.id),
+          'done', (select count(*) from public.minutes_actions a join public.tasks t on t.id = a.task_id where a.minutes_id = m.id and t.status = 'done')
+        ) as x
+        from public.meeting_minutes m
+        join public.research_projects rp on rp.id = m.research_project_id
+        left join public.minutes_approvals ap on ap.minutes_id = m.id
+        where rp.team_id = v_team
+        order by m.meeting_date desc, m.created_at desc
+        limit 6
+      ) s
+    ),
+    'lastMeeting', v_last,
+    'upcoming', (
+      select coalesce(jsonb_agg(jsonb_build_object('date', b.booking_date, 'time', b.booking_time) order by b.booking_date, b.booking_time), '[]'::jsonb)
+      from public.meeting_bookings b where b.team_id = v_team and b.status = 'confirmed' and b.booking_date >= v_today
+    ),
+    'availability', (
+      select jsonb_build_object('windows', av.windows, 'slotMinutes', av.slot_minutes, 'autoConfirm', av.auto_confirm, 'replyDays', av.reply_days, 'note', av.note)
+      from public.supervisor_availability av where av.team_id = v_team
+    )
+  );
+end;
+$$;
+grant execute on function public.get_supervisor_board(uuid) to anon, authenticated;
+
+create or replace function public.supervisor_resolve_minutes(p_token uuid, p_minutes_id uuid, p_decision text, p_note text default '', p_name text default '')
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid;
+  v_date date;
+  v_note text := left(trim(coalesce(p_note, '')), 1000);
+  v_name text := left(trim(coalesce(p_name, '')), 80);
+begin
+  select id into v_team from public.teams where share_token = p_token;
+  if v_team is null then raise exception 'invalid token'; end if;
+  if p_decision not in ('approved', 'changes_requested') then raise exception 'bad decision'; end if;
+  if p_decision = 'changes_requested' and v_note = '' then raise exception 'note required'; end if;
+  select m.meeting_date into v_date from public.meeting_minutes m
+    join public.research_projects rp on rp.id = m.research_project_id
+    where m.id = p_minutes_id and rp.team_id = v_team;
+  if v_date is null then raise exception 'minutes not found'; end if;
+  update public.minutes_approvals set status = p_decision, resolved_at = now(), note = v_note, supervisor_name = v_name
+    where minutes_id = p_minutes_id and team_id = v_team;
+  if not found then raise exception 'no approval request'; end if;
+  insert into public.supervisor_messages (team_id, sender, sender_name, body)
+  values (v_team, 'supervisor', v_name,
+    case when p_decision = 'approved' then '✅ اعتمدتُ محضر اجتماع ' || to_char(v_date, 'YYYY/MM/DD') || '.'
+         else '✏️ طلبتُ تعديلًا على محضر اجتماع ' || to_char(v_date, 'YYYY/MM/DD') || ': ' || v_note end);
+end;
+$$;
+grant execute on function public.supervisor_resolve_minutes(uuid, uuid, text, text, text) to anon, authenticated;
+
+create or replace function public.supervisor_answer_decision(p_token uuid, p_id uuid, p_choice int, p_note text default '', p_name text default '')
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid;
+  v_q text;
+  v_opts text[];
+  v_note text := left(trim(coalesce(p_note, '')), 1000);
+  v_name text := left(trim(coalesce(p_name, '')), 80);
+begin
+  select id into v_team from public.teams where share_token = p_token;
+  if v_team is null then raise exception 'invalid token'; end if;
+  select question, options into v_q, v_opts from public.decision_requests where id = p_id and team_id = v_team and status = 'open';
+  if v_q is null then raise exception 'request not open'; end if;
+  if p_choice < 0 or p_choice >= array_length(v_opts, 1) then raise exception 'bad choice'; end if;
+  update public.decision_requests
+    set status = 'answered', chosen_index = p_choice, answer_note = v_note, supervisor_name = v_name, answered_at = now()
+    where id = p_id;
+  insert into public.supervisor_messages (team_id, sender, sender_name, body)
+  values (v_team, 'supervisor', v_name,
+    '✅ قراري على «' || left(v_q, 120) || '»: ' || v_opts[p_choice + 1] || case when v_note <> '' then ' — ' || v_note else '' end);
+end;
+$$;
+grant execute on function public.supervisor_answer_decision(uuid, uuid, int, text, text) to anon, authenticated;
+
+create or replace function public.supervisor_respond_booking(p_token uuid, p_id uuid, p_decision text, p_note text default '', p_name text default '')
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid;
+  v_b public.meeting_bookings%rowtype;
+  v_note text := left(trim(coalesce(p_note, '')), 300);
+  v_name text := left(trim(coalesce(p_name, '')), 80);
+  v_event uuid;
+begin
+  select id into v_team from public.teams where share_token = p_token;
+  if v_team is null then raise exception 'invalid token'; end if;
+  if p_decision not in ('confirm', 'decline') then raise exception 'bad decision'; end if;
+  select * into v_b from public.meeting_bookings where id = p_id and team_id = v_team and status = 'pending';
+  if not found then raise exception 'booking not pending'; end if;
+  if p_decision = 'confirm' then
+    insert into public.calendar_events (team_id, title, event_date, event_time, event_type, location, created_by)
+    values (v_team, 'اجتماع مع المشرفة', v_b.booking_date, v_b.booking_time, 'meeting', '', v_b.requested_by)
+    returning id into v_event;
+    update public.meeting_bookings set status = 'confirmed', supervisor_note = v_note, resolved_at = now(), calendar_event_id = v_event where id = p_id;
+  else
+    update public.meeting_bookings set status = 'declined', supervisor_note = v_note, resolved_at = now() where id = p_id;
+  end if;
+  insert into public.supervisor_messages (team_id, sender, sender_name, body)
+  values (v_team, 'supervisor', v_name,
+    case when p_decision = 'confirm'
+      then '📅 أكّدتُ اجتماع ' || to_char(v_b.booking_date, 'YYYY/MM/DD') || ' الساعة ' || v_b.booking_time || '.'
+      else '📅 ما أقدر على موعد ' || to_char(v_b.booking_date, 'YYYY/MM/DD') || ' الساعة ' || v_b.booking_time || '، اقترحوا غيره' || case when v_note <> '' then ': ' || v_note else '.' end end);
+end;
+$$;
+grant execute on function public.supervisor_respond_booking(uuid, uuid, text, text, text) to anon, authenticated;
+
+create or replace function public.supervisor_set_availability(p_token uuid, p_windows jsonb, p_slot int, p_auto boolean, p_reply_days int, p_note text)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_team uuid;
+  v_win jsonb;
+  v_clean jsonb := '[]'::jsonb;
+  v_s text;
+  v_e text;
+begin
+  select id into v_team from public.teams where share_token = p_token;
+  if v_team is null then raise exception 'invalid token'; end if;
+  if p_slot not in (15, 20, 30, 45, 60) then raise exception 'bad slot'; end if;
+  if p_reply_days is not null and (p_reply_days < 1 or p_reply_days > 30) then raise exception 'bad reply days'; end if;
+  if jsonb_typeof(p_windows) <> 'array' or jsonb_array_length(p_windows) > 14 then raise exception 'bad windows'; end if;
+  for v_win in select * from jsonb_array_elements(p_windows) loop
+    v_s := coalesce(v_win->>'start', '');
+    v_e := coalesce(v_win->>'end', '');
+    if (v_win->>'weekday') ~ '^[0-6]$' and v_s ~ '^[0-2][0-9]:[0-5][0-9]$' and v_e ~ '^[0-2][0-9]:[0-5][0-9]$' and v_s < v_e then
+      v_clean := v_clean || jsonb_build_array(jsonb_build_object('weekday', (v_win->>'weekday')::int, 'start', v_s, 'end', v_e));
+    end if;
+  end loop;
+  insert into public.supervisor_availability (team_id, windows, slot_minutes, auto_confirm, reply_days, note, updated_at)
+  values (v_team, v_clean, p_slot, coalesce(p_auto, true), p_reply_days, left(trim(coalesce(p_note, '')), 300), now())
+  on conflict (team_id) do update
+    set windows = excluded.windows, slot_minutes = excluded.slot_minutes, auto_confirm = excluded.auto_confirm,
+        reply_days = excluded.reply_days, note = excluded.note, updated_at = now();
+end;
+$$;
+grant execute on function public.supervisor_set_availability(uuid, jsonb, int, boolean, int, text) to anon, authenticated;
+
+alter publication supabase_realtime add table public.minutes_approvals, public.minutes_actions, public.decision_requests, public.meeting_bookings;

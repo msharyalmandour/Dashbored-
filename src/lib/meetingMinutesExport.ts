@@ -1,9 +1,10 @@
 import type { Paragraph, Table } from "docx";
-import { formatDateLong } from "./date";
+import { formatDateFull, formatHijri } from "./date";
 import { loadWesyncKit, type WordStyle } from "./wordTheme";
 
 export interface MeetingMinutesExportInput {
   meetingDate: string;
+  agenda?: string;
   attendees: string[];
   discussion: string;
   decisions: string;
@@ -66,14 +67,17 @@ async function buildMinutesOfficial(input: MeetingMinutesExportInput): Promise<B
             bidirectional: true,
             spacing: { after: 240 },
             children: [
-              new TextRun({ text: formatDateLong(input.meetingDate), bold: true, rightToLeft: true }),
+              new TextRun({ text: formatDateFull(input.meetingDate), bold: true, rightToLeft: true }),
             ],
           }),
+          ...(formatHijri(input.meetingDate) ? [ar(`الموافق ${formatHijri(input.meetingDate)}`, { color: "666666" })] : []),
 
           arHeading("الحاضرون"),
           ...(input.attendees.length > 0
             ? input.attendees.map((a) => arBullet(a))
             : [ar("لم يُحدد أحد.", { color: "999999" })]),
+
+          ...(input.agenda?.trim() ? [arHeading("جدول الأعمال"), ...input.agenda.split("\n").filter((l) => l.trim()).map((l) => ar(l.trim()))] : []),
 
           arHeading("ماذا ناقشنا"),
           ar(input.discussion || "لا يوجد.", { color: input.discussion ? undefined : "999999" }),
@@ -100,12 +104,16 @@ async function buildMinutesDark(input: MeetingMinutesExportInput): Promise<Blob>
   const children: (Paragraph | Table)[] = [
     ...k.masthead({
       kicker: "محضر اجتماع — MEETING MINUTES",
-      title: formatDateLong(input.meetingDate),
-      sub: `${input.attendees.length} ${input.attendees.length === 1 ? "حاضر" : "حاضرين"}`,
+      title: formatDateFull(input.meetingDate),
+      sub: [formatHijri(input.meetingDate), `${input.attendees.length} ${input.attendees.length === 1 ? "حاضر" : "حاضرين"}`]
+        .filter(Boolean)
+        .join(" · "),
     }),
 
     k.heading("الحاضرون"),
     ...k.bullets(input.attendees, "لم يُحدد أحد."),
+
+    ...(input.agenda?.trim() ? [k.heading("جدول الأعمال"), ...k.narrative(input.agenda, "")] : []),
 
     k.heading("ماذا ناقشنا"),
     ...k.narrative(input.discussion, "لا يوجد."),

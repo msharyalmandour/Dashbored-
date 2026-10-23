@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock, Wand2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { AI_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
 
@@ -24,7 +24,7 @@ export default function AiLockedCard({ feature }: { feature: string }) {
         to="/pricing"
         className="inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
       >
-        <Sparkles size={14} />
+        <Wand2 size={14} />
         {isLeader ? "شوفوا الباقات وانتقلوا لـ AI" : "شوفوا الباقات"}
       </Link>
       {!isLeader && (

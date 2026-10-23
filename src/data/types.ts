@@ -178,6 +178,8 @@ export interface CalendarEvent {
   title: string;
   type: CalendarEventType;
   location: string;
+  /** صاحب/ة الحدث بوضع الحساب الحقيقي (للتحكم بالحذف) */
+  createdById?: string;
 }
 
 /** موضوع بحثي تُصنَّف تحته الدراسات في مراجعة الأدبيات */
@@ -360,6 +362,7 @@ export interface ResearchSearchQuery {
 export interface MeetingMinutesRow {
   id: string;
   meetingDate: string;
+  agenda: string;
   attendees: string[];
   discussion: string;
   decisions: string;
@@ -428,3 +431,64 @@ export interface EthicalApproval {
   updatedAt: string;
 }
 
+
+/** حالة اعتماد المشرفة للمحضر. «auto_approved» = ما ردّت خلال 48 ساعة (الصمت = موافقة، تُحسب عند القراءة) */
+export type ApprovalStatus = "none" | "pending" | "approved" | "changes_requested" | "auto_approved";
+
+export interface MinutesActionRow {
+  id: string;
+  minutesId: string;
+  text: string;
+  assigneeId: string | null;
+  dueDate: string | null;
+  taskId: string | null;
+}
+
+export interface MinutesApprovalRow {
+  minutesId: string;
+  status: "pending" | "approved" | "changes_requested";
+  requestedAt: string;
+  resolvedAt: string | null;
+  note: string;
+  supervisorName: string;
+}
+
+export interface DecisionRequestRow {
+  id: string;
+  question: string;
+  options: string[];
+  neededBy: string | null;
+  status: "open" | "answered" | "cancelled";
+  chosenIndex: number | null;
+  answerNote: string;
+  supervisorName: string;
+  answeredAt: string | null;
+  createdAt: string;
+  createdById: string | null;
+}
+
+export interface AvailabilityWindow {
+  /** 0 = الأحد … 6 = السبت (نفس getDay) */
+  weekday: number;
+  start: string;
+  end: string;
+}
+
+export interface SupervisorAvailabilityRow {
+  windows: AvailabilityWindow[];
+  slotMinutes: number;
+  autoConfirm: boolean;
+  replyDays: number | null;
+  note: string;
+}
+
+export interface MeetingBookingRow {
+  id: string;
+  date: string;
+  time: string;
+  durationMin: number;
+  status: "pending" | "confirmed" | "declined" | "cancelled";
+  note: string;
+  supervisorNote: string;
+  createdAt: string;
+}

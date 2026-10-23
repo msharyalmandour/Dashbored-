@@ -4,6 +4,7 @@ import { loadWesyncKit, type WordStyle } from "./wordTheme";
 
 export interface MeetingMinutesExportInput {
   meetingDate: string;
+  agenda?: string;
   attendees: string[];
   discussion: string;
   decisions: string;
@@ -76,6 +77,8 @@ async function buildMinutesOfficial(input: MeetingMinutesExportInput): Promise<B
             ? input.attendees.map((a) => arBullet(a))
             : [ar("لم يُحدد أحد.", { color: "999999" })]),
 
+          ...(input.agenda?.trim() ? [arHeading("جدول الأعمال"), ...input.agenda.split("\n").filter((l) => l.trim()).map((l) => ar(l.trim()))] : []),
+
           arHeading("ماذا ناقشنا"),
           ar(input.discussion || "لا يوجد.", { color: input.discussion ? undefined : "999999" }),
 
@@ -109,6 +112,8 @@ async function buildMinutesDark(input: MeetingMinutesExportInput): Promise<Blob>
 
     k.heading("الحاضرون"),
     ...k.bullets(input.attendees, "لم يُحدد أحد."),
+
+    ...(input.agenda?.trim() ? [k.heading("جدول الأعمال"), ...k.narrative(input.agenda, "")] : []),
 
     k.heading("ماذا ناقشنا"),
     ...k.narrative(input.discussion, "لا يوجد."),

@@ -5,6 +5,7 @@ import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 interface MinutesRowDb {
   id: string;
   meeting_date: string;
+  agenda: string | null;
   attendees: string[];
   discussion: string;
   decisions: string;
@@ -19,6 +20,7 @@ function mapRow(row: MinutesRowDb): MeetingMinutesRow {
   return {
     id: row.id,
     meetingDate: row.meeting_date,
+    agenda: row.agenda ?? "",
     attendees: row.attendees,
     discussion: row.discussion,
     decisions: row.decisions,
@@ -53,6 +55,7 @@ export function useMeetingMinutes() {
 
   const addMinutes = async (input: {
     meetingDate: string;
+    agenda?: string;
     attendees: string[];
     discussion: string;
     decisions: string;
@@ -67,6 +70,7 @@ export function useMeetingMinutes() {
       .insert({
         research_project_id: projectId,
         meeting_date: input.meetingDate,
+        agenda: input.agenda ?? "",
         attendees: input.attendees,
         discussion: input.discussion,
         decisions: input.decisions,

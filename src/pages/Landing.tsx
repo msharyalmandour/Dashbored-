@@ -20,7 +20,7 @@ const glassBtn = "ld-btn ld-glass rounded-full border border-white/20 bg-white/[
 function CtaButton({ children, big = false }: { children: React.ReactNode; big?: boolean }) {
   return (
     <Link
-      to="/login"
+      to="/login?signup=1"
       className={`ld-btn ld-sheen inline-flex items-center gap-3.5 rounded-full bg-[#F6F1EC] font-semibold text-[#1A0F00] shadow-[0_18px_50px_rgba(255,120,0,0.35)] ${
         big ? "py-2 ps-7 pe-2 text-lg" : "py-2 ps-6 pe-2 text-[17px]"
       }`}
@@ -429,7 +429,7 @@ export default function Landing() {
               <InstallAppButton />
             </span>
             <Link to="/login" className="px-4 py-2.5 text-[15px] text-[#D9CFC6] hover:text-white">دخول</Link>
-            <Link to="/login" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-[15px] font-semibold text-[#1A0F00]">ابدأوا</Link>
+            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-[15px] font-semibold text-[#1A0F00]">ابدأوا</Link>
           </div>
         </nav>
 
@@ -541,7 +541,7 @@ export default function Landing() {
           <div {...fx(100)} className="ld-fx ld-glass flex flex-col gap-[22px] rounded-[34px] border border-white/[0.12] bg-white/[0.04] p-[34px]">
             <div><div className={`${font} text-[22px] font-semibold`}>Basic</div><div className="text-[15px] text-[#BDAFA3]">كل أدوات إدارة البحث، بدون ذكاء اصطناعي</div></div>
             <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{BASIC_PRICE}</span><span className="text-[#BDAFA3]">ريال شهريًا لكل عضو</span></div>
-            <Link to="/login" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">ابدأوا بـ Basic</Link>
+            <Link to="/login?signup=1" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">ابدأوا بـ Basic</Link>
             <ul className="space-y-3 border-t border-white/10 pt-5 text-[15px] text-[#E6DBD1]">
               {basicHighlights.map((item) => (
                 <li key={item} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFB444]" />{item}</li>
@@ -560,7 +560,7 @@ export default function Landing() {
             <span className="absolute end-[22px] top-[22px] rounded-full bg-[#F6F1EC] px-3.5 py-[5px] text-xs font-semibold text-[#1A0F00]">أول ١٥ فريق: {FOUNDER_AI_PRICE} ريال ثابتة</span>
             <div><div className={`${font} text-[22px] font-semibold`}>AI</div><div className="text-[15px] text-[#E6DBD1]">كل شي بالإضافة لمساعد بحثي ذكي</div></div>
             <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{AI_PRICE}</span><span className="text-[#E6DBD1]">ريال شهريًا لكل عضو</span></div>
-            <Link to="/login" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">ابدأوا تجربة AI المجانية</Link>
+            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">ابدأوا تجربة AI المجانية</Link>
             <ul className="space-y-3 border-t border-white/[0.18] pt-5 text-[15px] text-[#F6F1EC]">
               <li className="text-[#F1D9C4]">كل مزايا Basic، إضافةً إلى:</li>
               {aiFeatures.map((f) => (

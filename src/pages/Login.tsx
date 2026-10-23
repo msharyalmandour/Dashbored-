@@ -1,21 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowRight, BookMarked, Gift, GraduationCap, ListChecks, Wand2, TrendingUp, Users } from "lucide-react";
-import HeroVideo from "../components/HeroVideo";
+import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
+import { ArrowRight, BookMarked, Gift, GraduationCap, TrendingUp, Users } from "lucide-react";
 import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
-import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
-import InstallAppButton from "../components/InstallAppButton";
-import CinematicOverlay from "../components/CinematicOverlay";
 import Logo from "../components/Logo";
-
-/** ثلاث وعود رئيسية بواجهة الدخول — كلها ميزات موجودة فعلًا بالتطبيق */
-const pitch = [
-  { icon: ListChecks, title: "من الفوضى لخطة", desc: "مهام موزّعة وتنبيه قبل ما تتأخرون، ومخطط يرجّعكم أسبوع بأسبوع من يوم التسليم." },
-  { icon: GraduationCap, title: "مشرفتكم بالصورة", desc: "رابط لها بدون حساب تشوف فيه تقدمكم وتراسلكم، وملاحظاتها تتحوّل لمهام تخلّصونها." },
-  { icon: Wand2, title: "كوتش يعرف بحثكم", desc: "يشوف مهامكم ومراحلكم وينصحكم بالأولويات، ويدرّبكم على أسئلة المناقشة من مقترحكم." },
-];
 
 /** أبرز مزايا Wesync — تظهر لأي فريق جديد وقت التسجيل عشان يعرفون وش
     ينتظرهم قبل ما يكملون */
@@ -64,13 +53,6 @@ function SuccessTransition() {
   );
 }
 
-/** بقعة ضوء تتبع المؤشر على البطاقات */
-function spot(e: React.MouseEvent<HTMLElement>) {
-  const r = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-  e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-}
-
 export default function Login() {
   const { currentUser, mode, loginAsMock, signInWithPassword, signUpWithPassword, resetPassword } =
     useAuth();
@@ -98,8 +80,7 @@ export default function Login() {
     return () => clearTimeout(t);
   }, [celebrating]);
 
-  const [showForm, setShowForm] = useState(!!inviteTeamId || !!referralCode);
-  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode);
+  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode || searchParams.has("signup"));
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -108,7 +89,6 @@ export default function Login() {
   const [university, setUniversity] = useState("");
   const [showManualTeamCode, setShowManualTeamCode] = useState(false);
   const [manualTeamCode, setManualTeamCode] = useState("");
-  const [showStory, setShowStory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -204,19 +184,23 @@ export default function Login() {
   const clearValidity = (e: React.ChangeEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity("");
 
   const inputClass =
-    "w-full rounded-full border border-white/15 bg-white/[0.06] px-5 py-3 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] outline-none backdrop-blur-md transition-[border-color,box-shadow] placeholder:text-white/30 focus:border-amber-400/60 focus:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_0_0_4px_rgba(251,191,36,0.12),0_0_26px_-6px_rgba(251,191,36,0.5)]";
+    "w-full rounded-full border border-white/15 bg-white/[0.06] px-5 py-3 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] outline-none backdrop-blur-md transition-[border-color,box-shadow] placeholder:text-white/30 focus:border-[#ff8a24]/60 focus:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),0_0_0_4px_rgba(255,138,36,0.12),0_0_26px_-6px_rgba(255,138,36,0.5)]";
   const glowButtonClass =
-    "w-full rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3 text-sm font-bold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(251,191,36,0.65)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_14px_36px_-8px_rgba(251,191,36,0.85)] disabled:opacity-60";
+    "w-full rounded-full bg-gradient-to-b from-[#ffb547] to-[#ff8a24] py-3 text-sm font-bold text-neutral-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.55),0_12px_30px_-10px_rgba(255,138,36,0.65)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_14px_36px_-8px_rgba(255,138,36,0.85)] disabled:opacity-60";
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050b12]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#08211d] via-[#061318] to-[#03060a]" />
-      <HeroVideo />
-      <div className="pointer-events-none absolute inset-0 bg-[#03060a]/35" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_640px_320px_at_center,rgba(3,6,10,0.72),transparent_75%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#03060a] via-transparent to-[#03060a]/50" />
-      {!showForm && <div className="pointer-events-none absolute inset-0 bg-[#03060a]/60 sm:hidden" />}
-      {!showForm && <CinematicOverlay />}
+    <div className="relative min-h-screen overflow-hidden bg-[#080808]">
+      <div className="absolute inset-0 bg-[#260600]" />
+      <picture>
+        <source media="(max-width: 767px)" srcSet="/landing/students-m.webp" />
+        <img
+          src="/landing/students.webp"
+          alt=""
+          className="ld-hero-img absolute inset-0 h-full w-full scale-110 object-cover object-[25%_center] opacity-70 blur-[3px]"
+        />
+      </picture>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/40 to-[#080808]/70" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_700px_420px_at_center,rgba(8,8,8,0.7),transparent_75%)]" />
 
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
         <header className="flex w-full max-w-6xl items-center justify-between">
@@ -227,131 +211,16 @@ export default function Login() {
         </header>
 
         <main className="flex w-full flex-1 flex-col items-center justify-center py-10">
-          {!showForm ? (
-            <div className="w-full max-w-3xl animate-[hero-in_0.9s_ease-out] text-center [text-shadow:0_4px_28px_rgba(3,6,10,0.9)]">
-              <p className="cine-rise mb-4 text-xs font-semibold tracking-[0.2em] text-amber-200/80" style={{ animationDelay: "0.9s" }}>
-                لفرق بحث التخرج في التمريض
-              </p>
-              <h1 className="font-display text-4xl font-extrabold leading-[1.2] text-white sm:text-5xl md:text-6xl">
-                {[
-                  { w: "بحثكم" }, { w: "يخلص" }, { w: "بوقته", hl: true }, { br: true }, { w: "مو" }, { w: "بآخر" }, { w: "ليلة" },
-                ].map((t, i) =>
-                  "br" in t ? (
-                    <br key={i} className="hidden sm:block" />
-                  ) : (
-                    <span
-                      key={i}
-                      className={`cine-word ${t.hl ? "text-amber-300" : ""}`}
-                      style={{ animationDelay: `${1.0 + i * 0.16}s`, marginInlineEnd: "0.25em" }}
-                    >
-                      {t.w}
-                    </span>
-                  ),
-                )}
-              </h1>
-              <p className="cine-rise mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/65 sm:text-base" style={{ animationDelay: "2.1s" }}>
-                مكان واحد لفريقكم: مهام، مقترح، منهجية، إحصاء، وملاحظات المشرفة — ومعاهم كوتش ذكي يعرف وضع بحثكم بالضبط ويقول لكم وش تسوون الحين.
-              </p>
-
-              <div className="cine-rise mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ animationDelay: "2.4s" }}>
-                <button
-                  onClick={() => {
-                    setIsSignUp(true);
-                    setShowForm(true);
-                  }}
-                  className="cine-cta group relative rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-9 py-3.5 text-sm font-extrabold text-neutral-950 transition-transform hover:scale-[1.04]"
-                >
-                  ابدأوا مجانًا ٧ أيام
-                </button>
-                <button
-                  onClick={() => {
-                    setIsSignUp(false);
-                    setShowForm(true);
-                  }}
-                  className="rounded-full border border-white/25 px-8 py-3.5 text-sm font-bold text-white transition-colors hover:border-amber-300/70"
-                >
-                  عندي حساب
-                </button>
-              </div>
-              <p className="cine-rise mt-3 text-[11px] font-semibold text-white/45" style={{ animationDelay: "2.6s" }}>
-                كل المزايا مفتوحة بالتجربة (بما فيها الذكاء الاصطناعي) — بدون أي التزام
-              </p>
-
-              <div className="mt-10 grid grid-cols-1 gap-3 text-start sm:grid-cols-3">
-                {pitch.map((c, i) => (
-                  <div
-                    key={c.title}
-                    onMouseMove={spot}
-                    style={{ animationDelay: `${2.7 + i * 0.15}s` }}
-                    className="cine-rise cine-spot rounded-3xl border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md"
-                  >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300">
-                      <c.icon size={17} />
-                    </span>
-                    <p className="mt-3 text-sm font-extrabold text-white">{c.title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-white/55">{c.desc}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="cine-rise mt-4 grid grid-cols-1 gap-3 text-start sm:grid-cols-2" style={{ animationDelay: "3.2s" }}>
-                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="flex items-baseline justify-between text-white">
-                    <span className="text-sm font-extrabold">Basic</span>
-                    <span className="text-xs font-semibold text-white/55">
-                      <b className="font-display text-lg text-white">{BASIC_PRICE}</b> ريال / شهريًا لكل عضو
-                    </span>
-                  </p>
-                  <p className="mt-1.5 text-xs leading-relaxed text-white/55">كل أدوات إدارة البحث: مهام، مقترح، منهجية، إحصاء، مشرفة، وتقويم جوالكم.</p>
-                </div>
-                <div className="rounded-3xl border border-amber-400/40 bg-amber-400/[0.07] p-4 shadow-[0_0_50px_-25px_rgba(251,191,36,0.6)]">
-                  <p className="flex items-baseline justify-between text-white">
-                    <span className="flex items-center gap-1.5 text-sm font-extrabold text-amber-200">
-                      <Wand2 size={13} /> AI
-                    </span>
-                    <span className="text-xs font-semibold text-white/55">
-                      <b className="font-display text-lg text-white">{AI_PRICE}</b> ريال / شهريًا لكل عضو
-                    </span>
-                  </p>
-                  <p className="mt-1.5 text-xs leading-relaxed text-white/60">
-                    كل Basic + كوتش يعرف بحثكم، وكيل يجيب دراسات حقيقية، تدريب مناقشة من مقترحكم، وتحسين الصياغة.
-                  </p>
-                  <p className="mt-1 text-[11px] font-bold text-amber-300">أول ١٥ فريق: {FOUNDER_AI_PRICE} ريال ثابتة</p>
-                </div>
-              </div>
-
-              <div className="cine-rise mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" style={{ animationDelay: "3.4s" }}>
-                <InstallAppButton />
-                <button
-                  onClick={() => setShowStory((s) => !s)}
-                  className="text-xs font-semibold text-white/35 underline decoration-white/20 underline-offset-4 hover:text-amber-300"
-                >
-                  {showStory ? "إخفاء القصة" : "ليش سوّينا Wesync؟"}
-                </button>
-              </div>
-              {showStory && (
-                <div className="mx-auto mt-4 max-w-md animate-[panel-in_0.4s_ease-out] rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-start backdrop-blur-sm">
-                  <p className="text-sm leading-relaxed text-white/60">
-                    عشنا فوضى بحث التخرج زي أي طالبات تمريض — رسائل واتساب ضايعة،
-                    مستندات متكررة بين عضوات الفريق، ومواعيد تسليم تفوتنا بدون سبب
-                    وجيه. بنينا Wesync عشان يصير لفريقكم مكان واحد يجمع كل شي:
-                    خطوات بحثكم، أدلتكم، واجتماعاتكم — بدون فوضى، وبدون ما
-                    تحسّي إنك لحالك فيه.
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : (
             <div className="w-full max-w-md animate-[panel-in_0.5s_ease-out] rounded-[2rem] border border-white/15 bg-white/[0.06] p-8 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14),0_30px_80px_-30px_rgba(0,0,0,0.85),0_0_70px_-25px_rgba(255,138,36,0.45)] backdrop-blur-2xl backdrop-saturate-150">
               <div className="mb-6 flex flex-col items-center text-center">
                 {!inviteTeamId && !referralCode && (
-                  <button
-                    onClick={() => setShowForm(false)}
-                    className="mb-4 flex items-center gap-1 self-start text-xs font-semibold text-white/40 hover:text-amber-300"
+                  <Link
+                    to="/"
+                    className="mb-4 flex items-center gap-1 self-start text-xs font-semibold text-white/40 hover:text-[#ffb547]"
                   >
                     <ArrowRight size={14} />
-                    رجوع
-                  </button>
+                    الصفحة الرئيسية
+                  </Link>
                 )}
                 <h2 className="font-display text-xl font-extrabold text-white">
                   {isForgotPassword
@@ -361,13 +230,13 @@ export default function Login() {
                       : "تسجيل الدخول"}
                 </h2>
                 {inviteTeamId && mode === "supabase" && (
-                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300">
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
                     <Users size={13} />
                     دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل
                   </span>
                 )}
                 {!inviteTeamId && referralCode && mode === "supabase" && (
-                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-xs font-bold text-amber-300">
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
                     <Gift size={13} />
                     دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة ٧ أيام مجانية 🎉
                   </span>
@@ -382,14 +251,14 @@ export default function Login() {
                         key={f.label}
                         className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-2"
                       >
-                        <f.icon size={14} className="shrink-0 text-amber-300" />
+                        <f.icon size={14} className="shrink-0 text-[#ffb547]" />
                         <span className="text-[11px] font-semibold text-white/70">{f.label}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="flex animate-[node-pulse_2.2s_ease-in-out_infinite] items-center justify-center gap-2 rounded-[1.75rem] border border-amber-400/25 bg-amber-400/10 px-4 py-2.5 text-center">
+                  <div className="flex animate-[node-pulse_2.2s_ease-in-out_infinite] items-center justify-center gap-2 rounded-[1.75rem] border border-[#ff8a24]/25 bg-[#ff8a24]/10 px-4 py-2.5 text-center">
                     <GiftMotion size={20} />
-                    <p className="text-xs font-bold text-amber-300">
+                    <p className="text-xs font-bold text-[#ffb547]">
                       جربوا Wesync مجانًا ٧ أيام كاملة — بدون أي التزام، وبعدها اشتراك بسيط
                       بالريال لكل عضو.
                     </p>
@@ -400,7 +269,7 @@ export default function Login() {
               {mode === "supabase" && isForgotPassword ? (
                 <>
                   {resetSent ? (
-                    <p className="rounded-xl bg-amber-400/10 px-3 py-3 text-center text-sm font-semibold text-amber-300">
+                    <p className="rounded-xl bg-[#ff8a24]/10 px-3 py-3 text-center text-sm font-semibold text-[#ffb547]">
                       تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط
                       الرابط لتعيين كلمة مرور جديدة.
                     </p>
@@ -444,7 +313,7 @@ export default function Login() {
                       setResetSent(false);
                       setResetError(null);
                     }}
-                    className="mt-4 w-full text-center text-sm font-semibold text-amber-300 hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
                   >
                     الرجوع لتسجيل الدخول
                   </button>
@@ -479,7 +348,7 @@ export default function Login() {
                             onClick={() => setGender("female")}
                             className={`flex-1 rounded-full border px-3 py-2.5 text-sm font-semibold transition-colors ${
                               gender === "female"
-                                ? "border-amber-400 bg-amber-400/10 text-amber-300"
+                                ? "border-[#ff8a24] bg-[#ff8a24]/10 text-[#ffb547]"
                                 : "border-white/15 text-white/50 hover:bg-white/5"
                             }`}
                           >
@@ -490,7 +359,7 @@ export default function Login() {
                             onClick={() => setGender("male")}
                             className={`flex-1 rounded-full border px-3 py-2.5 text-sm font-semibold transition-colors ${
                               gender === "male"
-                                ? "border-amber-400 bg-amber-400/10 text-amber-300"
+                                ? "border-[#ff8a24] bg-[#ff8a24]/10 text-[#ffb547]"
                                 : "border-white/15 text-white/50 hover:bg-white/5"
                             }`}
                           >
@@ -522,7 +391,7 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={() => setShowManualTeamCode(true)}
-                        className="block text-xs font-semibold text-white/40 hover:text-amber-300 hover:underline"
+                        className="block text-xs font-semibold text-white/40 hover:text-[#ffb547] hover:underline"
                       >
                         عندك رمز دعوة فريق؟ اضغطي هنا
                       </button>
@@ -596,7 +465,7 @@ export default function Login() {
                         setIsForgotPassword(true);
                         setError(null);
                       }}
-                      className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-amber-300 hover:underline"
+                      className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-[#ffb547] hover:underline"
                     >
                       نسيت كلمة المرور؟
                     </button>
@@ -607,7 +476,7 @@ export default function Login() {
                       setIsSignUp((s) => !s);
                       setError(null);
                     }}
-                    className="mt-4 w-full text-center text-sm font-semibold text-amber-300 hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
                   >
                     {isSignUp ? "عندك حساب؟ سجّل دخولك" : "ما عندك حساب؟ أنشئ واحد"}
                   </button>
@@ -653,7 +522,7 @@ export default function Login() {
 
                   <button
                     onClick={() => setShowDemoCreds((s) => !s)}
-                    className="mt-4 w-full text-center text-sm font-semibold text-amber-300 hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
                   >
                     {showDemoCreds ? "إخفاء بيانات الدخول التجريبية" : "عرض بيانات الدخول التجريبية"}
                   </button>
@@ -676,7 +545,7 @@ export default function Login() {
                             <span className="font-semibold text-white/70">
                               {member.name}
                               {member.role === "leader" && (
-                                <span className="ms-1 text-amber-400">(قائدة الفريق)</span>
+                                <span className="ms-1 text-[#ffb547]">(قائدة الفريق)</span>
                               )}
                             </span>
                             <span className="font-mono text-white/40" dir="ltr">
@@ -696,7 +565,6 @@ export default function Login() {
                 </>
               )}
             </div>
-          )}
         </main>
 
         <footer className="pb-1 text-center text-[11px] tracking-wide text-white/30">

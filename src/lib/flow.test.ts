@@ -29,6 +29,13 @@ describe("stage advance", () => {
 
 describe("next steps", () => {
   const base = { todayIso: "2026-10-01", currentUserId: "u1", tasks: [] as Task[], stages, sections: [], hasDeadline: true };
+  it("suggests the agent kickstart only when a title exists and the library is empty", () => {
+    const ids = (extra: object) => computeNextSteps({ ...base, ...extra }).map((x) => x.id);
+    expect(ids({ hasTitle: true, evidenceCount: 0 })).toContain("agent-kickstart");
+    expect(ids({ hasTitle: true, evidenceCount: 3 })).not.toContain("agent-kickstart");
+    expect(ids({ hasTitle: false, evidenceCount: 0 })).not.toContain("agent-kickstart");
+    expect(ids({})).not.toContain("agent-kickstart");
+  });
   it("drops the stage nudge when the stage is ready", () => {
     expect(computeNextSteps(base).map((s) => s.id)).toContain("stage-topic");
     expect(computeNextSteps({ ...base, stageReady: true }).map((s) => s.id)).not.toContain("stage-topic");

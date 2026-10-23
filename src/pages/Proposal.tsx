@@ -333,6 +333,7 @@ export default function Proposal() {
             rows={4}
           />
           <QuestionSuggestions
+            topic={project?.title ?? ""}
             existing={questions.map((q) => q.text)}
             canWrite={canWrite}
             onAdd={(text) => setResearchQuestions([...questions.map((q) => q.text), text])}

@@ -25,6 +25,7 @@ import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import AgentKickstart from "../components/AgentKickstart";
 import { useResearchAgentState, type ResearchTab } from "../context/ResearchAgentContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
@@ -353,6 +354,8 @@ export default function ResearchSearch() {
       </div>
 
       {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
+
+      {aiOk && <AgentKickstart />}
 
       {aiOk && <HowItWorks />}
 

@@ -32,6 +32,9 @@ export function computeNextSteps(input: {
   hasDeadline: boolean;
   /** المرحلة الحالية مكتملة — بطاقة «انتقلوا للجاية» تتولى التوجيه، فما نكرر الخطوة */
   stageReady?: boolean;
+  /** عدد الدراسات المحفوظة بمكتبة الأدلة وهل كتبوا عنوان — لتقترح «جهّزوا البداية بالوكيل» لما العنوان جاهز والمكتبة فاضية */
+  evidenceCount?: number;
+  hasTitle?: boolean;
 }): NextStep[] {
   const steps: NextStep[] = [];
   const open = input.tasks.filter((t) => t.status !== "done");
@@ -68,6 +71,17 @@ export function computeNextSteps(input: {
       why: "بدونه ما نقدر نبني لكم جدول واقعي — المخطط يوزّع الوقت على المراحل تلقائيًا.",
       to: "/planner",
       cta: "افتحوا المخطط",
+      tone: "normal",
+    });
+  }
+
+  if (input.hasTitle && input.evidenceCount === 0) {
+    steps.push({
+      id: "agent-kickstart",
+      title: "خلّوا الوكيل يجهّز لكم البداية",
+      why: "يدوّر بدراسات منشورة عن عنوانكم ويطلّع دراسات ومسودة فجوة وأسئلة ومهام — وأنتم توافقون على اللي يعجبكم.",
+      to: "/research-search",
+      cta: "جهّزوا البداية",
       tone: "normal",
     });
   }

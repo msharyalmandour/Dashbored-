@@ -4,25 +4,17 @@ import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
 import { StatusChip } from "./ui/page";
 import { useAuth } from "../context/AuthContext";
-import { callStudy } from "../hooks/useStudyTools";
+import { runProjectAgent, type AgentResult } from "../hooks/useProjectAgent";
+import SourceList from "./ui/SourceList";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 
-interface Suggestion {
-  question: string;
-  type: string;
-  fit: number;
-  why: string;
-  design: string;
-  variables: string;
-}
+const STORE_KEY = "wesync.questions.grounded";
 
-const STORE_KEY = "wesync.questions.last";
-
-function load(): { questions: Suggestion[]; note: string } | null {
+function load(): AgentResult | null {
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    return raw ? (JSON.parse(raw) as { questions: Suggestion[]; note: string }) : null;
+    return raw ? (JSON.parse(raw) as AgentResult) : null;
   } catch {
     return null;
   }
@@ -31,10 +23,12 @@ function load(): { questions: Suggestion[]; note: string } | null {
 /** «اقترحوا لنا أسئلة بحث»: الذكاء يقرأ عنوانكم وفجوتكم ودراساتكم ويرجّع أقرب الأسئلة لموضوعكم مرتّبة من الأنسب،
     وتضيفونها لأسئلة البحث بضغطة. القفل الحقيقي بالسيرفر (باقة AI)، هنا بس عرض. */
 export default function QuestionSuggestions({
+  topic,
   existing,
   canWrite,
   onAdd,
 }: {
+  topic: string;
   existing: string[];
   canWrite: boolean;
   onAdd: (text: string) => void;
@@ -51,13 +45,13 @@ export default function QuestionSuggestions({
     if (busy) return;
     setBusy(true);
     setMessage(null);
-    const r = await callStudy<{ questions: Suggestion[]; note?: string }>({ action: "questions" });
+    const r = await runProjectAgent("questions", topic, existing);
     setBusy(false);
-    if (r.message || !r.data?.questions) {
+    if (r.message || !r.data) {
       setMessage(r.message ?? "تعذّر الاقتراح — حاولوا مرة ثانية.");
       return;
     }
-    const next = { questions: r.data.questions, note: r.data.note ?? "" };
+    const next = r.data;
     setResult(next);
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(next));
@@ -72,9 +66,9 @@ export default function QuestionSuggestions({
     <div className="mt-3 rounded-2xl border border-brand-500/30 bg-black/20 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-brand-950">أفضل أسئلة بحث لموضوعكم</p>
+          <p className="text-sm font-bold text-brand-950">أفضل أسئلة بحث لموضوعكم — من دراسات حقيقية</p>
           <p className="mt-0.5 text-xs text-brand-950/55">
-            نقرأ عنوانكم وفجوتكم ودراساتكم، ونرتّب لكم الأسئلة من الأقرب لموضوعكم. كل ما كانت الفجوة والدراسات أوضح كانت الأسئلة أدق.
+            نبحث عنكم بدراسات منشورة (PubMed وOpenAlex)، ونطلع أسئلة تتبع مما تركته هذي الدراسات مفتوح، مرتبة من الأقرب لموضوعكم. ما تحتاجون تجمعون شي بأنفسكم.
           </p>
         </div>
         <button
@@ -83,7 +77,7 @@ export default function QuestionSuggestions({
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-amber-accent-400 to-brand-500 px-5 py-2.5 text-sm font-bold text-[#1a0f00] hover:brightness-110 disabled:opacity-50"
         >
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
-          {busy ? "نقرأ موضوعكم… (حوالي ٢٠ ثانية)" : result ? "اقتراحات جديدة" : "اقترحوا لنا أسئلة"}
+          {busy ? "ندوّر بالدراسات… (حوالي ٣٠ ثانية)" : result ? "اقتراحات جديدة" : "اقترحوا لنا أسئلة"}
         </button>
       </div>
 
@@ -106,6 +100,7 @@ export default function QuestionSuggestions({
                 </div>
                 <p className="mt-2 text-[15px] font-semibold leading-relaxed text-brand-950">{q.question}</p>
                 {q.why && <p className="mt-1 text-sm text-brand-950/60">{q.why}</p>}
+                <SourceList papers={result.papers} sources={q.sources} />
                 {(q.design || q.variables) && (
                   <p className="mt-1 text-xs text-brand-950/45">
                     {q.design && <>التصميم: {q.design}</>}
@@ -128,7 +123,26 @@ export default function QuestionSuggestions({
           })}
         </ol>
       )}
-      {result?.note && <p className="mt-3 text-xs text-brand-950/55">💡 {result.note}</p>}
+      {result?.fallback && (
+        <p className="mt-3 text-xs text-brand-950/50">هذي اقتراحات من عنوانكم وفجوتكم فقط (البحث بالدراسات غير متاح الحين).</p>
+      )}
+      {result && result.papers.length > 0 && (
+        <details className="mt-3 rounded-xl bg-black/20 p-3">
+          <summary className="cursor-pointer text-sm font-semibold text-brand-950/80">الدراسات اللي بنينا عليها ({result.papers.length})</summary>
+          <ul className="mt-2 space-y-2">
+            {result.papers.map((p, i) => (
+              <li key={i} className="text-xs text-brand-950/65">
+                <a href={p.url} target="_blank" rel="noreferrer" className="font-semibold text-amber-accent-400 hover:underline" dir="ltr">
+                  {p.title}
+                </a>
+                <span className="text-brand-950/45"> · {[p.authors.split(",")[0], p.year, p.journal].filter(Boolean).join(" · ")}</span>
+                {p.keyFinding && <span className="block text-brand-950/55">{p.keyFinding}</span>}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      {result?.noveltyNote && <p className="mt-3 text-xs text-brand-950/55">💡 {result.noveltyNote}</p>}
       <p className="mt-2 text-[11px] text-brand-950/40">اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.</p>
     </div>
   );

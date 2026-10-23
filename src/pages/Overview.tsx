@@ -129,6 +129,8 @@ export default function Overview() {
     stages: realStages,
     sections: realProposalSections,
     hasDeadline: !!project?.targetSubmissionDate,
+    evidenceCount: realEvidencePapers.length,
+    hasTitle: !!project?.title?.trim(),
   });
   const realOverallProgress = getOverallProgress(realStages, stageAutoData);
   const [showGuideBanner, setShowGuideBanner] = useState(

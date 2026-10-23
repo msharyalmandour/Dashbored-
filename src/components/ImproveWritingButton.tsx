@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, RefreshCw, Lock } from "lucide-react";
+import { Wand2, RefreshCw, Lock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { hasAiAccess } from "../lib/plans";
 import { supabase } from "../lib/supabaseClient";
@@ -56,7 +56,7 @@ export default function ImproveWritingButton({
       disabled={loading || !value.trim()}
       className="flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-100 disabled:opacity-50"
     >
-      {loading ? <RefreshCw size={12} className="animate-spin" /> : <Sparkles size={12} />}
+      {loading ? <RefreshCw size={12} className="animate-spin" /> : <Wand2 size={12} />}
       {loading ? "جارٍ التحسين..." : error ? "حاول مرة ثانية" : "حسّن الصياغة"}
     </button>
   );

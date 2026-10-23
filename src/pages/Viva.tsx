@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, GraduationCap, Lightbulb, Loader2, Presentation, Sparkles } from "lucide-react";
+import { Check, Copy, GraduationCap, Lightbulb, Loader2, Presentation, Wand2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import AiLockedCard from "../components/AiLockedCard";
 import { useAuth } from "../context/AuthContext";
@@ -96,7 +96,7 @@ export default function Viva() {
             disabled={busy}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+            {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
             {busy ? "اللجنة تقرأ مقترحكم... (حوالي ٣٠ ثانية)" : result ? "جلسة جديدة" : "ابدأوا التدريب"}
           </button>
           {message && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{message}</p>}

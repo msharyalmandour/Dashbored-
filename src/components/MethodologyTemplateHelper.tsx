@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Copy, Sparkles } from "lucide-react";
+import { Check, Copy, Wand2 } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "./ui/Card";
 import { methodologyTemplates, type MethodologyTemplate } from "../data/methodologyTemplates";
@@ -54,7 +54,7 @@ export default function MethodologyTemplateHelper({
       <CardHeader
         title="قوالب جاهزة تساعدكم تبدؤون"
         subtitle="Starter Templates"
-        action={<Sparkles size={18} className="text-sky-accent-600" />}
+        action={<Wand2 size={18} className="text-sky-accent-600" />}
       />
       <p className="mb-3 text-sm text-brand-950/55">
         اختاروا أقرب نوع لدراستكم، وبنقترح لكم هيكل مبدئي (معايير اشتمال، أسلوب عينة، طريقة جمع
@@ -140,7 +140,7 @@ export default function MethodologyTemplateHelper({
                 onClick={() => onApply(active)}
                 className="flex items-center gap-2 rounded-xl border border-sky-accent-300 bg-paper px-4 py-2.5 text-sm font-bold text-sky-accent-700 hover:bg-sky-accent-50"
               >
-                <Sparkles size={16} />
+                <Wand2 size={16} />
                 تعبئة حقول المنهجية بهذا القالب
               </button>
             )}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { GraduationCap, Mail, PartyPopper, Sparkles } from "lucide-react";
+import { GraduationCap, Mail, PartyPopper, Wand2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { projectMeta, teamMembers } from "../data/mockData";
 import { formatDateLong, toISODate } from "../lib/date";
@@ -119,7 +119,7 @@ export default function Celebration() {
               </p>
             )}
             <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-brand-700">
-              <Sparkles size={14} />
+              <Wand2 size={14} />
               {g(isFemale, "وصلتِ لها", "وصلت لها")} — بكل فخر.
             </p>
           </div>

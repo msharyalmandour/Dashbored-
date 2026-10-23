@@ -1,6 +1,6 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, Lightformer, MeshDistortMaterial, Sparkles, Stars } from "@react-three/drei";
+import { Environment, Float, Lightformer, MeshDistortMaterial } from "@react-three/drei";
 import { CatmullRomCurve3, TubeGeometry, Vector3, type Mesh } from "three";
 
 /** بيئة إضاءة محلية بالكامل (بدون تحميل أي صورة خارجية) — تعطي المواد المعدنية
@@ -225,48 +225,10 @@ export default function Scene3D({
           <pointLight position={[-4, -2, -3]} intensity={35} color="#ffffff" />
           <pointLight position={[0, -3, 2]} intensity={20} color={GOLD} />
           <LocalEnvironment />
-          <Stars radius={80} depth={40} count={density === "full" ? 4500 : 2500} factor={3} saturation={0} fade speed={0.4} />
           <CenterpieceKnot scale={centerpieceScale} y={centerpieceY} />
           {waveRings && <WaveRings count={density === "full" ? 3 : 1} />}
           {density === "full" && <FloatingShapes count={7} />}
-          <Sparkles
-            count={density === "full" ? 110 : 55}
-            scale={9}
-            size={2.2}
-            speed={0.3}
-            color={GOLD_LIGHT}
-            opacity={0.55}
-          />
           <CameraRig />
-        </Suspense>
-      </Canvas>
-    </div>
-  );
-}
-
-/** طبقة نجوم ثابتة (fixed) خفيفة تغطي الصفحة كاملة خلف كل المحتوى — بدون العقدة
-    ثلاثية الأبعاد الثقيلة، بس نجوم متلألئة براحة. تبقى بمكانها حتى لو تمرّرين. */
-export function StarsBackdrop() {
-  const reducedMotion =
-    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // على الجوال / الأجهزة الضعيفة / توفير البيانات: نتخطى WebGL تمامًا (الخلفية الداكنة كافية)
-  const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } }) : undefined;
-  const lowPower =
-    typeof window !== "undefined" &&
-    (window.innerWidth < 900 || (nav?.deviceMemory !== undefined && nav.deviceMemory <= 4) || (nav?.hardwareConcurrency ?? 8) <= 4 || nav?.connection?.saveData === true);
-  if (reducedMotion || lowPower) return null;
-
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0">
-      <Canvas
-        dpr={[1, 1.25]}
-        camera={{ position: [0, 0, 1], fov: 60 }}
-        gl={{ antialias: false, alpha: true }}
-        eventSource={document.body}
-      >
-        <Suspense fallback={null}>
-          <Stars radius={60} depth={30} count={1800} factor={2.5} saturation={0} fade speed={0.3} />
         </Suspense>
       </Canvas>
     </div>

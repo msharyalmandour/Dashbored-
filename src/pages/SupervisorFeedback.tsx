@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, MessageCircle, Plus, Send, Sparkles, Trash2 } from "lucide-react";
+import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import AiLockedCard from "../components/AiLockedCard";
@@ -274,7 +274,7 @@ export default function SupervisorFeedback() {
               disabled={!raw.trim() || splitting}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {splitting ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+              {splitting ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
               {splitting ? "جاري التقسيم..." : "قسّمها بالذكاء الاصطناعي"}
             </button>
           )}

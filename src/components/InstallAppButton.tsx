@@ -72,7 +72,7 @@ export default function InstallAppButton({ variant = "dark", className = "" }: {
                   </Step>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs font-extrabold text-amber-300">3</span>
-                    <span className="pt-0.5 text-sm text-white/80">اضغطوا «إضافة» — وتلقون أيقونة Wesync بين تطبيقاتكم ✨</span>
+                    <span className="pt-0.5 text-sm text-white/80">اضغطوا «إضافة» — وتلقون أيقونة Wesync بين تطبيقاتكم</span>
                   </li>
                 </ol>
               )}

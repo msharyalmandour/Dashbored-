@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Wand2 } from "lucide-react";
 import overviewImg from "../assets/landing/dash-overview.jpg";
 import tasksImg from "../assets/landing/dash-tasks.jpg";
 import supervisorImg from "../assets/landing/dash-supervisor.jpg";
@@ -95,7 +95,7 @@ function PlanCards() {
         style={{ transform: "translateZ(70px)" }}
       >
         <span className="absolute end-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-2.5 py-0.5 text-[10px] font-extrabold text-neutral-950">
-          <Sparkles size={10} />
+          <Wand2 size={10} />
           الأكثر قيمة
         </span>
         <p className="font-display text-base font-extrabold text-amber-200">AI</p>
@@ -106,7 +106,7 @@ function PlanCards() {
         <ul className="mt-3 space-y-1.5 text-xs text-white/75">
           {["كل مزايا Basic", "كوتش يعرف بحثكم وينصحكم بالأولويات", "وكيل بحث + تدريب مناقشة + تحسين الصياغة"].map((t) => (
             <li key={t} className="flex items-start gap-2">
-              <Sparkles size={12} className="mt-0.5 shrink-0 text-amber-300" />
+              <Wand2 size={12} className="mt-0.5 shrink-0 text-amber-300" />
               {t}
             </li>
           ))}

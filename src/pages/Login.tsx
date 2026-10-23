@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowRight, BookMarked, Gift, GraduationCap, ListChecks, Sparkles, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, BookMarked, Gift, GraduationCap, ListChecks, Wand2, TrendingUp, Users } from "lucide-react";
 import HeroVideo from "../components/HeroVideo";
 import GiftMotion from "../components/GiftMotion";
 import { useAuth } from "../context/AuthContext";
@@ -14,7 +14,7 @@ import Logo from "../components/Logo";
 const pitch = [
   { icon: ListChecks, title: "من الفوضى لخطة", desc: "مهام موزّعة وتنبيه قبل ما تتأخرون، ومخطط يرجّعكم أسبوع بأسبوع من يوم التسليم." },
   { icon: GraduationCap, title: "مشرفتكم بالصورة", desc: "رابط لها بدون حساب تشوف فيه تقدمكم وتراسلكم، وملاحظاتها تتحوّل لمهام تخلّصونها." },
-  { icon: Sparkles, title: "كوتش يعرف بحثكم", desc: "يشوف مهامكم ومراحلكم وينصحكم بالأولويات، ويدرّبكم على أسئلة المناقشة من مقترحكم." },
+  { icon: Wand2, title: "كوتش يعرف بحثكم", desc: "يشوف مهامكم ومراحلكم وينصحكم بالأولويات، ويدرّبكم على أسئلة المناقشة من مقترحكم." },
 ];
 
 /** أبرز مزايا Wesync — تظهر لأي فريق جديد وقت التسجيل عشان يعرفون وش
@@ -307,7 +307,7 @@ export default function Login() {
                 <div className="rounded-3xl border border-amber-400/40 bg-amber-400/[0.07] p-4 shadow-[0_0_50px_-25px_rgba(251,191,36,0.6)]">
                   <p className="flex items-baseline justify-between text-white">
                     <span className="flex items-center gap-1.5 text-sm font-extrabold text-amber-200">
-                      <Sparkles size={13} /> AI
+                      <Wand2 size={13} /> AI
                     </span>
                     <span className="text-xs font-semibold text-white/55">
                       <b className="font-display text-lg text-white">{AI_PRICE}</b> ريال / شهريًا لكل عضو

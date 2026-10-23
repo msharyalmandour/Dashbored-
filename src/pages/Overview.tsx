@@ -17,7 +17,7 @@ import {
   Milestone,
   Moon,
   PartyPopper,
-  Sparkles,
+  Wand2,
   TrendingUp,
   UploadCloud,
   Video,
@@ -403,7 +403,7 @@ export default function Overview() {
               {/* Greeting + progress */}
               <div className="lg:col-span-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-700 backdrop-blur-sm">
-                  <Sparkles size={11} />
+                  <Wand2 size={11} />
                   مساحتكم البحثية
                 </span>
 
@@ -458,7 +458,7 @@ export default function Overview() {
                           to="/proposal"
                           className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
                         >
-                          <Sparkles size={14} />
+                          <Wand2 size={14} />
                           ابدأوا بالمقترح البحثي
                         </Link>
                       </>
@@ -758,7 +758,7 @@ export default function Overview() {
         <Card tone="violet" interactive>
           <CardHeader
             title="تقدم الفريق"
-            subtitle={topPerformerId ? `🌟 ${topPerformer!.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
+            subtitle={topPerformerId ? `${topPerformer!.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
             action={
               <Link
                 to="/team"

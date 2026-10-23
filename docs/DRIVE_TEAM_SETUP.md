@@ -38,3 +38,8 @@
 - ⏳ Audience ← Publish app (In production). لو زر النشر ظل معطّل بعد حفظ Branding فالسبب غالبًا النطاق المشترك `vercel.app`؛ الحل: التحقق من ملكية النطاق بـ Google Search Console أو استخدام نطاق خاص.
 - ⏳ Clients ← Create client (Web) بـ redirect URI المذكور أعلاه، ثم الأسرار الثلاثة بـ Supabase، ثم نشر الدالة وتجربة الربط.
 - لوقو جاهز (120 و512) بـ `marketing/brand/` لكن لا يُرفع لـ Google قبل التوثيق.
+
+## تحديث الحالة (2026-10-23)
+- ✅ الأسرار الثلاثة محفوظة بـSupabase (`GOOGLE_OAUTH_CLIENT_ID` و`GOOGLE_OAUTH_CLIENT_SECRET` و`DRIVE_TOKEN_KEY`)، والدالة `drive-team` منشورة (الإصدار 1، verify_jwt=false). فحص الخادم: `configured=true` (الرد `reason=bad_state` عند GET بدون state).
+- ✅ المالك أكّد بنفسه إن الإعداد والتجربة تمام (2026-10-23). لم أجرّب الربط بحساب Google حقيقي من جهتي.
+- ⏳ الموقع الرئيسي (`dashbored-sigma.vercel.app`): يحتاج نشر نسخة الفرع حتى تظهر بطاقة الدرايف للجميع، والـredirect بعد موافقة Google يرجع له (`SITE_URL`).

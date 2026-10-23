@@ -89,6 +89,8 @@ export default function MeetingMinutes() {
     next.delete("reason");
     setSearchParams(next, { replace: true });
     refreshDrive();
+    // لو هذي نافذة قوقل الجانبية: الصفحة الأصلية تتحدّث لحالها، فنسكّرها بعد ما يشوف المستخدم النتيجة
+    if (window.opener && !window.opener.closed) setTimeout(() => window.close(), 2500);
   }, [searchParams, setSearchParams, showToast, refreshDrive]);
 
   const setTab = (t: Tab) => {

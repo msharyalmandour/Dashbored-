@@ -255,6 +255,7 @@ function DoorsCoverflow() {
   const [active, setActive] = useState(2);
   const [paused, setPaused] = useState(false);
   const [narrow, setNarrow] = useState(false);
+  const touchX = useRef(0);
   const n = doors.length;
 
   useEffect(() => {
@@ -271,10 +272,21 @@ function DoorsCoverflow() {
     return () => clearInterval(t);
   }, [paused, n]);
 
-  const step = narrow ? 118 : 285;
-  const reach = narrow ? 0 : 2;
+  const step = narrow ? 168 : 285;
+  const reach = narrow ? 1 : 2;
+  const cardW = narrow ? 232 : 300;
   return (
-    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={() => setPaused(true)}>
+    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
+      onTouchStart={(e) => {
+        setPaused(true);
+        touchX.current = e.touches[0].clientX;
+      }}
+      onTouchEnd={(e) => {
+        const dx = e.changedTouches[0].clientX - touchX.current;
+        if (Math.abs(dx) > 40) setActive((a) => (a + (dx < 0 ? 1 : -1) + n) % n);
+        setTimeout(() => setPaused(false), 6000);
+      }}
+    >
       <div className="relative h-[440px]" style={{ perspective: "1800px" }}>
         {doors.map((d, i) => {
           let off = (i - active + n) % n;
@@ -290,13 +302,14 @@ function DoorsCoverflow() {
               aria-label={d.label}
               aria-current={center}
               tabIndex={shown ? 0 : -1}
-              className={`ld-glass absolute left-1/2 top-4 flex h-[400px] w-[270px] flex-col justify-between rounded-[32px] border p-6 text-start md:w-[300px] ${
+              className={`ld-glass absolute left-1/2 top-4 flex h-[400px] flex-col justify-between rounded-[32px] border p-6 text-start ${
                 center ? "border-[#FFDCAA]/40" : "border-white/15 bg-gradient-to-br from-white/[0.12] to-orange-400/10"
               }`}
               style={{
+                width: cardW,
                 transform: `translateX(-50%) translateX(${off * step}px) rotateY(${off * -24}deg) scale(${1 - abs * 0.1})`,
                 zIndex: 10 - abs,
-                opacity: shown ? (center ? 1 : abs === 1 ? 0.85 : 0.5) : 0,
+                opacity: shown ? (center ? 1 : abs === 1 ? (narrow ? 0.6 : 0.85) : 0.5) : 0,
                 pointerEvents: shown ? "auto" : "none",
                 transition: "transform .8s cubic-bezier(.2,.7,.2,1), opacity .8s",
                 ...(center

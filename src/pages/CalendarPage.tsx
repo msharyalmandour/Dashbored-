@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarClock, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Check, Loader2, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, Trash2, X } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -7,11 +7,14 @@ import MiniCalendar from "../components/MiniCalendar";
 import PhoneCalendarCard from "../components/PhoneCalendarCard";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import { isSupabaseConfigured } from "../lib/supabaseClient";
 import type { CalendarEventType } from "../data/types";
 import { formatDateLong, toISODate } from "../lib/date";
 import { downloadICS } from "../lib/ics";
 
-const today = new Date(2026, 7, 22);
+/** بالحساب الحقيقي «اليوم» هو اليوم فعلًا؛ التاريخ الثابت للعرض التجريبي فقط */
+const today = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22);
 
 const typeIcon: Record<CalendarEventType, typeof Users2> = {
   meeting: Users2,
@@ -35,15 +38,17 @@ const typeLabel: Record<CalendarEventType, string> = {
 };
 
 export default function CalendarPage() {
-  const { canWrite } = useAuth();
-  const { events, addEvent, deleteEvent } = useCalendarEvents();
+  const { canWrite, currentUser, isLeader } = useAuth();
+  const { showToast } = useToast();
+  const { events, loading, addEvent, deleteEvent } = useCalendarEvents();
+  const [saving, setSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState(toISODate(today));
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     title: "",
     date: toISODate(today),
     time: "09:00",
-    type: "deadline" as CalendarEventType,
+    type: "meeting" as CalendarEventType,
     location: "",
   });
 
@@ -51,18 +56,33 @@ export default function CalendarPage() {
     .filter((e) => e.date === selectedDate)
     .sort((a, b) => a.time.localeCompare(b.time));
 
-  const handleAdd = () => {
-    if (!form.title.trim()) return;
-    addEvent({
+  const handleAdd = async () => {
+    if (!form.title.trim() || saving) return;
+    setSaving(true);
+    const r = await addEvent({
       title: form.title.trim(),
       date: form.date,
       time: form.time,
       type: form.type,
       location: form.location.trim(),
     });
+    setSaving(false);
+    if (r.error) {
+      showToast({ title: "ما انحفظ الموعد", desc: "حاولوا مرة ثانية.", icon: X, tone: "rose" });
+      return;
+    }
+    showToast({ title: "انضاف الموعد", desc: "يظهر لكل الفريق وبالرئيسية.", icon: Check, tone: "brand" });
     setSelectedDate(form.date);
     setForm({ ...form, title: "", location: "" });
     setShowForm(false);
+  };
+
+  const canDelete = (e: { id: string; createdById?: string }) =>
+    isSupabaseConfigured ? canWrite && (isLeader || e.createdById === currentUser?.id) : e.id.startsWith("local-");
+
+  const removeEvent = async (id: string) => {
+    const r = await deleteEvent(id);
+    if (r.error) showToast({ title: "ما انحذف الموعد", icon: X, tone: "rose" });
   };
 
   return (
@@ -151,12 +171,16 @@ export default function CalendarPage() {
           </div>
           <button
             onClick={handleAdd}
-            className="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600"
+            disabled={saving || !form.title.trim()}
+            className="mt-4 flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
+            {saving && <Loader2 size={15} className="animate-spin" />}
             إضافة
           </button>
           <p className="mt-3 text-xs text-brand-950/40">
-            ملاحظة: الحدث يُحفظ بمتصفحك الحالي فقط، ولسا ما يتزامن تلقائيًا مع بقية أعضاء الفريق.
+            {isSupabaseConfigured
+              ? "الموعد يظهر لكل أعضاء الفريق وبالرئيسية، ويتحدّث مباشرة."
+              : "وضع العرض التجريبي: الحدث يُحفظ بمتصفحك فقط."}
           </p>
         </Card>
       )}
@@ -192,7 +216,7 @@ export default function CalendarPage() {
                     </p>
                     <p className="mt-0.5 text-xs text-brand-950/40">{event.location}</p>
                   </div>
-                  {event.id.startsWith("local-") && (
+                  {canDelete(event) && (
                     <ThreeDotsMenu
                       items={[
                         {
@@ -200,7 +224,7 @@ export default function CalendarPage() {
                           confirmLabel: "تأكيد الحذف؟",
                           icon: Trash2,
                           tone: "danger",
-                          onClick: () => deleteEvent(event.id),
+                          onClick: () => removeEvent(event.id),
                         },
                       ]}
                     />
@@ -208,7 +232,8 @@ export default function CalendarPage() {
                 </li>
               );
             })}
-            {dayEvents.length === 0 && (
+            {loading && <li className="text-sm text-brand-950/45">جاري التحميل...</li>}
+            {!loading && dayEvents.length === 0 && (
               <EmptyState
                 icon={CalendarClock}
                 title="يوم فاضي من المواعيد"

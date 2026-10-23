@@ -178,6 +178,8 @@ export interface CalendarEvent {
   title: string;
   type: CalendarEventType;
   location: string;
+  /** صاحب/ة الحدث بوضع الحساب الحقيقي (للتحكم بالحذف) */
+  createdById?: string;
 }
 
 /** موضوع بحثي تُصنَّف تحته الدراسات في مراجعة الأدبيات */

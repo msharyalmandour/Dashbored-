@@ -2146,3 +2146,66 @@ create table if not exists public.drive_connections (
 );
 
 alter table public.drive_connections enable row level security;
+
+-- ============================================================
+-- تقويم الفريق الحقيقي (مواعيد/اجتماعات/مواعيد نهائية) — مشترك بين الأعضاء.
+-- كان محفوظًا بمتصفح كل مستخدم فقط (localStorage)، فما يظهر للفريق ولا بالرئيسية.
+-- ============================================================
+create table if not exists public.calendar_events (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references public.teams (id) on delete cascade,
+  title text not null check (length(trim(title)) > 0),
+  event_date date not null,
+  event_time text not null default '09:00',
+  event_type text not null default 'meeting' check (event_type in ('meeting', 'review', 'fieldwork', 'deadline')),
+  location text not null default '',
+  created_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists calendar_events_team_date_idx on public.calendar_events (team_id, event_date);
+
+alter table public.calendar_events enable row level security;
+
+drop policy if exists "team can view calendar events" on public.calendar_events;
+create policy "team can view calendar events"
+  on public.calendar_events for select
+  to authenticated
+  using (team_id = public.my_team_id() or public.is_super_admin());
+
+drop policy if exists "team can add calendar events" on public.calendar_events;
+create policy "team can add calendar events"
+  on public.calendar_events for insert
+  to authenticated
+  with check (
+    team_id = public.my_team_id()
+    and public.team_can_write(team_id)
+    and created_by = auth.uid()
+  );
+
+drop policy if exists "team can update calendar events" on public.calendar_events;
+create policy "team can update calendar events"
+  on public.calendar_events for update
+  to authenticated
+  using (team_id = public.my_team_id() and public.team_can_write(team_id))
+  with check (team_id = public.my_team_id());
+
+drop policy if exists "author or leader can delete calendar events" on public.calendar_events;
+create policy "author or leader can delete calendar events"
+  on public.calendar_events for delete
+  to authenticated
+  using (
+    team_id = public.my_team_id()
+    and public.team_can_write(team_id)
+    and (
+      created_by = auth.uid()
+      or exists (select 1 from public.profiles where id = auth.uid() and role = 'leader')
+    )
+  );
+
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'calendar_events') then
+    alter publication supabase_realtime add table public.calendar_events;
+  end if;
+end $$;

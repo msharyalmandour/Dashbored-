@@ -100,7 +100,7 @@ export default function Overview() {
   const supervisorMsgAt = latestSupervisorMsg?.createdAt ?? team?.supervisorNoteAt ?? null;
   const { startTour, finished: tourFinished } = useTour();
   const isFemale = isFemaleUser(currentUser);
-  const { ref: heroParallaxRef, offset: heroOffset } = useMouseParallax(6);
+  const { ref: heroParallaxRef } = useMouseParallax(6);
   const visitGapDays = useVisitGap();
   const { daysSince: daysSinceFirstVisit } = useFirstVisit();
   const [selectedDate, setSelectedDate] = useState(todayIso);
@@ -395,7 +395,7 @@ export default function Overview() {
             <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-[ember-drift_13s_ease-in-out_infinite] rounded-full bg-brand-500/25 blur-[90px] motion-reduce:animate-none" />
             <div
               className="pointer-events-none absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-[var(--color-overlay-soft)] blur-[80px] transition-transform duration-300 ease-out motion-reduce:transition-none"
-              style={{ transform: `translate3d(${heroOffset.x * 0.5}px, ${heroOffset.y * 0.5}px, 0)` }}
+              style={{ transform: "translate3d(calc(var(--px, 0) * 0.5px), calc(var(--py, 0) * 0.5px), 0)" }}
             />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-600/60 to-transparent" />
 

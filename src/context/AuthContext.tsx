@@ -128,15 +128,20 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     });
 
     const { data: sub } = supabase!.auth.onAuthStateChange((event, s) => {
-      setSession(s);
+      // تجديد الرمز وإعادة الإرسال عند العودة للتبويب ما يغيّر المستخدم، فلا نحدّث الحالة (يوفّر إعادة رسم الموقع كله)
+      setSession((prev) => (prev?.user.id === s?.user.id ? prev : s));
       if (event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
     });
 
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // نعتمد على رقم المستخدم فقط (مو كائن الجلسة): Supabase يجدّد الجلسة ويرسل أحداثًا كل شوي،
+  // وكل مرة كان الكائن «الجديد» يعيد جلب الملف ويرجّع شاشة التحميل ويعلّق الصفحة.
+  const userId = session?.user.id ?? null;
+
   useEffect(() => {
-    if (!session) {
+    if (!userId) {
       setCurrentUser(null);
       setTeam(null);
       setLoading(false);
@@ -147,7 +152,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     supabase!
       .from("profiles")
       .select("id, team_id, name, initials, title, role, color, email, gender, is_super_admin")
-      .eq("id", session.user.id)
+      .eq("id", userId)
       .single()
       .then(async ({ data }) => {
         if (!data) {
@@ -199,7 +204,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
 
         setLoading(false);
       });
-  }, [session]);
+  }, [userId]);
 
   const signInWithPassword = async (email: string, password: string) => {
     const { error } = await supabase!.auth.signInWithPassword({ email, password });

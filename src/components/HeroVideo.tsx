@@ -8,11 +8,11 @@ export const LANDING_VIDEO = `${BASE}/landing-hero.mp4`;
 export const WELCOME_AUDIO = `${BASE}/welcome-desmond.mp3`;
 
 /** توفير بيانات أو "تقليل الحركة" = نكتفي بالصورة الثابتة بدون تحميل الفيديو. */
-function shouldSkipVideo(): boolean {
+function shouldSkipVideo(allowMobile: boolean): boolean {
   if (typeof window === "undefined") return true;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return true;
   // الجوال: صورة ثابتة فقط (يوفّر بطارية وبيانات ~٣ ميجا)
-  if (window.innerWidth < 768) return true;
+  if (!allowMobile && window.innerWidth < 768) return true;
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   return Boolean(c?.saveData || c?.effectiveType === "slow-2g" || c?.effectiveType === "2g");
 }
@@ -25,12 +25,14 @@ export default function HeroVideo({
   poster = HERO_POSTER,
   video = HERO_VIDEO,
   objectPosition = "center",
+  allowMobile = false,
 }: {
   poster?: string;
   video?: string;
   objectPosition?: string;
+  allowMobile?: boolean;
 } = {}) {
-  const skip = useRef(shouldSkipVideo()).current;
+  const skip = useRef(shouldSkipVideo(allowMobile)).current;
   const refs = [useRef<HTMLVideoElement>(null), useRef<HTMLVideoElement>(null)];
   const [active, setActive] = useState(0);
   const [ready, setReady] = useState(false);

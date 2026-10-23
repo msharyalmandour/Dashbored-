@@ -801,9 +801,14 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
   animation: ld-sheen 4.5s ease-in-out infinite;
   pointer-events: none;
 }
+@keyframes ld-walk { 0%, 100% { transform: scale(1.04) translateX(0); } 50% { transform: scale(1.1) translateX(-2.5%); } }
+.ld-walk { animation: ld-zoom 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both, ld-walk 16s ease-in-out 2.4s infinite; }
+@keyframes ld-ember { 0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; } 15% { opacity: 0.9; } 100% { transform: translate3d(var(--dx), -90vh, 0) scale(1.2); opacity: 0; } }
+.ld-embers i { position: absolute; bottom: -10px; width: var(--w); aspect-ratio: 1; border-radius: 50%; background: #ffb547; box-shadow: 0 0 10px 2px rgba(255, 138, 36, 0.8); animation: ld-ember var(--t) linear var(--d) infinite; }
 @keyframes ld-sheen { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 @media (prefers-reduced-motion: reduce) {
   .ld-rise, .ld-fx { opacity: 1; transform: none; animation: none; transition: none; }
-  .ld-hero-img, .ld-sheen::after { animation: none; }
+  .ld-hero-img, .ld-walk, .ld-sheen::after { animation: none; }
+  .ld-embers { display: none; }
   .ld-par { transform: none; }
 }

@@ -196,15 +196,32 @@ export default function Landing() {
         <div className="absolute inset-0 hidden md:block">
           <HeroVideo poster="/landing/students.webp" video={HERO_STUDENTS_VIDEO} objectPosition="left center" />
         </div>
-        <picture className="md:hidden">
-          <source media="(max-width: 767px)" srcSet="/landing/students-m.webp" />
-          <img
-            src="/landing/students-m.webp"
-            alt=""
-            fetchPriority="high"
-            className="ld-hero-img absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-[22%_center] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)] [mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)]"
-          />
-        </picture>
+        {/* الجوال: نفس الفيديو فوق الصورة (إلا مع توفير البيانات)، والصورة نفسها تتحرك بهدوء لو الفيديو ما اشتغل */}
+        <div className="absolute inset-x-0 bottom-0 h-[58%] md:hidden [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)] [mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)]">
+          <picture>
+            <img
+              src="/landing/students-m.webp"
+              alt=""
+              fetchPriority="high"
+              className="ld-hero-img ld-walk absolute inset-0 h-full w-full object-cover object-[22%_center]"
+            />
+          </picture>
+          <HeroVideo poster="/landing/students-m.webp" video={HERO_STUDENTS_VIDEO} objectPosition="22% center" allowMobile />
+        </div>
+        <div aria-hidden className="ld-embers pointer-events-none absolute inset-0 z-[2]">
+          {Array.from({ length: 16 }, (_, i) => (
+            <i
+              key={i}
+              style={{
+                left: `${i * 6.4 + 2}%`,
+                ["--w" as string]: `${3 + (i % 3) * 2}px`,
+                ["--dx" as string]: `${((i % 5) - 2) * 40}px`,
+                ["--t" as string]: `${9 + (i % 4) * 3}s`,
+                ["--d" as string]: `${-i * 1.3}s`,
+              }}
+            />
+          ))}
+        </div>
         <div
           aria-hidden
           className="absolute inset-0 hidden md:block"

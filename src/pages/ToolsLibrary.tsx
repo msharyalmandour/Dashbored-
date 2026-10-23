@@ -30,7 +30,7 @@ export default function ToolsLibrary() {
         title="مكتبة أدوات القياس"
         subtitle="استبيانات ومقاييس موثّقة جمعتها الفرق من دراسات حقيقية، مع ثباتها ولغاتها ورابط دراستها الأصلية."
         action={
-          <Link to="/research-search" className={primaryBtn}>
+          <Link to="/research-search?tab=studies" className={primaryBtn}>
             <Ruler size={15} /> دوّروا أداة جديدة
           </Link>
         }

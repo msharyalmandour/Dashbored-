@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-kufi: "Noto Kufi Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Tajawal", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
 
   /* Primary — dusty rose (الوضع الأساسي الافتراضي) */

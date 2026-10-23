@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   BadgeCheck,
   Check,
@@ -26,6 +27,7 @@ import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import AgentKickstart from "../components/AgentKickstart";
+import { PageHeader, Segmented } from "../components/ui/page";
 import ProjectAgentChat from "../components/ProjectAgentChat";
 import { useResearchAgentState, type ResearchTab } from "../context/ResearchAgentContext";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -344,52 +346,54 @@ export default function ResearchSearch() {
 
   const busyOn: Record<ResearchTab, boolean> = { papers: st.searching, tools: st.toolsBusy, strategy: st.strategyBusy };
 
+  const [params] = useSearchParams();
+  const view: "agent" | "studies" = params.get("tab") === "studies" ? "studies" : "agent";
+
+  if (view === "agent") {
+    return (
+      <div className="space-y-5">
+        {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
+        {aiOk && <ProjectAgentChat />}
+        {aiOk && (
+          <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
+              <span>
+                جهّزوا لنا البداية
+                <span className="ms-2 text-xs font-normal text-[#B8ADA2]">دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم</span>
+              </span>
+              <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mt-4">
+              <AgentKickstart />
+            </div>
+          </details>
+        )}
+      </div>
+    );
+  }
+
+  const activeTab = tabs.find((t) => t.id === st.tab) ?? tabs[0];
+
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">وكيل البحث العلمي</h1>
-        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">
-          يدوّر لكم على الدراسات السابقة اللي تحتاجونها لمقترح بحثكم، ويلخّصها بالعربي — بدل ما تضيعون ساعات تدوّرون بأنفسكم.
-          المصادر حقيقية (PubMed وOpenAlex)، وكل دراسة لها رابطها الأصلي.
-        </p>
-      </div>
+      <PageHeader
+        kicker="أبحث"
+        title="البحث عن دراسات"
+        subtitle="يدوّر لكم على الدراسات السابقة ويلخّصها بالعربي. المصادر حقيقية (PubMed وOpenAlex) ولكل دراسة رابطها الأصلي."
+      />
 
       {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
-
-      {aiOk && <ProjectAgentChat />}
-
-      {aiOk && <AgentKickstart />}
 
       {aiOk && <HowItWorks />}
 
       {aiOk && (
-        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-          {tabs.map(({ id, label, when, icon: Icon }) => {
-            const active = st.tab === id;
-            return (
-              <button
-                key={id}
-                onClick={() => st.setTab(id)}
-                className={`flex items-start gap-3 rounded-2xl border p-3.5 text-start transition-colors ${
-                  active
-                    ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/40"
-                    : "border-brand-100 bg-paper hover:bg-surface-muted"
-                }`}
-              >
-                <span
-                  className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                    active ? "bg-brand-500 text-white" : "bg-surface-muted text-brand-950/50"
-                  }`}
-                >
-                  {busyOn[id] ? <Loader2 size={17} className="animate-spin" /> : <Icon size={17} />}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-extrabold text-brand-950">{label}</span>
-                  <span className="mt-0.5 block text-xs leading-snug text-brand-950/55">{when}</span>
-                </span>
-              </button>
-            );
-          })}
+        <div className="space-y-2">
+          <Segmented
+            items={tabs.map((t) => ({ id: t.id, label: busyOn[t.id] ? `${t.label} …` : t.label }))}
+            value={st.tab}
+            onChange={st.setTab}
+          />
+          <p className="ps-2 text-sm text-brand-950/55">{activeTab.when}</p>
         </div>
       )}
 
@@ -411,12 +415,12 @@ export default function ResearchSearch() {
               onChange={(e) => st.setTopic(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && st.startSearch()}
               placeholder="مثال: الاحتراق الوظيفي لدى ممرضات العناية المركزة"
-              className="w-full rounded-lg border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
+              className="w-full rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] px-6 py-3 text-sm outline-none transition focus:border-[#FF8A24] focus:shadow-[0_0_0_4px_rgba(255,138,36,.14)]"
             />
             <button
               onClick={st.startSearch}
               disabled={st.searching || !st.topic.trim()}
-              className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
+              className="flex shrink-0 items-center justify-center gap-2 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-7 py-3 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] hover:brightness-110 disabled:opacity-50"
             >
               {st.searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
               {st.searching ? "جاري البحث..." : "ابحث"}

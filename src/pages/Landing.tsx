@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, ChevronDown, Copy, MessageCircle } from "lucide-react";
 import Logo from "../components/Logo";
+import HeroVideo from "../components/HeroVideo";
 import WelcomeVoice from "../components/WelcomeVoice";
 import InstallAppButton from "../components/InstallAppButton";
 import PlanComparison from "../components/PlanComparison";
@@ -11,13 +12,16 @@ import { SUPPORT_WHATSAPP } from "../lib/legal";
 const TEAM_SIZE = 5;
 
 const font = "font-display";
+/** خصائص حركة الظهور: يضاف لها كلاس ld-fx وتتأخر بالمللي ثانية للتتابع */
+const fx = (d = 0) => ({ "data-fx": "", style: { ["--d" as string]: `${d}ms` } as React.CSSProperties });
+const rise = (d: number) => ({ style: { ["--d" as string]: `${d}ms` } as React.CSSProperties });
 const glassBtn = "ld-btn ld-glass rounded-full border border-white/20 bg-white/[0.08] px-7 py-3.5 text-[17px] text-white";
 /** الزر الأبيض الدافئ بدائرة سهم — الزر الرئيسي بكل الصفحة */
 function CtaButton({ children, big = false }: { children: React.ReactNode; big?: boolean }) {
   return (
     <Link
       to="/login"
-      className={`ld-btn inline-flex items-center gap-3.5 rounded-full bg-[#F6F1EC] font-semibold text-[#1A0F00] shadow-[0_18px_50px_rgba(255,120,0,0.35)] ${
+      className={`ld-btn ld-sheen inline-flex items-center gap-3.5 rounded-full bg-[#F6F1EC] font-semibold text-[#1A0F00] shadow-[0_18px_50px_rgba(255,120,0,0.35)] ${
         big ? "py-2 ps-7 pe-2 text-lg" : "py-2 ps-6 pe-2 text-[17px]"
       }`}
     >
@@ -87,33 +91,118 @@ const faqs = [
 ];
 
 
+/** يضيف كلاس الظهور لأي عنصر فيه data-fx أول ما يدخل الشاشة، ويحدّث --sy (للبارالاكس) أثناء التمرير */
+function useScrollFx(root: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const targets = Array.from(el.querySelectorAll<HTMLElement>("[data-fx]"));
+    if (reduced) {
+      targets.forEach((t) => t.classList.add("ld-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("ld-in");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -6% 0px" },
+    );
+    targets.forEach((t) => io.observe(t));
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => el.style.setProperty("--sy", String(Math.min(window.scrollY, 1400))));
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [root]);
+}
+
+/** حلقة التقدّم تتعبّى من صفر لحد القيمة أول ما تظهر */
+function AnimatedRing({ value }: { value: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setV(value);
+      return;
+    }
+    let raf = 0;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min((now - t0) / 1600, 1);
+        setV(Math.round(value * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [value]);
+  return (
+    <div ref={ref} className="flex h-[170px] w-[170px] items-center justify-center self-center rounded-full shadow-[0_0_60px_rgba(255,180,68,0.35)]" style={{ background: `conic-gradient(#FFE3A3 0 ${v}%,rgba(255,255,255,.14) 0)` }}>
+      <div className="flex h-[138px] w-[138px] flex-col items-center justify-center rounded-full bg-[#1E0A03]">
+        <div className="font-display text-[38px] font-extrabold leading-[1.1]">{v}%</div>
+        <div className="text-xs text-[#CDBFB3]">من الطريق</div>
+      </div>
+    </div>
+  );
+}
+
 const pillars = [
   { n: "٠١", k: "وضوح", t: "لكل مهمة صاحب وموعد.", d: "انتهى سؤال «مين عليه هذا الجزء؟». كل بند من الاجتماع يصير مهمة باسم صاحبها." },
   { n: "٠٢", k: "عدالة", t: "العبء موزّع، والجهد ظاهر.", d: "ترون من يحمل أكثر من طاقته ومن يقدر يساعد، مع تقرير مساهمة جاهز للمشرف/ة." },
   { n: "٠٣", k: "جاهزية", t: "الأوراق الرسمية، بقوالب عربية.", d: "الاستبيان والموافقة المستنيرة وخطاب الجهة، تتعبأ ببيانات بحثكم وتنزّل Word." },
 ];
 
+const HERO_STUDENTS_VIDEO =
+  "https://d8j0ntlcm91z4.cloudfront.net/user_3DcLf2tK7FaVBL9vPr6KijocE5E/hf_20261023_175737_302ddc3a-e909-4c3d-bb47-1e307440dab7.mp4";
+
 const sideCard =
   "ld-glass hidden shrink-0 flex-col justify-between rounded-[30px] border border-white/20 bg-gradient-to-br from-white/[0.16] to-orange-400/10 p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] md:flex";
 
 export default function Landing() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useScrollFx(rootRef);
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#080808] text-[#F6F1EC]">
+    <div ref={rootRef} className="relative min-h-screen overflow-x-clip bg-[#080808] text-[#F6F1EC]">
       <div aria-hidden className="ld-grain absolute inset-0 z-[9]" />
 
       {/* ================= HERO ================= */}
       <section className="relative isolate min-h-[820px] overflow-hidden bg-[#260600] md:min-h-[940px]">
-        <div aria-hidden className="ld-breath absolute top-[120px] h-[720px] w-[720px] rounded-full bg-[#E8400A] opacity-[0.85] blur-[90px] end-[8%]" />
-        <div aria-hidden className="ld-breath absolute top-[300px] h-[380px] w-[460px] rounded-full bg-[#FFB444] blur-[110px] end-[16%]" />
+        <div aria-hidden className="ld-breath ld-par absolute top-[120px] h-[720px] w-[720px] rounded-full bg-[#E8400A] opacity-[0.85] blur-[90px] end-[8%]" style={{ ["--k" as string]: 0.18 }} />
+        <div aria-hidden className="ld-breath ld-par absolute top-[300px] h-[380px] w-[460px] rounded-full bg-[#FFB444] blur-[110px] end-[16%]" style={{ ["--k" as string]: 0.1 }} />
         <div aria-hidden className="absolute top-[380px] h-[240px] w-[300px] rounded-full bg-[#FFE27A] opacity-90 blur-[70px] end-[20%]" />
         {/* على الجوال الصورة تقعد بالنص السفلي تحت الكلام عشان الشخص ما يختفي ورا العنوان */}
-        <picture>
-          <source media="(max-width: 767px)" srcSet="/landing/hero-m.webp" />
+        <div className="absolute inset-0 hidden md:block">
+          <HeroVideo poster="/landing/students.webp" video={HERO_STUDENTS_VIDEO} objectPosition="left center" />
+        </div>
+        <picture className="md:hidden">
+          <source media="(max-width: 767px)" srcSet="/landing/students-m.webp" />
           <img
-            src="/landing/hero.webp"
+            src="/landing/students-m.webp"
             alt=""
             fetchPriority="high"
-            className="absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-[25%_center] md:inset-0 md:h-full md:object-left max-md:[-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)] max-md:[mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)]"
+            className="ld-hero-img absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-[22%_center] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)] [mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)]"
           />
         </picture>
         <div
@@ -149,22 +238,22 @@ export default function Landing() {
 
         <div className="relative z-[3] mx-auto max-w-[1280px] px-6 pt-20 sm:px-9 md:pt-[130px]">
           <div className="max-w-[600px]">
-            <div className="ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">
+            <div {...rise(150)} className="ld-rise ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">
               لفِرَق بحوث التخرّج
             </div>
-            <h1 className={`${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>
+            <h1 {...rise(300)} className={`ld-rise ${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>
               بحثكم يخلص
               <br />
               <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">بوقته، مو بآخر ليلة</span>
             </h1>
-            <p className="mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">
+            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">
               مساحة واحدة تجمع فريقكم ومشرفكم وكل مراحل البحث، من أول فكرة حتى يوم التسليم.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div {...rise(700)} className="ld-rise mt-9 flex flex-wrap items-center gap-3">
               <CtaButton>ابدأوا فريقكم</CtaButton>
               <a href="#how" className={glassBtn}>شاهدوا كيف يعمل</a>
             </div>
-            <p className="mt-5 text-sm text-[#BDAFA3]">
+            <p {...rise(900)} className="ld-rise mt-5 text-sm text-[#BDAFA3]">
               تجربة مجانية ٧ أيام كاملة المزايا · الباقات تبدأ من {BASIC_PRICE} ريال شهريًا لكل عضو
             </p>
           </div>
@@ -174,7 +263,7 @@ export default function Landing() {
       {/* ================= COVERFLOW ================= */}
       <section id="how" className="relative scroll-mt-4 overflow-hidden px-6 pb-[110px] pt-10">
         <div aria-hidden className="absolute start-1/2 top-10 h-[560px] w-[1000px] -translate-x-1/2 rounded-full blur-[20px]" style={{ background: "radial-gradient(ellipse,rgba(255,107,0,.28),rgba(0,0,0,0) 65%)" }} />
-        <div className="relative mx-auto mb-14 max-w-[640px] text-center">
+        <div {...fx()} className="ld-fx relative mx-auto mb-14 max-w-[640px] text-center">
           <div className="text-[15px] font-semibold text-[#FF9A3C]">كل ما يحتاجه فريقكم</div>
           <h2 className={`${font} mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>أدوات كثيرة. منصّة واحدة.</h2>
         </div>
@@ -195,21 +284,18 @@ export default function Landing() {
           </div>
 
           {/* center */}
+          <div {...fx(150)} className="ld-fx relative z-[3] shrink-0">
           <div
-            className="ld-glass ld-float relative z-[3] flex h-[420px] w-[290px] shrink-0 flex-col justify-between rounded-[34px] border border-[#FFDCAA]/40 p-7 md:w-[310px]"
+            className="ld-glass ld-float relative flex h-[420px] w-[290px] shrink-0 flex-col justify-between rounded-[34px] border border-[#FFDCAA]/40 p-7 md:w-[310px]"
             style={{
               background: "linear-gradient(165deg,rgba(255,180,68,.35),rgba(255,107,0,.18) 40%,rgba(30,12,4,.75))",
               boxShadow: "0 50px 100px rgba(0,0,0,.55),0 0 80px rgba(255,107,0,.25),inset 0 1px 0 rgba(255,240,210,.35)",
             }}
           >
             <div className="flex items-center justify-between"><span className="text-[13px] text-[#F1D9C4]">رحلة البحث</span><span className="rounded-full bg-black/30 px-2.5 py-[3px] text-xs">٣ / ٤</span></div>
-            <div className="flex h-[170px] w-[170px] items-center justify-center self-center rounded-full shadow-[0_0_60px_rgba(255,180,68,0.35)]" style={{ background: "conic-gradient(#FFE3A3 0 72%,rgba(255,255,255,.14) 0)" }}>
-              <div className="flex h-[138px] w-[138px] flex-col items-center justify-center rounded-full bg-[#1E0A03]">
-                <div className={`${font} text-[38px] font-extrabold leading-[1.1]`}>72%</div>
-                <div className="text-xs text-[#CDBFB3]">من الطريق</div>
-              </div>
-            </div>
+            <AnimatedRing value={72} />
             <div><div className={`${font} text-[22px] font-extrabold`}>اجمع وحلّل</div><div className="text-sm text-[#E6DBD1]">مثال توضيحي لمرحلة بالمنصّة</div></div>
+          </div>
           </div>
 
           <div className={`${sideCard} z-[1] h-[350px] w-[250px] -ms-10`} style={{ transform: "rotateY(18deg) scale(.9)" }}>
@@ -239,7 +325,7 @@ export default function Landing() {
             "linear-gradient(180deg,#080808 0,#080808 6%,rgba(8,8,8,0) 30%),repeating-linear-gradient(90deg,rgba(255,255,255,0) 0,rgba(255,255,255,.05) 22px,rgba(255,255,255,0) 54px),linear-gradient(180deg,#080808 0,#3A1204 30%,#C24A0A 62%,#FF9A3C 84%,#FFE3B0 100%)",
         }}
       >
-        <div className="relative mx-auto max-w-[900px]">
+        <div {...fx()} className="ld-fx relative mx-auto max-w-[900px]">
           <div className="text-sm tracking-[2px] text-[#F1D9C4]">فلسفتنا</div>
           <h2 className={`${font} mt-[18px] text-[40px] font-extrabold leading-[1.3] md:text-[62px]`}>Wesync لا يكتب بحثكم.</h2>
           <p className={`${font} mt-3 text-[22px] leading-[1.6] text-[#2A0E04] md:text-[30px]`}>
@@ -253,8 +339,8 @@ export default function Landing() {
       {/* ================= PILLARS ================= */}
       <section className="relative mx-auto max-w-[1280px] px-6 pb-16 pt-[120px] sm:px-9">
         <div className="flex flex-wrap gap-6">
-          {pillars.map((p) => (
-            <div key={p.n} className="min-w-[280px] flex-1 border-t border-[#FFB444]/40 pt-[26px]">
+          {pillars.map((p, i) => (
+            <div key={p.n} {...fx(i * 160)} className="ld-fx min-w-[280px] flex-1 border-t border-[#FFB444]/40 pt-[26px]">
               <div className={`${font} text-[15px] font-extrabold text-[#FFB444]`}>{p.n} — {p.k}</div>
               <h3 className={`${font} mb-2 mt-3 text-[26px] font-semibold leading-[1.45]`}>{p.t}</h3>
               <p className="text-[#BDAFA3]">{p.d}</p>
@@ -271,7 +357,7 @@ export default function Landing() {
         >
           <div aria-hidden className="absolute top-1/2 h-[360px] w-[360px] -translate-y-1/2 rounded-full bg-[#FFE7A8] opacity-70 blur-[80px] start-[12%]" />
           <div className="relative flex w-full flex-wrap items-center gap-10">
-            <div className="min-w-[280px] flex-[1_1_420px]">
+            <div {...fx()} className="ld-fx min-w-[280px] flex-[1_1_420px]">
               <div className="text-sm font-semibold tracking-[0.3px] text-[#2A0E04]">ما لا تلقونه عند غيرنا</div>
               <h2 className={`${font} mb-3.5 mt-2.5 text-[38px] font-extrabold leading-[1.3] text-[#1A0F00] md:text-[48px]`}>
                 مشرفكم معكم،
@@ -280,7 +366,7 @@ export default function Landing() {
               </h2>
               <p className="max-w-[42ch] text-[19px] text-[#2A0E04]">رابط واحد يفتح له تقدّم الفريق ومحاضر الاجتماعات، فيعتمد ويعلّق ويجاوب على أسئلتكم بضغطة.</p>
             </div>
-            <div className="flex min-w-[280px] flex-[1_1_380px] flex-col gap-3.5">
+            <div {...fx(200)} className="ld-fx flex min-w-[280px] flex-[1_1_380px] flex-col gap-3.5">
               <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">تقدّم الفريق</span><span className="flex gap-1.5">●●●<span className="opacity-35">●●</span></span><span className="font-bold">مثال</span></div>
               <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">محضر الاجتماع</span><span className="rounded-full bg-[#1A0F00] px-3.5 py-1 text-sm text-[#F6F1EC]">اعتمد</span></div>
               <div className="ld-glass rounded-[28px] border border-white/20 bg-[#1A0F00]/55 px-[22px] py-[18px] text-[#F6F1EC]"><div className="text-[13px] text-[#F1D9C4]">ملاحظة المشرف/ة</div><div className="mt-0.5 text-lg">«ركّزوا على المحاور قبل الاجتماع القادم.»</div></div>
@@ -291,7 +377,7 @@ export default function Landing() {
 
       {/* ================= PRICING ================= */}
       <section id="pricing" className="relative mx-auto max-w-[1100px] scroll-mt-4 px-6 pb-24 pt-14 sm:px-9">
-        <div className="mx-auto max-w-[640px] text-center">
+        <div {...fx()} className="ld-fx mx-auto max-w-[640px] text-center">
           <div className="text-[15px] font-semibold text-[#FF9A3C]">الباقات</div>
           <h2 className={`${font} mb-2 mt-2.5 text-[34px] font-extrabold md:text-[46px]`}>اختاروا ما يناسب فريقكم.</h2>
           <p className="text-[#BDAFA3]">
@@ -300,7 +386,7 @@ export default function Landing() {
         </div>
 
         <div className="mt-14 grid items-stretch gap-[22px] md:grid-cols-2">
-          <div className="ld-glass flex flex-col gap-[22px] rounded-[34px] border border-white/[0.12] bg-white/[0.04] p-[34px]">
+          <div {...fx(100)} className="ld-fx ld-glass flex flex-col gap-[22px] rounded-[34px] border border-white/[0.12] bg-white/[0.04] p-[34px]">
             <div><div className={`${font} text-[22px] font-semibold`}>Basic</div><div className="text-[15px] text-[#BDAFA3]">كل أدوات إدارة البحث، بدون ذكاء اصطناعي</div></div>
             <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{BASIC_PRICE}</span><span className="text-[#BDAFA3]">ريال شهريًا لكل عضو</span></div>
             <Link to="/login" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">ابدأوا بـ Basic</Link>
@@ -312,7 +398,8 @@ export default function Landing() {
           </div>
 
           <div
-            className="ld-glass relative flex flex-col gap-[22px] rounded-[34px] border border-[#FFC882]/55 p-[34px]"
+            {...fx(250)}
+            className="ld-fx ld-glass relative flex flex-col gap-[22px] rounded-[34px] border border-[#FFC882]/55 p-[34px]"
             style={{
               background: "linear-gradient(170deg,rgba(255,180,68,.3),rgba(255,107,0,.14) 35%,rgba(30,12,4,.85) 75%)",
               boxShadow: "0 40px 100px rgba(255,107,0,.28),inset 0 1px 0 rgba(255,240,210,.35)",
@@ -354,7 +441,7 @@ export default function Landing() {
 
       {/* ================= FAQ ================= */}
       <section id="faq" className="relative mx-auto max-w-[820px] scroll-mt-4 px-6 pb-20 pt-10 sm:px-9">
-        <h2 className={`${font} mb-8 text-center text-[34px] font-extrabold md:text-[40px]`}>قبل ما تبدأون</h2>
+        <h2 {...fx()} className={`ld-fx ${font} mb-8 text-center text-[34px] font-extrabold md:text-[40px]`}>قبل ما تبدأون</h2>
         <div className="flex flex-col gap-2.5">
           {faqs.map((f, i) => (
             <details key={f.q} open={i === 0} className="ld-faq border-b border-white/[0.12] px-1 py-5">
@@ -372,7 +459,7 @@ export default function Landing() {
       <section className="relative overflow-hidden px-6 pb-[200px] pt-[140px] text-center sm:px-9">
         <div aria-hidden className="ld-breath absolute -bottom-[360px] start-1/2 h-[620px] w-[1300px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-75 blur-[90px]" />
         <div aria-hidden className="absolute -bottom-[220px] start-1/2 h-[360px] w-[900px] -translate-x-1/2 rounded-full bg-[#FFC85A] blur-[80px]" />
-        <div className="relative">
+        <div {...fx()} className="ld-fx relative">
           <h2 className={`${font} text-[38px] font-extrabold leading-[1.3] md:text-[60px]`}>
             الليلة الأخيرة قبل التسليم؟
             <br />

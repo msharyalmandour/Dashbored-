@@ -168,6 +168,176 @@ function AnimatedRing({ value }: { value: number }) {
   );
 }
 
+type Door = { id: string; label: string; line: string; body: React.ReactNode };
+
+const row = "flex items-center gap-2 rounded-xl bg-black/25 p-2.5 text-xs";
+const dot = <span className="h-2 w-2 shrink-0 rounded-full bg-[#FFB444]" />;
+
+/** أقسام المنصّة الفعلية (نفس أبواب القائمة) بعرض مبسّط */
+const doors: Door[] = [
+  {
+    id: "search",
+    label: "أبحث",
+    line: "أسئلة بحثكم من دراسات حقيقية",
+    body: (
+      <div className="space-y-2">
+        <div className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-[#CDBFB3]">أثر الإرهاق الوظيفي على الممرضين…</div>
+        {["دراسة سعودية · ٢٠٢٣", "مراجعة منهجية · ٢٠٢١", "دراسة مقطعية · ٢٠٢٢"].map((t) => (
+          <div key={t} className={row}>{dot}<span>{t}</span><span className="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-[#F1D9C4]">PubMed</span></div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    id: "write",
+    label: "أكتب",
+    line: "مقترح ومنهجية خطوة بخطوة",
+    body: (
+      <div className="space-y-2">
+        {[["الهدف", true], ["أسئلة البحث", true], ["المنهجية", false], ["الموافقة الأخلاقية", false]].map(([t, d]) => (
+          <div key={String(t)} className={row}>
+            <span className={`flex h-4 w-4 items-center justify-center rounded-full border ${d ? "border-[#FFB444] bg-[#FFB444] text-[#1A0F00]" : "border-white/30"}`}>{d ? <Check size={10} /> : null}</span>
+            <span>{t}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    id: "collect",
+    label: "أجمع وأحلل",
+    line: "من الاستبيان حتى الإحصاء",
+    body: <AnimatedRing value={72} />,
+  },
+  {
+    id: "team",
+    label: "الفريق",
+    line: "من أنجز، ومن يحتاج مساعدة",
+    body: (
+      <div className="space-y-2.5">
+        {[["س", 82, "#FFB444"], ["ل", 91, "#FFB444"], ["ع", 54, "#FF8A5C"]].map(([l, w, c]) => (
+          <div key={String(l)} className="flex items-center gap-2">
+            <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] text-xs" style={{ borderColor: String(c) }}>{l}</span>
+            <div className="h-1.5 flex-1 rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${w}%`, background: String(c) }} /></div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    id: "supervisor",
+    label: "المشرف/ة",
+    line: "ملاحظاتها تتحول لمهام",
+    body: (
+      <div className="space-y-2">
+        <div className={row}>{dot}<span>ملاحظة: وضّحوا عيّنة الدراسة</span></div>
+        <div className={row}><Check size={13} className="shrink-0 text-[#FFB444]" /><span>صارت مهمة · مها · الأحد</span></div>
+        <div className="rounded-full bg-[#FFB444]/20 px-3 py-1.5 text-center text-[11px] text-[#FFE3A3]">رابط بدون حساب للمشرف/ة</div>
+      </div>
+    ),
+  },
+  {
+    id: "calendar",
+    label: "التقويم والملفات",
+    line: "مواعيدكم على جوالكم",
+    body: (
+      <div className="space-y-2">
+        {[["الأحد ١٠:٠٠", "اجتماع المشرف"], ["الثلاثاء ٨:٠٠", "تسليم الاستبيان"], ["الخميس ١٢:٠٠", "جمع البيانات"]].map(([t, e]) => (
+          <div key={t} className={row}><span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] text-[#F1D9C4]">{t}</span><span>{e}</span></div>
+        ))}
+      </div>
+    ),
+  },
+];
+
+/** الكاروسيل: البطاقة النشطة بالنص، والبقية بزاوية. يتقلّب تلقائيًا ويقف لما أحد يلمسه */
+function DoorsCoverflow() {
+  const [active, setActive] = useState(2);
+  const [paused, setPaused] = useState(false);
+  const [narrow, setNarrow] = useState(false);
+  const n = doors.length;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const on = () => setNarrow(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+
+  useEffect(() => {
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setActive((a) => (a + 1) % n), 4500);
+    return () => clearInterval(t);
+  }, [paused, n]);
+
+  const step = narrow ? 118 : 285;
+  const reach = narrow ? 0 : 2;
+  return (
+    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={() => setPaused(true)}>
+      <div className="relative h-[440px]" style={{ perspective: "1800px" }}>
+        {doors.map((d, i) => {
+          let off = (i - active + n) % n;
+          if (off > n / 2) off -= n;
+          const abs = Math.abs(off);
+          const shown = abs <= reach;
+          const center = off === 0;
+          return (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-label={d.label}
+              aria-current={center}
+              tabIndex={shown ? 0 : -1}
+              className={`ld-glass absolute left-1/2 top-4 flex h-[400px] w-[270px] flex-col justify-between rounded-[32px] border p-6 text-start md:w-[300px] ${
+                center ? "border-[#FFDCAA]/40" : "border-white/15 bg-gradient-to-br from-white/[0.12] to-orange-400/10"
+              }`}
+              style={{
+                transform: `translateX(-50%) translateX(${off * step}px) rotateY(${off * -24}deg) scale(${1 - abs * 0.1})`,
+                zIndex: 10 - abs,
+                opacity: shown ? (center ? 1 : abs === 1 ? 0.85 : 0.5) : 0,
+                pointerEvents: shown ? "auto" : "none",
+                transition: "transform .8s cubic-bezier(.2,.7,.2,1), opacity .8s",
+                ...(center
+                  ? {
+                      background: "linear-gradient(165deg,rgba(255,180,68,.35),rgba(255,107,0,.18) 40%,rgba(30,12,4,.75))",
+                      boxShadow: "0 50px 100px rgba(0,0,0,.55),0 0 80px rgba(255,107,0,.25),inset 0 1px 0 rgba(255,240,210,.35)",
+                    }
+                  : { boxShadow: "0 30px 70px rgba(0,0,0,.45)" }),
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] text-[#F1D9C4]">قسم في المنصّة</span>
+                <span className="rounded-full bg-black/30 px-2.5 py-[3px] text-xs">{i + 1} / {n}</span>
+              </div>
+              <div className="pointer-events-none flex flex-1 flex-col justify-center py-4">{d.body}</div>
+              <div>
+                <div className={`${font} text-[22px] font-extrabold`}>{d.label}</div>
+                <div className="text-sm text-[#E6DBD1]">{d.line}</div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <div className="relative mt-2 flex flex-wrap items-center justify-center gap-2">
+        {doors.map((d, i) => (
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => setActive(i)}
+            className={`rounded-full border px-3.5 py-1.5 text-[13px] transition ${
+              i === active ? "border-[#FFB444]/60 bg-[#FFB444]/15 text-[#FFE3A3]" : "border-white/10 text-[#BDAFA3] hover:text-white"
+            }`}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const pillars = [
   { n: "٠١", k: "وضوح", t: "لكل مهمة صاحب وموعد.", d: "انتهى سؤال «مين عليه هذا الجزء؟». كل بند من الاجتماع يصير مهمة باسم صاحبها." },
   { n: "٠٢", k: "عدالة", t: "العبء موزّع، والجهد ظاهر.", d: "ترون من يحمل أكثر من طاقته ومن يقدر يساعد، مع تقرير مساهمة جاهز للمشرف/ة." },
@@ -176,9 +346,6 @@ const pillars = [
 
 const HERO_STUDENTS_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_3DcLf2tK7FaVBL9vPr6KijocE5E/hf_20261023_175737_302ddc3a-e909-4c3d-bb47-1e307440dab7.mp4";
-
-const sideCard =
-  "ld-glass hidden shrink-0 flex-col justify-between rounded-[30px] border border-white/20 bg-gradient-to-br from-white/[0.16] to-orange-400/10 p-6 shadow-[0_40px_80px_rgba(0,0,0,0.45)] md:flex";
 
 export default function Landing() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -285,53 +452,8 @@ export default function Landing() {
           <h2 className={`${font} mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>أدوات كثيرة. منصّة واحدة.</h2>
         </div>
 
-        <div className="relative flex min-h-[430px] items-center justify-center" style={{ perspective: "1800px" }}>
-          {/* far right (RTL start) */}
-          <div className={`${sideCard} h-[300px] w-[210px] justify-end opacity-55 -me-[50px]`} style={{ transform: "rotateY(-28deg) scale(.8)" }}>
-            <div className={`${font} text-lg font-semibold`}>الإحصاء</div>
-            <div className="text-[13px] text-[#CDBFB3]">نتائج مكتوبة وجاهزة</div>
-          </div>
-          <div className={`${sideCard} z-[1] h-[350px] w-[250px] -me-10`} style={{ transform: "rotateY(-18deg) scale(.9)" }}>
-            <div className="space-y-2">
-              <div className="h-2.5 w-[70%] rounded-full bg-white/25" />
-              <div className="flex items-center gap-2 rounded-xl bg-black/25 p-2"><span className="h-2 w-2 rounded-full bg-[#FFB444]" /><span className="text-xs">قرار: اعتماد المحاور</span></div>
-              <div className="flex items-center gap-2 rounded-xl bg-black/25 p-2"><span className="h-2 w-2 rounded-full bg-[#FFB444]" /><span className="text-xs">مهمة: مها · قبل الأحد</span></div>
-            </div>
-            <div><div className={`${font} text-[19px] font-semibold`}>الاجتماعات</div><div className="text-[13px] text-[#CDBFB3]">قرارات لا تضيع في القروب</div></div>
-          </div>
-
-          {/* center */}
-          <div {...fx(150)} className="ld-fx relative z-[3] shrink-0">
-          <div
-            className="ld-glass ld-float relative flex h-[420px] w-[290px] shrink-0 flex-col justify-between rounded-[34px] border border-[#FFDCAA]/40 p-7 md:w-[310px]"
-            style={{
-              background: "linear-gradient(165deg,rgba(255,180,68,.35),rgba(255,107,0,.18) 40%,rgba(30,12,4,.75))",
-              boxShadow: "0 50px 100px rgba(0,0,0,.55),0 0 80px rgba(255,107,0,.25),inset 0 1px 0 rgba(255,240,210,.35)",
-            }}
-          >
-            <div className="flex items-center justify-between"><span className="text-[13px] text-[#F1D9C4]">رحلة البحث</span><span className="rounded-full bg-black/30 px-2.5 py-[3px] text-xs">٣ / ٤</span></div>
-            <AnimatedRing value={72} />
-            <div><div className={`${font} text-[22px] font-extrabold`}>اجمع وحلّل</div><div className="text-sm text-[#E6DBD1]">مثال توضيحي لمرحلة بالمنصّة</div></div>
-          </div>
-          </div>
-
-          <div className={`${sideCard} z-[1] h-[350px] w-[250px] -ms-10`} style={{ transform: "rotateY(18deg) scale(.9)" }}>
-            <div className="space-y-2.5">
-              {[["س", 82, "#FFB444"], ["ل", 91, "#FFB444"], ["ع", 54, "#FF8A5C"]].map(([l, w, c]) => (
-                <div key={String(l)} className="flex items-center gap-2">
-                  <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] text-xs" style={{ borderColor: String(c) }}>{l}</span>
-                  <div className="h-1.5 flex-1 rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${w}%`, background: String(c) }} /></div>
-                </div>
-              ))}
-            </div>
-            <div><div className={`${font} text-[19px] font-semibold`}>الفريق</div><div className="text-[13px] text-[#CDBFB3]">من أنجز، ومن يحتاج مساعدة</div></div>
-          </div>
-          <div className={`${sideCard} h-[300px] w-[210px] justify-end opacity-55 -ms-[50px]`} style={{ transform: "rotateY(28deg) scale(.8)" }}>
-            <div className={`${font} text-lg font-semibold`}>الاستبيان</div>
-            <div className="text-[13px] text-[#CDBFB3]">جاهز بموافقاته</div>
-          </div>
-        </div>
-        <p className="relative mt-6 text-center text-xs text-[#BDAFA3]">الأمثلة بالبطاقات للتوضيح فقط.</p>
+        <DoorsCoverflow />
+        <p className="relative mt-6 text-center text-xs text-[#BDAFA3]">الأقسام نفسها اللي بالمنصّة، والبيانات أمثلة للتوضيح.</p>
       </section>
 
       {/* ================= STATEMENT ================= */}

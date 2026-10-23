@@ -62,7 +62,11 @@ export function sourceFromLink(link?: string): string {
   if (l.includes("pubmed")) return "PubMed";
   if (l.includes("openalex")) return "OpenAlex";
   if (l.includes("doi.org")) return "DOI";
-  return "رابط";
+  try {
+    return new URL(link).hostname.replace(/^www\./, "");
+  } catch {
+    return "رابط";
+  }
 }
 
 /** أسماء المحاور بالعربي (القيم المخزّنة إنجليزي) */
@@ -73,3 +77,60 @@ export const themeLabelAr: Record<LiteratureTheme, string> = {
   "Tool Utilization": "استخدام الأدوات",
   "Patient Outcomes": "نتائج المرضى",
 };
+
+/** شعارات مصادر البحث — رسم مبسّط داخل بلاطة كريمية (مو ملفات الشعار الرسمية) */
+export type SourceName = "pubmed" | "openalex" | "scholar";
+
+export function SourceLogo({ name, size = 22 }: { name: SourceName; size?: number }) {
+  const tile = "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-[#F4F0EC]";
+  if (name === "scholar")
+    return (
+      <span className={tile} style={{ width: size, height: size }} aria-hidden>
+        <svg viewBox="0 0 24 24" width={size * 0.8} height={size * 0.8}>
+          <path d="M12 3 2.5 9.2 12 12.6l9.5-3.4z" fill="#4285F4" />
+          <path d="M5.3 12.4v3.1c0 2.3 3 4 6.7 4s6.7-1.7 6.7-4v-3.1L12 14.8z" fill="#356AC3" />
+          <circle cx="12" cy="9.6" r="0" fill="#fff" />
+          <path d="M12 12.7a4.6 4.6 0 0 1 4.3 3.1H7.7A4.6 4.6 0 0 1 12 12.7z" fill="#A0C3FF" />
+          <circle cx="9.3" cy="17.4" r="0.9" fill="#fff" />
+          <circle cx="12" cy="17.9" r="0.9" fill="#fff" />
+          <circle cx="14.7" cy="17.4" r="0.9" fill="#fff" />
+        </svg>
+      </span>
+    );
+  if (name === "openalex")
+    return (
+      <span className={tile} style={{ width: size, height: size }} aria-hidden>
+        <svg viewBox="0 0 24 24" width={size * 0.82} height={size * 0.82}>
+          <circle cx="12" cy="12" r="9.2" fill="#C2185B" />
+          <path d="M7.6 16.6 12 6.8l4.4 9.8" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9.4 13.6h5.2" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </span>
+    );
+  return (
+    <span className={tile} style={{ width: size, height: size }} aria-hidden>
+      <svg viewBox="0 0 24 24" width={size * 0.86} height={size * 0.86}>
+        <rect x="2.4" y="2.4" width="19.2" height="19.2" rx="4" fill="#20558A" />
+        <path d="M9 17.6V6.6h3.6a3 3 0 1 1 0 6H9" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
+/** كبسولة مصدر: شعار + اسم (مع علامة صح لو مصدر فعّال بالبحث) */
+export function sourceKey(source?: string): SourceName | null {
+  return source === "pubmed" ? "pubmed" : source === "openalex" ? "openalex" : null;
+}
+
+/** شارة مصدر من الاسم النصي (PubMed / OpenAlex / DOI / يدوي…) مع الشعار لو متوفر */
+export function SourceTag({ label }: { label: string }) {
+  const key = label === "PubMed" ? "pubmed" : label === "OpenAlex" ? "openalex" : null;
+  return (
+    <SourceBadge>
+      <span className="flex items-center gap-1.5">
+        {key && <SourceLogo name={key} size={16} />}
+        {label}
+      </span>
+    </SourceBadge>
+  );
+}

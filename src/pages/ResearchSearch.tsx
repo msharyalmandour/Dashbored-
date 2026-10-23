@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   BadgeCheck,
@@ -16,7 +16,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { FilterPill, ResearchHeader, SourceBadge, glassCard, gradientPill } from "../components/ui/researchUi";
+import { FilterPill, ResearchHeader, SourceBadge, SourceLogo, glassCard, gradientPill, sourceKey } from "../components/ui/researchUi";
 import AiLockedCard from "../components/AiLockedCard";
 import PaperQA from "../components/research/PaperQA";
 import ToolsFinder from "../components/research/ToolsFinder";
@@ -199,7 +199,12 @@ function ResultCard({
     <div className="space-y-3 rounded-2xl bg-white/[0.04] p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <SourceBadge>{sourceLabel}</SourceBadge>
+          <SourceBadge>
+            <span className="flex items-center gap-1.5">
+              {sourceKey(result.source) && <SourceLogo name={sourceKey(result.source)!} size={16} />}
+              {sourceLabel}
+            </span>
+          </SourceBadge>
           <span
             title={peer ? "منشورة بمجلة علمية محكّمة" : "مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه"}
             className={`text-[11px] font-semibold ${peer ? "text-[#7fd6a0]" : "text-[#FFB444]"}`}
@@ -320,8 +325,15 @@ export default function ResearchSearch() {
 
   const busyOn: Record<ResearchTab, boolean> = { papers: st.searching, tools: st.toolsBusy, strategy: st.strategyBusy };
 
+  const resultsRef = useRef<HTMLDivElement>(null);
   const [params] = useSearchParams();
   const view: "agent" | "studies" = params.get("tab") === "studies" ? "studies" : "agent";
+
+  // أول ما تطلع نتائج جديدة، ننزل لها — الطالب ما يضطر يدوّر عنها تحت
+  useEffect(() => {
+    if (view === "studies" && st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.activeResult]);
 
   if (view === "agent") {
     return (
@@ -364,12 +376,14 @@ export default function ResearchSearch() {
         </div>
       )}
 
+      {aiOk && <HowItWorks />}
+
       {aiOk && st.tab === "papers" && (
         <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-[#F4F0EC] sm:px-8 md:py-12">
           <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[160px] -z-10 h-[360px] w-[560px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
           <div className="mx-auto flex max-w-[720px] flex-col items-center gap-4">
             <h1 className="font-kufi text-3xl font-extrabold leading-tight md:text-5xl">عن وش تدوّرون؟</h1>
-            <p className="text-base font-light text-[#B8ADA2] md:text-lg">نبحث في PubMed وOpenAlex مع بعض، ونلخّص لكم كل دراسة بالعربي.</p>
+            <p className="text-base font-light text-[#B8ADA2] md:text-lg">نبحث في <bdi>PubMed</bdi> و<bdi>OpenAlex</bdi> مع بعض، ونلخّص لكم كل دراسة بالعربي.</p>
 
             <form
               onSubmit={(e) => {
@@ -394,13 +408,26 @@ export default function ResearchSearch() {
 
             <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-[#B8ADA2]">
               <span>المصادر:</span>
-              {["PubMed", "OpenAlex"].map((x) => (
-                <span key={x} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-3.5 py-1 text-[#F4F0EC]">
+              {([["pubmed", "PubMed"], ["openalex", "OpenAlex"]] as const).map(([k, label]) => (
+                <span key={k} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 py-1 ps-3.5 pe-1.5 text-[#F4F0EC]">
                   <Check size={13} className="text-[#FFB444]" />
-                  {x}
+                  {label}
+                  <SourceLogo name={k} />
                 </span>
               ))}
+              <a
+                href={`https://scholar.google.com/scholar?q=${encodeURIComponent(st.topic.trim())}`}
+                target="_blank"
+                rel="noreferrer"
+                title="يفتح Google Scholar بنفس العنوان بنافذة جديدة — مو داخل بحث Wesync"
+                className="flex items-center gap-2 rounded-full border border-dashed border-white/25 py-1 ps-3.5 pe-1.5 text-[#E6DBD1] transition hover:border-[#FF8A24]/60"
+              >
+                <ExternalLink size={12} />
+                Google Scholar
+                <SourceLogo name="scholar" />
+              </a>
             </div>
+            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">النتائج تجي من <bdi>PubMed</bdi> و<bdi>OpenAlex</bdi>، و<bdi>Google Scholar</bdi> يفتح ببحث خارجي بنفس عنوانكم.</p>
 
             {!st.topic.trim() && !st.searching && (
               <div className="flex flex-wrap items-center justify-center gap-2">
@@ -425,17 +452,6 @@ export default function ResearchSearch() {
               </p>
             )}
 
-            {st.topic.trim() && (
-              <a
-                href={`https://scholar.google.com/scholar?q=${encodeURIComponent(st.topic.trim())}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FFB444] hover:underline"
-              >
-                <GraduationCap size={13} />
-                تبون تدوّرون بنفس العنوان في Google Scholar؟ (يفتح بنافذة جديدة)
-              </a>
-            )}
             {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
             {st.limitMessage && (
               <p className="flex items-start gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-2.5 text-start text-sm font-medium text-[#FFB444]">
@@ -451,13 +467,11 @@ export default function ResearchSearch() {
         <ResearchHeader title={activeTab.label} subtitle={activeTab.when} />
       )}
 
-      {aiOk && <HowItWorks />}
-
       {aiOk && st.tab === "tools" && <ToolsFinder />}
       {aiOk && st.tab === "strategy" && <SearchStrategy />}
 
       {st.tab === "papers" && st.activeResult && (
-        <div className={`${glassCard} space-y-4 p-6`}>
+        <div ref={resultsRef} className={`${glassCard} scroll-mt-24 space-y-4 p-6`}>
           <div>
             <h2 className="font-kufi text-2xl font-extrabold">النتائج</h2>
             <p className="mt-1 text-sm text-[#B8ADA2]">

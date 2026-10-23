@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { BookMarked, ExternalLink } from "lucide-react";
 import EmptyState from "../components/ui/EmptyState";
-import { ResearchHeader, SourceBadge, glassCard, gradientPill, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
+import { ResearchHeader, SourceTag, glassCard, gradientPill, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme } from "../data/types";
 
@@ -120,7 +120,7 @@ export default function LiteratureReview() {
                 <article key={study.id} className="rounded-2xl bg-white/[0.04] p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <SourceBadge>{sourceFromLink(study.link)}</SourceBadge>
+                      <SourceTag label={sourceFromLink(study.link)} />
                       <span className={clsx("text-xs font-semibold", done ? "text-[#7fd6a0]" : "text-[#FFB444]")}>
                         {done ? "✓ تمت مراجعتها" : "تم جمعها"}
                       </span>

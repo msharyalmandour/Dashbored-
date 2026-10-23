@@ -4,7 +4,7 @@ import PaperQA from "../components/research/PaperQA";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { hasAiAccess } from "../lib/plans";
 import clsx from "clsx";
-import { FilterPill, ResearchHeader, SourceBadge, glassCard, gradientPill, pillField, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
+import { FilterPill, ResearchHeader, SourceTag, glassCard, gradientPill, pillField, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
 import Avatar from "../components/ui/Avatar";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -295,7 +295,7 @@ export default function EvidenceLibrary() {
             <article key={paper.id} className={clsx(glassCard, "flex flex-col p-5")}>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <SourceBadge>{sourceFromLink(paper.link)}</SourceBadge>
+                  <SourceTag label={sourceFromLink(paper.link)} />
                   {reviewed && <span className="text-[11px] font-semibold text-[#7fd6a0]">✓ تمت مراجعتها</span>}
                 </div>
                 <div className="flex items-center gap-1">

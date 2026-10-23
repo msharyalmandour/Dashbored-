@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import SupervisorEmailCard from "../components/SupervisorEmailCard";
+import SupervisorBoard from "../components/supervisor/SupervisorBoard";
 import {
   AlertTriangle,
   BookOpenText,
@@ -138,6 +139,7 @@ export default function SupervisorView() {
   const [digestDismissed, setDigestDismissed] = useState(false);
   const [approved, setApproved] = useState<string[]>(() => (token ? loadApproved(token) : []));
   const [approvingKey, setApprovingKey] = useState<string | null>(null);
+  const [waitingCount, setWaitingCount] = useState(0);
 
   const loadThread = useCallback(async () => {
     if (!supabase || !token) return;
@@ -321,6 +323,7 @@ export default function SupervisorView() {
 
         <nav aria-label="أقسام التقرير" className="sticky top-2 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto rounded-full border border-brand-100/70 bg-paper/85 p-1.5 shadow-sm shadow-brand-950/5 backdrop-blur-xl">
           {[
+            ["sv-waiting", waitingCount > 0 ? `تنتظركم (${waitingCount})` : "تنتظركم"],
             ["sv-summary", "الملخص"],
             ["sv-tasks", "المهام"],
             ["sv-proposal", "المقترح"],
@@ -340,6 +343,8 @@ export default function SupervisorView() {
             </a>
           ))}
         </nav>
+
+        {token && <SupervisorBoard token={token} name={nameDraft} onNameChange={setNameDraft} onWaitingCount={setWaitingCount} />}
 
         {seenBefore && !digestDismissed && digest && (
           <div className="mb-4 rounded-3xl border border-amber-accent-200/70 bg-amber-accent-50/70 p-5">

@@ -168,5 +168,62 @@ Deno.serve(async (req: Request) => {
     return json(200, { sent: true });
   }
 
+  // ---------- عضو فريق يطلب شي من المشرفة: محضر للاعتماد / طلب قرار / اقتراح موعد ----------
+  if (action === "notify_event") {
+    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    const { data: userRes, error: userErr } = await admin.auth.getUser(jwt);
+    if (userErr || !userRes?.user) return json(401, { error: "unauthorized" });
+    const { data: profile } = await admin.from("profiles").select("team_id").eq("id", userRes.user.id).maybeSingle();
+    if (!profile?.team_id) return json(403, { error: "no_team" });
+    const kind = String(body.kind ?? "");
+    const refId = String(body.refId ?? "");
+    if (!["minutes", "decision", "booking"].includes(kind) || !UUID.test(refId)) return json(400, { error: "bad_request" });
+
+    const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
+    if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
+    // دقيقتين بين إيميلات الطلبات حتى ما نغرق المشرفة (كلها تنعرض لها بصفحتها بأي حال)
+    if (sub.last_notified_at && Date.now() - new Date(sub.last_notified_at).getTime() < 2 * 60_000) return json(200, { sent: false, reason: "cooldown" });
+
+    const { data: team } = await admin.from("teams").select("name, share_token").eq("id", profile.team_id).maybeSingle();
+    if (!team) return json(200, { sent: false, reason: "no_team" });
+
+    let title = "";
+    let inner = "";
+    let plain = "";
+    if (kind === "minutes") {
+      const { data: m } = await admin.from("meeting_minutes").select("meeting_date, discussion, decisions, research_project_id").eq("id", refId).maybeSingle();
+      const { data: proj } = m ? await admin.from("research_projects").select("team_id").eq("id", m.research_project_id).maybeSingle() : { data: null };
+      if (!m || proj?.team_id !== profile.team_id) return json(404, { error: "not_found" });
+      const ex = m.discussion.length > 350 ? `${m.discussion.slice(0, 350)}…` : m.discussion;
+      title = `محضر اجتماع بانتظار اعتمادكم — فريق «${team.name}»`;
+      inner = `<p>أرسل الفريق محضر اجتماع <b>${esc(String(m.meeting_date))}</b> للاعتماد.</p><p style="background:#f6f6f6;border-radius:12px;padding:14px 16px;white-space:pre-wrap">${esc(ex)}</p><p style="font-size:13px;color:#555">تعتمدونه أو تطلبون تعديلًا بضغطة، بدون تسجيل دخول. ولو ما وصل رد خلال 48 ساعة يُحسب معتمدًا.</p>`;
+      plain = `أرسل فريق «${team.name}» محضر اجتماع ${m.meeting_date} للاعتماد:\n\n${ex}`;
+    } else if (kind === "decision") {
+      const { data: d } = await admin.from("decision_requests").select("question, options").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
+      if (!d) return json(404, { error: "not_found" });
+      title = `سؤال بانتظار قراركم — فريق «${team.name}»`;
+      inner = `<p><b>${esc(d.question)}</b></p><p style="font-size:13px;color:#555">الخيارات: ${d.options.map((o: string) => esc(o)).join(" · ")}</p><p style="font-size:13px;color:#555">تجاوبون بضغطة وحدة من رابطكم.</p>`;
+      plain = `سؤال بانتظار قراركم من فريق «${team.name}»:\n${d.question}\nالخيارات: ${d.options.join(" · ")}`;
+    } else {
+      const { data: b } = await admin.from("meeting_bookings").select("booking_date, booking_time, note, status").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
+      if (!b || b.status !== "pending") return json(200, { sent: false, reason: "not_pending" });
+      title = `اقتراح موعد اجتماع — فريق «${team.name}»`;
+      inner = `<p>اقترح الفريق اجتماعًا يوم <b>${esc(String(b.booking_date))}</b> الساعة <b>${esc(b.booking_time)}</b>.</p>${b.note ? `<p style="background:#f6f6f6;border-radius:12px;padding:14px 16px;white-space:pre-wrap">${esc(b.note)}</p>` : ""}<p style="font-size:13px;color:#555">تؤكدونه أو تعتذرون بضغطة وحدة.</p>`;
+      plain = `اقترح فريق «${team.name}» اجتماعًا يوم ${b.booking_date} الساعة ${b.booking_time}.`;
+    }
+
+    const link = `${site}/#/supervisor/${team.share_token}`;
+    const unsub = `${site}/#/supervisor-email/unsubscribe/${sub.confirm_token}`;
+    const sent = await sendEmail(
+      sub.email,
+      title,
+      layout(title, inner, link, "افتحوا وردّوا بضغطة", `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}">إيقاف الإشعارات</a>`),
+      `${plain}\n\nافتحوا: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
+    );
+    if (!sent.ok) return json(200, { sent: false, reason: sent.reason });
+    await admin.from("supervisor_email_subscriptions").update({ last_notified_at: new Date().toISOString() }).eq("team_id", profile.team_id);
+    return json(200, { sent: true });
+  }
+
   return json(400, { error: "unknown_action" });
 });

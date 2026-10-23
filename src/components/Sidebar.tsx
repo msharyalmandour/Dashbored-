@@ -16,7 +16,7 @@ import {
   CreditCard,
   FlaskConical,
   ShieldCheck,
-  Sparkles,
+  Flag,
   NotebookPen,
   FileCheck2,
   Search,
@@ -116,7 +116,7 @@ const navGroups: NavGroup[] = [
       { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
       { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
       { to: "/glossary", label: "قاموس المصطلحات", icon: BookA },
-      { to: "/story", label: "قصة بحثك", icon: Sparkles },
+      { to: "/story", label: "قصة بحثك", icon: Flag },
       { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
     ],
   },
@@ -285,7 +285,7 @@ export default function Sidebar({
             <IdeaButton />
             <InstallAppButton variant="light" className="mt-2 w-full" />
             <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
-              <Sparkles size={12} />
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}
             </p>
           </div>

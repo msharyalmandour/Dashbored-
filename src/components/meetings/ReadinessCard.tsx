@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ClipboardList, Copy, MessageCircle, Sparkles, Wand2 } from "lucide-react";
+import { Check, ClipboardList, Copy, MessageCircle, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
 import { formatDateFull } from "../../lib/date";
 import { whatsappUrl, type Readiness } from "../../lib/meetings";
@@ -55,7 +55,7 @@ export default function ReadinessCard({ readiness, nextBooking, onUseAgenda }: R
         <ul className="mt-4 space-y-1.5">
           {questions.map((q) => (
             <li key={q} className="flex items-start gap-2 text-sm text-brand-950/80">
-              <Sparkles size={13} className="mt-1 shrink-0 text-brand-500" />
+              <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
               {q}
             </li>
           ))}

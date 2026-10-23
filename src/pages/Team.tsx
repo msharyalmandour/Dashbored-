@@ -5,12 +5,12 @@ import {
   Clock,
   Copy,
   Gift,
+  Users,
   GraduationCap,
   Mail,
   MessageCircle,
   MessageSquareQuote,
   ShieldCheck,
-  Sparkles,
   UserMinus,
   UserPlus,
 } from "lucide-react";
@@ -145,7 +145,7 @@ function SupervisorVisualPanel() {
         <div className="pointer-events-none absolute -top-10 start-1/2 h-44 w-44 -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-500/25 to-amber-accent-500/20 blur-3xl [animation:ember-drift_13s_ease-in-out_infinite] motion-reduce:animate-none" />
         <div className="pointer-events-none absolute -bottom-12 -end-12 h-40 w-40 rounded-full bg-gradient-to-br from-amber-accent-400/20 to-brand-700/15 blur-3xl" />
         <span className="relative flex h-14 w-14 items-center justify-center rounded-full border border-brand-500/20 bg-white/[0.04] text-brand-600 shadow-[0_0_20px_-4px_rgba(255,106,0,0.45)] backdrop-blur-sm [animation:orb-pulse_3.2s_ease-in-out_infinite] motion-reduce:animate-none">
-          <Sparkles size={22} />
+          <Users size={22} />
         </span>
         <p className="relative mt-4 font-display text-sm font-bold text-brand-950/80">فريقكم، إنجاز بإنجاز</p>
         <p className="relative mt-1.5 max-w-[220px] text-xs leading-relaxed text-brand-950/45">

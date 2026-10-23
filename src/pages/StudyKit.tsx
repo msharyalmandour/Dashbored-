@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Copy, FileDown, FileText, ListChecks, Languages } from "lucide-react";
 import Card from "../components/ui/Card";
+import { PageHeader, Segmented } from "../components/ui/page";
 import { useAuth } from "../context/AuthContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useTeamRoster } from "../hooks/useTeamRoster";
@@ -105,37 +106,14 @@ export default function StudyKit() {
   ];
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">حقيبة الاستبيان والموافقات</h1>
-        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">
-          كل الأوراق اللي تحتاجونها قبل ما توزعون الاستبيان: إذن الأداة، موافقة المشارك، خطاب الجهة، وخطوات الترجمة. تتعبأ ببيانات بحثكم وتعدّلونها
-          وتنزّلونها Word.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-        {tabs.map(({ id, label, when, icon: Icon }) => {
-          const active = tab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={`flex items-start gap-3 rounded-2xl border p-3.5 text-start transition-colors ${
-                active ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/40" : "border-brand-100 bg-paper hover:bg-surface-muted"
-              }`}
-            >
-              <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${active ? "bg-brand-500 text-white" : "bg-surface-muted text-brand-950/50"}`}>
-                <Icon size={17} />
-              </span>
-              <span>
-                <span className="block text-sm font-extrabold text-brand-950">{label}</span>
-                <span className="mt-0.5 block text-xs text-brand-950/55">{when}</span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="اجمع وحلّل"
+        title="الاستبيانات والموافقات"
+        subtitle="كل الأوراق اللي تحتاجونها قبل ما توزعون الاستبيان: إذن الأداة، موافقة المشارك، خطاب الجهة، وخطوات الترجمة."
+        action={<Segmented items={tabs.map((t) => ({ id: t.id, label: t.label }))} value={tab} onChange={setTab} />}
+      />
+      <p className="-mt-3 text-sm text-brand-950/50">{tabs.find((t) => t.id === tab)?.when}</p>
 
       {tab === "docs" && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ClipboardList, Info, MapPin } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "../components/ui/Card";
+import { PageHeader, primaryBtn } from "../components/ui/page";
 import Avatar from "../components/ui/Avatar";
 import ProgressBar from "../components/ui/ProgressBar";
 import { fieldworkSites, teamMembers } from "../data/mockData";
@@ -23,9 +24,9 @@ const statusLabel = {
 };
 
 const statusChip = {
-  completed: "text-brand-600 bg-brand-50",
-  active: "text-amber-accent-600 bg-amber-accent-50",
-  "not-started": "text-brand-950/40 bg-surface-muted",
+  completed: "border border-[#7fd6a0] text-[#7fd6a0]",
+  active: "border border-amber-accent-400 text-amber-accent-400",
+  "not-started": "border border-brand-950/25 text-brand-950/50",
 };
 
 function FieldworkDemo() {
@@ -110,7 +111,7 @@ function FieldworkDemo() {
                   {lead.name.split(" ")[0]}
                 </span>
               </div>
-              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusChip[site.status]}`}>
+              <span className={`rounded-full px-3 py-0.5 text-xs font-semibold ${statusChip[site.status]}`}>
                 {statusLabel[site.status]}
               </span>
             </Card>
@@ -179,7 +180,7 @@ function FieldworkReal() {
               {s.count}
               {s.targetN ? `/${s.targetN}` : ""} رد
             </span>
-            <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-600">{surveyStatus[s.status]}</span>
+            <span className="rounded-full border border-amber-accent-400 px-3 py-0.5 text-xs font-semibold text-amber-accent-400">{surveyStatus[s.status]}</span>
             <Link to={`/surveys/${s.id}`} className="text-xs font-bold text-brand-700 hover:text-brand-900">
               افتحوه
             </Link>
@@ -192,5 +193,19 @@ function FieldworkReal() {
 
 export default function Fieldwork() {
   const { mode } = useAuth();
-  return mode === "supabase" ? <FieldworkReal /> : <FieldworkDemo />;
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        kicker="اجمع وحلّل"
+        title="الميدان"
+        subtitle="وين وصل جمع بياناتكم، وكم باقي على الهدف."
+        action={
+          <Link to="/surveys" className={primaryBtn}>
+            الاستبيانات <ArrowLeft size={15} />
+          </Link>
+        }
+      />
+      {mode === "supabase" ? <FieldworkReal /> : <FieldworkDemo />}
+    </div>
+  );
 }

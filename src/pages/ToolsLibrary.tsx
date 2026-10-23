@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ExternalLink, Library, Ruler, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import Card from "../components/ui/Card";
+import { PageHeader, Panel, primaryBtn } from "../components/ui/page";
 import EmptyState from "../components/ui/EmptyState";
 import { useValidatedTools } from "../hooks/useValidatedTools";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
@@ -23,33 +24,38 @@ export default function ToolsLibrary() {
   }, [tools, q, arabicOnly]);
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">مكتبة أدوات القياس</h1>
-        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">
-          استبيانات ومقاييس موثّقة جمعتها الفرق من دراسات حقيقية، مع ثباتها ولغاتها ورابط دراستها الأصلية. تكبر كل ما فريق يحفظ أداة من «وكيل البحث ←
-          أدوات القياس». ما فيها أي بيانات فرق — فقط معلومات الأداة من الدراسة المنشورة.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        kicker="اجمع وحلّل"
+        title="مكتبة أدوات القياس"
+        subtitle="استبيانات ومقاييس موثّقة جمعتها الفرق من دراسات حقيقية، مع ثباتها ولغاتها ورابط دراستها الأصلية."
+        action={
+          <Link to="/research-search" className={primaryBtn}>
+            <Ruler size={15} /> دوّروا أداة جديدة
+          </Link>
+        }
+      />
 
-      <Card tone="cream" className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[12rem] flex-1">
-          <Search size={15} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-brand-950/35" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="ابحثوا: الاحتراق، الرضا، الألم..."
-            className="w-full rounded-lg border border-brand-100 bg-paper py-2 pe-3 ps-9 text-sm outline-none focus:border-brand-300"
-          />
+      <Panel>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative min-w-[12rem] flex-1">
+            <Search size={15} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-brand-950/35" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="ابحثوا: الاحتراق، الرضا، الألم..."
+              className="w-full rounded-full border border-brand-100 bg-paper py-2.5 pe-4 ps-9 text-sm outline-none focus:border-brand-300"
+            />
+          </div>
+          <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-950/70">
+            <input type="checkbox" checked={arabicOnly} onChange={(e) => setArabicOnly(e.target.checked)} className="h-4 w-4 accent-[var(--color-brand-500)]" />
+            فيها نسخة عربية فقط
+          </label>
         </div>
-        <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-950/70">
-          <input type="checkbox" checked={arabicOnly} onChange={(e) => setArabicOnly(e.target.checked)} className="h-4 w-4 accent-[var(--color-brand-500)]" />
-          فيها نسخة عربية فقط
-        </label>
-        <Link to="/research-search" className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600">
-          <Ruler size={15} /> دوّروا أداة جديدة
-        </Link>
-      </Card>
+        <p className="mt-3 text-xs text-brand-950/45">
+          تكبر كل ما فريق يحفظ أداة من «وكيل البحث ← أدوات القياس». ما فيها أي بيانات فرق — فقط معلومات الأداة من الدراسة المنشورة.
+        </p>
+      </Panel>
 
       {loading ? (
         <p className="text-sm text-brand-950/45">جاري التحميل...</p>
@@ -74,7 +80,7 @@ export default function ToolsLibrary() {
                   <p className="text-sm font-extrabold text-brand-950">{t.toolName}</p>
                   {t.measures && <p className="mt-0.5 text-xs text-brand-950/55">{t.measures}</p>}
                 </div>
-                {t.isArabic && <span className="shrink-0 rounded-full bg-brand-100 px-2.5 py-1 text-[11px] font-bold text-brand-700">عربي</span>}
+                {t.isArabic && <span className="shrink-0 rounded-full border border-[#7fd6a0] px-2.5 py-0.5 text-[11px] font-semibold text-[#7fd6a0]">عربي</span>}
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 {[
@@ -83,7 +89,7 @@ export default function ToolsLibrary() {
                   ["اللغات", t.languages],
                   ["الفئة", t.population],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-xl bg-surface-muted p-2">
+                  <div key={label} className="rounded-xl bg-black/25 p-2">
                     <p className="font-bold text-brand-950/40">{label}</p>
                     <p className="mt-0.5 text-brand-950/75">{value || "غير مذكور"}</p>
                   </div>

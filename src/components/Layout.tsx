@@ -5,6 +5,7 @@ import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
+import SectionTabs from "./SectionTabs";
 import PaymentProofUpload from "./PaymentProofUpload";
 import CheckoutModal from "./CheckoutModal";
 import { AlertCard } from "./ui/cards";
@@ -202,6 +203,7 @@ export default function Layout() {
               data-redesign={pageHeaderRoutes.has(location.pathname) ? "" : undefined}
               className="animate-[page-in_0.35s_ease-out]"
             >
+              <SectionTabs />
               <Outlet />
             </div>
           </div>

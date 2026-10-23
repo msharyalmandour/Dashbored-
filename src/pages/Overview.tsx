@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   AlertCircle,
   AlertTriangle,
-  Award,
   BookOpenCheck,
   CalendarClock,
   CheckCircle2,
@@ -24,8 +23,6 @@ import {
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import { AlertCard } from "../components/ui/cards";
-import FocusSession from "../components/FocusSession";
-import TimeCapsule from "../components/TimeCapsule";
 import ShareUpdate from "../components/ShareUpdate";
 import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import Avatar from "../components/ui/Avatar";
@@ -188,21 +185,13 @@ export default function Overview() {
   useEffect(() => {
     const seen: string[] = JSON.parse(localStorage.getItem(ACHIEVEMENTS_SEEN_KEY) ?? "[]");
     const seenSet = new Set(seen);
-    const freshlyUnlocked = achievements.find(
-      (a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id),
-    );
-    if (freshlyUnlocked) {
-      showToast({
-        title: `إنجاز جديد: ${freshlyUnlocked.title}`,
-        desc: freshlyUnlocked.desc,
-        icon: Award,
-        tone: "brand",
-      });
+    const fresh = achievements.filter((a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id));
+    if (fresh.length > 0) {
+      // نسجّلها «مشوفة» بدون إشعار منبثق — تظهر بقسم إنجازاتكم تحت، وما تغطي على المحتوى
       localStorage.setItem(
         ACHIEVEMENTS_SEEN_KEY,
-        JSON.stringify([...seenSet, freshlyUnlocked.id]),
+        JSON.stringify([...seenSet, ...fresh.map((a) => a.id)]),
       );
-      return;
     }
 
     if (currentStage) {
@@ -330,7 +319,7 @@ export default function Overview() {
         </AlertCard>
       )}
 
-      {showFlashback && (
+      {showFlashback && !showGuideBanner && (
         <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>
           قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
           {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
@@ -617,22 +606,8 @@ export default function Overview() {
       />
       <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
 
-      {/* قسم واحد مدمج بدل ثلاث مستطيلات مكدّسة — "جهّز قهوتك" + مشاركة
-          التحديث + رسالة المستقبل، بإطار زجاجي ترابي واحد */}
-      <div className="rounded-[1.75rem] bg-gradient-to-br from-brand-300/40 via-brand-500/10 to-brand-600/30 p-[1.5px] shadow-md shadow-brand-950/10">
-        <Card
-          tone="paper"
-          interactive
-          className="card-terra grid grid-cols-1 divide-y divide-brand-100/40 !rounded-[calc(1.75rem-1.5px)] !p-0 lg:grid-cols-3 lg:divide-x lg:divide-x-reverse lg:divide-y-0"
-        >
-          <div className="relative overflow-hidden p-5">
-            <div className="pointer-events-none absolute -bottom-8 -end-8 h-36 w-36 rounded-full bg-gradient-to-br from-amber-accent-400/35 to-brand-600/20 blur-2xl" />
-            <div className="relative">
-              <FocusSession />
-            </div>
-          </div>
-          <div className="p-5">
-            <ShareUpdate
+      <Card tone="paper" className="card-terra">
+        <ShareUpdate
               mode={mode}
               projectTitle={projectTitle}
               overallProgress={realOverallProgress}
@@ -641,15 +616,7 @@ export default function Overview() {
               nextLabel={upcoming[0]?.title ?? null}
               nextDate={upcoming[0]?.date ?? null}
             />
-          </div>
-          <div className="relative overflow-hidden p-5">
-            <div className="pointer-events-none absolute -top-8 -start-8 h-36 w-36 rounded-full bg-gradient-to-br from-brand-500/30 to-amber-accent-500/15 blur-2xl" />
-            <div className="relative">
-              <TimeCapsule />
-            </div>
-          </div>
-        </Card>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Research journey + priorities */}

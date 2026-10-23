@@ -1,38 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  BookOpenText,
-  BookMarked,
-  ListChecks,
-  Users,
-  MapPinned,
-  Library,
-  FolderClosed,
-  CalendarDays,
-  ListTree,
-  LogOut,
-  Compass,
-  CreditCard,
-  FlaskConical,
-  ShieldCheck,
-  Flag,
-  NotebookPen,
-  FileCheck2,
-  Search,
-  BarChart3,
-  ClipboardList,
-  ClipboardPen,
-  MessageSquareText,
-  CalendarClock,
-  GraduationCap,
-  Ruler,
-  FileDown,
-  BookA,
-  Check,
-  ChevronDown,
-  type LucideIcon,
-} from "lucide-react";
+import { Check, ChevronDown, Compass, LogOut, ShieldCheck } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { researchStages } from "../data/mockData";
@@ -40,87 +8,15 @@ import { getResearcherTitle } from "../lib/identity";
 import { isFemaleUser } from "../lib/gender";
 import { useResearchStages } from "../hooks/useResearchStages";
 import { getCurrentStage } from "../lib/progress";
-import type { StageKey } from "../data/types";
+import { homeSection, isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
 import IdeaButton from "./IdeaButton";
 import InstallAppButton from "./InstallAppButton";
 
-interface NavItem {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  end?: boolean;
-}
-
-interface NavGroup {
-  label: string | null;
-  /** مراحل الرحلة اللي تغطيها المجموعة — تحدد «أنتم هنا / خلصت / جاية» */
-  stages?: StageKey[];
-  /** مطوية افتراضيًا ما لم يكن فيها الصفحة المفتوحة */
-  collapsed?: boolean;
-  items: NavItem[];
-}
-
-const navGroups: NavGroup[] = [
-  {
-    label: null,
-    items: [{ to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true }],
-  },
-  {
-    label: "١ ابدأ",
-    stages: ["topic", "literature-review"],
-    items: [
-      { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
-      { to: "/evidence", label: "مكتبة الأدلة", icon: Library },
-      { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked },
-    ],
-  },
-  {
-    label: "٢ اكتب وخطّط",
-    stages: ["proposal", "research-gap", "research-questions", "methodology"],
-    items: [
-      { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
-      { to: "/methodology", label: "المنهجية", icon: FlaskConical },
-      { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2 },
-      { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
-    ],
-  },
-  {
-    label: "٣ اجمع وحلّل",
-    stages: ["data-collection", "analysis"],
-    items: [
-      { to: "/study-kit", label: "الاستبيانات والموافقات", icon: ClipboardList },
-      { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardPen },
-      { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
-      { to: "/fieldwork", label: "الميدان", icon: MapPinned },
-      { to: "/stats", label: "استوديو الإحصاء", icon: BarChart3 },
-    ],
-  },
-  {
-    label: "٤ الفريق",
-    items: [
-      { to: "/tasks", label: "مهامي", icon: ListChecks },
-      { to: "/team", label: "الفريق", icon: Users },
-      { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-      { to: "/meeting-minutes", label: "الاجتماعات", icon: NotebookPen },
-      { to: "/calendar", label: "التقويم", icon: CalendarDays },
-      { to: "/files", label: "الملفات", icon: FolderClosed },
-    ],
-  },
-  {
-    label: "أخرى",
-    collapsed: true,
-    items: [
-      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
-      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
-      { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
-      { to: "/glossary", label: "قاموس المصطلحات", icon: BookA },
-      { to: "/story", label: "قصة بحثك", icon: Flag },
-      { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
-    ],
-  },
-];
+const linkBase = "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors";
+const linkOn = "bg-brand-500 text-white shadow-sm shadow-brand-500/30";
+const linkOff = "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900";
 
 export default function Sidebar({
   open = false,
@@ -132,24 +28,42 @@ export default function Sidebar({
   const { currentUser, isSuperAdmin, logout } = useAuth();
   const { pathname } = useLocation();
   const { stages } = useResearchStages();
-  const [toggled, setToggled] = useState<Record<string, boolean>>({});
+  const [moreOpen, setMoreOpen] = useState<boolean | null>(null);
   const currentStage = getCurrentStage(stages);
 
-  const isHere = (to: string) => (to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(`${to}/`));
-  const groupState = (g: NavGroup): "done" | "current" | "upcoming" | null => {
-    if (!g.stages || stages.length === 0) return null;
-    const mine = stages.filter((st) => g.stages!.includes(st.stageKey));
+  const sectionState = (sec: NavSection): "done" | "current" | null => {
+    if (!sec.stages || stages.length === 0) return null;
+    const mine = stages.filter((st) => sec.stages!.includes(st.stageKey));
     if (mine.length > 0 && mine.every((st) => st.status === "done")) return "done";
-    if (currentStage && g.stages.includes(currentStage.stageKey)) return "current";
-    return "upcoming";
+    if (currentStage && sec.stages.includes(currentStage.stageKey)) return "current";
+    return null;
   };
-  const isExpanded = (g: NavGroup) => {
-    if (g.label === null) return true;
-    const manual = toggled[g.label];
-    if (manual !== undefined) return manual;
-    if (g.items.some((it) => isHere(it.to))) return true;
-    if (g.stages) return groupState(g) === "current" || groupState(g) === null;
-    return !g.collapsed;
+
+  const moreHere = morePages.some((m) => isPathIn(pathname, m.to));
+  const moreExpanded = moreOpen ?? moreHere;
+
+  const renderSection = (sec: NavSection) => {
+    const active = sec.pages.some((pg) => isPathIn(pathname, pg.to));
+    const state = sectionState(sec);
+    return (
+      <NavLink
+        key={sec.id}
+        to={active ? pathname : sec.pages[0].to}
+        onClick={onClose}
+        className={clsx(linkBase, active ? linkOn : linkOff)}
+      >
+        <sec.icon size={18} />
+        <span className="flex-1">{sec.label}</span>
+        {state === "current" && (
+          <span className={clsx("rounded-full px-2 py-0.5 text-[10px] font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>أنتم هنا</span>
+        )}
+        {state === "done" && (
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title="خلصتوا هالجزء">
+            <Check size={11} />
+          </span>
+        )}
+      </NavLink>
+    );
   };
 
   return (
@@ -178,57 +92,47 @@ export default function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          {navGroups.map((group, gi) => {
-            const state = groupState(group);
-            const expanded = isExpanded(group);
-            return (
-              <div key={group.label ?? `group-${gi}`} className={gi > 0 ? "mt-4" : undefined}>
-                {gi > 0 && <div aria-hidden className="gold-groove mx-3 mb-3" />}
-                {group.label && (
-                  <button
-                    onClick={() => setToggled((t) => ({ ...t, [group.label!]: !expanded }))}
-                    aria-expanded={expanded}
-                    className="mb-1 flex w-full items-center gap-2 rounded-full px-3 py-1 text-start hover:bg-surface-muted/70"
-                  >
-                    <span className={clsx("flex-1 text-[11px] font-bold tracking-wide", state === "current" ? "text-amber-accent-400" : "text-amber-accent-400/60")}>
-                      {group.label}
-                    </span>
-                    {state === "current" && (
-                      <span className="rounded-full bg-brand-500 px-2 py-0.5 text-[10px] font-extrabold text-white">أنتم هنا</span>
-                    )}
-                    {state === "done" && (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title="خلصتوا هالجزء">
-                        <Check size={11} />
-                      </span>
-                    )}
-                    <ChevronDown size={13} className={clsx("text-brand-950/30 transition-transform", expanded && "rotate-180")} />
-                  </button>
-                )}
-                {expanded &&
-                  group.items.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      onClick={onClose}
-                      className={({ isActive }) =>
-                        clsx(
-                          "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
-                          isActive
-                            ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30"
-                            : "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900",
-                        )
-                      }
-                    >
-                      <item.icon size={18} />
-                      {item.label}
-                    </NavLink>
-                  ))}
-              </div>
-            );
-          })}
+          <NavLink
+            to={homeSection.to}
+            end
+            onClick={onClose}
+            className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}
+          >
+            <homeSection.icon size={18} />
+            {homeSection.label}
+          </NavLink>
 
-          <div aria-hidden className="gold-groove mx-3 my-3" />
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">رحلة البحث</p>
+          {journeySections.map(renderSection)}
+
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">شغل الفريق</p>
+          {workSections.map(renderSection)}
+
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          <button
+            onClick={() => setMoreOpen(!moreExpanded)}
+            aria-expanded={moreExpanded}
+            className="flex w-full items-center gap-2 rounded-full px-4 py-1.5 text-start text-[11px] font-bold tracking-wide text-amber-accent-400/70 hover:bg-surface-muted/70"
+          >
+            <span className="flex-1">المزيد</span>
+            <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />
+          </button>
+          {moreExpanded &&
+            morePages.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={onClose}
+                className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}
+              >
+                <item.icon size={18} />
+                {item.label}
+              </NavLink>
+            ))}
+
+          <div aria-hidden className="gold-groove mx-3 !my-3" />
 
           <NavLink
             to="/guide"

@@ -5,7 +5,6 @@ import {
   Clock,
   Copy,
   Gift,
-  Users,
   GraduationCap,
   Mail,
   MessageCircle,
@@ -132,33 +131,6 @@ function UniversityField() {
   );
 }
 
-/** لوحة تصميمية مجردة — بدل بطاقة "رابط المشرف" المضغوطة اللي صارت مكررة
-    مع قسم التواصل التفصيلي تحتها. توهج + أيقونة بس، بدون صورة فوتوغرافية
-    حقيقية (ما عندنا واحدة تتماشى مع هوية الموقع). */
-function SupervisorVisualPanel() {
-  return (
-    <div className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
-      <Card
-        tone="paper"
-        className="card-terra relative flex h-full flex-col items-center justify-center overflow-hidden !rounded-[calc(1.75rem-1.5px)] !shadow-none text-center"
-      >
-        <div className="pointer-events-none absolute -top-10 start-1/2 h-44 w-44 -translate-x-1/2 rounded-full bg-gradient-to-br from-brand-500/25 to-amber-accent-500/20 blur-3xl [animation:ember-drift_13s_ease-in-out_infinite] motion-reduce:animate-none" />
-        <div className="pointer-events-none absolute -bottom-12 -end-12 h-40 w-40 rounded-full bg-gradient-to-br from-amber-accent-400/20 to-brand-700/15 blur-3xl" />
-        <span className="relative flex h-14 w-14 items-center justify-center rounded-full border border-brand-500/20 bg-white/[0.04] text-brand-600 shadow-[0_0_20px_-4px_rgba(255,106,0,0.45)] backdrop-blur-sm [animation:orb-pulse_3.2s_ease-in-out_infinite] motion-reduce:animate-none">
-          <Users size={22} />
-        </span>
-        <p className="relative mt-4 font-display text-sm font-bold text-brand-950/80">فريقكم، إنجاز بإنجاز</p>
-        <p className="relative mt-1.5 max-w-[220px] text-xs leading-relaxed text-brand-950/45">
-          كل خطوة توثّقونها هنا تقرّبكم لتسليم بحث يستحق التعب 🌱
-        </p>
-      </Card>
-    </div>
-  );
-}
-
-/** قسم أوسع ومفصّل للتواصل مع المشرف الأكاديمي — يضيف إرسال واتساب مباشر
-    (بدون رقم محدد، يفتح جهات الاتصال) وعرض آخر ملاحظة كاملة منه/منها،
-    بدل بطاقة "رابط المشرف" المدمجة أعلاه اللي تبقى كما هي. */
 function SupervisorContactSection() {
   const { team, isLeader } = useAuth();
   const [copied, setCopied] = useState(false);
@@ -510,10 +482,8 @@ export default function Team() {
       {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
         <>
-          <div className="mb-4 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
+          <div className="mb-4">
             <InviteCard />
-            <SupervisorVisualPanel />
-            <ReferralCard />
           </div>
           <SupervisorContactSection />
         </>
@@ -607,6 +577,11 @@ export default function Team() {
       </div>
 
       <WorkloadBalance roster={roster} tasks={tasks} />
+      {isLeader && mode === "supabase" && (
+        <div className="mt-4">
+          <ReferralCard />
+        </div>
+      )}
       {mode === "mock" && <ActivityLog />}
     </div>
   );

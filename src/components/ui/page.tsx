@@ -20,13 +20,16 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="min-w-0">
-        {kicker && <p className="text-sm text-brand-950/50">{kicker}</p>}
-        <h1 className="font-display text-3xl font-bold leading-tight text-brand-950 sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-1 max-w-[60ch] text-brand-950/55">{subtitle}</p>}
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          {kicker && <p className="text-sm font-semibold text-amber-accent-400/80">{kicker}</p>}
+          <h1 className="font-display text-3xl font-bold leading-tight text-brand-950 sm:text-4xl">{title}</h1>
+          {subtitle && <p className="mt-1 max-w-[60ch] text-brand-950/55">{subtitle}</p>}
+        </div>
+        {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
       </div>
-      {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
+      <div aria-hidden className="gold-groove mt-5" />
     </div>
   );
 }
@@ -144,9 +147,12 @@ export function Panel({
       )}
     >
       {(title || hint) && (
-        <div className="mb-4 flex items-center justify-between gap-3">
-          {title && <h2 className="font-display text-xl font-bold text-brand-950">{title}</h2>}
-          {hint && <span className="text-sm text-brand-950/50">{hint}</span>}
+        <div className="mb-5">
+          <div className="flex items-center justify-between gap-3">
+            {title && <h2 className="font-display text-xl font-bold text-brand-950">{title}</h2>}
+            {hint && <span className="text-sm text-brand-950/50">{hint}</span>}
+          </div>
+          <div aria-hidden className="gold-groove-soft mt-3" />
         </div>
       )}
       {children}
@@ -235,9 +241,9 @@ export function ReadinessPanel({
 /** تخطيط الصفحة: عمود رئيسي + عمود جانبي (ينزل تحت على الجوال) */
 export function PageColumns({ main, side }: { main: ReactNode; side: ReactNode }) {
   return (
-    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <div className="min-w-0 space-y-6">{main}</div>
-      <aside className="min-w-0 space-y-6 lg:sticky lg:top-24">{side}</aside>
+    <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="min-w-0 space-y-7">{main}</div>
+      <aside className="min-w-0 space-y-7 lg:sticky lg:top-24">{side}</aside>
     </div>
   );
 }

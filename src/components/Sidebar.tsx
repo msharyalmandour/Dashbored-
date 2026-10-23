@@ -182,14 +182,15 @@ export default function Sidebar({
             const state = groupState(group);
             const expanded = isExpanded(group);
             return (
-              <div key={group.label ?? `group-${gi}`} className={gi > 0 ? "mt-3" : undefined}>
+              <div key={group.label ?? `group-${gi}`} className={gi > 0 ? "mt-4" : undefined}>
+                {gi > 0 && <div aria-hidden className="gold-groove mx-3 mb-3" />}
                 {group.label && (
                   <button
                     onClick={() => setToggled((t) => ({ ...t, [group.label!]: !expanded }))}
                     aria-expanded={expanded}
                     className="mb-1 flex w-full items-center gap-2 rounded-full px-3 py-1 text-start hover:bg-surface-muted/70"
                   >
-                    <span className={clsx("flex-1 text-[11px] font-bold tracking-wide", state === "current" ? "text-brand-600" : "text-brand-950/35")}>
+                    <span className={clsx("flex-1 text-[11px] font-bold tracking-wide", state === "current" ? "text-amber-accent-400" : "text-amber-accent-400/60")}>
                       {group.label}
                     </span>
                     {state === "current" && (
@@ -227,7 +228,7 @@ export default function Sidebar({
             );
           })}
 
-          <div className="my-2 border-t border-brand-100/70" />
+          <div aria-hidden className="gold-groove mx-3 my-3" />
 
           <NavLink
             to="/guide"
@@ -265,7 +266,7 @@ export default function Sidebar({
         </nav>
 
         {currentUser && (
-          <div className="border-t border-brand-100/70 p-4">
+          <div className="p-4 pt-0"><div aria-hidden className="gold-groove mb-4" />
             <div className="glass-panel flex items-center gap-3 rounded-full border border-brand-100/50 bg-surface-muted/60 p-2 pe-3">
               <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
               <div className="min-w-0 flex-1">

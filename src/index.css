@@ -712,3 +712,19 @@ button:not(:disabled):active {
   border-color: rgba(255, 106, 0, 0.3);
   border-radius: 28px;
 }
+
+/* ===================================================================
+   حزوز ذهبية: خط منقوش (ظل داكن فوقه وذهبي تحته) يتلاشى من الأطراف —
+   يفصل الأقسام بهدوء وتبان بدون ما تثقل العين.
+   =================================================================== */
+.gold-groove {
+  height: 3px;
+  border: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.7) 18%, rgba(0, 0, 0, 0.7) 82%, transparent) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(255, 181, 71, 0.62) 18%, rgba(255, 181, 71, 0.62) 82%, transparent) bottom / 100% 1px no-repeat;
+}
+.gold-groove-soft {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 181, 71, 0.38) 20%, rgba(255, 181, 71, 0.38) 80%, transparent);
+}

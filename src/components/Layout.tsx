@@ -27,12 +27,12 @@ const titles: Record<string, string> = {
   "/research-search": "وكيل البحث العلمي",
   "/stats": "استوديو الإحصاء",
   "/feedback": "ملاحظات المشرف",
-  "/study-kit": "الاستبيان والموافقات",
+  "/study-kit": "الاستبيانات والموافقات",
   "/tools-library": "مكتبة أدوات القياس",
   "/planner": "مخطط الموعد",
   "/viva": "تدريب المناقشة",
   "/glossary": "قاموس المصطلحات",
-  "/meeting-minutes": "محاضر الاجتماعات",
+  "/meeting-minutes": "الاجتماعات والمشرف/ة",
   "/proposal/export": "تصدير المقترح",
   "/tasks": "مهامي",
   "/evidence": "مكتبة الأدلة",
@@ -46,6 +46,21 @@ const titles: Record<string, string> = {
   "/pricing": "الباقات والاشتراك",
   "/admin/subscriptions": "إدارة الاشتراكات",
 };
+
+/** الصفحات اللي لبست ترويسة التصميم الموحّد (PageHeader) — العنوان فيها يظهر بالصفحة نفسها */
+const pageHeaderRoutes = new Set([
+  "/tasks",
+  "/team",
+  "/timeline",
+  "/calendar",
+  "/files",
+  "/meeting-minutes",
+  "/study-kit",
+  "/surveys",
+  "/tools-library",
+  "/fieldwork",
+  "/stats",
+]);
 
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
@@ -113,7 +128,11 @@ export default function Layout() {
       <BottomNav onMenu={() => setMobileNavOpen(true)} />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <Header title={title} onMenuClick={() => setMobileNavOpen(true)} />
+        <Header
+          title={title}
+          onMenuClick={() => setMobileNavOpen(true)}
+          hideTitleOnDesktop={pageHeaderRoutes.has(location.pathname)}
+        />
         <main className="flex-1 px-4 py-6 pb-24 sm:px-8 md:pb-6">
           <div className="space-y-6">
             {showTrialBanner && (
@@ -178,7 +197,11 @@ export default function Layout() {
                 </div>
               </AlertCard>
             )}
-            <div key={location.pathname} className="animate-[page-in_0.35s_ease-out]">
+            <div
+              key={location.pathname}
+              data-redesign={pageHeaderRoutes.has(location.pathname) ? "" : undefined}
+              className="animate-[page-in_0.35s_ease-out]"
+            >
               <Outlet />
             </div>
           </div>

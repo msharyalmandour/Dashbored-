@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { FileSpreadsheet, FileText, FileImage, File as FileIcon, ExternalLink, FolderOpen } from "lucide-react";
 import clsx from "clsx";
-import Card from "../components/ui/Card";
+import { HighlightCard, PageColumns, PageHeader, Panel, rowSurface } from "../components/ui/page";
 import Avatar from "../components/ui/Avatar";
 import EmptyState from "../components/ui/EmptyState";
 import FileAttach from "../components/FileAttach";
@@ -28,10 +28,10 @@ const kindIcon: Record<Kind, typeof FileText> = {
 };
 
 const kindColor: Record<Kind, string> = {
-  pdf: "bg-rose-50 text-rose-600",
-  doc: "bg-sky-accent-50 text-sky-accent-600",
-  sheet: "bg-brand-50 text-brand-600",
-  image: "bg-amber-accent-50 text-amber-accent-600",
+  pdf: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
+  doc: "bg-brand-500/15 text-amber-accent-400",
+  sheet: "bg-[#7fd6a0]/15 text-[#7fd6a0]",
+  image: "bg-amber-accent-400/15 text-amber-accent-400",
 };
 
 function formatSize(bytes: number): string {
@@ -56,106 +56,124 @@ export default function Files() {
     : null;
 
   const folders = useMemo(
-    () => ["all", ...Array.from(new Set(files.map(categoryLabel)))],
+    () => Array.from(new Set(files.map(categoryLabel))),
     [files],
   );
 
   const filtered = files.filter((f) => folder === "all" || categoryLabel(f) === folder);
 
   return (
-    <div className="space-y-5">
-      <FileAttach onAttach={reload} />
+    <div className="space-y-6">
+      <PageHeader
+        kicker="الفريق"
+        title="الملفات"
+        subtitle="كل ملفات البحث بمكان واحد، ومرتبطة بمجلد الفريق على درايف."
+      />
 
-      {teamFolderLink ? (
-        <a
-          href={teamFolderLink}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-3 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
-        >
-          <span className="flex items-center gap-2">
-            <FolderOpen size={16} />
-            افتحوا مجلد الفريق كامل بدرايف
-          </span>
-          <ExternalLink size={15} />
-        </a>
-      ) : (
-        <p className="rounded-2xl bg-surface-muted px-4 py-3 text-xs font-semibold text-brand-950/45">
-          مجلد الفريق بدرايف يُنشأ تلقائيًا أول ما ترفعون أول ملف — بعدها يظهر هنا رابط لفتحه كامل.
-        </p>
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        {folders.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFolder(f)}
-            className={clsx(
-              "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-              folder === f
-                ? "bg-brand-500 text-white"
-                : "bg-paper text-brand-950/60 hover:bg-surface-muted",
+      <PageColumns
+        side={
+          <>
+            {teamFolderLink ? (
+              <a href={teamFolderLink} target="_blank" rel="noreferrer" className="block">
+                <HighlightCard kicker="درايف الفريق" title="افتحوا مجلد الفريق كامل" subtitle="يفتح في تبويب جديد">
+                  <ExternalLink size={16} className="mt-3 text-brand-950/80" />
+                </HighlightCard>
+              </a>
+            ) : (
+              <Panel>
+                <p className="flex items-start gap-2 text-sm text-brand-950/55">
+                  <FolderOpen size={16} className="mt-0.5 shrink-0 text-amber-accent-400" />
+                  مجلد الفريق بدرايف يُنشأ تلقائيًا أول ما ترفعون أول ملف — بعدها يظهر هنا رابط لفتحه كامل.
+                </p>
+              </Panel>
             )}
-          >
-            {f === "all" ? "كل الملفات" : f}
-          </button>
-        ))}
-      </div>
-
-      <Card className="p-0">
-        <ul className="divide-y divide-brand-50">
-          {filtered.map((file) => {
-            const kind = detectKind(file.mimeType);
-            const Icon = kindIcon[kind];
-            const uploader = memberById(file.uploadedById);
-            return (
-              <li key={file.id} className="flex items-center gap-4 p-4">
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kindColor[kind]}`}>
-                  <Icon size={18} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-brand-950">
-                    <bdi>{file.name}</bdi>
-                  </p>
-                  <p className="text-xs text-brand-950/45">
-                    {categoryLabel(file)}
-                    {file.sizeBytes ? ` · ${formatSize(file.sizeBytes)}` : ""}
-                  </p>
-                </div>
-                {file.driveViewLink && (
-                  <a
-                    href={file.driveViewLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex shrink-0 items-center gap-1 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-semibold text-brand-950/60 transition-colors hover:bg-brand-50 hover:text-brand-700"
-                  >
-                    <ExternalLink size={12} />
-                    فتح بدرايف
-                  </a>
+            <Panel title="تصنيف الملفات">
+              <ul className="space-y-1.5">
+                {["all", ...folders].map((f) => {
+                  const count = f === "all" ? files.length : files.filter((x) => categoryLabel(x) === f).length;
+                  return (
+                    <li key={f}>
+                      <button
+                        onClick={() => setFolder(f)}
+                        className={clsx(
+                          "flex w-full items-center justify-between rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                          folder === f
+                            ? "bg-gradient-to-l from-amber-accent-400 to-brand-500 text-[#1a0f00]"
+                            : "text-brand-950/60 hover:bg-brand-500/10",
+                        )}
+                      >
+                        {f === "all" ? "كل الملفات" : f}
+                        <span className="text-xs opacity-80">{count}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Panel>
+          </>
+        }
+        main={
+          <>
+            <Panel title="رفع ملف">
+              <FileAttach onAttach={reload} />
+            </Panel>
+            <Panel title={folder === "all" ? "كل الملفات" : folder} hint={`${filtered.length} ملف`}>
+              <ul className="flex flex-col gap-2.5">
+                {filtered.map((file) => {
+                  const kind = detectKind(file.mimeType);
+                  const Icon = kindIcon[kind];
+                  const uploader = memberById(file.uploadedById);
+                  return (
+                    <li key={file.id} className={clsx(rowSurface, "flex items-center gap-4")}>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kindColor[kind]}`}>
+                        <Icon size={18} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-brand-950">
+                          <bdi>{file.name}</bdi>
+                        </p>
+                        <p className="text-xs text-brand-950/45">
+                          {categoryLabel(file)}
+                          {file.sizeBytes ? ` · ${formatSize(file.sizeBytes)}` : ""}
+                        </p>
+                      </div>
+                      {file.driveViewLink && (
+                        <a
+                          href={file.driveViewLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex shrink-0 items-center gap-1 rounded-full border border-brand-500/30 px-3 py-1.5 text-xs font-semibold text-amber-accent-400 transition-colors hover:bg-brand-500/10"
+                        >
+                          <ExternalLink size={12} />
+                          فتح بدرايف
+                        </a>
+                      )}
+                      {uploader && (
+                        <div className="hidden items-center gap-1.5 text-xs text-brand-950/45 sm:flex">
+                          <Avatar initials={uploader.initials} color={uploader.color} size="sm" />
+                          {uploader.name.split(" ")[0]}
+                        </div>
+                      )}
+                      <span className="w-20 shrink-0 text-end text-xs text-brand-950/40">
+                        {formatDateShort(file.createdAt)}
+                      </span>
+                    </li>
+                  );
+                })}
+                {filtered.length === 0 && (
+                  <li>
+                    <EmptyState
+                      icon={FileIcon}
+                      title="لا ملفات هنا بعد"
+                      desc="أرفقوا أول ملف للفريق — أي مستند أو صورة أو جدول يخص بحثكم."
+                    />
+                  </li>
                 )}
-                {uploader && (
-                  <div className="hidden items-center gap-1.5 text-xs text-brand-950/45 sm:flex">
-                    <Avatar initials={uploader.initials} color={uploader.color} size="sm" />
-                    {uploader.name.split(" ")[0]}
-                  </div>
-                )}
-                <span className="w-20 shrink-0 text-end text-xs text-brand-950/40">
-                  {formatDateShort(file.createdAt)}
-                </span>
-              </li>
-            );
-          })}
-          {filtered.length === 0 && (
-            <li>
-              <EmptyState
-                icon={FileIcon}
-                title="لا ملفات هنا بعد"
-                desc="أرفقوا أول ملف للفريق — أي مستند أو صورة أو جدول يخص بحثكم."
-              />
-            </li>
-          )}
-        </ul>
-      </Card>
+              </ul>
+            </Panel>
+          </>
+        }
+      />
     </div>
   );
 }

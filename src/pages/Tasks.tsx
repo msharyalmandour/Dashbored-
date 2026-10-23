@@ -32,7 +32,19 @@ import { useTasksData } from "../hooks/useTasksData";
 import { useTaskComments } from "../hooks/useTaskComments";
 import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
-import { formatDateShort } from "../lib/date";
+import { formatDateShort, relativeDayLabel } from "../lib/date";
+import {
+  HighlightCard,
+  PageColumns,
+  PageHeader,
+  Panel,
+  ReadinessPanel,
+  Segmented,
+  StatusChip,
+  primaryBtn,
+  rowSurface,
+  type ChipTone,
+} from "../components/ui/page";
 import { playChime } from "../lib/sound";
 
 const TASK_ATTACHMENTS_KEY = "nursync.taskAttachments";
@@ -57,11 +69,11 @@ const sectionLabel = Object.fromEntries(
   proposalSections.map((s) => [s.key, s.labelAr]),
 );
 
-const statusStyle: Record<TaskStatus, string> = {
-  todo: "text-sky-accent-600 bg-sky-accent-50",
-  "in-progress": "text-amber-accent-600 bg-amber-accent-50",
-  done: "text-brand-600 bg-brand-50",
-  overdue: "text-rose-600 bg-rose-50",
+const statusTone: Record<TaskStatus, ChipTone> = {
+  todo: "todo",
+  "in-progress": "active",
+  done: "done",
+  overdue: "late",
 };
 
 const statusLabel: Record<TaskStatus, string> = {
@@ -69,12 +81,6 @@ const statusLabel: Record<TaskStatus, string> = {
   "in-progress": "قيد التنفيذ",
   done: "مكتملة",
   overdue: "متأخرة",
-};
-
-const priorityStyle: Record<TaskPriority, string> = {
-  low: "text-brand-950/40 bg-surface-muted",
-  medium: "text-amber-accent-600 bg-amber-accent-50",
-  high: "text-rose-600 bg-rose-50",
 };
 
 const priorityLabel: Record<TaskPriority, string> = {
@@ -212,64 +218,91 @@ export default function Tasks() {
   const canToggleTask = (task: (typeof tasks)[number]) =>
     canWrite && (isLeader || task.assigneeId === currentUser?.id);
 
-  return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          {filters.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className={clsx(
-                "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-                filter === f.id
-                  ? "bg-brand-500 text-white"
-                  : "bg-paper text-brand-950/60 hover:bg-surface-muted",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+  const openTasks = tasks
+    .filter((t) => t.status !== "done")
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  const nearest = openTasks[0];
+  const doneCount = tasks.filter((t) => t.status === "done").length;
+  const railItems = [...tasks]
+    .sort((a, b) => Number(a.status === "done") - Number(b.status === "done") || a.dueDate.localeCompare(b.dueDate))
+    .slice(0, 5)
+    .map((t) => ({ label: t.title, done: t.status === "done" }));
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-xl bg-paper p-1">
-            <button
-              onClick={() => setView("list")}
-              title="عرض قائمة"
-              className={clsx(
-                "rounded-lg p-1.5",
-                view === "list" ? "bg-brand-500 text-white" : "text-brand-950/50 hover:bg-surface-muted",
-              )}
-            >
-              <List size={16} />
-            </button>
-            <button
-              onClick={() => setView("board")}
-              title="عرض لوحة"
-              className={clsx(
-                "rounded-lg p-1.5",
-                view === "board" ? "bg-brand-500 text-white" : "text-brand-950/50 hover:bg-surface-muted",
-              )}
-            >
-              <LayoutGrid size={16} />
-            </button>
-          </div>
+  const header = (
+    <PageHeader
+      kicker="الفريق"
+      title="مهامي"
+      subtitle="كل اللي عليك وعلى الفريق، مرتبة بالأقرب موعد."
+      action={
+        isLeader && canWrite ? (
+          <button onClick={() => setShowForm((s) => !s)} className={primaryBtn}>
+            <Plus size={16} />
+            مهمة جديدة
+          </button>
+        ) : undefined
+      }
+    />
+  );
 
-          {isLeader && canWrite && (
-            <button
-              onClick={() => setShowForm((s) => !s)}
-              className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
-            >
-              <Plus size={16} />
-              إسناد مهمة جديدة
-            </button>
+  const toolbar = (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <Segmented items={filters} value={filter} onChange={setFilter} />
+      <div className="flex items-center gap-1 rounded-full border border-brand-500/30 bg-paper/50 p-1">
+        <button
+          onClick={() => setView("list")}
+          title="عرض قائمة"
+          className={clsx(
+            "rounded-full p-2",
+            view === "list" ? "bg-brand-500 text-[#1a0f00]" : "text-brand-950/50 hover:bg-surface-muted",
           )}
-        </div>
+        >
+          <List size={16} />
+        </button>
+        <button
+          onClick={() => setView("board")}
+          title="عرض لوحة"
+          className={clsx(
+            "rounded-full p-2",
+            view === "board" ? "bg-brand-500 text-[#1a0f00]" : "text-brand-950/50 hover:bg-surface-muted",
+          )}
+        >
+          <LayoutGrid size={16} />
+        </button>
       </div>
+    </div>
+  );
 
+  const side = (
+    <>
+      {nearest ? (
+        <HighlightCard
+          kicker="أقرب موعد"
+          title={nearest.title}
+          subtitle={`${relativeDayLabel(nearest.dueDate)} · ${memberById(nearest.assigneeId).name}`}
+        />
+      ) : (
+        <HighlightCard kicker="أقرب موعد" title="ما عندكم مهام مفتوحة" subtitle="عاشت الأيادي 🎉" />
+      )}
+      <ReadinessPanel
+        title="إنجاز المهام"
+        subtitle={`${doneCount} من ${tasks.length}`}
+        done={doneCount}
+        total={tasks.length}
+        items={railItems}
+      />
+    </>
+  );
+
+  return (
+    <div className="space-y-6">
+      {header}
+      {toolbar}
+      <PageColumns
+        side={side}
+        main={
+          <>
       {showForm && isLeader && canWrite && (
-        <Card tone="cream" className="relative">
+        <Card tone="paper" className="relative !rounded-[28px] !border-brand-500/30">
           <button
             onClick={() => setShowForm(false)}
             className="absolute left-4 top-4 text-brand-950/40 hover:text-brand-700"
@@ -369,20 +402,18 @@ export default function Tasks() {
           onDelete={deleteTask}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-3">
-          {filtered.map((task, i) => {
+        <Panel title="كل المهام" hint={`${openTasks.length} مهمة مفتوحة`}>
+        <div className="flex flex-col gap-2.5">
+          {filtered.map((task) => {
             const assignee = memberById(task.assigneeId);
             const canToggle = canToggleTask(task);
             const taskComments = comments.filter((c) => c.taskId === task.id);
             const isExpanded = expandedTaskId === task.id;
             return (
-              <Card
+              <div
                 key={task.id}
                 id={`task-${task.id}`}
-                tone="paper"
-                interactive
-                className="card-terra flex scroll-mt-24 flex-col gap-3"
-                style={{ animationDelay: `${(i % 6) * 1.2}s` }}
+                className={clsx(rowSurface, "flex scroll-mt-24 flex-col gap-3")}
               >
                 <div className="flex items-start gap-3">
                   <button
@@ -412,7 +443,7 @@ export default function Tasks() {
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold text-brand-950">{task.title}</p>
                       {task.sectionKey && sectionLabel[task.sectionKey] && (
-                        <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
+                        <span className="rounded-full border border-brand-500/30 px-2 py-0.5 text-[11px] font-bold text-amber-accent-400">
                           {sectionLabel[task.sectionKey]}
                         </span>
                       )}
@@ -442,13 +473,9 @@ export default function Tasks() {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 border-t border-brand-100/40 pt-3">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}>
-                    {statusLabel[task.status]}
-                  </span>
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${priorityStyle[task.priority]}`}>
-                    {priorityLabel[task.priority]}
-                  </span>
+                <div className="flex flex-wrap items-center gap-3 border-t border-brand-100/20 pt-3">
+                  <StatusChip tone={statusTone[task.status]}>{statusLabel[task.status]}</StatusChip>
+                  {task.priority === "high" && <StatusChip tone="late">أولوية {priorityLabel[task.priority]}</StatusChip>}
                   <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
                   {canToggle && !taskAttachments[task.id] && (
                     <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
@@ -479,7 +506,7 @@ export default function Tasks() {
                     onSubmit={(body) => addComment(task.id, currentUser!.id, body)}
                   />
                 )}
-              </Card>
+              </div>
             );
           })}
           {filtered.length === 0 && (
@@ -496,7 +523,11 @@ export default function Tasks() {
             />
           )}
         </div>
+        </Panel>
       )}
+          </>
+        }
+      />
 
       <ConfettiBurst active={justCompleted} />
     </div>

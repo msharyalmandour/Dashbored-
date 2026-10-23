@@ -15,6 +15,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
+import { PageHeader } from "../components/ui/page";
 import Avatar from "../components/ui/Avatar";
 import PeakBar from "../components/ui/PeakBar";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -503,6 +504,9 @@ export default function Team() {
 
   return (
     <div>
+      <div className="mb-6">
+        <PageHeader kicker="الفريق" title="الفريق" subtitle="ادعوا فريقكم والمشرف/ة، وتابعوا إنجاز كل واحد منكم." />
+      </div>
       {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
         <>
@@ -583,7 +587,7 @@ export default function Team() {
               <PeakBar value={progress} />
             </div>
 
-            <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-50 rounded-xl bg-surface-muted py-3 text-center">
+            <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-100/15 rounded-2xl bg-black/25 py-3 text-center">
               <div>
                 <p className="text-base font-extrabold text-brand-950">{tasksTotal}</p>
                 <p className="text-[11px] text-brand-950/45">إجمالي المهام</p>

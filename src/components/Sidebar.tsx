@@ -68,7 +68,7 @@ const navGroups: NavGroup[] = [
     items: [{ to: "/", label: "الرئيسية", icon: LayoutDashboard, end: true }],
   },
   {
-    label: "١. أفهم موضوعي",
+    label: "١ ابدأ",
     stages: ["topic", "literature-review"],
     items: [
       { to: "/research-search", label: "وكيل البحث العلمي", icon: Search },
@@ -77,7 +77,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "٢. أكتب وأخطط",
+    label: "٢ اكتب وخطّط",
     stages: ["proposal", "research-gap", "research-questions", "methodology"],
     items: [
       { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText },
@@ -87,10 +87,10 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "٣. أجمع وأحلل",
+    label: "٣ اجمع وحلّل",
     stages: ["data-collection", "analysis"],
     items: [
-      { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList },
+      { to: "/study-kit", label: "الاستبيانات والموافقات", icon: ClipboardList },
       { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardPen },
       { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler },
       { to: "/fieldwork", label: "الميدان", icon: MapPinned },
@@ -98,21 +98,12 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "٤. أسلّم",
-    stages: ["writing", "final-submission"],
-    items: [
-      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
-      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
-      { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
-    ],
-  },
-  {
-    label: "الفريق",
+    label: "٤ الفريق",
     items: [
       { to: "/tasks", label: "مهامي", icon: ListChecks },
       { to: "/team", label: "الفريق", icon: Users },
       { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-      { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
+      { to: "/meeting-minutes", label: "الاجتماعات", icon: NotebookPen },
       { to: "/calendar", label: "التقويم", icon: CalendarDays },
       { to: "/files", label: "الملفات", icon: FolderClosed },
     ],
@@ -121,6 +112,9 @@ const navGroups: NavGroup[] = [
     label: "أخرى",
     collapsed: true,
     items: [
+      { to: "/planner", label: "مخطط الموعد", icon: CalendarClock },
+      { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap },
+      { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown },
       { to: "/glossary", label: "قاموس المصطلحات", icon: BookA },
       { to: "/story", label: "قصة بحثك", icon: Sparkles },
       { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },

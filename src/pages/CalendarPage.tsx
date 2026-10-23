@@ -1,6 +1,7 @@
 import { useState } from "react";
+import clsx from "clsx";
 import { CalendarClock, Check, Loader2, MapPin, Users2, Flag, ClipboardCheck, Download, Plus, Trash2, X } from "lucide-react";
-import Card, { CardHeader } from "../components/ui/Card";
+import { HighlightCard, PageColumns, PageHeader, Panel, ghostBtn, primaryBtn, rowSurface } from "../components/ui/page";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import MiniCalendar from "../components/MiniCalendar";
@@ -10,7 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import type { CalendarEventType } from "../data/types";
-import { formatDateLong, toISODate } from "../lib/date";
+import { formatDateLong, relativeDayLabel, toISODate } from "../lib/date";
 import { downloadICS } from "../lib/ics";
 
 /** بالحساب الحقيقي «اليوم» هو اليوم فعلًا؛ التاريخ الثابت للعرض التجريبي فقط */
@@ -24,10 +25,10 @@ const typeIcon: Record<CalendarEventType, typeof Users2> = {
 };
 
 const typeColor: Record<CalendarEventType, string> = {
-  meeting: "bg-sky-accent-50 text-sky-accent-600",
-  review: "bg-brand-50 text-brand-600",
-  fieldwork: "bg-amber-accent-50 text-amber-accent-600",
-  deadline: "bg-rose-50 text-rose-600",
+  meeting: "bg-brand-500/15 text-amber-accent-400",
+  review: "bg-[#7fd6a0]/15 text-[#7fd6a0]",
+  fieldwork: "bg-amber-accent-400/15 text-amber-accent-400",
+  deadline: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
 };
 
 const typeLabel: Record<CalendarEventType, string> = {
@@ -85,32 +86,39 @@ export default function CalendarPage() {
     if (r.error) showToast({ title: "ما انحذف الموعد", icon: X, tone: "rose" });
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap justify-end gap-2.5">
-        <button
-          onClick={() => downloadICS(events)}
-          title="حمّلي ملف .ics تضيفينه لتقويم قوقل أو أبل أو أوتلوك"
-          className="flex items-center gap-1.5 rounded-xl border border-brand-100 px-4 py-2 text-sm font-bold text-brand-700 hover:bg-surface-muted"
-        >
-          <Download size={16} />
-          تصدير للتقويم
-        </button>
-        {canWrite && (
-          <button
-            onClick={() => setShowForm((s) => !s)}
-            className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
-          >
-            <Plus size={16} />
-            إضافة حدث / موعد نهائي
-          </button>
-        )}
-      </div>
+  const todayISO = toISODate(today);
+  const nextEvent = [...events]
+    .filter((e) => e.date >= todayISO)
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0];
 
-      <PhoneCalendarCard />
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        kicker="الفريق"
+        title="التقويم"
+        subtitle="مواعيد الفريق ومواعيد التسليم بمكان واحد."
+        action={
+          <>
+            <button
+              onClick={() => downloadICS(events)}
+              title="حمّلي ملف .ics تضيفينه لتقويم قوقل أو أبل أو أوتلوك"
+              className={ghostBtn}
+            >
+              <Download size={16} />
+              تصدير للتقويم
+            </button>
+            {canWrite && (
+              <button onClick={() => setShowForm((s) => !s)} className={primaryBtn}>
+                <Plus size={16} />
+                إضافة موعد
+              </button>
+            )}
+          </>
+        }
+      />
 
       {showForm && canWrite && (
-        <Card tone="cream" className="relative">
+        <Panel className="relative">
           <button
             onClick={() => setShowForm(false)}
             className="absolute left-4 top-4 text-brand-950/40 hover:text-brand-700"
@@ -172,7 +180,7 @@ export default function CalendarPage() {
           <button
             onClick={handleAdd}
             disabled={saving || !form.title.trim()}
-            className="mt-4 flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
+            className={clsx(primaryBtn, "mt-4")}
           >
             {saving && <Loader2 size={15} className="animate-spin" />}
             إضافة
@@ -182,67 +190,79 @@ export default function CalendarPage() {
               ? "الموعد يظهر لكل أعضاء الفريق وبالرئيسية، ويتحدّث مباشرة."
               : "وضع العرض التجريبي: الحدث يُحفظ بمتصفحك فقط."}
           </p>
-        </Card>
+        </Panel>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card tone="sky" className="lg:col-span-2">
-          <MiniCalendar
-            events={events}
-            today={today}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-          />
-        </Card>
 
-        <Card>
-          <CardHeader
-            title={formatDateLong(selectedDate)}
-            subtitle={`${dayEvents.length} حدث`}
-          />
-          <ul className="space-y-3">
-            {dayEvents.map((event) => {
-              const Icon = typeIcon[event.type];
-              return (
-                <li key={event.id} className="flex items-start gap-3 rounded-xl border border-brand-50 p-3">
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${typeColor[event.type]}`}>
-                    <Icon size={16} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-brand-950">{event.title}</p>
-                    <p className="mt-0.5 flex items-center gap-1 text-xs text-brand-950/45">
-                      <CalendarClock size={12} />
-                      {event.time} · {typeLabel[event.type]}
-                    </p>
-                    <p className="mt-0.5 text-xs text-brand-950/40">{event.location}</p>
-                  </div>
-                  {canDelete(event) && (
-                    <ThreeDotsMenu
-                      items={[
-                        {
-                          label: "حذف الحدث",
-                          confirmLabel: "تأكيد الحذف؟",
-                          icon: Trash2,
-                          tone: "danger",
-                          onClick: () => removeEvent(event.id),
-                        },
-                      ]}
-                    />
-                  )}
-                </li>
-              );
-            })}
-            {loading && <li className="text-sm text-brand-950/45">جاري التحميل...</li>}
-            {!loading && dayEvents.length === 0 && (
-              <EmptyState
-                icon={CalendarClock}
-                title="يوم فاضي من المواعيد"
-                desc="ما فيه شي مسجّل بهذا اليوم — استغلّيه لخطوة بحثية إضافية، أو خذي راحة."
+      <PageColumns
+        main={
+          <Panel>
+            <MiniCalendar
+              events={events}
+              today={today}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          </Panel>
+        }
+        side={
+          <>
+            {nextEvent ? (
+              <HighlightCard
+                kicker="القادم"
+                title={nextEvent.title}
+                subtitle={`${relativeDayLabel(nextEvent.date)} · ${nextEvent.time}${nextEvent.location ? ` · ${nextEvent.location}` : ""}`}
               />
+            ) : (
+              <HighlightCard kicker="القادم" title="ما فيه مواعيد جاية" subtitle="أضيفوا أول موعد لفريقكم." />
             )}
-          </ul>
-        </Card>
-      </div>
+            <Panel title={formatDateLong(selectedDate)} hint={`${dayEvents.length} حدث`}>
+              <ul className="space-y-2.5">
+                {dayEvents.map((event) => {
+                  const Icon = typeIcon[event.type];
+                  return (
+                    <li key={event.id} className={clsx(rowSurface, "flex items-start gap-3")}>
+                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${typeColor[event.type]}`}>
+                        <Icon size={16} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-brand-950">{event.title}</p>
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-brand-950/50">
+                          <CalendarClock size={12} />
+                          {event.time} · {typeLabel[event.type]}
+                        </p>
+                        {event.location && <p className="mt-0.5 text-xs text-brand-950/40">{event.location}</p>}
+                      </div>
+                      {canDelete(event) && (
+                        <ThreeDotsMenu
+                          items={[
+                            {
+                              label: "حذف الحدث",
+                              confirmLabel: "تأكيد الحذف؟",
+                              icon: Trash2,
+                              tone: "danger",
+                              onClick: () => removeEvent(event.id),
+                            },
+                          ]}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+                {loading && <li className="text-sm text-brand-950/45">جاري التحميل...</li>}
+                {!loading && dayEvents.length === 0 && (
+                  <EmptyState
+                    icon={CalendarClock}
+                    title="يوم فاضي من المواعيد"
+                    desc="ما فيه شي مسجّل بهذا اليوم — استغلّوه لخطوة بحثية إضافية، أو خذوا راحة."
+                  />
+                )}
+              </ul>
+            </Panel>
+            <PhoneCalendarCard />
+          </>
+        }
+      />
     </div>
   );
 }

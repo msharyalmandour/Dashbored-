@@ -701,3 +701,14 @@ button:not(:disabled):active {
 @media (prefers-reduced-motion: reduce) {
   .today-slide, .today-check, .today-check-path { animation: none; }
 }
+
+/* ===================================================================
+   التصميم الموحّد للصفحات الداخلية (كلها ما عدا الرئيسية): أي Card داخل
+   صفحة معلّمة data-redesign ياخذ زجاج داكن بحدّ برتقالي خفيف وزوايا ٢٨.
+   مكتوبة خارج الطبقات عشان تغلب ألوان tone القديمة (سماوي/كهرماني/بنفسجي).
+   =================================================================== */
+:root[data-theme="black"] [data-redesign] .glass-panel.rounded-3xl {
+  background-color: rgba(24, 16, 8, 0.6);
+  border-color: rgba(255, 106, 0, 0.3);
+  border-radius: 28px;
+}

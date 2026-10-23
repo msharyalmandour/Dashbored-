@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import clsx from "clsx";
 import { CalendarClock, Check, CloudUpload, HardDrive, HelpCircle, MessageCircle, NotebookPen, X } from "lucide-react";
 import DriveCard from "../components/DriveCard";
 import Card from "../components/ui/Card";
+import { HighlightCard, PageColumns, PageHeader, Panel, Segmented, ghostBtn } from "../components/ui/page";
 import AppointmentsTab from "../components/meetings/AppointmentsTab";
 import DecisionsTab from "../components/meetings/DecisionsTab";
 import MinutesForm, { type MinutesFormPayload } from "../components/meetings/MinutesForm";
@@ -208,77 +210,92 @@ export default function MeetingMinutes() {
   const badge = (t: Tab) => (t === "decisions" ? openDecisions : t === "appointments" ? upcomingBookings : 0);
   const driveOnTop = !!driveStatus?.configured && !driveStatus.connected;
 
-  return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">الاجتماعات والمشرف/ة</h1>
-        <p className="text-sm text-brand-950/50">محاضر منظّمة تتحول لمهام، وقرارات بضغطة، ومواعيد من أوقات المشرف/ة — بدل الرسائل الرايحة الجاية.</p>
-      </div>
+  const minutesMain = (
+    <>
+      {driveOnTop && driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
 
-      <div role="tablist" aria-label="أقسام الاجتماعات" className="flex gap-1.5 rounded-full border border-brand-100/70 bg-paper/70 p-1.5 backdrop-blur-xl">
-        {TABS.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-extrabold transition-colors sm:text-sm ${tab === t.id ? "bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-md shadow-brand-500/20" : "text-brand-950/60 hover:bg-brand-50"}`}>
-            <t.icon size={15} />
-            {t.label}
-            {badge(t.id) > 0 && <span className={`rounded-full px-1.5 text-[10px] ${tab === t.id ? "bg-white/25" : "bg-brand-500/15 text-brand-600"}`}>{badge(t.id)}</span>}
+      {canWrite && (
+        <MinutesForm roster={roster.map((m) => ({ id: m.id, name: m.name }))} currentUserId={currentUser?.id ?? ""} agendaSeed={agendaSeed} onSubmit={handleSubmit} />
+      )}
+
+      {justSaved && (
+        <Card tone="cream" className="relative !p-4">
+          <button onClick={() => setJustSaved(null)} aria-label="إغلاق" className="absolute end-3 top-3 text-brand-950/40 hover:text-brand-700">
+            <X size={16} />
           </button>
-        ))}
-      </div>
+          <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
+            <Check size={16} className="text-emerald-500" />
+            انحفظ محضر {formatDateFull(justSaved.date)}
+          </p>
+          <p className="mt-1 text-xs text-brand-950/60">
+            {justSaved.sent ? "وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:" : "ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت."}
+          </p>
+          {justSaved.sent && supervisorUrl && (
+            <a href={whatsappUrl(approvalRequestMessage(formatDateFull(justSaved.date), supervisorUrl))} target="_blank" rel="noreferrer" className={clsx(ghostBtn, "mt-2.5")}>
+              <MessageCircle size={14} />
+              أرسلوا الرابط بواتساب
+            </a>
+          )}
+        </Card>
+      )}
+
+      <Panel title="المحاضر السابقة">
+        <MinutesList
+          minutes={minutes}
+          loading={loading}
+          actions={meetings.actions}
+          approvals={meetings.approvals}
+          tasks={tasks}
+          memberName={memberName}
+          canDelete={(m) => isLeader || m.createdById === currentUser?.id}
+          onDelete={(id) => void deleteMinutes(id)}
+          driveConnected={!!driveStatus?.connected}
+          uploadingId={uploadingId}
+          onUploadDrive={handleUploadDrive}
+          onDownload={handleDownload}
+          onSendApproval={handleSendApproval}
+          supervisorUrl={supervisorUrl}
+          highlightId={justSaved?.id}
+        />
+      </Panel>
+
+      {!driveOnTop && driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
+    </>
+  );
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        kicker="الفريق · الاجتماعات"
+        title="الاجتماعات والمشرف/ة"
+        subtitle="محاضر منظّمة تتحول لمهام، وقرارات بضغطة، ومواعيد ما تفوتكم."
+        action={
+          <Segmented
+            items={TABS.map((t) => ({ id: t.id, label: t.label, badge: badge(t.id) }))}
+            value={tab}
+            onChange={setTab}
+          />
+        }
+      />
 
       {tab === "minutes" && (
-        <div className="space-y-5">
-          {driveOnTop && driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
-
-          {canWrite && <ReadinessCard readiness={readiness} nextBooking={nextBooking} onUseAgenda={(text) => setAgendaSeed({ text, n: (agendaSeed?.n ?? 0) + 1 })} />}
-
-          {canWrite && (
-            <MinutesForm roster={roster.map((m) => ({ id: m.id, name: m.name }))} currentUserId={currentUser?.id ?? ""} agendaSeed={agendaSeed} onSubmit={handleSubmit} />
-          )}
-
-          {justSaved && (
-            <Card tone="cream" className="relative !p-4">
-              <button onClick={() => setJustSaved(null)} aria-label="إغلاق" className="absolute end-3 top-3 text-brand-950/40 hover:text-brand-700">
-                <X size={16} />
-              </button>
-              <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
-                <Check size={16} className="text-emerald-500" />
-                انحفظ محضر {formatDateFull(justSaved.date)}
-              </p>
-              <p className="mt-1 text-xs text-brand-950/60">
-                {justSaved.sent ? "وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:" : "ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت."}
-              </p>
-              {justSaved.sent && supervisorUrl && (
-                <a href={whatsappUrl(approvalRequestMessage(formatDateFull(justSaved.date), supervisorUrl))} target="_blank" rel="noreferrer" className="mt-2.5 inline-flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2 text-sm font-bold text-brand-700 hover:bg-surface-muted">
-                  <MessageCircle size={14} />
-                  أرسلوا الرابط بواتساب
-                </a>
+        <PageColumns
+          main={<div className="space-y-6">{minutesMain}</div>}
+          side={
+            <>
+              {nextBooking ? (
+                <HighlightCard
+                  kicker="الاجتماع القادم"
+                  title="اجتماع مع المشرف/ة"
+                  subtitle={`${formatDateFull(nextBooking.date)} · ${nextBooking.time}`}
+                />
+              ) : (
+                <HighlightCard kicker="الاجتماع القادم" title="ما فيه اجتماع محجوز" subtitle="احجزوا موعد من تبويب «المواعيد»." />
               )}
-            </Card>
-          )}
-
-          <div className="space-y-3">
-            <h3 className="text-base font-bold text-brand-950">المحاضر السابقة</h3>
-            <MinutesList
-              minutes={minutes}
-              loading={loading}
-              actions={meetings.actions}
-              approvals={meetings.approvals}
-              tasks={tasks}
-              memberName={memberName}
-              canDelete={(m) => isLeader || m.createdById === currentUser?.id}
-              onDelete={(id) => void deleteMinutes(id)}
-              driveConnected={!!driveStatus?.connected}
-              uploadingId={uploadingId}
-              onUploadDrive={handleUploadDrive}
-              onDownload={handleDownload}
-              onSendApproval={handleSendApproval}
-              supervisorUrl={supervisorUrl}
-              highlightId={justSaved?.id}
-            />
-          </div>
-
-          {!driveOnTop && driveStatus && <DriveCard status={driveStatus} onChanged={refreshDrive} />}
-        </div>
+              {canWrite && <ReadinessCard readiness={readiness} nextBooking={nextBooking} onUseAgenda={(text) => setAgendaSeed({ text, n: (agendaSeed?.n ?? 0) + 1 })} />}
+            </>
+          }
+        />
       )}
 
       {tab === "decisions" && (

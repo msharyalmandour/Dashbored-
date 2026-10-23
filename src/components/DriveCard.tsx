@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ExternalLink, RefreshCw, FileText, FolderOpen, HardDrive, Link2, Loader2, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
 import Card from "./ui/Card";
+import { GoogleDriveLogo, GoogleLogo, LogoTile } from "./ui/BrandLogos";
 import ThreeDotsMenu from "./ui/ThreeDotsMenu";
 import { useToast } from "../context/ToastContext";
 import { disconnectDrive, driveErrorMessage, shareDriveFolder, startDriveConnect, type DriveStatus } from "../lib/driveTeam";
@@ -131,9 +132,9 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         {/* الرأس */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-lg shadow-brand-500/25 ring-1 ring-white/20">
-              <HardDrive size={22} />
-            </span>
+            <LogoTile active={waiting} className="h-12 w-12 rounded-2xl bg-white/[0.06] ring-1 ring-white/15">
+              <GoogleDriveLogo size={28} />
+            </LogoTile>
             <div>
               <h3 className="font-display text-base font-extrabold text-brand-950">درايف الفريق</h3>
               <p className="mt-0.5 text-xs text-brand-950/55">محاضر الاجتماعات مرتبة بمكان واحد يشوفه الكل</p>
@@ -179,7 +180,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
                   disabled={busy === "connect"}
                   className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-brand-500/25 transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transition-none"
                 >
-                  {busy === "connect" ? <Loader2 size={16} className="animate-spin" /> : <HardDrive size={16} />}
+                  {busy === "connect" ? <Loader2 size={16} className="animate-spin" /> : <GoogleLogo size={16} />}
                   {waiting ? "ننتظر موافقتكم بقوقل…" : "اربطوا درايف Google"}
                 </button>
               ) : (

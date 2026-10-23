@@ -71,13 +71,15 @@ export default function MiniCalendar({
         <div className="flex gap-1">
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-            className="rounded-lg p-1 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
+            aria-label="الشهر السابق"
+            className="rounded-lg p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
           >
             <ChevronRight size={16} />
           </button>
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-            className="rounded-lg p-1 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
+            aria-label="الشهر التالي"
+            className="rounded-lg p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
           >
             <ChevronLeft size={16} />
           </button>

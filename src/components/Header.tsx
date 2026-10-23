@@ -30,6 +30,7 @@ export default function Header({
       <div className="flex min-w-0 items-center gap-2">
         <button
           onClick={onMenuClick}
+          aria-label="فتح القائمة"
           className="shrink-0 rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted md:hidden"
         >
           <Menu size={18} />

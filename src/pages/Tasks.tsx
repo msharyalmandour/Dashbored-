@@ -427,7 +427,7 @@ export default function Tasks() {
                         : undefined
                     }
                     className={clsx(
-                      "mt-0.5 shrink-0",
+                      "-m-2 mt-[-0.375rem] shrink-0 p-2",
                       canToggle ? "cursor-pointer" : "cursor-default opacity-60",
                     )}
                   >
@@ -484,7 +484,7 @@ export default function Tasks() {
                     onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
                     title="التعليقات"
                     className={clsx(
-                      "flex items-center gap-1 text-xs font-semibold",
+                      "-m-2 flex items-center gap-1 p-2 text-xs font-semibold",
                       isExpanded ? "text-brand-600" : "text-brand-950/45 hover:text-brand-600",
                     )}
                   >

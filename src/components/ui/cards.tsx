@@ -222,7 +222,8 @@ export function AlertCard({
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className={clsx("shrink-0 rounded-lg p-1.5 hover:bg-black/5", t.iconText)}
+          aria-label="إغلاق التنبيه"
+          className={clsx("shrink-0 rounded-lg p-2.5 -m-1 hover:bg-black/5", t.iconText)}
         >
           <X size={16} />
         </button>

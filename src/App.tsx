@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
 import { useAuth } from "./context/AuthContext";
 import { isFemaleUser } from "./lib/gender";
 import Overview from "./pages/Overview";
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="/guide" element={<Guide />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

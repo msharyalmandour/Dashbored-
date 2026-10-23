@@ -113,10 +113,9 @@ export default function Landing() {
             src="/landing/hero.webp"
             alt=""
             fetchPriority="high"
-            className="absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-[25%_center] md:inset-0 md:h-full md:object-left"
+            className="absolute inset-x-0 bottom-0 h-[58%] w-full object-cover object-[25%_center] md:inset-0 md:h-full md:object-left max-md:[-webkit-mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)] max-md:[mask-image:linear-gradient(to_bottom,transparent_0,#000_30%)]"
           />
         </picture>
-        <div aria-hidden className="absolute inset-x-0 top-[36%] h-52 bg-gradient-to-b from-[#260600] via-[#260600]/70 to-transparent md:hidden" />
         <div
           aria-hidden
           className="absolute inset-0 hidden md:block"
@@ -153,10 +152,10 @@ export default function Landing() {
             <div className="ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">
               لفِرَق بحوث التخرّج
             </div>
-            <h1 className={`${font} mt-7 text-[52px] font-extrabold leading-[1.2] tracking-[-1px] md:text-[76px]`}>
-              بحث التخرّج،
+            <h1 className={`${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>
+              بحثكم يخلص
               <br />
-              <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">بلا فوضى.</span>
+              <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">بوقته، مو بآخر ليلة</span>
             </h1>
             <p className="mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">
               مساحة واحدة تجمع فريقكم ومشرفكم وكل مراحل البحث، من أول فكرة حتى يوم التسليم.

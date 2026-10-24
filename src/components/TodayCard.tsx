@@ -4,6 +4,7 @@ import { ArrowLeft, Bot, Check, ChevronLeft, ChevronRight, ChevronsLeft, Circle,
 import Card from "./ui/Card";
 import Reveal from "./Reveal";
 import { STAGE_ACTION, type NextStep } from "../lib/nextSteps";
+import { stageCelebration } from "../lib/stageCelebration";
 import { isStageReady, nextStageOf, previousStageOf } from "../lib/stageAdvance";
 import { toISODate } from "../lib/date";
 import { g } from "../lib/gender";
@@ -108,7 +109,12 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
       },
       () => {
         setIndex(0);
-        celebrateFor(next ? `انتقلتم إلى «${next.titleAr}»` : "خلصتوا المرحلة");
+        stageCelebration.show({
+          order: current.order,
+          title: current.titleAr,
+          nextTitle: next?.titleAr,
+          nextTo: (next && STAGE_ACTION[next.stageKey]?.to) || "/",
+        });
       },
     );
   };

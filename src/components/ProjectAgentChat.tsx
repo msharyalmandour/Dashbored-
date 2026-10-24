@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { ArrowUp, Check, CheckCircle2, Loader2, Undo2 } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
+import AgentOrb from "./ui/AgentOrb";
+import StreamedText from "./ui/StreamedText";
+import ThinkingLine from "./ui/ThinkingLine";
 import { ghostBtn, primaryBtn } from "./ui/page";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -17,11 +20,13 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 
 interface Turn extends AskTurn {
   actions?: AgentAction[];
+  /** وقت وصول الرد — عشان الردود الجديدة بس تظهر كلمة كلمة */
+  at?: number;
 }
 
 /** حالة كل إجراء: تم (مع طريقة التراجع لو فيه) أو فشل */
 interface ActionState {
-  status: "done" | "failed";
+  status: "done" | "failed" | "dismissed";
   undo?: () => Promise<{ error?: string }>;
   undone?: boolean;
 }
@@ -33,11 +38,6 @@ const SUGGESTIONS = [
 ];
 const LEADER_SUGGESTION = { label: "وزّع مهام الأسبوع", ask: "وزّع مهام الأسبوع على الأعضاء" };
 const MEMBER_SUGGESTION = { label: "جهّز اجتماع المشرف/ة", ask: "وش ناقص قبل اجتماعنا مع المشرف/ة؟" };
-
-const orbStyle = {
-  background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)",
-  boxShadow: "0 0 0 14px rgba(255,140,40,.07),0 0 100px rgba(255,140,40,.6)",
-};
 
 // المحادثة تبقى لو انقفلت اللوحة أو تنقّلتوا بين الصفحات (لين يتحدّث المتصفح)
 let cachedTurns: Turn[] = [];
@@ -153,7 +153,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
     setBusy(true);
     const r = await askProjectAgent(q, history);
     const actions = r.data?.actions ?? [];
-    setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? "تعذّر الرد.", actions }]);
+    setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? "تعذّر الرد.", actions, at: Date.now() }]);
 
     // الأوامر الصريحة تتنفّذ مباشرة، بالترتيب
     let ran = 0;
@@ -239,7 +239,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
                 : "border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)]",
             )}
           >
-            <p className="whitespace-pre-wrap">{t.text}</p>
+            <p className="whitespace-pre-wrap">{t.role === "agent" ? <StreamedText text={t.text} at={t.at} /> : t.text}</p>
             {t.actions && t.actions.length > 0 && (
               <div className="mt-3 space-y-2.5">
                 {t.actions.map((a, j) => {
@@ -327,11 +327,18 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
                               </button>
                             )}
                           </>
+                        ) : s?.status === "dismissed" ? (
+                          <span className="text-xs text-[#B8ADA2]">تجاهلناه.</span>
                         ) : allowed(a) ? (
-                          <button onClick={() => apply(key, a)} disabled={applying !== null || busy} className={primaryBtn}>
-                            {applying === key ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                            {s?.status === "failed" ? "حاولوا مرة ثانية" : label(a)}
-                          </button>
+                          <>
+                            <button onClick={() => apply(key, a)} disabled={applying !== null || busy} title={label(a)} className={primaryBtn}>
+                              {applying === key ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                              {s?.status === "failed" ? "حاولوا مرة ثانية" : "وافق"}
+                            </button>
+                            <button onClick={() => setStates((prev) => ({ ...prev, [key]: { status: "dismissed" } }))} disabled={applying !== null} className={ghostBtn}>
+                              لا
+                            </button>
+                          </>
                         ) : (
                           <span className="text-xs text-[#B8ADA2]">{a.type === "add_task" ? "إنشاء المهام للقائد — اطلبوها منه." : a.type === "update_task" ? "هذي مهمة عضو ثاني — صاحبها أو القائد يحدّثها." : "ما عندكم صلاحية تعديل حاليًا."}</span>
                         )}
@@ -350,7 +357,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
       {busy && (
         <li className={clsx("flex", !compact && "justify-end")}>
           <div className="inline-flex items-center gap-2 rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-4 py-3 text-sm text-[#B8ADA2]">
-            <Loader2 size={14} className="animate-spin" /> الوكيل يشتغل على مشروعكم…
+            <ThinkingLine />
           </div>
         </li>
       )}
@@ -439,11 +446,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
       <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[80px] -z-10 h-[300px] w-[380px] -translate-x-1/2 rounded-full bg-[#FFB444] opacity-45 blur-[100px]" />
 
       <div className="mx-auto flex max-w-[720px] flex-col items-center gap-5 text-center">
-        <div
-          aria-hidden
-          className={clsx("ld-breath rounded-full transition-all duration-500", started ? "h-14 w-14" : "h-24 w-24 md:h-[120px] md:w-[120px]")}
-          style={started ? { ...orbStyle, boxShadow: "0 0 0 8px rgba(255,140,40,.07),0 0 50px rgba(255,140,40,.5)" } : orbStyle}
-        />
+        <AgentOrb size={started ? 56 : 112} state={busy ? "thinking" : "idle"} className="transition-all duration-500" />
         <h1 className={clsx("font-kufi font-extrabold leading-tight", started ? "text-2xl" : "mt-3 text-4xl md:text-5xl")}>وش نسوي اليوم؟</h1>
         {!started && <p className="text-base font-light text-[#B8ADA2] md:text-lg">الوكيل يعرف بحثكم ومهامكم. اطلبوا، وهو يجهّز.</p>}
         {messages}

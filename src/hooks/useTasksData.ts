@@ -14,6 +14,7 @@ interface TaskRow {
   status: Task["status"];
   priority: Task["priority"];
   section_key: string | null;
+  completed_at?: string | null;
 }
 
 function mapRow(row: TaskRow): Task {
@@ -26,6 +27,7 @@ function mapRow(row: TaskRow): Task {
     status: row.status,
     priority: row.priority,
     sectionKey: (row.section_key as Task["sectionKey"]) ?? undefined,
+    completedAt: row.completed_at ?? null,
   };
 }
 

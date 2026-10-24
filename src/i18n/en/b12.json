@@ -1,0 +1,19 @@
+{
+ "مساهمة الأعضاء": "Member contribution",
+ "تظهر هنا حصة كل عضو لما تنكمل أول المهام.": "Each member's share appears here once the first tasks are completed.",
+ "مساهمة الأعضاء (من المهام المكتملة)": "Member contribution (from completed tasks)",
+ "{0}: {1}٪ — {2} مهمة مكتملة{3}{4}": "{0}: {1}% — {2} tasks completed{3}{4}",
+ "— {0}٪ بالموعد": "— {0}% on time",
+ "{0}٪ · {1} مكتملة{2}{3}": "{0}% · {1} completed{2}{3}",
+ "· {0}٪ بالموعد": "· {0}% on time",
+ "حصة {0} {1}٪": "{0}'s share {1}%",
+ "{0} ماسكة/ماسك أكثر من نصف الإنجاز. جرّبوا توزّعون المهام الجاية بشكل أوزن.": "{0} is carrying more than half of the work. Try distributing the upcoming tasks more evenly.",
+ "ما سجّل إنجاز لحد الحين: {0}. يمكن يحتاج مهمة أوضح أو مساعدة — اسألوه/ا بدل ما تفترضون.": "No completed work recorded yet: {0}. They may need a clearer task or some help — ask them rather than assuming.",
+ "الحصة محسوبة من المهام المكتملة بس (العالية ٣ نقاط، المتوسطة ٢، المنخفضة ١). ما تقيس القراءة والاجتماعات والكتابة اللي ما تنسجّل كمهام، فاستخدموها للنقاش بين الفريق مو كتقييم.": "The share is calculated from completed tasks only (high = 3 points, medium = 2, low = 1). It doesn't measure reading, meetings and writing that aren't recorded as tasks, so use it for team discussion, not as an evaluation.",
+ "{0} فريق: {1} يحتاج متابعة · {2} بداية/بطيء · {3} ماشي زين": "{0} teams: {1} need follow-up · {2} starting/slow · {3} on track",
+ "· أطول تأخير {0} يوم": "· longest delay {0} days",
+ "· أقرب موعد {0}": "· next deadline {0}",
+ "بعد {0} يوم": "in {0} days",
+ "· بدون مهام: {0}": "· without tasks: {0}",
+ "· آخر زيارة {0}": "· last visit {0}"
+}

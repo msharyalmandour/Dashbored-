@@ -5,7 +5,9 @@ import Logo from "../components/Logo";
 import { supabase } from "../lib/supabaseClient";
 import { formatDateShort } from "../lib/date";
 import { forgetTeam, loadTeams, type SavedTeam } from "../lib/supervisorLocal";
-import { tr, trx } from "../lib/i18n";
+import { tr } from "../lib/i18n";
+import { teamPulse, type PulseTask, type TeamPulse } from "../lib/contribution";
+import { toISODate } from "../lib/date";
 
 interface TeamCard {
   saved: SavedTeam;
@@ -13,6 +15,7 @@ interface TeamCard {
   total: number;
   done: number;
   overdue: number;
+  pulse?: TeamPulse;
 }
 
 type Light = "red" | "amber" | "green";
@@ -43,7 +46,8 @@ export default function SupervisorTeams() {
     loadTeams().forEach(async (saved) => {
       const { data, error } = await supabase!.rpc("get_team_snapshot", { p_token: saved.token });
       if (cancelled) return;
-      const tasks = (data as { tasks?: { status: string }[] } | null)?.tasks ?? [];
+      const snap = data as { tasks?: (PulseTask & { status: string })[]; members?: { name: string }[] } | null;
+      const tasks = snap?.tasks ?? [];
       const next: TeamCard =
         error || !data
           ? { saved, state: "error", total: 0, done: 0, overdue: 0 }
@@ -53,6 +57,7 @@ export default function SupervisorTeams() {
               total: tasks.length,
               done: tasks.filter((t) => t.status === "done").length,
               overdue: tasks.filter((t) => t.status === "overdue").length,
+              pulse: teamPulse(tasks, (snap?.members ?? []).map((m) => m.name), toISODate(new Date())),
             };
       setCards((prev) => prev.map((c) => (c.saved.token === saved.token ? next : c)));
     });
@@ -77,6 +82,18 @@ export default function SupervisorTeams() {
         <h1 className="font-display text-2xl font-extrabold text-brand-950">{tr("فرقي")}</h1>
         <p className="mt-1 text-sm text-brand-950/55">{tr("الفرق اللي فتحتم روابطها من هذا الجهاز — الأحمر أول.")}</p>
 
+        {sorted.length > 0 && cards.every((c) => c.state !== "loading") && (
+          <p className="mt-4 rounded-2xl bg-surface-muted px-4 py-3 text-xs font-bold text-brand-950/70">
+            {(() => {
+              const ok = cards.filter((c) => c.state === "ok");
+              const red = ok.filter((c) => lightOf(c) === "red").length;
+              const amber = ok.filter((c) => lightOf(c) === "amber").length;
+              const green = ok.length - red - amber;
+              return tr("{0} فريق: {1} يحتاج متابعة · {2} بداية/بطيء · {3} ماشي زين", ok.length, red, amber, green);
+            })()}
+          </p>
+        )}
+
         {sorted.length === 0 && (
           <p className="mt-10 rounded-3xl border border-brand-100 bg-paper p-6 text-center text-sm text-brand-950/55">{tr("ما فيه فرق محفوظة بعد. افتحوا رابط المتابعة اللي يرسله لكم الفريق وبينحفظ هنا تلقائيًا.")}</p>
         )}
@@ -90,10 +107,20 @@ export default function SupervisorTeams() {
                 <Link to={`/supervisor/${c.saved.token}`} className="flex min-w-0 flex-1 items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-extrabold text-brand-950">{c.saved.teamName || tr("فريق بدون اسم")}</p>
-                    <p className="mt-0.5 text-xs text-brand-950/50">{trx("{0}{1}{2} · آخر زيارة {3}", c.state === "loading" && tr("جاري التحميل…"), c.state === "error" && (
+                    <p className="mt-0.5 text-xs text-brand-950/50">
+                      {c.state === "loading" && tr("جاري التحميل…")}
+                      {c.state === "error" && (
                         <span className="inline-flex items-center gap-1 text-rose-600">
-                          <AlertTriangle size={12} />{tr(" الرابط ما عاد يشتغل")}</span>
-                      ), c.state === "ok" && tr("{0}/{1} مهام مكتملة{2} · {3}", c.done, c.total, c.overdue ? tr(" · {0} متأخرة", c.overdue) : "", light ? lightStyle[light].label : ""), formatDateShort(c.saved.visitedAt))}</p>
+                          <AlertTriangle size={12} />
+                          {tr(" الرابط ما عاد يشتغل")}
+                        </span>
+                      )}
+                      {c.state === "ok" && tr("{0}/{1} مهام مكتملة{2} · {3}", c.done, c.total, c.overdue ? tr(" · {0} متأخرة", c.overdue) : "", light ? lightStyle[light].label : "")}
+                      {c.state === "ok" && c.pulse?.worstLateDays ? tr(" · أطول تأخير {0} يوم", c.pulse.worstLateDays) : ""}
+                      {c.state === "ok" && c.pulse?.nextDue ? tr(" · أقرب موعد {0}", c.pulse.nextDue.daysLeft === 0 ? tr("اليوم") : tr("بعد {0} يوم", c.pulse.nextDue.daysLeft)) : ""}
+                      {c.state === "ok" && c.pulse && c.pulse.unassignedMembers.length > 0 ? tr(" · بدون مهام: {0}", c.pulse.unassignedMembers.length) : ""}
+                      {tr(" · آخر زيارة {0}", formatDateShort(c.saved.visitedAt))}
+                    </p>
                   </div>
                   <ChevronLeft size={16} className="text-brand-950/30" />
                 </Link>

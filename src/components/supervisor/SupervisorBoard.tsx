@@ -332,7 +332,7 @@ export default function SupervisorBoard({ token, name, onNameChange, onWaitingCo
             <ul className="space-y-2">
               {windows.map((w) => (
                 <li key={w.key} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2">
-                  <select value={w.weekday} onChange={(e) => setWindows((x) => x.map((y) => (y.key === w.key ? { ...y, weekday: Number(e.target.value) } : y)))} aria-label={tr("اليوم")} className={inputClass}>
+                  <select value={w.weekday} onChange={(e) => setWindows((x) => x.map((y) => (y.key === w.key ? { ...y, weekday: Number(e.target.value) } : y)))} aria-label={tr("يوم الأسبوع")} className={inputClass}>
                     {WEEKDAY_NAMES.map((n, i) => (
                       <option key={n} value={i}>{n}</option>
                     ))}

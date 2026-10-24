@@ -63,7 +63,7 @@
  "محدّدة": "Set",
  "حدّدوها مرة وحدة وتوفّرون رسائل التنسيق": "Set them once and save the coordination messages",
  "حدّدوا نوافذ أوقاتكم المتاحة لهذا الفريق. الفريق يحجز فقط من هذي الأوقات، ويتأكد الموعد تلقائيًا لو فعّلتم ذلك. لا شي يُحجز خارجها.": "Set your available time windows for this team. The team only books within these times, and the appointment confirms automatically if you enable that. Nothing is booked outside them.",
- "اليوم": "Day",
+ "اليوم": "Today",
  "من": "From",
  "إلى": "To",
  "حذف": "Delete",
@@ -288,5 +288,6 @@
  "لو تعبت اليوم، تذكر ليش بدأت.": "If you're tired today, remember why you started.",
  "أعظم الأبحاث بدأت بسؤال بسيط وفنجان قهوة.": "The greatest research started with a simple question and a cup of coffee.",
  "لو تقدر تنام بدري الليلة، بكرة تركيزك يفرق.": "If you can sleep early tonight, your focus tomorrow will be different.",
- "خذ نفس عميق، اشرب مويه، وكمّل بهدوء.": "Take a deep breath, drink some water, and carry on calmly."
+ "خذ نفس عميق، اشرب مويه، وكمّل بهدوء.": "Take a deep breath, drink some water, and carry on calmly.",
+ "يوم الأسبوع": "Weekday"
 }

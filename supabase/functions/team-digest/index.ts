@@ -3,7 +3,7 @@
 //   daily  : تذكير لكل عضو بمهامه اللي موعدها خلال يومين أو متأخرة، وأي ملاحظة/رسالة جديدة من المشرف/ة
 //   preview: (عضو مسجّل دخول) يرجّع نص التقرير الأسبوعي لفريقه بدون إرسال — للمعاينة من الموقع
 // كل إرسال ينسجّل في reminder_log عشان ما يتكرر. الأعضاء يقدرون يوقفون التذكيرات (profiles.email_reminders).
-// أسرار لازمة: RESEND_API_KEY، EMAIL_FROM، DIGEST_SECRET، وSITE_URL اختياري.
+// أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (وSITE_URL اختياري). سر الجدولة: تولّده القاعدة (Vault) — راجع supabase/PENDING_digest_secret_and_cron.sql
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const CORS = {
@@ -267,6 +267,17 @@ async function runDaily(): Promise<{ sent: number; skipped?: string }> {
   return { sent };
 }
 
+/** السر يتحقق منه إما متغير DIGEST_SECRET (لو انضاف) أو دالة قاعدة البيانات verify_digest_secret اللي تقارن بسر Vault
+    اللي ولّدته القاعدة نفسها — فما نحتاج أحد يخترع مفتاح أو يدخله يدويًا. */
+async function secretOk(given: string | null): Promise<boolean> {
+  if (!given) return false;
+  const env = Deno.env.get("DIGEST_SECRET");
+  if (env && given === env) return true;
+  const { data, error } = await admin.rpc("verify_digest_secret", { p_secret: given });
+  if (error) console.error("verify_digest_secret failed", error.message);
+  return data === true;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
@@ -289,8 +300,7 @@ Deno.serve(async (req: Request) => {
       return w ? json(200, { subject: w.subject, html: w.html }) : json(404, { error: "no_team" });
     }
 
-    const secret = Deno.env.get("DIGEST_SECRET");
-    if (!secret || req.headers.get("x-digest-secret") !== secret) return json(401, { error: "unauthorized" });
+    if (!(await secretOk(req.headers.get("x-digest-secret")))) return json(401, { error: "unauthorized" });
     if (action === "weekly") return json(200, await runWeekly());
     if (action === "daily") return json(200, await runDaily());
     return json(400, { error: "unknown_action" });

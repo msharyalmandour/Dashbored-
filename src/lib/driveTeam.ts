@@ -70,6 +70,33 @@ export async function uploadMinutesToDrive(blob: Blob, fileName: string, minutes
   return call<{ driveFileId: string; driveViewLink: string }>(form, 60000);
 }
 
+/** سبب الفشل لما تردّنا Google للموقع (?drive=error&reason=...) — كل كود له رسالة تقول وش نسوي */
+export function driveReturnMessage(reason: string | null): string {
+  switch (reason) {
+    case "denied":
+      return "ما وافقتم على الصلاحية بقوقل. اضغطوا «اربطوا Google Drive» وسمحوا بالوصول لملفات Wesync.";
+    case "scope":
+      return "لازم تعلّمون خانة «عرض الملفات وإدارتها اللي أنشأها هذا التطبيق» بشاشة الموافقة، وبدونها ما يشتغل الرفع.";
+    case "not_leader":
+      return "الربط لقائد الفريق فقط، وبنفس الحساب اللي مسجّل فيه الدخول لـ Wesync.";
+    case "bad_state":
+      return "انتهت صلاحية خطوة الربط (١٠ دقايق). ابدأوا من جديد من زر الربط.";
+    case "no_refresh":
+      return "قوقل ما أعطتنا إذن دائم. افتحوا myaccount.google.com/permissions وأزيلوا Wesync، ثم اربطوا من جديد.";
+    case "folder":
+      return "انربط الحساب لكن تعذّر إنشاء المجلد بالدرايف. تأكدوا إن في الدرايف مساحة فاضية وجرّبوا مرة ثانية.";
+    case "token":
+    case "email":
+      return "قوقل رفضت إكمال الربط. جرّبوا مرة ثانية، ولو تكررت أرسلوا لنا كود الخطأ: " + reason;
+    case "save":
+      return "تعذّر حفظ الربط عندنا. جرّبوا مرة ثانية.";
+    case "not_configured":
+      return "ميزة الدرايف ما انفعّلت على الخادم بعد.";
+    default:
+      return `صار خطأ أثناء الربط — جرّبوا مرة ثانية.${reason ? ` (${reason})` : ""}`;
+  }
+}
+
 export function driveErrorMessage(code: string | undefined): string {
   switch (code) {
     case "timeout":

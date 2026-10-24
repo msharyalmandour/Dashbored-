@@ -17,6 +17,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useMinutesActions } from "../hooks/useMinutesActions";
 import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
+import { driveReturnMessage } from "../lib/driveTeam";
 import { formatDateFull, formatDateShort } from "../lib/date";
 import { approvalRequestMessage, whatsappUrl } from "../lib/meetings";
 
@@ -77,7 +78,7 @@ export default function MeetingMinutes() {
     showToast(
       result === "connected"
         ? { title: "انربط درايف الفريق", desc: "أنشأنا مجلد Wesync وشاركناه مع الأعضاء.", icon: Check, tone: "brand" }
-        : { title: "ما انربط الدرايف", desc: reason === "denied" ? "ما وافقتم على الصلاحية." : "صار خطأ أثناء الربط — جرّبوا مرة ثانية.", icon: HardDrive, tone: "rose" },
+        : { title: "ما انربط الدرايف", desc: driveReturnMessage(reason), icon: HardDrive, tone: "rose" },
     );
     const next = new URLSearchParams(searchParams);
     next.delete("drive");

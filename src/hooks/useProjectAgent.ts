@@ -90,10 +90,20 @@ export async function runProjectAgent(
   return { message: "ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية." };
 }
 
+/** auto = المستخدم أمر صراحة («احفظ»، «وزّع المهام») — الواجهة تنفّذها مباشرة بصلاحياته، وإلا تطلع بطاقة موافقة */
 export type AgentAction =
-  | { type: "set_aim"; text: string }
-  | { type: "add_questions"; texts: string[] }
-  | { type: "add_task"; title: string; description: string; days: number }
+  | { type: "set_aim"; text: string; auto?: boolean }
+  | { type: "add_questions"; texts: string[]; auto?: boolean }
+  | {
+      type: "add_task";
+      title: string;
+      description: string;
+      days: number;
+      priority?: "low" | "medium" | "high";
+      assigneeId?: string;
+      assigneeName?: string;
+      auto?: boolean;
+    }
   | { type: "open"; to: string; label: string };
 
 export interface AskTurn {

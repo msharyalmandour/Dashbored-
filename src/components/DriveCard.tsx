@@ -29,6 +29,8 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
   const [msg, setMsg] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
   const popup = useRef<Window | null>(null);
+  const connectedRef = useRef(status.connected);
+  connectedRef.current = status.connected;
 
   // بعد ما نفتح نافذة قوقل: نتابع الحالة كل ٣ ثواني (لين ٥ دقايق) ونكمل لحالنا لما يتم الربط
   useEffect(() => {
@@ -40,9 +42,18 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
     }
     const started = Date.now();
     const t = setInterval(() => {
-      if (Date.now() - started > 5 * 60_000) {
+      const closed = !popup.current || popup.current.closed;
+      if (Date.now() - started > 5 * 60_000 || (closed && Date.now() - started > 6000)) {
+        // قفلوا نافذة قوقل (أو فشل الربط فيها) قبل ما يكتمل: لا نظل «ننتظر» بلا نهاية
         setWaiting(false);
         setBusy(null);
+        onChanged();
+        // النافذة تسكّر نفسها بعد نجاح الربط: نعطي الفحص فرصة يرجع «مربوط» قبل ما نقول إنه فشل
+        if (closed) {
+          setTimeout(() => {
+            if (!connectedRef.current) setMsg("انقفلت نافذة قوقل قبل ما يكتمل الربط. اضغطوا الزر وجرّبوا مرة ثانية، وكمّلوا الموافقة لين تشوفون «انربط».");
+          }, 4000);
+        }
         return;
       }
       onChanged();
@@ -107,7 +118,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
       const failed = r.data.failed.length;
       showToast({
         title: "تمت مشاركة المجلد",
-        desc: failed ? `تعذّرت المشاركة مع ${failed}. تأكدوا من الإيميلات.` : `شاركنا المجلد مع ${r.data.shared} ${r.data.shared === 1 ? "شخص" : "أشخاص"}. توصلهم دعوة بالإيميل.`,
+        desc: failed ? `تعذّرت المشاركة مع: ${r.data.failed.join("، ")}. غالبًا الإيميل ما عليه حساب Google.` : `شاركنا المجلد مع ${r.data.shared} ${r.data.shared === 1 ? "شخص" : "أشخاص"}. توصلهم دعوة بالإيميل.`,
         icon: Check,
         tone: "brand",
       });

@@ -34,7 +34,7 @@ async function call<T>(body: Record<string, unknown> | FormData, timeoutMs = TIM
     try {
       const ctx = (error as { context?: Response }).context;
       const j = ctx ? await ctx.json() : null;
-      if (j?.error) return { error: String(j.error) };
+      if (j?.error) return { error: j.error === "unauthorized" && j.detail ? `unauthorized — ${j.detail}` : String(j.error) };
     } catch {
       // نرجع للرسالة العامة
     }
@@ -44,7 +44,9 @@ async function call<T>(body: Record<string, unknown> | FormData, timeoutMs = TIM
 }
 
 export async function getDriveStatus(): Promise<DriveStatus> {
-  const r = await call<DriveStatus>({ action: "status" }, 12000);
+  let r = await call<DriveStatus>({ action: "status" }, 15000);
+  // أول طلب بعد خمول الدالة (إقلاع بارد) ممكن يتأخر أو يفشل: نعيد مرة وحدة قبل ما نقول «تعذّر»
+  if (!r.data && (r.error === "timeout" || r.error === "failed")) r = await call<DriveStatus>({ action: "status" }, 15000);
   // فشل الفحص ≠ الميزة مطفّية: نرجّع unreachable عشان الواجهة تعرض «تعذّر الفحص + أعيدوا المحاولة» بدل ما تختفي
   if (!r.data) return r.error === "not_configured" ? OFF : { ...OFF, unreachable: true, errorCode: r.error ?? "failed" };
   return r.data;
@@ -52,7 +54,7 @@ export async function getDriveStatus(): Promise<DriveStatus> {
 
 /** يرجّع رابط موافقة Google؛ الواجهة تفتحه بنفس النافذة */
 export async function startDriveConnect() {
-  return call<{ url: string }>({ action: "start" });
+  return call<{ url: string }>({ action: "start", origin: window.location.origin });
 }
 
 export async function shareDriveFolder(readOnlyEmails: string[] = []) {
@@ -68,6 +70,33 @@ export async function uploadMinutesToDrive(blob: Blob, fileName: string, minutes
   form.append("file", new File([blob], fileName, { type: blob.type }));
   form.append("meeting_minutes_id", minutesId);
   return call<{ driveFileId: string; driveViewLink: string }>(form, 60000);
+}
+
+/** سبب الفشل لما تردّنا Google للموقع (?drive=error&reason=...) — كل كود له رسالة تقول وش نسوي */
+export function driveReturnMessage(reason: string | null): string {
+  switch (reason) {
+    case "denied":
+      return "ما وافقتم على الصلاحية بقوقل. اضغطوا «اربطوا Google Drive» وسمحوا بالوصول لملفات Wesync.";
+    case "scope":
+      return "لازم تعلّمون خانة «عرض الملفات وإدارتها اللي أنشأها هذا التطبيق» بشاشة الموافقة، وبدونها ما يشتغل الرفع.";
+    case "not_leader":
+      return "الربط لقائد الفريق فقط، وبنفس الحساب اللي مسجّل فيه الدخول لـ Wesync.";
+    case "bad_state":
+      return "انتهت صلاحية خطوة الربط (١٠ دقايق). ابدأوا من جديد من زر الربط.";
+    case "no_refresh":
+      return "قوقل ما أعطتنا إذن دائم. افتحوا myaccount.google.com/permissions وأزيلوا Wesync، ثم اربطوا من جديد.";
+    case "folder":
+      return "انربط الحساب لكن تعذّر إنشاء المجلد بالدرايف. تأكدوا إن في الدرايف مساحة فاضية وجرّبوا مرة ثانية.";
+    case "token":
+    case "email":
+      return "قوقل رفضت إكمال الربط. جرّبوا مرة ثانية، ولو تكررت أرسلوا لنا كود الخطأ: " + reason;
+    case "save":
+      return "تعذّر حفظ الربط عندنا. جرّبوا مرة ثانية.";
+    case "not_configured":
+      return "ميزة الدرايف ما انفعّلت على الخادم بعد.";
+    default:
+      return `صار خطأ أثناء الربط — جرّبوا مرة ثانية.${reason ? ` (${reason})` : ""}`;
+  }
 }
 
 export function driveErrorMessage(code: string | undefined): string {

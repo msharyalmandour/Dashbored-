@@ -59,17 +59,29 @@ async function hmac(payload: string): Promise<string> {
   const k = await crypto.subtle.importKey("raw", enc.encode(TOKEN_KEY!), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return b64url(new Uint8Array(await crypto.subtle.sign("HMAC", k, enc.encode(payload))));
 }
-async function signState(data: { u: string; p: string }): Promise<string> {
+// نرجّع المستخدم لنفس عنوان الموقع اللي بدأ منه الربط (جلسة دخوله محفوظة هناك)، بشرط يكون نطاقنا:
+// نفس SITE أو نسخ مشروعنا على vercel.app. غير كذا نرجع لـ SITE.
+function safeOrigin(o: unknown): string {
+  try {
+    const u = new URL(String(o));
+    const siteHost = new URL(SITE).host;
+    if (u.protocol === "https:" && (u.host === siteHost || u.host.endsWith("-msharyalmandour.vercel.app"))) return u.origin;
+  } catch {
+    // نرجع للافتراضي
+  }
+  return SITE;
+}
+async function signState(data: { u: string; p: string; o?: string }): Promise<string> {
   const payload = b64url(enc.encode(JSON.stringify({ ...data, t: Date.now() })));
   return `${payload}.${await hmac(payload)}`;
 }
-async function verifyState(state: string): Promise<{ u: string; p: string } | null> {
+async function verifyState(state: string): Promise<{ u: string; p: string; o: string } | null> {
   const [payload, sig] = state.split(".");
   if (!payload || !sig || (await hmac(payload)) !== sig) return null;
   try {
     const d = JSON.parse(new TextDecoder().decode(unb64url(payload)));
     if (!UUID.test(d.u) || !UUID.test(d.p) || Date.now() - d.t > 10 * 60 * 1000) return null;
-    return { u: d.u, p: d.p };
+    return { u: d.u, p: d.p, o: safeOrigin(d.o) };
   } catch {
     return null;
   }
@@ -139,21 +151,22 @@ async function connectionOf(projectId: string) {
   return data;
 }
 
-function redirect(status: "connected" | "error", reason?: string) {
+function redirect(status: "connected" | "error", reason?: string, base: string = SITE) {
   const q = reason ? `?drive=${status}&reason=${reason}` : `?drive=${status}`;
-  return new Response(null, { status: 302, headers: { Location: `${SITE}/#/meeting-minutes${q}` } });
+  return new Response(null, { status: 302, headers: { Location: `${base}/#/meeting-minutes${q}` } });
 }
 
 // ---------- الـ callback (GET من Google) ----------
 async function handleCallback(url: URL): Promise<Response> {
   if (!configured) return redirect("error", "not_configured");
-  if (url.searchParams.get("error")) return redirect("error", "denied");
-  const code = url.searchParams.get("code");
   const state = await verifyState(url.searchParams.get("state") ?? "");
+  if (url.searchParams.get("error")) return redirect("error", "denied", state?.o ?? SITE);
+  const code = url.searchParams.get("code");
   if (!code || !state) return redirect("error", "bad_state");
+  const back = (status: "connected" | "error", reason?: string) => redirect(status, reason, state.o);
 
   const ctx = await teamContext(state.u);
-  if (!ctx || ctx.project.id !== state.p || ctx.profile.role !== "leader") return redirect("error", "not_leader");
+  if (!ctx || ctx.project.id !== state.p || ctx.profile.role !== "leader") return back("error", "not_leader");
 
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -161,27 +174,27 @@ async function handleCallback(url: URL): Promise<Response> {
     body: new URLSearchParams({ code, client_id: CLIENT_ID!, client_secret: CLIENT_SECRET!, redirect_uri: REDIRECT_URI, grant_type: "authorization_code" }),
   });
   const tok = await tokenRes.json().catch(() => ({}));
-  if (!tokenRes.ok || !tok.access_token) return redirect("error", "token");
+  if (!tokenRes.ok || !tok.access_token) return back("error", "token");
   const granted = String(tok.scope ?? "");
-  if (!granted.includes("drive.file")) return redirect("error", "scope");
+  if (!granted.includes("drive.file")) return back("error", "scope");
 
   const infoRes = await fetch("https://openidconnect.googleapis.com/v1/userinfo", { headers: { Authorization: `Bearer ${tok.access_token}` } });
   const info = await infoRes.json().catch(() => ({}));
   const googleEmail = String(info.email ?? "");
-  if (!googleEmail) return redirect("error", "email");
+  if (!googleEmail) return back("error", "email");
 
   const existing = await connectionOf(state.p);
   // refresh_token ما يرجع إلا بأول موافقة؛ لو غاب نحتفظ بالقديم لنفس الحساب
   let refreshToken: string | null = tok.refresh_token ?? null;
   if (!refreshToken && existing && existing.google_email === googleEmail) refreshToken = await decrypt(existing.refresh_token_enc);
-  if (!refreshToken) return redirect("error", "no_refresh");
+  if (!refreshToken) return back("error", "no_refresh");
 
   let folderId = existing && existing.google_email === googleEmail ? (existing.folder_id as string) : "";
   let folderLink = existing && existing.google_email === googleEmail ? (existing.folder_link as string) : "";
   let isNewFolder = false;
   if (!folderId) {
     const f = await createFolder(tok.access_token, `Wesync — ${ctx.teamName}`);
-    if (!f) return redirect("error", "folder");
+    if (!f) return back("error", "folder");
     folderId = f.id;
     folderLink = f.link;
     isNewFolder = true;
@@ -197,14 +210,14 @@ async function handleCallback(url: URL): Promise<Response> {
   });
   if (error) {
     console.error("save connection failed", error.message);
-    return redirect("error", "save");
+    return back("error", "save");
   }
 
   if (isNewFolder) {
     const emails = (await memberEmails(ctx.profile.team_id, state.u)).filter((e) => e.toLowerCase() !== googleEmail.toLowerCase());
     await shareFolder(tok.access_token, folderId, emails, "writer");
   }
-  return redirect("connected");
+  return back("connected");
 }
 
 // ---------- إجراءات POST ----------
@@ -218,10 +231,37 @@ Deno.serve(async (req: Request) => {
     global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } },
     auth: { persistSession: false },
   });
-  const {
-    data: { user },
-  } = await userClient.auth.getUser();
-  if (!user) return json(401, { error: "unauthorized" });
+  // نمرّر الرمز صراحة: getUser() بدون وسيط يعتمد على جلسة محفوظة (ما عندنا مع persistSession:false) فيرجّع «unauthorized» لمستخدم سليم
+  const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+  let user = (await admin.auth.getUser(jwt)).data.user;
+  let authMsg = "";
+  if (!user) {
+    const r = await userClient.auth.getUser(jwt);
+    user = r.data.user;
+    authMsg = r.error?.message ?? "";
+  }
+  if (!user) {
+    // احتياط: قاعدة البيانات (PostgREST) تتحقق من توقيع الرمز بنفسها؛ لو قبلته وقرأنا ملف صاحبه فالرمز سليم
+    try {
+      const sub = String(JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub ?? "");
+      if (UUID.test(sub)) {
+        const { data } = await userClient.from("profiles").select("id").eq("id", sub).maybeSingle();
+        if (data?.id === sub) user = { id: sub } as unknown as NonNullable<typeof user>;
+      }
+    } catch {
+      // نكمل للرفض
+    }
+  }
+  if (!user) {
+    // تشخيص آمن (بدون كشف الرمز): نوع الرمز المرسل (anon/authenticated/…) ورسالة المصادقة
+    let role = jwt ? "not_jwt" : "empty";
+    try {
+      role = String(JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).role ?? "?");
+    } catch {
+      // نخلي القيمة الافتراضية
+    }
+    return json(401, { error: "unauthorized", detail: `${role}${authMsg ? `: ${authMsg.slice(0, 80)}` : ""}` });
+  }
 
   const isForm = (req.headers.get("content-type") ?? "").includes("multipart/form-data");
   let body: Record<string, unknown> = {};
@@ -271,7 +311,7 @@ Deno.serve(async (req: Request) => {
       scope: "openid email https://www.googleapis.com/auth/drive.file",
       access_type: "offline",
       prompt: "consent",
-      state: await signState({ u: user.id, p: ctx.project.id }),
+      state: await signState({ u: user.id, p: ctx.project.id, o: safeOrigin(body.origin) }),
     }).toString();
     return json(200, { url: auth.toString() });
   }

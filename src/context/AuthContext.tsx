@@ -121,11 +121,19 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
   const [passwordRecovery, setPasswordRecovery] = useState(false);
+  // قبل ما نقرأ الجلسة المحفوظة ما نعتبر المستخدم «غير مسجّل»: وإلا كل تحميل جديد (مثل الرجعة من قوقل)
+  // يرميه لصفحة الدخول/الهبوط لحظة ويضيع ?drive=... من الرابط
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    supabase!.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
+    supabase!.auth
+      .getSession()
+      .then(({ data }) => {
+        // بنفس الدفعة عشان تشتغل الحالة مرة وحدة (بدون جلب ملف المستخدم مرتين)
+        setSession(data.session);
+        setSessionChecked(true);
+      })
+      .catch(() => setSessionChecked(true));
 
     const { data: sub } = supabase!.auth.onAuthStateChange((event, s) => {
       // تجديد الرمز وإعادة الإرسال عند العودة للتبويب ما يغيّر المستخدم، فلا نحدّث الحالة (يوفّر إعادة رسم الموقع كله)
@@ -142,6 +150,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!userId) {
+      if (!sessionChecked) return;
       setCurrentUser(null);
       setTeam(null);
       setLoading(false);
@@ -204,7 +213,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
 
         setLoading(false);
       });
-  }, [userId]);
+  }, [userId, sessionChecked]);
 
   const signInWithPassword = async (email: string, password: string) => {
     const { error } = await supabase!.auth.signInWithPassword({ email, password });

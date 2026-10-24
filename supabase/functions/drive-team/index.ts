@@ -228,6 +228,18 @@ Deno.serve(async (req: Request) => {
     authMsg = r.error?.message ?? "";
   }
   if (!user) {
+    // احتياط: قاعدة البيانات (PostgREST) تتحقق من توقيع الرمز بنفسها؛ لو قبلته وقرأنا ملف صاحبه فالرمز سليم
+    try {
+      const sub = String(JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub ?? "");
+      if (UUID.test(sub)) {
+        const { data } = await userClient.from("profiles").select("id").eq("id", sub).maybeSingle();
+        if (data?.id === sub) user = { id: sub } as unknown as NonNullable<typeof user>;
+      }
+    } catch {
+      // نكمل للرفض
+    }
+  }
+  if (!user) {
     // تشخيص آمن (بدون كشف الرمز): نوع الرمز المرسل (anon/authenticated/…) ورسالة المصادقة
     let role = jwt ? "not_jwt" : "empty";
     try {

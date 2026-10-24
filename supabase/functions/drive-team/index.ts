@@ -218,9 +218,11 @@ Deno.serve(async (req: Request) => {
     global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } },
     auth: { persistSession: false },
   });
+  // نمرّر الرمز صراحة: getUser() بدون وسيط يعتمد على جلسة محفوظة (ما عندنا مع persistSession:false) فيرجّع «unauthorized» لمستخدم سليم
+  const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   const {
     data: { user },
-  } = await userClient.auth.getUser();
+  } = await userClient.auth.getUser(jwt);
   if (!user) return json(401, { error: "unauthorized" });
 
   const isForm = (req.headers.get("content-type") ?? "").includes("multipart/form-data");

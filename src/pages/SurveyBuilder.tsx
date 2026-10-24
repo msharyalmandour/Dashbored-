@@ -23,6 +23,7 @@ import {
 import Card from "../components/ui/Card";
 import Term from "../components/Term";
 import SurveyRunner from "../components/survey/SurveyRunner";
+import AskSurveyData from "../components/survey/AskSurveyData";
 import AiLockedCard from "../components/AiLockedCard";
 import { callStudy } from "../hooks/useStudyTools";
 import { hasAiAccess } from "../lib/plans";
@@ -705,6 +706,8 @@ export default function SurveyBuilder() {
                   <p className="mt-1 text-[11px] text-brand-950/40">تفترض أن كل عبارات ليكرت تقيس مفهومًا واحدًا. لو عندكم أكثر من مقياس، احسبوا لكل واحد لحاله بالاستوديو.</p>
                 </Card>
               )}
+
+              {responses.length >= 5 && <AskSurveyData questions={s.questions} responses={responses} />}
 
               {responses.length === 0 && <p className="py-6 text-center text-sm text-brand-950/50">لسا ما وصلت ردود.</p>}
               {results.map((r, i) => (

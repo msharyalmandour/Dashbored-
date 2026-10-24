@@ -2807,6 +2807,12 @@ create policy "team members can add task comments"
     and exists (select 1 from public.tasks where id = task_id and team_id = public.my_team_id())
   );
 
+drop policy if exists "authors can delete their task comments" on public.task_comments;
+create policy "authors can delete their task comments"
+  on public.task_comments for delete
+  to authenticated
+  using (auth.uid() = author_id);
+
 do $$
 begin
   if not exists (

@@ -218,6 +218,15 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
             <Users size={14} className="text-[#FFB444]" />
             المحاضر تنرفع تلقائيًا لمجلد الفريق بصيغة Word، والمجلد مشترك مع الأعضاء.
           </p>
+          {!status.isLeader && (
+            <p className="text-xs leading-relaxed text-[#B8ADA2]/80">
+              ما وصلك إيميل الدعوة؟ لازم إيميلك في Wesync يكون عليه حساب Google —{" "}
+              <a href="https://accounts.google.com/signup" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-[#F4F0EC]">
+                سوّ حساب بنفس إيميلك
+              </a>{" "}
+              وبلّغ القائد يضغط «شاركوا الآن». والمحاضر كلها موجودة هنا بعد وتنزل Word.
+            </p>
+          )}
 
           {status.isLeader && (
             <div className="rounded-2xl border border-white/10 p-4">

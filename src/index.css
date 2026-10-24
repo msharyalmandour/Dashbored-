@@ -813,3 +813,56 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
   .ld-embers { display: none; }
   .ld-par { transform: none; }
 }
+
+/* ========== مكونات مشتركة (المرحلة ١): الكرة، شريط التحميل، اللمعان، الشاشة الأولى ========== */
+.agent-orb { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.agent-orb__body {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%, #5A1A04 100%);
+  box-shadow: 0 0 0 calc(var(--orb, 96px) * 0.12) rgba(255, 140, 40, 0.07), 0 0 calc(var(--orb, 96px) * 0.8) rgba(255, 140, 40, 0.55);
+}
+.agent-orb__halo { position: absolute; inset: 0; border-radius: 50%; opacity: 0; pointer-events: none; }
+.agent-orb[data-state="idle"] .agent-orb__body { animation: ao-breathe 6s ease-in-out infinite; }
+.agent-orb[data-state="thinking"] .agent-orb__body { animation: ao-think 7s linear infinite; }
+.agent-orb[data-state="thinking"] .agent-orb__halo { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 140, 40, 0.5); animation: ao-halo 2.2s ease-out infinite; }
+.agent-orb[data-state="celebrate"] .agent-orb__body { animation: ao-pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1; }
+.agent-orb[data-state="celebrate"] .agent-orb__halo { opacity: 1; animation: ao-burst 0.9s ease-out 1 forwards; }
+@keyframes ao-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+@keyframes ao-think {
+  0% { transform: rotate(0) scale(1); border-radius: 50%; }
+  25% { transform: rotate(90deg) scale(1.03); border-radius: 56% 44% 52% 48% / 48% 54% 46% 52%; }
+  50% { transform: rotate(180deg) scale(1.05); border-radius: 46% 54% 44% 56% / 54% 46% 56% 44%; }
+  75% { transform: rotate(270deg) scale(1.03); border-radius: 54% 46% 56% 44% / 46% 56% 44% 54%; }
+  100% { transform: rotate(360deg) scale(1); border-radius: 50%; }
+}
+@keyframes ao-halo { 0% { box-shadow: 0 0 0 0 rgba(255, 140, 40, 0.5); } 100% { box-shadow: 0 0 0 calc(var(--orb, 96px) * 0.45) rgba(255, 140, 40, 0); } }
+@keyframes ao-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes ao-burst { 0% { box-shadow: 0 0 0 0 rgba(255, 200, 90, 0.7); opacity: 1; } 100% { box-shadow: 0 0 0 calc(var(--orb, 96px) * 0.7) rgba(255, 200, 90, 0); opacity: 0; } }
+
+/* الشاشة الأولى: حلقتين تتوسعان خلف الكرة */
+.app-splash__ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255, 138, 36, 0.45); animation: ao-ring 2.8s ease-out infinite; animation-delay: var(--d, 0s); opacity: 0; }
+@keyframes ao-ring { 0% { transform: scale(0.7); opacity: 0.8; } 100% { transform: scale(2.4); opacity: 0; } }
+.app-splash__line { animation: ao-fade 0.5s ease-out both; }
+@keyframes ao-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* شريط التحميل العلوي */
+.top-progress { position: fixed; inset-inline: 0; top: 0; z-index: 300; height: 3px; pointer-events: none; }
+.top-progress__bar { height: 100%; width: 0; background: linear-gradient(270deg, #FFB444, #FF6B00); box-shadow: 0 0 10px rgba(255, 107, 0, 0.7); border-start-end-radius: 3px; border-end-end-radius: 3px; }
+.top-progress[data-phase="run"] .top-progress__bar { animation: tp-run 8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+.top-progress[data-phase="finish"] .top-progress__bar { width: 100%; transition: width 0.2s ease-out, opacity 0.3s 0.2s; opacity: 0; }
+@keyframes tp-run { 0% { width: 0; } 15% { width: 55%; } 100% { width: 90%; } }
+
+/* لمعان الهياكل بدل spinner */
+.skeleton { position: relative; overflow: hidden; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 180, 68, 0.14) 50%, transparent 80%);
+  animation: sk-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes sk-shimmer { to { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-orb__body, .agent-orb__halo, .app-splash__ring, .app-splash__line, .skeleton::after { animation: none !important; }
+  .agent-orb__halo, .app-splash__ring { display: none; }
+  .top-progress[data-phase="run"] .top-progress__bar { animation: none; width: 70%; }
+}

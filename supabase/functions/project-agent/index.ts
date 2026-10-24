@@ -338,6 +338,7 @@ Rules:
 - answer: short, warm, practical Arabic (Saudi-friendly, gender-neutral plural "أنتم/عندكم"). Base facts ONLY on the snapshot: never invent progress, names, dates or numbers; if something is missing from the snapshot, say it is not set yet and point to where to set it. Max ~120 words, plain text, no markdown symbols. When asked "وش أسوي/وين وصلنا", give the 1-3 most important next steps from the snapshot (overdue tasks first, then current stage, supervisor feedback, upcoming events).
 - actions (0-8, only when useful). The app executes them with the user's own permissions:
   * Every action is shown to the team as a card and NOTHING is saved until they press «وافق». Always set "auto": false. NEVER write the answer as if it was already done (no "حفظت / سجلت / ضفت ✓"): say you prepared it and ask them to approve, e.g. "جهّزت لكم السؤال، اضغطوا وافق عشان ينحفظ بالمقترح". When the user explicitly orders something ("احفظ / حط / ضيف / وزّع المهام"), prepare the action(s) immediately without asking more questions.
+  * PASTED TEXT RULE (highest priority): when the user pastes or dictates a long text that contains several parts (the aim, the research questions, a gap statement...), save EVERYTHING the text contains, each part as its own action in the same reply: set_aim with the aim copied VERBATIM, add_questions with ALL the questions copied VERBATIM (every one, up to 10, in the same order), set_gap if a gap statement is included. NEVER skip a part, NEVER rewrite, shorten, translate or "improve" their wording, and NEVER add aim/questions of your own when they gave theirs. If a part is missing from their text (e.g. no aim), do not invent it: say in the answer exactly which part you did not find. Mention in the answer how many questions and whether an aim were prepared.
   * set_aim: when the user tells you what they want to study or asks you to write/save the aim. If they dictate the exact aim text, use their text verbatim (fix only typos). Otherwise one academic Arabic sentence starting with "يهدف هذا البحث إلى" built strictly from what THEY said plus the snapshot title/gap — do not add facts or variables they did not mention.
   * add_questions: when they want research questions saved/added. If they dictate the question, save their exact text (fix only typos, add "؟"). Otherwise 1-4 clear one-sentence research questions in academic Arabic that follow from what they said. Never duplicate snapshot.researchQuestions.
   * add_task: a concrete task (title max 80 chars imperative Arabic, description one sentence, days 1-30 until due, priority low/medium/high). "assignee" = "me" or a member name EXACTLY as written in snapshot.members. Only the leader (snapshot.you.isLeader) can create tasks: if the user is not the leader, never set auto on add_task and tell them the leader has to create it. When the leader asks to distribute/split work ("وزّع المهام على الأعضاء"), create one add_task per member covering the work fairly (consider each member's open tasks in the snapshot). If the leader names someone who is not in snapshot.members, do not guess: ask who they mean.
@@ -357,7 +358,7 @@ async function handleAsk(db: Db, teamId: string, userId: string, question: strin
     model: SONNET,
     system: ASK_SYSTEM,
     content: `SNAPSHOT:\n${JSON.stringify(snapshot)}\n\nHISTORY:\n${JSON.stringify(history.slice(-6))}\n\nUSER MESSAGE:\n${clip(question, 800)}`,
-    maxTokens: 1800,
+    maxTokens: 3500,
     lowEffort: true,
   });
   const parsed = extractJson(raw) as { answer?: unknown; actions?: unknown } | null;
@@ -371,9 +372,9 @@ async function handleAsk(db: Db, teamId: string, userId: string, question: strin
   for (const a of (Array.isArray(parsed?.actions) ? (parsed!.actions as Record<string, unknown>[]) : []).slice(0, 8)) {
     // دايماً بموافقة الفريق (قرار المالكة): ما فيه تنفيذ تلقائي
     const auto = false;
-    if (a.type === "set_aim" && str(a.text, 500)) actions.push({ type: "set_aim", text: str(a.text, 500), auto });
+    if (a.type === "set_aim" && str(a.text, 900)) actions.push({ type: "set_aim", text: str(a.text, 900), auto });
     else if (a.type === "add_questions" && Array.isArray(a.texts)) {
-      const texts = (a.texts as unknown[]).map((x) => str(x, 300)).filter((x) => x && !existingQs.has(x)).slice(0, 4);
+      const texts = (a.texts as unknown[]).map((x) => str(x, 500)).filter((x) => x && !existingQs.has(x)).slice(0, 10);
       if (texts.length > 0) actions.push({ type: "add_questions", texts, auto });
     } else if (a.type === "add_task" && str(a.title, 90)) {
       // المهمة لازم تنسند لعضو حقيقي من الفريق — لو الاسم ما تطابق نعرضها كاقتراح للقائد يختار له

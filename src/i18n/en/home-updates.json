@@ -1,0 +1,20 @@
+{
+ "قبل دقائق": "a few minutes ago",
+ "قبل ساعة": "an hour ago",
+ "قبل {0} ساعات": "{0} hours ago",
+ "{0} رسائل جديدة من المشرف/ة": "{0} new messages from your supervisor",
+ "رسالة جديدة من المشرف/ة": "New message from your supervisor",
+ "ردّوا عليها": "Reply",
+ "حوّل ملاحظة المشرف/ة هذي لمهام موزّعة على الفريق: «{0}»": "Turn this supervisor note into tasks distributed across the team: \"{0}\"",
+ "حوّلها لمهام": "Turn into tasks",
+ "قائد الفريق": "The team leader",
+ "المحاضر صارت تنحفظ تلقائيًا في مجلد مشترك بين الفريق والمشرف/ة. تقدرون تشوفونه الحين.": "Meeting minutes are now saved automatically to a folder shared by the team and the supervisor. You can see it now.",
+ "شوفوا المحاضر": "See the minutes",
+ "الجديد عندكم": "What's new",
+ "تحديث واحد": "1 update",
+ "{0} تحديثات": "{0} updates",
+ "عرض أقل": "Show less",
+ "عرض الكل": "View all",
+ "قبل ساعتين": "2 hours ago",
+ "قبل {0} ساعة": "{0} hours ago"
+}

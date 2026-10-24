@@ -78,7 +78,7 @@ export default function Sidebar({
       <aside
         className={clsx(
           "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/50 bg-paper/55 backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 print:hidden md:static md:z-auto md:w-64 md:translate-x-0",
-          open ? "translate-x-0" : "translate-x-full",
+          open ? "translate-x-0" : "translate-x-full ltr:-translate-x-full md:ltr:translate-x-0",
         )}
       >
         <div className="flex items-center gap-2.5 px-6 py-6">

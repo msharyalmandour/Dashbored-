@@ -12,6 +12,7 @@ import ProjectAgentChat from "./ProjectAgentChat";
 import AgentOrb from "./ui/AgentOrb";
 import StreamedText from "./ui/StreamedText";
 import ThinkingLine from "./ui/ThinkingLine";
+import { OPEN_AGENT_EVENT } from "../lib/agentBus";
 import { isEn, lang, tr, trx } from "../lib/i18n";
 
 interface ChatMessage {
@@ -88,6 +89,20 @@ export default function AiAssistant() {
   const [view, setView] = useState<"chat" | "history">("chat");
   // «الوكيل» ينفّذ أوامركم على المشروع (يحفظ بالمقترح، يسند المهام)، و«الكوتش» محادثة ونصايح
   const [tab, setTab] = useState<"agent" | "coach">("agent");
+  const [agentPrefill, setAgentPrefill] = useState<{ text: string; n: number } | undefined>();
+
+  // أي مكان بالموقع يقدر يفتح الوكيل ومعه نص جاهز (openAgent من lib/agentBus)
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const text = (e as CustomEvent<{ text?: string }>).detail?.text ?? "";
+      setOpen(true);
+      setTab("agent");
+      setView("chat");
+      if (text) setAgentPrefill({ text, n: Date.now() });
+    };
+    window.addEventListener(OPEN_AGENT_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_AGENT_EVENT, onOpen);
+  }, []);
   const [activeId, setActiveId] = useState<string | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -304,7 +319,7 @@ export default function AiAssistant() {
               <AiLockedCard feature={tr("المساعد البحثي")} />
             </div>
           ) : tab === "agent" && view === "chat" ? (
-            <ProjectAgentChat compact suggestions={prompts} />
+            <ProjectAgentChat compact suggestions={prompts} prefill={agentPrefill} />
           ) : view === "history" ? (
             <div className="flex-1 space-y-2 overflow-y-auto p-5">
               {!history.loaded ? (

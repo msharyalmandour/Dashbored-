@@ -11,6 +11,8 @@ export interface DriveStatus {
   googleEmail: string | null;
   folderLink: string | null;
   connectedByName: string;
+  /** وقت الربط لو الخادم يرجّعه (اختياري) */
+  connectedAt?: string | null;
   isLeader: boolean;
 }
 

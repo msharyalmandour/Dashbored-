@@ -53,7 +53,16 @@ let cachedStates: Record<string, ActionState> = {};
 /** الوكيل: يعرف تقدّمكم ومهامكم ومقترحكم ويجاوب من بياناتكم. أي تعديل يقترحه («احفظ السؤال بالمقترح»، «وزّع المهام»)
     يطلع ببطاقة، وما ينفّذ شي إلا لما تضغطون «وافق» (أو «لا» لتتجاهلونه)، وبعدها يظهر زر تراجع. إنشاء المهام للقائد فقط.
     compact = داخل اللوحة الجانبية (بدون الكرة الكبيرة)، وsuggestions = اقتراحات القسم الحالي. */
-export default function ProjectAgentChat({ compact = false, suggestions }: { compact?: boolean; suggestions?: string[] }) {
+export default function ProjectAgentChat({
+  compact = false,
+  suggestions,
+  prefill,
+}: {
+  compact?: boolean;
+  suggestions?: string[];
+  /** نص جاهز بخانة الكتابة (مثل «حوّلها لمهام» من الرئيسية) — المستخدم يراجعه ويرسله بنفسه */
+  prefill?: { text: string; n: number };
+}) {
   const { team, currentUser, isLeader, canWrite } = useAuth();
   const { showToast } = useToast();
   const { aim, gap, questions, updateAimStatement, updateGap, setResearchQuestions } = useProposal();
@@ -87,6 +96,10 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [turns.length, busy]);
+
+  useEffect(() => {
+    if (prefill?.text) setText(prefill.text);
+  }, [prefill?.n, prefill?.text]);
 
   // بالنسخة التجريبية (mock) نعرض الواجهة معطّلة بدل ما نخفيها
   const mock = !isSupabaseConfigured;

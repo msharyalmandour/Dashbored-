@@ -916,3 +916,46 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
 [lang="en"] body {
   font-family: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif;
 }
+
+/* «الجديد عندكم» بالرئيسية: دخول من تحت مع blur، لمعة مرة وحدة، نقطة تنبض، ملف يطير لدرايف ثم ✓ */
+@keyframes hu-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes hu-sweep {
+  from { transform: translateX(120%); }
+  to { transform: translateX(-120%); }
+}
+@keyframes hu-ping {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+@keyframes hu-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes hu-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  80% { transform: translate(var(--hu-dx), 0) scale(0.5) rotate(-10deg); opacity: 1; }
+  100% { transform: translate(var(--hu-dx), 0) scale(0.2); opacity: 0; }
+}
+@keyframes hu-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.hu-in { animation: hu-in 0.7s cubic-bezier(0.2, 0.9, 0.25, 1) var(--hu-delay, 0s) both; }
+.hu-sweep {
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 220, 160, 0.14) 50%, transparent 70%);
+  transform: translateX(120%);
+  animation: hu-sweep 1.4s ease-in-out calc(var(--hu-delay, 0s) + 0.8s) 1 both;
+}
+.hu-ping { animation: hu-ping 1.8s ease-out infinite; }
+.hu-breathe { animation: hu-breathe 3s ease-in-out infinite; }
+.hu-fly { --hu-dx: -64px; animation: hu-fly 1.2s cubic-bezier(0.5, 0, 0.3, 1) calc(var(--hu-delay, 0s) + 0.9s) 1 both; }
+[dir="ltr"] .hu-fly { --hu-dx: 64px; }
+.hu-pop { animation: hu-pop 0.45s ease-out calc(var(--hu-delay, 0s) + 2s) both; }
+@media (prefers-reduced-motion: reduce) {
+  .hu-in, .hu-sweep, .hu-ping, .hu-breathe, .hu-fly, .hu-pop { animation: none; }
+  .hu-sweep, .hu-fly { display: none; }
+}

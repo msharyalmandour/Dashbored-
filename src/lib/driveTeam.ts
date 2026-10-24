@@ -54,7 +54,7 @@ export async function getDriveStatus(): Promise<DriveStatus> {
 
 /** يرجّع رابط موافقة Google؛ الواجهة تفتحه بنفس النافذة */
 export async function startDriveConnect() {
-  return call<{ url: string }>({ action: "start" });
+  return call<{ url: string }>({ action: "start", origin: window.location.origin });
 }
 
 export async function shareDriveFolder(readOnlyEmails: string[] = []) {

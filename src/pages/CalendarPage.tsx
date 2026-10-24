@@ -12,6 +12,7 @@ import { useToast } from "../context/ToastContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import type { CalendarEventType } from "../data/types";
 import { formatDateLong, relativeDayLabel, toISODate } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 /** بالحساب الحقيقي «اليوم» هو اليوم فعلًا؛ التاريخ الثابت للعرض التجريبي فقط */
 const today = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22);
@@ -31,10 +32,10 @@ const typeColor: Record<CalendarEventType, string> = {
 };
 
 const typeLabel: Record<CalendarEventType, string> = {
-  meeting: "اجتماع",
-  review: "مراجعة",
-  fieldwork: "ميداني",
-  deadline: "موعد نهائي",
+  meeting: tr("اجتماع"),
+  review: tr("مراجعة"),
+  fieldwork: tr("ميداني"),
+  deadline: tr("موعد نهائي"),
 };
 
 export default function CalendarPage() {
@@ -68,10 +69,10 @@ export default function CalendarPage() {
     });
     setSaving(false);
     if (r.error) {
-      showToast({ title: "ما انحفظ الموعد", desc: "حاولوا مرة ثانية.", icon: X, tone: "rose" });
+      showToast({ title: tr("ما انحفظ الموعد"), desc: tr("حاولوا مرة ثانية."), icon: X, tone: "rose" });
       return;
     }
-    showToast({ title: "انضاف الموعد", desc: "يظهر لكل الفريق وبالرئيسية.", icon: Check, tone: "brand" });
+    showToast({ title: tr("انضاف الموعد"), desc: tr("يظهر لكل الفريق وبالرئيسية."), icon: Check, tone: "brand" });
     setSelectedDate(form.date);
     setForm({ ...form, title: "", location: "" });
     setShowForm(false);
@@ -82,7 +83,7 @@ export default function CalendarPage() {
 
   const removeEvent = async (id: string) => {
     const r = await deleteEvent(id);
-    if (r.error) showToast({ title: "ما انحذف الموعد", icon: X, tone: "rose" });
+    if (r.error) showToast({ title: tr("ما انحذف الموعد"), icon: X, tone: "rose" });
   };
 
   const todayISO = toISODate(today);
@@ -93,16 +94,14 @@ export default function CalendarPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        kicker="الفريق"
-        title="التقويم"
-        subtitle="مواعيد الفريق ومواعيد التسليم بمكان واحد."
+        kicker={tr("الفريق")}
+        title={tr("التقويم")}
+        subtitle={tr("مواعيد الفريق ومواعيد التسليم بمكان واحد.")}
         action={
           <>
             {canWrite && (
               <button onClick={() => setShowForm((s) => !s)} className={primaryBtn}>
-                <Plus size={16} />
-                إضافة موعد
-              </button>
+                <Plus size={16} />{tr("إضافة موعد")}</button>
             )}
           </>
         }
@@ -116,19 +115,19 @@ export default function CalendarPage() {
           >
             <X size={18} />
           </button>
-          <h3 className="mb-4 text-base font-bold text-brand-950">إضافة حدث جديد</h3>
+          <h3 className="mb-4 text-base font-bold text-brand-950">{tr("إضافة حدث جديد")}</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="block text-sm md:col-span-2">
-              <span className="mb-1 block font-semibold text-brand-950/70">العنوان</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("العنوان")}</span>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
-                placeholder="مثال: الموعد النهائي لتسليم الفصل الرابع"
+                placeholder={tr("مثال: الموعد النهائي لتسليم الفصل الرابع")}
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">التاريخ</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("التاريخ")}</span>
               <input
                 type="date"
                 value={form.date}
@@ -137,7 +136,7 @@ export default function CalendarPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">الوقت</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("الوقت")}</span>
               <input
                 type="time"
                 value={form.time}
@@ -146,25 +145,25 @@ export default function CalendarPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">النوع</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("النوع")}</span>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as CalendarEventType })}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
               >
-                <option value="deadline">موعد نهائي</option>
-                <option value="meeting">اجتماع</option>
-                <option value="review">مراجعة</option>
-                <option value="fieldwork">ميداني</option>
+                <option value="deadline">{tr("موعد نهائي")}</option>
+                <option value="meeting">{tr("اجتماع")}</option>
+                <option value="review">{tr("مراجعة")}</option>
+                <option value="fieldwork">{tr("ميداني")}</option>
               </select>
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">الملاحظات / المكان</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("الملاحظات / المكان")}</span>
               <input
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
-                placeholder="مثال: البوابة الإلكترونية"
+                placeholder={tr("مثال: البوابة الإلكترونية")}
               />
             </label>
           </div>
@@ -172,14 +171,11 @@ export default function CalendarPage() {
             onClick={handleAdd}
             disabled={saving || !form.title.trim()}
             className={clsx(primaryBtn, "mt-4")}
-          >
-            {saving && <Loader2 size={15} className="animate-spin" />}
-            إضافة
-          </button>
+          >{trx("{0}إضافة", saving && <Loader2 size={15} className="animate-spin" />)}</button>
           <p className="mt-3 text-xs text-brand-950/40">
             {isSupabaseConfigured
-              ? "الموعد يظهر لكل أعضاء الفريق وبالرئيسية، ويتحدّث مباشرة."
-              : "وضع العرض التجريبي: الحدث يُحفظ بمتصفحك فقط."}
+              ? tr("الموعد يظهر لكل أعضاء الفريق وبالرئيسية، ويتحدّث مباشرة.")
+              : tr("وضع العرض التجريبي: الحدث يُحفظ بمتصفحك فقط.")}
           </p>
         </Panel>
       )}
@@ -200,14 +196,14 @@ export default function CalendarPage() {
           <>
             {nextEvent ? (
               <HighlightCard
-                kicker="القادم"
+                kicker={tr("القادم")}
                 title={nextEvent.title}
                 subtitle={`${relativeDayLabel(nextEvent.date)} · ${nextEvent.time}${nextEvent.location ? ` · ${nextEvent.location}` : ""}`}
               />
             ) : (
-              <HighlightCard kicker="القادم" title="ما فيه مواعيد جاية" subtitle="أضيفوا أول موعد لفريقكم." />
+              <HighlightCard kicker={tr("القادم")} title={tr("ما فيه مواعيد جاية")} subtitle={tr("أضيفوا أول موعد لفريقكم.")} />
             )}
-            <Panel title={formatDateLong(selectedDate)} hint={`${dayEvents.length} حدث`}>
+            <Panel title={formatDateLong(selectedDate)} hint={tr("{0} حدث", dayEvents.length)}>
               <ul className="space-y-2.5">
                 {dayEvents.map((event) => {
                   const Icon = typeIcon[event.type];
@@ -228,8 +224,8 @@ export default function CalendarPage() {
                         <ThreeDotsMenu
                           items={[
                             {
-                              label: "حذف الحدث",
-                              confirmLabel: "تأكيد الحذف؟",
+                              label: tr("حذف الحدث"),
+                              confirmLabel: tr("تأكيد الحذف؟"),
                               icon: Trash2,
                               tone: "danger",
                               onClick: () => removeEvent(event.id),
@@ -240,12 +236,12 @@ export default function CalendarPage() {
                     </li>
                   );
                 })}
-                {loading && <li className="text-sm text-brand-950/45">جاري التحميل...</li>}
+                {loading && <li className="text-sm text-brand-950/45">{tr("جاري التحميل...")}</li>}
                 {!loading && dayEvents.length === 0 && (
                   <EmptyState
                     icon={CalendarClock}
-                    title="يوم فاضي من المواعيد"
-                    desc="ما فيه شي مسجّل بهذا اليوم — استغلّوه لخطوة بحثية إضافية، أو خذوا راحة."
+                    title={tr("يوم فاضي من المواعيد")}
+                    desc={tr("ما فيه شي مسجّل بهذا اليوم — استغلّوه لخطوة بحثية إضافية، أو خذوا راحة.")}
                   />
                 )}
               </ul>

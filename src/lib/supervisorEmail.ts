@@ -1,4 +1,5 @@
 import { supabase } from "./supabaseClient";
+import { tr } from "./i18n";
 
 export type EmailState = "none" | "pending" | "active" | "off";
 export interface EmailStatus {
@@ -24,13 +25,13 @@ async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error
 }
 
 export const errorText: Record<EmailError, string> = {
-  email_not_configured: "خدمة الإيميل لسا ما انفعّلت من إدارة الموقع — جرّبوا لاحقًا.",
-  invalid_email: "الإيميل غير صحيح — تأكدوا من كتابته.",
-  invalid_token: "الرابط غير صالح أو انتهى.",
-  rate_limited: "محاولات كثيرة — جرّبوا بعد دقيقة.",
-  send_failed: "تعذّر إرسال الإيميل — جرّبوا مرة ثانية بعد شوي.",
-  network: "ما قدرنا نتصل — تأكدوا من الإنترنت.",
-  unknown: "صار خطأ غير متوقع — جرّبوا مرة ثانية.",
+  email_not_configured: tr("خدمة الإيميل لسا ما انفعّلت من إدارة الموقع — جرّبوا لاحقًا."),
+  invalid_email: tr("الإيميل غير صحيح — تأكدوا من كتابته."),
+  invalid_token: tr("الرابط غير صالح أو انتهى."),
+  rate_limited: tr("محاولات كثيرة — جرّبوا بعد دقيقة."),
+  send_failed: tr("تعذّر إرسال الإيميل — جرّبوا مرة ثانية بعد شوي."),
+  network: tr("ما قدرنا نتصل — تأكدوا من الإنترنت."),
+  unknown: tr("صار خطأ غير متوقع — جرّبوا مرة ثانية."),
 };
 
 /** المشرفة تطلب الاشتراك — يُرسل إيميل تأكيد، ولا تُرسل إشعارات قبل ما تضغط تأكيد. */

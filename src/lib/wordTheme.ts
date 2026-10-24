@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 /** هوية Wesync الداكنة لملفات Word — "Obsidian × Ember": صفحة سوداء دافئة، نص
     عاجي، ولمسة برتقالية للعناوين والخطوط. كل التصديرات (المقترح، محضر الاجتماع،
     الموافقة الأخلاقية) تبني عليها عشان يطلع كلها بنفس الأسلوب.
@@ -102,7 +103,7 @@ export async function loadWesyncKit(meta: { label: string; title: string }) {
   const empty = (text: string) => [para([run(text, { color: C.faint, italics: true })])];
 
   /** نص أو "لم يُكتب بعد" بلون خافت */
-  const narrative = (text: string, placeholder = "لم يُكتب بعد.") => (text.trim() ? body(text) : empty(placeholder));
+  const narrative = (text: string, placeholder = tr("لم يُكتب بعد.")) => (text.trim() ? body(text) : empty(placeholder));
 
   const heading = (title: string, num?: string) =>
     new Paragraph({
@@ -131,7 +132,7 @@ export async function loadWesyncKit(meta: { label: string; title: string }) {
       children: [run(text)],
     });
 
-  const bullets = (items: string[], placeholder = "لم تُحدد بعد.") =>
+  const bullets = (items: string[], placeholder = tr("لم تُحدد بعد.")) =>
     items.length > 0 ? items.map(bullet) : empty(placeholder);
 
   const latin = (text: string) =>
@@ -199,7 +200,7 @@ export async function loadWesyncKit(meta: { label: string; title: string }) {
               margins: { top: 180, bottom: 160, left: 280, right: 280 },
               children: [
                 para([run(title, { size: 20, bold: true, color: C.ember })], { after: 80, line: 300 }),
-                ...(text.trim() ? body(text) : empty("لا يوجد.")),
+                ...(text.trim() ? body(text) : empty(tr("لا يوجد."))),
               ],
             }),
           ],
@@ -210,7 +211,7 @@ export async function loadWesyncKit(meta: { label: string; title: string }) {
   /** غلاف صفحة كاملة */
   const cover = (o: { title: string; kicker: string; meta: [string, string][]; note: string }) => [
     para([run("WESYNC", { size: 44, bold: true, color: C.ember, rtl: false, spacing: 160 })], { before: 1500, after: 40, line: 300 }),
-    para([run("منصة إدارة أبحاث التخرج التمريضي", { size: 20, color: C.muted })], { after: 0, line: 300 }),
+    para([run(tr("منصة إدارة أبحاث التخرج التمريضي"), { size: 20, color: C.muted })], { after: 0, line: 300 }),
     rule(C.ember, 18, 260, 1100),
     para([run(o.kicker, { size: 24, bold: true, color: C.ember, spacing: 40 })], { after: 140, line: 300 }),
     new Paragraph({

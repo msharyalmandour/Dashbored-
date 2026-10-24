@@ -20,18 +20,19 @@ import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
 import { driveReturnMessage } from "../lib/driveTeam";
 import { formatDateFull, formatDateShort } from "../lib/date";
 import { approvalRequestMessage, whatsappUrl } from "../lib/meetings";
+import { tr, trx } from "../lib/i18n";
 
 type Tab = "minutes" | "decisions" | "appointments";
 type Dlg = "meeting" | "supervisor" | "drive" | null;
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "minutes", label: "المحاضر" },
-  { id: "decisions", label: "قرارات للمشرف/ة" },
-  { id: "appointments", label: "المواعيد" },
+  { id: "minutes", label: tr("المحاضر") },
+  { id: "decisions", label: tr("قرارات للمشرف/ة") },
+  { id: "appointments", label: tr("المواعيد") },
 ];
 
 const SENT_KEY = "wesync.supervisorInviteSent";
-const arDigit = (n: number) => String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tr("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
 
 /** بطاقة صغيرة بالشريط: نقطة لون + عنوان + قيمة + رابط واحد يفتح التفاصيل بنافذة */
 function MiniCard({ dot, title, value, link, onOpen }: { dot: string; title: string; value: string; link: string; onOpen: () => void }) {
@@ -77,8 +78,8 @@ export default function MeetingMinutes() {
     const reason = searchParams.get("reason");
     showToast(
       result === "connected"
-        ? { title: "انربط درايف الفريق", desc: "أنشأنا مجلد Wesync وشاركناه مع الأعضاء.", icon: Check, tone: "brand" }
-        : { title: "ما انربط الدرايف", desc: driveReturnMessage(reason), icon: HardDrive, tone: "rose" },
+        ? { title: tr("انربط درايف الفريق"), desc: tr("أنشأنا مجلد Wesync وشاركناه مع الأعضاء."), icon: Check, tone: "brand" }
+        : { title: tr("ما انربط الدرايف"), desc: driveReturnMessage(reason), icon: HardDrive, tone: "rose" },
     );
     const next = new URLSearchParams(searchParams);
     next.delete("drive");
@@ -114,14 +115,14 @@ export default function MeetingMinutes() {
   const upcomingBookings = meetings.bookings.filter((b) => (b.status === "pending" || b.status === "confirmed") && b.date >= today).length;
   const badge = (t: Tab) => (t === "decisions" ? openDecisions : t === "appointments" ? upcomingBookings : 0);
 
-  const driveValue = !driveStatus ? "…" : driveStatus.connected ? "مربوط" : driveStatus.configured ? "غير مربوط" : driveStatus.unreachable ? "ما قدرنا نتأكد" : "غير مفعّل بعد";
+  const driveValue = !driveStatus ? "…" : driveStatus.connected ? tr("مربوط") : driveStatus.configured ? tr("غير مربوط") : driveStatus.unreachable ? tr("ما قدرنا نتأكد") : tr("غير مفعّل بعد");
   const driveDot = driveStatus?.connected ? "#7fd6a0" : "#FFB444";
 
   return (
     <div className="space-y-6">
       <ResearchHeader
-        title="الاجتماعات والمشرف/ة"
-        subtitle="محاضر منظّمة تتحول لمهام، وقرارات بضغطة، ومواعيد ما تفوتكم."
+        title={tr("الاجتماعات والمشرف/ة")}
+        subtitle={tr("محاضر منظّمة تتحول لمهام، وقرارات بضغطة، ومواعيد ما تفوتكم.")}
         action={<Segmented items={TABS.map((t) => ({ id: t.id, label: t.label, badge: badge(t.id) }))} value={tab} onChange={setTab} />}
       />
 
@@ -130,13 +131,13 @@ export default function MeetingMinutes() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <MiniCard
               dot="#FF6B00"
-              title="الاجتماع القادم"
-              value={nextBooking ? `${formatDateShort(nextBooking.date)} · ${nextBooking.time}` : "ما فيه موعد"}
-              link={nextBooking ? "التفاصيل وجاهزية الاجتماع" : "جاهزية الاجتماع"}
+              title={tr("الاجتماع القادم")}
+              value={nextBooking ? `${formatDateShort(nextBooking.date)} · ${nextBooking.time}` : tr("ما فيه موعد")}
+              link={nextBooking ? tr("التفاصيل وجاهزية الاجتماع") : tr("جاهزية الاجتماع")}
               onOpen={() => setDlg("meeting")}
             />
-            <MiniCard dot="#FFB444" title="تجهيز المشرف/ة" value={`${arDigit(setupDone)} من ٤`} link={setupDone === 4 ? "جاهزة — التفاصيل" : "كمّلوا التجهيز"} onOpen={() => setDlg("supervisor")} />
-            <MiniCard dot={driveDot} title="درايف الفريق" value={driveValue} link="التفاصيل" onOpen={() => setDlg("drive")} />
+            <MiniCard dot="#FFB444" title={tr("تجهيز المشرف/ة")} value={tr("{0} من ٤", arDigit(setupDone))} link={setupDone === 4 ? tr("جاهزة — التفاصيل") : tr("كمّلوا التجهيز")} onOpen={() => setDlg("supervisor")} />
+            <MiniCard dot={driveDot} title={tr("درايف الفريق")} value={driveValue} link={tr("التفاصيل")} onOpen={() => setDlg("drive")} />
           </div>
 
           {canWrite && (
@@ -144,26 +145,22 @@ export default function MeetingMinutes() {
               <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[150px] -z-10 h-[300px] w-[520px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
               <div className="mx-auto flex max-w-md flex-col items-center gap-3">
                 <AgentOrb size={56} />
-                <h2 className="font-kufi text-2xl font-extrabold md:text-3xl">خلصتوا اجتماع؟</h2>
-                <p className="text-sm text-[#B8ADA2]">سجّلوا المحضر وبنوده تتحول لمهام بمسؤول وموعد، ويوصل للمشرف/ة.</p>
-                <Link to="/meeting-minutes/new" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>
-                  + محضر جديد
-                </Link>
+                <h2 className="font-kufi text-2xl font-extrabold md:text-3xl">{tr("خلصتوا اجتماع؟")}</h2>
+                <p className="text-sm text-[#B8ADA2]">{tr("سجّلوا المحضر وبنوده تتحول لمهام بمسؤول وموعد، ويوصل للمشرف/ة.")}</p>
+                <Link to="/meeting-minutes/new" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>{tr("+ محضر جديد")}</Link>
               </div>
             </section>
           )}
 
           {justSaved && (
             <div className={clsx(glassCard, "relative p-4")}>
-              <button onClick={() => setJustSaved(null)} aria-label="إغلاق" className="absolute end-3 top-3 text-[#B8ADA2] hover:text-[#F4F0EC]">
+              <button onClick={() => setJustSaved(null)} aria-label={tr("إغلاق")} className="absolute end-3 top-3 text-[#B8ADA2] hover:text-[#F4F0EC]">
                 <X size={16} />
               </button>
               <p className="flex items-center gap-2 text-sm font-extrabold">
-                <Check size={16} className="text-[#7fd6a0]" />
-                انحفظ محضر {formatDateFull(justSaved.date)}
-              </p>
+                <Check size={16} className="text-[#7fd6a0]" />{trx("انحفظ محضر {0}", formatDateFull(justSaved.date))}</p>
               <p className="mt-1 text-xs text-[#B8ADA2]">
-                {justSaved.sent ? "وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:" : "ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت."}
+                {justSaved.sent ? tr("وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:") : tr("ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت.")}
               </p>
               {justSaved.sent && supervisorUrl && (
                 <a
@@ -172,15 +169,13 @@ export default function MeetingMinutes() {
                   rel="noreferrer"
                   className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#FFB444] hover:bg-[#FF6B00]/10"
                 >
-                  <MessageCircle size={14} />
-                  أرسلوا الرابط بواتساب
-                </a>
+                  <MessageCircle size={14} />{tr("أرسلوا الرابط بواتساب")}</a>
               )}
             </div>
           )}
 
           <div className="space-y-3">
-            <h2 className="font-kufi text-lg font-bold">المحاضر السابقة</h2>
+            <h2 className="font-kufi text-lg font-bold">{tr("المحاضر السابقة")}</h2>
             <MinutesList
               minutes={a.minutes}
               loading={a.loading}
@@ -210,7 +205,7 @@ export default function MeetingMinutes() {
         <AppointmentsTab availability={meetings.availability} bookings={meetings.bookings} supervisorUrl={supervisorUrl} canWrite={canWrite} onBook={meetings.bookSlot} onCancel={meetings.cancelBooking} />
       )}
 
-      <Dialog open={dlg === "meeting"} onClose={() => setDlg(null)} title="الاجتماع القادم">
+      <Dialog open={dlg === "meeting"} onClose={() => setDlg(null)} title={tr("الاجتماع القادم")}>
         <div className="space-y-4">
           <p className="text-sm">
             {nextBooking ? (
@@ -218,7 +213,7 @@ export default function MeetingMinutes() {
                 <b>{formatDateFull(nextBooking.date)}</b> · {nextBooking.time}
               </>
             ) : (
-              <span className="text-[#B8ADA2]">ما فيه اجتماع محجوز. احجزوا موعد من تبويب «المواعيد».</span>
+              <span className="text-[#B8ADA2]">{tr("ما فيه اجتماع محجوز. احجزوا موعد من تبويب «المواعيد».")}</span>
             )}
           </p>
           {!nextBooking && (
@@ -229,9 +224,7 @@ export default function MeetingMinutes() {
                 setTab("appointments");
               }}
               className="rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10"
-            >
-              افتحوا المواعيد
-            </button>
+            >{tr("افتحوا المواعيد")}</button>
           )}
           {canWrite && (
             <ReadinessCard
@@ -246,7 +239,7 @@ export default function MeetingMinutes() {
         </div>
       </Dialog>
 
-      <Dialog open={dlg === "supervisor"} onClose={() => setDlg(null)} title="تجهيز المشرف/ة">
+      <Dialog open={dlg === "supervisor"} onClose={() => setDlg(null)} title={tr("تجهيز المشرف/ة")}>
         <SupervisorSetupCard
           supervisorName={project?.supervisorName ?? ""}
           onSaveName={(supervisorName) => updateProject({ supervisorName })}
@@ -257,13 +250,11 @@ export default function MeetingMinutes() {
         />
       </Dialog>
 
-      <Dialog open={dlg === "drive"} onClose={() => setDlg(null)} title="درايف الفريق">
+      <Dialog open={dlg === "drive"} onClose={() => setDlg(null)} title={tr("درايف الفريق")}>
         {driveStatus && (driveStatus.configured || driveStatus.unreachable) ? (
           <DriveCard status={driveStatus} onChanged={refreshDrive} />
         ) : (
-          <p className="text-sm leading-relaxed text-[#B8ADA2]">
-            ربط الدرايف مو مفعّل على الخادم بعد.
-          </p>
+          <p className="text-sm leading-relaxed text-[#B8ADA2]">{tr("ربط الدرايف مو مفعّل على الخادم بعد.")}</p>
         )}
       </Dialog>
     </div>

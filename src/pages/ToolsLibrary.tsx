@@ -6,6 +6,7 @@ import { PageHeader, Panel, primaryBtn } from "../components/ui/page";
 import EmptyState from "../components/ui/EmptyState";
 import { useValidatedTools } from "../hooks/useValidatedTools";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 /** مكتبة أدوات القياس المشتركة — تتراكم من عمليات «أدوات القياس» بوكيل البحث لما أي فريق يحفظ أداة.
     كل أداة مربوطة بدراستها الأصلية؛ تحقّقوا دايمًا من الدراسة والإذن قبل الاستخدام. */
@@ -26,13 +27,12 @@ export default function ToolsLibrary() {
   return (
     <div className="space-y-6">
       <PageHeader
-        kicker="اجمع وحلّل"
-        title="مكتبة أدوات القياس"
-        subtitle="استبيانات ومقاييس موثّقة جمعتها الفرق من دراسات حقيقية، مع ثباتها ولغاتها ورابط دراستها الأصلية."
+        kicker={tr("اجمع وحلّل")}
+        title={tr("مكتبة أدوات القياس")}
+        subtitle={tr("استبيانات ومقاييس موثّقة جمعتها الفرق من دراسات حقيقية، مع ثباتها ولغاتها ورابط دراستها الأصلية.")}
         action={
           <Link to="/research-search?tab=studies" className={primaryBtn}>
-            <Ruler size={15} /> دوّروا أداة جديدة
-          </Link>
+            <Ruler size={15} />{tr(" دوّروا أداة جديدة")}</Link>
         }
       />
 
@@ -43,32 +43,28 @@ export default function ToolsLibrary() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="ابحثوا: الاحتراق، الرضا، الألم..."
+              placeholder={tr("ابحثوا: الاحتراق، الرضا، الألم...")}
               className="w-full rounded-full border border-brand-100 bg-paper py-2.5 pe-4 ps-9 text-sm outline-none focus:border-brand-300"
             />
           </div>
           <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-950/70">
-            <input type="checkbox" checked={arabicOnly} onChange={(e) => setArabicOnly(e.target.checked)} className="h-4 w-4 accent-[var(--color-brand-500)]" />
-            فيها نسخة عربية فقط
-          </label>
+            <input type="checkbox" checked={arabicOnly} onChange={(e) => setArabicOnly(e.target.checked)} className="h-4 w-4 accent-[var(--color-brand-500)]" />{tr("فيها نسخة عربية فقط")}</label>
         </div>
-        <p className="mt-3 text-xs text-brand-950/45">
-          تكبر كل ما فريق يحفظ أداة من «وكيل البحث ← أدوات القياس». ما فيها أي بيانات فرق — فقط معلومات الأداة من الدراسة المنشورة.
-        </p>
+        <p className="mt-3 text-xs text-brand-950/45">{tr("تكبر كل ما فريق يحفظ أداة من «وكيل البحث ← أدوات القياس». ما فيها أي بيانات فرق — فقط معلومات الأداة من الدراسة المنشورة.")}</p>
       </Panel>
 
       {loading ? (
-        <p className="text-sm text-brand-950/45">جاري التحميل...</p>
+        <p className="text-sm text-brand-950/45">{tr("جاري التحميل...")}</p>
       ) : !isSupabaseConfigured ? (
         <Card>
-          <EmptyState icon={Library} title="متاحة بالوضع الحقيقي فقط" desc="المكتبة مشتركة بين الفرق وتتطلب حساب فريق." />
+          <EmptyState icon={Library} title={tr("متاحة بالوضع الحقيقي فقط")} desc={tr("المكتبة مشتركة بين الفرق وتتطلب حساب فريق.")} />
         </Card>
       ) : shown.length === 0 ? (
         <Card>
           <EmptyState
             icon={Library}
-            title={tools.length === 0 ? "المكتبة فاضية لسا" : "ما فيه نتائج"}
-            desc={tools.length === 0 ? "كونوا أول من يضيف: دوّروا أداة بوكيل البحث واضغطوا «احفظوها بالمكتبة»." : "جرّبوا كلمة ثانية أو ألغوا فلتر العربي."}
+            title={tools.length === 0 ? tr("المكتبة فاضية لسا") : tr("ما فيه نتائج")}
+            desc={tools.length === 0 ? tr("كونوا أول من يضيف: دوّروا أداة بوكيل البحث واضغطوا «احفظوها بالمكتبة».") : tr("جرّبوا كلمة ثانية أو ألغوا فلتر العربي.")}
           />
         </Card>
       ) : (
@@ -80,18 +76,18 @@ export default function ToolsLibrary() {
                   <p className="text-sm font-extrabold text-brand-950">{t.toolName}</p>
                   {t.measures && <p className="mt-0.5 text-xs text-brand-950/55">{t.measures}</p>}
                 </div>
-                {t.isArabic && <span className="shrink-0 rounded-full border border-[#7fd6a0] px-2.5 py-0.5 text-[11px] font-semibold text-[#7fd6a0]">عربي</span>}
+                {t.isArabic && <span className="shrink-0 rounded-full border border-[#7fd6a0] px-2.5 py-0.5 text-[11px] font-semibold text-[#7fd6a0]">{tr("عربي")}</span>}
               </div>
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 {[
-                  ["الفقرات", t.items],
-                  ["الثبات", t.reliability],
-                  ["اللغات", t.languages],
-                  ["الفئة", t.population],
+                  [tr("الفقرات"), t.items],
+                  [tr("الثبات"), t.reliability],
+                  [tr("اللغات"), t.languages],
+                  [tr("الفئة"), t.population],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-xl bg-black/25 p-2">
                     <p className="font-bold text-brand-950/40">{label}</p>
-                    <p className="mt-0.5 text-brand-950/75">{value || "غير مذكور"}</p>
+                    <p className="mt-0.5 text-brand-950/75">{value || tr("غير مذكور")}</p>
                   </div>
                 ))}
               </div>
@@ -99,7 +95,7 @@ export default function ToolsLibrary() {
                 <a href={t.sourceUrl} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 text-[11px] font-semibold text-brand-600 hover:underline">
                   <ExternalLink size={12} className="mt-0.5 shrink-0" />
                   <span>
-                    {t.sourceTitle || "الدراسة الأصلية"}
+                    {t.sourceTitle || tr("الدراسة الأصلية")}
                     {t.year ? <span className="font-normal text-brand-950/40"> · {t.year}</span> : null}
                   </span>
                 </a>
@@ -108,9 +104,7 @@ export default function ToolsLibrary() {
           ))}
         </div>
       )}
-      <p className="text-center text-[11px] text-brand-950/40">
-        المعلومات مستخرجة آليًا من ملخصات الدراسات وقد تحتوي أخطاء — تحقّقوا من الدراسة الأصلية وخذوا إذن صاحب الأداة قبل استخدامها.
-      </p>
+      <p className="text-center text-[11px] text-brand-950/40">{tr("المعلومات مستخرجة آليًا من ملخصات الدراسات وقد تحتوي أخطاء — تحقّقوا من الدراسة الأصلية وخذوا إذن صاحب الأداة قبل استخدامها.")}</p>
     </div>
   );
 }

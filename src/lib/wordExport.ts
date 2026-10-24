@@ -3,6 +3,7 @@ import type { EvidencePaper, Methodology, ProposalSectionRow, ResearchGap, Resea
 import { buildReferenceList } from "./citation";
 import { formatDateLong } from "./date";
 import { C, loadWesyncKit, type WordStyle } from "./wordTheme";
+import { tr } from "./i18n";
 
 export interface WordExportInput {
   projectTitle: string;
@@ -73,7 +74,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
   }
 
   function narrative(text: string) {
-    return text.trim() ? ar(text) : ar("لم يُكتب بعد.", { color: "999999" });
+    return text.trim() ? ar(text) : ar(tr("لم يُكتب بعد."), { color: "999999" });
   }
 
   function fieldBlock(label: string, value: string) {
@@ -82,7 +83,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
 
   function listBlock(label: string, items: string[]) {
     if (items.length === 0) {
-      return [ar(label, { bold: true, size: 22 }), ar("لم تُحدد بعد", { color: "999999" })];
+      return [ar(label, { bold: true, size: 22 }), ar(tr("لم تُحدد بعد"), { color: "999999" })];
     }
     return [ar(label, { bold: true, size: 22 }), ...items.map((item) => arBullet(item))];
   }
@@ -111,7 +112,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
             bidirectional: true,
             children: [
               new TextRun({
-                text: "Wesync — المقترح البحثي",
+                text: tr("Wesync — المقترح البحثي"),
                 bold: true,
                 size: 20,
                 color: "8a6d1a",
@@ -131,7 +132,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
             bidirectional: true,
             spacing: { after: 60 },
             children: [
-              new TextRun({ text: `الفريق البحثي: ${input.teamNames.join("، ")}`, size: 20, rightToLeft: true }),
+              new TextRun({ text: tr("الفريق البحثي: {0}", input.teamNames.join(tr("، "))), size: 20, rightToLeft: true }),
             ],
           }),
           new Paragraph({
@@ -140,7 +141,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
             spacing: { after: 60 },
             children: [
               new TextRun({
-                text: `المشرف الأكاديمي: ${input.supervisorName || "—"}`,
+                text: tr("المشرف الأكاديمي: {0}", input.supervisorName || "—"),
                 size: 20,
                 rightToLeft: true,
               }),
@@ -152,7 +153,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
             spacing: { after: 400 },
             children: [
               new TextRun({
-                text: `تم إنشاء هذه النسخة بتاريخ ${formatDateLong(new Date().toISOString().slice(0, 10))}`,
+                text: tr("تم إنشاء هذه النسخة بتاريخ {0}", formatDateLong(new Date().toISOString().slice(0, 10))),
                 size: 18,
                 color: "666666",
                 rightToLeft: true,
@@ -161,50 +162,50 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
           }),
 
           // الملخص — Abstract
-          arHeading("الملخص — Abstract", HeadingLevel.HEADING_1),
+          arHeading(tr("الملخص — Abstract"), HeadingLevel.HEADING_1),
           narrative(input.abstract),
 
           // ١. الخلفية ومراجعة الأدبيات
-          arHeading("١. الخلفية ومراجعة الأدبيات — Background and Literature Review", HeadingLevel.HEADING_1),
+          arHeading(tr("١. الخلفية ومراجعة الأدبيات — Background and Literature Review"), HeadingLevel.HEADING_1),
           narrative(sectionContent(input.sections, "background")),
           narrative(sectionContent(input.sections, "literature-review")),
 
           // ٢. مشكلة البحث (مع الفجوة البحثية)
-          arHeading("٢. مشكلة البحث — Statement of Problem", HeadingLevel.HEADING_1),
+          arHeading(tr("٢. مشكلة البحث — Statement of Problem"), HeadingLevel.HEADING_1),
           narrative(sectionContent(input.sections, "problem")),
           ...(input.researchGap.gapStatement.trim()
-            ? [ar("الفجوة البحثية:", { bold: true, size: 22 }), narrative(input.researchGap.gapStatement)]
+            ? [ar(tr("الفجوة البحثية:"), { bold: true, size: 22 }), narrative(input.researchGap.gapStatement)]
             : []),
 
           // ٣. هدف الدراسة
-          arHeading("٣. هدف الدراسة — Purpose of the Study", HeadingLevel.HEADING_1),
+          arHeading(tr("٣. هدف الدراسة — Purpose of the Study"), HeadingLevel.HEADING_1),
           narrative(input.studyAim.statement),
 
           // ٤. سؤال البحث
-          arHeading("٤. سؤال البحث — Research Question", HeadingLevel.HEADING_1),
+          arHeading(tr("٤. سؤال البحث — Research Question"), HeadingLevel.HEADING_1),
           ...(input.researchQuestions.length > 0
             ? input.researchQuestions.map((q) => ar(`${q.order}. ${q.text}`))
-            : [ar("لم تتم صياغتها بعد.", { color: "999999" })]),
+            : [ar(tr("لم تتم صياغتها بعد."), { color: "999999" })]),
 
           // ٥. المنهجية
-          arHeading("٥. المنهجية — Methods", HeadingLevel.HEADING_1),
-          ...fieldBlock("أ. تصميم الدراسة — Design", input.methodology.studyDesign),
-          ...fieldBlock("ب. مكان الدراسة — Setting", input.methodology.studySetting),
-          ...fieldBlock("مجتمع الدراسة — Population", input.methodology.population),
-          ...listBlock("ج. معايير الاشتمال — Inclusion Criteria", input.methodology.sampling.inclusionCriteria),
-          ...listBlock("معايير الاستبعاد — Exclusion Criteria", input.methodology.sampling.exclusionCriteria),
-          ...fieldBlock("حجم العينة — Sample Size", input.methodology.sampling.sampleSize),
-          ...fieldBlock("أسلوب اختيار العينة — Sampling Technique", input.methodology.sampling.samplingTechnique),
-          ...listBlock("د. طريقة/أداة جمع البيانات — Data Collection Method/Tool", input.methodology.dataCollectionMethods),
-          ...fieldBlock("هـ. إجراء جمع البيانات — Data Collection Procedure", input.methodology.dataCollectionProcedure),
-          ...fieldBlock("و. تحليل البيانات — Data Analysis", input.methodology.dataAnalysis),
-          ...fieldBlock("ز. الاعتبارات الأخلاقية — Ethical Considerations", input.methodology.ethicalConsiderations),
+          arHeading(tr("٥. المنهجية — Methods"), HeadingLevel.HEADING_1),
+          ...fieldBlock(tr("أ. تصميم الدراسة — Design"), input.methodology.studyDesign),
+          ...fieldBlock(tr("ب. مكان الدراسة — Setting"), input.methodology.studySetting),
+          ...fieldBlock(tr("مجتمع الدراسة — Population"), input.methodology.population),
+          ...listBlock(tr("ج. معايير الاشتمال — Inclusion Criteria"), input.methodology.sampling.inclusionCriteria),
+          ...listBlock(tr("معايير الاستبعاد — Exclusion Criteria"), input.methodology.sampling.exclusionCriteria),
+          ...fieldBlock(tr("حجم العينة — Sample Size"), input.methodology.sampling.sampleSize),
+          ...fieldBlock(tr("أسلوب اختيار العينة — Sampling Technique"), input.methodology.sampling.samplingTechnique),
+          ...listBlock(tr("د. طريقة/أداة جمع البيانات — Data Collection Method/Tool"), input.methodology.dataCollectionMethods),
+          ...fieldBlock(tr("هـ. إجراء جمع البيانات — Data Collection Procedure"), input.methodology.dataCollectionProcedure),
+          ...fieldBlock(tr("و. تحليل البيانات — Data Analysis"), input.methodology.dataAnalysis),
+          ...fieldBlock(tr("ز. الاعتبارات الأخلاقية — Ethical Considerations"), input.methodology.ethicalConsiderations),
 
           // قائمة المراجع
-          arHeading(`قائمة المراجع (APA) — References — ${input.evidenceLibrary.length}`, HeadingLevel.HEADING_1),
+          arHeading(tr("قائمة المراجع (APA) — References — {0}", input.evidenceLibrary.length), HeadingLevel.HEADING_1),
           ...(references.length > 0
             ? references.map((ref) => enParagraph(ref))
-            : [ar("لم تُضَف مراجع بعد.", { color: "999999" })]),
+            : [ar(tr("لم تُضَف مراجع بعد."), { color: "999999" })]),
         ],
       },
     ],
@@ -217,67 +218,67 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
     برقم الصفحة. للقراءة على الشاشة والعرض على المشرفة — للتسليم والطباعة
     استخدموا النسخة الرسمية (style: "official"). */
 async function buildProposalDark(input: WordExportInput): Promise<Blob> {
-  const k = await loadWesyncKit({ label: "المقترح البحثي — Research Proposal", title: input.projectTitle || "المقترح البحثي" });
+  const k = await loadWesyncKit({ label: tr("المقترح البحثي — Research Proposal"), title: input.projectTitle || tr("المقترح البحثي") });
   const dateLine = formatDateLong(new Date().toISOString().slice(0, 10));
   const references = buildReferenceList(input.evidenceLibrary, "apa").split("\n\n").filter(Boolean);
   const gap = input.researchGap.gapStatement.trim();
   const children: (Paragraph | Table)[] = [
     ...k.cover({
-      kicker: "المقترح البحثي — RESEARCH PROPOSAL",
-      title: input.projectTitle || "بدون عنوان بعد",
+      kicker: tr("المقترح البحثي — RESEARCH PROPOSAL"),
+      title: input.projectTitle || tr("بدون عنوان بعد"),
       meta: [
-        ["الفريق البحثي", input.teamNames.join("، ")],
-        ["المشرف الأكاديمي", input.supervisorName],
-        ["تاريخ النسخة", dateLine],
+        [tr("الفريق البحثي"), input.teamNames.join(tr("، "))],
+        [tr("المشرف الأكاديمي"), input.supervisorName],
+        [tr("تاريخ النسخة"), dateLine],
       ],
-      note: "أُنشئ بواسطة Wesync — منصة إدارة أبحاث التخرج التمريضي",
+      note: tr("أُنشئ بواسطة Wesync — منصة إدارة أبحاث التخرج التمريضي"),
     }),
 
-    k.heading("الملخص — Abstract"),
+    k.heading(tr("الملخص — Abstract")),
     ...k.narrative(input.abstract),
 
-    k.heading("الخلفية ومراجعة الأدبيات — Background and Literature Review", "١"),
+    k.heading(tr("الخلفية ومراجعة الأدبيات — Background and Literature Review"), tr("١")),
     ...k.narrative(sectionContent(input.sections, "background")),
     ...k.narrative(sectionContent(input.sections, "literature-review")),
 
-    k.heading("مشكلة البحث — Statement of Problem", "٢"),
+    k.heading(tr("مشكلة البحث — Statement of Problem"), tr("٢")),
     ...k.narrative(sectionContent(input.sections, "problem")),
-    ...(gap ? [k.para([k.run("")], { after: 60 }), k.callout("الفجوة البحثية — Research Gap", gap)] : []),
+    ...(gap ? [k.para([k.run("")], { after: 60 }), k.callout(tr("الفجوة البحثية — Research Gap"), gap)] : []),
 
-    k.heading("هدف الدراسة — Purpose of the Study", "٣"),
+    k.heading(tr("هدف الدراسة — Purpose of the Study"), tr("٣")),
     ...k.narrative(input.studyAim.statement),
 
-    k.heading("سؤال البحث — Research Question", "٤"),
+    k.heading(tr("سؤال البحث — Research Question"), tr("٤")),
     ...(input.researchQuestions.length > 0
       ? input.researchQuestions.map((q) => k.para([k.run(`${q.order}.  `, { bold: true, color: C.ember }), k.run(q.text)]))
-      : k.empty("لم تتم صياغتها بعد.")),
+      : k.empty(tr("لم تتم صياغتها بعد."))),
 
-    k.heading("المنهجية — Methods", "٥"),
-    k.label("أ. تصميم الدراسة — Design"),
+    k.heading(tr("المنهجية — Methods"), tr("٥")),
+    k.label(tr("أ. تصميم الدراسة — Design")),
     ...k.narrative(input.methodology.studyDesign),
-    k.label("ب. مكان الدراسة — Setting"),
+    k.label(tr("ب. مكان الدراسة — Setting")),
     ...k.narrative(input.methodology.studySetting),
-    k.label("مجتمع الدراسة — Population"),
+    k.label(tr("مجتمع الدراسة — Population")),
     ...k.narrative(input.methodology.population),
-    k.label("ج. معايير الاشتمال — Inclusion Criteria"),
+    k.label(tr("ج. معايير الاشتمال — Inclusion Criteria")),
     ...k.bullets(input.methodology.sampling.inclusionCriteria),
-    k.label("معايير الاستبعاد — Exclusion Criteria"),
+    k.label(tr("معايير الاستبعاد — Exclusion Criteria")),
     ...k.bullets(input.methodology.sampling.exclusionCriteria),
-    k.label("حجم العينة — Sample Size"),
+    k.label(tr("حجم العينة — Sample Size")),
     ...k.narrative(input.methodology.sampling.sampleSize),
-    k.label("أسلوب اختيار العينة — Sampling Technique"),
+    k.label(tr("أسلوب اختيار العينة — Sampling Technique")),
     ...k.narrative(input.methodology.sampling.samplingTechnique),
-    k.label("د. طريقة/أداة جمع البيانات — Data Collection Method/Tool"),
+    k.label(tr("د. طريقة/أداة جمع البيانات — Data Collection Method/Tool")),
     ...k.bullets(input.methodology.dataCollectionMethods),
-    k.label("هـ. إجراء جمع البيانات — Data Collection Procedure"),
+    k.label(tr("هـ. إجراء جمع البيانات — Data Collection Procedure")),
     ...k.narrative(input.methodology.dataCollectionProcedure),
-    k.label("و. تحليل البيانات — Data Analysis"),
+    k.label(tr("و. تحليل البيانات — Data Analysis")),
     ...k.narrative(input.methodology.dataAnalysis),
-    k.label("ز. الاعتبارات الأخلاقية — Ethical Considerations"),
+    k.label(tr("ز. الاعتبارات الأخلاقية — Ethical Considerations")),
     ...k.narrative(input.methodology.ethicalConsiderations),
 
-    k.heading(`قائمة المراجع (APA) — References (${input.evidenceLibrary.length})`),
-    ...(references.length > 0 ? references.map((r) => k.latin(r)) : k.empty("لم تُضَف مراجع بعد.")),
+    k.heading(tr("قائمة المراجع (APA) — References ({0})", input.evidenceLibrary.length)),
+    ...(references.length > 0 ? references.map((r) => k.latin(r)) : k.empty(tr("لم تُضَف مراجع بعد."))),
   ];
   return k.build(children, { hasCover: true });
 }

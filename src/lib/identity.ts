@@ -1,4 +1,5 @@
 import type { ResearchStage } from "../data/types";
+import { tr } from "./i18n";
 
 interface StageTitle {
   female: string;
@@ -7,17 +8,17 @@ interface StageTitle {
 }
 
 const stageTitles: Record<string, StageTitle> = {
-  proposal: { female: "باحثة مبتدئة", male: "باحث مبتدئ", en: "Junior Researcher" },
-  "lit-review": { female: "باحثة الأدبيات", male: "باحث الأدبيات", en: "Literature Researcher" },
-  gap: { female: "صائغة الفجوة البحثية", male: "صائغ الفجوة البحثية", en: "Gap Analyst" },
-  aim: { female: "باحثة الأهداف", male: "باحث الأهداف", en: "Aim Researcher" },
-  methodology: { female: "باحثة المنهجية", male: "باحث المنهجية", en: "Methodology Researcher" },
-  "data-collection": { female: "باحثة ميدانية", male: "باحث ميداني", en: "Field Researcher" },
-  analysis: { female: "محلّلة بيانات", male: "محلّل بيانات", en: "Data Analyst" },
-  final: { female: "باحثة متخرجة", male: "باحث متخرج", en: "Graduate Researcher" },
+  proposal: { female: tr("باحثة مبتدئة"), male: tr("باحث مبتدئ"), en: "Junior Researcher" },
+  "lit-review": { female: tr("باحثة الأدبيات"), male: tr("باحث الأدبيات"), en: "Literature Researcher" },
+  gap: { female: tr("صائغة الفجوة البحثية"), male: tr("صائغ الفجوة البحثية"), en: "Gap Analyst" },
+  aim: { female: tr("باحثة الأهداف"), male: tr("باحث الأهداف"), en: "Aim Researcher" },
+  methodology: { female: tr("باحثة المنهجية"), male: tr("باحث المنهجية"), en: "Methodology Researcher" },
+  "data-collection": { female: tr("باحثة ميدانية"), male: tr("باحث ميداني"), en: "Field Researcher" },
+  analysis: { female: tr("محلّلة بيانات"), male: tr("محلّل بيانات"), en: "Data Analyst" },
+  final: { female: tr("باحثة متخرجة"), male: tr("باحث متخرج"), en: "Graduate Researcher" },
 };
 
-const fallbackTitle: StageTitle = { female: "باحثة", male: "باحث", en: "Researcher" };
+const fallbackTitle: StageTitle = { female: tr("باحثة"), male: tr("باحث"), en: "Researcher" };
 
 /** لقب هوية يتطور تلقائيًا مع تقدم الفريق بمراحل البحث */
 export function getResearcherTitle(

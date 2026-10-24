@@ -3,6 +3,7 @@ import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
 import Term from "../Term";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
+import { tr } from "../../lib/i18n";
 
 function CopyBlock({ label, text }: { label: string; text: string }) {
   const [copied, setCopied] = useState(false);
@@ -21,7 +22,7 @@ function CopyBlock({ label, text }: { label: string; text: string }) {
         <p className="text-xs font-extrabold text-brand-950/70">{label}</p>
         <button onClick={copy} className="flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:underline">
           {copied ? <Check size={12} /> : <Copy size={12} />}
-          {copied ? "تم النسخ" : "نسخ"}
+          {copied ? tr("تم النسخ") : tr("نسخ")}
         </button>
       </div>
       <p dir="ltr" className="break-words text-start font-mono text-[11px] leading-relaxed text-brand-950/75">
@@ -70,19 +71,15 @@ export default function SearchStrategy() {
     <div className="space-y-4">
       <Card tone="cream">
         <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-950">
-          <ListTree size={18} className="text-brand-500" />
-          ابنوا خطة البحث (<Term id="prisma">PRISMA</Term>)
+          <ListTree size={18} className="text-brand-500" />{tr("ابنوا خطة البحث (")}<Term id="prisma">PRISMA</Term>)
         </h3>
-        <p className="mb-4 text-xs text-brand-950/50">
-          هذي «خطة» تبحثون بها بأنفسكم بقواعد البيانات (PubMed وCINAHL وScopus): كلمات مفتاحية، وجمل بحث جاهزة تنسخونها
-          وتلصقونها، ومعايير تقررون فيها أي دراسة تدخل مراجعتكم. الدكاترة غالبًا يطلبونها بمراجعة الأدبيات.
-        </p>
+        <p className="mb-4 text-xs text-brand-950/50">{tr("هذي «خطة» تبحثون بها بأنفسكم بقواعد البيانات (PubMed وCINAHL وScopus): كلمات مفتاحية، وجمل بحث جاهزة تنسخونها وتلصقونها، ومعايير تقررون فيها أي دراسة تدخل مراجعتكم. الدكاترة غالبًا يطلبونها بمراجعة الأدبيات.")}</p>
         <div className="flex flex-col gap-3 md:flex-row">
           <input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="عنوان بحث التخرج..."
+            placeholder={tr("عنوان بحث التخرج...")}
             className="w-full rounded-lg border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
           />
           <button
@@ -91,14 +88,12 @@ export default function SearchStrategy() {
             className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-            {busy ? "جاري البناء..." : "ابنوا الخطة"}
+            {busy ? tr("جاري البناء...") : tr("ابنوا الخطة")}
           </button>
         </div>
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />
-            نجهّز لكم الخطة — ياخذ حوالي ١٠ ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.
-          </p>
+            <Loader2 size={13} className="animate-spin" />{tr("نجهّز لكم الخطة — ياخذ حوالي ١٠ ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
@@ -109,15 +104,15 @@ export default function SearchStrategy() {
         <div className="space-y-4">
           {pico && (
             <Card>
-              <p className="text-sm font-extrabold text-brand-950">إطار <Term id="pico">PICO</Term></p>
-              <p className="mb-3 text-[11px] text-brand-950/45">طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.</p>
+              <p className="text-sm font-extrabold text-brand-950">{tr("إطار ")}<Term id="pico">PICO</Term></p>
+              <p className="mb-3 text-[11px] text-brand-950/45">{tr("طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.")}</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(
                   [
-                    ["P — الفئة", pico.population],
-                    ["I — المتغير / التدخل", pico.intervention],
-                    ["C — المقارنة", pico.comparison],
-                    ["O — النتيجة", pico.outcome],
+                    [tr("P — الفئة"), pico.population],
+                    [tr("I — المتغير / التدخل"), pico.intervention],
+                    [tr("C — المقارنة"), pico.comparison],
+                    [tr("O — النتيجة"), pico.outcome],
                   ] as const
                 ).map(([label, value]) => (
                   <div key={label} className="rounded-xl bg-surface-muted p-2.5">
@@ -131,30 +126,27 @@ export default function SearchStrategy() {
           )}
 
           <Card className="space-y-4">
-            <p className="text-sm font-extrabold text-brand-950">جمل البحث الجاهزة</p>
+            <p className="text-sm font-extrabold text-brand-950">{tr("جمل البحث الجاهزة")}</p>
             {strategy.searchStrings?.pubmed && <CopyBlock label="PubMed" text={strategy.searchStrings.pubmed} />}
             {strategy.searchStrings?.cinahl && <CopyBlock label="CINAHL" text={strategy.searchStrings.cinahl} />}
             {strategy.searchStrings?.scopus && <CopyBlock label="Scopus" text={strategy.searchStrings.scopus} />}
-            <p className="text-[11px] text-brand-950/45">
-              هذي جمل مقترحة من الذكاء الاصطناعي: جرّبوها وعدّلوها حسب عدد النتائج، وتأكدوا من مصطلحات MeSH في MeSH Browser
-              قبل اعتمادها.
-            </p>
+            <p className="text-[11px] text-brand-950/45">{tr("هذي جمل مقترحة من الذكاء الاصطناعي: جرّبوها وعدّلوها حسب عدد النتائج، وتأكدوا من مصطلحات MeSH في MeSH Browser قبل اعتمادها.")}</p>
           </Card>
 
           <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <ListBlock title="كلمات مفتاحية (English)" items={strategy.keywordsEn} />
-            <ListBlock title="كلمات مفتاحية (عربي)" items={strategy.keywordsAr} />
-            <ListBlock title="MeSH مقترحة (تحقّقوا منها)" items={strategy.meshTerms} />
+            <ListBlock title={tr("كلمات مفتاحية (English)")} items={strategy.keywordsEn} />
+            <ListBlock title={tr("كلمات مفتاحية (عربي)")} items={strategy.keywordsAr} />
+            <ListBlock title={tr("MeSH مقترحة (تحقّقوا منها)")} items={strategy.meshTerms} />
           </Card>
 
           <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <ListBlock title="معايير القبول" items={strategy.inclusion} />
-            <ListBlock title="معايير الاستبعاد" items={strategy.exclusion} tone="amber" />
+            <ListBlock title={tr("معايير القبول")} items={strategy.inclusion} />
+            <ListBlock title={tr("معايير الاستبعاد")} items={strategy.exclusion} tone="amber" />
           </Card>
 
           {strategy.tips && strategy.tips.length > 0 && (
             <Card tone="sky">
-              <ListBlock title="نصائح للتنفيذ والتوثيق" items={strategy.tips} />
+              <ListBlock title={tr("نصائح للتنفيذ والتوثيق")} items={strategy.tips} />
             </Card>
           )}
         </div>

@@ -1,20 +1,21 @@
+import { isEn, tr } from "./i18n";
 const arabicMonths = [
-  "يناير",
-  "فبراير",
-  "مارس",
-  "أبريل",
-  "مايو",
-  "يونيو",
-  "يوليو",
-  "أغسطس",
-  "سبتمبر",
-  "أكتوبر",
-  "نوفمبر",
-  "ديسمبر",
+  tr("يناير"),
+  tr("فبراير"),
+  tr("مارس"),
+  tr("أبريل"),
+  tr("مايو"),
+  tr("يونيو"),
+  tr("يوليو"),
+  tr("أغسطس"),
+  tr("سبتمبر"),
+  tr("أكتوبر"),
+  tr("نوفمبر"),
+  tr("ديسمبر"),
 ];
 
-const arabicWeekdays = ["أحد", "اثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"];
-const arabicWeekdaysShort = ["أحد", "اثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"];
+const arabicWeekdays = [tr("أحد"), tr("اثنين"), tr("ثلاثاء"), tr("أربعاء"), tr("خميس"), tr("جمعة"), tr("سبت")];
+const arabicWeekdaysShort = [tr("أحد"), tr("اثنين"), tr("ثلاثاء"), tr("أربعاء"), tr("خميس"), tr("جمعة"), tr("سبت")];
 
 export function parseDate(value: string): Date {
   const [y, m, d] = value.split("-").map(Number);
@@ -70,14 +71,14 @@ export function isValidISODate(value: string): boolean {
 /** «الأربعاء 21 أكتوبر 2026» — اليوم + التاريخ الميلادي كاملين */
 export function formatDateFull(value: string): string {
   if (!isValidISODate(value)) return value;
-  return `ال${formatWeekday(value)} ${formatDateLong(value)}`;
+  return tr("ال{0} {1}", formatWeekday(value), formatDateLong(value));
 }
 
 /** التاريخ الهجري (أم القرى) مثل «10 جمادى الأولى 1448 هـ». يرجع "" لو المتصفح ما يدعمه */
 export function formatHijri(value: string): string {
   if (!isValidISODate(value)) return "";
   try {
-    return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn", {
+    return new Intl.DateTimeFormat(isEn ? "en-GB-u-ca-islamic-umalqura" : "ar-SA-u-ca-islamic-umalqura-nu-latn", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -105,13 +106,13 @@ export function addDaysISO(value: string, days: number): string {
 export function relativeDayLabel(value: string, from: Date = new Date()): string {
   if (!isValidISODate(value)) return "";
   const n = daysUntil(value, from);
-  if (n === 0) return "اليوم";
-  if (n === -1) return "أمس";
-  if (n === 1) return "بكرة";
-  if (n === -2) return "قبل يومين";
-  if (n === 2) return "بعد يومين";
-  if (n < 0) return `قبل ${-n} ${n >= -10 ? "أيام" : "يوم"}`;
-  return `بعد ${n} ${n <= 10 ? "أيام" : "يوم"}`;
+  if (n === 0) return tr("اليوم");
+  if (n === -1) return tr("أمس");
+  if (n === 1) return tr("بكرة");
+  if (n === -2) return tr("قبل يومين");
+  if (n === 2) return tr("بعد يومين");
+  if (n < 0) return tr("قبل {0} {1}", -n, n >= -10 ? tr("أيام") : tr("يوم"));
+  return tr("بعد {0} {1}", n, n <= 10 ? tr("أيام") : tr("يوم"));
 }
 
 export type GreetingPeriod = "morning" | "afternoon" | "evening" | "night";
@@ -123,10 +124,10 @@ export interface Greeting {
 
 export function getGreeting(date: Date = new Date()): Greeting {
   const hour = date.getHours();
-  if (hour >= 5 && hour < 12) return { text: "صباح الخير", period: "morning" };
-  if (hour >= 12 && hour < 17) return { text: "يعطيك العافية", period: "afternoon" };
-  if (hour >= 17 && hour < 22) return { text: "مساء الخير", period: "evening" };
-  return { text: "سهران على بحثك؟", period: "night" };
+  if (hour >= 5 && hour < 12) return { text: tr("صباح الخير"), period: "morning" };
+  if (hour >= 12 && hour < 17) return { text: tr("يعطيك العافية"), period: "afternoon" };
+  if (hour >= 17 && hour < 22) return { text: tr("مساء الخير"), period: "evening" };
+  return { text: tr("سهران على بحثك؟"), period: "night" };
 }
 
 export { arabicMonths, arabicWeekdays, arabicWeekdaysShort };

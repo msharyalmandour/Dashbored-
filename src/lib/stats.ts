@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 /** مكتبة إحصاء صغيرة بلا اعتماديات — تحسب بالمتصفح، وما ترسل بيانات الطالبات لأي سيرفر.
     كل الدوال نقية (pure) وتنختبر بـ Node. مرجع القيم: جداول التوزيعات القياسية. */
 
@@ -165,8 +166,8 @@ export function sampleSizeProportion(opts: {
     n: N ? Math.min(n, N) : n,
     withAttrition: N ? Math.min(withLoss(n, opts.loss ?? 0), N) : withLoss(n, opts.loss ?? 0),
     formula: N
-      ? "كوكران للنسبة مع تصحيح المجتمع المحدود: n₀ = z²·p·(1−p) / e² ثم n = n₀ / (1 + (n₀−1)/N)"
-      : "كوكران للنسبة: n = z²·p·(1−p) / e²",
+      ? tr("كوكران للنسبة مع تصحيح المجتمع المحدود: n₀ = z²·p·(1−p) / e² ثم n = n₀ / (1 + (n₀−1)/N)")
+      : tr("كوكران للنسبة: n = z²·p·(1−p) / e²"),
   };
 }
 
@@ -179,7 +180,7 @@ export function sampleSizeMean(opts: { sd: number; margin: number; confidence?: 
   return {
     n,
     withAttrition: withLoss(n, opts.loss ?? 0),
-    formula: "تقدير متوسط: n = (z·σ / e)² (مع تصحيح المجتمع المحدود لو حددتم المجتمع)",
+    formula: tr("تقدير متوسط: n = (z·σ / e)² (مع تصحيح المجتمع المحدود لو حددتم المجتمع)"),
   };
 }
 
@@ -191,7 +192,7 @@ export function sampleSizeTwoGroups(opts: { effectSize: number; alpha?: number; 
   return {
     n,
     withAttrition: withLoss(n, opts.loss ?? 0),
-    formula: "مقارنة مجموعتين: n لكل مجموعة ≈ 2·(z_α/2 + z_β)² / d²  (تقريب — تأكدوا بـ G*Power لو المشرفة تطلب)",
+    formula: tr("مقارنة مجموعتين: n لكل مجموعة ≈ 2·(z_α/2 + z_β)² / d²  (تقريب — تأكدوا بـ G*Power لو المشرفة تطلب)"),
   };
 }
 
@@ -201,7 +202,7 @@ export function sampleSizeCorrelation(opts: { r: number; alpha?: number; power?:
   const zb = zQuantile(opts.power ?? 0.8);
   const fz = 0.5 * Math.log((1 + opts.r) / (1 - opts.r));
   const n = Math.ceil(((za + zb) / fz) ** 2 + 3);
-  return { n, withAttrition: withLoss(n, opts.loss ?? 0), formula: "ارتباط بيرسون: n = ((z_α/2 + z_β) / atanh(r))² + 3" };
+  return { n, withAttrition: withLoss(n, opts.loss ?? 0), formula: tr("ارتباط بيرسون: n = ((z_α/2 + z_β) / atanh(r))² + 3") };
 }
 
 // ───────────────────────── وصفي وتنظيف بيانات ─────────────────────────
@@ -239,7 +240,7 @@ export function parseTable(text: string): Dataset {
     ["\t", count("\t")],
     [";", count(";")],
     [",", count(",")],
-    ["،", count("،")],
+    [tr("،"), count(tr("،"))],
   ].sort((a, b) => (b[1] as number) - (a[1] as number))[0][0] as string;
 
   const splitLine = (line: string) => {
@@ -269,7 +270,7 @@ export function parseTable(text: string): Dataset {
     const nums = values.map((v) => (v === "" ? null : toNumber(v)));
     const nonEmpty = values.filter((v) => v !== "").length;
     const numericCount = nums.filter((n) => n !== null).length;
-    return { name: name || `عمود ${j + 1}`, values, numeric: nonEmpty > 0 && numericCount / nonEmpty >= 0.9, nums };
+    return { name: name || tr("عمود {0}", j + 1), values, numeric: nonEmpty > 0 && numericCount / nonEmpty >= 0.9, nums };
   });
   return { columns, rows: body.length };
 }
@@ -344,7 +345,7 @@ export interface TTestResult {
 }
 
 /** Welch's t-test (لا يفترض تساوي التباين — الأأمن كافتراضي) */
-export function tTestIndependent(a: number[], b: number[], labels: [string, string] = ["المجموعة ١", "المجموعة ٢"]): TTestResult {
+export function tTestIndependent(a: number[], b: number[], labels: [string, string] = [tr("المجموعة ١"), tr("المجموعة ٢")]): TTestResult {
   const [n1, n2] = [a.length, b.length];
   const [m1, m2] = [mean(a), mean(b)];
   const [v1, v2] = [variance(a), variance(b)];
@@ -368,7 +369,7 @@ export function tTestIndependent(a: number[], b: number[], labels: [string, stri
   };
 }
 
-export function tTestPaired(a: number[], b: number[], labels: [string, string] = ["القياس ١", "القياس ٢"]): TTestResult {
+export function tTestPaired(a: number[], b: number[], labels: [string, string] = [tr("القياس ١"), tr("القياس ٢")]): TTestResult {
   const d = a.map((v, i) => v - b[i]);
   const n = d.length;
   const md = mean(d);
@@ -527,53 +528,49 @@ export function effectLabel(kind: "d" | "r" | "eta" | "v", v: number): string {
   const a = Math.abs(v);
   const t =
     kind === "d" ? [0.2, 0.5, 0.8] : kind === "r" ? [0.1, 0.3, 0.5] : kind === "eta" ? [0.01, 0.06, 0.14] : [0.1, 0.3, 0.5];
-  return a < t[0] ? "ضئيل" : a < t[1] ? "صغير" : a < t[2] ? "متوسط" : "كبير";
+  return a < t[0] ? tr("ضئيل") : a < t[1] ? tr("صغير") : a < t[2] ? tr("متوسط") : tr("كبير");
 }
 
 export function interpretT(r: TTestResult, varName: string): { plain: string; apa: string } {
   const [g1, g2] = r.groups;
   const df = r.kind === "t-paired" ? r.df : Math.round(r.df * 10) / 10;
-  const apa = `${r.kind === "t-paired" ? "أظهر اختبار t للعينات المترابطة" : "أظهر اختبار t (Welch) للعينات المستقلة"} ${
-    sig(r.p) ? "وجود فرق ذي دلالة إحصائية" : "عدم وجود فرق ذي دلالة إحصائية"
-  } في ${varName} بين ${g1.label} (${L(`M = ${f2(g1.mean)}, SD = ${f2(g1.sd)}`)}) و${g2.label} (${L(`M = ${f2(g2.mean)}, SD = ${f2(g2.sd)}`)})، ${L(`t(${df}) = ${f2(r.t)}, p ${fmtP(r.p)}, d = ${f2(r.cohenD)}`)}.`;
+  const apa = tr("{0} {1} في {2} بين {3} ({4}) و{5} ({6})، {7}.", r.kind === "t-paired" ? tr("أظهر اختبار t للعينات المترابطة") : tr("أظهر اختبار t (Welch) للعينات المستقلة"), sig(r.p) ? tr("وجود فرق ذي دلالة إحصائية") : tr("عدم وجود فرق ذي دلالة إحصائية"), varName, g1.label, L(`M = ${f2(g1.mean)}, SD = ${f2(g1.sd)}`), g2.label, L(`M = ${f2(g2.mean)}, SD = ${f2(g2.sd)}`), L(`t(${df}) = ${f2(r.t)}, p ${fmtP(r.p)}, d = ${f2(r.cohenD)}`));
   const plain = sig(r.p)
-    ? `الفرق بين المجموعتين حقيقي إحصائيًا (${L("p < .05")}) وحجم الأثر ${effectLabel("d", r.cohenD)} (${L(`d = ${f2(r.cohenD)}`)}). ${
-        r.meanDiff > 0 ? g1.label : g2.label
-      } أعلى بمتوسط ${f2(Math.abs(r.meanDiff))}. فترة الثقة 95% للفرق: ${L(`[${f2(r.ci[0])}, ${f2(r.ci[1])}]`)}.`
-    : `ما ظهر فرق ذو دلالة بين المجموعتين (${L(`p ${fmtP(r.p)}`)}). هذا ما يعني إنهم متطابقين، يعني ما عندنا دليل كافي على فرق — وقد يكون السبب صغر العينة. فترة الثقة 95%: ${L(`[${f2(r.ci[0])}, ${f2(r.ci[1])}]`)}.`;
+    ? tr("الفرق بين المجموعتين حقيقي إحصائيًا ({0}) وحجم الأثر {1} ({2}). {3} أعلى بمتوسط {4}. فترة الثقة 95% للفرق: {5}.", L("p < .05"), effectLabel("d", r.cohenD), L(`d = ${f2(r.cohenD)}`), r.meanDiff > 0 ? g1.label : g2.label, f2(Math.abs(r.meanDiff)), L(`[${f2(r.ci[0])}, ${f2(r.ci[1])}]`))
+    : tr("ما ظهر فرق ذو دلالة بين المجموعتين ({0}). هذا ما يعني إنهم متطابقين، يعني ما عندنا دليل كافي على فرق — وقد يكون السبب صغر العينة. فترة الثقة 95%: {1}.", L(`p ${fmtP(r.p)}`), L(`[${f2(r.ci[0])}, ${f2(r.ci[1])}]`));
   return { plain, apa };
 }
 
 export function interpretAnova(r: AnovaResult, varName: string): { plain: string; apa: string } {
-  const apa = `أظهر تحليل التباين الأحادي ${sig(r.p) ? "وجود فروق ذات دلالة إحصائية" : "عدم وجود فروق ذات دلالة إحصائية"} في ${varName} بين المجموعات، ${L(`F(${r.df1}, ${r.df2}) = ${f2(r.F)}, p ${fmtP(r.p)}, η² = ${f2(r.etaSq)}`)}.`;
+  const apa = tr("أظهر تحليل التباين الأحادي {0} في {1} بين المجموعات، {2}.", sig(r.p) ? tr("وجود فروق ذات دلالة إحصائية") : tr("عدم وجود فروق ذات دلالة إحصائية"), varName, L(`F(${r.df1}, ${r.df2}) = ${f2(r.F)}, p ${fmtP(r.p)}, η² = ${f2(r.etaSq)}`));
   const plain = sig(r.p)
-    ? `فيه فرق دال بين المجموعات (${L("p < .05")}) بحجم أثر ${effectLabel("eta", r.etaSq)} (${L(`η² = ${f2(r.etaSq)}`)}). ANOVA يقول إن فيه فرق بين مجموعتين على الأقل، لكن ما يقول أي مجموعتين — تحتاجون اختبار لاحق (Post-hoc مثل Tukey) لتحديدها.`
-    : `ما ظهر فرق دال بين المجموعات (${L(`p ${fmtP(r.p)}`)}).`;
+    ? tr("فيه فرق دال بين المجموعات ({0}) بحجم أثر {1} ({2}). ANOVA يقول إن فيه فرق بين مجموعتين على الأقل، لكن ما يقول أي مجموعتين — تحتاجون اختبار لاحق (Post-hoc مثل Tukey) لتحديدها.", L("p < .05"), effectLabel("eta", r.etaSq), L(`η² = ${f2(r.etaSq)}`))
+    : tr("ما ظهر فرق دال بين المجموعات ({0}).", L(`p ${fmtP(r.p)}`));
   return { plain, apa };
 }
 
 export function interpretChi(r: ChiSquareResult, a: string, b: string): { plain: string; apa: string } {
-  const apa = `أظهر اختبار مربع كاي ${sig(r.p) ? "وجود علاقة ذات دلالة إحصائية" : "عدم وجود علاقة ذات دلالة إحصائية"} بين ${a} و${b}، ${L(`χ²(${r.df}, N = ${r.n}) = ${f2(r.chi2)}, p ${fmtP(r.p)}, V = ${f2(r.cramersV)}`)}.`;
-  const warn = r.lowExpectedShare > 0.2 ? ` تنبيه: ${Math.round(r.lowExpectedShare * 100)}% من الخلايا تكرارها المتوقع أقل من 5، فالنتيجة قد تكون غير دقيقة — ادمجوا فئات أو استخدموا اختبار فيشر الدقيق (Fisher's exact) لو الجدول 2×2.` : "";
+  const apa = tr("أظهر اختبار مربع كاي {0} بين {1} و{2}، {3}.", sig(r.p) ? tr("وجود علاقة ذات دلالة إحصائية") : tr("عدم وجود علاقة ذات دلالة إحصائية"), a, b, L(`χ²(${r.df}, N = ${r.n}) = ${f2(r.chi2)}, p ${fmtP(r.p)}, V = ${f2(r.cramersV)}`));
+  const warn = r.lowExpectedShare > 0.2 ? tr(" تنبيه: {0}% من الخلايا تكرارها المتوقع أقل من 5، فالنتيجة قد تكون غير دقيقة — ادمجوا فئات أو استخدموا اختبار فيشر الدقيق (Fisher's exact) لو الجدول 2×2.", Math.round(r.lowExpectedShare * 100)) : "";
   const plain = (sig(r.p)
-    ? `فيه علاقة حقيقية إحصائيًا بين ${a} و${b} (${L("p < .05")}) بقوة ${effectLabel("v", r.cramersV)} (${L(`V = ${f2(r.cramersV)}`)}).`
-    : `ما ظهرت علاقة دالة بين ${a} و${b} (${L(`p ${fmtP(r.p)}`)}).`) + warn;
+    ? tr("فيه علاقة حقيقية إحصائيًا بين {0} و{1} ({2}) بقوة {3} ({4}).", a, b, L("p < .05"), effectLabel("v", r.cramersV), L(`V = ${f2(r.cramersV)}`))
+    : tr("ما ظهرت علاقة دالة بين {0} و{1} ({2}).", a, b, L(`p ${fmtP(r.p)}`))) + warn;
   return { plain, apa };
 }
 
 export function interpretCorr(r: CorrelationResult, a: string, b: string): { plain: string; apa: string } {
-  const name = r.method === "pearson" ? "بيرسون" : "سبيرمان";
+  const name = r.method === "pearson" ? tr("بيرسون") : tr("سبيرمان");
   const sym = r.method === "pearson" ? "r" : "rₛ";
-  const apa = `أظهر معامل ارتباط ${name} ${sig(r.p) ? "علاقة ذات دلالة إحصائية" : "عدم وجود علاقة ذات دلالة إحصائية"} بين ${a} و${b}، ${L(`${sym}(${r.df}) = ${f2(r.r).replace(/^0/, "").replace(/^-0/, "-")}, p ${fmtP(r.p)}`)}.`;
-  const dir = r.r > 0 ? "طردية (كل ما زاد الأول زاد الثاني)" : "عكسية (كل ما زاد الأول قلّ الثاني)";
+  const apa = tr("أظهر معامل ارتباط {0} {1} بين {2} و{3}، {4}.", name, sig(r.p) ? tr("علاقة ذات دلالة إحصائية") : tr("عدم وجود علاقة ذات دلالة إحصائية"), a, b, L(`${sym}(${r.df}) = ${f2(r.r).replace(/^0/, "").replace(/^-0/, "-")}, p ${fmtP(r.p)}`));
+  const dir = r.r > 0 ? tr("طردية (كل ما زاد الأول زاد الثاني)") : tr("عكسية (كل ما زاد الأول قلّ الثاني)");
   const plain = sig(r.p)
-    ? `علاقة ${dir} وقوتها ${effectLabel("r", r.r)} (${L(`${sym} = ${f2(r.r)}`)}). تذكروا: الارتباط ما يعني سببية.`
-    : `ما ظهرت علاقة دالة بين المتغيرين (${L(`p ${fmtP(r.p)}, ${sym} = ${f2(r.r)}`)}).`;
+    ? tr("علاقة {0} وقوتها {1} ({2}). تذكروا: الارتباط ما يعني سببية.", dir, effectLabel("r", r.r), L(`${sym} = ${f2(r.r)}`))
+    : tr("ما ظهرت علاقة دالة بين المتغيرين ({0}).", L(`p ${fmtP(r.p)}, ${sym} = ${f2(r.r)}`));
   return { plain, apa };
 }
 
 export function alphaLabel(a: number): string {
-  return a >= 0.9 ? "ممتاز (وقد يعني تكرار فقرات)" : a >= 0.8 ? "جيد جدًا" : a >= 0.7 ? "مقبول" : a >= 0.6 ? "ضعيف (مقبول بحدود للمقاييس القصيرة)" : "غير مقبول";
+  return a >= 0.9 ? tr("ممتاز (وقد يعني تكرار فقرات)") : a >= 0.8 ? tr("جيد جدًا") : a >= 0.7 ? tr("مقبول") : a >= 0.6 ? tr("ضعيف (مقبول بحدود للمقاييس القصيرة)") : tr("غير مقبول");
 }
 
 // ───────────────────────── مساعد اختيار الاختبار ─────────────────────────
@@ -602,33 +599,33 @@ export interface TestAdvice {
 export function chooseTest(i: ChooserInput): TestAdvice {
   if (i.goal === "describe") {
     return {
-      test: i.outcome === "numeric" ? "إحصاء وصفي: المتوسط والانحراف المعياري (أو الوسيط لو البيانات ملتوية)" : "التكرارات والنسب المئوية",
+      test: i.outcome === "numeric" ? tr("إحصاء وصفي: المتوسط والانحراف المعياري (أو الوسيط لو البيانات ملتوية)") : tr("التكرارات والنسب المئوية"),
       inApp: true,
-      why: "تصف عينتكم كما هي بدون استدلال.",
-      assumptions: "لا شي.",
+      why: tr("تصف عينتكم كما هي بدون استدلال."),
+      assumptions: tr("لا شي."),
     };
   }
   if (i.goal === "relation") {
     if (i.outcome === "numeric" && i.other === "numeric")
       return i.normal === false
-        ? { test: "ارتباط سبيرمان", inApp: true, why: "علاقة بين متغيرين رقميين والبيانات غير طبيعية أو رتبية (مثل مقياس ليكرت أحادي).", assumptions: "علاقة رتبية أحادية الاتجاه (monotonic)." }
-        : { test: "ارتباط بيرسون", inApp: true, why: "علاقة بين متغيرين رقميين.", assumptions: "علاقة خطية، وتوزيع طبيعي تقريبًا، وبلا قيم متطرفة كبيرة.", alternative: "سبيرمان لو البيانات غير طبيعية" };
+        ? { test: tr("ارتباط سبيرمان"), inApp: true, why: tr("علاقة بين متغيرين رقميين والبيانات غير طبيعية أو رتبية (مثل مقياس ليكرت أحادي)."), assumptions: tr("علاقة رتبية أحادية الاتجاه (monotonic).") }
+        : { test: tr("ارتباط بيرسون"), inApp: true, why: tr("علاقة بين متغيرين رقميين."), assumptions: tr("علاقة خطية، وتوزيع طبيعي تقريبًا، وبلا قيم متطرفة كبيرة."), alternative: tr("سبيرمان لو البيانات غير طبيعية") };
     if (i.outcome === "categorical" && i.other === "categorical")
-      return { test: "مربع كاي للاستقلالية (χ²)", inApp: true, why: "علاقة بين متغيرين فئويين (مثل الجنس والمستوى الدراسي).", assumptions: "كل خلية تكرارها المتوقع ≥ 5 (لو 2×2 وأقل استخدموا Fisher).", alternative: "Fisher's exact لو العينة صغيرة" };
-    return { test: "t-test أو ANOVA (متغير فئوي مقابل رقمي)", inApp: true, why: "علاقة بين متغير فئوي ومتغير رقمي تعني مقارنة المتوسطات بين الفئات — اختاروا «فرق بين مجموعات».", assumptions: "راجعوا خيار الفرق." };
+      return { test: tr("مربع كاي للاستقلالية (χ²)"), inApp: true, why: tr("علاقة بين متغيرين فئويين (مثل الجنس والمستوى الدراسي)."), assumptions: tr("كل خلية تكرارها المتوقع ≥ 5 (لو 2×2 وأقل استخدموا Fisher)."), alternative: tr("Fisher's exact لو العينة صغيرة") };
+    return { test: tr("t-test أو ANOVA (متغير فئوي مقابل رقمي)"), inApp: true, why: tr("علاقة بين متغير فئوي ومتغير رقمي تعني مقارنة المتوسطات بين الفئات — اختاروا «فرق بين مجموعات»."), assumptions: tr("راجعوا خيار الفرق.") };
   }
   // difference
   if (i.outcome === "categorical")
-    return { test: "مربع كاي (χ²)", inApp: true, why: "مقارنة نسب بين مجموعات.", assumptions: "كل خلية متوقعة ≥ 5.", alternative: i.paired ? "اختبار مكنمار (McNemar) للقياسات المترابطة — غير مضاف بالموقع حاليًا" : "Fisher لو 2×2 وعينة صغيرة" };
+    return { test: tr("مربع كاي (χ²)"), inApp: true, why: tr("مقارنة نسب بين مجموعات."), assumptions: tr("كل خلية متوقعة ≥ 5."), alternative: i.paired ? tr("اختبار مكنمار (McNemar) للقياسات المترابطة — غير مضاف بالموقع حاليًا") : tr("Fisher لو 2×2 وعينة صغيرة") };
   if (i.groups === 2)
     return i.paired
       ? i.normal === false
-        ? { test: "اختبار ويلككسون للرتب المُوقّعة (Wilcoxon signed-rank)", inApp: false, why: "قياسان لنفس الأشخاص وبيانات غير طبيعية.", assumptions: "فروق متماثلة تقريبًا.", alternative: "t المترابط لو العينة كبيرة (≥ 30)" }
-        : { test: "اختبار t للعينات المترابطة (Paired t-test)", inApp: true, why: "قياسان لنفس الأشخاص (قبل/بعد مثلًا).", assumptions: "الفروق موزعة تقريبًا طبيعيًا." }
+        ? { test: tr("اختبار ويلككسون للرتب المُوقّعة (Wilcoxon signed-rank)"), inApp: false, why: tr("قياسان لنفس الأشخاص وبيانات غير طبيعية."), assumptions: tr("فروق متماثلة تقريبًا."), alternative: tr("t المترابط لو العينة كبيرة (≥ 30)") }
+        : { test: tr("اختبار t للعينات المترابطة (Paired t-test)"), inApp: true, why: tr("قياسان لنفس الأشخاص (قبل/بعد مثلًا)."), assumptions: tr("الفروق موزعة تقريبًا طبيعيًا.") }
       : i.normal === false
-        ? { test: "مان-ويتني (Mann-Whitney U)", inApp: false, why: "مجموعتان مستقلتان وبيانات غير طبيعية أو رتبية.", assumptions: "شكل توزيع متشابه.", alternative: "Welch t لو العينة كبيرة (≥ 30 لكل مجموعة)" }
-        : { test: "اختبار t للعينات المستقلة (Welch)", inApp: true, why: "مقارنة متوسط مجموعتين مستقلتين (مثل ذكور/إناث).", assumptions: "توزيع طبيعي تقريبًا أو عينة ≥ 30 لكل مجموعة." };
+        ? { test: tr("مان-ويتني (Mann-Whitney U)"), inApp: false, why: tr("مجموعتان مستقلتان وبيانات غير طبيعية أو رتبية."), assumptions: tr("شكل توزيع متشابه."), alternative: tr("Welch t لو العينة كبيرة (≥ 30 لكل مجموعة)") }
+        : { test: tr("اختبار t للعينات المستقلة (Welch)"), inApp: true, why: tr("مقارنة متوسط مجموعتين مستقلتين (مثل ذكور/إناث)."), assumptions: tr("توزيع طبيعي تقريبًا أو عينة ≥ 30 لكل مجموعة.") };
   return i.normal === false
-    ? { test: "كروسكال-واليس (Kruskal-Wallis)", inApp: false, why: "ثلاث مجموعات فأكثر وبيانات غير طبيعية.", assumptions: "شكل توزيع متشابه.", alternative: "ANOVA لو العينة كبيرة" }
-    : { test: "تحليل التباين الأحادي (One-way ANOVA)", inApp: true, why: "مقارنة متوسطات ٣ مجموعات فأكثر (مثل مستويات الخبرة).", assumptions: "توزيع طبيعي تقريبًا وتباين متقارب بين المجموعات.", alternative: "بعده اختبار لاحق (Tukey) لتحديد أي مجموعتين تختلفان" };
+    ? { test: tr("كروسكال-واليس (Kruskal-Wallis)"), inApp: false, why: tr("ثلاث مجموعات فأكثر وبيانات غير طبيعية."), assumptions: tr("شكل توزيع متشابه."), alternative: tr("ANOVA لو العينة كبيرة") }
+    : { test: tr("تحليل التباين الأحادي (One-way ANOVA)"), inApp: true, why: tr("مقارنة متوسطات ٣ مجموعات فأكثر (مثل مستويات الخبرة)."), assumptions: tr("توزيع طبيعي تقريبًا وتباين متقارب بين المجموعات."), alternative: tr("بعده اختبار لاحق (Tukey) لتحديد أي مجموعتين تختلفان") };
 }

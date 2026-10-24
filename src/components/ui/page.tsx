@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import clsx from "clsx";
 import { Check } from "lucide-react";
 import RingProgress from "./RingProgress";
+import { tr } from "../../lib/i18n";
 
 /* لغة التصميم الموحّدة للصفحات الداخلية (كلها ما عدا الرئيسية):
    ترويسة صفحة → عمود رئيسي + عمود جانبي (بطاقة مميزة + جاهزية) → صفوف هادئة.
@@ -210,7 +211,7 @@ export function ReadinessPanel({
         <div className="min-w-0">
           <p className="font-display text-lg font-bold text-brand-950">{title}</p>
           <p className="text-sm text-brand-950/50">
-            {subtitle ?? `${done} من ${total}`}
+            {subtitle ?? tr("{0} من {1}", done, total)}
           </p>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import Avatar from "./ui/Avatar";
 import type { TaskComment } from "../data/types";
+import { tr } from "../lib/i18n";
 
 interface CommentAuthor {
   name: string;
@@ -47,7 +48,7 @@ export default function TaskComments({ comments, memberById, canComment, onSubmi
           })}
         </ul>
       ) : (
-        <p className="text-sm text-brand-950/40">ولا تعليق بعد — ابدؤوا النقاش.</p>
+        <p className="text-sm text-brand-950/40">{tr("ولا تعليق بعد — ابدؤوا النقاش.")}</p>
       )}
 
       {canComment && (
@@ -58,7 +59,7 @@ export default function TaskComments({ comments, memberById, canComment, onSubmi
             onKeyDown={(e) => {
               if (e.key === "Enter") submit();
             }}
-            placeholder="اكتب تعليقك..."
+            placeholder={tr("اكتب تعليقك...")}
             className="flex-1 rounded-xl border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
           />
           <button

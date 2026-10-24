@@ -1,6 +1,7 @@
 import type { Paragraph, Table } from "docx";
 import { formatDateFull, formatHijri } from "./date";
 import { loadWesyncKit, type WordStyle } from "./wordTheme";
+import { tr } from "./i18n";
 
 export interface MeetingMinutesExportInput {
   meetingDate: string;
@@ -58,7 +59,7 @@ async function buildMinutesOfficial(input: MeetingMinutesExportInput): Promise<B
             bidirectional: true,
             spacing: { after: 80 },
             children: [
-              new TextRun({ text: "Wesync — محضر اجتماع", bold: true, size: 20, color: "8a6d1a", rightToLeft: true }),
+              new TextRun({ text: tr("Wesync — محضر اجتماع"), bold: true, size: 20, color: "8a6d1a", rightToLeft: true }),
             ],
           }),
           new Paragraph({
@@ -70,23 +71,23 @@ async function buildMinutesOfficial(input: MeetingMinutesExportInput): Promise<B
               new TextRun({ text: formatDateFull(input.meetingDate), bold: true, rightToLeft: true }),
             ],
           }),
-          ...(formatHijri(input.meetingDate) ? [ar(`الموافق ${formatHijri(input.meetingDate)}`, { color: "666666" })] : []),
+          ...(formatHijri(input.meetingDate) ? [ar(tr("الموافق {0}", formatHijri(input.meetingDate)), { color: "666666" })] : []),
 
-          arHeading("الحاضرون"),
+          arHeading(tr("الحاضرون")),
           ...(input.attendees.length > 0
             ? input.attendees.map((a) => arBullet(a))
-            : [ar("لم يُحدد أحد.", { color: "999999" })]),
+            : [ar(tr("لم يُحدد أحد."), { color: "999999" })]),
 
-          ...(input.agenda?.trim() ? [arHeading("جدول الأعمال"), ...input.agenda.split("\n").filter((l) => l.trim()).map((l) => ar(l.trim()))] : []),
+          ...(input.agenda?.trim() ? [arHeading(tr("جدول الأعمال")), ...input.agenda.split("\n").filter((l) => l.trim()).map((l) => ar(l.trim()))] : []),
 
-          arHeading("ماذا ناقشنا"),
-          ar(input.discussion || "لا يوجد.", { color: input.discussion ? undefined : "999999" }),
+          arHeading(tr("ماذا ناقشنا")),
+          ar(input.discussion || tr("لا يوجد."), { color: input.discussion ? undefined : "999999" }),
 
-          arHeading("القرارات"),
-          ar(input.decisions || "لا يوجد.", { color: input.decisions ? undefined : "999999" }),
+          arHeading(tr("القرارات")),
+          ar(input.decisions || tr("لا يوجد."), { color: input.decisions ? undefined : "999999" }),
 
-          arHeading("المهام المطلوبة"),
-          ar(input.actionItems || "لا يوجد.", { color: input.actionItems ? undefined : "999999" }),
+          arHeading(tr("المهام المطلوبة")),
+          ar(input.actionItems || tr("لا يوجد."), { color: input.actionItems ? undefined : "999999" }),
         ],
       },
     ],
@@ -99,30 +100,30 @@ const lines = (text: string) => text.split(/\n+/).map((l) => l.replace(/^[-•*\
 
 /** نسخة Wesync الداكنة من المحضر: رأس بالتاريخ، بطاقة حضور، ومهام كقائمة */
 async function buildMinutesDark(input: MeetingMinutesExportInput): Promise<Blob> {
-  const k = await loadWesyncKit({ label: "محضر اجتماع — Meeting Minutes", title: `محضر اجتماع ${input.meetingDate}` });
+  const k = await loadWesyncKit({ label: tr("محضر اجتماع — Meeting Minutes"), title: tr("محضر اجتماع {0}", input.meetingDate) });
   const actions = lines(input.actionItems);
   const children: (Paragraph | Table)[] = [
     ...k.masthead({
-      kicker: "محضر اجتماع — MEETING MINUTES",
+      kicker: tr("محضر اجتماع — MEETING MINUTES"),
       title: formatDateFull(input.meetingDate),
-      sub: [formatHijri(input.meetingDate), `${input.attendees.length} ${input.attendees.length === 1 ? "حاضر" : "حاضرين"}`]
+      sub: [formatHijri(input.meetingDate), `${input.attendees.length} ${input.attendees.length === 1 ? tr("حاضر") : tr("حاضرين")}`]
         .filter(Boolean)
         .join(" · "),
     }),
 
-    k.heading("الحاضرون"),
-    ...k.bullets(input.attendees, "لم يُحدد أحد."),
+    k.heading(tr("الحاضرون")),
+    ...k.bullets(input.attendees, tr("لم يُحدد أحد.")),
 
-    ...(input.agenda?.trim() ? [k.heading("جدول الأعمال"), ...k.narrative(input.agenda, "")] : []),
+    ...(input.agenda?.trim() ? [k.heading(tr("جدول الأعمال")), ...k.narrative(input.agenda, "")] : []),
 
-    k.heading("ماذا ناقشنا"),
-    ...k.narrative(input.discussion, "لا يوجد."),
+    k.heading(tr("ماذا ناقشنا")),
+    ...k.narrative(input.discussion, tr("لا يوجد.")),
 
-    k.heading("القرارات"),
-    k.callout("القرارات المتخذة", input.decisions),
+    k.heading(tr("القرارات")),
+    k.callout(tr("القرارات المتخذة"), input.decisions),
 
-    k.heading("المهام المطلوبة"),
-    ...k.bullets(actions, "لا يوجد."),
+    k.heading(tr("المهام المطلوبة")),
+    ...k.bullets(actions, tr("لا يوجد.")),
   ];
   return k.build(children);
 }

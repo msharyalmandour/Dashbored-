@@ -1,6 +1,7 @@
 import { anovaOneWay, chiSquare, correlation, describe, interpretAnova, interpretChi, interpretCorr, interpretT, tTestIndependent, type Descriptive } from "./stats";
 import type { Question } from "./surveyCoach";
 import type { SurveyResponse } from "../hooks/useSurveys";
+import { tr } from "./i18n";
 
 /** «اسألوا بياناتكم»: الذكاء يختار الاختبار المناسب من سؤالكم، لكن كل الأرقام والصياغة تنحسب هنا
     بمكتبة الإحصاء نفسها اللي بصفحة الإحصاء — ما يخترع الذكاء أي رقم. */
@@ -78,7 +79,7 @@ export function buildColumns(qs: Question[], responses: SurveyResponse[]): AskCo
     }
   }
   if (likertItems(qs).length >= 3) {
-    const probe: AskColumn = { id: SCALE_ID, label: "الدرجة الكلية (متوسط كل عبارات ليكرت)", kind: "numeric", ordinal: true, n: 0 };
+    const probe: AskColumn = { id: SCALE_ID, label: tr("الدرجة الكلية (متوسط كل عبارات ليكرت)"), kind: "numeric", ordinal: true, n: 0 };
     const n = responses.filter((r) => scaleScore(qs, r.answers) !== null).length;
     if (n > 0) cols.unshift({ ...probe, n });
   }
@@ -90,7 +91,7 @@ const row = (g: { label: string; n: number; mean: number; sd: number }) => [g.la
 
 function descRows(label: string, d: Descriptive): string[][] {
   return [
-    ["المتغير", "N", "المتوسط", "الانحراف", "الوسيط", "أقل", "أعلى"],
+    [tr("المتغير"), "N", tr("المتوسط"), tr("الانحراف"), tr("الوسيط"), tr("أقل"), tr("أعلى")],
     [label, String(d.n), f2(d.mean), f2(d.sd), f2(d.median), f2(d.min), f2(d.max)],
   ];
 }
@@ -100,27 +101,27 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
   const byId = new Map(cols.map((c) => [c.id, c]));
   const get = (id?: string) => (id ? byId.get(id) : undefined);
 
-  if (plan.test === "unsupported") return { error: plan.reason || "هذا السؤال ما أقدر أجاوبه من بيانات الاستبيان الحالية." };
+  if (plan.test === "unsupported") return { error: plan.reason || tr("هذا السؤال ما أقدر أجاوبه من بيانات الاستبيان الحالية.") };
 
   if (plan.test === "describe") {
     const c = get(plan.outcome);
-    if (!c || c.kind !== "numeric") return { error: "ما قدرت أحدد المتغير الرقمي للوصف — جرّبوا تذكرون اسمه بسؤالكم." };
+    if (!c || c.kind !== "numeric") return { error: tr("ما قدرت أحدد المتغير الرقمي للوصف — جرّبوا تذكرون اسمه بسؤالكم.") };
     const nums = responses.map((r) => numericOf(c, qs, r.answers)).filter((x): x is number => x !== null);
-    if (nums.length < 2) return { error: "الردود قليلة جدًا للوصف." };
+    if (nums.length < 2) return { error: tr("الردود قليلة جدًا للوصف.") };
     const d = describe(nums);
     return {
-      title: `وصف: ${c.label}`,
+      title: tr("وصف: {0}", c.label),
       table: descRows(c.label, d),
-      plain: `متوسط الإجابات ${f2(d.mean)} (انحراف معياري ${f2(d.sd)}) من ${d.n} مشارك/ة، والوسيط ${f2(d.median)}.`,
-      apa: `بلغ متوسط ${c.label} (M = ${f2(d.mean)}, SD = ${f2(d.sd)}, N = ${d.n}).`,
-      notes: c.ordinal ? ["مقياس ليكرت ترتيبي — المتوسط للوصف، وفضّلوا الوسيط عند التفسير لو التوزيع ملتوي."] : [],
+      plain: tr("متوسط الإجابات {0} (انحراف معياري {1}) من {2} مشارك/ة، والوسيط {3}.", f2(d.mean), f2(d.sd), d.n, f2(d.median)),
+      apa: tr("بلغ متوسط {0} (M = {1}, SD = {2}, N = {3}).", c.label, f2(d.mean), f2(d.sd), d.n),
+      notes: c.ordinal ? [tr("مقياس ليكرت ترتيبي — المتوسط للوصف، وفضّلوا الوسيط عند التفسير لو التوزيع ملتوي.")] : [],
     };
   }
 
   if (plan.test === "compare_groups") {
     const o = get(plan.outcome);
     const g = get(plan.group);
-    if (!o || o.kind !== "numeric" || !g || g.kind !== "category") return { error: "للمقارنة أحتاج متغير رقمي (مثل درجة ليكرت) ومتغير فئات (مثل المرحلة). جرّبوا تصيغون السؤال بوضوح." };
+    if (!o || o.kind !== "numeric" || !g || g.kind !== "category") return { error: tr("للمقارنة أحتاج متغير رقمي (مثل درجة ليكرت) ومتغير فئات (مثل المرحلة). جرّبوا تصيغون السؤال بوضوح.") };
     const buckets = new Map<string, number[]>();
     for (const r of responses) {
       const lv = categoryOf(g, r.answers);
@@ -129,17 +130,17 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
     }
     const groups = [...buckets].map(([label, values]) => ({ label, values })).filter((b) => b.values.length >= MIN_PER_GROUP);
     const dropped = buckets.size - groups.length;
-    if (groups.length < 2) return { error: `كل مجموعة لازم فيها ${MIN_PER_GROUP} ردود على الأقل، وما تحقق هذا لمجموعتين أو أكثر. اجمعوا ردود أكثر.` };
+    if (groups.length < 2) return { error: tr("كل مجموعة لازم فيها {0} ردود على الأقل، وما تحقق هذا لمجموعتين أو أكثر. اجمعوا ردود أكثر.", MIN_PER_GROUP) };
     const notes = [
-      ...(dropped > 0 ? [`استبعدنا ${dropped} مجموعة لأن ردودها أقل من ${MIN_PER_GROUP}.`] : []),
-      ...(o.ordinal ? ["ليكرت ترتيبي: اختبار t/ANOVA شائع بالأبحاث الجامعية، لكن لو العينة صغيرة أو التوزيع ملتوي اسألوا المشرف/ة عن البديل اللاعلمي (Mann-Whitney / Kruskal-Wallis)."] : []),
+      ...(dropped > 0 ? [tr("استبعدنا {0} مجموعة لأن ردودها أقل من {1}.", dropped, MIN_PER_GROUP)] : []),
+      ...(o.ordinal ? [tr("ليكرت ترتيبي: اختبار t/ANOVA شائع بالأبحاث الجامعية، لكن لو العينة صغيرة أو التوزيع ملتوي اسألوا المشرف/ة عن البديل اللاعلمي (Mann-Whitney / Kruskal-Wallis).")] : []),
     ];
     if (groups.length === 2) {
       const r = tTestIndependent(groups[0].values, groups[1].values, [groups[0].label, groups[1].label]);
       const i = interpretT(r, o.label);
       return {
-        title: `مقارنة ${o.label} حسب ${g.label}`,
-        table: [["المجموعة", "N", "المتوسط", "الانحراف"], ...r.groups.map(row), ["الاختبار", `t(${f2(r.df)}) = ${f2(r.t)}`, `p ${r.p < 0.001 ? "< .001" : "= " + r.p.toFixed(3)}`, `d = ${f2(r.cohenD)}`]],
+        title: tr("مقارنة {0} حسب {1}", o.label, g.label),
+        table: [[tr("المجموعة"), "N", tr("المتوسط"), tr("الانحراف")], ...r.groups.map(row), [tr("الاختبار"), `t(${f2(r.df)}) = ${f2(r.t)}`, `p ${r.p < 0.001 ? "< .001" : "= " + r.p.toFixed(3)}`, `d = ${f2(r.cohenD)}`]],
         plain: i.plain,
         apa: i.apa,
         notes,
@@ -148,8 +149,8 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
     const r = anovaOneWay(groups);
     const i = interpretAnova(r, o.label);
     return {
-      title: `مقارنة ${o.label} حسب ${g.label}`,
-      table: [["المجموعة", "N", "المتوسط", "الانحراف"], ...r.groups.map(row), ["الاختبار", `F(${r.df1}, ${r.df2}) = ${f2(r.F)}`, `p ${r.p < 0.001 ? "< .001" : "= " + r.p.toFixed(3)}`, `η² = ${f2(r.etaSq)}`]],
+      title: tr("مقارنة {0} حسب {1}", o.label, g.label),
+      table: [[tr("المجموعة"), "N", tr("المتوسط"), tr("الانحراف")], ...r.groups.map(row), [tr("الاختبار"), `F(${r.df1}, ${r.df2}) = ${f2(r.F)}`, `p ${r.p < 0.001 ? "< .001" : "= " + r.p.toFixed(3)}`, `η² = ${f2(r.etaSq)}`]],
       plain: i.plain,
       apa: i.apa,
       notes,
@@ -159,7 +160,7 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
   if (plan.test === "correlate") {
     const a = get(plan.x);
     const b = get(plan.y);
-    if (!a || !b || a.kind !== "numeric" || b.kind !== "numeric" || a.id === b.id) return { error: "للارتباط أحتاج متغيرين رقميين مختلفين (ليكرت أو أرقام)." };
+    if (!a || !b || a.kind !== "numeric" || b.kind !== "numeric" || a.id === b.id) return { error: tr("للارتباط أحتاج متغيرين رقميين مختلفين (ليكرت أو أرقام).") };
     const xs: number[] = [];
     const ys: number[] = [];
     for (const r of responses) {
@@ -170,24 +171,24 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
         ys.push(y);
       }
     }
-    if (xs.length < 5) return { error: "الردود المكتملة للمتغيرين أقل من ٥ — اجمعوا ردود أكثر." };
-    if (new Set(xs).size < 2 || new Set(ys).size < 2) return { error: "أحد المتغيرين كل إجاباته متطابقة، فما يمدي نحسب ارتباط." };
+    if (xs.length < 5) return { error: tr("الردود المكتملة للمتغيرين أقل من ٥ — اجمعوا ردود أكثر.") };
+    if (new Set(xs).size < 2 || new Set(ys).size < 2) return { error: tr("أحد المتغيرين كل إجاباته متطابقة، فما يمدي نحسب ارتباط.") };
     const method = a.ordinal || b.ordinal ? "spearman" : "pearson";
     const r = correlation(xs, ys, method);
     const i = interpretCorr(r, a.label, b.label);
     return {
-      title: `الارتباط بين ${a.label} و${b.label}`,
-      table: [["الاختبار", "المعامل", "df", "p", "N"], [method === "pearson" ? "Pearson r" : "Spearman ρ", f2(r.r), String(r.df), r.p < 0.001 ? "< .001" : r.p.toFixed(3), String(r.n)]],
+      title: tr("الارتباط بين {0} و{1}", a.label, b.label),
+      table: [[tr("الاختبار"), tr("المعامل"), "df", "p", "N"], [method === "pearson" ? "Pearson r" : "Spearman ρ", f2(r.r), String(r.df), r.p < 0.001 ? "< .001" : r.p.toFixed(3), String(r.n)]],
       plain: i.plain,
       apa: i.apa,
-      notes: method === "spearman" ? ["استخدمنا سبيرمان لأن أحد المتغيرين مقياس ليكرت (ترتيبي)."] : [],
+      notes: method === "spearman" ? [tr("استخدمنا سبيرمان لأن أحد المتغيرين مقياس ليكرت (ترتيبي).")] : [],
     };
   }
 
   if (plan.test === "associate") {
     const a = get(plan.x);
     const b = get(plan.y);
-    if (!a || !b || a.kind !== "category" || b.kind !== "category" || a.id === b.id) return { error: "لعلاقة بين فئتين أحتاج سؤالين من نوع «اختيار واحد»." };
+    if (!a || !b || a.kind !== "category" || b.kind !== "category" || a.id === b.id) return { error: tr("لعلاقة بين فئتين أحتاج سؤالين من نوع «اختيار واحد».") };
     const av: string[] = [];
     const bv: string[] = [];
     for (const r of responses) {
@@ -198,12 +199,12 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
         bv.push(y);
       }
     }
-    if (av.length < 10) return { error: "الردود المكتملة أقل من ١٠ — اجمعوا ردود أكثر لاختبار العلاقة." };
+    if (av.length < 10) return { error: tr("الردود المكتملة أقل من ١٠ — اجمعوا ردود أكثر لاختبار العلاقة.") };
     const r = chiSquare(av, bv);
-    if (!Number.isFinite(r.chi2)) return { error: "الجدول ما يسمح بحساب مربع كاي (فئة وحدة فقط بأحد السؤالين؟)." };
+    if (!Number.isFinite(r.chi2)) return { error: tr("الجدول ما يسمح بحساب مربع كاي (فئة وحدة فقط بأحد السؤالين؟).") };
     const i = interpretChi(r, a.label, b.label);
     return {
-      title: `العلاقة بين ${a.label} و${b.label}`,
+      title: tr("العلاقة بين {0} و{1}", a.label, b.label),
       table: [["", ...r.cols], ...r.rows.map((rw, k) => [rw, ...r.observed[k].map(String)])],
       plain: i.plain,
       apa: i.apa,
@@ -211,5 +212,5 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
     };
   }
 
-  return { error: "ما قدرت أحدد الاختبار المناسب لسؤالكم." };
+  return { error: tr("ما قدرت أحدد الاختبار المناسب لسؤالكم.") };
 }

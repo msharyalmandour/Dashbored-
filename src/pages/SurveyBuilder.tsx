@@ -44,16 +44,17 @@ import {
   type Question,
   type Tip,
 } from "../lib/surveyCoach";
+import { tr, trx } from "../lib/i18n";
 
 type Step = "goal" | "questions" | "consent" | "preview" | "publish" | "results";
 
 const steps: { id: Step; label: string; icon: typeof Target }[] = [
-  { id: "goal", label: "الهدف", icon: Target },
-  { id: "questions", label: "الأسئلة", icon: ClipboardCheck },
-  { id: "consent", label: "الموافقة", icon: Lock },
-  { id: "preview", label: "جرّبوا", icon: Eye },
-  { id: "publish", label: "انشروا", icon: Send },
-  { id: "results", label: "النتائج", icon: Check },
+  { id: "goal", label: tr("الهدف"), icon: Target },
+  { id: "questions", label: tr("الأسئلة"), icon: ClipboardCheck },
+  { id: "consent", label: tr("الموافقة"), icon: Lock },
+  { id: "preview", label: tr("جرّبوا"), icon: Eye },
+  { id: "publish", label: tr("انشروا"), icon: Send },
+  { id: "results", label: tr("النتائج"), icon: Check },
 ];
 
 function Coach({ title, children, tone = "info" }: { title: string; children: React.ReactNode; tone?: "info" | "warn" }) {
@@ -75,7 +76,7 @@ function TipRow({ tip }: { tip: Tip }) {
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center gap-2 text-start font-bold text-brand-950">
         {tip.level === "warn" ? <AlertTriangle size={13} className="shrink-0 text-amber-accent-600" /> : <Lightbulb size={13} className="shrink-0 text-brand-500" />}
         <span className="flex-1">{tip.title}</span>
-        <span className="text-[10px] font-semibold text-brand-950/40">{open ? "إخفاء" : "ليش؟"}</span>
+        <span className="text-[10px] font-semibold text-brand-950/40">{open ? tr("إخفاء") : tr("ليش؟")}</span>
       </button>
       {open && (
         <div className="mt-2 space-y-1.5 leading-relaxed text-brand-950/70">
@@ -129,20 +130,18 @@ function QuestionCard({
           ))}
         </select>
         <label className="flex items-center gap-1.5 text-xs font-semibold text-brand-950/60">
-          <input disabled={locked} type="checkbox" checked={q.required} onChange={(e) => onChange({ ...q, required: e.target.checked })} className="accent-brand-500" />
-          مطلوب
-        </label>
+          <input disabled={locked} type="checkbox" checked={q.required} onChange={(e) => onChange({ ...q, required: e.target.checked })} className="accent-brand-500" />{tr("مطلوب")}</label>
         <div className="ms-auto flex items-center gap-1">
-          <button disabled={locked || i === 0} onClick={() => onMove(-1)} title="فوق" className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
+          <button disabled={locked || i === 0} onClick={() => onMove(-1)} title={tr("فوق")} className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
             <ArrowUp size={14} />
           </button>
-          <button disabled={locked || i === total - 1} onClick={() => onMove(1)} title="تحت" className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
+          <button disabled={locked || i === total - 1} onClick={() => onMove(1)} title={tr("تحت")} className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
             <ArrowDown size={14} />
           </button>
-          <button disabled={locked} onClick={onDuplicate} title="نسخ" className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
+          <button disabled={locked} onClick={onDuplicate} title={tr("نسخ")} className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
             <Copy size={14} />
           </button>
-          <button disabled={locked} onClick={onDelete} title="حذف" className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-500/10 disabled:opacity-30">
+          <button disabled={locked} onClick={onDelete} title={tr("حذف")} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-500/10 disabled:opacity-30">
             <Trash2 size={14} />
           </button>
         </div>
@@ -153,7 +152,7 @@ function QuestionCard({
         value={q.text}
         onChange={(e) => onChange({ ...q, text: e.target.value })}
         rows={2}
-        placeholder={q.type === "likert" ? "اكتبوا «عبارة» مثل: أشعر بالرضا عن التدريب الميداني." : "اكتبوا نص السؤال…"}
+        placeholder={q.type === "likert" ? tr("اكتبوا «عبارة» مثل: أشعر بالرضا عن التدريب الميداني.") : tr("اكتبوا نص السؤال…")}
         className={input}
       />
       {(q.type === "single" || q.type === "multi") && (
@@ -164,7 +163,7 @@ function QuestionCard({
                 disabled={locked}
                 value={o}
                 onChange={(e) => onChange({ ...q, options: (q.options ?? []).map((x, j) => (j === k ? e.target.value : x)) })}
-                placeholder={`خيار ${k + 1}`}
+                placeholder={tr("خيار {0}", k + 1)}
                 className={input}
               />
               <button
@@ -176,12 +175,10 @@ function QuestionCard({
               </button>
             </div>
           ))}
-          <button disabled={locked || (q.options ?? []).length >= 12} onClick={() => onChange({ ...q, options: [...(q.options ?? []), ""] })} className="text-xs font-bold text-brand-600 hover:underline disabled:opacity-40">
-            + خيار
-          </button>
+          <button disabled={locked || (q.options ?? []).length >= 12} onClick={() => onChange({ ...q, options: [...(q.options ?? []), ""] })} className="text-xs font-bold text-brand-600 hover:underline disabled:opacity-40">{tr("+ خيار")}</button>
         </div>
       )}
-      {q.type === "likert" && <p className="rounded-lg bg-surface-muted px-3 py-2 text-[11px] text-brand-950/55">الخيارات ثابتة: أوافق بشدة · أوافق · محايد · لا أوافق · لا أوافق بشدة</p>}
+      {q.type === "likert" && <p className="rounded-lg bg-surface-muted px-3 py-2 text-[11px] text-brand-950/55">{tr("الخيارات ثابتة: أوافق بشدة · أوافق · محايد · لا أوافق · لا أوافق بشدة")}</p>}
       {tips.length > 0 && (
         <div className="space-y-1.5">
           {tips.map((t) => (
@@ -194,16 +191,7 @@ function QuestionCard({
 }
 
 function defaultConsent(title: string, supervisor: string, university: string, email: string) {
-  return `أنتم مدعوّون للمشاركة في دراسة بحثية بعنوان: «${title || "[عنوان الدراسة]"}»${university ? ` (${university})` : ""}.
-
-الهدف: [اكتبوا هدف الدراسة بجملة بسيطة].
-
-المشاركة اختيارية بالكامل، ويحق لكم التوقف عن الإجابة في أي وقت دون أي عواقب. الإجابات مجهولة ولا نطلب اسمكم، وتُستخدم لأغراض البحث العلمي فقط، وتُعرض النتائج بشكل مجمّع.
-
-الوقت المتوقع: [عدد] دقائق.
-${supervisor ? `المشرفة على الدراسة: ${supervisor}.\n` : ""}للاستفسار: ${email || "[بريد التواصل]"}
-
-بالضغط على «أوافق» فأنتم تؤكدون أنكم قرأتم هذه المعلومات وتوافقون على المشاركة طوعًا.`;
+  return tr("أنتم مدعوّون للمشاركة في دراسة بحثية بعنوان: «{0}»{1}.\n\nالهدف: [اكتبوا هدف الدراسة بجملة بسيطة].\n\nالمشاركة اختيارية بالكامل، ويحق لكم التوقف عن الإجابة في أي وقت دون أي عواقب. الإجابات مجهولة ولا نطلب اسمكم، وتُستخدم لأغراض البحث العلمي فقط، وتُعرض النتائج بشكل مجمّع.\n\nالوقت المتوقع: [عدد] دقائق.\n{2}للاستفسار: {3}\n\nبالضغط على «أوافق» فأنتم تؤكدون أنكم قرأتم هذه المعلومات وتوافقون على المشاركة طوعًا.", title || tr("[عنوان الدراسة]"), university ? ` (${university})` : "", supervisor ? tr("المشرفة على الدراسة: {0}.\n", supervisor) : "", email || tr("[بريد التواصل]"));
 }
 
 export default function SurveyBuilder() {
@@ -226,14 +214,12 @@ export default function SurveyBuilder() {
   const results = useMemo(() => (s ? summarize(s.questions, responses) : []), [s, responses]);
   const alpha = useMemo(() => (s ? likertAlpha(s.questions, responses) : null), [s, responses]);
 
-  if (loading && !s) return <p className="py-10 text-center text-sm text-brand-950/50">جاري التحميل…</p>;
+  if (loading && !s) return <p className="py-10 text-center text-sm text-brand-950/50">{tr("جاري التحميل…")}</p>;
   if (!s)
     return (
       <div className="py-16 text-center">
-        <p className="font-bold text-brand-950">ما لقينا هذا الاستبيان</p>
-        <Link to="/surveys" className="mt-3 inline-block text-sm font-bold text-brand-600 underline">
-          رجوع لقائمة الاستبيانات
-        </Link>
+        <p className="font-bold text-brand-950">{tr("ما لقينا هذا الاستبيان")}</p>
+        <Link to="/surveys" className="mt-3 inline-block text-sm font-bold text-brand-600 underline">{tr("رجوع لقائمة الاستبيانات")}</Link>
       </div>
     );
 
@@ -263,7 +249,7 @@ export default function SurveyBuilder() {
       questions: s.questions.map((q) => ({ id: q.id, type: q.type, text: q.text, options: q.options })),
     });
     setAiBusy(false);
-    if (r.message || !r.data) setAiMsg(r.message ?? "تعذّرت المراجعة.");
+    if (r.message || !r.data) setAiMsg(r.message ?? tr("تعذّرت المراجعة."));
     else setAiRes({ overall: r.data.overall, items: r.data.items ?? [], missing: r.data.missing ?? [] });
   };
 
@@ -280,23 +266,23 @@ export default function SurveyBuilder() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
-        <Link to="/surveys" className="rounded-xl border border-brand-100 p-2 text-brand-950/50 hover:bg-surface-muted" title="رجوع">
+        <Link to="/surveys" className="rounded-xl border border-brand-100 p-2 text-brand-950/50 hover:bg-surface-muted" title={tr("رجوع")}>
           <ChevronLeft size={16} className="rotate-180" />
         </Link>
         <input
           disabled={!edit}
           value={s.title}
           onChange={(e) => update(s.id, { title: e.target.value.slice(0, 160) })}
-          placeholder="عنوان الاستبيان (مثال: رضا الطالبات عن التدريب الميداني)"
+          placeholder={tr("عنوان الاستبيان (مثال: رضا الطالبات عن التدريب الميداني)")}
           className="min-w-0 flex-1 rounded-xl border border-transparent bg-transparent px-2 py-1.5 font-display text-xl font-extrabold text-brand-950 outline-none placeholder:text-brand-950/25 focus:border-brand-200"
         />
-        <span className="text-xs font-semibold text-brand-950/40">{saving ? "يحفظ…" : "محفوظ ✓"}</span>
+        <span className="text-xs font-semibold text-brand-950/40">{saving ? tr("يحفظ…") : tr("محفوظ ✓")}</span>
         <span
           className={`rounded-full px-3 py-1 text-xs font-extrabold ${
             s.status === "open" ? "bg-emerald-100 text-emerald-700" : s.status === "closed" ? "bg-rose-100 text-rose-700" : "bg-surface-muted text-brand-950/60"
           }`}
         >
-          {s.status === "open" ? "مفتوح" : s.status === "closed" ? "مغلق" : "مسوّدة"}
+          {s.status === "open" ? tr("مفتوح") : s.status === "closed" ? tr("مغلق") : tr("مسوّدة")}
         </span>
       </div>
 
@@ -318,47 +304,43 @@ export default function SurveyBuilder() {
         ))}
       </div>
 
-      {!edit && <Coach title="وضع القراءة" tone="warn">اشتراك فريقكم غير فعّال حاليًا — تقدرون تشوفون الاستبيان بس ما تقدرون تعدّلونه.</Coach>}
+      {!edit && <Coach title={tr("وضع القراءة")} tone="warn">{tr("اشتراك فريقكم غير فعّال حاليًا — تقدرون تشوفون الاستبيان بس ما تقدرون تعدّلونه.")}</Coach>}
 
       {step === "goal" && (
         <div className="space-y-4">
           <Coach title={lessons.goal.title}>
             <p>{lessons.goal.body}</p>
-            <p className="mt-2 rounded-lg bg-paper px-2.5 py-1.5 text-brand-950/60">مثال: {lessons.goal.example}</p>
+            <p className="mt-2 rounded-lg bg-paper px-2.5 py-1.5 text-brand-950/60">{trx("مثال: {0}", lessons.goal.example)}</p>
           </Coach>
           <Card className="space-y-3">
             <label className="block">
-              <span className="mb-1 block text-sm font-bold text-brand-950">وش تبغون تعرفون؟ (سؤال بحثكم)</span>
+              <span className="mb-1 block text-sm font-bold text-brand-950">{tr("وش تبغون تعرفون؟ (سؤال بحثكم)")}</span>
               <textarea
                 disabled={!edit}
                 value={s.goal}
                 onChange={(e) => update(s.id, { goal: e.target.value.slice(0, 1200) })}
                 rows={3}
-                placeholder={project?.title ? `مرتبط ببحثكم: ${project.title}` : "مثال: ما مستوى رضا طالبات التمريض عن التدريب الميداني؟"}
+                placeholder={project?.title ? tr("مرتبط ببحثكم: {0}", project.title) : tr("مثال: ما مستوى رضا طالبات التمريض عن التدريب الميداني؟")}
                 className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
               />
             </label>
             <label className="block">
-              <span className="mb-1 block text-sm font-bold text-brand-950">مقدمة قصيرة للمشاركين (اختياري)</span>
+              <span className="mb-1 block text-sm font-bold text-brand-950">{tr("مقدمة قصيرة للمشاركين (اختياري)")}</span>
               <textarea
                 disabled={!edit}
                 value={s.intro}
                 onChange={(e) => update(s.id, { intro: e.target.value.slice(0, 2000) })}
                 rows={2}
-                placeholder="جملتين عن الدراسة وكم تاخذ من وقت."
+                placeholder={tr("جملتين عن الدراسة وكم تاخذ من وقت.")}
                 className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
               />
             </label>
           </Card>
           <Coach title={lessons.validated.title}>
             <p>{lessons.validated.body}</p>
-            <Link to="/tools-library" className="mt-1.5 inline-block font-bold text-brand-600 underline">
-              شوفوا مكتبة أدوات القياس ←
-            </Link>
+            <Link to="/tools-library" className="mt-1.5 inline-block font-bold text-brand-600 underline">{tr("شوفوا مكتبة أدوات القياس ←")}</Link>
           </Coach>
-          <button onClick={() => setStep("questions")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">
-            التالي: الأسئلة
-          </button>
+          <button onClick={() => setStep("questions")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">{tr("التالي: الأسئلة")}</button>
         </div>
       )}
 
@@ -366,8 +348,7 @@ export default function SurveyBuilder() {
         <div className="space-y-4">
           <Card tone="cream" className="space-y-2.5">
             <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
-              <Lightbulb size={15} className="text-brand-500" />٣ قواعد لسؤال ممتاز
-            </p>
+              <Lightbulb size={15} className="text-brand-500" />{tr("٣ قواعد لسؤال ممتاز")}</p>
             <div className="grid gap-2 sm:grid-cols-3">
               {lessons.rules.map((r) => (
                 <div key={r.n} className="rounded-xl bg-paper px-3 py-2.5">
@@ -378,14 +359,12 @@ export default function SurveyBuilder() {
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-brand-950/45">
-              نراجع صياغة كل سؤال تلقائيًا ونعطيكم ملاحظات. اضغطوا «ليش؟» تحت أي ملاحظة عشان تفهمون السبب — أنواع مثل <Term id="likert">ليكرت</Term> و<Term id="bias">التحيّز</Term> مشروحة بالضغط.
-            </p>
+            <p className="text-[11px] text-brand-950/45">{tr("نراجع صياغة كل سؤال تلقائيًا ونعطيكم ملاحظات. اضغطوا «ليش؟» تحت أي ملاحظة عشان تفهمون السبب — أنواع مثل ")}<Term id="likert">{tr("ليكرت")}</Term>{tr(" و")}<Term id="bias">{tr("التحيّز")}</Term>{tr(" مشروحة بالضغط.")}</p>
           </Card>
 
           {responses.length > 0 && (
-            <Coach title="الأسئلة مقفولة لأن فيه ردود" tone="warn">
-              <p>تعديل الأسئلة بعد ما بدأت الردود يخرّب البيانات (كل رد جاء على نسخة مختلفة). لو الردود تجريبية احذفوها من تبويب «النتائج» وعدّلوا بعدها.</p>
+            <Coach title={tr("الأسئلة مقفولة لأن فيه ردود")} tone="warn">
+              <p>{tr("تعديل الأسئلة بعد ما بدأت الردود يخرّب البيانات (كل رد جاء على نسخة مختلفة). لو الردود تجريبية احذفوها من تبويب «النتائج» وعدّلوا بعدها.")}</p>
             </Coach>
           )}
 
@@ -409,7 +388,7 @@ export default function SurveyBuilder() {
 
           {!locked && (
             <Card className="space-y-3">
-              <p className="text-sm font-extrabold text-brand-950">أضيفوا سؤال</p>
+              <p className="text-sm font-extrabold text-brand-950">{tr("أضيفوا سؤال")}</p>
               <div className="flex flex-wrap gap-2">
                 {(Object.keys(qTypeMeta) as QType[]).map((t) => (
                   <button key={t} onClick={() => add(t)} className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3 py-2 text-xs font-bold text-brand-800 hover:bg-surface-muted">
@@ -418,7 +397,7 @@ export default function SurveyBuilder() {
                   </button>
                 ))}
               </div>
-              <p className="pt-1 text-xs font-bold text-brand-950/50">أو ابدؤوا من قالب جاهز:</p>
+              <p className="pt-1 text-xs font-bold text-brand-950/50">{tr("أو ابدؤوا من قالب جاهز:")}</p>
               <div className="flex flex-wrap gap-2">
                 {questionTemplates.map((t) => (
                   <button key={t.id} onClick={() => update(s.id, { questions: [...s.questions, ...t.make()] })} title={t.hint} className="rounded-xl bg-brand-500/10 px-3 py-2 text-xs font-bold text-brand-700 hover:bg-brand-500/20">
@@ -429,42 +408,34 @@ export default function SurveyBuilder() {
             </Card>
           )}
 
-          {isSupabaseConfigured && !hasAiAccess(team) && <AiLockedCard feature="مراجعة أسئلة الاستبيان بالذكاء الاصطناعي" />}
+          {isSupabaseConfigured && !hasAiAccess(team) && <AiLockedCard feature={tr("مراجعة أسئلة الاستبيان بالذكاء الاصطناعي")} />}
           {aiOk && s.questions.length > 0 && (
             <Card className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
-                    <Lightbulb size={15} className="text-amber-accent-500" />
-                    مراجعة الذكاء الاصطناعي
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-brand-950/50">يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.</p>
+                    <Lightbulb size={15} className="text-amber-accent-500" />{tr("مراجعة الذكاء الاصطناعي")}</p>
+                  <p className="mt-0.5 text-[11px] text-brand-950/50">{tr("يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.")}</p>
                 </div>
-                <button onClick={reviewAi} disabled={aiBusy} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600 disabled:opacity-60">
-                  {aiBusy && <Loader2 size={13} className="animate-spin" />}
-                  راجعوا أسئلتي
-                </button>
+                <button onClick={reviewAi} disabled={aiBusy} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600 disabled:opacity-60">{trx("{0}راجعوا أسئلتي", aiBusy && <Loader2 size={13} className="animate-spin" />)}</button>
               </div>
               {aiMsg && <p className="rounded-xl bg-surface-muted px-3 py-2 text-xs font-semibold text-brand-950/70">{aiMsg}</p>}
               {aiRes && (
                 <div className="space-y-2.5">
                   {aiRes.overall && <p className="rounded-xl bg-brand-500/10 px-3 py-2 text-xs leading-relaxed text-brand-950/80">{aiRes.overall}</p>}
-                  {aiRes.items.length === 0 && <p className="text-xs font-semibold text-emerald-600">ما لقينا مشاكل واضحة بالصياغة — أحسنتم 👏</p>}
+                  {aiRes.items.length === 0 && <p className="text-xs font-semibold text-emerald-600">{tr("ما لقينا مشاكل واضحة بالصياغة — أحسنتم 👏")}</p>}
                   {aiRes.items.map((it) => {
                     const idx = s.questions.findIndex((q) => q.id === it.id);
                     return (
                       <div key={it.id} className="rounded-xl border border-brand-100 p-3 text-xs">
-                        <p className="font-extrabold text-brand-950">
-                          سؤال {idx + 1}: <span className="text-amber-accent-600">{it.issue}</span>
+                        <p className="font-extrabold text-brand-950">{trx("سؤال {0}: ", idx + 1)}<span className="text-amber-accent-600">{it.issue}</span>
                         </p>
                         <p className="mt-1 leading-relaxed text-brand-950/65">{it.why}</p>
                         {it.better && (
                           <div className="mt-2 rounded-lg bg-emerald-500/10 px-2.5 py-2 text-emerald-600">
                             <p className="leading-relaxed">✓ {it.better}</p>
                             {!locked && (
-                              <button onClick={() => idx >= 0 && setQ(idx, { ...s.questions[idx], text: it.better })} className="mt-1.5 font-extrabold underline">
-                                استبدلوا سؤالي بهذي الصياغة
-                              </button>
+                              <button onClick={() => idx >= 0 && setQ(idx, { ...s.questions[idx], text: it.better })} className="mt-1.5 font-extrabold underline">{tr("استبدلوا سؤالي بهذي الصياغة")}</button>
                             )}
                           </div>
                         )}
@@ -473,7 +444,7 @@ export default function SurveyBuilder() {
                   })}
                   {aiRes.missing.length > 0 && (
                     <div className="rounded-xl border border-dashed border-brand-200 p-3 text-xs">
-                      <p className="font-extrabold text-brand-950">أسئلة ممكن تكون ناقصة لهدفكم:</p>
+                      <p className="font-extrabold text-brand-950">{tr("أسئلة ممكن تكون ناقصة لهدفكم:")}</p>
                       <ul className="mt-1.5 space-y-1.5 text-brand-950/70">
                         {aiRes.missing.map((m, k) => (
                           <li key={k}>
@@ -490,15 +461,13 @@ export default function SurveyBuilder() {
 
           {surveyTips.length > 0 && (
             <Card className="space-y-2">
-              <p className="text-sm font-extrabold text-brand-950">ملاحظات على الاستبيان ككل</p>
+              <p className="text-sm font-extrabold text-brand-950">{tr("ملاحظات على الاستبيان ككل")}</p>
               {surveyTips.map((t) => (
                 <TipRow key={t.title} tip={t} />
               ))}
             </Card>
           )}
-          <button onClick={() => setStep("consent")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">
-            التالي: الموافقة
-          </button>
+          <button onClick={() => setStep("consent")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">{tr("التالي: الموافقة")}</button>
         </div>
       )}
 
@@ -511,32 +480,26 @@ export default function SurveyBuilder() {
                 <li key={c}>{c}</li>
               ))}
             </ul>
-            <p className="mt-2">
-              الصيغة النهائية لازم تراجعها مشرفتكم و<Term id="irb">لجنة الأخلاقيات</Term> بجهتكم.
-            </p>
+            <p className="mt-2">{tr("الصيغة النهائية لازم تراجعها مشرفتكم و")}<Term id="irb">{tr("لجنة الأخلاقيات")}</Term>{tr(" بجهتكم.")}</p>
           </Coach>
           <Card className="space-y-3">
             {!s.consentText.trim() && edit && (
               <button
                 onClick={() => update(s.id, { consentText: defaultConsent(s.title, project?.supervisorName ?? "", "", currentUser?.email ?? "") })}
                 className="rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600"
-              >
-                ابدؤوا من صيغة جاهزة تنعبّى ببيانات بحثكم
-              </button>
+              >{tr("ابدؤوا من صيغة جاهزة تنعبّى ببيانات بحثكم")}</button>
             )}
             <textarea
               disabled={!edit}
               value={s.consentText}
               onChange={(e) => update(s.id, { consentText: e.target.value.slice(0, 6000) })}
               rows={14}
-              placeholder="نص الموافقة اللي يشوفه المشارك قبل ما يبدأ…"
+              placeholder={tr("نص الموافقة اللي يشوفه المشارك قبل ما يبدأ…")}
               className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
             />
-            <p className="text-[11px] text-brand-950/45">عبّوا كل ما بين [أقواس] قبل النشر.</p>
+            <p className="text-[11px] text-brand-950/45">{tr("عبّوا كل ما بين [أقواس] قبل النشر.")}</p>
           </Card>
-          <button onClick={() => setStep("preview")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">
-            التالي: جرّبوا
-          </button>
+          <button onClick={() => setStep("preview")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">{tr("التالي: جرّبوا")}</button>
         </div>
       )}
 
@@ -546,8 +509,8 @@ export default function SurveyBuilder() {
             <p>{lessons.pilot.body}</p>
           </Coach>
           <Card className="space-y-2">
-            <p className="text-sm font-extrabold text-brand-950">قائمة قبل النشر</p>
-            {["جرّبتوا الاستبيان بنفسكم من الجوال", "أرسلتوه لـ ٥–١٠ أشخاص يشبهون العينة وعدّلتوا حسب ملاحظاتهم", "راجعته المشرفة", "وافقت لجنة الأخلاقيات (لو مطلوب بجهتكم)"].map((c) => (
+            <p className="text-sm font-extrabold text-brand-950">{tr("قائمة قبل النشر")}</p>
+            {[tr("جرّبتوا الاستبيان بنفسكم من الجوال"), tr("أرسلتوه لـ ٥–١٠ أشخاص يشبهون العينة وعدّلتوا حسب ملاحظاتهم"), tr("راجعته المشرفة"), tr("وافقت لجنة الأخلاقيات (لو مطلوب بجهتكم)")].map((c) => (
               <label key={c} className="flex items-center gap-2.5 text-sm text-brand-950/75">
                 <input type="checkbox" className="h-4 w-4 accent-brand-500" />
                 {c}
@@ -555,7 +518,7 @@ export default function SurveyBuilder() {
             ))}
           </Card>
           <div className="overflow-hidden rounded-3xl bg-[#050b12] p-4 sm:p-6">
-            <p className="mb-4 text-center text-[11px] font-bold text-amber-300/80">معاينة — هكذا يشوفه المشارك (ما ينحفظ أي رد)</p>
+            <p className="mb-4 text-center text-[11px] font-bold text-amber-300/80">{tr("معاينة — هكذا يشوفه المشارك (ما ينحفظ أي رد)")}</p>
             <SurveyRunner key={s.questions.length + s.consentText} title={s.title} intro={s.intro} consent={s.consentText} questions={s.questions} preview onSubmit={async () => null} />
           </div>
         </div>
@@ -564,50 +527,43 @@ export default function SurveyBuilder() {
       {step === "publish" && (
         <div className="space-y-4">
           <Card className="space-y-3">
-            <p className="text-sm font-extrabold text-brand-950">حالة الاستبيان</p>
+            <p className="text-sm font-extrabold text-brand-950">{tr("حالة الاستبيان")}</p>
             <div className="flex flex-wrap items-center gap-2">
               {s.status !== "open" ? (
                 <button
                   disabled={!edit || !canOpen}
                   onClick={() => update(s.id, { status: "open" })}
                   className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-emerald-700 disabled:opacity-40"
-                >
-                  افتحوه للمشاركين
-                </button>
+                >{tr("افتحوه للمشاركين")}</button>
               ) : (
-                <button disabled={!edit} onClick={() => update(s.id, { status: "closed" })} className="rounded-2xl bg-rose-600 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-rose-700 disabled:opacity-40">
-                  أغلقوا الاستبيان
-                </button>
+                <button disabled={!edit} onClick={() => update(s.id, { status: "closed" })} className="rounded-2xl bg-rose-600 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-rose-700 disabled:opacity-40">{tr("أغلقوا الاستبيان")}</button>
               )}
               <label className="flex items-center gap-2 text-xs font-semibold text-brand-950/65">
-                <input disabled={!edit} type="checkbox" checked={s.isPilot} onChange={(e) => update(s.id, { isPilot: e.target.checked })} className="accent-brand-500" />
-                نسخة تجريبية (<Term id="pilot">استطلاعية</Term>)
+                <input disabled={!edit} type="checkbox" checked={s.isPilot} onChange={(e) => update(s.id, { isPilot: e.target.checked })} className="accent-brand-500" />{tr("نسخة تجريبية (")}<Term id="pilot">{tr("استطلاعية")}</Term>)
               </label>
             </div>
-            {!canOpen && <p className="text-xs font-semibold text-amber-accent-700">قبل الفتح: اكتبوا العنوان، وأضيفوا سؤالًا واحدًا على الأقل (كلها بنص)، وجهّزوا نص الموافقة.</p>}
+            {!canOpen && <p className="text-xs font-semibold text-amber-accent-700">{tr("قبل الفتح: اكتبوا العنوان، وأضيفوا سؤالًا واحدًا على الأقل (كلها بنص)، وجهّزوا نص الموافقة.")}</p>}
             <div className="rounded-xl bg-surface-muted p-3">
-              <p className="mb-1.5 text-[11px] font-bold text-brand-950/50">رابط المشاركة (بدون حساب)</p>
+              <p className="mb-1.5 text-[11px] font-bold text-brand-950/50">{tr("رابط المشاركة (بدون حساب)")}</p>
               <p dir="ltr" className="truncate text-start text-xs text-brand-950/70">
-                {isSupabaseConfigured ? link : "الروابط الحقيقية تشتغل بحساب على Wesync (مو العرض التجريبي)"}
+                {isSupabaseConfigured ? link : tr("الروابط الحقيقية تشتغل بحساب على Wesync (مو العرض التجريبي)")}
               </p>
               {isSupabaseConfigured && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   <button onClick={copyLink} className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3 py-1.5 text-xs font-bold text-brand-800">
                     {copied ? <Check size={13} /> : <Copy size={13} />}
-                    {copied ? "تم النسخ" : "نسخ الرابط"}
+                    {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
                   </button>
                   <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`تفضلوا بالمشاركة بهذا الاستبيان (مجهول):\n${link}`)}`}
+                    href={`https://wa.me/?text=${encodeURIComponent(tr("تفضلوا بالمشاركة بهذا الاستبيان (مجهول):\n{0}", link))}`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3 py-1.5 text-xs font-bold text-white"
                   >
-                    <MessageCircle size={13} />
-                    واتساب
-                  </a>
+                    <MessageCircle size={13} />{tr("واتساب")}</a>
                 </div>
               )}
-              {s.status !== "open" && <p className="mt-2 text-[11px] text-brand-950/45">الرابط ما يشتغل للمشاركين إلا لما تفتحون الاستبيان.</p>}
+              {s.status !== "open" && <p className="mt-2 text-[11px] text-brand-950/45">{tr("الرابط ما يشتغل للمشاركين إلا لما تفتحون الاستبيان.")}</p>}
             </div>
           </Card>
 
@@ -617,9 +573,9 @@ export default function SurveyBuilder() {
           <Card className="space-y-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {[
-                ["حجم المجتمع (اتركوه فاضي لو كبير/مجهول)", pop, setPop, "مثال: 300"],
-                ["هامش الخطأ %", margin, setMargin, "5"],
-                ["نسبة الاستبيانات الناقصة المتوقعة %", loss, setLoss, "10"],
+                [tr("حجم المجتمع (اتركوه فاضي لو كبير/مجهول)"), pop, setPop, tr("مثال: 300")],
+                [tr("هامش الخطأ %"), margin, setMargin, "5"],
+                [tr("نسبة الاستبيانات الناقصة المتوقعة %"), loss, setLoss, "10"],
               ].map(([label, v, set, ph]) => (
                 <label key={String(label)} className="block text-[11px] font-bold text-brand-950/55">
                   {label as string}
@@ -627,13 +583,9 @@ export default function SurveyBuilder() {
                 </label>
               ))}
             </div>
-            <p className="text-sm font-bold text-brand-950">
-              العدد المطلوب تقريبًا: <span className="text-brand-600">{sample.withAttrition}</span> رد
-              <button disabled={!edit} onClick={() => update(s.id, { targetN: sample.withAttrition })} className="ms-3 rounded-lg bg-brand-500/10 px-2.5 py-1 text-xs font-extrabold text-brand-700 hover:bg-brand-500/20 disabled:opacity-40">
-                خلّوه هدفنا
-              </button>
+            <p className="text-sm font-bold text-brand-950">{tr("العدد المطلوب تقريبًا: ")}<span className="text-brand-600">{sample.withAttrition}</span>{tr(" رد")}<button disabled={!edit} onClick={() => update(s.id, { targetN: sample.withAttrition })} className="ms-3 rounded-lg bg-brand-500/10 px-2.5 py-1 text-xs font-extrabold text-brand-700 hover:bg-brand-500/20 disabled:opacity-40">{tr("خلّوه هدفنا")}</button>
             </p>
-            <p className="text-[11px] text-brand-950/45">{sample.formula}. هذا رقم مبدئي — مشرفتكم لها الكلمة النهائية على حجم العينة.</p>
+            <p className="text-[11px] text-brand-950/45">{trx("{0}. هذا رقم مبدئي — مشرفتكم لها الكلمة النهائية على حجم العينة.", sample.formula)}</p>
           </Card>
         </div>
       )}
@@ -645,28 +597,23 @@ export default function SurveyBuilder() {
           </Coach>
           {!isSupabaseConfigured ? (
             <Card>
-              <p className="text-sm text-brand-950/60">النتائج الحقيقية تظهر بحساب على Wesync (مو العرض التجريبي).</p>
+              <p className="text-sm text-brand-950/60">{tr("النتائج الحقيقية تظهر بحساب على Wesync (مو العرض التجريبي).")}</p>
             </Card>
           ) : (
             <>
               <Card className="space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-extrabold text-brand-950">
-                    الردود: <span className="text-brand-600">{responses.length}</span>
+                  <p className="text-sm font-extrabold text-brand-950">{tr("الردود: ")}<span className="text-brand-600">{responses.length}</span>
                     {s.targetN ? <span className="text-brand-950/45"> / {s.targetN}</span> : null}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={reload} className="rounded-xl border border-brand-200 px-3 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted">
-                      تحديث
-                    </button>
+                    <button onClick={reload} className="rounded-xl border border-brand-200 px-3 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted">{tr("تحديث")}</button>
                     <button
                       disabled={responses.length === 0}
                       onClick={() => downloadText(`${s.title || "survey"}.csv`, toCsv(s.questions, responses))}
                       className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-40"
                     >
-                      <Download size={13} />
-                      تنزيل CSV (إكسل)
-                    </button>
+                      <Download size={13} />{tr("تنزيل CSV (إكسل)")}</button>
                     <button
                       disabled={responses.length === 0}
                       onClick={async () => {
@@ -674,9 +621,7 @@ export default function SurveyBuilder() {
                         nav("/stats");
                       }}
                       className="rounded-xl border border-brand-200 px-3 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-40"
-                    >
-                      انسخوها لاستوديو الإحصاء
-                    </button>
+                    >{tr("انسخوها لاستوديو الإحصاء")}</button>
                   </div>
                 </div>
                 {s.targetN ? (
@@ -686,34 +631,31 @@ export default function SurveyBuilder() {
                 ) : null}
                 {responses.length > 0 && edit && (
                   <button
-                    onClick={() => window.confirm("تحذفون كل الردود؟ (مفيد لو كانت تجريبية) — ما ينرجع.") && clear()}
+                    onClick={() => window.confirm(tr("تحذفون كل الردود؟ (مفيد لو كانت تجريبية) — ما ينرجع.")) && clear()}
                     className="text-[11px] font-bold text-rose-600 underline"
-                  >
-                    احذفوا كل الردود (بعد التجربة مثلًا)
-                  </button>
+                  >{tr("احذفوا كل الردود (بعد التجربة مثلًا)")}</button>
                 )}
               </Card>
 
               {alpha && (
                 <Card>
                   <p className="text-sm font-extrabold text-brand-950">
-                    <Term id="alpha">ألفا كرونباخ</Term> لعبارات ليكرت ({alpha.items} عبارة، {alpha.n} رد مكتمل)
-                  </p>
+                    <Term id="alpha">{tr("ألفا كرونباخ")}</Term>{trx(" لعبارات ليكرت ({0} عبارة، {1} رد مكتمل)", alpha.items, alpha.n)}</p>
                   <p className="mt-1 text-2xl font-extrabold text-brand-600" dir="ltr">
                     α = {alpha.alpha.toFixed(2)}
                   </p>
                   <p className="text-xs font-semibold text-brand-950/60">{alphaLabel(alpha.alpha)}</p>
-                  <p className="mt-1 text-[11px] text-brand-950/40">تفترض أن كل عبارات ليكرت تقيس مفهومًا واحدًا. لو عندكم أكثر من مقياس، احسبوا لكل واحد لحاله بالاستوديو.</p>
+                  <p className="mt-1 text-[11px] text-brand-950/40">{tr("تفترض أن كل عبارات ليكرت تقيس مفهومًا واحدًا. لو عندكم أكثر من مقياس، احسبوا لكل واحد لحاله بالاستوديو.")}</p>
                 </Card>
               )}
 
               {responses.length >= 5 && <AskSurveyData questions={s.questions} responses={responses} />}
 
-              {responses.length === 0 && <p className="py-6 text-center text-sm text-brand-950/50">لسا ما وصلت ردود.</p>}
+              {responses.length === 0 && <p className="py-6 text-center text-sm text-brand-950/50">{tr("لسا ما وصلت ردود.")}</p>}
               {results.map((r, i) => (
                 <Card key={r.q.id} className="space-y-2">
                   <p className="text-sm font-bold text-brand-950">
-                    {i + 1}. {r.q.text || "—"} <span className="text-[11px] font-medium text-brand-950/40">({r.n} إجابة)</span>
+                    {i + 1}. {r.q.text || "—"} <span className="text-[11px] font-medium text-brand-950/40">{trx("({0} إجابة)", r.n)}</span>
                   </p>
                   {(r.kind === "freq" || r.kind === "likert") &&
                     r.rows.map((row) => (

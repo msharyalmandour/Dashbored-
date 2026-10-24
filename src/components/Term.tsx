@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { glossaryById } from "../data/glossary";
+import { tr } from "../lib/i18n";
 
 /** مصطلح بخط منقّط — بالضغط ينفتح شرحه بجملتين بالعربي البسيط، بدون ما تطلع الطالبة من صفحتها. */
 export default function Term({ id, children }: { id: string; children?: ReactNode }) {
@@ -43,9 +44,7 @@ export default function Term({ id, children }: { id: string; children?: ReactNod
           </span>
           <span className="mt-1 block">{entry.def}</span>
           {entry.example && <span className="mt-1.5 block rounded-lg bg-surface-muted px-2 py-1 text-brand-950/60">{entry.example}</span>}
-          <Link to="/glossary" className="mt-2 block text-[11px] font-bold text-brand-600 hover:underline">
-            كل المصطلحات ←
-          </Link>
+          <Link to="/glossary" className="mt-2 block text-[11px] font-bold text-brand-600 hover:underline">{tr("كل المصطلحات ←")}</Link>
         </span>
       )}
     </span>

@@ -3,36 +3,37 @@ import { Link } from "react-router-dom";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import Logo from "../components/Logo";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr, trx } from "../lib/i18n";
 
-const majors = ["تمريض", "طب", "صيدلة", "علوم صحية / مختبرات", "هندسة", "حاسب وتقنية", "إدارة أعمال", "تربية وعلم نفس", "علوم", "آداب وعلوم إنسانية", "قانون", "تخصص آخر"];
-const stages = ["بكالوريوس", "ماجستير", "دكتوراه", "غير ذلك"];
-const experience = ["أعمل على بحث الآن", "سبق وعملت على بحث", "لم أعمل على بحث بعد"];
-const teamSize = ["لحالي", "٢–٣", "٤–٥", "أكثر من ٥"];
-const coordination = ["مجموعة واتساب", "قوقل درايف / وورد مشترك", "إيميل", "ورقيًا / اجتماعات فقط", "تطبيق مهام (Trello / Notion...)", "ما فيه ترتيب واضح"];
+const majors = [tr("تمريض"), tr("طب"), tr("صيدلة"), tr("علوم صحية / مختبرات"), tr("هندسة"), tr("حاسب وتقنية"), tr("إدارة أعمال"), tr("تربية وعلم نفس"), tr("علوم"), tr("آداب وعلوم إنسانية"), tr("قانون"), tr("تخصص آخر")];
+const stages = [tr("بكالوريوس"), tr("ماجستير"), tr("دكتوراه"), tr("غير ذلك")];
+const experience = [tr("أعمل على بحث الآن"), tr("سبق وعملت على بحث"), tr("لم أعمل على بحث بعد")];
+const teamSize = [tr("لحالي"), tr("٢–٣"), tr("٤–٥"), tr("أكثر من ٥")];
+const coordination = [tr("مجموعة واتساب"), tr("قوقل درايف / وورد مشترك"), tr("إيميل"), tr("ورقيًا / اجتماعات فقط"), tr("تطبيق مهام (Trello / Notion...)"), tr("ما فيه ترتيب واضح")];
 const pains = [
-  "توزيع المهام ومتابعة مين خلّص",
-  "ضياع الملفات وتعدد النسخ",
-  "متابعة ملاحظات المشرف وتنفيذها",
-  "التواصل مع المشرف",
-  "الالتزام بالمواعيد",
-  "إيجاد دراسات سابقة مناسبة",
-  "الصياغة الأكاديمية والكتابة",
-  "اختيار التحليل الإحصائي وتفسيره",
-  "الموافقات وأدوات القياس وجمع البيانات",
-  "التجهيز للمناقشة",
+  tr("توزيع المهام ومتابعة مين خلّص"),
+  tr("ضياع الملفات وتعدد النسخ"),
+  tr("متابعة ملاحظات المشرف وتنفيذها"),
+  tr("التواصل مع المشرف"),
+  tr("الالتزام بالمواعيد"),
+  tr("إيجاد دراسات سابقة مناسبة"),
+  tr("الصياغة الأكاديمية والكتابة"),
+  tr("اختيار التحليل الإحصائي وتفسيره"),
+  tr("الموافقات وأدوات القياس وجمع البيانات"),
+  tr("التجهيز للمناقشة"),
 ];
-const hours = ["أقل من ساعة", "١–٢ ساعة", "٣–٥ ساعات", "أكثر من ٥ ساعات"];
+const hours = [tr("أقل من ساعة"), tr("١–٢ ساعة"), tr("٣–٥ ساعات"), tr("أكثر من ٥ ساعات")];
 const features = [
-  "لوحة موحّدة للمهام والتقدم",
-  "رابط ومحادثة للمشرف بدون حساب",
-  "مساعد ذكي يقترح الأولويات",
-  "بحث عن دراسات سابقة",
-  "مساعدة في الإحصاء وتفسير النتائج",
-  "تنبيهات ومواعيد على الجوال",
-  "قوالب الموافقات وقوائم التحقق",
-  "التدريب على أسئلة المناقشة",
+  tr("لوحة موحّدة للمهام والتقدم"),
+  tr("رابط ومحادثة للمشرف بدون حساب"),
+  tr("مساعد ذكي يقترح الأولويات"),
+  tr("بحث عن دراسات سابقة"),
+  tr("مساعدة في الإحصاء وتفسير النتائج"),
+  tr("تنبيهات ومواعيد على الجوال"),
+  tr("قوالب الموافقات وقوائم التحقق"),
+  tr("التدريب على أسئلة المناقشة"),
 ];
-const prices = ["ما أدفع", "أقل من ١٠ ريال", "١٠–٢٠ ريال", "٢٠–٤٠ ريال", "أكثر من ٤٠ ريال"];
+const prices = [tr("ما أدفع"), tr("أقل من ١٠ ريال"), tr("١٠–٢٠ ريال"), tr("٢٠–٤٠ ريال"), tr("أكثر من ٤٠ ريال")];
 
 type Answers = {
   major: string;
@@ -107,7 +108,7 @@ export default function Survey() {
       });
       if (e) {
         setBusy(false);
-        setError(e.message.includes("invalid email") ? "صيغة البريد غير صحيحة." : "ما وصلت إجابتكم — حاولوا مرة ثانية بعد شوي.");
+        setError(e.message.includes("invalid email") ? tr("صيغة البريد غير صحيحة.") : tr("ما وصلت إجابتكم — حاولوا مرة ثانية بعد شوي."));
         return;
       }
     }
@@ -124,11 +125,9 @@ export default function Survey() {
         {bg}
         <div className="relative max-w-md text-center">
           <CheckCircle2 size={48} className="mx-auto text-amber-300" />
-          <h1 className="mt-5 font-display text-2xl font-extrabold">شكرًا لكم 🌱</h1>
-          <p className="mt-3 text-sm leading-relaxed text-white/60">إجاباتكم توصل لنا مباشرة وتساعدنا نبني الشي اللي يحتاجه الطلبة فعلًا.</p>
-          <Link to="/" className="mt-7 inline-block rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-7 py-3 text-sm font-extrabold text-neutral-950">
-            تعرّفوا على Wesync
-          </Link>
+          <h1 className="mt-5 font-display text-2xl font-extrabold">{tr("شكرًا لكم 🌱")}</h1>
+          <p className="mt-3 text-sm leading-relaxed text-white/60">{tr("إجاباتكم توصل لنا مباشرة وتساعدنا نبني الشي اللي يحتاجه الطلبة فعلًا.")}</p>
+          <Link to="/" className="mt-7 inline-block rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-7 py-3 text-sm font-extrabold text-neutral-950">{tr("تعرّفوا على Wesync")}</Link>
         </div>
       </div>
     );
@@ -143,74 +142,70 @@ export default function Survey() {
             <Logo size={34} />
             <span className="font-display text-lg font-extrabold">Wesync</span>
           </Link>
-          <span className="text-xs font-semibold text-white/35">دقيقتين تقريبًا</span>
+          <span className="text-xs font-semibold text-white/35">{tr("دقيقتين تقريبًا")}</span>
         </header>
 
-        <h1 className="font-display text-3xl font-extrabold leading-snug sm:text-4xl">
-          وش يتعبكم بـ<span className="text-amber-300">بحث التخرج</span>؟
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-white/60">
-          نبني Wesync عشان يسهّل على فرق البحث في كل التخصصات: تنسيق الفريق، متابعة المشرف، الإحصاء، والمواعيد. إجاباتكم تحدد وش نبني أول. مجهولة، وما نطلب بيانات شخصية.
-        </p>
+        <h1 className="font-display text-3xl font-extrabold leading-snug sm:text-4xl">{tr("وش يتعبكم بـ")}<span className="text-amber-300">{tr("بحث التخرج")}</span>{tr("؟")}</h1>
+        <p className="mt-3 text-sm leading-relaxed text-white/60">{tr("نبني Wesync عشان يسهّل على فرق البحث في كل التخصصات: تنسيق الفريق، متابعة المشرف، الإحصاء، والمواعيد. إجاباتكم تحدد وش نبني أول. مجهولة، وما نطلب بيانات شخصية.")}</p>
 
         <div className="mt-8 space-y-4">
-          <Q n={1} title="تخصصكم؟">
+          <Q n={1} title={tr("تخصصكم؟")}>
             {majors.map((m) => (
               <Chip key={m} active={a.major === m} onClick={() => set("major", m)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={2} title="مرحلتكم الدراسية؟">
+          <Q n={2} title={tr("مرحلتكم الدراسية؟")}>
             {stages.map((m) => (
               <Chip key={m} active={a.stage === m} onClick={() => set("stage", m)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={3} title="هل عملتم على بحث تخرج أو رسالة؟">
+          <Q n={3} title={tr("هل عملتم على بحث تخرج أو رسالة؟")}>
             {experience.map((m) => (
               <Chip key={m} active={a.experience === m} onClick={() => set("experience", m)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={4} title="كم عدد فريقكم؟">
+          <Q n={4} title={tr("كم عدد فريقكم؟")}>
             {teamSize.map((m) => (
               <Chip key={m} active={a.teamSize === m} onClick={() => set("teamSize", m)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={5} title="كيف تنسّقون شغل البحث؟" hint="تقدرون تختارون أكثر من خيار">
+          <Q n={5} title={tr("كيف تنسّقون شغل البحث؟")} hint={tr("تقدرون تختارون أكثر من خيار")}>
             {coordination.map((m) => (
               <Chip key={m} active={a.coordination.includes(m)} onClick={() => toggle("coordination", m)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={6} title="أكثر شي يتعبكم؟" hint="اختاروا حتى ٣ (مطلوب)">
+          <Q n={6} title={tr("أكثر شي يتعبكم؟")} hint={tr("اختاروا حتى ٣ (مطلوب)")}>
             {pains.map((m) => (
               <Chip key={m} active={a.pains.includes(m)} onClick={() => toggle("pains", m, 3)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={7} title="كم ساعة بالأسبوع تروح على التنسيق والمتابعة (بدل الشغل العلمي نفسه)؟">
+          <Q n={7} title={tr("كم ساعة بالأسبوع تروح على التنسيق والمتابعة (بدل الشغل العلمي نفسه)؟")}>
             {hours.map((m) => (
               <Chip key={m} active={a.hours === m} onClick={() => set("hours", m)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={8} title="لو فيه منصة تحل هذا، أي ميزات تهمكم أكثر؟" hint="اختاروا حتى ٣">
+          <Q n={8} title={tr("لو فيه منصة تحل هذا، أي ميزات تهمكم أكثر؟")} hint={tr("اختاروا حتى ٣")}>
             {features.map((m) => (
               <Chip key={m} active={a.features.includes(m)} onClick={() => toggle("features", m, 3)}>
                 {m}
               </Chip>
             ))}
           </Q>
-          <Q n={9} title="كم ممكن تدفعون شهريًا للفرد مقابل منصة كهذي؟">
+          <Q n={9} title={tr("كم ممكن تدفعون شهريًا للفرد مقابل منصة كهذي؟")}>
             {prices.map((m) => (
               <Chip key={m} active={a.price === m} onClick={() => set("price", m)}>
                 {m}
@@ -220,18 +215,16 @@ export default function Survey() {
 
           <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6">
             <h2 className="flex items-start gap-3 text-base font-extrabold">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs text-amber-300">10</span>
-              أي اقتراح أو صعوبة ثانية؟ <span className="text-xs font-normal text-white/40">(اختياري)</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs text-amber-300">10</span>{tr("أي اقتراح أو صعوبة ثانية؟ ")}<span className="text-xs font-normal text-white/40">{tr("(اختياري)")}</span>
             </h2>
             <textarea
               value={a.notes}
               onChange={(e) => set("notes", e.target.value.slice(0, 800))}
               rows={3}
               className="mt-3 w-full rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-300/60"
-              placeholder="اكتبوا بحريّة…"
+              placeholder={tr("اكتبوا بحريّة…")}
             />
-            <label className="mt-4 block text-xs text-white/50">
-              تبون نخبركم لما تجهز؟ اتركوا بريدكم <span className="text-white/30">(اختياري)</span>
+            <label className="mt-4 block text-xs text-white/50">{tr("تبون نخبركم لما تجهز؟ اتركوا بريدكم ")}<span className="text-white/30">{tr("(اختياري)")}</span>
               <input
                 type="email"
                 dir="ltr"
@@ -250,11 +243,8 @@ export default function Survey() {
           onClick={submit}
           disabled={!ready || busy}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3.5 text-sm font-extrabold text-neutral-950 shadow-[0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-opacity disabled:opacity-40"
-        >
-          {busy && <Loader2 size={16} className="animate-spin" />}
-          إرسال الإجابات
-        </button>
-        {!ready && <p className="mt-2 text-center text-xs text-white/40">أجيبوا على التخصص والمرحلة وأكثر ما يتعبكم عشان يتفعّل الإرسال.</p>}
+        >{trx("{0}إرسال الإجابات", busy && <Loader2 size={16} className="animate-spin" />)}</button>
+        {!ready && <p className="mt-2 text-center text-xs text-white/40">{tr("أجيبوا على التخصص والمرحلة وأكثر ما يتعبكم عشان يتفعّل الإرسال.")}</p>}
       </div>
     </div>
   );

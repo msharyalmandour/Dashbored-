@@ -3,6 +3,7 @@ import { CheckCircle2, CreditCard, Wand2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import MoyasarPayment from "./MoyasarPayment";
+import { tr, trx } from "../lib/i18n";
 
 /** نافذة دفع منبثقة تلخّص الطلب قبل تضمين نموذج Moyasar الفعلي، وتعرض حالة
     نجاح واضحة لما يرجع المستخدم بعد الدفع (Moyasar يرجّعه بـ ?status=paid
@@ -49,7 +50,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
           <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-amber-accent-200/40 blur-2xl" />
           <p className="relative flex items-center gap-1.5 font-display text-base font-extrabold text-brand-950">
             <Wand2 size={15} className="text-amber-accent-500" />
-            {paid ? "تم الدفع بنجاح" : "إتمام الاشتراك"}
+            {paid ? tr("تم الدفع بنجاح") : tr("إتمام الاشتراك")}
           </p>
           <button
             onClick={onClose}
@@ -70,18 +71,12 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
             >
               <CheckCircle2 size={30} />
             </span>
-            <p className="font-display text-lg font-extrabold text-brand-950">
-              تفعّل اشتراككم 🎉
-            </p>
-            <p className="text-sm text-brand-950/55">
-              شكرًا لكم! فريقكم رجع يقدر يضيف مهام ويعدّل عليها بكل حرية.
-            </p>
+            <p className="font-display text-lg font-extrabold text-brand-950">{tr("تفعّل اشتراككم 🎉")}</p>
+            <p className="text-sm text-brand-950/55">{tr("شكرًا لكم! فريقكم رجع يقدر يضيف مهام ويعدّل عليها بكل حرية.")}</p>
             <button
               onClick={onClose}
               className="mt-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
-            >
-              تمام
-            </button>
+            >{tr("تمام")}</button>
           </div>
         ) : (
           <div className="p-5">
@@ -92,46 +87,37 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
                   className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                     mode === "share" ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
                   }`}
-                >
-                  ادفع حصتك بس
-                </button>
+                >{tr("ادفع حصتك بس")}</button>
                 <button
                   onClick={() => setMode("full")}
                   className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
                     mode === "full" ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
                   }`}
-                >
-                  ادفع للفريق كامل
-                </button>
+                >{tr("ادفع للفريق كامل")}</button>
               </div>
             )}
             <div className="mb-4 rounded-2xl bg-surface-muted p-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-brand-950/60">الفريق</span>
+                <span className="text-brand-950/60">{tr("الفريق")}</span>
                 <span className="font-semibold text-brand-950">{team.name}</span>
               </div>
               <div className="mt-1.5 flex items-center justify-between text-sm">
                 <span className="text-brand-950/60">
-                  {mode === "full" ? "عدد الأعضاء" : "حصتك أنت"}
+                  {mode === "full" ? tr("عدد الأعضاء") : tr("حصتك أنت")}
                 </span>
                 <span className="font-semibold text-brand-950">
-                  {mode === "full" ? memberCount : `${pricePerPerson} ريال`}
+                  {mode === "full" ? memberCount : tr("{0} ريال", pricePerPerson)}
                 </span>
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-brand-100 pt-3">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-950">
                   <CreditCard size={14} />
-                  {mode === "full" ? "الإجمالي شهريًا" : "المبلغ الآن"}
+                  {mode === "full" ? tr("الإجمالي شهريًا") : tr("المبلغ الآن")}
                 </span>
-                <span className="font-display text-lg font-extrabold text-brand-700">
-                  {total} ريال
-                </span>
+                <span className="font-display text-lg font-extrabold text-brand-700">{trx("{0} ريال", total)}</span>
               </div>
               {mode === "share" && (
-                <p className="mt-3 text-[11px] text-brand-950/45">
-                  دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد
-                  الأيام تلقائيًا، بدون انتظار البقية.
-                </p>
+                <p className="mt-3 text-[11px] text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
               )}
             </div>
             <MoyasarPayment mode={mode} />

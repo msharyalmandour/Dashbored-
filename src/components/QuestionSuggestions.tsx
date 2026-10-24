@@ -8,6 +8,7 @@ import { runProjectAgent, type AgentResult } from "../hooks/useProjectAgent";
 import SourceList from "./ui/SourceList";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { tr, trx } from "../lib/i18n";
 
 const STORE_KEY = "wesync.questions.grounded";
 
@@ -39,7 +40,7 @@ export default function QuestionSuggestions({
   const [result, setResult] = useState(load);
 
   if (!isSupabaseConfigured) return null;
-  if (!hasAiAccess(team)) return <AiLockedCard feature="اقتراح أسئلة البحث" />;
+  if (!hasAiAccess(team)) return <AiLockedCard feature={tr("اقتراح أسئلة البحث")} />;
 
   const generate = async () => {
     if (busy) return;
@@ -48,7 +49,7 @@ export default function QuestionSuggestions({
     const r = await runProjectAgent("questions", topic, existing);
     setBusy(false);
     if (r.message || !r.data) {
-      setMessage(r.message ?? "تعذّر الاقتراح — حاولوا مرة ثانية.");
+      setMessage(r.message ?? tr("تعذّر الاقتراح — حاولوا مرة ثانية."));
       return;
     }
     const next = r.data;
@@ -66,10 +67,8 @@ export default function QuestionSuggestions({
     <div className="mt-3 rounded-2xl border border-brand-500/30 bg-black/20 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-brand-950">أفضل أسئلة بحث لموضوعكم — من دراسات حقيقية</p>
-          <p className="mt-0.5 text-xs text-brand-950/55">
-            نبحث عنكم بدراسات منشورة (PubMed وOpenAlex)، ونطلع أسئلة تتبع مما تركته هذي الدراسات مفتوح، مرتبة من الأقرب لموضوعكم. ما تحتاجون تجمعون شي بأنفسكم.
-          </p>
+          <p className="text-sm font-bold text-brand-950">{tr("أفضل أسئلة بحث لموضوعكم — من دراسات حقيقية")}</p>
+          <p className="mt-0.5 text-xs text-brand-950/55">{tr("نبحث عنكم بدراسات منشورة (PubMed وOpenAlex)، ونطلع أسئلة تتبع مما تركته هذي الدراسات مفتوح، مرتبة من الأقرب لموضوعكم. ما تحتاجون تجمعون شي بأنفسكم.")}</p>
         </div>
         <button
           onClick={generate}
@@ -77,7 +76,7 @@ export default function QuestionSuggestions({
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-amber-accent-400 to-brand-500 px-5 py-2.5 text-sm font-bold text-[#1a0f00] hover:brightness-110 disabled:opacity-50"
         >
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
-          {busy ? "ندوّر بالدراسات… (حوالي ٣٠ ثانية)" : result ? "اقتراحات جديدة" : "اقترحوا لنا أسئلة"}
+          {busy ? tr("ندوّر بالدراسات… (حوالي ٣٠ ثانية)") : result ? tr("اقتراحات جديدة") : tr("اقترحوا لنا أسئلة")}
         </button>
       </div>
 
@@ -90,9 +89,9 @@ export default function QuestionSuggestions({
             return (
               <li key={i} className={clsx("rounded-2xl bg-black/25 p-4", i === 0 && "ring-1 ring-amber-accent-400/50")}>
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {i === 0 && <StatusChip tone="active">الأقرب لموضوعكم</StatusChip>}
+                  {i === 0 && <StatusChip tone="active">{tr("الأقرب لموضوعكم")}</StatusChip>}
                   {q.type && <StatusChip tone="neutral">{q.type}</StatusChip>}
-                  <span className="flex items-center gap-1 text-brand-950/50" title={`قرب من موضوعكم: ${q.fit} من ٥`}>
+                  <span className="flex items-center gap-1 text-brand-950/50" title={tr("قرب من موضوعكم: {0} من ٥", q.fit)}>
                     {Array.from({ length: 5 }).map((_, d) => (
                       <span key={d} className={clsx("h-1.5 w-4 rounded-full", d < q.fit ? "bg-amber-accent-400" : "bg-brand-950/15")} />
                     ))}
@@ -103,9 +102,9 @@ export default function QuestionSuggestions({
                 <SourceList papers={result.papers} sources={q.sources} />
                 {(q.design || q.variables) && (
                   <p className="mt-1 text-xs text-brand-950/45">
-                    {q.design && <>التصميم: {q.design}</>}
+                    {q.design && <>{trx("التصميم: {0}", q.design)}</>}
                     {q.design && q.variables && " · "}
-                    {q.variables && <>المتغيرات: {q.variables}</>}
+                    {q.variables && <>{trx("المتغيرات: {0}", q.variables)}</>}
                   </p>
                 )}
                 {canWrite && (
@@ -115,7 +114,7 @@ export default function QuestionSuggestions({
                     className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-brand-500/40 px-4 py-1.5 text-sm font-semibold text-amber-accent-400 hover:bg-brand-500/10 disabled:opacity-60"
                   >
                     {added ? <Check size={14} /> : <Plus size={14} />}
-                    {added ? "انضاف لأسئلتكم" : "أضيفوه لأسئلة البحث"}
+                    {added ? tr("انضاف لأسئلتكم") : tr("أضيفوه لأسئلة البحث")}
                   </button>
                 )}
               </li>
@@ -124,11 +123,11 @@ export default function QuestionSuggestions({
         </ol>
       )}
       {result?.fallback && (
-        <p className="mt-3 text-xs text-brand-950/50">هذي اقتراحات من عنوانكم وفجوتكم فقط (البحث بالدراسات غير متاح الحين).</p>
+        <p className="mt-3 text-xs text-brand-950/50">{tr("هذي اقتراحات من عنوانكم وفجوتكم فقط (البحث بالدراسات غير متاح الحين).")}</p>
       )}
       {result && result.papers.length > 0 && (
         <details className="mt-3 rounded-xl bg-black/20 p-3">
-          <summary className="cursor-pointer text-sm font-semibold text-brand-950/80">الدراسات اللي بنينا عليها ({result.papers.length})</summary>
+          <summary className="cursor-pointer text-sm font-semibold text-brand-950/80">{trx("الدراسات اللي بنينا عليها ({0})", result.papers.length)}</summary>
           <ul className="mt-2 space-y-2">
             {result.papers.map((p, i) => (
               <li key={i} className="text-xs text-brand-950/65">
@@ -143,7 +142,7 @@ export default function QuestionSuggestions({
         </details>
       )}
       {result?.noveltyNote && <p className="mt-3 text-xs text-brand-950/55">💡 {result.noveltyNote}</p>}
-      <p className="mt-2 text-[11px] text-brand-950/40">اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.</p>
+      <p className="mt-2 text-[11px] text-brand-950/40">{tr("اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.")}</p>
     </div>
   );
 }

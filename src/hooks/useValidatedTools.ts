@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ToolFinding } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 export interface LibraryTool {
   id: string;
@@ -58,9 +59,9 @@ const isArabicLang = (languages: string) => /arab|عرب/i.test(languages);
 
 /** حفظ أداة قياس وثّقها وكيل البحث بالمكتبة المشتركة (مكررة الاسم تتجاهل بصمت) */
 export async function saveToolToLibrary(t: ToolFinding, userId: string): Promise<{ error?: string; duplicate?: boolean }> {
-  if (!isSupabaseConfigured) return { error: "متاح فقط بالوضع الحقيقي" };
+  if (!isSupabaseConfigured) return { error: tr("متاح فقط بالوضع الحقيقي") };
   const key = toolKey(t.toolName);
-  if (key.length < 2) return { error: "اسم الأداة غير واضح" };
+  if (key.length < 2) return { error: tr("اسم الأداة غير واضح") };
   const { data, error } = await supabase!
     .from("validated_tools")
     .upsert(

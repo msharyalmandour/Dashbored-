@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { WELCOME_AUDIO } from "./HeroVideo";
+import { tr } from "../lib/i18n";
 
 const MUTE_KEY = "wesync-welcome-muted";
 const PLAYED_KEY = "wesync-welcome-played";
@@ -111,8 +112,8 @@ export default function WelcomeVoice({ className = "" }: { className?: string })
     <span className={`inline-flex items-center gap-1 ${className}`}>
       <button
         onClick={toggle}
-        aria-label="اسمعوا الترحيب"
-        title="اسمعوا الترحيب"
+        aria-label={tr("اسمعوا الترحيب")}
+        title={tr("اسمعوا الترحيب")}
         className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-amber-200 backdrop-blur-md transition-colors hover:bg-white/10 ${
           playing ? "animate-pulse" : ""
         }`}
@@ -122,8 +123,8 @@ export default function WelcomeVoice({ className = "" }: { className?: string })
       {!muted && (
         <button
           onClick={mute}
-          aria-label="كتم الترحيب"
-          title="كتم الترحيب (ما يتكرر)"
+          aria-label={tr("كتم الترحيب")}
+          title={tr("كتم الترحيب (ما يتكرر)")}
           className="flex h-9 w-9 items-center justify-center rounded-full text-white/40 hover:text-white/80"
         >
           <VolumeX size={14} />

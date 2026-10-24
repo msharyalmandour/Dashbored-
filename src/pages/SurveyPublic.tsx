@@ -5,6 +5,7 @@ import SurveyRunner, { type AnswerMap } from "../components/survey/SurveyRunner"
 import Logo from "../components/Logo";
 import { supabase } from "../lib/supabaseClient";
 import type { Question } from "../lib/surveyCoach";
+import { tr } from "../lib/i18n";
 
 interface PublicSurvey {
   title: string;
@@ -44,12 +45,12 @@ export default function SurveyPublic() {
   }, [token]);
 
   const submit = async (a: AnswerMap): Promise<string | null> => {
-    if (!supabase || !token) return "تعذّر الإرسال.";
+    if (!supabase || !token) return tr("تعذّر الإرسال.");
     const { error } = await supabase.rpc("submit_survey_response", { p_token: token, p_answers: a });
     if (!error) return null;
-    if (error.message.includes("closed")) return "هذا الاستبيان أُغلق.";
-    if (error.message.includes("rate")) return "ضغط كبير الحين — جرّبوا بعد لحظات.";
-    return "ما وصلت إجاباتكم — حاولوا مرة ثانية.";
+    if (error.message.includes("closed")) return tr("هذا الاستبيان أُغلق.");
+    if (error.message.includes("rate")) return tr("ضغط كبير الحين — جرّبوا بعد لحظات.");
+    return tr("ما وصلت إجاباتكم — حاولوا مرة ثانية.");
   };
 
   return (
@@ -58,7 +59,7 @@ export default function SurveyPublic() {
       <div className="relative mx-auto max-w-2xl px-5 py-10">
         <header className="mb-8 flex items-center gap-2.5">
           <Logo size={30} />
-          <span className="text-xs font-semibold text-white/40">استبيان بحثي — مجهول</span>
+          <span className="text-xs font-semibold text-white/40">{tr("استبيان بحثي — مجهول")}</span>
         </header>
         {state === "loading" && (
           <div className="flex justify-center py-24">
@@ -68,8 +69,8 @@ export default function SurveyPublic() {
         {state === "closed" && (
           <div className="py-24 text-center">
             <Lock size={36} className="mx-auto text-white/40" />
-            <p className="mt-4 text-lg font-extrabold">هذا الاستبيان مغلق أو غير موجود</p>
-            <p className="mt-2 text-sm text-white/50">تأكدوا من الرابط أو تواصلوا مع الباحثين.</p>
+            <p className="mt-4 text-lg font-extrabold">{tr("هذا الاستبيان مغلق أو غير موجود")}</p>
+            <p className="mt-2 text-sm text-white/50">{tr("تأكدوا من الرابط أو تواصلوا مع الباحثين.")}</p>
           </div>
         )}
         {state === "ready" && survey && (

@@ -9,6 +9,7 @@ import type {
 } from "../data/types";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 let channelCounter = 0;
 
@@ -27,12 +28,12 @@ export interface NewAction {
 /** أخطاء الدوال ترجع نص إنجليزي من قاعدة البيانات — نحوّلها لرسالة عربية مفهومة */
 export function meetingErrorMessage(raw: string | undefined): string {
   const m = raw ?? "";
-  if (m.includes("already booked")) return "هذا الموعد محجوز عندكم مسبقًا.";
-  if (m.includes("outside availability")) return "هذا الوقت خارج أوقات المشرف/ة المتاحة. اختاروا وقتًا من القائمة.";
-  if (m.includes("too many bookings")) return "عندكم ٥ مواعيد معلّقة أو مؤكدة، ألغوا واحدًا أول.";
-  if (m.includes("bad date")) return "التاريخ لازم يكون من اليوم إلى ٦٠ يومًا قادمة.";
-  if (m.includes("not allowed")) return "اشتراك الفريق منتهي أو ما عندكم صلاحية الكتابة.";
-  return "صار خطأ — حاولوا مرة ثانية.";
+  if (m.includes("already booked")) return tr("هذا الموعد محجوز عندكم مسبقًا.");
+  if (m.includes("outside availability")) return tr("هذا الوقت خارج أوقات المشرف/ة المتاحة. اختاروا وقتًا من القائمة.");
+  if (m.includes("too many bookings")) return tr("عندكم ٥ مواعيد معلّقة أو مؤكدة، ألغوا واحدًا أول.");
+  if (m.includes("bad date")) return tr("التاريخ لازم يكون من اليوم إلى ٦٠ يومًا قادمة.");
+  if (m.includes("not allowed")) return tr("اشتراك الفريق منتهي أو ما عندكم صلاحية الكتابة.");
+  return tr("صار خطأ — حاولوا مرة ثانية.");
 }
 
 /** كل ما يخص التواصل مع المشرف/ة: بنود المحاضر، الاعتماد، طلبات القرار، أوقاتها المتاحة، والحجوزات.

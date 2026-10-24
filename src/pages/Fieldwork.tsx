@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
 import { useMethodology } from "../hooks/useMethodology";
 import { summarizeCollection } from "../lib/dataCollection";
+import { tr, trx } from "../lib/i18n";
 
 const pinColor = {
   completed: "text-brand-500",
@@ -18,9 +19,9 @@ const pinColor = {
 };
 
 const statusLabel = {
-  completed: "اكتمل",
-  active: "جارٍ",
-  "not-started": "لم يبدأ",
+  completed: tr("اكتمل"),
+  active: tr("جارٍ"),
+  "not-started": tr("لم يبدأ"),
 };
 
 const statusChip = {
@@ -39,14 +40,11 @@ function FieldworkDemo() {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="flex items-start gap-3 rounded-3xl border border-sky-accent-200 bg-sky-accent-50 px-5 py-4 lg:col-span-3">
         <Info size={18} className="mt-0.5 shrink-0 text-sky-accent-600" />
-        <p className="text-sm font-semibold text-sky-accent-700">
-          مرحلة جمع البيانات (Data Collection) ما بدأت بعد — هذي الصفحة تنشط تلقائيًا
-          بعد اكتمال المنهجية والحصول على الموافقة الأخلاقية.
-        </p>
+        <p className="text-sm font-semibold text-sky-accent-700">{tr("مرحلة جمع البيانات (Data Collection) ما بدأت بعد — هذي الصفحة تنشط تلقائيًا بعد اكتمال المنهجية والحصول على الموافقة الأخلاقية.")}</p>
       </div>
 
       <Card tone="teal" className="lg:col-span-2">
-        <CardHeader title="مواقع الجمع الميداني" subtitle="المملكة العربية السعودية" />
+        <CardHeader title={tr("مواقع الجمع الميداني")} subtitle={tr("المملكة العربية السعودية")} />
         <div className="relative h-96 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-surface-muted to-sky-accent-50">
           {fieldworkSites.map((site) => (
             <div
@@ -70,24 +68,21 @@ function FieldworkDemo() {
         </div>
         <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-brand-950/50">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-brand-500" /> اكتمل
-          </span>
+            <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />{tr(" اكتمل")}</span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-accent-500" /> جارٍ
-          </span>
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-accent-500" />{tr(" جارٍ")}</span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-brand-950/25" /> لم يبدأ
-          </span>
+            <span className="h-2.5 w-2.5 rounded-full bg-brand-950/25" />{tr(" لم يبدأ")}</span>
         </div>
       </Card>
 
       <Card tone="amber">
-        <CardHeader title="إجمالي المشاركين المستهدف" />
+        <CardHeader title={tr("إجمالي المشاركين المستهدف")} />
         <p className="text-3xl font-extrabold text-brand-950">
           {totalCollected}
           <span className="text-base font-medium text-brand-950/40"> / {totalTarget}</span>
         </p>
-        <p className="mb-3 text-xs text-brand-950/45">{collectedPct}% من الهدف</p>
+        <p className="mb-3 text-xs text-brand-950/45">{trx("{0}% من الهدف", collectedPct)}</p>
         <ProgressBar value={collectedPct} />
       </Card>
 
@@ -122,7 +117,7 @@ function FieldworkDemo() {
   );
 }
 
-const surveyStatus = { draft: "مسودة", open: "مفتوح", closed: "مغلق" } as const;
+const surveyStatus = { draft: tr("مسودة"), open: tr("مفتوح"), closed: tr("مغلق") } as const;
 
 /** جمع البيانات الحقيقي — من ردود استبيانات الفريق مقابل الهدف (بدل المواقع التجريبية) */
 function FieldworkReal() {
@@ -137,11 +132,10 @@ function FieldworkReal() {
       <Card tone="sky" className="flex flex-wrap items-center gap-4">
         <ClipboardList size={26} className="text-sky-accent-600" />
         <div className="min-w-0 flex-1">
-          <p className="text-base font-extrabold text-brand-950">ما بدأتوا جمع البيانات بعد</p>
-          <p className="mt-0.5 text-sm text-brand-950/60">سوّوا استبيانكم وشاركوا رابطه، والردود تنعد هنا تلقائيًا وتحرّك تقدّم مرحلة جمع البيانات.</p>
+          <p className="text-base font-extrabold text-brand-950">{tr("ما بدأتوا جمع البيانات بعد")}</p>
+          <p className="mt-0.5 text-sm text-brand-950/60">{tr("سوّوا استبيانكم وشاركوا رابطه، والردود تنعد هنا تلقائيًا وتحرّك تقدّم مرحلة جمع البيانات.")}</p>
         </div>
-        <Link to="/surveys" className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600">
-          افتحوا الاستبيانات <ArrowLeft size={15} />
+        <Link to="/surveys" className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600">{tr("افتحوا الاستبيانات ")}<ArrowLeft size={15} />
         </Link>
       </Card>
     );
@@ -150,22 +144,18 @@ function FieldworkReal() {
   return (
     <div className="space-y-4">
       <Card tone="amber">
-        <CardHeader title="الردود المجمّعة" subtitle="من استبيانات الفريق (النسخ التجريبية Pilot ما تنحسب)" />
+        <CardHeader title={tr("الردود المجمّعة")} subtitle={tr("من استبيانات الفريق (النسخ التجريبية Pilot ما تنحسب)")} />
         <p className="text-3xl font-extrabold text-brand-950">
           {summary.collected}
           {summary.target !== null && <span className="text-base font-medium text-brand-950/40"> / {summary.target}</span>}
         </p>
         {summary.target !== null ? (
           <>
-            <p className="mb-3 text-xs text-brand-950/45">
-              {pct}% من الهدف — {summary.targetSource === "surveys" ? "حسب أهداف الاستبيانات" : "حسب حجم العينة بالمنهجية"}
-            </p>
+            <p className="mb-3 text-xs text-brand-950/45">{trx("{0}% من الهدف — {1}", pct, summary.targetSource === "surveys" ? tr("حسب أهداف الاستبيانات") : tr("حسب حجم العينة بالمنهجية"))}</p>
             <ProgressBar value={pct} />
           </>
         ) : (
-          <p className="text-xs text-brand-950/55">
-            ما انحدد هدف — اكتبوا حجم العينة بالمنهجية أو هدف الردود بالاستبيان عشان نحسب النسبة.
-          </p>
+          <p className="text-xs text-brand-950/55">{tr("ما انحدد هدف — اكتبوا حجم العينة بالمنهجية أو هدف الردود بالاستبيان عشان نحسب النسبة.")}</p>
         )}
       </Card>
       <div className="space-y-3">
@@ -173,17 +163,12 @@ function FieldworkReal() {
           <Card key={s.id} className="flex flex-wrap items-center gap-4">
             <ClipboardList size={20} className="text-brand-500" />
             <div className="min-w-0 flex-1 font-semibold text-brand-950">
-              {s.title || "استبيان بدون عنوان"}
-              {s.isPilot && <span className="ms-2 rounded-full bg-surface-muted px-2 py-0.5 text-[11px] font-bold text-brand-950/50">تجريبي</span>}
+              {s.title || tr("استبيان بدون عنوان")}
+              {s.isPilot && <span className="ms-2 rounded-full bg-surface-muted px-2 py-0.5 text-[11px] font-bold text-brand-950/50">{tr("تجريبي")}</span>}
             </div>
-            <span className="text-sm font-semibold text-brand-950/60">
-              {s.count}
-              {s.targetN ? `/${s.targetN}` : ""} رد
-            </span>
+            <span className="text-sm font-semibold text-brand-950/60">{trx("{0}{1} رد", s.count, s.targetN ? `/${s.targetN}` : "")}</span>
             <span className="rounded-full border border-amber-accent-400 px-3 py-0.5 text-xs font-semibold text-amber-accent-400">{surveyStatus[s.status]}</span>
-            <Link to={`/surveys/${s.id}`} className="text-xs font-bold text-brand-700 hover:text-brand-900">
-              افتحوه
-            </Link>
+            <Link to={`/surveys/${s.id}`} className="text-xs font-bold text-brand-700 hover:text-brand-900">{tr("افتحوه")}</Link>
           </Card>
         ))}
       </div>
@@ -196,12 +181,11 @@ export default function Fieldwork() {
   return (
     <div className="space-y-6">
       <PageHeader
-        kicker="اجمع وحلّل"
-        title="الميدان"
-        subtitle="وين وصل جمع بياناتكم، وكم باقي على الهدف."
+        kicker={tr("اجمع وحلّل")}
+        title={tr("الميدان")}
+        subtitle={tr("وين وصل جمع بياناتكم، وكم باقي على الهدف.")}
         action={
-          <Link to="/surveys" className={primaryBtn}>
-            الاستبيانات <ArrowLeft size={15} />
+          <Link to="/surveys" className={primaryBtn}>{tr("الاستبيانات ")}<ArrowLeft size={15} />
           </Link>
         }
       />

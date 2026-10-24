@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 export type TeamSubscriptionState = "active" | "expiring-soon" | "expired" | "none";
 
 const EXPIRING_SOON_DAYS = 7;
@@ -22,8 +23,8 @@ export function canTeamWrite(state: TeamSubscriptionState): boolean {
 }
 
 export const subscriptionStateLabel: Record<TeamSubscriptionState, string> = {
-  active: "نشط",
-  "expiring-soon": "على وشك الانتهاء",
-  expired: "منتهي",
-  none: "لم يُفعّل بعد",
+  active: tr("نشط"),
+  "expiring-soon": tr("على وشك الانتهاء"),
+  expired: tr("منتهي"),
+  none: tr("لم يُفعّل بعد"),
 };

@@ -4,16 +4,17 @@ import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { getGreeting } from "../lib/date";
 import { g, isFemaleUser } from "../lib/gender";
+import { tr, trx } from "../lib/i18n";
 
 type SessionState = "idle" | "running" | "paused" | "done";
 
 const durations = [25, 45, 60];
 
 const sessionQuotes = [
-  "صفحة وحدة اليوم أفضل من ولا صفحة.",
-  "ركّز على السطر اللي قدامك بس، الباقي يجي وحده.",
-  "كل دقيقة تركيز الحين توفّر عليك ساعة بعدين.",
-  "لو تشتت ذهنك، ارجع بهدوء — مافي داعي للضغط.",
+  tr("صفحة وحدة اليوم أفضل من ولا صفحة."),
+  tr("ركّز على السطر اللي قدامك بس، الباقي يجي وحده."),
+  tr("كل دقيقة تركيز الحين توفّر عليك ساعة بعدين."),
+  tr("لو تشتت ذهنك، ارجع بهدوء — مافي داعي للضغط."),
 ];
 
 function formatTime(totalSeconds: number) {
@@ -88,13 +89,13 @@ export default function FocusSession() {
           <div>
             <p className="font-display font-bold text-brand-950">
               {isNight
-                ? "جلسة بحث هادئة قبل النوم"
-                : g(isFemale, "جهزي قهوتك وابدئي جلسة بحث", "جهّز قهوتك وابدأ جلسة بحث")}
+                ? tr("جلسة بحث هادئة قبل النوم")
+                : g(isFemale, tr("جهزي قهوتك وابدئي جلسة بحث"), tr("جهّز قهوتك وابدأ جلسة بحث"))}
             </p>
             <p className="text-sm text-brand-950/50">
               {isNight
-                ? "خلها جلسة خفيفة — نوم كافي أهم من ساعة إضافية."
-                : "وقت تركيز بدون مقاطعات — اختر المدة وابدأ."}
+                ? tr("خلها جلسة خفيفة — نوم كافي أهم من ساعة إضافية.")
+                : tr("وقت تركيز بدون مقاطعات — اختر المدة وابدأ.")}
             </p>
           </div>
         </div>
@@ -114,9 +115,7 @@ export default function FocusSession() {
                     ? "bg-brand-500 text-white"
                     : "bg-paper text-brand-950/60 hover:bg-surface-muted",
                 )}
-              >
-                {d} د
-              </button>
+              >{trx("{0} د", d)}</button>
             ))}
           </div>
           <button
@@ -130,8 +129,8 @@ export default function FocusSession() {
           >
             <Play size={16} />
             {isNight
-              ? g(isFemale, "ابدئي الجلسة", "ابدأ الجلسة")
-              : `${g(isFemale, "ابدئي", "ابدأ")} الجلسة ☕`}
+              ? g(isFemale, tr("ابدئي الجلسة"), tr("ابدأ الجلسة"))
+              : tr("{0} الجلسة ☕", g(isFemale, tr("ابدئي"), tr("ابدأ")))}
           </button>
         </div>
       </div>
@@ -146,18 +145,18 @@ export default function FocusSession() {
             {isNight ? <Moon size={20} /> : <Coffee size={20} />}
           </span>
           <div>
-            <p className="font-display font-bold text-brand-950">🎉 خلّصت جلستك! أحسنت</p>
+            <p className="font-display font-bold text-brand-950">{tr("🎉 خلّصت جلستك! أحسنت")}</p>
             <p className="text-sm text-brand-950/60">
               {isNight
                 ? g(
                     isFemale,
-                    "وقت استراحة — اشربي مويه، وفكّري تختمي الليلة بدري عشان نوم أفضل.",
-                    "وقت استراحة — اشرب مويه، وفكّر تختم الليلة بدري عشان نوم أفضل.",
+                    tr("وقت استراحة — اشربي مويه، وفكّري تختمي الليلة بدري عشان نوم أفضل."),
+                    tr("وقت استراحة — اشرب مويه، وفكّر تختم الليلة بدري عشان نوم أفضل."),
                   )
                 : g(
                     isFemale,
-                    "وقت استراحة قصيرة — اشربي قهوة، تمشي شوي، وارجعي لجلسة جديدة.",
-                    "وقت استراحة قصيرة — اشرب قهوة، تمشى شوي، وارجع لجلسة جديدة.",
+                    tr("وقت استراحة قصيرة — اشربي قهوة، تمشي شوي، وارجعي لجلسة جديدة."),
+                    tr("وقت استراحة قصيرة — اشرب قهوة، تمشى شوي، وارجع لجلسة جديدة."),
                   )}
             </p>
           </div>
@@ -166,9 +165,7 @@ export default function FocusSession() {
           onClick={reset}
           className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
         >
-          <RotateCcw size={16} />
-          جلسة جديدة
-        </button>
+          <RotateCcw size={16} />{tr("جلسة جديدة")}</button>
       </div>
     );
   }
@@ -212,15 +209,13 @@ export default function FocusSession() {
           className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
         >
           {state === "running" ? <Pause size={15} /> : <Play size={15} />}
-          {state === "running" ? "إيقاف مؤقت" : "استكمال"}
+          {state === "running" ? tr("إيقاف مؤقت") : tr("استكمال")}
         </button>
         <button
           onClick={reset}
           className="flex items-center gap-1.5 rounded-xl bg-paper px-4 py-2 text-sm font-bold text-brand-950/60 hover:bg-surface-muted"
         >
-          <Square size={14} />
-          إنهاء
-        </button>
+          <Square size={14} />{tr("إنهاء")}</button>
       </div>
     </div>
   );

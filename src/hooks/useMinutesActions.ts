@@ -16,6 +16,7 @@ import { getCurrentStage } from "../lib/progress";
 import { notifySupervisor } from "../lib/supervisorNotify";
 import { driveNotice } from "../lib/driveNotice";
 import type { MeetingMinutesRow } from "../data/types";
+import { tr } from "../lib/i18n";
 
 type DocInput = Pick<MeetingMinutesRow, "meetingDate" | "agenda" | "attendees" | "discussion" | "decisions" | "actionItems">;
 export interface MinutesFormPayload {
@@ -33,7 +34,7 @@ export interface JustSaved {
   sent: boolean;
 }
 
-const minutesFileName = (date: string, style: "dark" | "official" = "dark") => `محضر اجتماع - ${date}${style === "dark" ? " — Wesync" : ""}.docx`;
+const minutesFileName = (date: string, style: "dark" | "official" = "dark") => tr("محضر اجتماع - {0}{1}.docx", date, style === "dark" ? " — Wesync" : "");
 
 function saveBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
@@ -107,7 +108,7 @@ export function useMinutesActions() {
 
   /** يرجّع رسالة خطأ لو فشل، أو معلومات الحفظ لو نجح */
   const handleSubmit = async (p: MinutesFormPayload): Promise<{ error: string | null; saved?: JustSaved }> => {
-    if (!currentUser) return { error: "سجّلوا دخولكم أول." };
+    if (!currentUser) return { error: tr("سجّلوا دخولكم أول.") };
     const attendeeNames = roster.filter((m) => p.attendeeIds.includes(m.id)).map((m) => m.name);
     const actionsText = p.actions.map((a) => a.text).join("\n");
     const { row, error } = await addMinutes({
@@ -119,13 +120,13 @@ export function useMinutesActions() {
       actionItems: actionsText,
       createdById: currentUser.id,
     });
-    if (error || !row) return { error: error === "no research project" ? "ما لقينا مشروع بحث مربوط بحسابكم — تأكدوا إنكم داخل فريق." : "تعذّر حفظ المحضر — حاولوا مرة ثانية." };
+    if (error || !row) return { error: error === "no research project" ? tr("ما لقينا مشروع بحث مربوط بحسابكم — تأكدوا إنكم داخل فريق.") : tr("تعذّر حفظ المحضر — حاولوا مرة ثانية.") };
 
     let tasksCreated = 0;
     if (p.actions.length > 0) {
       const r = await meetings.createActions(row.id, p.actions);
       tasksCreated = r.created;
-      if (r.error) showToast({ title: "انحفظ المحضر، لكن البنود ما تحولت لمهام", desc: r.error, icon: X, tone: "rose" });
+      if (r.error) showToast({ title: tr("انحفظ المحضر، لكن البنود ما تحولت لمهام"), desc: r.error, icon: X, tone: "rose" });
     }
     let sent = false;
     if (p.sendToSupervisor) {
@@ -137,8 +138,8 @@ export function useMinutesActions() {
     const saved = { id: row.id, date: p.meetingDate, sent };
     setJustSaved(saved);
     showToast({
-      title: "تم حفظ المحضر",
-      desc: [tasksCreated > 0 ? `${tasksCreated} ${tasksCreated === 1 ? "بند صار مهمة" : "بنود صارت مهام"}` : "", sent ? "وانرسل للمشرف/ة للاعتماد" : "", "ونزّلنا لكم Word."].filter(Boolean).join("، "),
+      title: tr("تم حفظ المحضر"),
+      desc: [tasksCreated > 0 ? `${tasksCreated} ${tasksCreated === 1 ? tr("بند صار مهمة") : tr("بنود صارت مهام")}` : "", sent ? tr("وانرسل للمشرف/ة للاعتماد") : "", tr("ونزّلنا لكم Word.")].filter(Boolean).join(tr("، ")),
       icon: Check,
       tone: "brand",
     });
@@ -150,7 +151,7 @@ export function useMinutesActions() {
     try {
       saveBlob(await buildMeetingMinutesDoc(m, style), minutesFileName(m.meetingDate, style));
     } catch {
-      showToast({ title: "ما قدرنا نجهّز الملف", desc: "حاولوا مرة ثانية.", icon: X, tone: "rose" });
+      showToast({ title: tr("ما قدرنا نجهّز الملف"), desc: tr("حاولوا مرة ثانية."), icon: X, tone: "rose" });
     }
   };
 
@@ -172,11 +173,11 @@ export function useMinutesActions() {
   const handleSendApproval = async (m: MeetingMinutesRow) => {
     const r = await meetings.requestApproval(m.id);
     if (r.error) {
-      showToast({ title: "ما انرسل للاعتماد", desc: r.error, icon: X, tone: "rose" });
+      showToast({ title: tr("ما انرسل للاعتماد"), desc: r.error, icon: X, tone: "rose" });
       return;
     }
     const n = await notifySupervisor("minutes", m.id);
-    showToast({ title: "انرسل للاعتماد", desc: n.sent ? "وصل المشرف/ة إيميل." : "اضغطوا «ذكّروها بواتساب» لإرسال الرابط لها.", icon: Check, tone: "brand" });
+    showToast({ title: tr("انرسل للاعتماد"), desc: n.sent ? tr("وصل المشرف/ة إيميل.") : tr("اضغطوا «ذكّروها بواتساب» لإرسال الرابط لها."), icon: Check, tone: "brand" });
   };
 
   return {

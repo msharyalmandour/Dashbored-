@@ -6,6 +6,7 @@ import { daysUntil, formatDateShort, parseDate } from "../lib/date";
 import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { HighlightCard, PageColumns, PageHeader, Panel, ghostBtn } from "../components/ui/page";
 import RingProgress from "../components/ui/RingProgress";
+import { tr } from "../lib/i18n";
 
 const barColor = {
   done: "bg-gradient-to-l from-amber-accent-400 to-brand-500",
@@ -19,8 +20,8 @@ const monthMarks = [
 ];
 
 const monthNames = [
-  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+  tr("يناير"), tr("فبراير"), tr("مارس"), tr("أبريل"), tr("مايو"), tr("يونيو"),
+  tr("يوليو"), tr("أغسطس"), tr("سبتمبر"), tr("أكتوبر"), tr("نوفمبر"), tr("ديسمبر"),
 ];
 
 export default function Timeline() {
@@ -29,9 +30,9 @@ export default function Timeline() {
   if (loading || stages.length === 0) {
     return (
       <div className="space-y-6">
-        <PageHeader kicker="الفريق" title="الجدول الزمني" subtitle="وين وصلتم، وكم باقي لكل مرحلة." />
+        <PageHeader kicker={tr("الفريق")} title={tr("الجدول الزمني")} subtitle={tr("وين وصلتم، وكم باقي لكل مرحلة.")} />
         <Panel>
-          <p className="text-center text-sm text-brand-950/45">جارٍ تحميل الجدول الزمني...</p>
+          <p className="text-center text-sm text-brand-950/45">{tr("جارٍ تحميل الجدول الزمني...")}</p>
         </Panel>
       </div>
     );
@@ -59,52 +60,48 @@ export default function Timeline() {
 
   return (
     <div className="space-y-6">
-      <PageHeader kicker="الفريق" title="الجدول الزمني" subtitle="وين وصلتم، وكم باقي لكل مرحلة." />
+      <PageHeader kicker={tr("الفريق")} title={tr("الجدول الزمني")} subtitle={tr("وين وصلتم، وكم باقي لكل مرحلة.")} />
 
       <PageColumns
         side={
           <>
             <HighlightCard
-              kicker="الموعد النهائي"
+              kicker={tr("الموعد النهائي")}
               title={
                 daysLeft === null
-                  ? "غير محدد"
+                  ? tr("غير محدد")
                   : daysLeft > 0
-                    ? `باقي ${daysLeft} يوم`
+                    ? tr("باقي {0} يوم", daysLeft)
                     : daysLeft === 0
-                      ? "اليوم"
-                      : `تأخرتم ${-daysLeft} يوم`
+                      ? tr("اليوم")
+                      : tr("تأخرتم {0} يوم", -daysLeft)
               }
-              subtitle={projectEnd ? `تسليم البحث الكامل · ${formatDateShort(projectEnd)}` : undefined}
+              subtitle={projectEnd ? tr("تسليم البحث الكامل · {0}", formatDateShort(projectEnd)) : undefined}
             />
-            <Panel title="تقدّم البحث">
+            <Panel title={tr("تقدّم البحث")}>
               <div className="flex items-center gap-4">
                 <RingProgress value={overall} size={104} strokeWidth={10}>
                   <div className="text-center leading-tight">
                     <div className="font-display text-xl font-bold text-brand-950">{overall}%</div>
-                    <div className="text-[11px] text-brand-950/50">مكتمل</div>
+                    <div className="text-[11px] text-brand-950/50">{tr("مكتمل")}</div>
                   </div>
                 </RingProgress>
                 <div className="min-w-0">
-                  <p className="text-sm text-brand-950/50">المرحلة الحالية</p>
-                  <p className="font-display text-lg font-bold text-brand-950">{current?.titleAr ?? "خلصتوا كل المراحل"}</p>
+                  <p className="text-sm text-brand-950/50">{tr("المرحلة الحالية")}</p>
+                  <p className="font-display text-lg font-bold text-brand-950">{current?.titleAr ?? tr("خلصتوا كل المراحل")}</p>
                 </div>
               </div>
             </Panel>
             <Panel>
-              <p className="text-sm font-semibold text-brand-950/80">
-                🎓 هذي آخر محطة برحلتكم — يوم تسلّمون البحث النهائي، سجّلوا اللحظة.
-              </p>
+              <p className="text-sm font-semibold text-brand-950/80">{tr("🎓 هذي آخر محطة برحلتكم — يوم تسلّمون البحث النهائي، سجّلوا اللحظة.")}</p>
               <Link to="/celebration" className={clsx(ghostBtn, "mt-3 w-full")}>
-                <GraduationCap size={15} />
-                تسليم البحث النهائي
-              </Link>
+                <GraduationCap size={15} />{tr("تسليم البحث النهائي")}</Link>
             </Panel>
           </>
         }
         main={
           <>
-            <Panel title="رحلة البحث" hint={current ? `أنتم في المرحلة ${current.order}` : undefined}>
+            <Panel title={tr("رحلة البحث")} hint={current ? tr("أنتم في المرحلة {0}", current.order) : undefined}>
               <ol className="flex gap-2 overflow-x-auto pb-2">
                 {ordered.map((s, i) => {
                   const isCurrent = current?.id === s.id;
@@ -136,7 +133,7 @@ export default function Timeline() {
               </ol>
             </Panel>
 
-            <Panel title="الجدول الزمني للبحث" hint={`${projectStart ? formatDateShort(projectStart) : ""} — ${projectEnd ? formatDateShort(projectEnd) : ""}`}>
+            <Panel title={tr("الجدول الزمني للبحث")} hint={`${projectStart ? formatDateShort(projectStart) : ""} — ${projectEnd ? formatDateShort(projectEnd) : ""}`}>
               <div className="relative overflow-x-auto">
                 <div className="min-w-[720px]">
                   <div className="relative mb-3 ms-48 h-5 border-b border-brand-100/20">
@@ -180,11 +177,9 @@ export default function Timeline() {
 
               <div className="mt-5 flex flex-wrap gap-4 text-xs font-semibold text-brand-950/50">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-brand-500" /> مكتملة / قيد التنفيذ
-                </span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />{tr(" مكتملة / قيد التنفيذ")}</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-brand-500/30" /> قادمة
-                </span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-brand-500/30" />{tr(" قادمة")}</span>
               </div>
             </Panel>
           </>

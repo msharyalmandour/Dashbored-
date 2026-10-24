@@ -6,12 +6,13 @@ import ThreeDotsMenu from "./ui/ThreeDotsMenu";
 import { Inbox, Trash2 } from "lucide-react";
 import type { Task, TaskStatus, TeamMember } from "../data/types";
 import { formatDateShort } from "../lib/date";
+import { tr } from "../lib/i18n";
 
 const columns: { id: TaskStatus; label: string; tone: string }[] = [
-  { id: "todo", label: "لم يبدأ", tone: "text-sky-accent-600 bg-sky-accent-50" },
-  { id: "in-progress", label: "قيد التنفيذ", tone: "text-amber-accent-600 bg-amber-accent-50" },
-  { id: "overdue", label: "متأخرة", tone: "text-rose-600 bg-rose-50" },
-  { id: "done", label: "مكتملة", tone: "text-brand-600 bg-brand-50" },
+  { id: "todo", label: tr("لم يبدأ"), tone: "text-sky-accent-600 bg-sky-accent-50" },
+  { id: "in-progress", label: tr("قيد التنفيذ"), tone: "text-amber-accent-600 bg-amber-accent-50" },
+  { id: "overdue", label: tr("متأخرة"), tone: "text-rose-600 bg-rose-50" },
+  { id: "done", label: tr("مكتملة"), tone: "text-brand-600 bg-brand-50" },
 ];
 
 const priorityStyle: Record<Task["priority"], string> = {
@@ -95,8 +96,8 @@ export default function TasksKanban({
                       <ThreeDotsMenu
                         items={[
                           {
-                            label: "حذف المهمة",
-                            confirmLabel: "تأكيد الحذف؟",
+                            label: tr("حذف المهمة"),
+                            confirmLabel: tr("تأكيد الحذف؟"),
                             icon: Trash2,
                             tone: "danger",
                             onClick: () => onDelete(task.id),
@@ -107,7 +108,7 @@ export default function TasksKanban({
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${priorityStyle[task.priority]}`}>
-                      {task.priority === "low" ? "منخفضة" : task.priority === "medium" ? "متوسطة" : "عالية"}
+                      {task.priority === "low" ? tr("منخفضة") : task.priority === "medium" ? tr("متوسطة") : tr("عالية")}
                     </span>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] text-brand-950/45">{formatDateShort(task.dueDate)}</span>
@@ -120,7 +121,7 @@ export default function TasksKanban({
 
             {colTasks.length === 0 && (
               <div className="py-4">
-                <EmptyState icon={Inbox} title="فاضية" />
+                <EmptyState icon={Inbox} title={tr("فاضية")} />
               </div>
             )}
           </div>

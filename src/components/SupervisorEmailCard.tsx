@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { BellRing, Loader2, Mail } from "lucide-react";
 import { errorText, getSupervisorEmailStatus, subscribeSupervisor, type EmailStatus } from "../lib/supervisorEmail";
+import { tr } from "../lib/i18n";
 
 /** المشرفة تشترك بنفسها بإيميل يوصلها عند كل رد جديد من الفريق (تأكيد مزدوج: ما نرسل لأي إيميل قبل ما صاحبه يؤكد). */
 export default function SupervisorEmailCard({ token, onChanged, embedded = false }: { token: string; onChanged?: () => void; /** داخل لوحة الإعداد: بدون إطار خارجي */ embedded?: boolean }) {
@@ -42,24 +43,20 @@ export default function SupervisorEmailCard({ token, onChanged, embedded = false
     <div className={embedded ? "" : "mt-4 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8"}>
       {!embedded && (
         <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-          <Mail size={15} className="text-brand-500" />
-          إشعارات الإيميل
-        </p>
+          <Mail size={15} className="text-brand-500" />{tr("إشعارات الإيميل")}</p>
       )}
 
       {active ? (
         <p className="mt-2 flex items-start gap-2 text-sm text-brand-950/70">
           <BellRing size={16} className="mt-0.5 shrink-0 text-brand-500" />
-          <span>
-            مفعّلة على <b dir="ltr">{status?.emailMasked}</b> — يوصلكم إيميل عند كل رد جديد من الفريق. لإيقافها اضغطوا «إيقاف الإشعارات» بأسفل أي إيميل منّا.
-          </span>
+          <span>{tr("مفعّلة على ")}<b dir="ltr">{status?.emailMasked}</b>{tr(" — يوصلكم إيميل عند كل رد جديد من الفريق. لإيقافها اضغطوا «إيقاف الإشعارات» بأسفل أي إيميل منّا.")}</span>
         </p>
       ) : (
         <>
           <p className="mt-1 text-xs text-brand-950/50">
             {pending
-              ? `أرسلنا رابط تأكيد إلى ${status?.emailMasked || "إيميلكم"} — اضغطوه عشان تبدأ الإشعارات (شوفوا الرسائل المزعجة لو ما وصل).`
-              : "بدل ما تفتحون الرابط كل مرة، اكتبوا إيميلكم ويوصلكم تنبيه لما الفريق يرد. نرسل لكم رابط تأكيد أول، وما نرسل شي قبله."}
+              ? tr("أرسلنا رابط تأكيد إلى {0} — اضغطوه عشان تبدأ الإشعارات (شوفوا الرسائل المزعجة لو ما وصل).", status?.emailMasked || tr("إيميلكم"))
+              : tr("بدل ما تفتحون الرابط كل مرة، اكتبوا إيميلكم ويوصلكم تنبيه لما الفريق يرد. نرسل لكم رابط تأكيد أول، وما نرسل شي قبله.")}
           </p>
           <form
             className="mt-3 flex flex-wrap gap-2.5"
@@ -79,7 +76,7 @@ export default function SupervisorEmailCard({ token, onChanged, embedded = false
             />
             <button disabled={busy || !email.trim()} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">
               {busy && <Loader2 size={14} className="animate-spin" />}
-              {pending ? "أعيدوا إرسال التأكيد" : "فعّلوا الإشعارات"}
+              {pending ? tr("أعيدوا إرسال التأكيد") : tr("فعّلوا الإشعارات")}
             </button>
           </form>
           {error && <p className="mt-2 text-xs font-semibold text-rose-600">{error}</p>}

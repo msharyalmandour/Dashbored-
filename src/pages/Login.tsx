@@ -4,31 +4,33 @@ import { Gift, Infinity as InfinityIcon, Users } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import Logo from "../components/Logo";
+import LangToggle from "../components/ui/LangToggle";
+import { tr } from "../lib/i18n";
 
 /** اقتراحات جاهزة بخانة "الجامعة" وقت التسجيل — الحقل نص حر أصلًا
     (datalist)، فأي جامعة مو بالقائمة تُكتب يدويًا بدون أي قيد */
 const saudiUniversities = [
-  "جامعة الملك سعود",
-  "جامعة الملك عبدالعزيز",
-  "جامعة الملك فيصل",
-  "جامعة الملك خالد",
-  "جامعة الأميرة نورة بنت عبدالرحمن",
-  "جامعة أم القرى",
-  "جامعة طيبة",
-  "جامعة القصيم",
-  "جامعة الجوف",
-  "جامعة تبوك",
-  "جامعة نجران",
-  "جامعة الباحة",
-  "جامعة حائل",
-  "جامعة جازان",
-  "جامعة الحدود الشمالية",
-  "جامعة شقراء",
-  "جامعة الإمام عبدالرحمن بن فيصل",
-  "جامعة الطائف",
-  "الجامعة السعودية الإلكترونية",
-  "جامعة الأمير سطام بن عبدالعزيز",
-  "جامعة الإمام محمد بن سعود الإسلامية",
+  tr("جامعة الملك سعود"),
+  tr("جامعة الملك عبدالعزيز"),
+  tr("جامعة الملك فيصل"),
+  tr("جامعة الملك خالد"),
+  tr("جامعة الأميرة نورة بنت عبدالرحمن"),
+  tr("جامعة أم القرى"),
+  tr("جامعة طيبة"),
+  tr("جامعة القصيم"),
+  tr("جامعة الجوف"),
+  tr("جامعة تبوك"),
+  tr("جامعة نجران"),
+  tr("جامعة الباحة"),
+  tr("جامعة حائل"),
+  tr("جامعة جازان"),
+  tr("جامعة الحدود الشمالية"),
+  tr("جامعة شقراء"),
+  tr("جامعة الإمام عبدالرحمن بن فيصل"),
+  tr("جامعة الطائف"),
+  tr("الجامعة السعودية الإلكترونية"),
+  tr("جامعة الأمير سطام بن عبدالعزيز"),
+  tr("جامعة الإمام محمد بن سعود الإسلامية"),
 ];
 
 /** لحظة انتقال سينمائية عند نجاح الدخول: تلاشي لطبقة داكنة + تكبير خفيف
@@ -115,7 +117,7 @@ export default function Login() {
     // وضاع جزء الرابط) — العضو يقدر يلصق رمز الفريق يدويًا بدلًا منه
     const trimmedManualCode = manualTeamCode.trim();
     if (isSignUp && !inviteTeamId && trimmedManualCode && !UUID_RE.test(trimmedManualCode)) {
-      setError("رمز الفريق غير صحيح — تأكدي إنك نسختيه كامل من صفحة الفريق.");
+      setError(tr("رمز الفريق غير صحيح — تأكدي إنك نسختيه كامل من صفحة الفريق."));
       return;
     }
     const effectiveTeamId = inviteTeamId ?? (trimmedManualCode || undefined);
@@ -136,7 +138,7 @@ export default function Login() {
     setSubmitting(false);
     if (result.error) setError(result.error);
     else if (isSignUp) {
-      setError("تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل دخولك.");
+      setError(tr("تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل دخولك."));
     }
   };
 
@@ -157,7 +159,7 @@ export default function Login() {
       (c) => c.universityId === universityId.trim() && c.password === mockPassword,
     );
     if (!match) {
-      setMockError("الرقم الجامعي أو كلمة المرور غير صحيحة — جرّب البيانات التجريبية تحت.");
+      setMockError(tr("الرقم الجامعي أو كلمة المرور غير صحيحة — جرّب البيانات التجريبية تحت."));
       return;
     }
     loginAsMock(match.memberId);
@@ -203,12 +205,13 @@ export default function Login() {
             <div className="w-full max-w-[500px] animate-[panel-in_0.5s_ease-out] rounded-[40px] border border-[rgba(255,220,180,.25)] bg-[rgba(20,8,4,.55)] p-7 text-[#F6F1EC] shadow-[0_60px_140px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,240,220,.25)] backdrop-blur-[30px] backdrop-saturate-150 sm:p-10">
               <div className="mb-7 space-y-5">
                 <div className="flex items-center justify-between gap-3">
-                  <Link to="/" aria-label="Wesync — الصفحة الرئيسية" className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
+                  <Link to="/" aria-label={tr("Wesync — الصفحة الرئيسية")} className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
                     <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full border-[1.5px] border-[#FFB444] text-[#FFB444]">
                       <InfinityIcon size={18} strokeWidth={2.25} />
                     </span>
                     Wesync
                   </Link>
+                  <div className="flex items-center gap-3">
                   {mode === "supabase" && !isForgotPassword && (
                     <button
                       type="button"
@@ -219,45 +222,37 @@ export default function Login() {
                       className="text-sm text-[#B8ADA2]"
                     >
                       {isSignUp ? (
-                        <>
-                          عندك حساب؟ <span className="text-[#FFB444]">ادخل</span>
+                        <>{tr("عندك حساب؟ ")}<span className="text-[#FFB444]">{tr("ادخل")}</span>
                         </>
                       ) : (
-                        <>
-                          ما عندك حساب؟ <span className="text-[#FFB444]">أنشئ واحد</span>
+                        <>{tr("ما عندك حساب؟ ")}<span className="text-[#FFB444]">{tr("أنشئ واحد")}</span>
                         </>
                       )}
                     </button>
                   )}
+                    <LangToggle className="border-white/20 bg-white/[0.08] text-[#F4F0EC] hover:bg-white/[0.14]" />
+                  </div>
                 </div>
                 <div>
                   <h1 className="font-kufi text-[34px] font-extrabold leading-[1.3] sm:text-[38px]">
                     {isForgotPassword ? (
-                      "استرجاع كلمة المرور"
+                      tr("استرجاع كلمة المرور")
                     ) : signUpView ? (
-                      <>
-                        ابدأوا بحثكم
-                        <br />
-                        بالترتيب الصح.
-                      </>
+                      <>{tr("ابدأوا بحثكم")}<br />{tr("بالترتيب الصح.")}</>
                     ) : (
-                      "تسجيل الدخول"
+                      tr("تسجيل الدخول")
                     )}
                   </h1>
                   {signUpView && !isForgotPassword && (
-                    <p className="mt-2 font-light text-[#B8ADA2]">٧ أيام مجانًا كاملة، بدون بطاقة دفع.</p>
+                    <p className="mt-2 font-light text-[#B8ADA2]">{tr("٧ أيام مجانًا كاملة، بدون بطاقة دفع.")}</p>
                   )}
                   {inviteTeamId && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
-                      <Users size={13} />
-                      دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل
-                    </span>
+                      <Users size={13} />{tr("دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل")}</span>
                   )}
                   {!inviteTeamId && referralCode && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
-                      <Gift size={13} />
-                      دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة ٧ أيام مجانية 🎉
-                    </span>
+                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة ٧ أيام مجانية 🎉")}</span>
                   )}
                 </div>
               </div>
@@ -265,14 +260,11 @@ export default function Login() {
               {mode === "supabase" && isForgotPassword ? (
                 <>
                   {resetSent ? (
-                    <p className="rounded-xl bg-[#ff8a24]/10 px-3 py-3 text-center text-sm font-semibold text-[#ffb547]">
-                      تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط
-                      الرابط لتعيين كلمة مرور جديدة.
-                    </p>
+                    <p className="rounded-xl bg-[#ff8a24]/10 px-3 py-3 text-center text-sm font-semibold text-[#ffb547]">{tr("تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط الرابط لتعيين كلمة مرور جديدة.")}</p>
                   ) : (
                     <form onSubmit={handleResetSubmit} className="space-y-3">
                       <label className="block text-sm">
-                        <span className="mb-2 block font-semibold">البريد الجامعي</span>
+                        <span className="mb-2 block font-semibold">{tr("البريد الجامعي")}</span>
                         <input
                           required
                           type="email"
@@ -282,8 +274,8 @@ export default function Login() {
                             setResetEmail(e.target.value);
                           }}
                           onInvalid={arabicInvalidHandler(
-                            "البريد الإلكتروني مطلوب",
-                            "صيغة البريد الإلكتروني غير صحيحة",
+                            tr("البريد الإلكتروني مطلوب"),
+                            tr("صيغة البريد الإلكتروني غير صحيحة"),
                           )}
                           className={inputClass}
                           placeholder="you@example.com"
@@ -298,7 +290,7 @@ export default function Login() {
                       )}
 
                       <button type="submit" disabled={resetSubmitting} className={glowButtonClass}>
-                        {resetSubmitting ? "..." : "إرسال رابط إعادة التعيين"}
+                        {resetSubmitting ? "..." : tr("إرسال رابط إعادة التعيين")}
                       </button>
                     </form>
                   )}
@@ -310,16 +302,14 @@ export default function Login() {
                       setResetError(null);
                     }}
                     className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
-                  >
-                    الرجوع لتسجيل الدخول
-                  </button>
+                  >{tr("الرجوع لتسجيل الدخول")}</button>
                 </>
               ) : mode === "supabase" ? (
                 <>
                   <form onSubmit={handleSubmit} className="space-y-3">
                     {isSignUp && (
                       <label className="block text-sm">
-                        <span className="mb-2 block font-semibold">الاسم الكامل</span>
+                        <span className="mb-2 block font-semibold">{tr("الاسم الكامل")}</span>
                         <input
                           required
                           value={name}
@@ -327,20 +317,20 @@ export default function Login() {
                             clearValidity(e);
                             setName(e.target.value);
                           }}
-                          onInvalid={arabicInvalidHandler("الاسم الكامل مطلوب")}
+                          onInvalid={arabicInvalidHandler(tr("الاسم الكامل مطلوب"))}
                           className={inputClass}
-                          placeholder="مثال: سارة العتيبي"
+                          placeholder={tr("مثال: سارة العتيبي")}
                         />
                       </label>
                     )}
                     {isSignUp && (
                       <div className="text-sm">
-                        <span className="mb-2 block font-semibold">نخاطبك بـ</span>
+                        <span className="mb-2 block font-semibold">{tr("نخاطبك بـ")}</span>
                         <div className="flex rounded-full border border-white/[0.12] bg-white/[0.04] p-1">
                           {(
                             [
-                              ["female", "أنتِ"],
-                              ["male", "أنتَ"],
+                              ["female", tr("أنتِ")],
+                              ["male", tr("أنتَ")],
                             ] as const
                           ).map(([g, label]) => (
                             <button
@@ -361,7 +351,7 @@ export default function Login() {
                       </div>
                     )}
                     <label className="block text-sm">
-                      <span className="mb-2 block font-semibold">البريد الجامعي</span>
+                      <span className="mb-2 block font-semibold">{tr("البريد الجامعي")}</span>
                       <input
                         required
                         type="email"
@@ -371,8 +361,8 @@ export default function Login() {
                           setEmail(e.target.value);
                         }}
                         onInvalid={arabicInvalidHandler(
-                          "البريد الإلكتروني مطلوب",
-                          "صيغة البريد الإلكتروني غير صحيحة",
+                          tr("البريد الإلكتروني مطلوب"),
+                          tr("صيغة البريد الإلكتروني غير صحيحة"),
                         )}
                         className={inputClass}
                         placeholder="you@example.com"
@@ -380,7 +370,7 @@ export default function Login() {
                       />
                     </label>
                     <label className="block text-sm">
-                      <span className="mb-2 block font-semibold">كلمة المرور</span>
+                      <span className="mb-2 block font-semibold">{tr("كلمة المرور")}</span>
                       <input
                         required
                         type="password"
@@ -391,8 +381,8 @@ export default function Login() {
                           setPassword(e.target.value);
                         }}
                         onInvalid={arabicInvalidHandler(
-                          "كلمة المرور مطلوبة",
-                          "كلمة المرور لازم تكون ٦ أحرف على الأقل",
+                          tr("كلمة المرور مطلوبة"),
+                          tr("كلمة المرور لازم تكون ٦ أحرف على الأقل"),
                         )}
                         className={inputClass}
                         placeholder="••••••••"
@@ -402,15 +392,14 @@ export default function Login() {
 
                     {isSignUp && !inviteTeamId && !manualTeamCode.trim() && (
                       <label className="block text-sm">
-                        <span className="mb-2 block font-semibold">
-                          الجامعة <span className="font-normal text-[#8F8378]">(اختياري)</span>
+                        <span className="mb-2 block font-semibold">{tr("الجامعة ")}<span className="font-normal text-[#8F8378]">{tr("(اختياري)")}</span>
                         </span>
                         <input
                           list="university-options"
                           value={university}
                           onChange={(e) => setUniversity(e.target.value)}
                           className={inputClass}
-                          placeholder="مثال: جامعة الملك سعود"
+                          placeholder={tr("مثال: جامعة الملك سعود")}
                         />
                         <datalist id="university-options">
                           {saudiUniversities.map((u) => (
@@ -421,12 +410,12 @@ export default function Login() {
                     )}
                     {isSignUp && !inviteTeamId && showManualTeamCode && (
                       <label className="block text-sm">
-                        <span className="mb-2 block font-semibold">رمز دعوة الفريق</span>
+                        <span className="mb-2 block font-semibold">{tr("رمز دعوة الفريق")}</span>
                         <input
                           value={manualTeamCode}
                           onChange={(e) => setManualTeamCode(e.target.value)}
                           className={inputClass}
-                          placeholder="الصقيه من صفحة الفريق عند قائدة فريقكم"
+                          placeholder={tr("الصقيه من صفحة الفريق عند قائدة فريقكم")}
                           dir="ltr"
                         />
                       </label>
@@ -438,15 +427,14 @@ export default function Login() {
                     )}
 
                     <button type="submit" disabled={submitting} className={glowButtonClass}>
-                      {submitting ? "..." : isSignUp ? "أنشئ حسابي" : "تسجيل الدخول"}
+                      {submitting ? "..." : isSignUp ? tr("أنشئ حسابي") : tr("تسجيل الدخول")}
                     </button>
                     {isSignUp && !inviteTeamId && !showManualTeamCode && (
                       <button
                         type="button"
                         onClick={() => setShowManualTeamCode(true)}
                         className="block w-full text-center text-sm text-[#B8ADA2]"
-                      >
-                        عندك رمز دعوة من فريقك؟ <span className="text-[#FFB444]">ادخله هنا</span>
+                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-[#FFB444]">{tr("ادخله هنا")}</span>
                       </button>
                     )}
                   </form>
@@ -458,9 +446,7 @@ export default function Login() {
                         setError(null);
                       }}
                       className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-[#ffb547] hover:underline"
-                    >
-                      نسيت كلمة المرور؟
-                    </button>
+                    >{tr("نسيت كلمة المرور؟")}</button>
                   )}
 
                 </>
@@ -468,7 +454,7 @@ export default function Login() {
                 <>
                   <form onSubmit={handleMockSubmit} className="space-y-3">
                     <label className="block text-sm">
-                      <span className="mb-2 block font-semibold">الرقم الجامعي</span>
+                      <span className="mb-2 block font-semibold">{tr("الرقم الجامعي")}</span>
                       <input
                         required
                         inputMode="numeric"
@@ -480,7 +466,7 @@ export default function Login() {
                       />
                     </label>
                     <label className="block text-sm">
-                      <span className="mb-2 block font-semibold">كلمة المرور</span>
+                      <span className="mb-2 block font-semibold">{tr("كلمة المرور")}</span>
                       <input
                         required
                         type="password"
@@ -498,16 +484,14 @@ export default function Login() {
                       </p>
                     )}
 
-                    <button type="submit" className={glowButtonClass}>
-                      تسجيل الدخول
-                    </button>
+                    <button type="submit" className={glowButtonClass}>{tr("تسجيل الدخول")}</button>
                   </form>
 
                   <button
                     onClick={() => setShowDemoCreds((s) => !s)}
                     className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
                   >
-                    {showDemoCreds ? "إخفاء بيانات الدخول التجريبية" : "عرض بيانات الدخول التجريبية"}
+                    {showDemoCreds ? tr("إخفاء بيانات الدخول التجريبية") : tr("عرض بيانات الدخول التجريبية")}
                   </button>
 
                   {showDemoCreds && (
@@ -528,7 +512,7 @@ export default function Login() {
                             <span className="font-semibold text-white/70">
                               {member.name}
                               {member.role === "leader" && (
-                                <span className="ms-1 text-[#ffb547]">(قائدة الفريق)</span>
+                                <span className="ms-1 text-[#ffb547]">{tr("(قائدة الفريق)")}</span>
                               )}
                             </span>
                             <span className="font-mono text-white/40" dir="ltr">
@@ -540,19 +524,13 @@ export default function Login() {
                     </div>
                   )}
 
-                  <p className="mt-6 text-center text-xs text-white/35">
-                    هذا تسجيل دخول تجريبي بمحاكاة بوابة الطالب — لتفعيل تسجيل دخول
-                    حقيقي بالبريد الجامعي وكلمة المرور، أضف مفاتيح Supabase في
-                    متغيرات البيئة (راجع ملف .env.example).
-                  </p>
+                  <p className="mt-6 text-center text-xs text-white/35">{tr("هذا تسجيل دخول تجريبي بمحاكاة بوابة الطالب — لتفعيل تسجيل دخول حقيقي بالبريد الجامعي وكلمة المرور، أضف مفاتيح Supabase في متغيرات البيئة (راجع ملف .env.example).")}</p>
                 </>
               )}
             </div>
         </main>
 
-        <footer className="pb-1 text-center text-[11px] tracking-wide text-white/30">
-          منصة إدارة أبحاث التمريض
-        </footer>
+        <footer className="pb-1 text-center text-[11px] tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
       </div>
     </div>
   );

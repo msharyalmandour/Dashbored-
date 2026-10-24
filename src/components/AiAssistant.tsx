@@ -12,6 +12,7 @@ import ProjectAgentChat from "./ProjectAgentChat";
 import AgentOrb from "./ui/AgentOrb";
 import StreamedText from "./ui/StreamedText";
 import ThinkingLine from "./ui/ThinkingLine";
+import { isEn, lang, tr, trx } from "../lib/i18n";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -31,28 +32,28 @@ type ContentBlock =
   | { type: "image"; source: { type: "base64"; media_type: string; data: string } };
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const DEFAULT_IMAGE_PROMPT = "اشرح لي هذي الصورة";
+const DEFAULT_IMAGE_PROMPT = tr("اشرح لي هذي الصورة");
 
 // أسئلة "الكوتش" — تعتمد على لقطة وضع الفريق اللي يقرأها المساعد من القاعدة
 const coachPrompts = [
-  "وش أهم ٣ أشياء نسويها هالأسبوع؟",
-  "قيّمي وضعنا: وين متأخرين وين ماشيين تمام؟",
-  "مين عنده مهام متأخرة، وكيف نعيد التوازن؟",
-  "جهّزيني لاجتماع الفريق الجاي",
+  tr("وش أهم ٣ أشياء نسويها هالأسبوع؟"),
+  tr("قيّمي وضعنا: وين متأخرين وين ماشيين تمام؟"),
+  tr("مين عنده مهام متأخرة، وكيف نعيد التوازن؟"),
+  tr("جهّزيني لاجتماع الفريق الجاي"),
 ];
 const helpPrompts = [
-  "وش الفرق بين Cross-sectional و Cohort Study؟",
-  "اقترحي صياغة أوضح للفجوة البحثية عندنا",
+  tr("وش الفرق بين Cross-sectional و Cohort Study؟"),
+  tr("اقترحي صياغة أوضح للفجوة البحثية عندنا"),
 ];
 
 /** اقتراحات القسم الحالي — نصوص عادية تنرسل للكوتش، وهو أصلًا يعرف الصفحة (page) ووضع الفريق */
 const sectionPrompts: Record<string, string[]> = {
-  search: ["اقترحوا لنا كلمات بحث لعنواننا", "وش الدراسات اللي ممكن تكون ناقصتنا؟", "وش الفجوة اللي ممكن نشتغل عليها؟"],
-  write: ["وش ناقص بمقترحنا؟", "كيف أحسّن صياغة هدف الدراسة؟", "جهّزونا لأسئلة المشرف/ة عن المنهجية"],
-  collect: ["وش الاختبار الإحصائي المناسب لبياناتنا؟", "وش لازم نجهّز قبل توزيع الاستبيان؟", "كم عينة نحتاج تقريبًا؟"],
-  team: ["مين عليه ضغط؟", "كيف نوزّع المهام بعدل؟", "جهّزوا لنا تقرير مساهمة الفريق"],
-  supervisor: ["جهّز جدول أعمال للاجتماع", "وش ناقص قبل اجتماعنا مع المشرف/ة؟", "حوّلوا ملاحظاتها لمهام"],
-  calendar: ["وش عندنا هالأسبوع؟", "وش اللي متأخر عندنا؟", "رتّبوا لنا أسبوعنا"],
+  search: [tr("اقترحوا لنا كلمات بحث لعنواننا"), tr("وش الدراسات اللي ممكن تكون ناقصتنا؟"), tr("وش الفجوة اللي ممكن نشتغل عليها؟")],
+  write: [tr("وش ناقص بمقترحنا؟"), tr("كيف أحسّن صياغة هدف الدراسة؟"), tr("جهّزونا لأسئلة المشرف/ة عن المنهجية")],
+  collect: [tr("وش الاختبار الإحصائي المناسب لبياناتنا؟"), tr("وش لازم نجهّز قبل توزيع الاستبيان؟"), tr("كم عينة نحتاج تقريبًا؟")],
+  team: [tr("مين عليه ضغط؟"), tr("كيف نوزّع المهام بعدل؟"), tr("جهّزوا لنا تقرير مساهمة الفريق")],
+  supervisor: [tr("جهّز جدول أعمال للاجتماع"), tr("وش ناقص قبل اجتماعنا مع المشرف/ة؟"), tr("حوّلوا ملاحظاتها لمهام")],
+  calendar: [tr("وش عندنا هالأسبوع؟"), tr("وش اللي متأخر عندنا؟"), tr("رتّبوا لنا أسبوعنا")],
 };
 
 /** اسم المكان الحالي للعرض بالشريط: قسم من الأبواب السبعة، أو الرئيسية، أو صفحة من «المزيد» */
@@ -136,7 +137,7 @@ export default function AiAssistant() {
     setMessages(
       stored.map((m) => ({
         role: m.role,
-        content: m.hadImage ? `📷 (صورة مرفقة)\n${m.content}` : m.content,
+        content: m.hadImage ? tr("📷 (صورة مرفقة)\n{0}", m.content) : m.content,
       })),
     );
   };
@@ -153,11 +154,11 @@ export default function AiAssistant() {
     e.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setError("الملف لازم يكون صورة (JPG أو PNG مثلًا).");
+      setError(tr("الملف لازم يكون صورة (JPG أو PNG مثلًا)."));
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      setError("الصورة أكبر من 5 ميجا — جربي صورة أصغر.");
+      setError(tr("الصورة أكبر من 5 ميجا — جربي صورة أصغر."));
       return;
     }
     setError(null);
@@ -198,7 +199,8 @@ export default function AiAssistant() {
       body: {
         action: "chat",
         page: location.pathname,
-        messages: next.map((m) => ({ role: m.role, content: contentFor(m) })),
+        messages: next.map((m, i) => ({ role: m.role, content: contentFor(isEn && i === next.length - 1 && m.role === "user" ? { ...m, content: `${m.content || (m.imageDataUrl ? DEFAULT_IMAGE_PROMPT : "")}\n\n(Reply in English.)` } : m) })),
+        lang,
       },
     });
 
@@ -206,7 +208,7 @@ export default function AiAssistant() {
     // ما نعرض الرد/الخطأ لو الطالبة فتحت محادثة ثانية أثناء الانتظار
     const stillHere = activeIdRef.current === sentIn;
     if (fnError || data?.error) {
-      if (stillHere) setError("ما وصل الرد — تأكدي من اتصالك بالإنترنت وحاولي ترسلين سؤالك مرة ثانية.");
+      if (stillHere) setError(tr("ما وصل الرد — تأكدي من اتصالك بالإنترنت وحاولي ترسلين سؤالك مرة ثانية."));
       return;
     }
     if (sentIn) void history.saveMessage(sentIn, { role: "assistant", content: data.text, hadImage: false });
@@ -222,8 +224,8 @@ export default function AiAssistant() {
       {/* الكرة العائمة: نفس كرة صفحة الوكيل (ألوان مباشرة مو متغيرات الثيم عشان تبان بنفس الهوية بأي صفحة) */}
       <button
         onClick={() => setOpen(true)}
-        aria-label="وكيل Wesync"
-        title={`وكيل Wesync — أنتم في: ${place.label}`}
+        aria-label={tr("وكيل Wesync")}
+        title={tr("وكيل Wesync — أنتم في: {0}", place.label)}
         className={`fixed bottom-20 start-4 z-40 rounded-full transition-transform hover:scale-105 md:bottom-6 md:start-6 print:hidden ${open ? "hidden" : ""}`}
       >
         <AgentOrb size={56} state={loading ? "thinking" : "idle"} />
@@ -233,41 +235,41 @@ export default function AiAssistant() {
       {open && (
         <div
           role="dialog"
-          aria-label="وكيل Wesync"
+          aria-label={tr("وكيل Wesync")}
           className="fixed inset-y-0 start-0 z-40 flex w-full max-w-[420px] flex-col border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.92)] text-[#F4F0EC] shadow-[0_24px_80px_rgba(255,100,0,.12),0_0_0_1px_rgba(0,0,0,.4)] backdrop-blur-2xl backdrop-saturate-150 md:inset-y-3 md:start-3 md:w-[420px] md:rounded-[28px]"
         >
           <div className="flex items-center justify-between gap-2 px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               {view === "history" ? (
-                <button onClick={() => setView("chat")} title="رجوع للمحادثة" className={circleBtn}>
+                <button onClick={() => setView("chat")} title={tr("رجوع للمحادثة")} className={circleBtn}>
                   <ArrowRight size={16} />
                 </button>
               ) : (
                 <AgentOrb size={36} state={loading ? "thinking" : "idle"} />
               )}
               <div className="min-w-0">
-                <p className="truncate font-kufi text-[15px] font-bold">{view === "history" ? "محادثاتكم السابقة" : tab === "agent" ? "وكيل Wesync" : "كوتش الفريق"}</p>
+                <p className="truncate font-kufi text-[15px] font-bold">{view === "history" ? tr("محادثاتكم السابقة") : tab === "agent" ? tr("وكيل Wesync") : tr("كوتش الفريق")}</p>
                 <p className="truncate text-xs text-[#B8ADA2]">
-                  {view === "history" ? "خاصة فيكم — ما يشوفها أحد من الفريق" : `أنتم في: ${place.label}`}
+                  {view === "history" ? tr("خاصة فيكم — ما يشوفها أحد من الفريق") : tr("أنتم في: {0}", place.label)}
                 </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               {aiOk && tab === "coach" && (
                 <>
-                  <button onClick={newChat} title="محادثة جديدة" className={circleBtn}>
+                  <button onClick={newChat} title={tr("محادثة جديدة")} className={circleBtn}>
                     <MessageSquarePlus size={16} />
                   </button>
                   <button
                     onClick={() => setView(view === "history" ? "chat" : "history")}
-                    title="سجل المحادثات"
+                    title={tr("سجل المحادثات")}
                     className={`${circleBtn} ${view === "history" ? "!border-[#FF8A24]/60 !text-[#FFB444]" : ""}`}
                   >
                     <History size={16} />
                   </button>
                 </>
               )}
-              <button onClick={() => setOpen(false)} title="إغلاق" aria-label="إغلاق" className={circleBtn}>
+              <button onClick={() => setOpen(false)} title={tr("إغلاق")} aria-label={tr("إغلاق")} className={circleBtn}>
                 <X size={16} />
               </button>
             </div>
@@ -278,8 +280,8 @@ export default function AiAssistant() {
             <div role="tablist" className="mx-5 mt-3 flex gap-1 rounded-full border border-white/[0.12] bg-white/[0.04] p-1">
               {(
                 [
-                  ["agent", "الوكيل ينفّذ"],
-                  ["coach", "الكوتش"],
+                  ["agent", tr("الوكيل ينفّذ")],
+                  ["coach", tr("الكوتش")],
                 ] as const
               ).map(([id, text]) => (
                 <button
@@ -299,18 +301,16 @@ export default function AiAssistant() {
 
           {!aiOk ? (
             <div className="flex-1 overflow-y-auto p-4">
-              <AiLockedCard feature="المساعد البحثي" />
+              <AiLockedCard feature={tr("المساعد البحثي")} />
             </div>
           ) : tab === "agent" && view === "chat" ? (
             <ProjectAgentChat compact suggestions={prompts} />
           ) : view === "history" ? (
             <div className="flex-1 space-y-2 overflow-y-auto p-5">
               {!history.loaded ? (
-                <p className="text-sm text-[#B8ADA2]">جاري التحميل...</p>
+                <p className="text-sm text-[#B8ADA2]">{tr("جاري التحميل...")}</p>
               ) : history.conversations.length === 0 ? (
-                <p className="rounded-2xl bg-white/[0.05] p-4 text-sm leading-relaxed text-[#B8ADA2]">
-                  ما عندكم محادثات محفوظة بعد. أي محادثة تبدؤونها تنحفظ هنا تلقائيًا وتقدرون ترجعون لها بأي وقت.
-                </p>
+                <p className="rounded-2xl bg-white/[0.05] p-4 text-sm leading-relaxed text-[#B8ADA2]">{tr("ما عندكم محادثات محفوظة بعد. أي محادثة تبدؤونها تنحفظ هنا تلقائيًا وتقدرون ترجعون لها بأي وقت.")}</p>
               ) : (
                 history.conversations.map((c) => (
                   <div
@@ -325,7 +325,7 @@ export default function AiAssistant() {
                     </button>
                     <button
                       onClick={() => removeConversation(c.id)}
-                      title="حذف المحادثة"
+                      title={tr("حذف المحادثة")}
                       className="rounded-full p-1.5 text-[#B8ADA2]/60 hover:bg-rose-500/10 hover:text-rose-400"
                     >
                       <Trash2 size={14} />
@@ -339,9 +339,7 @@ export default function AiAssistant() {
               <div className="flex-1 space-y-3 overflow-y-auto p-5">
                 {messages.length === 0 && (
                   <div className="space-y-3">
-                    <p className="text-sm leading-relaxed text-[#B8ADA2]">
-                      أشوف وضع فريقكم الحقيقي (مهامكم، مراحلكم، مقترحكم، موعد التسليم) وأساعدكم تعرفون وش الخطوة الجاية. اسألوني أي شي، أو جرّبوا:
-                    </p>
+                    <p className="text-sm leading-relaxed text-[#B8ADA2]">{tr("أشوف وضع فريقكم الحقيقي (مهامكم، مراحلكم، مقترحكم، موعد التسليم) وأساعدكم تعرفون وش الخطوة الجاية. اسألوني أي شي، أو جرّبوا:")}</p>
                     <div className="flex flex-col gap-2">
                       {prompts.map((prompt) => (
                         <button
@@ -354,8 +352,7 @@ export default function AiAssistant() {
                       ))}
                     </div>
                     <details className="group pt-1">
-                      <summary className="cursor-pointer list-none text-xs font-bold text-[#B8ADA2] hover:text-[#F4F0EC]">
-                        أسئلة ثانية <span className="inline-block transition-transform group-open:rotate-180">⌄</span>
+                      <summary className="cursor-pointer list-none text-xs font-bold text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("أسئلة ثانية ")}<span className="inline-block transition-transform group-open:rotate-180">⌄</span>
                       </summary>
                       <div className="mt-2 flex flex-col gap-2">
                         {[...coachPrompts, ...helpPrompts]
@@ -376,9 +373,7 @@ export default function AiAssistant() {
                         onClick={() => setView("history")}
                         className="flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-[#B8ADA2] hover:text-[#F4F0EC]"
                       >
-                        <History size={14} />
-                        محادثاتكم السابقة ({history.conversations.length})
-                      </button>
+                        <History size={14} />{trx("محادثاتكم السابقة ({0})", history.conversations.length)}</button>
                     )}
                   </div>
                 )}
@@ -391,7 +386,7 @@ export default function AiAssistant() {
                         : "border border-white/10 bg-white/[0.05] text-[#F4F0EC]"
                     }`}
                   >
-                    {m.imageDataUrl && <img src={m.imageDataUrl} alt="مرفقة" className="mb-2 max-h-40 w-full rounded-2xl object-cover" />}
+                    {m.imageDataUrl && <img src={m.imageDataUrl} alt={tr("مرفقة")} className="mb-2 max-h-40 w-full rounded-2xl object-cover" />}
                     {m.role === "assistant" ? <StreamedText text={m.content} at={m.at} /> : m.content}
                   </div>
                 ))}
@@ -406,7 +401,7 @@ export default function AiAssistant() {
                 {pendingImage && (
                   <div className="mb-2 flex items-center gap-2 rounded-2xl bg-white/[0.05] p-2">
                     <img src={pendingImage.dataUrl} alt="" className="h-10 w-10 rounded-xl object-cover" />
-                    <p className="flex-1 truncate text-xs font-semibold text-[#B8ADA2]">صورة جاهزة للإرسال</p>
+                    <p className="flex-1 truncate text-xs font-semibold text-[#B8ADA2]">{tr("صورة جاهزة للإرسال")}</p>
                     <button onClick={() => setPendingImage(null)} className="rounded-full p-1 text-[#B8ADA2] hover:text-[#F4F0EC]">
                       <X size={14} />
                     </button>
@@ -414,20 +409,20 @@ export default function AiAssistant() {
                 )}
                 <div className="flex items-center gap-2 rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] py-1.5 ps-2 pe-1.5">
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={onImageSelected} className="hidden" />
-                  <button onClick={pickImage} title="أرفقوا صورة (تعليمات المشرف/ة مثلًا)" className={circleBtn}>
+                  <button onClick={pickImage} title={tr("أرفقوا صورة (تعليمات المشرف/ة مثلًا)")} className={circleBtn}>
                     <ImagePlus size={16} />
                   </button>
                   <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && send()}
-                    placeholder="اطلبوا من الوكيل…"
+                    placeholder={tr("اطلبوا من الوكيل…")}
                     className="min-w-0 flex-1 bg-transparent px-1 text-sm text-[#F4F0EC] outline-none placeholder:text-[#8F8378]"
                   />
                   <button
                     onClick={() => send()}
                     disabled={loading || (!input.trim() && !pendingImage)}
-                    aria-label="إرسال"
+                    aria-label={tr("إرسال")}
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00] shadow-[0_0_24px_rgba(255,140,40,.45)] transition hover:brightness-110 disabled:opacity-50"
                   >
                     <ArrowUp size={18} strokeWidth={2.6} />

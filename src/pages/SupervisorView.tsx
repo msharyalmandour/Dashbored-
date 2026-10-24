@@ -19,6 +19,7 @@ import { supabase } from "../lib/supabaseClient";
 import { formatDateShort } from "../lib/date";
 import type { AccentColor } from "../lib/colors";
 import { buildSeen, diffSince, loadApproved, loadSeen, loadTeams, rememberTeam, saveApproved, saveSeen } from "../lib/supervisorLocal";
+import { tr, trx } from "../lib/i18n";
 
 interface SnapshotTask {
   title: string;
@@ -85,10 +86,10 @@ const statusStyle: Record<SnapshotTask["status"], string> = {
 const memberColors: AccentColor[] = ["brand", "amber-accent", "sky-accent"];
 
 const statusLabel: Record<SnapshotTask["status"], string> = {
-  todo: "لم يبدأ",
-  "in-progress": "قيد التنفيذ",
-  done: "مكتملة",
-  overdue: "متأخرة",
+  todo: tr("لم يبدأ"),
+  "in-progress": tr("قيد التنفيذ"),
+  done: tr("مكتملة"),
+  overdue: tr("متأخرة"),
 };
 
 const sectionStatusStyle: Record<SnapshotProposalSection["status"], string> = {
@@ -98,20 +99,20 @@ const sectionStatusStyle: Record<SnapshotProposalSection["status"], string> = {
 };
 
 const sectionStatusLabel: Record<SnapshotProposalSection["status"], string> = {
-  "not-started": "لم يبدأ",
-  "in-progress": "قيد التنفيذ",
-  done: "مكتملة",
+  "not-started": tr("لم يبدأ"),
+  "in-progress": tr("قيد التنفيذ"),
+  done: tr("مكتملة"),
 };
 
 function methodologyField(label: string, value: string | string[]) {
-  const text = Array.isArray(value) ? value.join("، ") : value;
+  const text = Array.isArray(value) ? value.join(tr("، ")) : value;
   return (
     <div className="rounded-2xl border border-brand-100 bg-brand-50/50 p-3.5">
       <p className="text-xs font-bold text-brand-950/45">{label}</p>
       {text ? (
         <p className="mt-1 text-sm font-semibold text-brand-950">{text}</p>
       ) : (
-        <p className="mt-1 text-sm italic text-brand-950/30">لم يُحدد بعد</p>
+        <p className="mt-1 text-sm italic text-brand-950/30">{tr("لم يُحدد بعد")}</p>
       )}
     </div>
   );
@@ -154,8 +155,8 @@ export default function SupervisorView() {
       setLoading(false);
       setError(
         !supabase
-          ? "هذي الميزة تحتاج مشروع Supabase حقيقي متصل — غير متاحة بالعرض التجريبي."
-          : "رابط غير صالح.",
+          ? tr("هذي الميزة تحتاج مشروع Supabase حقيقي متصل — غير متاحة بالعرض التجريبي.")
+          : tr("رابط غير صالح."),
       );
       return;
     }
@@ -163,7 +164,7 @@ export default function SupervisorView() {
       .rpc("get_team_snapshot", { p_token: token })
       .then(({ data, error: rpcError }) => {
         if (rpcError || !data) {
-          setError("الرابط غير صالح أو منتهي.");
+          setError(tr("الرابط غير صالح أو منتهي."));
         } else {
           setSnapshot(data as Snapshot);
         }
@@ -207,12 +208,12 @@ export default function SupervisorView() {
     setApprovingKey(key);
     const { error: rpcError } = await supabase.rpc("submit_supervisor_message", {
       p_token: token,
-      p_body: `✅ اعتمدنا قسم «${label}» — تقدرون تكملون للي بعده.`,
+      p_body: tr("✅ اعتمدنا قسم «{0}» — تقدرون تكملون للي بعده.", label),
       p_name: nameDraft.trim(),
     });
     setApprovingKey(null);
     if (rpcError) {
-      setNoteError(rpcError.message.includes("rate limit") ? "أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي." : "ما انرسل الاعتماد — حاولوا مرة ثانية.");
+      setNoteError(rpcError.message.includes("rate limit") ? tr("أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي.") : tr("ما انرسل الاعتماد — حاولوا مرة ثانية."));
       return;
     }
     const next = [...approved, key];
@@ -236,8 +237,8 @@ export default function SupervisorView() {
     if (rpcError) {
       setNoteError(
         rpcError.message.includes("rate limit")
-          ? "أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي."
-          : "ما انرسلت الرسالة — تأكدوا من الرابط وحاولوا مرة ثانية.",
+          ? tr("أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي.")
+          : tr("ما انرسلت الرسالة — تأكدوا من الرابط وحاولوا مرة ثانية."),
       );
       return;
     }
@@ -309,25 +310,21 @@ export default function SupervisorView() {
           </div>
           <div className="flex items-center gap-2">
             {loadTeams().length > 1 && (
-              <Link to="/supervisor" className="rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm shadow-brand-950/5 hover:bg-brand-50">
-                فرقي ({loadTeams().length})
-              </Link>
+              <Link to="/supervisor" className="rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm shadow-brand-950/5 hover:bg-brand-50">{trx("فرقي ({0})", loadTeams().length)}</Link>
             )}
             <span className="flex items-center gap-1.5 rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-950/55 shadow-sm shadow-brand-950/5">
-              <ShieldCheck size={13} className="text-brand-500" />
-              تقرير قراءة فقط
-            </span>
+              <ShieldCheck size={13} className="text-brand-500" />{tr("تقرير قراءة فقط")}</span>
           </div>
         </div>
 
-        <nav aria-label="أقسام التقرير" className="sticky top-2 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto rounded-full border border-brand-100/70 bg-paper/85 p-1.5 shadow-sm shadow-brand-950/5 backdrop-blur-xl">
+        <nav aria-label={tr("أقسام التقرير")} className="sticky top-2 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto rounded-full border border-brand-100/70 bg-paper/85 p-1.5 shadow-sm shadow-brand-950/5 backdrop-blur-xl">
           {[
-            ["sv-waiting", waitingCount > 0 ? `تنتظركم (${waitingCount})` : "تنتظركم"],
-            ["sv-summary", "الملخص"],
-            ["sv-tasks", "المهام"],
-            ["sv-proposal", "المقترح"],
-            ...(snapshot.methodology ? [["sv-methodology", "المنهجية"]] : []),
-            ["sv-chat", "راسلوا الفريق"],
+            ["sv-waiting", waitingCount > 0 ? tr("تنتظركم ({0})", waitingCount) : tr("تنتظركم")],
+            ["sv-summary", tr("الملخص")],
+            ["sv-tasks", tr("المهام")],
+            ["sv-proposal", tr("المقترح")],
+            ...(snapshot.methodology ? [["sv-methodology", tr("المنهجية")]] : []),
+            ["sv-chat", tr("راسلوا الفريق")],
           ].map(([id, label]) => (
             <a
               key={id}
@@ -347,20 +344,18 @@ export default function SupervisorView() {
 
         {seenBefore && !digestDismissed && digest && (
           <div className="mb-4 rounded-3xl border border-amber-accent-200/70 bg-amber-accent-50/70 p-5">
-            <p className="text-xs font-extrabold text-amber-accent-700">منذ زيارتكم الأخيرة ({formatDateShort(seenBefore.at)})</p>
+            <p className="text-xs font-extrabold text-amber-accent-700">{trx("منذ زيارتكم الأخيرة ({0})", formatDateShort(seenBefore.at))}</p>
             {digest.length > 0 ? (
               <ul className="mt-2 space-y-1">
                 {digest.slice(0, 8).map((line, i) => (
                   <li key={i} className="text-sm font-semibold text-brand-950/80">• {line}</li>
                 ))}
-                {digest.length > 8 && <li className="text-xs text-brand-950/50">و{digest.length - 8} تغييرات ثانية</li>}
+                {digest.length > 8 && <li className="text-xs text-brand-950/50">{trx("و{0} تغييرات ثانية", digest.length - 8)}</li>}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-brand-950/60">ما تغيّر شي من زيارتكم الأخيرة.</p>
+              <p className="mt-2 text-sm text-brand-950/60">{tr("ما تغيّر شي من زيارتكم الأخيرة.")}</p>
             )}
-            <button onClick={markSeen} className="mt-3 rounded-full bg-amber-accent-500 px-4 py-1.5 text-xs font-bold text-white hover:bg-amber-accent-600">
-              تم الاطلاع
-            </button>
+            <button onClick={markSeen} className="mt-3 rounded-full bg-amber-accent-500 px-4 py-1.5 text-xs font-bold text-white hover:bg-amber-accent-600">{tr("تم الاطلاع")}</button>
           </div>
         )}
 
@@ -369,9 +364,7 @@ export default function SupervisorView() {
             <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-accent-100/60 blur-2xl" />
             <div className="relative">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-amber-accent-50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700">
-                <FlaskConical size={11} />
-                تقرير متابعة فريق البحث
-              </span>
+                <FlaskConical size={11} />{tr("تقرير متابعة فريق البحث")}</span>
               <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
                 {snapshot.teamName}
               </h1>
@@ -379,26 +372,24 @@ export default function SupervisorView() {
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-center">
                   <p className="font-display text-3xl font-extrabold text-brand-950">{pct}%</p>
-                  <p className="mt-1 text-xs font-semibold text-brand-950/50">نسبة إنجاز المهام</p>
+                  <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("نسبة إنجاز المهام")}</p>
                 </div>
                 <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-center">
                   <p className="font-display text-3xl font-extrabold text-brand-950">
                     {done}
                     <span className="text-base font-medium text-brand-950/40"> / {total}</span>
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-brand-950/50">مهام مكتملة</p>
+                  <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("مهام مكتملة")}</p>
                 </div>
                 <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-center">
                   <p className="font-display text-3xl font-extrabold text-brand-950">{overdue}</p>
-                  <p className="mt-1 text-xs font-semibold text-brand-950/50">مهام متأخرة</p>
+                  <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("مهام متأخرة")}</p>
                 </div>
               </div>
 
               <div className="mt-8">
                 <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-                  <Users size={14} className="text-brand-500" />
-                  أعضاء الفريق ({snapshot.members.length})
-                </p>
+                  <Users size={14} className="text-brand-500" />{trx("أعضاء الفريق ({0})", snapshot.members.length)}</p>
                 <div className="flex flex-wrap gap-2.5">
                   {snapshot.members.map((m, i) => (
                     <span
@@ -408,7 +399,7 @@ export default function SupervisorView() {
                       <Avatar initials={m.initials} color={memberColors[i % memberColors.length]} size="sm" />
                       {m.name}
                       {m.role === "leader" && (
-                        <span className="text-amber-accent-600"> · قائد الفريق</span>
+                        <span className="text-amber-accent-600">{tr(" · قائد الفريق")}</span>
                       )}
                     </span>
                   ))}
@@ -416,7 +407,7 @@ export default function SupervisorView() {
               </div>
 
               <div id="sv-tasks" className="mt-8 scroll-mt-16">
-                <p className="mb-3 text-sm font-bold text-brand-950/80">المهام</p>
+                <p className="mb-3 text-sm font-bold text-brand-950/80">{tr("المهام")}</p>
                 <ul className="divide-y divide-brand-50">
                   {snapshot.tasks.map((t, i) => (
                     <li key={i} className="flex items-center gap-3 py-3">
@@ -444,7 +435,7 @@ export default function SupervisorView() {
                     </li>
                   ))}
                   {snapshot.tasks.length === 0 && (
-                    <p className="py-6 text-center text-sm text-brand-950/40">ما فيه مهام مسجّلة بعد</p>
+                    <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه مهام مسجّلة بعد")}</p>
                   )}
                 </ul>
               </div>
@@ -454,9 +445,7 @@ export default function SupervisorView() {
 
         <div id="sv-proposal" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-            <BookOpenText size={14} className="text-brand-500" />
-            المقترح البحثي
-          </p>
+            <BookOpenText size={14} className="text-brand-500" />{tr("المقترح البحثي")}</p>
           <ul className="divide-y divide-brand-50">
             {snapshot.proposalSections.map((s) => (
               <li key={s.key} className="py-3">
@@ -472,26 +461,24 @@ export default function SupervisorView() {
                   </span>
                   {s.status === "done" &&
                     (approved.includes(s.key) ? (
-                      <span className="whitespace-nowrap rounded-full bg-brand-500 px-2.5 py-1 text-xs font-bold text-white">معتمد ✓</span>
+                      <span className="whitespace-nowrap rounded-full bg-brand-500 px-2.5 py-1 text-xs font-bold text-white">{tr("معتمد ✓")}</span>
                     ) : (
                       <button
                         onClick={() => approveSection(s.key, s.labelAr)}
                         disabled={approvingKey === s.key}
                         className="whitespace-nowrap rounded-full border border-brand-300 px-2.5 py-1 text-xs font-bold text-brand-700 hover:bg-brand-50 disabled:opacity-50"
-                      >
-                        اعتماد
-                      </button>
+                      >{tr("اعتماد")}</button>
                     ))}
                 </div>
                 {s.content ? (
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-brand-950/65">{s.content}</p>
                 ) : (
-                  <p className="mt-2 text-sm italic text-brand-950/30">لم يُكتب بعد</p>
+                  <p className="mt-2 text-sm italic text-brand-950/30">{tr("لم يُكتب بعد")}</p>
                 )}
               </li>
             ))}
             {snapshot.proposalSections.length === 0 && (
-              <p className="py-6 text-center text-sm text-brand-950/40">ما فيه مقترح بحثي مسجّل بعد</p>
+              <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه مقترح بحثي مسجّل بعد")}</p>
             )}
           </ul>
         </div>
@@ -499,34 +486,28 @@ export default function SupervisorView() {
         {snapshot.methodology && (
           <div id="sv-methodology" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
             <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-              <FlaskConical size={14} className="text-brand-500" />
-              المنهجية
-            </p>
+              <FlaskConical size={14} className="text-brand-500" />{tr("المنهجية")}</p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {methodologyField("تصميم الدراسة", snapshot.methodology.studyDesign)}
-              {methodologyField("مكان الدراسة", snapshot.methodology.studySetting)}
-              {methodologyField("مجتمع الدراسة", snapshot.methodology.population)}
-              {methodologyField("حجم العينة", snapshot.methodology.sampleSize)}
-              {methodologyField("أسلوب اختيار العينة", snapshot.methodology.samplingTechnique)}
-              {methodologyField("معايير الاشتمال", snapshot.methodology.samplingInclusion)}
-              {methodologyField("معايير الاستبعاد", snapshot.methodology.samplingExclusion)}
-              {methodologyField("طريقة جمع البيانات", snapshot.methodology.dataCollectionMethods)}
-              {methodologyField("إجراء جمع البيانات", snapshot.methodology.dataCollectionProcedure)}
-              {methodologyField("تحليل البيانات", snapshot.methodology.dataAnalysis)}
-              {methodologyField("الاعتبارات الأخلاقية", snapshot.methodology.ethicalConsiderations)}
-              {methodologyField("أداة الدراسة", snapshot.methodology.studyToolName)}
+              {methodologyField(tr("تصميم الدراسة"), snapshot.methodology.studyDesign)}
+              {methodologyField(tr("مكان الدراسة"), snapshot.methodology.studySetting)}
+              {methodologyField(tr("مجتمع الدراسة"), snapshot.methodology.population)}
+              {methodologyField(tr("حجم العينة"), snapshot.methodology.sampleSize)}
+              {methodologyField(tr("أسلوب اختيار العينة"), snapshot.methodology.samplingTechnique)}
+              {methodologyField(tr("معايير الاشتمال"), snapshot.methodology.samplingInclusion)}
+              {methodologyField(tr("معايير الاستبعاد"), snapshot.methodology.samplingExclusion)}
+              {methodologyField(tr("طريقة جمع البيانات"), snapshot.methodology.dataCollectionMethods)}
+              {methodologyField(tr("إجراء جمع البيانات"), snapshot.methodology.dataCollectionProcedure)}
+              {methodologyField(tr("تحليل البيانات"), snapshot.methodology.dataAnalysis)}
+              {methodologyField(tr("الاعتبارات الأخلاقية"), snapshot.methodology.ethicalConsiderations)}
+              {methodologyField(tr("أداة الدراسة"), snapshot.methodology.studyToolName)}
             </div>
           </div>
         )}
 
         <div id="sv-chat" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
           <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-            <MessageSquareText size={15} className="text-brand-500" />
-            محادثتكم مع الفريق
-          </p>
-          <p className="mt-1 text-xs text-brand-950/40">
-            رسائلكم توصل للفريق كتنبيه بلوحتهم، وردودهم تظهر هنا. كل الرسائل محفوظة — ما تنمسح برسالة جديدة.
-          </p>
+            <MessageSquareText size={15} className="text-brand-500" />{tr("محادثتكم مع الفريق")}</p>
+          <p className="mt-1 text-xs text-brand-950/40">{tr("رسائلكم توصل للفريق كتنبيه بلوحتهم، وردودهم تظهر هنا. كل الرسائل محفوظة — ما تنمسح برسالة جديدة.")}</p>
 
           {thread.length > 0 && (
             <ul className="mt-4 max-h-96 space-y-2.5 overflow-y-auto pe-1">
@@ -540,7 +521,7 @@ export default function SupervisorView() {
                       }`}
                     >
                       <p className="text-[11px] font-bold text-brand-950/45">
-                        {mine ? m.senderName || "أنتم" : m.senderName ? `الفريق — ${m.senderName}` : "الفريق"}
+                        {mine ? m.senderName || tr("أنتم") : m.senderName ? tr("الفريق — {0}", m.senderName) : tr("الفريق")}
                         <span className="ms-2 font-medium">{formatDateShort(m.createdAt.slice(0, 10))}</span>
                       </p>
                       <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{m.body}</p>
@@ -555,7 +536,7 @@ export default function SupervisorView() {
             value={nameDraft}
             onChange={(e) => setNameDraft(e.target.value)}
             maxLength={80}
-            placeholder="اسمكم (اختياري) — مثل: د. نورة"
+            placeholder={tr("اسمكم (اختياري) — مثل: د. نورة")}
             className="mt-4 w-full rounded-2xl border border-brand-100 px-3.5 py-2.5 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
           />
           <textarea
@@ -563,7 +544,7 @@ export default function SupervisorView() {
             onChange={(e) => setNoteDraft(e.target.value)}
             rows={3}
             maxLength={1500}
-            placeholder="مثال: راجعوا صياغة الفجوة البحثية قبل الاجتماع الجاي، وركّزوا على ربطها بالهدف."
+            placeholder={tr("مثال: راجعوا صياغة الفجوة البحثية قبل الاجتماع الجاي، وركّزوا على ربطها بالهدف.")}
             className="mt-2 w-full rounded-2xl border border-brand-100 px-3.5 py-3 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
           />
           {noteError && <p className="mt-2 text-xs font-semibold text-rose-600">{noteError}</p>}
@@ -573,13 +554,11 @@ export default function SupervisorView() {
             className="mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700 disabled:opacity-50"
           >
             {noteSent ? <Check size={15} /> : null}
-            {noteSubmitting ? "..." : noteSent ? "تم الإرسال" : "إرسال للفريق"}
+            {noteSubmitting ? "..." : noteSent ? tr("تم الإرسال") : tr("إرسال للفريق")}
           </button>
         </div>
 
-        <p className="mt-6 text-center text-xs text-brand-950/35">
-          مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط
-        </p>
+        <p className="mt-6 text-center text-xs text-brand-950/35">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
       </div>
     </div>
   );

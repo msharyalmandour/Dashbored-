@@ -18,6 +18,7 @@ import { useAdminTeams } from "../hooks/useAdminTeams";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { formatDateLong } from "../lib/date";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
+import { tr, trx } from "../lib/i18n";
 
 interface TeamMemberRow {
   id: string;
@@ -107,36 +108,32 @@ export default function AdminSubscriptions() {
           <ShieldCheck size={20} />
         </span>
         <div>
-          <h1 className="font-display text-xl font-extrabold text-brand-950">
-            إدارة الاشتراكات
-          </h1>
-          <p className="text-sm text-brand-950/55">
-            ٤٠ ريال شهريًا لكل شخص — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.
-          </p>
+          <h1 className="font-display text-xl font-extrabold text-brand-950">{tr("إدارة الاشتراكات")}</h1>
+          <p className="text-sm text-brand-950/55">{tr("٤٠ ريال شهريًا لكل شخص — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.")}</p>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card tone="cream">
-          <p className="text-sm font-semibold text-brand-950/60">فرق نشطة</p>
+          <p className="text-sm font-semibold text-brand-950/60">{tr("فرق نشطة")}</p>
           <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
             {activeTeams.length}
           </p>
         </Card>
         <Card tone="violet">
-          <p className="text-sm font-semibold text-brand-950/60">الإيراد الشهري الحالي</p>
+          <p className="text-sm font-semibold text-brand-950/60">{tr("الإيراد الشهري الحالي")}</p>
           <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
-            {monthlyRevenue} <span className="text-base font-medium text-brand-950/40">ريال</span>
+            {monthlyRevenue} <span className="text-base font-medium text-brand-950/40">{tr("ريال")}</span>
           </p>
         </Card>
         <Card tone="amber">
-          <p className="text-sm font-semibold text-brand-950/60">على وشك الانتهاء (7 أيام)</p>
+          <p className="text-sm font-semibold text-brand-950/60">{tr("على وشك الانتهاء (7 أيام)")}</p>
           <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
             {expiringCount}
           </p>
         </Card>
         <Card tone="rose">
-          <p className="text-sm font-semibold text-brand-950/60">منتهية / غير مفعّلة</p>
+          <p className="text-sm font-semibold text-brand-950/60">{tr("منتهية / غير مفعّلة")}</p>
           <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
             {expiredCount}
           </p>
@@ -145,7 +142,7 @@ export default function AdminSubscriptions() {
 
       <Card className="p-0">
         <div className="p-5 pb-0">
-          <CardHeader title="كل الفرق" subtitle="Teams" />
+          <CardHeader title={tr("كل الفرق")} subtitle="Teams" />
         </div>
         <ul className="divide-y divide-brand-50">
           {teams.map((team) => {
@@ -161,30 +158,20 @@ export default function AdminSubscriptions() {
                     {team.name}
                     {team.isFounder && (
                       <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[11px] font-bold text-amber-accent-700">
-                        <Trophy size={11} />
-                        مؤسس
-                      </span>
+                        <Trophy size={11} />{tr("مؤسس")}</span>
                     )}
                     {team.isOnTrial && (state === "active" || state === "expiring-soon") && (
                       <span className="flex shrink-0 items-center gap-1 rounded-full bg-sky-accent-100 px-2 py-0.5 text-[11px] font-bold text-sky-accent-700">
-                        <Gift size={11} />
-                        تجربة مجانية
-                      </span>
+                        <Gift size={11} />{tr("تجربة مجانية")}</span>
                     )}
                   </p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-brand-950/45">
                     <span className="flex items-center gap-1.5">
-                      <Users size={12} />
-                      {team.memberCount} أعضاء
-                    </span>
+                      <Users size={12} />{trx("{0} أعضاء", team.memberCount)}</span>
                     <span className="rounded-full bg-surface-muted px-2 py-0.5 font-bold text-brand-700">
-                      {team.plan === "ai" ? "باقة AI" : "باقة Basic"}
+                      {team.plan === "ai" ? tr("باقة AI") : tr("باقة Basic")}
                     </span>
-                    <span>
-                      {team.monthlyPrice} ريال/شخص —{" "}
-                      <span className="font-bold text-brand-700">
-                        {team.monthlyPrice * team.memberCount} ريال/شهر
-                      </span>
+                    <span>{trx("{0} ريال/شخص — ", team.monthlyPrice)}<span className="font-bold text-brand-700">{trx("{0} ريال/شهر", team.monthlyPrice * team.memberCount)}</span>
                     </span>
                     {team.university && (
                       <span className="flex items-center gap-1.5">
@@ -196,8 +183,8 @@ export default function AdminSubscriptions() {
                 </div>
                 <div className="text-sm text-brand-950/60">
                   {team.subscriptionEndDate
-                    ? `ينتهي ${formatDateLong(team.subscriptionEndDate)}`
-                    : "ما فُعّل بعد"}
+                    ? tr("ينتهي {0}", formatDateLong(team.subscriptionEndDate))
+                    : tr("ما فُعّل بعد")}
                 </div>
                 <span
                   className={clsx(
@@ -216,7 +203,7 @@ export default function AdminSubscriptions() {
                 >
                   {monthOptions.map((m) => (
                     <option key={m} value={m}>
-                      {m} {m === 1 ? "شهر" : "أشهر"}
+                      {m} {m === 1 ? tr("شهر") : tr("أشهر")}
                     </option>
                   ))}
                 </select>
@@ -224,14 +211,11 @@ export default function AdminSubscriptions() {
                   onClick={() => handleExtend(team.id)}
                   disabled={isExtending}
                   className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
-                >
-                  {isExtending ? (
+                >{trx("{0}تمديد الاشتراك", isExtending ? (
                     <RefreshCw size={14} className="animate-spin" />
                   ) : (
                     <CheckCircle2 size={14} />
-                  )}
-                  تمديد الاشتراك
-                </button>
+                  ))}</button>
                 {isSupabaseConfigured && (
                   <button
                     onClick={() => toggleExpand(team.id)}
@@ -240,16 +224,14 @@ export default function AdminSubscriptions() {
                     <ChevronDown
                       size={15}
                       className={clsx("transition-transform", isExpanded && "rotate-180")}
-                    />
-                    الأعضاء
-                  </button>
+                    />{tr("الأعضاء")}</button>
                 )}
               </div>
 
               {isExpanded && (
                 <div className="mt-3 rounded-2xl bg-surface-muted p-3">
                   {membersLoading === team.id ? (
-                    <p className="py-2 text-center text-xs text-brand-950/40">جارٍ التحميل...</p>
+                    <p className="py-2 text-center text-xs text-brand-950/40">{tr("جارٍ التحميل...")}</p>
                   ) : (
                     <ul className="space-y-2">
                       {(membersByTeam[team.id] ?? []).map((member) => (
@@ -261,9 +243,7 @@ export default function AdminSubscriptions() {
                             <p className="truncate text-sm font-semibold text-brand-950">
                               {member.name}{" "}
                               {member.role === "leader" && (
-                                <span className="text-[11px] font-bold text-amber-accent-600">
-                                  (قائد)
-                                </span>
+                                <span className="text-[11px] font-bold text-amber-accent-600">{tr("(قائد)")}</span>
                               )}
                             </p>
                             <p className="truncate text-xs text-brand-950/45">{member.email}</p>
@@ -275,7 +255,7 @@ export default function AdminSubscriptions() {
                             }
                             className="rounded-lg border border-brand-100 px-2 py-1.5 text-xs font-semibold text-brand-950/70 outline-none focus:border-brand-300"
                           >
-                            <option value="">نقل لفريق...</option>
+                            <option value="">{tr("نقل لفريق...")}</option>
                             {teams
                               .filter((t) => t.id !== team.id)
                               .map((t) => (
@@ -288,20 +268,15 @@ export default function AdminSubscriptions() {
                             onClick={() => handleMoveMember(member.id, team.id)}
                             disabled={!moveTarget[member.id] || movingMemberId === member.id}
                             className="flex items-center gap-1 rounded-lg bg-brand-100 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-200 disabled:opacity-50"
-                          >
-                            {movingMemberId === member.id ? (
+                          >{trx("{0}نقل", movingMemberId === member.id ? (
                               <RefreshCw size={12} className="animate-spin" />
                             ) : (
                               <ArrowLeftRight size={12} />
-                            )}
-                            نقل
-                          </button>
+                            ))}</button>
                         </li>
                       ))}
                       {(membersByTeam[team.id] ?? []).length === 0 && (
-                        <li className="py-2 text-center text-xs text-brand-950/40">
-                          ولا عضو بهالفريق
-                        </li>
+                        <li className="py-2 text-center text-xs text-brand-950/40">{tr("ولا عضو بهالفريق")}</li>
                       )}
                     </ul>
                   )}
@@ -311,9 +286,7 @@ export default function AdminSubscriptions() {
             );
           })}
           {!loading && teams.length === 0 && (
-            <li className="py-10 text-center text-sm text-brand-950/40">
-              ولا فريق مسجّل بعد
-            </li>
+            <li className="py-10 text-center text-sm text-brand-950/40">{tr("ولا فريق مسجّل بعد")}</li>
           )}
         </ul>
       </Card>

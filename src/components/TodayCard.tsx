@@ -9,6 +9,7 @@ import { isStageReady, nextStageOf, previousStageOf } from "../lib/stageAdvance"
 import { toISODate } from "../lib/date";
 import { g } from "../lib/gender";
 import type { ResearchStageRow } from "../data/types";
+import { tr, trx } from "../lib/i18n";
 
 type StageUpdate = Partial<Pick<ResearchStageRow, "status" | "progress" | "startDate" | "completedDate">>;
 type Result = { error?: string };
@@ -94,7 +95,7 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
     setError(null);
     const res = await fn();
     setBusy(false);
-    if (res.error) setError("ما قدرنا نحفظ التغيير — جرّبوا مرة ثانية، أو تأكدوا إن فريقكم مشترك.");
+    if (res.error) setError(tr("ما قدرنا نحفظ التغيير — جرّبوا مرة ثانية، أو تأكدوا إن فريقكم مشترك."));
     else onOk?.();
   };
 
@@ -135,9 +136,9 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
   const onb = onboarding && !onbDismissed ? onboarding : null;
   const onbSteps = onb
     ? [
-        { id: "t", label: "العنوان", done: onb.hasTitle, to: "/" },
-        { id: "s", label: "المشرفة", done: onb.hasSupervisor, to: "/team" },
-        { id: "k", label: "أول مهمة", done: onb.hasMyTask, to: "/tasks" },
+        { id: "t", label: tr("العنوان"), done: onb.hasTitle, to: "/" },
+        { id: "s", label: tr("المشرفة"), done: onb.hasSupervisor, to: "/team" },
+        { id: "k", label: tr("أول مهمة"), done: onb.hasMyTask, to: "/tasks" },
       ]
     : [];
   const showOnb = onb && onbSteps.some((s) => !s.done);
@@ -174,35 +175,33 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
               <div className="min-w-0 flex-1">
                 {slide.kind === "title" && (
                   <>
-                    <p className="text-[11px] font-bold text-brand-950/45">الخطوة الأولى</p>
-                    <p className="text-base font-extrabold text-brand-950">ثبّتوا عنوان بحثكم</p>
+                    <p className="text-[11px] font-bold text-brand-950/45">{tr("الخطوة الأولى")}</p>
+                    <p className="text-base font-extrabold text-brand-950">{tr("ثبّتوا عنوان بحثكم")}</p>
                   </>
                 )}
                 {slide.kind === "advance" && current && next && nextAction && (
                   <>
-                    <p className="text-[11px] font-bold text-brand-950/45">خلصتوا «{current.titleAr}»</p>
-                    <p className="text-base font-extrabold text-brand-950">المرحلة الجاية: {next.titleAr}</p>
+                    <p className="text-[11px] font-bold text-brand-950/45">{trx("خلصتوا «{0}»", current.titleAr)}</p>
+                    <p className="text-base font-extrabold text-brand-950">{trx("المرحلة الجاية: {0}", next.titleAr)}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-brand-950/60">{nextAction.title} — {nextAction.why}</p>
                   </>
                 )}
                 {slide.kind === "step" && slide.step && (
                   <>
-                    <p className="text-[11px] font-bold text-brand-950/45">وش {g(isFemale, "تسوين", "تسوي")} الحين؟</p>
+                    <p className="text-[11px] font-bold text-brand-950/45">{trx("وش {0} الحين؟", g(isFemale, tr("تسوين"), tr("تسوي")))}</p>
                     <p className="text-base font-extrabold text-brand-950">{slide.step.title}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-brand-950/60">{slide.step.why}</p>
                   </>
                 )}
                 {slide.kind === "calm" && (
                   <>
-                    <p className="text-base font-extrabold text-brand-950">كل شي ماشي 👌</p>
-                    <p className="text-xs text-brand-950/55">ما فيه شي عاجل الحين. {g(isFemale, "اسألي", "اسأل")} الكوتش عن أفضل استغلال لوقتكم.</p>
+                    <p className="text-base font-extrabold text-brand-950">{tr("كل شي ماشي 👌")}</p>
+                    <p className="text-xs text-brand-950/55">{trx("ما فيه شي عاجل الحين. {0} الكوتش عن أفضل استغلال لوقتكم.", g(isFemale, tr("اسألي"), tr("اسأل")))}</p>
                   </>
                 )}
               </div>
               {slide.kind === "advance" && (
-                <button onClick={advance} disabled={busy} className="flex shrink-0 items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">
-                  انقلونا للجاية
-                  <ChevronsLeft size={16} />
+                <button onClick={advance} disabled={busy} className="flex shrink-0 items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">{tr("انقلونا للجاية")}<ChevronsLeft size={16} />
                 </button>
               )}
               {slide.kind === "step" && slide.step && (
@@ -219,21 +218,19 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
                   onSubmit={(e) => {
                     e.preventDefault();
                     const title = draft.trim();
-                    if (title) run(() => saveTitle(title), () => celebrateFor("تثبّت عنوان البحث"));
+                    if (title) run(() => saveTitle(title), () => celebrateFor(tr("تثبّت عنوان البحث")));
                   }}
                 >
                   <input
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
-                    placeholder="مثال: أثر برنامج تدريبي على معرفة الممرضين بمكافحة العدوى"
+                    placeholder={tr("مثال: أثر برنامج تدريبي على معرفة الممرضين بمكافحة العدوى")}
                     className="min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-brand-300"
                   />
-                  <button disabled={busy || !draft.trim()} className="rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">
-                    تثبيت العنوان
-                  </button>
+                  <button disabled={busy || !draft.trim()} className="rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">{tr("تثبيت العنوان")}</button>
                 </form>
               ) : (
-                <p className="mt-2 text-sm text-brand-950/65">قائد الفريق هو اللي يثبّت العنوان. {g(isFemale, "نبّهيه", "نبّهه")} إذا اتفقتم على الموضوع.</p>
+                <p className="mt-2 text-sm text-brand-950/65">{trx("قائد الفريق هو اللي يثبّت العنوان. {0} إذا اتفقتم على الموضوع.", g(isFemale, tr("نبّهيه"), tr("نبّهه")))}</p>
               ))}
           </div>
         )}
@@ -244,46 +241,41 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-brand-100/60 pt-2.5">
             {slides.length > 1 && (
               <div className="flex items-center gap-1.5">
-                <button aria-label="السابق" onClick={() => go(at - 1)} disabled={at === 0} className="rounded-full p-1 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
+                <button aria-label={tr("السابق")} onClick={() => go(at - 1)} disabled={at === 0} className="rounded-full p-1 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
                   <ChevronRight size={14} />
                 </button>
                 {slides.map((s, i) => (
-                  <button key={s.id} aria-label={`الخطوة ${i + 1}`} onClick={() => go(i)} className={`h-1.5 rounded-full transition-all ${i === at ? "w-5 bg-brand-500" : "w-1.5 bg-brand-950/20"}`} />
+                  <button key={s.id} aria-label={tr("الخطوة {0}", i + 1)} onClick={() => go(i)} className={`h-1.5 rounded-full transition-all ${i === at ? "w-5 bg-brand-500" : "w-1.5 bg-brand-950/20"}`} />
                 ))}
-                <button aria-label="التالي" onClick={() => go(at + 1)} disabled={at === slides.length - 1} className="rounded-full p-1 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
+                <button aria-label={tr("التالي")} onClick={() => go(at + 1)} disabled={at === slides.length - 1} className="rounded-full p-1 text-brand-950/50 hover:bg-surface-muted disabled:opacity-30">
                   <ChevronLeft size={14} />
                 </button>
               </div>
             )}
             {current && (
-              <p className="min-w-0 flex-1 truncate text-[11px] text-brand-950/50">
-                مرحلتكم: <b className="text-brand-950/75">{current.titleAr}</b>
-                {next && <> · الجاية: {next.titleAr}</>}
+              <p className="min-w-0 flex-1 truncate text-[11px] text-brand-950/50">{tr("مرحلتكم: ")}<b className="text-brand-950/75">{current.titleAr}</b>
+                {next && <>{trx(" · الجاية: {0}", next.titleAr)}</>}
               </p>
             )}
             {current && next && !ready && (
               <button
                 onClick={() => {
-                  if (window.confirm(`تأكدتم إنكم خلصتوا «${current.titleAr}» وتبون تنتقلون لـ «${next.titleAr}»؟`)) advance();
+                  if (window.confirm(tr("تأكدتم إنكم خلصتوا «{0}» وتبون تنتقلون لـ «{1}»؟", current.titleAr, next.titleAr))) advance();
                 }}
                 disabled={busy}
                 className="rounded-lg border border-brand-100 px-2.5 py-1 text-[11px] font-bold text-brand-700 hover:bg-surface-muted disabled:opacity-50"
-              >
-                خلّصنا هالمرحلة
-              </button>
+              >{tr("خلّصنا هالمرحلة")}</button>
             )}
             {prev && (
               <button onClick={revert} disabled={busy} className="flex items-center gap-1 text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">
-                <Undo2 size={11} />
-                رجّعوا «{prev.titleAr}»
-              </button>
+                <Undo2 size={11} />{trx("رجّعوا «{0}»", prev.titleAr)}</button>
             )}
           </div>
         )}
 
         {showOnb && !celebrate && (
           <div className="flex flex-wrap items-center gap-2 rounded-xl bg-paper/60 px-3 py-2">
-            <span className="text-[11px] font-extrabold text-brand-950/55">ابدأوا بثلاث خطوات</span>
+            <span className="text-[11px] font-extrabold text-brand-950/55">{tr("ابدأوا بثلاث خطوات")}</span>
             {onbSteps.map((s) => (
               <Link key={s.id} to={s.to} className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${s.done ? "border-brand-200 text-brand-950/40 line-through" : "border-brand-100 text-brand-700 hover:bg-surface-muted"}`}>
                 {s.done ? <Check size={11} className="text-brand-500" /> : <Circle size={11} className="text-brand-950/30" />}
@@ -291,7 +283,7 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
               </Link>
             ))}
             <button
-              aria-label="إخفاء"
+              aria-label={tr("إخفاء")}
               onClick={() => {
                 try {
                   localStorage.setItem(DISMISS_KEY, "1");

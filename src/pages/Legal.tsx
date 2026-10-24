@@ -10,6 +10,7 @@ import {
   legalDocs,
   type LegalDocId,
 } from "../lib/legal";
+import { tr, trx } from "../lib/i18n";
 
 const order: LegalDocId[] = ["terms", "privacy", "refund", "contact"];
 
@@ -29,9 +30,7 @@ export default function Legal() {
         <Link to="/" className="flex items-center gap-2">
           <Logo />
         </Link>
-        <Link to="/" className="flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-amber-300">
-          الرئيسية
-          <ArrowRight size={13} className="rotate-180" />
+        <Link to="/" className="flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-amber-300">{tr("الرئيسية")}<ArrowRight size={13} className="rotate-180" />
         </Link>
       </header>
 
@@ -53,9 +52,7 @@ export default function Legal() {
         </nav>
 
         <h1 className="font-display text-3xl font-extrabold">{current.title}</h1>
-        <p className="mt-1 text-sm text-white/40">
-          {current.subtitle} · آخر تحديث {LAST_UPDATED}
-        </p>
+        <p className="mt-1 text-sm text-white/40">{trx("{0} · آخر تحديث {1}", current.subtitle, LAST_UPDATED)}</p>
 
         <div className="mt-8 space-y-8">
           {current.sections.map((s) => (
@@ -96,20 +93,14 @@ export default function Legal() {
                 >
                   <MessageCircle size={18} className="text-amber-300" />
                   <span dir="ltr">+{SUPPORT_WHATSAPP}</span>
-                  <span className="text-xs font-normal text-white/40">واتساب</span>
+                  <span className="text-xs font-normal text-white/40">{tr("واتساب")}</span>
                 </a>
               )}
               {!hasContact && (
-                <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/50">
-                  قناة التواصل قيد الإعداد.
-                </p>
+                <p className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/50">{tr("قناة التواصل قيد الإعداد.")}</p>
               )}
               {(BUSINESS_OWNER_NAME || FREELANCE_DOC_NUMBER) && (
-                <p className="pt-2 text-xs leading-relaxed text-white/40">
-                  {BUSINESS_OWNER_NAME && <>المالك: {BUSINESS_OWNER_NAME}. </>}
-                  {FREELANCE_DOC_NUMBER && <>وثيقة العمل الحر رقم: {FREELANCE_DOC_NUMBER}. </>}
-                  المملكة العربية السعودية.
-                </p>
+                <p className="pt-2 text-xs leading-relaxed text-white/40">{trx("{0}{1}المملكة العربية السعودية.", BUSINESS_OWNER_NAME && <>{trx("المالك: {0}. ", BUSINESS_OWNER_NAME)}</>, FREELANCE_DOC_NUMBER && <>{trx("وثيقة العمل الحر رقم: {0}. ", FREELANCE_DOC_NUMBER)}</>)}</p>
               )}
             </section>
           )}

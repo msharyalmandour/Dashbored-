@@ -2,6 +2,7 @@ import type { Paragraph, Table } from "docx";
 import type { EthicalApproval, EthicalPrincipleAnswer } from "../data/types";
 import { formatDateLong } from "./date";
 import { loadWesyncKit, type WordStyle } from "./wordTheme";
+import { tr } from "./i18n";
 
 export interface EthicalApprovalExportInput {
   projectTitle: string;
@@ -12,33 +13,33 @@ export interface EthicalApprovalExportInput {
 }
 
 const answerLabel: Record<Exclude<EthicalPrincipleAnswer, null>, string> = {
-  yes: "نعم",
-  no: "لا",
-  na: "لا ينطبق",
+  yes: tr("نعم"),
+  no: tr("لا"),
+  na: tr("لا ينطبق"),
 };
 
 const principleLabels: { key: keyof EthicalApproval["principles"]; text: string }[] = [
-  { key: "writtenExplanation", text: "شرح مكتوب عن البحث" },
-  { key: "oralExplanation", text: "شرح شفهي عن البحث" },
-  { key: "writtenConsent", text: "توقيع نموذج موافقة" },
-  { key: "oralConsent", text: "موافقة شفهية" },
-  { key: "voluntaryInformed", text: "إبلاغهم أن المشاركة اختيارية" },
-  { key: "withdrawOption", text: "فرصة الانسحاب بأي وقت دون سبب" },
-  { key: "harmInformed", text: "إبلاغهم بأي ضرر محتمل" },
-  { key: "confidentialityGuaranteed", text: "ضمان السرية" },
-  { key: "anonymityGuaranteed", text: "ضمان إخفاء الهوية" },
-  { key: "vulnerableGroupsInformed", text: "إبلاغ الفئات المستضعفة بإمكانية تجاوز الأسئلة" },
-  { key: "interviewNoExplanationNeeded", text: "عدم إلزام المشاركين بتفسير عدم الإجابة بالمقابلات" },
-  { key: "safeDataStorage", text: "تأمين تخزين آمن للبيانات" },
-  { key: "willPublish", text: "نشر نتائج البحث" },
+  { key: "writtenExplanation", text: tr("شرح مكتوب عن البحث") },
+  { key: "oralExplanation", text: tr("شرح شفهي عن البحث") },
+  { key: "writtenConsent", text: tr("توقيع نموذج موافقة") },
+  { key: "oralConsent", text: tr("موافقة شفهية") },
+  { key: "voluntaryInformed", text: tr("إبلاغهم أن المشاركة اختيارية") },
+  { key: "withdrawOption", text: tr("فرصة الانسحاب بأي وقت دون سبب") },
+  { key: "harmInformed", text: tr("إبلاغهم بأي ضرر محتمل") },
+  { key: "confidentialityGuaranteed", text: tr("ضمان السرية") },
+  { key: "anonymityGuaranteed", text: tr("ضمان إخفاء الهوية") },
+  { key: "vulnerableGroupsInformed", text: tr("إبلاغ الفئات المستضعفة بإمكانية تجاوز الأسئلة") },
+  { key: "interviewNoExplanationNeeded", text: tr("عدم إلزام المشاركين بتفسير عدم الإجابة بالمقابلات") },
+  { key: "safeDataStorage", text: tr("تأمين تخزين آمن للبيانات") },
+  { key: "willPublish", text: tr("نشر نتائج البحث") },
 ];
 
 const attachmentLabels: { key: keyof EthicalApproval["attachments"]; text: string }[] = [
-  { key: "protocolOrProposal", text: "المقترح البحثي (Protocol)" },
-  { key: "participantInfoSheet", text: "ورقة معلومات المشارك" },
-  { key: "consentForm", text: "نموذج الموافقة" },
-  { key: "studyTools", text: "أداة الدراسة" },
-  { key: "otherSupportiveDocs", text: "مستندات داعمة أخرى" },
+  { key: "protocolOrProposal", text: tr("المقترح البحثي (Protocol)") },
+  { key: "participantInfoSheet", text: tr("ورقة معلومات المشارك") },
+  { key: "consentForm", text: tr("نموذج الموافقة") },
+  { key: "studyTools", text: tr("أداة الدراسة") },
+  { key: "otherSupportiveDocs", text: tr("مستندات داعمة أخرى") },
 ];
 
 /** يبني نموذج طلب الموافقة الأخلاقية الحقيقي (.docx) بنفس ترتيب وحقول
@@ -105,38 +106,38 @@ async function buildEthicalOfficial(input: EthicalApprovalExportInput): Promise<
             bidirectional: true,
             spacing: { after: 240 },
             children: [
-              new TextRun({ text: "طلب الموافقة الأخلاقية — Application for Nursing Research Ethical Approval", bold: true, rightToLeft: true }),
+              new TextRun({ text: tr("طلب الموافقة الأخلاقية — Application for Nursing Research Ethical Approval"), bold: true, rightToLeft: true }),
             ],
           }),
 
-          arHeading("Section One — بيانات الطلب"),
-          field("تاريخ الطلب", ea.applicationDate ? formatDateLong(ea.applicationDate) : ""),
-          field("عنوان الدراسة", input.projectTitle),
-          field("هدف الدراسة", input.aim),
-          field("اسم الباحث الرئيسي", ea.piName),
-          field("جهة الباحث الرئيسي", ea.piAffiliation),
-          field("بريد الباحث الرئيسي", ea.piEmail),
+          arHeading(tr("Section One — بيانات الطلب")),
+          field(tr("تاريخ الطلب"), ea.applicationDate ? formatDateLong(ea.applicationDate) : ""),
+          field(tr("عنوان الدراسة"), input.projectTitle),
+          field(tr("هدف الدراسة"), input.aim),
+          field(tr("اسم الباحث الرئيسي"), ea.piName),
+          field(tr("جهة الباحث الرئيسي"), ea.piAffiliation),
+          field(tr("بريد الباحث الرئيسي"), ea.piEmail),
           field(
-            "نوع الباحث الرئيسي",
-            ea.piType === "faculty" ? "عضو هيئة تدريس" : ea.piType === "graduate" ? "طالب دراسات عليا" : "طالب بكالوريوس",
+            tr("نوع الباحث الرئيسي"),
+            ea.piType === "faculty" ? tr("عضو هيئة تدريس") : ea.piType === "graduate" ? tr("طالب دراسات عليا") : tr("طالب بكالوريوس"),
           ),
-          ar("باحثون آخرون:", { bold: true }),
-          ...(ea.otherResearchers ? ea.otherResearchers.split("\n").filter(Boolean).map((l) => ar(l)) : [ar("لا يوجد", { color: "999999" })]),
-          field("المشرف الأكاديمي", ea.supervisorNames),
-          field("الرقم الجامعي", ea.registrationNo),
-          field("تاريخ البدء المتوقع", ea.expectedStartDate ? formatDateLong(ea.expectedStartDate) : ""),
-          field("تاريخ الانتهاء المتوقع", ea.expectedEndDate ? formatDateLong(ea.expectedEndDate) : ""),
-          field("التصميم", input.design),
-          field("مكان الدراسة", input.setting),
-          field("الأشخاص المشاركون بإجراء الدراسة", ea.personsInvolved),
-          field("إدارة البيانات وسريتها", ea.dataManagementConfidentiality),
-          field("تفاصيل التمويل", ea.fundingDetails),
+          ar(tr("باحثون آخرون:"), { bold: true }),
+          ...(ea.otherResearchers ? ea.otherResearchers.split("\n").filter(Boolean).map((l) => ar(l)) : [ar(tr("لا يوجد"), { color: "999999" })]),
+          field(tr("المشرف الأكاديمي"), ea.supervisorNames),
+          field(tr("الرقم الجامعي"), ea.registrationNo),
+          field(tr("تاريخ البدء المتوقع"), ea.expectedStartDate ? formatDateLong(ea.expectedStartDate) : ""),
+          field(tr("تاريخ الانتهاء المتوقع"), ea.expectedEndDate ? formatDateLong(ea.expectedEndDate) : ""),
+          field(tr("التصميم"), input.design),
+          field(tr("مكان الدراسة"), input.setting),
+          field(tr("الأشخاص المشاركون بإجراء الدراسة"), ea.personsInvolved),
+          field(tr("إدارة البيانات وسريتها"), ea.dataManagementConfidentiality),
+          field(tr("تفاصيل التمويل"), ea.fundingDetails),
 
-          arHeading("Section Two — المبادئ الأخلاقية"),
-          ...principleLabels.map((p) => field(p.text, ea.principles[p.key] ? answerLabel[ea.principles[p.key] as Exclude<EthicalPrincipleAnswer, null>] : "لم يُحدد")),
+          arHeading(tr("Section Two — المبادئ الأخلاقية")),
+          ...principleLabels.map((p) => field(p.text, ea.principles[p.key] ? answerLabel[ea.principles[p.key] as Exclude<EthicalPrincipleAnswer, null>] : tr("لم يُحدد"))),
 
-          arHeading("Section Three — المرفقات"),
-          ...attachmentLabels.map((a) => field(a.text, ea.attachments[a.key] ? "مرفق" : "غير مرفق")),
+          arHeading(tr("Section Three — المرفقات")),
+          ...attachmentLabels.map((a) => field(a.text, ea.attachments[a.key] ? tr("مرفق") : tr("غير مرفق"))),
         ],
       },
     ],
@@ -149,52 +150,52 @@ async function buildEthicalOfficial(input: EthicalApprovalExportInput): Promise<
     للتقديم للجنة يبقى بنسخة "official" (أبيض بنسق KAU) */
 async function buildEthicalDark(input: EthicalApprovalExportInput): Promise<Blob> {
   const { ethicalApproval: ea } = input;
-  const k = await loadWesyncKit({ label: "طلب الموافقة الأخلاقية — Ethical Approval", title: "طلب الموافقة الأخلاقية" });
+  const k = await loadWesyncKit({ label: tr("طلب الموافقة الأخلاقية — Ethical Approval"), title: tr("طلب الموافقة الأخلاقية") });
   const piType =
-    ea.piType === "faculty" ? "عضو هيئة تدريس" : ea.piType === "graduate" ? "طالب دراسات عليا" : "طالب بكالوريوس";
-  const others = ea.otherResearchers ? ea.otherResearchers.split("\n").filter(Boolean).join("، ") : "";
+    ea.piType === "faculty" ? tr("عضو هيئة تدريس") : ea.piType === "graduate" ? tr("طالب دراسات عليا") : tr("طالب بكالوريوس");
+  const others = ea.otherResearchers ? ea.otherResearchers.split("\n").filter(Boolean).join(tr("، ")) : "";
   const date = (d: string | null | undefined) => (d ? formatDateLong(d) : "");
 
   const children: (Paragraph | Table)[] = [
     ...k.masthead({
-      kicker: "ETHICAL APPROVAL — طلب موافقة أخلاقية",
-      title: "طلب الموافقة الأخلاقية",
+      kicker: tr("ETHICAL APPROVAL — طلب موافقة أخلاقية"),
+      title: tr("طلب الموافقة الأخلاقية"),
       sub: "Application for Nursing Research Ethical Approval — King Abdulaziz University, Faculty of Nursing",
     }),
 
-    k.heading("بيانات الطلب — Section One", "١"),
+    k.heading(tr("بيانات الطلب — Section One"), tr("١")),
     k.card([
-      ["تاريخ الطلب", date(ea.applicationDate)],
-      ["عنوان الدراسة", input.projectTitle],
-      ["هدف الدراسة", input.aim],
-      ["اسم الباحث الرئيسي", ea.piName],
-      ["جهة الباحث الرئيسي", ea.piAffiliation],
-      ["بريد الباحث الرئيسي", ea.piEmail],
-      ["نوع الباحث الرئيسي", piType],
-      ["باحثون آخرون", others],
-      ["المشرف الأكاديمي", ea.supervisorNames],
-      ["الرقم الجامعي", ea.registrationNo],
-      ["تاريخ البدء المتوقع", date(ea.expectedStartDate)],
-      ["تاريخ الانتهاء المتوقع", date(ea.expectedEndDate)],
-      ["التصميم", input.design],
-      ["مكان الدراسة", input.setting],
-      ["الأشخاص المشاركون بإجراء الدراسة", ea.personsInvolved],
-      ["إدارة البيانات وسريتها", ea.dataManagementConfidentiality],
-      ["تفاصيل التمويل", ea.fundingDetails],
+      [tr("تاريخ الطلب"), date(ea.applicationDate)],
+      [tr("عنوان الدراسة"), input.projectTitle],
+      [tr("هدف الدراسة"), input.aim],
+      [tr("اسم الباحث الرئيسي"), ea.piName],
+      [tr("جهة الباحث الرئيسي"), ea.piAffiliation],
+      [tr("بريد الباحث الرئيسي"), ea.piEmail],
+      [tr("نوع الباحث الرئيسي"), piType],
+      [tr("باحثون آخرون"), others],
+      [tr("المشرف الأكاديمي"), ea.supervisorNames],
+      [tr("الرقم الجامعي"), ea.registrationNo],
+      [tr("تاريخ البدء المتوقع"), date(ea.expectedStartDate)],
+      [tr("تاريخ الانتهاء المتوقع"), date(ea.expectedEndDate)],
+      [tr("التصميم"), input.design],
+      [tr("مكان الدراسة"), input.setting],
+      [tr("الأشخاص المشاركون بإجراء الدراسة"), ea.personsInvolved],
+      [tr("إدارة البيانات وسريتها"), ea.dataManagementConfidentiality],
+      [tr("تفاصيل التمويل"), ea.fundingDetails],
     ]),
 
-    k.heading("المبادئ الأخلاقية — Section Two", "٢"),
+    k.heading(tr("المبادئ الأخلاقية — Section Two"), tr("٢")),
     k.card(
       principleLabels.map((p) => [
         p.text,
-        ea.principles[p.key] ? answerLabel[ea.principles[p.key] as Exclude<EthicalPrincipleAnswer, null>] : "لم يُحدد",
+        ea.principles[p.key] ? answerLabel[ea.principles[p.key] as Exclude<EthicalPrincipleAnswer, null>] : tr("لم يُحدد"),
       ]),
       { labelWidth: 68 },
     ),
 
-    k.heading("المرفقات — Section Three", "٣"),
+    k.heading(tr("المرفقات — Section Three"), tr("٣")),
     k.card(
-      attachmentLabels.map((a) => [a.text, ea.attachments[a.key] ? "مرفق" : "غير مرفق"]),
+      attachmentLabels.map((a) => [a.text, ea.attachments[a.key] ? tr("مرفق") : tr("غير مرفق")]),
       { labelWidth: 68 },
     ),
   ];

@@ -8,6 +8,8 @@ import InstallAppButton from "../components/InstallAppButton";
 import PlanComparison from "../components/PlanComparison";
 import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures, basicHighlights } from "../lib/plans";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
+import LangToggle from "../components/ui/LangToggle";
+import { tr, trx } from "../lib/i18n";
 
 const TEAM_SIZE = 5;
 
@@ -37,7 +39,7 @@ function CtaButton({ children, big = false }: { children: React.ReactNode; big?:
 function ShareSiteRow() {
   const [copied, setCopied] = useState(false);
   const siteUrl = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
-  const waMessage = `جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد بدل قروبات الواتساب المشتتة 🎓\n${siteUrl}`;
+  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد بدل قروبات الواتساب المشتتة 🎓\n{0}", siteUrl);
 
   const copy = async () => {
     await navigator.clipboard.writeText(siteUrl);
@@ -53,14 +55,13 @@ function ShareSiteRow() {
         rel="noreferrer"
         className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-[#25D366]/40 hover:text-[#25D366]"
       >
-        <MessageCircle size={13} /> شاركي الموقع
-      </a>
+        <MessageCircle size={13} />{tr(" شاركي الموقع")}</a>
       <button
         onClick={copy}
         className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-amber-400/40 hover:text-amber-300"
       >
         {copied ? <Check size={13} /> : <Copy size={13} />}
-        {copied ? "تم النسخ" : "نسخ الرابط"}
+        {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
       </button>
     </div>
   );
@@ -69,24 +70,24 @@ function ShareSiteRow() {
 
 const faqs = [
   {
-    q: "شنو لو ما نعرف نستخدم برامج تقنية؟",
-    a: "التطبيق بسيط وبالعربي بالكامل، ودليل الطالب داخل التطبيق يمشي وياكم خطوة بخطوة من أول يوم.",
+    q: tr("شنو لو ما نعرف نستخدم برامج تقنية؟"),
+    a: tr("التطبيق بسيط وبالعربي بالكامل، ودليل الطالب داخل التطبيق يمشي وياكم خطوة بخطوة من أول يوم."),
   },
   {
-    q: "لو حبينا نوقف الاشتراك بعد شهر أو شهرين؟",
-    a: "تقدرون توقفون في أي وقت تبونه، ما فيه أي التزام طويل أو شروط جزائية.",
+    q: tr("لو حبينا نوقف الاشتراك بعد شهر أو شهرين؟"),
+    a: tr("تقدرون توقفون في أي وقت تبونه، ما فيه أي التزام طويل أو شروط جزائية."),
   },
   {
-    q: "هل بيانات وملفات فريقنا آمنة؟",
-    a: "بياناتكم خاصة بفريقكم فقط، ومحمية بنظام صلاحيات — كل عضو يشوف اللي يخصه حسب دوره في الفريق.",
+    q: tr("هل بيانات وملفات فريقنا آمنة؟"),
+    a: tr("بياناتكم خاصة بفريقكم فقط، ومحمية بنظام صلاحيات — كل عضو يشوف اللي يخصه حسب دوره في الفريق."),
   },
   {
-    q: "ينفع نستخدمه لو فريقنا أكبر أو أصغر من ٥ أعضاء؟",
-    a: `أكيد، السعر لكل شخص (${BASIC_PRICE} ريال Basic، أو ${AI_PRICE} ريال AI)، فتقدرون تضيفون أو تحذفون أعضاء ويتغيّر السعر تلقائيًا حسب عدد فريقكم.`,
+    q: tr("ينفع نستخدمه لو فريقنا أكبر أو أصغر من ٥ أعضاء؟"),
+    a: tr("أكيد، السعر لكل شخص ({0} ريال Basic، أو {1} ريال AI)، فتقدرون تضيفون أو تحذفون أعضاء ويتغيّر السعر تلقائيًا حسب عدد فريقكم.", BASIC_PRICE, AI_PRICE),
   },
   {
-    q: "لو واجهنا مشكلة أو سؤال، كيف الدعم؟",
-    a: "تراسلوننا مباشرة من داخل التطبيق أو عبر التواصل المتاح، ونرد عليكم خلال نفس اليوم غالبًا.",
+    q: tr("لو واجهنا مشكلة أو سؤال، كيف الدعم؟"),
+    a: tr("تراسلوننا مباشرة من داخل التطبيق أو عبر التواصل المتاح، ونرد عليكم خلال نفس اليوم غالبًا."),
   },
 ];
 
@@ -162,7 +163,7 @@ function AnimatedRing({ value }: { value: number }) {
     <div ref={ref} className="flex h-[170px] w-[170px] items-center justify-center self-center rounded-full shadow-[0_0_60px_rgba(255,180,68,0.35)]" style={{ background: `conic-gradient(#FFE3A3 0 ${v}%,rgba(255,255,255,.14) 0)` }}>
       <div className="flex h-[138px] w-[138px] flex-col items-center justify-center rounded-full bg-[#1E0A03]">
         <div className="font-display text-[38px] font-extrabold leading-[1.1]">{v}%</div>
-        <div className="text-xs text-[#CDBFB3]">من الطريق</div>
+        <div className="text-xs text-[#CDBFB3]">{tr("من الطريق")}</div>
       </div>
     </div>
   );
@@ -177,12 +178,12 @@ const dot = <span className="h-2 w-2 shrink-0 rounded-full bg-[#FFB444]" />;
 const doors: Door[] = [
   {
     id: "search",
-    label: "أبحث",
-    line: "أسئلة بحثكم من دراسات حقيقية",
+    label: tr("أبحث"),
+    line: tr("أسئلة بحثكم من دراسات حقيقية"),
     body: (
       <div className="space-y-2">
-        <div className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-[#CDBFB3]">أثر الإرهاق الوظيفي على الممرضين…</div>
-        {["دراسة سعودية · ٢٠٢٣", "مراجعة منهجية · ٢٠٢١", "دراسة مقطعية · ٢٠٢٢"].map((t) => (
+        <div className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-[#CDBFB3]">{tr("أثر الإرهاق الوظيفي على الممرضين…")}</div>
+        {[tr("دراسة سعودية · ٢٠٢٣"), tr("مراجعة منهجية · ٢٠٢١"), tr("دراسة مقطعية · ٢٠٢٢")].map((t) => (
           <div key={t} className={row}>{dot}<span>{t}</span><span className="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-[#F1D9C4]">PubMed</span></div>
         ))}
       </div>
@@ -190,11 +191,11 @@ const doors: Door[] = [
   },
   {
     id: "write",
-    label: "أكتب",
-    line: "مقترح ومنهجية خطوة بخطوة",
+    label: tr("أكتب"),
+    line: tr("مقترح ومنهجية خطوة بخطوة"),
     body: (
       <div className="space-y-2">
-        {[["الهدف", true], ["أسئلة البحث", true], ["المنهجية", false], ["الموافقة الأخلاقية", false]].map(([t, d]) => (
+        {[[tr("الهدف"), true], [tr("أسئلة البحث"), true], [tr("المنهجية"), false], [tr("الموافقة الأخلاقية"), false]].map(([t, d]) => (
           <div key={String(t)} className={row}>
             <span className={`flex h-4 w-4 items-center justify-center rounded-full border ${d ? "border-[#FFB444] bg-[#FFB444] text-[#1A0F00]" : "border-white/30"}`}>{d ? <Check size={10} /> : null}</span>
             <span>{t}</span>
@@ -205,17 +206,17 @@ const doors: Door[] = [
   },
   {
     id: "collect",
-    label: "أجمع وأحلل",
-    line: "من الاستبيان حتى الإحصاء",
+    label: tr("أجمع وأحلل"),
+    line: tr("من الاستبيان حتى الإحصاء"),
     body: <AnimatedRing value={72} />,
   },
   {
     id: "team",
-    label: "الفريق",
-    line: "من أنجز، ومن يحتاج مساعدة",
+    label: tr("الفريق"),
+    line: tr("من أنجز، ومن يحتاج مساعدة"),
     body: (
       <div className="space-y-2.5">
-        {[["س", 82, "#FFB444"], ["ل", 91, "#FFB444"], ["ع", 54, "#FF8A5C"]].map(([l, w, c]) => (
+        {[[tr("س"), 82, "#FFB444"], [tr("ل"), 91, "#FFB444"], [tr("ع"), 54, "#FF8A5C"]].map(([l, w, c]) => (
           <div key={String(l)} className="flex items-center gap-2">
             <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] text-xs" style={{ borderColor: String(c) }}>{l}</span>
             <div className="h-1.5 flex-1 rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${w}%`, background: String(c) }} /></div>
@@ -226,23 +227,23 @@ const doors: Door[] = [
   },
   {
     id: "supervisor",
-    label: "المشرف/ة",
-    line: "ملاحظاتها تتحول لمهام",
+    label: tr("المشرف/ة"),
+    line: tr("ملاحظاتها تتحول لمهام"),
     body: (
       <div className="space-y-2">
-        <div className={row}>{dot}<span>ملاحظة: وضّحوا عيّنة الدراسة</span></div>
-        <div className={row}><Check size={13} className="shrink-0 text-[#FFB444]" /><span>صارت مهمة · مها · الأحد</span></div>
-        <div className="rounded-full bg-[#FFB444]/20 px-3 py-1.5 text-center text-[11px] text-[#FFE3A3]">رابط بدون حساب للمشرف/ة</div>
+        <div className={row}>{dot}<span>{tr("ملاحظة: وضّحوا عيّنة الدراسة")}</span></div>
+        <div className={row}><Check size={13} className="shrink-0 text-[#FFB444]" /><span>{tr("صارت مهمة · مها · الأحد")}</span></div>
+        <div className="rounded-full bg-[#FFB444]/20 px-3 py-1.5 text-center text-[11px] text-[#FFE3A3]">{tr("رابط بدون حساب للمشرف/ة")}</div>
       </div>
     ),
   },
   {
     id: "calendar",
-    label: "التقويم والملفات",
-    line: "مواعيدكم على جوالكم",
+    label: tr("التقويم والملفات"),
+    line: tr("مواعيدكم على جوالكم"),
     body: (
       <div className="space-y-2">
-        {[["الأحد ١٠:٠٠", "اجتماع المشرف"], ["الثلاثاء ٨:٠٠", "تسليم الاستبيان"], ["الخميس ١٢:٠٠", "جمع البيانات"]].map(([t, e]) => (
+        {[[tr("الأحد ١٠:٠٠"), tr("اجتماع المشرف")], [tr("الثلاثاء ٨:٠٠"), tr("تسليم الاستبيان")], [tr("الخميس ١٢:٠٠"), tr("جمع البيانات")]].map(([t, e]) => (
           <div key={t} className={row}><span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] text-[#F1D9C4]">{t}</span><span>{e}</span></div>
         ))}
       </div>
@@ -321,7 +322,7 @@ function DoorsCoverflow() {
               }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-[13px] text-[#F1D9C4]">قسم في المنصّة</span>
+                <span className="text-[13px] text-[#F1D9C4]">{tr("قسم في المنصّة")}</span>
                 <span className="rounded-full bg-black/30 px-2.5 py-[3px] text-xs">{i + 1} / {n}</span>
               </div>
               <div className="pointer-events-none flex flex-1 flex-col justify-center py-4">{d.body}</div>
@@ -352,9 +353,9 @@ function DoorsCoverflow() {
 }
 
 const pillars = [
-  { n: "٠١", k: "وضوح", t: "لكل مهمة صاحب وموعد.", d: "انتهى سؤال «مين عليه هذا الجزء؟». كل بند من الاجتماع يصير مهمة باسم صاحبها." },
-  { n: "٠٢", k: "عدالة", t: "العبء موزّع، والجهد ظاهر.", d: "ترون من يحمل أكثر من طاقته ومن يقدر يساعد، مع تقرير مساهمة جاهز للمشرف/ة." },
-  { n: "٠٣", k: "جاهزية", t: "الأوراق الرسمية، بقوالب عربية.", d: "الاستبيان والموافقة المستنيرة وخطاب الجهة، تتعبأ ببيانات بحثكم وتنزّل Word." },
+  { n: tr("٠١"), k: tr("وضوح"), t: tr("لكل مهمة صاحب وموعد."), d: tr("انتهى سؤال «مين عليه هذا الجزء؟». كل بند من الاجتماع يصير مهمة باسم صاحبها.") },
+  { n: tr("٠٢"), k: tr("عدالة"), t: tr("العبء موزّع، والجهد ظاهر."), d: tr("ترون من يحمل أكثر من طاقته ومن يقدر يساعد، مع تقرير مساهمة جاهز للمشرف/ة.") },
+  { n: tr("٠٣"), k: tr("جاهزية"), t: tr("الأوراق الرسمية، بقوالب عربية."), d: tr("الاستبيان والموافقة المستنيرة وخطاب الجهة، تتعبأ ببيانات بحثكم وتنزّل Word.") },
 ];
 
 const HERO_STUDENTS_VIDEO =
@@ -373,7 +374,7 @@ export default function Landing() {
         <div aria-hidden className="ld-breath ld-par absolute top-[300px] h-[380px] w-[460px] rounded-full bg-[#FFB444] blur-[110px] end-[16%]" style={{ ["--k" as string]: 0.1 }} />
         <div aria-hidden className="absolute top-[380px] h-[240px] w-[300px] rounded-full bg-[#FFE27A] opacity-90 blur-[70px] end-[20%]" />
         {/* على الجوال الصورة تقعد بالنص السفلي تحت الكلام عشان الشخص ما يختفي ورا العنوان */}
-        <div className="absolute inset-0 hidden md:block">
+        <div className="ld-hero-flip absolute inset-0 hidden md:block">
           <HeroVideo poster="/landing/students.webp" video={HERO_STUDENTS_VIDEO} objectPosition="left center" />
         </div>
         {/* الجوال: نفس الفيديو فوق الصورة (إلا مع توفير البيانات)، والصورة نفسها تتحرك بهدوء لو الفيديو ما اشتغل */}
@@ -404,7 +405,7 @@ export default function Landing() {
         </div>
         <div
           aria-hidden
-          className="absolute inset-0 hidden md:block"
+          className="ld-hero-flip absolute inset-0 hidden md:block"
           style={{
             background:
               "linear-gradient(270deg,rgba(8,8,8,.92) 0,rgba(8,8,8,.55) 38%,rgba(8,8,8,0) 65%),linear-gradient(0deg,#080808 0,rgba(8,8,8,0) 28%)",
@@ -418,41 +419,34 @@ export default function Landing() {
             Wesync
           </div>
           <div className="ld-glass hidden gap-1 rounded-full border border-white/[0.14] bg-white/[0.07] p-[5px] text-[15px] md:flex">
-            <a href="#how" className="rounded-full bg-white/[0.12] px-5 py-2">المنصّة</a>
-            <a href="#supervisor" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">المشرف/ة</a>
-            <a href="#pricing" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">الباقات</a>
-            <a href="#faq" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">أسئلة</a>
+            <a href="#how" className="rounded-full bg-white/[0.12] px-5 py-2">{tr("المنصّة")}</a>
+            <a href="#supervisor" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">{tr("المشرف/ة")}</a>
+            <a href="#pricing" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">{tr("الباقات")}</a>
+            <a href="#faq" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">{tr("أسئلة")}</a>
           </div>
           <div className="flex items-center gap-2">
             <WelcomeVoice />
             <span className="hidden lg:inline-flex">
               <InstallAppButton />
             </span>
-            <Link to="/login" className="px-4 py-2.5 text-[15px] text-[#D9CFC6] hover:text-white">دخول</Link>
-            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-[15px] font-semibold text-[#1A0F00]">ابدأوا</Link>
+            <LangToggle className="border-white/20 bg-white/[0.08] text-[#F4F0EC] hover:bg-white/[0.14]" />
+            <Link to="/login" className="px-4 py-2.5 text-[15px] text-[#D9CFC6] hover:text-white">{tr("دخول")}</Link>
+            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-[15px] font-semibold text-[#1A0F00]">{tr("ابدأوا")}</Link>
           </div>
         </nav>
 
         <div className="relative z-[3] mx-auto max-w-[1280px] px-6 pt-20 sm:px-9 md:pt-[130px]">
           <div className="max-w-[600px]">
-            <div {...rise(150)} className="ld-rise ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">
-              لفِرَق بحوث التخرّج
-            </div>
-            <h1 {...rise(300)} className={`ld-rise ${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>
-              بحثكم يخلص
-              <br />
-              <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">بوقته، مو بآخر ليلة</span>
+            <div {...rise(150)} className="ld-rise ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">{tr("لفِرَق بحوث التخرّج")}</div>
+            <h1 {...rise(300)} className={`ld-rise ${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>{tr("بحثكم يخلص")}<br />
+              <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">{tr("بوقته، مو بآخر ليلة")}</span>
             </h1>
-            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">
-              مساحة واحدة تجمع فريقكم ومشرفكم وكل مراحل البحث، من أول فكرة حتى يوم التسليم.
-            </p>
+            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">{tr("مساحة واحدة تجمع فريقكم ومشرفكم وكل مراحل البحث، من أول فكرة حتى يوم التسليم.")}</p>
             <div {...rise(700)} className="ld-rise mt-9 flex flex-wrap items-center gap-3">
-              <CtaButton>ابدأوا فريقكم</CtaButton>
-              <a href="#how" className={glassBtn}>شاهدوا كيف يعمل</a>
+              <CtaButton>{tr("ابدأوا فريقكم")}</CtaButton>
+              <a href="#how" className={glassBtn}>{tr("شاهدوا كيف يعمل")}</a>
             </div>
-            <p {...rise(900)} className="ld-rise mt-5 text-sm text-[#BDAFA3]">
-              تجربة مجانية ٧ أيام كاملة المزايا · الباقات تبدأ من {BASIC_PRICE} ريال شهريًا لكل عضو
-            </p>
+            <p {...rise(900)} className="ld-rise mt-5 text-sm text-[#BDAFA3]">{trx("تجربة مجانية ٧ أيام كاملة المزايا · الباقات تبدأ من {0} ريال شهريًا لكل عضو", BASIC_PRICE)}</p>
           </div>
         </div>
       </section>
@@ -461,12 +455,12 @@ export default function Landing() {
       <section id="how" className="relative scroll-mt-4 overflow-hidden px-6 pb-[110px] pt-10">
         <div aria-hidden className="absolute start-1/2 top-10 h-[560px] w-[1000px] -translate-x-1/2 rounded-full blur-[20px]" style={{ background: "radial-gradient(ellipse,rgba(255,107,0,.28),rgba(0,0,0,0) 65%)" }} />
         <div {...fx()} className="ld-fx relative mx-auto mb-14 max-w-[640px] text-center">
-          <div className="text-[15px] font-semibold text-[#FF9A3C]">كل ما يحتاجه فريقكم</div>
-          <h2 className={`${font} mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>أدوات كثيرة. منصّة واحدة.</h2>
+          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("كل ما يحتاجه فريقكم")}</div>
+          <h2 className={`${font} mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>{tr("أدوات كثيرة. منصّة واحدة.")}</h2>
         </div>
 
         <DoorsCoverflow />
-        <p className="relative mt-6 text-center text-xs text-[#BDAFA3]">الأقسام نفسها اللي بالمنصّة، والبيانات أمثلة للتوضيح.</p>
+        <p className="relative mt-6 text-center text-xs text-[#BDAFA3]">{tr("الأقسام نفسها اللي بالمنصّة، والبيانات أمثلة للتوضيح.")}</p>
       </section>
 
       {/* ================= STATEMENT ================= */}
@@ -478,13 +472,9 @@ export default function Landing() {
         }}
       >
         <div {...fx()} className="ld-fx relative mx-auto max-w-[900px]">
-          <div className="text-sm tracking-[2px] text-[#F1D9C4]">فلسفتنا</div>
-          <h2 className={`${font} mt-[18px] text-[40px] font-extrabold leading-[1.3] md:text-[62px]`}>Wesync لا يكتب بحثكم.</h2>
-          <p className={`${font} mt-3 text-[22px] leading-[1.6] text-[#2A0E04] md:text-[30px]`}>
-            يرتّب كل ما حوله،
-            <br />
-            لتتفرّغوا لما يهمّ فعلًا.
-          </p>
+          <div className="text-sm tracking-[2px] text-[#F1D9C4]">{tr("فلسفتنا")}</div>
+          <h2 className={`${font} mt-[18px] text-[40px] font-extrabold leading-[1.3] md:text-[62px]`}>{tr("Wesync لا يكتب بحثكم.")}</h2>
+          <p className={`${font} mt-3 text-[22px] leading-[1.6] text-[#2A0E04] md:text-[30px]`}>{tr("يرتّب كل ما حوله،")}<br />{tr("لتتفرّغوا لما يهمّ فعلًا.")}</p>
         </div>
       </section>
 
@@ -510,18 +500,14 @@ export default function Landing() {
           <div aria-hidden className="absolute top-1/2 h-[360px] w-[360px] -translate-y-1/2 rounded-full bg-[#FFE7A8] opacity-70 blur-[80px] start-[12%]" />
           <div className="relative flex w-full flex-wrap items-center gap-10">
             <div {...fx()} className="ld-fx min-w-[280px] flex-[1_1_420px]">
-              <div className="text-sm font-semibold tracking-[0.3px] text-[#2A0E04]">ما لا تلقونه عند غيرنا</div>
-              <h2 className={`${font} mb-3.5 mt-2.5 text-[38px] font-extrabold leading-[1.3] text-[#1A0F00] md:text-[48px]`}>
-                مشرفكم معكم،
-                <br />
-                بلا حسابات.
-              </h2>
-              <p className="max-w-[42ch] text-[19px] text-[#2A0E04]">رابط واحد يفتح له تقدّم الفريق ومحاضر الاجتماعات، فيعتمد ويعلّق ويجاوب على أسئلتكم بضغطة.</p>
+              <div className="text-sm font-semibold tracking-[0.3px] text-[#2A0E04]">{tr("ما لا تلقونه عند غيرنا")}</div>
+              <h2 className={`${font} mb-3.5 mt-2.5 text-[38px] font-extrabold leading-[1.3] text-[#1A0F00] md:text-[48px]`}>{tr("مشرفكم معكم،")}<br />{tr("بلا حسابات.")}</h2>
+              <p className="max-w-[42ch] text-[19px] text-[#2A0E04]">{tr("رابط واحد يفتح له تقدّم الفريق ومحاضر الاجتماعات، فيعتمد ويعلّق ويجاوب على أسئلتكم بضغطة.")}</p>
             </div>
             <div {...fx(200)} className="ld-fx flex min-w-[280px] flex-[1_1_380px] flex-col gap-3.5">
-              <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">تقدّم الفريق</span><span className="flex gap-1.5">●●●<span className="opacity-35">●●</span></span><span className="font-bold">مثال</span></div>
-              <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">محضر الاجتماع</span><span className="rounded-full bg-[#1A0F00] px-3.5 py-1 text-sm text-[#F6F1EC]">اعتمد</span></div>
-              <div className="ld-glass rounded-[28px] border border-white/20 bg-[#1A0F00]/55 px-[22px] py-[18px] text-[#F6F1EC]"><div className="text-[13px] text-[#F1D9C4]">ملاحظة المشرف/ة</div><div className="mt-0.5 text-lg">«ركّزوا على المحاور قبل الاجتماع القادم.»</div></div>
+              <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">{tr("تقدّم الفريق")}</span><span className="flex gap-1.5">●●●<span className="opacity-35">●●</span></span><span className="font-bold">{tr("مثال")}</span></div>
+              <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">{tr("محضر الاجتماع")}</span><span className="rounded-full bg-[#1A0F00] px-3.5 py-1 text-sm text-[#F6F1EC]">{tr("اعتمد")}</span></div>
+              <div className="ld-glass rounded-[28px] border border-white/20 bg-[#1A0F00]/55 px-[22px] py-[18px] text-[#F6F1EC]"><div className="text-[13px] text-[#F1D9C4]">{tr("ملاحظة المشرف/ة")}</div><div className="mt-0.5 text-lg">{tr("«ركّزوا على المحاور قبل الاجتماع القادم.»")}</div></div>
             </div>
           </div>
         </div>
@@ -530,18 +516,16 @@ export default function Landing() {
       {/* ================= PRICING ================= */}
       <section id="pricing" className="relative mx-auto max-w-[1100px] scroll-mt-4 px-6 pb-24 pt-14 sm:px-9">
         <div {...fx()} className="ld-fx mx-auto max-w-[640px] text-center">
-          <div className="text-[15px] font-semibold text-[#FF9A3C]">الباقات</div>
-          <h2 className={`${font} mb-2 mt-2.5 text-[34px] font-extrabold md:text-[46px]`}>اختاروا ما يناسب فريقكم.</h2>
-          <p className="text-[#BDAFA3]">
-            الأسعار شهريًا لكل عضو — فريق من {TEAM_SIZE} أعضاء يدفع {BASIC_PRICE * TEAM_SIZE} ريال بـ Basic أو {AI_PRICE * TEAM_SIZE} ريال بـ AI. تجربة ٧ أيام كاملة المزايا لأي فريق جديد.
-          </p>
+          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("الباقات")}</div>
+          <h2 className={`${font} mb-2 mt-2.5 text-[34px] font-extrabold md:text-[46px]`}>{tr("اختاروا ما يناسب فريقكم.")}</h2>
+          <p className="text-[#BDAFA3]">{trx("الأسعار شهريًا لكل عضو — فريق من {0} أعضاء يدفع {1} ريال بـ Basic أو {2} ريال بـ AI. تجربة ٧ أيام كاملة المزايا لأي فريق جديد.", TEAM_SIZE, BASIC_PRICE * TEAM_SIZE, AI_PRICE * TEAM_SIZE)}</p>
         </div>
 
         <div className="mt-14 grid items-stretch gap-[22px] md:grid-cols-2">
           <div {...fx(100)} className="ld-fx ld-glass flex flex-col gap-[22px] rounded-[34px] border border-white/[0.12] bg-white/[0.04] p-[34px]">
-            <div><div className={`${font} text-[22px] font-semibold`}>Basic</div><div className="text-[15px] text-[#BDAFA3]">كل أدوات إدارة البحث، بدون ذكاء اصطناعي</div></div>
-            <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{BASIC_PRICE}</span><span className="text-[#BDAFA3]">ريال شهريًا لكل عضو</span></div>
-            <Link to="/login?signup=1" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">ابدأوا بـ Basic</Link>
+            <div><div className={`${font} text-[22px] font-semibold`}>Basic</div><div className="text-[15px] text-[#BDAFA3]">{tr("كل أدوات إدارة البحث، بدون ذكاء اصطناعي")}</div></div>
+            <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{BASIC_PRICE}</span><span className="text-[#BDAFA3]">{tr("ريال شهريًا لكل عضو")}</span></div>
+            <Link to="/login?signup=1" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">{tr("ابدأوا بـ Basic")}</Link>
             <ul className="space-y-3 border-t border-white/10 pt-5 text-[15px] text-[#E6DBD1]">
               {basicHighlights.map((item) => (
                 <li key={item} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFB444]" />{item}</li>
@@ -557,12 +541,12 @@ export default function Landing() {
               boxShadow: "0 40px 100px rgba(255,107,0,.28),inset 0 1px 0 rgba(255,240,210,.35)",
             }}
           >
-            <span className="absolute end-[22px] top-[22px] rounded-full bg-[#F6F1EC] px-3.5 py-[5px] text-xs font-semibold text-[#1A0F00]">أول ١٥ فريق: {FOUNDER_AI_PRICE} ريال ثابتة</span>
-            <div><div className={`${font} text-[22px] font-semibold`}>AI</div><div className="text-[15px] text-[#E6DBD1]">كل شي بالإضافة لمساعد بحثي ذكي</div></div>
-            <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{AI_PRICE}</span><span className="text-[#E6DBD1]">ريال شهريًا لكل عضو</span></div>
-            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">ابدأوا تجربة AI المجانية</Link>
+            <span className="absolute end-[22px] top-[22px] rounded-full bg-[#F6F1EC] px-3.5 py-[5px] text-xs font-semibold text-[#1A0F00]">{trx("أول ١٥ فريق: {0} ريال ثابتة", FOUNDER_AI_PRICE)}</span>
+            <div><div className={`${font} text-[22px] font-semibold`}>AI</div><div className="text-[15px] text-[#E6DBD1]">{tr("كل شي بالإضافة لمساعد بحثي ذكي")}</div></div>
+            <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{AI_PRICE}</span><span className="text-[#E6DBD1]">{tr("ريال شهريًا لكل عضو")}</span></div>
+            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">{tr("ابدأوا تجربة AI المجانية")}</Link>
             <ul className="space-y-3 border-t border-white/[0.18] pt-5 text-[15px] text-[#F6F1EC]">
-              <li className="text-[#F1D9C4]">كل مزايا Basic، إضافةً إلى:</li>
+              <li className="text-[#F1D9C4]">{tr("كل مزايا Basic، إضافةً إلى:")}</li>
               {aiFeatures.map((f) => (
                 <li key={f.title} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFE3A3]" /><span><b className="font-semibold">{f.title}</b> — {f.desc}</span></li>
               ))}
@@ -571,17 +555,15 @@ export default function Landing() {
         </div>
 
         <details className="ld-faq mx-auto mt-10 max-w-3xl rounded-[28px] border border-white/10 bg-white/[0.03] px-6 py-4">
-          <summary className="flex items-center justify-between gap-3 font-semibold">
-            وش الفرق بين Basic وAI بالتفصيل؟
-            <ChevronDown size={18} className="ld-faq-chev shrink-0 text-[#FFB444] transition-transform" />
+          <summary className="flex items-center justify-between gap-3 font-semibold">{tr("وش الفرق بين Basic وAI بالتفصيل؟")}<ChevronDown size={18} className="ld-faq-chev shrink-0 text-[#FFB444] transition-transform" />
           </summary>
           <div className="mt-5"><PlanComparison variant="dark" /></div>
         </details>
 
         <div className="mx-auto mt-8 max-w-md text-start text-sm text-white/50">
-          <p className="mb-3 font-bold text-white">كيف يتم الدفع؟</p>
+          <p className="mb-3 font-bold text-white">{tr("كيف يتم الدفع؟")}</p>
           <ol className="space-y-2.5">
-            {["حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل من داخل التطبيق", "نفعّل اشتراك فريقكم خلال ساعة كحد أقصى", "الدفع المباشر بالبطاقة قريبًا"].map((step, i) => (
+            {[tr("حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل من داخل التطبيق"), tr("نفعّل اشتراك فريقكم خلال ساعة كحد أقصى"), tr("الدفع المباشر بالبطاقة قريبًا")].map((step, i) => (
               <li key={step} className="flex items-center gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFB444]/15 text-[11px] font-bold text-[#FFB444]">{i + 1}</span>
                 {step}
@@ -593,7 +575,7 @@ export default function Landing() {
 
       {/* ================= FAQ ================= */}
       <section id="faq" className="relative mx-auto max-w-[820px] scroll-mt-4 px-6 pb-20 pt-10 sm:px-9">
-        <h2 {...fx()} className={`ld-fx ${font} mb-8 text-center text-[34px] font-extrabold md:text-[40px]`}>قبل ما تبدأون</h2>
+        <h2 {...fx()} className={`ld-fx ${font} mb-8 text-center text-[34px] font-extrabold md:text-[40px]`}>{tr("قبل ما تبدأون")}</h2>
         <div className="flex flex-col gap-2.5">
           {faqs.map((f, i) => (
             <details key={f.q} open={i === 0} className="ld-faq border-b border-white/[0.12] px-1 py-5">
@@ -612,13 +594,11 @@ export default function Landing() {
         <div aria-hidden className="ld-breath absolute -bottom-[360px] start-1/2 h-[620px] w-[1300px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-75 blur-[90px]" />
         <div aria-hidden className="absolute -bottom-[220px] start-1/2 h-[360px] w-[900px] -translate-x-1/2 rounded-full bg-[#FFC85A] blur-[80px]" />
         <div {...fx()} className="ld-fx relative">
-          <h2 className={`${font} text-[38px] font-extrabold leading-[1.3] md:text-[60px]`}>
-            الليلة الأخيرة قبل التسليم؟
-            <br />
-            <span className="font-normal">خلّوها ليلة عادية.</span>
+          <h2 className={`${font} text-[38px] font-extrabold leading-[1.3] md:text-[60px]`}>{tr("الليلة الأخيرة قبل التسليم؟")}<br />
+            <span className="font-normal">{tr("خلّوها ليلة عادية.")}</span>
           </h2>
-          <p className="mx-auto mb-9 mt-[18px] max-w-xl text-lg font-light text-[#E6DBD1] md:text-xl">ابدأوا اليوم، وادعوا فريقكم ومشرفكم في دقيقة.</p>
-          <CtaButton big>ابدأوا فريقكم</CtaButton>
+          <p className="mx-auto mb-9 mt-[18px] max-w-xl text-lg font-light text-[#E6DBD1] md:text-xl">{tr("ابدأوا اليوم، وادعوا فريقكم ومشرفكم في دقيقة.")}</p>
+          <CtaButton big>{tr("ابدأوا فريقكم")}</CtaButton>
         </div>
       </section>
 
@@ -626,10 +606,10 @@ export default function Landing() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className={`${font} flex items-center gap-2.5 font-semibold text-[#F6F1EC]`}><Logo size={26} /> Wesync</div>
           <nav className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link to="/legal/terms" className="hover:text-[#FFB444]">شروط الاستخدام</Link>
-            <Link to="/legal/privacy" className="hover:text-[#FFB444]">سياسة الخصوصية</Link>
-            <Link to="/legal/refund" className="hover:text-[#FFB444]">الإلغاء والاسترداد</Link>
-            <Link to="/legal/contact" className="hover:text-[#FFB444]">تواصل معنا</Link>
+            <Link to="/legal/terms" className="hover:text-[#FFB444]">{tr("شروط الاستخدام")}</Link>
+            <Link to="/legal/privacy" className="hover:text-[#FFB444]">{tr("سياسة الخصوصية")}</Link>
+            <Link to="/legal/refund" className="hover:text-[#FFB444]">{tr("الإلغاء والاسترداد")}</Link>
+            <Link to="/legal/contact" className="hover:text-[#FFB444]">{tr("تواصل معنا")}</Link>
           </nav>
           <div>© {new Date().getFullYear()} Wesync</div>
         </div>
@@ -640,7 +620,7 @@ export default function Landing() {
         href={`https://wa.me/${SUPPORT_WHATSAPP}`}
         target="_blank"
         rel="noreferrer"
-        aria-label="تواصلوا معنا عبر واتساب"
+        aria-label={tr("تواصلوا معنا عبر واتساب")}
         className="ld-glass fixed bottom-7 z-20 flex h-[58px] w-[58px] items-center justify-center rounded-full bg-[#2FBF6B]/90 shadow-[0_12px_30px_rgba(47,191,107,0.4)] start-7"
       >
         <MessageCircle size={26} className="text-[#06210F]" strokeWidth={2} />

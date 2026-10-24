@@ -19,6 +19,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { buildEthicalApprovalDoc } from "../lib/ethicalApprovalExport";
 import { downloadWordDoc } from "../lib/wordExport";
 import type { EthicalAttachments, EthicalPrinciples, EthicalPrincipleAnswer, PiType } from "../data/types";
+import { tr, trx } from "../lib/i18n";
 
 const inputClass =
   "w-full rounded-lg border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300";
@@ -84,39 +85,39 @@ function EditableTextarea({
 }
 
 const principleQuestions: { key: keyof EthicalPrinciples; text: string }[] = [
-  { key: "writtenExplanation", text: "هل سيُقدَّم للمشاركين شرح مكتوب عن البحث؟" },
-  { key: "oralExplanation", text: "هل سيُقدَّم للمشاركين شرح شفهي عن البحث؟" },
-  { key: "writtenConsent", text: "هل سيوقّع المشاركون على نموذج موافقة؟" },
-  { key: "oralConsent", text: "هل ستُؤخذ موافقة شفهية من المشاركين؟" },
-  { key: "voluntaryInformed", text: "هل سيُخبَر المشاركون أن المشاركة اختيارية؟" },
-  { key: "withdrawOption", text: "هل ستُتاح للمشاركين فرصة الانسحاب بأي مرحلة دون إبداء سبب؟" },
-  { key: "harmInformed", text: "هل سيُخبَر المشاركون بأي ضرر محتمل من المشاركة؟" },
-  { key: "confidentialityGuaranteed", text: "هل ستُضمَن سرية بيانات المشاركين؟" },
-  { key: "anonymityGuaranteed", text: "هل ستُضمَن إخفاء هوية المشاركين؟" },
+  { key: "writtenExplanation", text: tr("هل سيُقدَّم للمشاركين شرح مكتوب عن البحث؟") },
+  { key: "oralExplanation", text: tr("هل سيُقدَّم للمشاركين شرح شفهي عن البحث؟") },
+  { key: "writtenConsent", text: tr("هل سيوقّع المشاركون على نموذج موافقة؟") },
+  { key: "oralConsent", text: tr("هل ستُؤخذ موافقة شفهية من المشاركين؟") },
+  { key: "voluntaryInformed", text: tr("هل سيُخبَر المشاركون أن المشاركة اختيارية؟") },
+  { key: "withdrawOption", text: tr("هل ستُتاح للمشاركين فرصة الانسحاب بأي مرحلة دون إبداء سبب؟") },
+  { key: "harmInformed", text: tr("هل سيُخبَر المشاركون بأي ضرر محتمل من المشاركة؟") },
+  { key: "confidentialityGuaranteed", text: tr("هل ستُضمَن سرية بيانات المشاركين؟") },
+  { key: "anonymityGuaranteed", text: tr("هل ستُضمَن إخفاء هوية المشاركين؟") },
   {
     key: "vulnerableGroupsInformed",
-    text: "لو شمل البحث فئات مستضعفة (أطفال دون ١٨، كبار السن، ...) — هل سيُخبَرون أنهم يقدرون يتجاوزون أي سؤال ما يرغبون بالإجابة عليه؟",
+    text: tr("لو شمل البحث فئات مستضعفة (أطفال دون ١٨، كبار السن، ...) — هل سيُخبَرون أنهم يقدرون يتجاوزون أي سؤال ما يرغبون بالإجابة عليه؟"),
   },
   {
     key: "interviewNoExplanationNeeded",
-    text: "لو تضمّن البحث مقابلات — هل سيُخبَر المشاركون أنهم غير مُلزَمين بالإجابة على أي سؤال بدون تفسير؟",
+    text: tr("لو تضمّن البحث مقابلات — هل سيُخبَر المشاركون أنهم غير مُلزَمين بالإجابة على أي سؤال بدون تفسير؟"),
   },
-  { key: "safeDataStorage", text: "هل تم تأمين تخزين آمن للبيانات؟" },
-  { key: "willPublish", text: "هل سينشر الباحث/ون نتائج البحث؟" },
+  { key: "safeDataStorage", text: tr("هل تم تأمين تخزين آمن للبيانات؟") },
+  { key: "willPublish", text: tr("هل سينشر الباحث/ون نتائج البحث؟") },
 ];
 
 const attachmentItems: { key: keyof EthicalAttachments; label: string; to: string }[] = [
-  { key: "protocolOrProposal", label: "المقترح البحثي (Protocol)", to: "/proposal" },
-  { key: "participantInfoSheet", label: "ورقة معلومات المشارك", to: "/files" },
-  { key: "consentForm", label: "نموذج الموافقة (Consent Form)", to: "/files" },
-  { key: "studyTools", label: "أداة الدراسة", to: "/methodology" },
-  { key: "otherSupportiveDocs", label: "مستندات داعمة أخرى", to: "/files" },
+  { key: "protocolOrProposal", label: tr("المقترح البحثي (Protocol)"), to: "/proposal" },
+  { key: "participantInfoSheet", label: tr("ورقة معلومات المشارك"), to: "/files" },
+  { key: "consentForm", label: tr("نموذج الموافقة (Consent Form)"), to: "/files" },
+  { key: "studyTools", label: tr("أداة الدراسة"), to: "/methodology" },
+  { key: "otherSupportiveDocs", label: tr("مستندات داعمة أخرى"), to: "/files" },
 ];
 
 const answerLabel: Record<Exclude<EthicalPrincipleAnswer, null>, string> = {
-  yes: "نعم",
-  no: "لا",
-  na: "لا ينطبق",
+  yes: tr("نعم"),
+  no: tr("لا"),
+  na: tr("لا ينطبق"),
 };
 
 function PrincipleToggle({
@@ -151,10 +152,10 @@ function PrincipleToggle({
 }
 
 const outcomeLabel: Record<string, string> = {
-  pending: "بانتظار الرد",
-  granted: "تمت الموافقة",
-  amendments: "مطلوب تعديلات",
-  rejected: "مرفوض",
+  pending: tr("بانتظار الرد"),
+  granted: tr("تمت الموافقة"),
+  amendments: tr("مطلوب تعديلات"),
+  rejected: tr("مرفوض"),
 };
 
 export default function EthicalApprovalPage() {
@@ -191,7 +192,7 @@ export default function EthicalApprovalPage() {
         },
         style,
       );
-      downloadWordDoc(blob, style === "dark" ? "طلب-الموافقة-الأخلاقية — Wesync.docx" : "طلب-الموافقة-الأخلاقية.docx");
+      downloadWordDoc(blob, style === "dark" ? tr("طلب-الموافقة-الأخلاقية — Wesync.docx") : tr("طلب-الموافقة-الأخلاقية.docx"));
     } finally {
       setExporting(false);
     }
@@ -205,10 +206,8 @@ export default function EthicalApprovalPage() {
             <FileCheck2 size={18} />
           </span>
           <div>
-            <h2 className="font-display text-base font-bold text-brand-950">
-              طلب الموافقة الأخلاقية — Ethical Approval
-            </h2>
-            <p className="mt-0.5 text-sm text-brand-950/50">مطلوب رسميًا مع المقترح البحثي، بنفس تاريخ تسليمه.</p>
+            <h2 className="font-display text-base font-bold text-brand-950">{tr("طلب الموافقة الأخلاقية — Ethical Approval")}</h2>
+            <p className="mt-0.5 text-sm text-brand-950/50">{tr("مطلوب رسميًا مع المقترح البحثي، بنفس تاريخ تسليمه.")}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -216,102 +215,89 @@ export default function EthicalApprovalPage() {
             onClick={autoFillFromTeam}
             className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-700 hover:bg-brand-50"
           >
-            <Wand2 size={15} />
-            تعبئة تلقائية من الفريق
-          </button>
+            <Wand2 size={15} />{tr("تعبئة تلقائية من الفريق")}</button>
           <button
             onClick={() => exportWord("official")}
             disabled={exporting}
-            title="نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة"
+            title={tr("نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة")}
             className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
-          >
-            {exporting ? <Loader2 size={15} className="animate-spin" /> : <FileCheck2 size={15} />}
-            نموذج التقديم الرسمي (Word)
-          </button>
+          >{trx("{0}نموذج التقديم الرسمي (Word)", exporting ? <Loader2 size={15} className="animate-spin" /> : <FileCheck2 size={15} />)}</button>
           <button
             onClick={() => exportWord("dark")}
             disabled={exporting}
-            title="نسخة بتصميم Wesync الداكن للمراجعة على الشاشة"
+            title={tr("نسخة بتصميم Wesync الداكن للمراجعة على الشاشة")}
             className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-700 hover:bg-brand-50 disabled:opacity-60"
-          >
-            نسخة Wesync
-          </button>
+          >{tr("نسخة Wesync")}</button>
         </div>
       </Card>
 
       {/* ملخص حقائق مسحوبة من المصدر مباشرة — بدون نسخة ثانية قابلة للتضارب */}
       <Card>
-        <CardHeader title="بيانات مسحوبة من المشروع" subtitle="Pulled live — edit at the source" />
+        <CardHeader title={tr("بيانات مسحوبة من المشروع")} subtitle="Pulled live — edit at the source" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-2xl bg-surface-muted p-4">
-            <p className="text-xs font-bold text-brand-950/45">عنوان الدراسة</p>
-            <p className="mt-1 text-sm font-semibold text-brand-950">{project?.title || "لم يُحدد بعد"}</p>
+            <p className="text-xs font-bold text-brand-950/45">{tr("عنوان الدراسة")}</p>
+            <p className="mt-1 text-sm font-semibold text-brand-950">{project?.title || tr("لم يُحدد بعد")}</p>
           </div>
           <div className="rounded-2xl bg-surface-muted p-4">
-            <p className="text-xs font-bold text-brand-950/45">الهدف — Aim</p>
+            <p className="text-xs font-bold text-brand-950/45">{tr("الهدف — Aim")}</p>
             <p className="mt-1 text-sm font-semibold text-brand-950">
-              {aim.statement || "لم يُحدد بعد"}
+              {aim.statement || tr("لم يُحدد بعد")}
             </p>
-            <Link to="/proposal" className="mt-1.5 inline-block text-xs font-bold text-brand-600 hover:underline">
-              عدّل في المقترح البحثي →
-            </Link>
+            <Link to="/proposal" className="mt-1.5 inline-block text-xs font-bold text-brand-600 hover:underline">{tr("عدّل في المقترح البحثي →")}</Link>
           </div>
           <div className="rounded-2xl bg-surface-muted p-4">
-            <p className="text-xs font-bold text-brand-950/45">التصميم — Design</p>
-            <p className="mt-1 text-sm font-semibold text-brand-950">{methodology.studyDesign || "لم يُحدد بعد"}</p>
-            <Link to="/methodology" className="mt-1.5 inline-block text-xs font-bold text-brand-600 hover:underline">
-              عدّل في المنهجية →
-            </Link>
+            <p className="text-xs font-bold text-brand-950/45">{tr("التصميم — Design")}</p>
+            <p className="mt-1 text-sm font-semibold text-brand-950">{methodology.studyDesign || tr("لم يُحدد بعد")}</p>
+            <Link to="/methodology" className="mt-1.5 inline-block text-xs font-bold text-brand-600 hover:underline">{tr("عدّل في المنهجية →")}</Link>
           </div>
           <div className="rounded-2xl bg-surface-muted p-4">
-            <p className="text-xs font-bold text-brand-950/45">مكان الدراسة — Setting</p>
-            <p className="mt-1 text-sm font-semibold text-brand-950">{methodology.studySetting || "لم يُحدد بعد"}</p>
-            <Link to="/methodology" className="mt-1.5 inline-block text-xs font-bold text-brand-600 hover:underline">
-              عدّل في المنهجية →
-            </Link>
+            <p className="text-xs font-bold text-brand-950/45">{tr("مكان الدراسة — Setting")}</p>
+            <p className="mt-1 text-sm font-semibold text-brand-950">{methodology.studySetting || tr("لم يُحدد بعد")}</p>
+            <Link to="/methodology" className="mt-1.5 inline-block text-xs font-bold text-brand-600 hover:underline">{tr("عدّل في المنهجية →")}</Link>
           </div>
         </div>
       </Card>
 
       <Card>
         <CardHeader
-          title="الباحث الرئيسي والفريق"
+          title={tr("الباحث الرئيسي والفريق")}
           subtitle="Principal Investigator & Researchers"
           action={<Users2 size={18} className="text-brand-600" />}
         />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <EditableField
-            label="اسم الباحث الرئيسي"
+            label={tr("اسم الباحث الرئيسي")}
             value={ethicalApproval.piName}
             onSave={(v) => updateEthicalApproval({ piName: v })}
           />
           <EditableField
-            label="الجهة"
+            label={tr("الجهة")}
             value={ethicalApproval.piAffiliation}
             onSave={(v) => updateEthicalApproval({ piAffiliation: v })}
           />
           <EditableField
-            label="البريد الإلكتروني"
+            label={tr("البريد الإلكتروني")}
             type="email"
             value={ethicalApproval.piEmail}
             onSave={(v) => updateEthicalApproval({ piEmail: v })}
           />
           <label className="block text-sm">
-            <span className="mb-1 block font-semibold text-brand-950/70">نوع الباحث الرئيسي</span>
+            <span className="mb-1 block font-semibold text-brand-950/70">{tr("نوع الباحث الرئيسي")}</span>
             <select
               value={ethicalApproval.piType}
               onChange={(e) => updateEthicalApproval({ piType: e.target.value as PiType })}
               className={inputClass}
             >
-              <option value="undergraduate">طالب/ة بكالوريوس</option>
-              <option value="graduate">طالب/ة دراسات عليا</option>
-              <option value="faculty">عضو هيئة تدريس</option>
+              <option value="undergraduate">{tr("طالب/ة بكالوريوس")}</option>
+              <option value="graduate">{tr("طالب/ة دراسات عليا")}</option>
+              <option value="faculty">{tr("عضو هيئة تدريس")}</option>
             </select>
           </label>
         </div>
         <div className="mt-3">
           <EditableTextarea
-            label="باحثون آخرون — سطر لكل باحث: الاسم — الجهة — البريد"
+            label={tr("باحثون آخرون — سطر لكل باحث: الاسم — الجهة — البريد")}
             value={ethicalApproval.otherResearchers}
             onSave={(v) => updateEthicalApproval({ otherResearchers: v })}
             rows={3}
@@ -319,12 +305,12 @@ export default function EthicalApprovalPage() {
         </div>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <EditableField
-            label="اسم/أسماء المشرف الأكاديمي"
+            label={tr("اسم/أسماء المشرف الأكاديمي")}
             value={ethicalApproval.supervisorNames}
             onSave={(v) => updateEthicalApproval({ supervisorNames: v })}
           />
           <EditableField
-            label="الرقم الجامعي (إن وجد)"
+            label={tr("الرقم الجامعي (إن وجد)")}
             value={ethicalApproval.registrationNo}
             onSave={(v) => updateEthicalApproval({ registrationNo: v })}
           />
@@ -333,26 +319,26 @@ export default function EthicalApprovalPage() {
 
       <Card>
         <CardHeader
-          title="التواريخ والتمويل"
+          title={tr("التواريخ والتمويل")}
           subtitle="Dates & Funding"
           action={<Building2 size={18} className="text-brand-600" />}
         />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <EditableField
-            label="تاريخ تقديم الطلب"
+            label={tr("تاريخ تقديم الطلب")}
             type="date"
             value={ethicalApproval.applicationDate ?? ""}
             onSave={(v) => updateEthicalApproval({ applicationDate: v || null })}
           />
           <div />
           <EditableField
-            label="تاريخ البدء المتوقع"
+            label={tr("تاريخ البدء المتوقع")}
             type="date"
             value={ethicalApproval.expectedStartDate ?? ""}
             onSave={(v) => updateEthicalApproval({ expectedStartDate: v || null })}
           />
           <EditableField
-            label="تاريخ الانتهاء المتوقع"
+            label={tr("تاريخ الانتهاء المتوقع")}
             type="date"
             value={ethicalApproval.expectedEndDate ?? ""}
             onSave={(v) => updateEthicalApproval({ expectedEndDate: v || null })}
@@ -360,13 +346,13 @@ export default function EthicalApprovalPage() {
         </div>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <EditableTextarea
-            label="الأشخاص المشاركون بإجراء الدراسة"
+            label={tr("الأشخاص المشاركون بإجراء الدراسة")}
             value={ethicalApproval.personsInvolved}
             onSave={(v) => updateEthicalApproval({ personsInvolved: v })}
             rows={2}
           />
           <EditableTextarea
-            label="كيف ستُدار البيانات وتُحفظ سريتها"
+            label={tr("كيف ستُدار البيانات وتُحفظ سريتها")}
             value={ethicalApproval.dataManagementConfidentiality}
             onSave={(v) => updateEthicalApproval({ dataManagementConfidentiality: v })}
             rows={2}
@@ -374,7 +360,7 @@ export default function EthicalApprovalPage() {
         </div>
         <div className="mt-3">
           <EditableTextarea
-            label="تفاصيل أي تمويل أو دعم مالي (إن وجد)"
+            label={tr("تفاصيل أي تمويل أو دعم مالي (إن وجد)")}
             value={ethicalApproval.fundingDetails}
             onSave={(v) => updateEthicalApproval({ fundingDetails: v })}
             rows={2}
@@ -383,7 +369,7 @@ export default function EthicalApprovalPage() {
       </Card>
 
       <Card>
-        <CardHeader title="المبادئ الأخلاقية" subtitle="Section Two — Ethical Principles" />
+        <CardHeader title={tr("المبادئ الأخلاقية")} subtitle="Section Two — Ethical Principles" />
         <ul className="divide-y divide-brand-50">
           {principleQuestions.map((q) => (
             <li key={q.key} className="flex items-center gap-3 py-2.5">
@@ -398,7 +384,7 @@ export default function EthicalApprovalPage() {
       </Card>
 
       <Card>
-        <CardHeader title="المرفقات المطلوبة" subtitle="Section Three — Attachments" />
+        <CardHeader title={tr("المرفقات المطلوبة")} subtitle="Section Three — Attachments" />
         <ul className="divide-y divide-brand-50">
           {attachmentItems.map((item) => (
             <li key={item.key} className="flex items-center justify-between gap-3 py-2.5">
@@ -411,19 +397,17 @@ export default function EthicalApprovalPage() {
                 />
                 {item.label}
               </label>
-              <Link to={item.to} className="text-xs font-bold text-brand-600 hover:underline">
-                جهّزه من هنا →
-              </Link>
+              <Link to={item.to} className="text-xs font-bold text-brand-600 hover:underline">{tr("جهّزه من هنا →")}</Link>
             </li>
           ))}
         </ul>
       </Card>
 
       <Card tone="amber">
-        <CardHeader title="حالة الطلب" subtitle="Committee Outcome" />
+        <CardHeader title={tr("حالة الطلب")} subtitle="Committee Outcome" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <label className="block text-sm">
-            <span className="mb-1 block font-semibold text-brand-950/70">النتيجة</span>
+            <span className="mb-1 block font-semibold text-brand-950/70">{tr("النتيجة")}</span>
             <select
               value={ethicalApproval.outcome}
               onChange={(e) => updateEthicalApproval({ outcome: e.target.value as typeof ethicalApproval.outcome })}
@@ -437,12 +421,12 @@ export default function EthicalApprovalPage() {
             </select>
           </label>
           <EditableField
-            label="الرقم المرجعي (Ref. Number)"
+            label={tr("الرقم المرجعي (Ref. Number)")}
             value={ethicalApproval.refNumber ?? ""}
             onSave={(v) => updateEthicalApproval({ refNumber: v || null })}
           />
           <EditableField
-            label="تاريخ اجتماع اللجنة"
+            label={tr("تاريخ اجتماع اللجنة")}
             type="date"
             value={ethicalApproval.meetingDate ?? ""}
             onSave={(v) => updateEthicalApproval({ meetingDate: v || null })}
@@ -451,13 +435,11 @@ export default function EthicalApprovalPage() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {ethicalApproval.approvalLetterFileId ? (
             <span className="flex items-center gap-1.5 rounded-xl bg-brand-50 px-3.5 py-2 text-sm font-bold text-brand-700">
-              <Check size={15} />
-              خطاب الموافقة مرفوع
-            </span>
+              <Check size={15} />{tr("خطاب الموافقة مرفوع")}</span>
           ) : (
             <FileAttach
               category="ethical-approval"
-              label="ارفع خطاب الموافقة الرسمي لما يوصل"
+              label={tr("ارفع خطاب الموافقة الرسمي لما يوصل")}
               onAttach={(meta) => {
                 if (meta.fileRowId) updateEthicalApproval({ approvalLetterFileId: meta.fileRowId });
               }}
@@ -467,9 +449,7 @@ export default function EthicalApprovalPage() {
             to="/files"
             className="flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline"
           >
-            <ExternalLink size={12} />
-            شوف كل الملفات
-          </Link>
+            <ExternalLink size={12} />{tr("شوف كل الملفات")}</Link>
         </div>
       </Card>
     </div>

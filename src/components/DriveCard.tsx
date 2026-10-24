@@ -6,13 +6,14 @@ import { GoogleDriveLogo, LogoTile } from "./ui/BrandLogos";
 import ThreeDotsMenu from "./ui/ThreeDotsMenu";
 import { useToast } from "../context/ToastContext";
 import { disconnectDrive, driveErrorMessage, shareDriveFolder, startDriveConnect, type DriveStatus } from "../lib/driveTeam";
+import { tr, trx } from "../lib/i18n";
 
 const EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]{2,}$/;
 
 const STEPS = [
-  { title: "اربطوا مرة وحدة", desc: "قائد الفريق يسجّل بحساب Google حقه" },
-  { title: "مجلد مشترك", desc: "ينفتح باسم فريقكم ويتشارك مع الأعضاء" },
-  { title: "محاضركم تنرفع", desc: "كل محضر Word ينحفظ فيه تلقائيًا" },
+  { title: tr("اربطوا مرة وحدة"), desc: tr("قائد الفريق يسجّل بحساب Google حقه") },
+  { title: tr("مجلد مشترك"), desc: tr("ينفتح باسم فريقكم ويتشارك مع الأعضاء") },
+  { title: tr("محاضركم تنرفع"), desc: tr("كل محضر Word ينحفظ فيه تلقائيًا") },
 ];
 
 interface DriveCardProps {
@@ -51,7 +52,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         // النافذة تسكّر نفسها بعد نجاح الربط: نعطي الفحص فرصة يرجع «مربوط» قبل ما نقول إنه فشل
         if (closed) {
           setTimeout(() => {
-            if (!connectedRef.current) setMsg("انقفلت نافذة قوقل قبل ما يكتمل الربط. اضغطوا الزر وجرّبوا مرة ثانية، وكمّلوا الموافقة لين تشوفون «انربط».");
+            if (!connectedRef.current) setMsg(tr("انقفلت نافذة قوقل قبل ما يكتمل الربط. اضغطوا الزر وجرّبوا مرة ثانية، وكمّلوا الموافقة لين تشوفون «انربط»."));
           }, 4000);
         }
         return;
@@ -66,13 +67,9 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
     return (
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-4">
         <p className="flex items-center gap-2 text-sm text-[#E6DBD1]">
-          <HardDrive size={16} className="text-[#FFB444]" />
-          تعذّر فحص ربط الدرايف الحين{status.errorCode && status.errorCode !== "failed" ? ` (${status.errorCode})` : ""}.
-        </p>
+          <HardDrive size={16} className="text-[#FFB444]" />{trx("تعذّر فحص ربط الدرايف الحين{0}.", status.errorCode && status.errorCode !== "failed" ? ` (${status.errorCode})` : "")}</p>
         <button onClick={onChanged} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-2 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
-          <RefreshCw size={14} />
-          أعيدوا المحاولة
-        </button>
+          <RefreshCw size={14} />{tr("أعيدوا المحاولة")}</button>
       </div>
     );
   }
@@ -108,7 +105,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
   const share = async () => {
     const email = doctorEmail.trim();
     if (email && !EMAIL.test(email)) {
-      setMsg("إيميل الدكتورة غير صحيح.");
+      setMsg(tr("إيميل الدكتورة غير صحيح."));
       return;
     }
     setBusy("share");
@@ -117,8 +114,8 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
     if (r.data) {
       const failed = r.data.failed.length;
       showToast({
-        title: "تمت مشاركة المجلد",
-        desc: failed ? `تعذّرت المشاركة مع: ${r.data.failed.join("، ")}. غالبًا الإيميل ما عليه حساب Google.` : `شاركنا المجلد مع ${r.data.shared} ${r.data.shared === 1 ? "شخص" : "أشخاص"}. توصلهم دعوة بالإيميل.`,
+        title: tr("تمت مشاركة المجلد"),
+        desc: failed ? tr("تعذّرت المشاركة مع: {0}. غالبًا الإيميل ما عليه حساب Google.", r.data.failed.join(tr("، "))) : tr("شاركنا المجلد مع {0} {1}. توصلهم دعوة بالإيميل.", r.data.shared, r.data.shared === 1 ? tr("شخص") : tr("أشخاص")),
         icon: Check,
         tone: "brand",
       });
@@ -142,7 +139,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
           <LogoTile active={waiting} className="h-12 w-12 rounded-2xl bg-white/[0.06] ring-1 ring-white/15">
             <GoogleDriveLogo size={28} />
           </LogoTile>
-          <p className="text-sm text-[#B8ADA2]">محاضر الاجتماعات مرتبة بمكان واحد يشوفه الكل</p>
+          <p className="text-sm text-[#B8ADA2]">{tr("محاضر الاجتماعات مرتبة بمكان واحد يشوفه الكل")}</p>
         </div>
         <div className="flex items-center gap-2">
           <span
@@ -152,10 +149,10 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
             )}
           >
             <span className={clsx("h-1.5 w-1.5 rounded-full", connected ? "bg-[#7fd6a0] shadow-[0_0_8px] shadow-[#7fd6a0]/80" : "bg-white/30")} />
-            {connected ? "مربوط" : "غير مربوط"}
+            {connected ? tr("مربوط") : tr("غير مربوط")}
           </span>
           {connected && status.isLeader && (
-            <ThreeDotsMenu items={[{ label: "فك الربط", confirmLabel: "تأكيد فك الربط؟", icon: Unplug, tone: "danger", onClick: disconnect }]} />
+            <ThreeDotsMenu items={[{ label: tr("فك الربط"), confirmLabel: tr("تأكيد فك الربط؟"), icon: Unplug, tone: "danger", onClick: disconnect }]} />
           )}
         </div>
       </div>
@@ -176,9 +173,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
           </ol>
 
           <p className="flex items-start gap-2 rounded-2xl bg-white/[0.04] p-3.5 text-xs leading-relaxed text-[#B8ADA2]">
-            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#FFB444]" />
-            صلاحية محدودة: Wesync يشوف بس الملفات اللي ينشئها، وما يقدر يفتح بقية درايفكم. ورمز الربط يتخزن مشفّر بالخادم، مو بمتصفحكم.
-          </p>
+            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#FFB444]" />{tr("صلاحية محدودة: Wesync يشوف بس الملفات اللي ينشئها، وما يقدر يفتح بقية درايفكم. ورمز الربط يتخزن مشفّر بالخادم، مو بمتصفحكم.")}</p>
 
           {status.isLeader ? (
             <button
@@ -187,19 +182,19 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
               className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#F6F1EC] px-6 py-3.5 text-sm font-bold text-[#1A0F00] shadow-[0_12px_32px_rgba(0,0,0,.35)] transition hover:brightness-95 disabled:opacity-60"
             >
               {busy === "connect" ? <Loader2 size={16} className="animate-spin" /> : <GoogleDriveLogo size={20} />}
-              {waiting ? "ننتظر موافقتكم بقوقل…" : "اربطوا Google Drive"}
+              {waiting ? tr("ننتظر موافقتكم بقوقل…") : tr("اربطوا Google Drive")}
             </button>
           ) : (
-            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-xs font-bold text-[#B8ADA2]">قائد الفريق هو اللي يربط الدرايف، وتظهر لكم هنا بعدها.</p>
+            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-xs font-bold text-[#B8ADA2]">{tr("قائد الفريق هو اللي يربط الدرايف، وتظهر لكم هنا بعدها.")}</p>
           )}
         </div>
       ) : (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-[#B8ADA2]">مربوط بحساب</p>
+              <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("مربوط بحساب")}</p>
               <p dir="ltr" className="truncate text-start text-sm font-bold">{status.googleEmail}</p>
-              {status.connectedByName && <p className="mt-0.5 text-xs text-[#B8ADA2]">ربطه {status.connectedByName}</p>}
+              {status.connectedByName && <p className="mt-0.5 text-xs text-[#B8ADA2]">{trx("ربطه {0}", status.connectedByName)}</p>}
             </div>
             {status.folderLink && (
               <a
@@ -208,43 +203,28 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
                 rel="noreferrer"
                 className="flex items-center gap-2 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-5 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] transition hover:brightness-110"
               >
-                <ExternalLink size={15} />
-                افتحوا المجلد
-              </a>
+                <ExternalLink size={15} />{tr("افتحوا المجلد")}</a>
             )}
           </div>
 
           <p className="flex items-center gap-2 text-xs text-[#B8ADA2]">
-            <Users size={14} className="text-[#FFB444]" />
-            المحاضر تنرفع تلقائيًا لمجلد الفريق بصيغة Word، والمجلد مشترك مع الأعضاء.
-          </p>
+            <Users size={14} className="text-[#FFB444]" />{tr("المحاضر تنرفع تلقائيًا لمجلد الفريق بصيغة Word، والمجلد مشترك مع الأعضاء.")}</p>
           {!status.isLeader && (
-            <p className="text-xs leading-relaxed text-[#B8ADA2]/80">
-              ما وصلك إيميل الدعوة؟ لازم إيميلك في Wesync يكون عليه حساب Google —{" "}
-              <a href="https://accounts.google.com/signup" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-[#F4F0EC]">
-                سوّ حساب بنفس إيميلك
-              </a>{" "}
-              وبلّغ القائد يضغط «شاركوا الآن». والمحاضر كلها موجودة هنا بعد وتنزل Word.
-            </p>
+            <p className="text-xs leading-relaxed text-[#B8ADA2]/80">{tr("ما وصلك إيميل الدعوة؟ لازم إيميلك في Wesync يكون عليه حساب Google — ")}<a href="https://accounts.google.com/signup" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-[#F4F0EC]">{tr("سوّ حساب بنفس إيميلك")}</a>{tr(" وبلّغ القائد يضغط «شاركوا الآن». والمحاضر كلها موجودة هنا بعد وتنزل Word.")}</p>
           )}
 
           {status.isLeader && (
             <div className="rounded-2xl border border-white/10 p-4">
               <p className="mb-1 flex items-center gap-1.5 text-xs font-bold">
-                <Mail size={13} className="text-[#FFB444]" />
-                مشاركة المجلد
-              </p>
-              <p className="mb-3 text-xs leading-relaxed text-[#B8ADA2]">يشارك مع كل أعضاء الفريق (تعديل)، ولو كتبتم إيميل الدكتورة تشوف المجلد قراءة فقط. العضو الجديد اضغطوا له «شاركوا الآن».</p>
+                <Mail size={13} className="text-[#FFB444]" />{tr("مشاركة المجلد")}</p>
+              <p className="mb-3 text-xs leading-relaxed text-[#B8ADA2]">{tr("يشارك مع كل أعضاء الفريق (تعديل)، ولو كتبتم إيميل الدكتورة تشوف المجلد قراءة فقط. العضو الجديد اضغطوا له «شاركوا الآن».")}</p>
               <div className="flex flex-wrap gap-2">
-                <input type="email" dir="ltr" value={doctorEmail} onChange={(e) => setDoctorEmail(e.target.value)} placeholder="إيميل الدكتورة (اختياري)" className={clsx(pillField, "min-w-0 basis-full sm:flex-1 sm:basis-0")} />
+                <input type="email" dir="ltr" value={doctorEmail} onChange={(e) => setDoctorEmail(e.target.value)} placeholder={tr("إيميل الدكتورة (اختياري)")} className={clsx(pillField, "min-w-0 basis-full sm:flex-1 sm:basis-0")} />
                 <button
                   onClick={share}
                   disabled={busy === "share"}
                   className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50"
-                >
-                  {busy === "share" ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                  شاركوا الآن
-                </button>
+                >{trx("{0}شاركوا الآن", busy === "share" ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />)}</button>
               </div>
             </div>
           )}
@@ -253,9 +233,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
 
       {waiting && (
         <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-3 text-sm">
-          <Loader2 size={14} className="animate-spin" />
-          أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.
-          <button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">إلغاء</button>
+          <Loader2 size={14} className="animate-spin" />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">{tr("إلغاء")}</button>
         </p>
       )}
       {msg && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{msg}</p>}

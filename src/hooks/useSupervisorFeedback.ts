@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 export interface FeedbackItem {
   id: string;
@@ -37,8 +38,8 @@ const mapRow = (r: Row): FeedbackItem => ({
 const today = () => new Date().toISOString().slice(0, 10);
 
 const mockItems: FeedbackItem[] = [
-  { id: "m1", comment: "وضّحوا معايير الاشتمال والاستبعاد بشكل أدق", sectionKey: "methodology", status: "open", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: null },
-  { id: "m2", comment: "أضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات", sectionKey: "literature-review", status: "done", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: today() },
+  { id: "m1", comment: tr("وضّحوا معايير الاشتمال والاستبعاد بشكل أدق"), sectionKey: "methodology", status: "open", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: null },
+  { id: "m2", comment: tr("أضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات"), sectionKey: "literature-review", status: "done", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: today() },
 ];
 
 /** ملاحظات المشرف كقائمة مهام صغيرة يتتبعها الفريق. وضع العرض التجريبي: بيانات محلية بالذاكرة. */
@@ -88,7 +89,7 @@ export function useSupervisorFeedback() {
       ]);
       return { error: undefined as string | undefined };
     }
-    if (!projectId) return { error: "ما فيه مشروع بحثي للفريق" };
+    if (!projectId) return { error: tr("ما فيه مشروع بحثي للفريق") };
     const { error } = await supabase!.from("supervisor_feedback").insert(
       clean.map((i) => ({
         research_project_id: projectId,
@@ -131,15 +132,15 @@ export function useSupervisorFeedback() {
 }
 
 export const sectionLabels: Record<string, string> = {
-  background: "الخلفية",
-  "literature-review": "مراجعة الأدبيات",
-  problem: "المشكلة",
-  gap: "الفجوة البحثية",
-  aim: "الهدف",
-  questions: "أسئلة البحث",
-  methodology: "المنهجية",
-  ethics: "الأخلاقيات",
-  other: "أخرى",
+  background: tr("الخلفية"),
+  "literature-review": tr("مراجعة الأدبيات"),
+  problem: tr("المشكلة"),
+  gap: tr("الفجوة البحثية"),
+  aim: tr("الهدف"),
+  questions: tr("أسئلة البحث"),
+  methodology: tr("المنهجية"),
+  ethics: tr("الأخلاقيات"),
+  other: tr("أخرى"),
 };
 
 /** تقسيم بسيط بدون ذكاء: سطر = ملاحظة، ويقطع الأسطر الطويلة عند علامات الترقيم */

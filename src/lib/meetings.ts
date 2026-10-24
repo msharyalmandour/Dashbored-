@@ -8,6 +8,7 @@ import type {
   Task,
 } from "../data/types";
 import { addDaysISO, formatDateLong, parseDate } from "./date";
+import { tr } from "./i18n";
 
 /** الصمت = موافقة: لو المشرفة ما ردّت خلال هذي المدة يُحسب المحضر «معتمد تلقائيًا» (يطابق قاعدة البيانات) */
 export const AUTO_APPROVE_HOURS = 48;
@@ -22,11 +23,11 @@ export function effectiveApproval(
 }
 
 export const APPROVAL_LABEL: Record<ApprovalStatus, { label: string; tone: "muted" | "amber" | "green" | "rose" }> = {
-  none: { label: "ما أُرسل للاعتماد", tone: "muted" },
-  pending: { label: "بانتظار اعتماد المشرف/ة", tone: "amber" },
-  approved: { label: "معتمد من المشرف/ة", tone: "green" },
-  auto_approved: { label: "معتمد تلقائيًا (ما وصل اعتراض)", tone: "green" },
-  changes_requested: { label: "المشرف/ة طلب تعديل", tone: "rose" },
+  none: { label: tr("ما أُرسل للاعتماد"), tone: "muted" },
+  pending: { label: tr("بانتظار اعتماد المشرف/ة"), tone: "amber" },
+  approved: { label: tr("معتمد من المشرف/ة"), tone: "green" },
+  auto_approved: { label: tr("معتمد تلقائيًا (ما وصل اعتراض)"), tone: "green" },
+  changes_requested: { label: tr("المشرف/ة طلب تعديل"), tone: "rose" },
 };
 
 /** كم بند من بنود المحضر خلص (مهمته منجزة) */
@@ -44,18 +45,18 @@ export const whatsappUrl = (text: string) => `https://wa.me/?text=${encodeURICom
 
 /** ٣ أسئلة مناسبة لكل مرحلة — حتى يكفي اجتماع ١٠ دقايق */
 const STAGE_QUESTIONS: Record<string, string[]> = {
-  topic: ["هل عنوان بحثنا واضح ومناسب لحجم المشروع؟", "هل الفئة والمتغيرات محددة بشكل كافٍ؟", "هل توافقون على المضي بهذا الموضوع؟"],
-  proposal: ["أي قسم بالمقترح تفضّلون نركّز عليه أول؟", "هل مشكلة البحث مبررة بشكل كافٍ؟", "هل صياغة الأهداف والأسئلة مناسبة؟"],
-  "literature-review": ["هل الدراسات اللي جمعناها كافية وحديثة؟", "هل عندكم كلمات بحث أو قواعد بيانات إضافية تقترحونها؟", "هل ترتيبنا للدراسات حسب المحاور مناسب؟"],
-  "research-gap": ["هل الفجوة اللي كتبناها مبررة بالدراسات؟", "هل الفجوة محلية بما يكفي؟", "كيف نربطها بأسئلة البحث؟"],
-  "research-questions": ["هل أسئلة البحث قابلة للقياس؟", "هل عددها مناسب؟", "هل ترتيبها منطقي؟"],
-  methodology: ["هل تصميم الدراسة مناسب لأسئلتنا؟", "هل حجم العينة وطريقة اختيارها مقبولين؟", "هل الأداة المختارة معتمدة ومناسبة؟"],
-  "data-collection": ["هل نموذج الموافقة والخطابات جاهزة للتوزيع؟", "ما الخطوة المطلوبة قبل بدء جمع البيانات؟", "كم عدد الاستجابات المقبول للبدء بالتحليل؟"],
-  analysis: ["هل الاختبارات الإحصائية المختارة مناسبة؟", "كيف نعرض النتائج بالجداول؟", "هل نتائجنا تحتاج مراجعة قبل الكتابة؟"],
-  writing: ["هل بنية الفصول مناسبة؟", "هل أسلوب التوثيق (APA) مضبوط؟", "متى يناسبكم استلام المسودة الأولى؟"],
-  "final-submission": ["ما المتبقي قبل التسليم النهائي؟", "هل جاهزين لتدريب المناقشة؟", "هل الموعد النهائي ثابت؟"],
+  topic: [tr("هل عنوان بحثنا واضح ومناسب لحجم المشروع؟"), tr("هل الفئة والمتغيرات محددة بشكل كافٍ؟"), tr("هل توافقون على المضي بهذا الموضوع؟")],
+  proposal: [tr("أي قسم بالمقترح تفضّلون نركّز عليه أول؟"), tr("هل مشكلة البحث مبررة بشكل كافٍ؟"), tr("هل صياغة الأهداف والأسئلة مناسبة؟")],
+  "literature-review": [tr("هل الدراسات اللي جمعناها كافية وحديثة؟"), tr("هل عندكم كلمات بحث أو قواعد بيانات إضافية تقترحونها؟"), tr("هل ترتيبنا للدراسات حسب المحاور مناسب؟")],
+  "research-gap": [tr("هل الفجوة اللي كتبناها مبررة بالدراسات؟"), tr("هل الفجوة محلية بما يكفي؟"), tr("كيف نربطها بأسئلة البحث؟")],
+  "research-questions": [tr("هل أسئلة البحث قابلة للقياس؟"), tr("هل عددها مناسب؟"), tr("هل ترتيبها منطقي؟")],
+  methodology: [tr("هل تصميم الدراسة مناسب لأسئلتنا؟"), tr("هل حجم العينة وطريقة اختيارها مقبولين؟"), tr("هل الأداة المختارة معتمدة ومناسبة؟")],
+  "data-collection": [tr("هل نموذج الموافقة والخطابات جاهزة للتوزيع؟"), tr("ما الخطوة المطلوبة قبل بدء جمع البيانات؟"), tr("كم عدد الاستجابات المقبول للبدء بالتحليل؟")],
+  analysis: [tr("هل الاختبارات الإحصائية المختارة مناسبة؟"), tr("كيف نعرض النتائج بالجداول؟"), tr("هل نتائجنا تحتاج مراجعة قبل الكتابة؟")],
+  writing: [tr("هل بنية الفصول مناسبة؟"), tr("هل أسلوب التوثيق (APA) مضبوط؟"), tr("متى يناسبكم استلام المسودة الأولى؟")],
+  "final-submission": [tr("ما المتبقي قبل التسليم النهائي؟"), tr("هل جاهزين لتدريب المناقشة؟"), tr("هل الموعد النهائي ثابت؟")],
 };
-const GENERIC_QUESTIONS = ["وين نحن حاليًا مقارنة بالخطة؟", "وش أهم شي نركّز عليه قبل الاجتماع الجاي؟", "هل فيه شي نغفل عنه؟"];
+const GENERIC_QUESTIONS = [tr("وين نحن حاليًا مقارنة بالخطة؟"), tr("وش أهم شي نركّز عليه قبل الاجتماع الجاي؟"), tr("هل فيه شي نغفل عنه؟")];
 
 export function stageQuestions(stageKey?: string): string[] {
   return (stageKey && STAGE_QUESTIONS[stageKey]) || GENERIC_QUESTIONS;
@@ -90,10 +91,10 @@ export function buildReadiness(input: ReadinessInput): Readiness {
   const overdueTasks = tasks.filter((t) => t.status !== "done" && (t.status === "overdue" || (!!t.dueDate && t.dueDate < input.today))).slice(0, 6);
   const questions = stageQuestions(input.stageKey);
 
-  const lines: string[] = [`جدول أعمال الاجتماع — ${formatDateLong(input.today)}`, ""];
+  const lines: string[] = [tr("جدول أعمال الاجتماع — {0}", formatDateLong(input.today)), ""];
   let n = 1;
   if (lastActions.length > 0) {
-    lines.push(`${n++}) متابعة بنود الاجتماع السابق (${doneCount} من ${lastActions.length} منجزة)`);
+    lines.push(tr("{0}) متابعة بنود الاجتماع السابق ({1} من {2} منجزة)", n++, doneCount, lastActions.length));
     for (const a of lastActions) {
       const who = a.assigneeId ? ` — ${input.memberName(a.assigneeId)}` : "";
       lines.push(`   ${isActionDone(a, tasks) ? "✓" : "○"} ${a.text}${who}`);
@@ -101,16 +102,16 @@ export function buildReadiness(input: ReadinessInput): Readiness {
     lines.push("");
   }
   if (overdueTasks.length > 0) {
-    lines.push(`${n++}) مهام متأخرة (${overdueTasks.length})`);
+    lines.push(tr("{0}) مهام متأخرة ({1})", n++, overdueTasks.length));
     for (const t of overdueTasks) lines.push(`   • ${t.title} — ${input.memberName(t.assigneeId)}`);
     lines.push("");
   }
   if (openDecisions.length > 0) {
-    lines.push(`${n++}) قرارات بانتظار المشرف/ة (${openDecisions.length})`);
+    lines.push(tr("{0}) قرارات بانتظار المشرف/ة ({1})", n++, openDecisions.length));
     for (const d of openDecisions) lines.push(`   • ${d.question}`);
     lines.push("");
   }
-  lines.push(`${n}) أسئلتنا للمشرف/ة`);
+  lines.push(tr("{0}) أسئلتنا للمشرف/ة", n));
   for (const q of questions) lines.push(`   • ${q}`);
 
   return {
@@ -163,24 +164,24 @@ export function generateSlots(
   return out;
 }
 
-export const WEEKDAY_NAMES = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+export const WEEKDAY_NAMES = [tr("الأحد"), tr("الاثنين"), tr("الثلاثاء"), tr("الأربعاء"), tr("الخميس"), tr("الجمعة"), tr("السبت")];
 
 /** رسائل واتساب الجاهزة للمشرف/ة (رابطها بدون حساب) — نفس أسلوب «أنا عالق» و«شارك التحديث» */
 export const approvalRequestMessage = (dateLong: string, link: string) =>
-  `السلام عليكم ورحمة الله،\nأرسلنا لكم محضر اجتماعنا بتاريخ ${dateLong} للاعتماد. تقدرون تعتمدونه أو تطلبون تعديلًا بضغطة وحدة، بدون تسجيل دخول:\n${link}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+  tr("السلام عليكم ورحمة الله،\nأرسلنا لكم محضر اجتماعنا بتاريخ {0} للاعتماد. تقدرون تعتمدونه أو تطلبون تعديلًا بضغطة وحدة، بدون تسجيل دخول:\n{1}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)", dateLong, link);
 
 export const decisionRequestMessage = (question: string, link: string) =>
-  `السلام عليكم ورحمة الله،\nعندنا سؤال يحتاج قراركم (بضغطة وحدة، بدون اجتماع):\n«${question}»\n${link}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+  tr("السلام عليكم ورحمة الله،\nعندنا سؤال يحتاج قراركم (بضغطة وحدة، بدون اجتماع):\n«{0}»\n{1}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)", question, link);
 
 export const bookingRequestMessage = (dateLong: string, time: string, link: string) =>
-  `السلام عليكم ورحمة الله،\nاقترحنا موعد اجتماع يوم ${dateLong} الساعة ${time}. تقدرون تؤكدونه أو تعتذرون من هنا:\n${link}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+  tr("السلام عليكم ورحمة الله،\nاقترحنا موعد اجتماع يوم {0} الساعة {1}. تقدرون تؤكدونه أو تعتذرون من هنا:\n{2}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)", dateLong, time, link);
 
 export const availabilityRequestMessage = (link: string) =>
-  `السلام عليكم ورحمة الله،\nحتى نرتب مواعيد الاجتماعات بدون ما نأخذ من وقتكم، ممكن تحددون أوقاتكم المتاحة مرة وحدة من رابطكم (بدون تسجيل دخول)؟ بعدها نحجز من الأوقات اللي تحددونها فقط:\n${link}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+  tr("السلام عليكم ورحمة الله،\nحتى نرتب مواعيد الاجتماعات بدون ما نأخذ من وقتكم، ممكن تحددون أوقاتكم المتاحة مرة وحدة من رابطكم (بدون تسجيل دخول)؟ بعدها نحجز من الأوقات اللي تحددونها فقط:\n{0}\n\nشاكرين وقتكم.\n(أُرسلت من Wesync)", link);
 
 /** الدعوة الأولى للمشرف/ة: وش هذا الرابط وليش نرسله، بدون ما نفترض إنها تعرف Wesync */
 export const supervisorInviteMessage = (link: string, projectTitle?: string) =>
-  `السلام عليكم ورحمة الله،\nنستخدم منصة Wesync لتنظيم بحث تخرجنا${projectTitle ? ` («${projectTitle}»)` : ""}. هذا رابطكم الخاص (بدون تسجيل دخول ولا تنزيل برنامج) تشوفون منه تقدمنا، وتعتمدون محاضر اجتماعاتنا، وتجاوبون على أسئلتنا بضغطة، وتحددون أوقاتكم المتاحة للاجتماعات:\n${link}\n\nمن نفس الصفحة تقدرون تفعّلون تنبيهات الإيميل عشان يوصلكم كل طلب جديد.\nشاكرين وقتكم.\n(أُرسلت من Wesync)`;
+  tr("السلام عليكم ورحمة الله،\nنستخدم منصة Wesync لتنظيم بحث تخرجنا{0}. هذا رابطكم الخاص (بدون تسجيل دخول ولا تنزيل برنامج) تشوفون منه تقدمنا، وتعتمدون محاضر اجتماعاتنا، وتجاوبون على أسئلتنا بضغطة، وتحددون أوقاتكم المتاحة للاجتماعات:\n{1}\n\nمن نفس الصفحة تقدرون تفعّلون تنبيهات الإيميل عشان يوصلكم كل طلب جديد.\nشاكرين وقتكم.\n(أُرسلت من Wesync)", projectTitle ? ` («${projectTitle}»)` : "", link);
 
 export const mailtoUrl = (to: string, subject: string, body: string) =>
   `mailto:${encodeURIComponent(to.trim())}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

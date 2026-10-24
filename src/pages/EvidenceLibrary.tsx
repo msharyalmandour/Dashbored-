@@ -14,14 +14,15 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import type { EvidencePaper, EvidenceSection, LiteratureTheme } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { buildReferenceList, toCitation, type CitationStyle } from "../lib/citation";
+import { tr, trx } from "../lib/i18n";
 
 const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
-  { id: "all", label: "الكل" },
-  { id: "background", label: "خلفية البحث" },
-  { id: "literature-review", label: "مراجعة الأدبيات" },
-  { id: "gap", label: "الفجوة" },
-  { id: "methodology", label: "المنهجية" },
-  { id: "other", label: "أخرى" },
+  { id: "all", label: tr("الكل") },
+  { id: "background", label: tr("خلفية البحث") },
+  { id: "literature-review", label: tr("مراجعة الأدبيات") },
+  { id: "gap", label: tr("الفجوة") },
+  { id: "methodology", label: tr("المنهجية") },
+  { id: "other", label: tr("أخرى") },
 ];
 
 const themeOptions: LiteratureTheme[] = [
@@ -84,7 +85,7 @@ export default function EvidenceLibrary() {
   const copyComparisonTable = async (list: EvidencePaper[]) => {
     const clean = (s: string) => s.replace(/[\t\r\n]+/g, " ").trim();
     const rows = [
-      ["الدراسة", "المؤلفون", "السنة", "التصميم والعينة", "أهم النتائج", "الصلة ببحثنا"],
+      [tr("الدراسة"), tr("المؤلفون"), tr("السنة"), tr("التصميم والعينة"), tr("أهم النتائج"), tr("الصلة ببحثنا")],
       ...list.map((p) => [p.title, p.authors, String(p.year), p.studyDesign, p.keyFinding, p.relevance]),
     ];
     try {
@@ -126,16 +127,16 @@ export default function EvidenceLibrary() {
   return (
     <div className="space-y-6">
       <ResearchHeader
-        title="مكتبة الأدلة"
+        title={tr("مكتبة الأدلة")}
         subtitle={
           papers.length === 0
-            ? "دراساتكم المحفوظة تنجمع هنا، مرتبة حسب محاور بحثكم."
-            : `${papers.length} دراسات حفظتوها، مرتبة حسب محاور بحثكم. ${reviewedCount} منها تمت مراجعتها.`
+            ? tr("دراساتكم المحفوظة تنجمع هنا، مرتبة حسب محاور بحثكم.")
+            : tr("{0} دراسات حفظتوها، مرتبة حسب محاور بحثكم. {1} منها تمت مراجعتها.", papers.length, reviewedCount)
         }
         action={
           <button onClick={() => setShowForm((v) => !v)} className={gradientPill}>
             {showForm ? <X size={16} /> : <Plus size={16} />}
-            {showForm ? "إلغاء" : g(isFemale, "أضف دراسة", "أضف دراسة")}
+            {showForm ? tr("إلغاء") : g(isFemale, tr("أضف دراسة"), tr("أضف دراسة"))}
           </button>
         }
       />
@@ -154,20 +155,20 @@ export default function EvidenceLibrary() {
             <input
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              placeholder="عنوان الدراسة"
+              placeholder={tr("عنوان الدراسة")}
               className={clsx(pillField, "col-span-full")}
             />
             <input
               value={form.authors}
               onChange={(e) => setForm((f) => ({ ...f, authors: e.target.value }))}
-              placeholder="المؤلفون"
+              placeholder={tr("المؤلفون")}
               className={pillField}
             />
             <input
               type="number"
               value={form.year}
               onChange={(e) => setForm((f) => ({ ...f, year: Number(e.target.value) }))}
-              placeholder="سنة النشر"
+              placeholder={tr("سنة النشر")}
               className={pillField}
             />
             <select
@@ -197,27 +198,25 @@ export default function EvidenceLibrary() {
             <input
               value={form.studyDesign}
               onChange={(e) => setForm((f) => ({ ...f, studyDesign: e.target.value }))}
-              placeholder="تصميم الدراسة"
+              placeholder={tr("تصميم الدراسة")}
               className={clsx(pillField, "col-span-full")}
             />
             <textarea
               value={form.keyFinding}
               onChange={(e) => setForm((f) => ({ ...f, keyFinding: e.target.value }))}
-              placeholder="أهم النتائج"
+              placeholder={tr("أهم النتائج")}
               rows={2}
               className={clsx(fieldBox, "col-span-full")}
             />
             <textarea
               value={form.relevance}
               onChange={(e) => setForm((f) => ({ ...f, relevance: e.target.value }))}
-              placeholder="الصلة بالبحث"
+              placeholder={tr("الصلة بالبحث")}
               rows={2}
               className={clsx(fieldBox, "col-span-full")}
             />
           </div>
-          <button onClick={submitPaper} disabled={!form.title.trim()} className={clsx(gradientPill, "mt-4")}>
-            حفظ الدراسة
-          </button>
+          <button onClick={submitPaper} disabled={!form.title.trim()} className={clsx(gradientPill, "mt-4")}>{tr("حفظ الدراسة")}</button>
         </div>
       )}
 
@@ -233,8 +232,8 @@ export default function EvidenceLibrary() {
           <div className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] p-1">
             {(
               [
-                ["cards", "بطاقات", LayoutGrid],
-                ["table", "جدول مقارنة", Table2],
+                ["cards", tr("بطاقات"), LayoutGrid],
+                ["table", tr("جدول مقارنة"), Table2],
               ] as const
             ).map(([id, label, Icon]) => (
               <button key={id} onClick={() => setView(id)} className={segBtn(view === id)}>
@@ -246,12 +245,12 @@ export default function EvidenceLibrary() {
           {view === "table" && (
             <button onClick={() => copyComparisonTable(filtered)} className={toolBtn}>
               {copiedTable ? <Check size={13} /> : <Copy size={13} />}
-              {copiedTable ? "تم نسخ الجدول" : "نسخ الجدول (Word / Excel)"}
+              {copiedTable ? tr("تم نسخ الجدول") : tr("نسخ الجدول (Word / Excel)")}
             </button>
           )}
           <button onClick={() => copyReferenceList(filtered)} className={toolBtn}>
             {copiedList ? <Check size={13} /> : <Copy size={13} />}
-            {copiedList ? "تم نسخ القائمة" : "نسخ كل المراجع"}
+            {copiedList ? tr("تم نسخ القائمة") : tr("نسخ كل المراجع")}
           </button>
         </div>
       )}
@@ -261,7 +260,7 @@ export default function EvidenceLibrary() {
           <table className="w-full min-w-[720px] border-collapse text-start text-xs">
             <thead>
               <tr className="text-[#B8ADA2]">
-                {["الدراسة", "التصميم والعينة", "أهم النتائج", "الصلة ببحثنا"].map((h) => (
+                {[tr("الدراسة"), tr("التصميم والعينة"), tr("أهم النتائج"), tr("الصلة ببحثنا")].map((h) => (
                   <th key={h} className="px-4 py-3 text-start font-bold">
                     {h}
                   </th>
@@ -296,7 +295,7 @@ export default function EvidenceLibrary() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <SourceTag label={sourceFromLink(paper.link)} />
-                  {reviewed && <span className="text-[11px] font-semibold text-[#7fd6a0]">✓ تمت مراجعتها</span>}
+                  {reviewed && <span className="text-[11px] font-semibold text-[#7fd6a0]">{tr("✓ تمت مراجعتها")}</span>}
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-sm text-[#B8ADA2]">{paper.year}</span>
@@ -304,8 +303,8 @@ export default function EvidenceLibrary() {
                     <ThreeDotsMenu
                       items={[
                         {
-                          label: "حذف الدراسة",
-                          confirmLabel: "تأكيد الحذف؟",
+                          label: tr("حذف الدراسة"),
+                          confirmLabel: tr("تأكيد الحذف؟"),
                           icon: Trash2,
                           tone: "danger",
                           onClick: () => deletePaper(paper.id),
@@ -334,15 +333,12 @@ export default function EvidenceLibrary() {
                 </span>
                 {paper.link && (
                   <a href={paper.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[#B8ADA2] hover:text-[#F4F0EC]">
-                    <ExternalLink size={13} />
-                    الأصل
-                  </a>
+                    <ExternalLink size={13} />{tr("الأصل")}</a>
                 )}
               </div>
 
               <details className="group mt-3">
-                <summary className="cursor-pointer list-none text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">
-                  تفاصيل وأدوات <span className="inline-block transition-transform group-open:rotate-180">⌄</span>
+                <summary className="cursor-pointer list-none text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("تفاصيل وأدوات ")}<span className="inline-block transition-transform group-open:rotate-180">⌄</span>
                 </summary>
                 <div className="mt-3 space-y-3 text-sm">
                   <p className="text-[#B8ADA2]">
@@ -350,7 +346,7 @@ export default function EvidenceLibrary() {
                   </p>
                   {paper.relevance && (
                     <div className="rounded-2xl bg-white/[0.05] p-3">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">الصلة بالبحث</p>
+                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("الصلة بالبحث")}</p>
                       <p className="mt-0.5 text-xs leading-relaxed">{paper.relevance}</p>
                     </div>
                   )}
@@ -362,18 +358,16 @@ export default function EvidenceLibrary() {
                         reviewed ? "border-[#7fd6a0]/60 text-[#7fd6a0]" : "border-[#FF8A24]/60 text-[#FFB444] hover:bg-[#FF6B00]/10",
                       )}
                     >
-                      {reviewed ? "تمت مراجعتها" : "تم جمعها — علّموها مراجَعة"}
+                      {reviewed ? tr("تمت مراجعتها") : tr("تم جمعها — علّموها مراجَعة")}
                     </button>
                     <button onClick={() => copyCitation(paper)} className={toolBtn}>
                       {copiedId === paper.id ? <Check size={13} /> : <Quote size={13} />}
-                      {copiedId === paper.id ? "تم النسخ" : "نسخ الاقتباس"}
+                      {copiedId === paper.id ? tr("تم النسخ") : tr("نسخ الاقتباس")}
                     </button>
                   </div>
                   {addedBy && (
                     <div className="flex items-center gap-1.5 text-xs text-[#B8ADA2]">
-                      <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
-                      أضافها {addedBy.name.split(" ")[0]}
-                    </div>
+                      <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />{trx("أضافها {0}", addedBy.name.split(" ")[0])}</div>
                   )}
                   {canAsk && (
                     <PaperQA
@@ -393,11 +387,11 @@ export default function EvidenceLibrary() {
           <div className={clsx(glassCard, "col-span-full p-2")}>
             <EmptyState
               icon={BookMarked}
-              title={filter === "all" ? "المكتبة لسا فاضية" : "لا توجد دراسات بهذا القسم"}
+              title={filter === "all" ? tr("المكتبة لسا فاضية") : tr("لا توجد دراسات بهذا القسم")}
               desc={
                 filter === "all"
-                  ? "أول دراسة تضيفونها هنا تبدأ مكتبة أدلة بحثكم — أضيفوا أول دراسة، أو احفظوها من «البحث عن دراسات»."
-                  : "جرّبوا فلتر ثاني، أو أضيفوا دراسة جديدة تحت هذا القسم."
+                  ? tr("أول دراسة تضيفونها هنا تبدأ مكتبة أدلة بحثكم — أضيفوا أول دراسة، أو احفظوها من «البحث عن دراسات».")
+                  : tr("جرّبوا فلتر ثاني، أو أضيفوا دراسة جديدة تحت هذا القسم.")
               }
             />
           </div>

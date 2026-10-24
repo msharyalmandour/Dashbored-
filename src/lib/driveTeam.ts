@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
+import { tr } from "./i18n";
 
 export interface DriveStatus {
   /** true لو ما قدرنا نوصل لدالة الدرايف أصلًا (مهلة/شبكة/خطأ سيرفر) — غير «الميزة مو مفعّلة» */
@@ -76,44 +77,44 @@ export async function uploadMinutesToDrive(blob: Blob, fileName: string, minutes
 export function driveReturnMessage(reason: string | null): string {
   switch (reason) {
     case "denied":
-      return "ما وافقتم على الصلاحية بقوقل. اضغطوا «اربطوا Google Drive» وسمحوا بالوصول لملفات Wesync.";
+      return tr("ما وافقتم على الصلاحية بقوقل. اضغطوا «اربطوا Google Drive» وسمحوا بالوصول لملفات Wesync.");
     case "scope":
-      return "لازم تعلّمون خانة «عرض الملفات وإدارتها اللي أنشأها هذا التطبيق» بشاشة الموافقة، وبدونها ما يشتغل الرفع.";
+      return tr("لازم تعلّمون خانة «عرض الملفات وإدارتها اللي أنشأها هذا التطبيق» بشاشة الموافقة، وبدونها ما يشتغل الرفع.");
     case "not_leader":
-      return "الربط لقائد الفريق فقط، وبنفس الحساب اللي مسجّل فيه الدخول لـ Wesync.";
+      return tr("الربط لقائد الفريق فقط، وبنفس الحساب اللي مسجّل فيه الدخول لـ Wesync.");
     case "bad_state":
-      return "انتهت صلاحية خطوة الربط (١٠ دقايق). ابدأوا من جديد من زر الربط.";
+      return tr("انتهت صلاحية خطوة الربط (١٠ دقايق). ابدأوا من جديد من زر الربط.");
     case "no_refresh":
-      return "قوقل ما أعطتنا إذن دائم. افتحوا myaccount.google.com/permissions وأزيلوا Wesync، ثم اربطوا من جديد.";
+      return tr("قوقل ما أعطتنا إذن دائم. افتحوا myaccount.google.com/permissions وأزيلوا Wesync، ثم اربطوا من جديد.");
     case "folder":
-      return "انربط الحساب لكن تعذّر إنشاء المجلد بالدرايف. تأكدوا إن في الدرايف مساحة فاضية وجرّبوا مرة ثانية.";
+      return tr("انربط الحساب لكن تعذّر إنشاء المجلد بالدرايف. تأكدوا إن في الدرايف مساحة فاضية وجرّبوا مرة ثانية.");
     case "token":
     case "email":
-      return "قوقل رفضت إكمال الربط. جرّبوا مرة ثانية، ولو تكررت أرسلوا لنا كود الخطأ: " + reason;
+      return tr("قوقل رفضت إكمال الربط. جرّبوا مرة ثانية، ولو تكررت أرسلوا لنا كود الخطأ: ") + reason;
     case "save":
-      return "تعذّر حفظ الربط عندنا. جرّبوا مرة ثانية.";
+      return tr("تعذّر حفظ الربط عندنا. جرّبوا مرة ثانية.");
     case "not_configured":
-      return "ميزة الدرايف ما انفعّلت على الخادم بعد.";
+      return tr("ميزة الدرايف ما انفعّلت على الخادم بعد.");
     default:
-      return `صار خطأ أثناء الربط — جرّبوا مرة ثانية.${reason ? ` (${reason})` : ""}`;
+      return tr("صار خطأ أثناء الربط — جرّبوا مرة ثانية.{0}", reason ? ` (${reason})` : "");
   }
 }
 
 export function driveErrorMessage(code: string | undefined): string {
   switch (code) {
     case "timeout":
-      return "الاتصال تأخر — جرّبوا مرة ثانية بعد شوي.";
+      return tr("الاتصال تأخر — جرّبوا مرة ثانية بعد شوي.");
     case "not_configured":
-      return "ميزة الدرايف ما انفعّلت على الخادم بعد.";
+      return tr("ميزة الدرايف ما انفعّلت على الخادم بعد.");
     case "reconnect_required":
-      return "انتهى ربط الدرايف — قائد الفريق يعيد الربط من بطاقة الدرايف.";
+      return tr("انتهى ربط الدرايف — قائد الفريق يعيد الربط من بطاقة الدرايف.");
     case "not_connected":
-      return "الدرايف ما انربط بعد.";
+      return tr("الدرايف ما انربط بعد.");
     case "leader_only":
-      return "هذا الإجراء لقائد الفريق فقط.";
+      return tr("هذا الإجراء لقائد الفريق فقط.");
     case "too_large":
-      return "الملف أكبر من الحد المسموح.";
+      return tr("الملف أكبر من الحد المسموح.");
     default:
-      return `تعذّر الاتصال بدرايف — حاولوا مرة ثانية.${code && code !== "failed" ? ` (${code})` : ""}`;
+      return tr("تعذّر الاتصال بدرايف — حاولوا مرة ثانية.{0}", code && code !== "failed" ? ` (${code})` : "");
   }
 }

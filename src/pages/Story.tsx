@@ -14,6 +14,7 @@ import { calendarEvents, evidenceLibrary, projectMeta, tasks, teamMembers } from
 import { formatDateLong, toISODate } from "../lib/date";
 import { useFirstVisit } from "../hooks/useFirstVisit";
 import { g, isFemaleUser } from "../lib/gender";
+import { tr, trx } from "../lib/i18n";
 
 export default function Story() {
   const { currentUser } = useAuth();
@@ -36,30 +37,30 @@ export default function Story() {
   }[] = [
     {
       icon: CalendarHeart,
-      label: "أول يوم بدأتِ فيه",
+      label: tr("أول يوم بدأتِ فيه"),
       value: firstVisitLabel,
-      sub: `من يومها وأنتِ مستمرة — ${daysSince} يوم من الحضور`,
+      sub: tr("من يومها وأنتِ مستمرة — {0} يوم من الحضور", daysSince),
       tone: "teal",
     },
     {
       icon: TrendingUp,
-      label: "نسبة تقدم بحثك الآن",
+      label: tr("نسبة تقدم بحثك الآن"),
       value: `${projectMeta.overallProgress}%`,
-      sub: "قطعتوا مسافة حقيقية من الصفر",
+      sub: tr("قطعتوا مسافة حقيقية من الصفر"),
       tone: "cream",
     },
     {
       icon: BookOpenCheck,
-      label: "دراسات راجعها الفريق",
-      value: `${reviewedCount} من ${evidenceLibrary.length}`,
-      sub: "كل دراسة قرأتوها بنت فهمكم للموضوع",
+      label: tr("دراسات راجعها الفريق"),
+      value: tr("{0} من {1}", reviewedCount, evidenceLibrary.length),
+      sub: tr("كل دراسة قرأتوها بنت فهمكم للموضوع"),
       tone: "sky",
     },
     {
       icon: ListChecks,
-      label: "مهام أنجزها الفريق",
-      value: `${doneTasksCount} من ${tasks.length}`,
-      sub: "خطوات صغيرة صارت إنجاز حقيقي",
+      label: tr("مهام أنجزها الفريق"),
+      value: tr("{0} من {1}", doneTasksCount, tasks.length),
+      sub: tr("خطوات صغيرة صارت إنجاز حقيقي"),
       tone: "amber",
     },
   ];
@@ -73,8 +74,8 @@ export default function Story() {
             <Wand2 size={20} />
           </span>
           <div>
-            <h1 className="font-display text-xl font-extrabold text-brand-950">قصة بحثك</h1>
-            <p className="text-sm text-brand-950/55">Your Research Story — رحلتكم لحد الحين، بالأرقام</p>
+            <h1 className="font-display text-xl font-extrabold text-brand-950">{tr("قصة بحثك")}</h1>
+            <p className="text-sm text-brand-950/55">{tr("Your Research Story — رحلتكم لحد الحين، بالأرقام")}</p>
           </div>
         </div>
       </Card>
@@ -95,14 +96,12 @@ export default function Story() {
       </div>
 
       <Card>
-        <CardHeader title="أعلى إنجاز بالفريق هذا الفصل" subtitle="Team Highlight" />
+        <CardHeader title={tr("أعلى إنجاز بالفريق هذا الفصل")} subtitle="Team Highlight" />
         <div className="flex items-center gap-3">
           <Avatar initials={topMember.initials} color={topMember.color} size="lg" />
           <div>
             <p className="font-display font-bold text-brand-950">{topMember.name}</p>
-            <p className="text-sm text-brand-950/50">
-              أنجزت {topMember.tasksDone} من {topMember.tasksTotal} مهمة — {topMember.progress}% تقدّم
-            </p>
+            <p className="text-sm text-brand-950/50">{trx("أنجزت {0} من {1} مهمة — {2}% تقدّم", topMember.tasksDone, topMember.tasksTotal, topMember.progress)}</p>
           </div>
           <Trophy size={22} className="ms-auto text-amber-accent-500" />
         </div>
@@ -110,25 +109,19 @@ export default function Story() {
 
       {earliestEvent && (
         <Card tone="cream">
-          <CardHeader title="أول لحظة في رحلتكم" subtitle="First Logged Moment" />
+          <CardHeader title={tr("أول لحظة في رحلتكم")} subtitle="First Logged Moment" />
           <p className="text-sm font-semibold text-brand-950">{earliestEvent.title}</p>
           <p className="mt-1 text-xs text-brand-950/45">{formatDateLong(earliestEvent.date)}</p>
         </Card>
       )}
 
       <Card tone="teal" className="text-center">
-        <p className="font-display text-lg font-bold text-brand-950">
-          كل سطر كتبتيه، وكل دراسة قرأتيها، وكل يوم كملتِ فيه — صار جزء من قصة بحثك.
-        </p>
-        <p className="mt-2 text-sm text-brand-950/55">
-          {g(isFemale, "استمري", "استمر")}، القصة لسه ما خلصت 🌱
-        </p>
+        <p className="font-display text-lg font-bold text-brand-950">{tr("كل سطر كتبتيه، وكل دراسة قرأتيها، وكل يوم كملتِ فيه — صار جزء من قصة بحثك.")}</p>
+        <p className="mt-2 text-sm text-brand-950/55">{trx("{0}، القصة لسه ما خلصت 🌱", g(isFemale, tr("استمري"), tr("استمر")))}</p>
         <Link
           to="/"
           className="mt-4 inline-block rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
-        >
-          الرجوع للرئيسية
-        </Link>
+        >{tr("الرجوع للرئيسية")}</Link>
       </Card>
     </div>
   );

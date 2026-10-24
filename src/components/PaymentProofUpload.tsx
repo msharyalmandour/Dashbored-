@@ -3,6 +3,7 @@ import { Check, UploadCloud } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import { formatDateLong } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 export default function PaymentProofUpload() {
   const { team, currentUser } = useAuth();
@@ -34,7 +35,7 @@ export default function PaymentProofUpload() {
       .upload(path, file);
 
     if (uploadError) {
-      setError("تعذّر رفع الملف — حاول مرة ثانية");
+      setError(tr("تعذّر رفع الملف — حاول مرة ثانية"));
       setUploading(false);
       return;
     }
@@ -47,7 +48,7 @@ export default function PaymentProofUpload() {
 
     setUploading(false);
     if (insertError) {
-      setError("تعذّر تسجيل الإثبات — حاول مرة ثانية");
+      setError(tr("تعذّر تسجيل الإثبات — حاول مرة ثانية"));
       return;
     }
     setLastSentAt(new Date().toISOString());
@@ -67,7 +68,7 @@ export default function PaymentProofUpload() {
         ) : (
           <UploadCloud size={14} />
         )}
-        {uploading ? "جاري الرفع..." : "رفع إثبات التحويل"}
+        {uploading ? tr("جاري الرفع...") : tr("رفع إثبات التحويل")}
         <input
           type="file"
           accept="image/*,.pdf"
@@ -78,9 +79,7 @@ export default function PaymentProofUpload() {
       </label>
       {lastSentAt && (
         <span className="flex items-center gap-1 text-xs font-semibold text-amber-accent-700/80">
-          <Check size={12} />
-          آخر إثبات أُرسل بتاريخ {formatDateLong(lastSentAt.slice(0, 10))} — بانتظار المراجعة
-        </span>
+          <Check size={12} />{trx("آخر إثبات أُرسل بتاريخ {0} — بانتظار المراجعة", formatDateLong(lastSentAt.slice(0, 10)))}</span>
       )}
       {error && <span className="text-xs font-semibold text-rose-600">{error}</span>}
     </div>

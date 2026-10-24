@@ -4,6 +4,7 @@ import Card from "../ui/Card";
 import { formatDateFull } from "../../lib/date";
 import { whatsappUrl, type Readiness } from "../../lib/meetings";
 import type { MeetingBookingRow } from "../../data/types";
+import { tr, trx } from "../../lib/i18n";
 
 interface ReadinessCardProps {
   readiness: Readiness;
@@ -37,18 +38,18 @@ export default function ReadinessCard({ readiness, nextBooking, onUseAgenda }: R
               <ClipboardList size={22} />
             </span>
             <div>
-              <h3 className="font-display text-base font-extrabold text-brand-950">جاهزية الاجتماع</h3>
+              <h3 className="font-display text-base font-extrabold text-brand-950">{tr("جاهزية الاجتماع")}</h3>
               <p className="mt-0.5 text-xs text-brand-950/55">
                 {nextBooking
-                  ? `اجتماعكم القادم: ${formatDateFull(nextBooking.date)} · ${nextBooking.time}`
-                  : "جدول أعمال جاهز قبل ما تجلسون — يوفّر وقتكم ووقت المشرف/ة"}
+                  ? tr("اجتماعكم القادم: {0} · {1}", formatDateFull(nextBooking.date), nextBooking.time)
+                  : tr("جدول أعمال جاهز قبل ما تجلسون — يوفّر وقتكم ووقت المشرف/ة")}
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 text-[11px] font-bold">
-            {totalCount > 0 && <span className="rounded-full bg-surface-muted px-2.5 py-1 text-brand-950/65">{openActions.length} بند مفتوح من اجتماع سابق ({doneCount}/{totalCount} منجز)</span>}
-            {overdueTasks.length > 0 && <span className="rounded-full bg-rose-500/10 px-2.5 py-1 text-rose-500">{overdueTasks.length} متأخرة</span>}
-            {openDecisions.length > 0 && <span className="rounded-full bg-amber-accent-100/50 px-2.5 py-1 text-amber-accent-700">{openDecisions.length} قرار ينتظر المشرف/ة</span>}
+            {totalCount > 0 && <span className="rounded-full bg-surface-muted px-2.5 py-1 text-brand-950/65">{trx("{0} بند مفتوح من اجتماع سابق ({1}/{2} منجز)", openActions.length, doneCount, totalCount)}</span>}
+            {overdueTasks.length > 0 && <span className="rounded-full bg-rose-500/10 px-2.5 py-1 text-rose-500">{trx("{0} متأخرة", overdueTasks.length)}</span>}
+            {openDecisions.length > 0 && <span className="rounded-full bg-amber-accent-100/50 px-2.5 py-1 text-amber-accent-700">{trx("{0} قرار ينتظر المشرف/ة", openDecisions.length)}</span>}
           </div>
         </div>
 
@@ -66,12 +67,10 @@ export default function ReadinessCard({ readiness, nextBooking, onUseAgenda }: R
             onClick={() => onUseAgenda(readiness.agendaText)}
             className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 px-4 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-brand-500/25 transition-transform hover:-translate-y-0.5 motion-reduce:transition-none"
           >
-            <Wand2 size={15} />
-            استخدموه كجدول أعمال
-          </button>
+            <Wand2 size={15} />{tr("استخدموه كجدول أعمال")}</button>
           <button onClick={copy} className="flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-surface-muted">
             {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? "تم النسخ" : "انسخوه"}
+            {copied ? tr("تم النسخ") : tr("انسخوه")}
           </button>
           <a
             href={whatsappUrl(readiness.agendaText)}
@@ -79,9 +78,7 @@ export default function ReadinessCard({ readiness, nextBooking, onUseAgenda }: R
             rel="noreferrer"
             className="flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-surface-muted"
           >
-            <MessageCircle size={15} />
-            شاركوه بواتساب
-          </a>
+            <MessageCircle size={15} />{tr("شاركوه بواتساب")}</a>
         </div>
       </div>
     </Card>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Lock, Mail, PenLine, Wand2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { g, isFemaleUser } from "../lib/gender";
+import { tr, trx } from "../lib/i18n";
 
 const STORAGE_KEY = "nursync.timecapsule";
 const UNLOCK_DAYS = 7;
@@ -78,28 +79,28 @@ export default function TimeCapsule() {
             <Mail size={16} />
           </span>
           <div>
-            <p className="font-display font-bold text-brand-950">رسالة لنفسك المستقبلية</p>
-            <p className="text-xs text-brand-950/50">راح ترجع لك يوم تسلّمين بحثك النهائي ✉️</p>
+            <p className="font-display font-bold text-brand-950">{tr("رسالة لنفسك المستقبلية")}</p>
+            <p className="text-xs text-brand-950/50">{tr("راح ترجع لك يوم تسلّمين بحثك النهائي ✉️")}</p>
           </div>
         </div>
         <label className="block text-sm">
-          <span className="mb-1 block font-semibold text-brand-950/70">ليش بدأتِ هالبحث؟</span>
+          <span className="mb-1 block font-semibold text-brand-950/70">{tr("ليش بدأتِ هالبحث؟")}</span>
           <textarea
             value={why}
             onChange={(e) => setWhy(e.target.value)}
             rows={2}
             className="w-full resize-none rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
-            placeholder={g(isFemale, "اكتبي بكل صراحة...", "اكتب بكل صراحة...")}
+            placeholder={g(isFemale, tr("اكتبي بكل صراحة..."), tr("اكتب بكل صراحة..."))}
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block font-semibold text-brand-950/70">وش تتمنين توصلين له؟</span>
+          <span className="mb-1 block font-semibold text-brand-950/70">{tr("وش تتمنين توصلين له؟")}</span>
           <textarea
             value={hope}
             onChange={(e) => setHope(e.target.value)}
             rows={2}
             className="w-full resize-none rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
-            placeholder="حلمك من هالبحث..."
+            placeholder={tr("حلمك من هالبحث...")}
           />
         </label>
         <div className="flex gap-2">
@@ -107,14 +108,12 @@ export default function TimeCapsule() {
             onClick={submit}
             className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600"
           >
-            {g(isFemale, "احفظي رسالتي", "احفظ رسالتي")}
+            {g(isFemale, tr("احفظي رسالتي"), tr("احفظ رسالتي"))}
           </button>
           <button
             onClick={() => setComposing(false)}
             className="rounded-xl bg-paper px-4 py-2 text-sm font-bold text-brand-950/50 hover:bg-surface-muted"
-          >
-            لاحقًا
-          </button>
+          >{tr("لاحقًا")}</button>
         </div>
       </div>
     );
@@ -129,20 +128,16 @@ export default function TimeCapsule() {
           </span>
           <div>
             <p className="font-display font-bold text-brand-950">
-              {g(isFemale, "اكتبي رسالة لنفسك المستقبلية", "اكتب رسالة لنفسك المستقبلية")}
+              {g(isFemale, tr("اكتبي رسالة لنفسك المستقبلية"), tr("اكتب رسالة لنفسك المستقبلية"))}
             </p>
-            <p className="text-sm text-brand-950/50">
-              سؤالين بسيطين — راح نرجعهم لك يوم {g(isFemale, "تخلصين", "تخلص")} رحلتك 💌
-            </p>
+            <p className="text-sm text-brand-950/50">{trx("سؤالين بسيطين — راح نرجعهم لك يوم {0} رحلتك 💌", g(isFemale, tr("تخلصين"), tr("تخلص")))}</p>
           </div>
         </div>
         <button
           onClick={() => setComposing(true)}
           className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600"
         >
-          <PenLine size={16} />
-          اكتب رسالتي
-        </button>
+          <PenLine size={16} />{tr("اكتب رسالتي")}</button>
       </div>
     );
   }
@@ -156,10 +151,8 @@ export default function TimeCapsule() {
             <Lock size={18} />
           </span>
           <div>
-            <p className="font-display font-bold text-brand-950">رسالتك محفوظة بأمان 🔒</p>
-            <p className="text-sm text-brand-950/50">
-              راح تنفتح بعد {remaining} {remaining === 1 ? "يوم" : "أيام"} — خلها مفاجأة لنفسك.
-            </p>
+            <p className="font-display font-bold text-brand-950">{tr("رسالتك محفوظة بأمان 🔒")}</p>
+            <p className="text-sm text-brand-950/50">{trx("راح تنفتح بعد {0} {1} — خلها مفاجأة لنفسك.", remaining, remaining === 1 ? tr("يوم") : tr("أيام"))}</p>
           </div>
         </div>
       </div>
@@ -174,15 +167,15 @@ export default function TimeCapsule() {
             <Wand2 size={18} />
           </span>
           <div>
-            <p className="font-display font-bold text-brand-950">رسالتك جاهزة تُفتح! ✉️</p>
-            <p className="text-sm text-brand-950/50">اللي كتبتيه لنفسك من زمان — جاهز تشوفينه الحين.</p>
+            <p className="font-display font-bold text-brand-950">{tr("رسالتك جاهزة تُفتح! ✉️")}</p>
+            <p className="text-sm text-brand-950/50">{tr("اللي كتبتيه لنفسك من زمان — جاهز تشوفينه الحين.")}</p>
           </div>
         </div>
         <button
           onClick={markRead}
           className="rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600"
         >
-          {g(isFemale, "افتحي رسالتي", "افتح رسالتي")}
+          {g(isFemale, tr("افتحي رسالتي"), tr("افتح رسالتي"))}
         </button>
       </div>
     );
@@ -194,20 +187,20 @@ export default function TimeCapsule() {
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">
           <Mail size={16} />
         </span>
-        <p className="font-display font-bold text-brand-950">رسالتك من نفسك القديمة 💌</p>
+        <p className="font-display font-bold text-brand-950">{tr("رسالتك من نفسك القديمة 💌")}</p>
       </div>
       {capsule.why && (
         <p className="text-sm text-brand-950/70">
-          <span className="font-semibold text-brand-950">ليش بدأتِ؟</span> {capsule.why}
+          <span className="font-semibold text-brand-950">{tr("ليش بدأتِ؟")}</span> {capsule.why}
         </p>
       )}
       {capsule.hope && (
         <p className="text-sm text-brand-950/70">
-          <span className="font-semibold text-brand-950">كنتِ تتمنين:</span> {capsule.hope}
+          <span className="font-semibold text-brand-950">{tr("كنتِ تتمنين:")}</span> {capsule.hope}
         </p>
       )}
       <button onClick={writeNew} className="text-xs font-semibold text-brand-600 hover:underline">
-        {g(isFemale, "اكتبي رسالة جديدة", "اكتب رسالة جديدة")}
+        {g(isFemale, tr("اكتبي رسالة جديدة"), tr("اكتب رسالة جديدة"))}
       </button>
     </div>
   );

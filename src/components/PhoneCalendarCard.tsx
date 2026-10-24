@@ -4,6 +4,7 @@ import { Panel } from "./ui/page";
 import { AppleLogo, GoogleLogo, LogoTile } from "./ui/BrandLogos";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 type Scope = "mine" | "team";
 
@@ -22,7 +23,7 @@ export default function PhoneCalendarCard() {
     let cancelled = false;
     supabase!.rpc("get_or_create_calendar_token").then(({ data, error: e }) => {
       if (cancelled) return;
-      if (e || !data) setError("تعذّر تجهيز رابط التقويم — حدّثوا الصفحة وحاولوا مرة ثانية.");
+      if (e || !data) setError(tr("تعذّر تجهيز رابط التقويم — حدّثوا الصفحة وحاولوا مرة ثانية."));
       else setToken(data as string);
     });
     return () => {
@@ -48,12 +49,12 @@ export default function PhoneCalendarCard() {
 
   const rotate = async () => {
     if (!supabase || busy) return;
-    if (!window.confirm("تغيير الرابط يوقف الاشتراك القديم بكل أجهزتكم — لازم تربطون من جديد. نكمل؟")) return;
+    if (!window.confirm(tr("تغيير الرابط يوقف الاشتراك القديم بكل أجهزتكم — لازم تربطون من جديد. نكمل؟"))) return;
     setBusy(true);
     setError(null);
     const { data, error: e } = await supabase.rpc("rotate_calendar_token");
     setBusy(false);
-    if (e || !data) setError("تعذّر تغيير الرابط — حاولوا مرة ثانية.");
+    if (e || !data) setError(tr("تعذّر تغيير الرابط — حاولوا مرة ثانية."));
     else setToken(data as string);
   };
 
@@ -63,10 +64,8 @@ export default function PhoneCalendarCard() {
     "flex flex-1 items-center justify-center gap-2.5 rounded-full border border-brand-500/35 bg-black/20 px-5 py-3 text-sm font-bold text-brand-950 transition hover:border-brand-500/70 hover:bg-brand-500/10";
 
   return (
-    <Panel title="اربطوا تقويمكم">
-      <p className="text-sm leading-relaxed text-brand-950/65">
-        اربطوا مرة وحدة، وبعدها أي موعد أو مهمة تضيفونها هنا تنزل بتقويم جوالكم لحالها، مع تنبيهات من جوالكم.
-      </p>
+    <Panel title={tr("اربطوا تقويمكم")}>
+      <p className="text-sm leading-relaxed text-brand-950/65">{tr("اربطوا مرة وحدة، وبعدها أي موعد أو مهمة تضيفونها هنا تنزل بتقويم جوالكم لحالها، مع تنبيهات من جوالكم.")}</p>
 
       {httpsUrl && webcalUrl && googleUrl ? (
         <div className="mt-4 space-y-3">
@@ -84,8 +83,8 @@ export default function PhoneCalendarCard() {
           <div className="inline-flex gap-1 rounded-full border border-brand-500/30 bg-black/20 p-1 text-xs font-semibold">
             {(
               [
-                ["team", "كل مواعيد الفريق"],
-                ["mine", "مهامي ومواعيدي"],
+                ["team", tr("كل مواعيد الفريق")],
+                ["mine", tr("مهامي ومواعيدي")],
               ] as const
             ).map(([id, label]) => (
               <button
@@ -98,27 +97,23 @@ export default function PhoneCalendarCard() {
             ))}
           </div>
 
-          <p className="text-[11px] leading-relaxed text-brand-950/45">
-            آبل تحدّثه كل ١٥ دقيقة تقريبًا. قوقل يحدّث التقويمات المشترك فيها بجدوله هو، وممكن يتأخر كم ساعة.
-          </p>
+          <p className="text-[11px] leading-relaxed text-brand-950/45">{tr("آبل تحدّثه كل ١٥ دقيقة تقريبًا. قوقل يحدّث التقويمات المشترك فيها بجدوله هو، وممكن يتأخر كم ساعة.")}</p>
 
           <details className="text-[11px] text-brand-950/50">
-            <summary className="cursor-pointer font-semibold text-brand-950/60">خيارات أخرى</summary>
+            <summary className="cursor-pointer font-semibold text-brand-950/60">{tr("خيارات أخرى")}</summary>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <button onClick={copy} className="inline-flex items-center gap-1.5 font-semibold text-amber-accent-400 hover:underline">
                 {copied ? <Check size={12} /> : <Copy size={12} />}
-                {copied ? "تم النسخ" : "نسخ الرابط (لتطبيق ثاني)"}
+                {copied ? tr("تم النسخ") : tr("نسخ الرابط (لتطبيق ثاني)")}
               </button>
               <button onClick={rotate} disabled={busy} className="inline-flex items-center gap-1.5 font-semibold text-amber-accent-400 hover:underline disabled:opacity-50">
-                <RefreshCw size={11} className={busy ? "animate-spin" : ""} />
-                غيّروا الرابط (لو وصل لأحد)
-              </button>
+                <RefreshCw size={11} className={busy ? "animate-spin" : ""} />{tr("غيّروا الرابط (لو وصل لأحد)")}</button>
             </div>
-            <p className="mt-2">الرابط سرّي وخاص بحسابكم — أي أحد عنده الرابط يقدر يشوف مواعيدكم ومهامكم.</p>
+            <p className="mt-2">{tr("الرابط سرّي وخاص بحسابكم — أي أحد عنده الرابط يقدر يشوف مواعيدكم ومهامكم.")}</p>
           </details>
         </div>
       ) : (
-        !error && <p className="mt-3 text-xs text-brand-950/45">جاري تجهيز الرابط...</p>
+        !error && <p className="mt-3 text-xs text-brand-950/45">{tr("جاري تجهيز الرابط...")}</p>
       )}
       {error && <p className="mt-3 text-xs font-semibold text-rose-500">{error}</p>}
     </Panel>

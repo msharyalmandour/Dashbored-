@@ -355,6 +355,9 @@ a.bg-brand-500:hover {
 html {
   direction: rtl;
 }
+html[dir="ltr"] {
+  direction: ltr;
+}
 
 body {
   font-family: var(--font-sans);
@@ -894,4 +897,22 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
   .st-word, .st-fade, .celebrate-card { animation: none !important; }
   .st-caret { animation: none !important; }
   .spark { display: none; }
+}
+
+/* الإنجليزي (LTR): أسهم الاتجاه مصممة للعربي، فنعكسها */
+[dir="ltr"] .lucide-chevron-left,
+[dir="ltr"] .lucide-chevron-right,
+[dir="ltr"] .lucide-chevrons-left,
+[dir="ltr"] .lucide-chevrons-right,
+[dir="ltr"] .lucide-arrow-left,
+[dir="ltr"] .lucide-arrow-right {
+  transform: scaleX(-1);
+}
+/* صورة الهيرو والتعتيم فوقها مصممة للنص على اليمين؛ بالإنجليزي النص يسار فنعكسها */
+[dir="ltr"] .ld-hero-flip {
+  transform: scaleX(-1);
+}
+/* الخط اللاتيني في الإنجليزي */
+[lang="en"] body {
+  font-family: "IBM Plex Sans Arabic", "IBM Plex Sans", system-ui, sans-serif;
 }

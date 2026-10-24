@@ -6,6 +6,7 @@ import EmptyState from "../components/ui/EmptyState";
 import { ResearchHeader, SourceTag, glassCard, gradientPill, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme } from "../data/types";
+import { tr, trx } from "../lib/i18n";
 
 const themeOrder: LiteratureTheme[] = [
   "Delirium",
@@ -15,7 +16,7 @@ const themeOrder: LiteratureTheme[] = [
   "Patient Outcomes",
 ];
 
-const arDigit = (n: number) => String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tr("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
 
 export default function LiteratureReview() {
   const { papers } = useEvidencePapers();
@@ -33,12 +34,12 @@ export default function LiteratureReview() {
   if (collected === 0) {
     return (
       <div className="space-y-6">
-        <ResearchHeader title="مراجعة الأدبيات" subtitle="المحاور وكل دراسة فيها، مجموعة من مكتبة أدلتكم." />
+        <ResearchHeader title={tr("مراجعة الأدبيات")} subtitle={tr("المحاور وكل دراسة فيها، مجموعة من مكتبة أدلتكم.")} />
         <div className={clsx(glassCard, "p-2")}>
           <EmptyState
             icon={BookMarked}
-            title="ما فيه دراسات لسا"
-            desc="أضيفوا أول دراسة من مكتبة الأدلة عشان تبدأ مراجعة الأدبيات تتجمّع هنا."
+            title={tr("ما فيه دراسات لسا")}
+            desc={tr("أضيفوا أول دراسة من مكتبة الأدلة عشان تبدأ مراجعة الأدبيات تتجمّع هنا.")}
           />
         </div>
       </div>
@@ -47,18 +48,16 @@ export default function LiteratureReview() {
 
   const statusOf = (studies: typeof papers) => {
     const done = studies.filter((s) => s.reviewStatus === "reviewed").length;
-    return done === studies.length ? "تمت مراجعتها" : done > 0 ? "قيد المراجعة" : "لم تبدأ";
+    return done === studies.length ? tr("تمت مراجعتها") : done > 0 ? tr("قيد المراجعة") : tr("لم تبدأ");
   };
 
   return (
     <div className="space-y-6">
       <ResearchHeader
-        title="مراجعة الأدبيات"
-        subtitle={`المحاور وكل دراسة فيها. ${reviewed} من ${collected} دراسة تمت مراجعتها (${pct}%).`}
+        title={tr("مراجعة الأدبيات")}
+        subtitle={tr("المحاور وكل دراسة فيها. {0} من {1} دراسة تمت مراجعتها ({2}%).", reviewed, collected, pct)}
         action={
-          <Link to="/evidence" className={gradientPill}>
-            مكتبة الأدلة
-          </Link>
+          <Link to="/evidence" className={gradientPill}>{tr("مكتبة الأدلة")}</Link>
         }
       />
       <div className="h-1.5 max-w-md overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
@@ -67,7 +66,7 @@ export default function LiteratureReview() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
         <div>
-          <p className="mb-3 text-sm text-[#B8ADA2]">المحاور</p>
+          <p className="mb-3 text-sm text-[#B8ADA2]">{tr("المحاور")}</p>
           <div className="space-y-3">
             {themes.map(({ theme, studies }, i) => {
               const on = theme === current.theme;
@@ -95,7 +94,7 @@ export default function LiteratureReview() {
                   <span className="min-w-0">
                     <span className="block font-bold text-[#F4F0EC]">{themeLabelAr[theme]}</span>
                     <span className="block text-xs text-[#B8ADA2]">
-                      {arDigit(studies.length)} {studies.length === 1 ? "دراسة" : "دراسات"} · {statusOf(studies)}
+                      {arDigit(studies.length)} {studies.length === 1 ? tr("دراسة") : tr("دراسات")} · {statusOf(studies)}
                     </span>
                   </span>
                 </button>
@@ -106,10 +105,10 @@ export default function LiteratureReview() {
 
         <section className={clsx(glassCard, "space-y-5 p-6 md:p-7")}>
           <div>
-            <p className="text-sm text-[#FFB444]">المحور {arDigit(themes.indexOf(current) + 1)}</p>
+            <p className="text-sm text-[#FFB444]">{trx("المحور {0}", arDigit(themes.indexOf(current) + 1))}</p>
             <h2 className="mt-1 font-kufi text-3xl font-extrabold leading-tight">{themeLabelAr[current.theme]}</h2>
             <p className="mt-1.5 text-sm text-[#B8ADA2]">
-              {arDigit(current.studies.length)} {current.studies.length === 1 ? "دراسة" : "دراسات"} · {statusOf(current.studies)}
+              {arDigit(current.studies.length)} {current.studies.length === 1 ? tr("دراسة") : tr("دراسات")} · {statusOf(current.studies)}
             </p>
           </div>
 
@@ -122,7 +121,7 @@ export default function LiteratureReview() {
                     <div className="flex items-center gap-2">
                       <SourceTag label={sourceFromLink(study.link)} />
                       <span className={clsx("text-xs font-semibold", done ? "text-[#7fd6a0]" : "text-[#FFB444]")}>
-                        {done ? "✓ تمت مراجعتها" : "تم جمعها"}
+                        {done ? tr("✓ تمت مراجعتها") : tr("تم جمعها")}
                       </span>
                     </div>
                     <span className="text-sm text-[#B8ADA2]">{study.year}</span>
@@ -136,11 +135,11 @@ export default function LiteratureReview() {
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">أهم النتائج</p>
+                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("أهم النتائج")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.keyFinding || "—"}</p>
                     </div>
                     <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">الصلة بالبحث</p>
+                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("الصلة بالبحث")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.relevance || "—"}</p>
                     </div>
                   </div>
@@ -148,11 +147,9 @@ export default function LiteratureReview() {
                   <div className="mt-3 text-sm">
                     {study.link ? (
                       <a href={study.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
-                        <ExternalLink size={13} />
-                        الأصل
-                      </a>
+                        <ExternalLink size={13} />{tr("الأصل")}</a>
                     ) : (
-                      <span className="text-[#B8ADA2]/60">لا يوجد رابط مرفق</span>
+                      <span className="text-[#B8ADA2]/60">{tr("لا يوجد رابط مرفق")}</span>
                     )}
                   </div>
                 </article>

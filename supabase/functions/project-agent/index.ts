@@ -24,11 +24,11 @@ const HAIKU = "claude-haiku-4-5";
 const SONNET = "claude-sonnet-5";
 const CONTACT = Deno.env.get("SCHOLARLY_CONTACT") || undefined;
 
-const MONTHLY_LIMITS: Record<string, number> = { questions: 10, kickstart: 5, ask: 60 };
+const MONTHLY_LIMITS: Record<string, number> = { questions: 10, kickstart: 5, ask: 200 };
 const LIMIT_MESSAGES: Record<string, string> = {
   questions: "وصلتوا للحد الشهري لاقتراح أسئلة البحث من الدراسات (١٠ مرات) — يتجدد أول الشهر الجاي.",
   kickstart: "وصلتوا للحد الشهري لتجهيز البداية بالوكيل (٥ مرات) — يتجدد أول الشهر الجاي. كل الأدوات الثانية تشتغل عادي.",
-  ask: "وصلتوا للحد الشهري لأسئلة الوكيل (٦٠ سؤال) — يتجدد أول الشهر الجاي.",
+  ask: "وصلتوا للحد الشهري لرسائل الوكيل (٢٠٠ رسالة) — يتجدد أول الشهر الجاي.",
 };
 const AI_PLAN_REQUIRED_MESSAGE =
   "وكيل المشروع متاح بباقة AI (٥٩ ريال شهريًا لكل عضو). تقدر قائدة الفريق تنتقل لها من صفحة «الباقات والاشتراك».";

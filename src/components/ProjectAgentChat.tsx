@@ -43,8 +43,8 @@ const MEMBER_SUGGESTION = { label: "جهّز اجتماع المشرف/ة", ask:
 let cachedTurns: Turn[] = [];
 let cachedStates: Record<string, ActionState> = {};
 
-/** الوكيل: يعرف تقدّمكم ومهامكم ومقترحكم ويجاوب من بياناتكم. لما تأمرونه صراحة («احفظ السؤال بالمقترح»، «وزّع المهام»)
-    ينفّذ مباشرة بصلاحياتكم مع زر تراجع، وغير كذا يقترح ببطاقة تضغطونها أو تتجاهلونها. إنشاء المهام للقائد فقط.
+/** الوكيل: يعرف تقدّمكم ومهامكم ومقترحكم ويجاوب من بياناتكم. أي تعديل يقترحه («احفظ السؤال بالمقترح»، «وزّع المهام»)
+    يطلع ببطاقة، وما ينفّذ شي إلا لما تضغطون «وافق» (أو «لا» لتتجاهلونه)، وبعدها يظهر زر تراجع. إنشاء المهام للقائد فقط.
     compact = داخل اللوحة الجانبية (بدون الكرة الكبيرة)، وsuggestions = اقتراحات القسم الحالي. */
 export default function ProjectAgentChat({ compact = false, suggestions }: { compact?: boolean; suggestions?: string[] }) {
   const { team, currentUser, isLeader, canWrite } = useAuth();
@@ -148,26 +148,13 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
     if (!q || busy || mock) return;
     setText("");
     const history = turns.map(({ role, text: t }) => ({ role, text: t }));
-    const turnIndex = turns.length + 1;
     setTurns((t) => [...t, { role: "user", text: q }]);
     setBusy(true);
     const r = await askProjectAgent(q, history);
     const actions = r.data?.actions ?? [];
     setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? "تعذّر الرد.", actions, at: Date.now() }]);
-
-    // الأوامر الصريحة تتنفّذ مباشرة، بالترتيب
-    let ran = 0;
-    let failed = 0;
-    for (const [j, a] of actions.entries()) {
-      if (a.type === "open" || !a.auto || !allowed(a)) continue;
-      const s = await run(a);
-      setStates((prev) => ({ ...prev, [`${turnIndex}-${j}`]: s }));
-      if (s.status === "done") ran++;
-      else failed++;
-    }
+    // دايماً بموافقة: ما نفّذ شي لين تضغطون «وافق» (نتجاهل a.auto من الخادم)
     setBusy(false);
-    if (failed > 0) showToast({ title: "ما انحفظ كل شي", desc: "فيه إجراء ما تنفّذ — جرّبوا الزر تحت الرد.", icon: Check, tone: "rose" });
-    else if (ran > 0) showToast({ title: "تم", desc: ran === 1 ? "الوكيل نفّذ طلبكم." : `الوكيل نفّذ ${ran} إجراءات.`, icon: Check, tone: "brand" });
   };
 
   const apply = async (key: string, a: AgentAction) => {
@@ -428,7 +415,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
         {!started && (
           <p className="text-sm leading-relaxed text-[#B8ADA2]">
             اسألوه عن وضعكم، أو أعطوه أمر: «احفظ سؤال البحث في المقترح»، «حط هدف الدراسة»،{" "}
-            {isLeader ? "«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء»." : "ويقترح عليكم مهام يعتمدها القائد."} ينفّذ مباشرة ومعه زر تراجع.
+            {isLeader ? "«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء»." : "ويقترح عليكم مهام يعتمدها القائد."} يقترح وأنتم توافقون: ما ينفّذ شي بدون ضغطة «وافق».
           </p>
         )}
         {chipRow}

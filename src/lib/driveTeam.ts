@@ -44,7 +44,9 @@ async function call<T>(body: Record<string, unknown> | FormData, timeoutMs = TIM
 }
 
 export async function getDriveStatus(): Promise<DriveStatus> {
-  const r = await call<DriveStatus>({ action: "status" }, 12000);
+  let r = await call<DriveStatus>({ action: "status" }, 15000);
+  // أول طلب بعد خمول الدالة (إقلاع بارد) ممكن يتأخر أو يفشل: نعيد مرة وحدة قبل ما نقول «تعذّر»
+  if (!r.data && (r.error === "timeout" || r.error === "failed")) r = await call<DriveStatus>({ action: "status" }, 15000);
   // فشل الفحص ≠ الميزة مطفّية: نرجّع unreachable عشان الواجهة تعرض «تعذّر الفحص + أعيدوا المحاولة» بدل ما تختفي
   if (!r.data) return r.error === "not_configured" ? OFF : { ...OFF, unreachable: true, errorCode: r.error ?? "failed" };
   return r.data;

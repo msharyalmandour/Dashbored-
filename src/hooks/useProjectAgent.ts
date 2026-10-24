@@ -104,6 +104,10 @@ export type AgentAction =
       assigneeName?: string;
       auto?: boolean;
     }
+  | { type: "set_questions"; texts: string[]; auto?: boolean }
+  | { type: "set_gap"; text: string; auto?: boolean }
+  | { type: "update_task"; taskId: string; title: string; status: "todo" | "in-progress" | "done"; auto?: boolean; allowed?: boolean }
+  | { type: "add_event"; title: string; date: string; time: string; eventType: "meeting" | "review" | "fieldwork" | "deadline"; location: string; auto?: boolean }
   | { type: "open"; to: string; label: string };
 
 export interface AskTurn {

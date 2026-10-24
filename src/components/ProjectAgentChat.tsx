@@ -8,9 +8,10 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useProposal } from "../hooks/useProposal";
 import { useTasksData } from "../hooks/useTasksData";
+import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { askProjectAgent, type AgentAction, type AskTurn } from "../hooks/useProjectAgent";
-import { addDaysISO, toISODate } from "../lib/date";
+import { addDaysISO, formatDateLong, toISODate } from "../lib/date";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 
@@ -48,8 +49,9 @@ let cachedStates: Record<string, ActionState> = {};
 export default function ProjectAgentChat({ compact = false, suggestions }: { compact?: boolean; suggestions?: string[] }) {
   const { team, currentUser, isLeader, canWrite } = useAuth();
   const { showToast } = useToast();
-  const { aim, questions, updateAimStatement, setResearchQuestions } = useProposal();
-  const { addTask } = useTasksData();
+  const { aim, gap, questions, updateAimStatement, updateGap, setResearchQuestions } = useProposal();
+  const { tasks, addTask, updateStatus } = useTasksData();
+  const { addEvent } = useCalendarEvents();
   const { roster } = useTeamRoster();
   const [turns, setTurnsState] = useState<Turn[]>(cachedTurns);
   const [states, setStatesState] = useState<Record<string, ActionState>>(cachedStates);
@@ -59,10 +61,10 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
   const [applying, setApplying] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   // أحدث نسخة من الهدف والأسئلة — عشان كذا إجراء ورا بعض بنفس الرد ما يشتغل على قيمة قديمة
-  const latest = useRef({ aim: aim.statement, questions: questions.map((q) => q.text) });
+  const latest = useRef({ aim: aim.statement, gap: gap.gapStatement, questions: questions.map((q) => q.text) });
   useEffect(() => {
-    latest.current = { aim: aim.statement, questions: questions.map((q) => q.text) };
-  }, [aim.statement, questions]);
+    latest.current = { aim: aim.statement, gap: gap.gapStatement, questions: questions.map((q) => q.text) };
+  }, [aim.statement, gap.gapStatement, questions]);
 
   const setTurns = (fn: (t: Turn[]) => Turn[]) =>
     setTurnsState((prev) => {
@@ -83,7 +85,8 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
   const mock = !isSupabaseConfigured;
   if (!mock && !hasAiAccess(team)) return <AiLockedCard feature="الوكيل" />;
 
-  const allowed = (a: AgentAction) => canWrite && (a.type !== "add_task" || isLeader);
+  const allowed = (a: AgentAction) =>
+    canWrite && (a.type === "add_task" ? isLeader : a.type === "update_task" ? a.allowed !== false : true);
 
   /** ينفّذ الإجراء بصلاحيات المستخدم (RLS) ويرجّع طريقة التراجع لو ممكن */
   const run = async (a: AgentAction, assigneeId?: string): Promise<ActionState> => {
@@ -102,6 +105,30 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
       if (error) return { status: "failed" };
       latest.current.questions = next;
       return { status: "done", undo: () => setResearchQuestions(before) };
+    }
+    if (a.type === "set_questions") {
+      const before = latest.current.questions;
+      const { error } = await setResearchQuestions(a.texts);
+      if (error) return { status: "failed" };
+      latest.current.questions = a.texts;
+      return { status: "done", undo: () => setResearchQuestions(before) };
+    }
+    if (a.type === "set_gap") {
+      const before = latest.current.gap;
+      const { error } = await updateGap({ gapStatement: a.text });
+      if (error) return { status: "failed" };
+      latest.current.gap = a.text;
+      return { status: "done", undo: () => updateGap({ gapStatement: before }) };
+    }
+    if (a.type === "update_task") {
+      const before = tasks.find((t) => t.id === a.taskId)?.status;
+      const { error } = await updateStatus(a.taskId, a.status);
+      if (error) return { status: "failed" };
+      return { status: "done", undo: before ? () => updateStatus(a.taskId, before) : undefined };
+    }
+    if (a.type === "add_event") {
+      const { error } = await addEvent({ title: a.title, date: a.date, time: a.time, type: a.eventType, location: a.location });
+      return { status: error ? "failed" : "done" };
     }
     if (a.type === "add_task" && currentUser) {
       const { error } = await addTask({
@@ -168,10 +195,30 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
   };
 
   const memberName = (id: string | undefined) => roster.find((m) => m.id === id)?.name.split(" ")[0];
-  const doneText = (a: AgentAction) =>
-    a.type === "set_aim" ? "الهدف انحفظ بصفحة المقترح." : a.type === "add_questions" ? "الأسئلة انضافت لأسئلة البحث بالمقترح." : "المهمة انضافت.";
-  const label = (a: AgentAction) =>
-    a.type === "set_aim" ? "اعتمدوه كهدف للدراسة" : a.type === "add_questions" ? "أضيفوها لأسئلة البحث" : a.type === "add_task" ? "أضف المهمة" : "";
+  const doneText = (a: AgentAction): string =>
+    ({
+      set_aim: "الهدف انحفظ بصفحة المقترح.",
+      add_questions: "الأسئلة انضافت لأسئلة البحث بالمقترح.",
+      set_questions: "أسئلة البحث تحدّثت بالمقترح.",
+      set_gap: "الفجوة البحثية انحفظت بالمقترح.",
+      update_task: "حالة المهمة تحدّثت.",
+      add_event: "الموعد انضاف للتقويم.",
+      add_task: "المهمة انضافت.",
+      open: "",
+    })[a.type];
+  const label = (a: AgentAction): string =>
+    ({
+      set_aim: "اعتمدوه كهدف للدراسة",
+      add_questions: "أضيفوها لأسئلة البحث",
+      set_questions: "اعتمدوا القائمة الجديدة",
+      set_gap: "احفظوها كفجوة بحثية",
+      update_task: "حدّثوا الحالة",
+      add_event: "أضيفوه للتقويم",
+      add_task: "أضف المهمة",
+      open: "",
+    })[a.type];
+  const statusAr = { todo: "لم تبدأ", "in-progress": "قيد التنفيذ", done: "منجزة" } as const;
+  const eventAr = { meeting: "اجتماع", review: "مراجعة", fieldwork: "عمل ميداني", deadline: "موعد نهائي" } as const;
 
   const started = turns.length > 0;
   const chips: { label: string; ask: string }[] = suggestions
@@ -208,6 +255,33 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
                   return (
                     <div key={key} className="rounded-2xl border border-[rgba(255,107,0,.3)] p-3">
                       {a.type === "set_aim" && <p className="font-semibold">{a.text}</p>}
+                      {a.type === "set_gap" && <p className="font-semibold">{a.text}</p>}
+                      {a.type === "set_questions" && (
+                        <>
+                          <p className="mb-1 text-xs text-[#B8ADA2]">القائمة الجديدة لأسئلة البحث:</p>
+                          <ol className="list-decimal space-y-1 pe-5 font-semibold">
+                            {a.texts.map((x, k) => (
+                              <li key={k}>{x}</li>
+                            ))}
+                          </ol>
+                        </>
+                      )}
+                      {a.type === "update_task" && (
+                        <p>
+                          <b>{a.title}</b>
+                          <span className="block text-xs text-[#B8ADA2]">الحالة ← {statusAr[a.status]}</span>
+                        </p>
+                      )}
+                      {a.type === "add_event" && (
+                        <p>
+                          <b>{a.title}</b>
+                          <span className="block text-xs text-[#B8ADA2]">
+                            {eventAr[a.eventType]} — {formatDateLong(a.date)}
+                            {a.eventType !== "deadline" && ` الساعة ${a.time}`}
+                            {a.location && ` — ${a.location}`}
+                          </span>
+                        </p>
+                      )}
                       {a.type === "add_questions" && (
                         <ul className="list-disc space-y-1 pe-5 font-semibold">
                           {a.texts.map((x, k) => (
@@ -259,13 +333,13 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
                             {s?.status === "failed" ? "حاولوا مرة ثانية" : label(a)}
                           </button>
                         ) : (
-                          <span className="text-xs text-[#B8ADA2]">{a.type === "add_task" ? "إنشاء المهام للقائد — اطلبوها منه." : "ما عندكم صلاحية تعديل حاليًا."}</span>
+                          <span className="text-xs text-[#B8ADA2]">{a.type === "add_task" ? "إنشاء المهام للقائد — اطلبوها منه." : a.type === "update_task" ? "هذي مهمة عضو ثاني — صاحبها أو القائد يحدّثها." : "ما عندكم صلاحية تعديل حاليًا."}</span>
                         )}
                       </div>
                     </div>
                   );
                 })}
-                {t.actions.some((a) => a.type === "set_aim" || a.type === "add_questions") && (
+                {t.actions.some((a) => a.type === "set_aim" || a.type === "add_questions" || a.type === "set_questions" || a.type === "set_gap") && (
                   <p className="text-[11px] text-[#B8ADA2]/80">ناقشوها مع المشرف/ة قبل التسليم، وتقدرون تعدّلونها من صفحة المقترح.</p>
                 )}
               </div>

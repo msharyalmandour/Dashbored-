@@ -92,11 +92,13 @@ export default function Login() {
   const [showDemoCreds, setShowDemoCreds] = useState(false);
 
   if (currentUser && wasLoggedInOnMount.current) {
-    const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
+    const f = (location.state as { from?: Location })?.from;
+    const from = f ? `${f.pathname}${f.search ?? ""}` : "/";
     return <Navigate to={from} replace />;
   }
   if (readyToNavigate) {
-    const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
+    const f = (location.state as { from?: Location })?.from;
+    const from = f ? `${f.pathname}${f.search ?? ""}` : "/";
     return <Navigate to={from} replace />;
   }
   if (celebrating) {

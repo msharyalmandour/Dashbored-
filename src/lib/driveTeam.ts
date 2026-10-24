@@ -34,7 +34,7 @@ async function call<T>(body: Record<string, unknown> | FormData, timeoutMs = TIM
     try {
       const ctx = (error as { context?: Response }).context;
       const j = ctx ? await ctx.json() : null;
-      if (j?.error) return { error: String(j.error) };
+      if (j?.error) return { error: j.error === "unauthorized" && j.detail ? `unauthorized — ${j.detail}` : String(j.error) };
     } catch {
       // نرجع للرسالة العامة
     }

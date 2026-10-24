@@ -220,10 +220,23 @@ Deno.serve(async (req: Request) => {
   });
   // نمرّر الرمز صراحة: getUser() بدون وسيط يعتمد على جلسة محفوظة (ما عندنا مع persistSession:false) فيرجّع «unauthorized» لمستخدم سليم
   const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
-  const {
-    data: { user },
-  } = await userClient.auth.getUser(jwt);
-  if (!user) return json(401, { error: "unauthorized" });
+  let user = (await admin.auth.getUser(jwt)).data.user;
+  let authMsg = "";
+  if (!user) {
+    const r = await userClient.auth.getUser(jwt);
+    user = r.data.user;
+    authMsg = r.error?.message ?? "";
+  }
+  if (!user) {
+    // تشخيص آمن (بدون كشف الرمز): نوع الرمز المرسل (anon/authenticated/…) ورسالة المصادقة
+    let role = jwt ? "not_jwt" : "empty";
+    try {
+      role = String(JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).role ?? "?");
+    } catch {
+      // نخلي القيمة الافتراضية
+    }
+    return json(401, { error: "unauthorized", detail: `${role}${authMsg ? `: ${authMsg.slice(0, 80)}` : ""}` });
+  }
 
   const isForm = (req.headers.get("content-type") ?? "").includes("multipart/form-data");
   let body: Record<string, unknown> = {};

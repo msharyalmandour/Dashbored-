@@ -203,7 +203,7 @@ export default function MinutesList(props: MinutesListProps) {
                 props.driveConnected && (
                   <button onClick={() => props.onUploadDrive(m)} disabled={props.uploadingId === m.id} className={toolBtn}>
                     {props.uploadingId === m.id ? <Loader2 size={12} className="animate-spin" /> : <CloudUpload size={12} />}
-                    رفع لدرايف
+                    رفع لدرايف / إعادة المحاولة
                   </button>
                 )
               )}

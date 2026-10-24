@@ -866,3 +866,17 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
   .agent-orb__halo, .app-splash__ring { display: none; }
   .top-progress[data-phase="run"] .top-progress__bar { animation: none; width: 70%; }
 }
+
+/* إشعار الرفع لدرايف */
+.drive-notice { animation: dn-drop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1) both; }
+@keyframes dn-drop { from { transform: translateY(-140%); opacity: 0; } to { transform: none; opacity: 1; } }
+.drive-notice__bar { width: 0; animation: dn-bar 4s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+@keyframes dn-bar { 0% { width: 4%; } 100% { width: 92%; } }
+.drive-notice__file--fly { animation: dn-fly 0.45s ease-in forwards; }
+@keyframes dn-fly { to { transform: translateX(4.5rem) scale(0.5); opacity: 0.2; } }
+.drive-notice__check { animation: dn-pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+@keyframes dn-pop { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .drive-notice, .drive-notice__bar, .drive-notice__file--fly, .drive-notice__check { animation: none !important; }
+  .drive-notice__bar { width: 70%; }
+}

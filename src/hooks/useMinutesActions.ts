@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Check, CloudUpload, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useMeetingMinutes } from "./useMeetingMinutes";
@@ -14,6 +14,7 @@ import { toISODate } from "../lib/date";
 import { buildReadiness, supervisorLink } from "../lib/meetings";
 import { getCurrentStage } from "../lib/progress";
 import { notifySupervisor } from "../lib/supervisorNotify";
+import { driveNotice } from "../lib/driveNotice";
 import type { MeetingMinutesRow } from "../data/types";
 
 type DocInput = Pick<MeetingMinutesRow, "meetingDate" | "agenda" | "attendees" | "discussion" | "decisions" | "actionItems">;
@@ -92,13 +93,11 @@ export function useMinutesActions() {
         const blob = await buildMeetingMinutesDoc(input);
         saveBlob(blob, minutesFileName(input.meetingDate));
         if (driveStatus?.connected) {
+          const nid = driveNotice.start();
           const r = await uploadMinutesToDrive(blob, minutesFileName(input.meetingDate), minutesId);
           await reload();
-          showToast(
-            r.error
-              ? { title: "ما انرفع لدرايف", desc: driveErrorMessage(r.error), icon: CloudUpload, tone: "rose" }
-              : { title: "انرفع لدرايف الفريق", desc: "المحضر الحين بمجلدكم المشترك.", icon: CloudUpload, tone: "brand" },
-          );
+          if (r.error) driveNotice.fail(nid, driveErrorMessage(r.error));
+          else driveNotice.done(nid, r.data?.driveViewLink);
         }
       } catch {
         // السجل محفوظ بالموقع بأي حال — التنزيل يقدرون يعيدونه من القائمة
@@ -157,17 +156,17 @@ export function useMinutesActions() {
 
   const handleUploadDrive = async (m: MeetingMinutesRow) => {
     setUploadingId(m.id);
-    let err: string | null = null;
+    const nid = driveNotice.start();
     try {
       const blob = await buildMeetingMinutesDoc(m);
       const r = await uploadMinutesToDrive(blob, minutesFileName(m.meetingDate), m.id);
       await reload();
-      err = r.error ? driveErrorMessage(r.error) : null;
+      if (r.error) driveNotice.fail(nid, driveErrorMessage(r.error));
+      else driveNotice.done(nid, r.data?.driveViewLink);
     } catch {
-      err = driveErrorMessage(undefined);
+      driveNotice.fail(nid, driveErrorMessage(undefined));
     }
     setUploadingId(null);
-    showToast(err ? { title: "ما انرفع لدرايف", desc: err, icon: CloudUpload, tone: "rose" } : { title: "انرفع لدرايف", desc: "المحضر الحين بمجلد الفريق.", icon: Check, tone: "brand" });
   };
 
   const handleSendApproval = async (m: MeetingMinutesRow) => {

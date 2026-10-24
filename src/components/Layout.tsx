@@ -15,6 +15,7 @@ import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import BottomNav from "./BottomNav";
 import AppSplash from "./ui/AppSplash";
+import DriveNotice from "./ui/DriveNotice";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
@@ -98,6 +99,7 @@ export default function Layout() {
       <div className="pointer-events-none absolute right-1/4 top-[45%] h-[26rem] w-[26rem] rounded-full bg-sky-accent-500/20 blur-3xl" />
       <div className="pointer-events-none absolute -left-16 top-[65%] h-80 w-80 rounded-full bg-amber-accent-500/26 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 top-[85%] h-96 w-96 rounded-full bg-brand-500/24 blur-3xl" />
+      <DriveNotice />
       <CommandPalette />
       <AiAssistant />
       <TourGuide />

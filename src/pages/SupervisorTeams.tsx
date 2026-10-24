@@ -5,6 +5,8 @@ import Logo from "../components/Logo";
 import { supabase } from "../lib/supabaseClient";
 import { formatDateShort } from "../lib/date";
 import { forgetTeam, loadTeams, type SavedTeam } from "../lib/supervisorLocal";
+import { teamPulse, type PulseTask, type TeamPulse } from "../lib/contribution";
+import { toISODate } from "../lib/date";
 
 interface TeamCard {
   saved: SavedTeam;
@@ -12,6 +14,7 @@ interface TeamCard {
   total: number;
   done: number;
   overdue: number;
+  pulse?: TeamPulse;
 }
 
 type Light = "red" | "amber" | "green";
@@ -42,7 +45,8 @@ export default function SupervisorTeams() {
     loadTeams().forEach(async (saved) => {
       const { data, error } = await supabase!.rpc("get_team_snapshot", { p_token: saved.token });
       if (cancelled) return;
-      const tasks = (data as { tasks?: { status: string }[] } | null)?.tasks ?? [];
+      const snap = data as { tasks?: (PulseTask & { status: string })[]; members?: { name: string }[] } | null;
+      const tasks = snap?.tasks ?? [];
       const next: TeamCard =
         error || !data
           ? { saved, state: "error", total: 0, done: 0, overdue: 0 }
@@ -52,6 +56,7 @@ export default function SupervisorTeams() {
               total: tasks.length,
               done: tasks.filter((t) => t.status === "done").length,
               overdue: tasks.filter((t) => t.status === "overdue").length,
+              pulse: teamPulse(tasks, (snap?.members ?? []).map((m) => m.name), toISODate(new Date())),
             };
       setCards((prev) => prev.map((c) => (c.saved.token === saved.token ? next : c)));
     });
@@ -76,6 +81,18 @@ export default function SupervisorTeams() {
         <h1 className="font-display text-2xl font-extrabold text-brand-950">فرقي</h1>
         <p className="mt-1 text-sm text-brand-950/55">الفرق اللي فتحتم روابطها من هذا الجهاز — الأحمر أول.</p>
 
+        {sorted.length > 0 && cards.every((c) => c.state !== "loading") && (
+          <p className="mt-4 rounded-2xl bg-surface-muted px-4 py-3 text-xs font-bold text-brand-950/70">
+            {(() => {
+              const ok = cards.filter((c) => c.state === "ok");
+              const red = ok.filter((c) => lightOf(c) === "red").length;
+              const amber = ok.filter((c) => lightOf(c) === "amber").length;
+              const green = ok.length - red - amber;
+              return `${ok.length} فريق: ${red} يحتاج متابعة · ${amber} بداية/بطيء · ${green} ماشي زين`;
+            })()}
+          </p>
+        )}
+
         {sorted.length === 0 && (
           <p className="mt-10 rounded-3xl border border-brand-100 bg-paper p-6 text-center text-sm text-brand-950/55">
             ما فيه فرق محفوظة بعد. افتحوا رابط المتابعة اللي يرسله لكم الفريق وبينحفظ هنا تلقائيًا.
@@ -99,6 +116,9 @@ export default function SupervisorTeams() {
                         </span>
                       )}
                       {c.state === "ok" && `${c.done}/${c.total} مهام مكتملة${c.overdue ? ` · ${c.overdue} متأخرة` : ""} · ${light ? lightStyle[light].label : ""}`}
+                      {c.state === "ok" && c.pulse?.worstLateDays ? ` · أطول تأخير ${c.pulse.worstLateDays} يوم` : ""}
+                      {c.state === "ok" && c.pulse?.nextDue ? ` · أقرب موعد ${c.pulse.nextDue.daysLeft === 0 ? "اليوم" : `بعد ${c.pulse.nextDue.daysLeft} يوم`}` : ""}
+                      {c.state === "ok" && c.pulse && c.pulse.unassignedMembers.length > 0 ? ` · بدون مهام: ${c.pulse.unassignedMembers.length}` : ""}
                       {" · آخر زيارة "}
                       {formatDateShort(c.saved.visitedAt)}
                     </p>

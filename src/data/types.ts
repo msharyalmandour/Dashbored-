@@ -144,6 +144,8 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   sectionKey?: ProposalSectionKey;
+  /** وقت الإكمال (من القاعدة) — لقياس المساهمة والتقرير الأسبوعي */
+  completedAt?: string | null;
 }
 
 export interface TaskComment {

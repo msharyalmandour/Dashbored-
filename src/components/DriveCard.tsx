@@ -118,7 +118,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
       const failed = r.data.failed.length;
       showToast({
         title: "تمت مشاركة المجلد",
-        desc: failed ? `تعذّرت المشاركة مع ${failed}. تأكدوا من الإيميلات.` : `شاركنا المجلد مع ${r.data.shared} ${r.data.shared === 1 ? "شخص" : "أشخاص"}. توصلهم دعوة بالإيميل.`,
+        desc: failed ? `تعذّرت المشاركة مع: ${r.data.failed.join("، ")}. غالبًا الإيميل ما عليه حساب Google.` : `شاركنا المجلد مع ${r.data.shared} ${r.data.shared === 1 ? "شخص" : "أشخاص"}. توصلهم دعوة بالإيميل.`,
         icon: Check,
         tone: "brand",
       });

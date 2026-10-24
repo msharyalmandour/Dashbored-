@@ -158,16 +158,6 @@ function redirect(status: "connected" | "error", reason?: string, base: string =
 
 // ---------- الـ callback (GET من Google) ----------
 async function handleCallback(url: URL): Promise<Response> {
-  // فحص تشخيصي مؤقت (يُحذف): يجرّب تبادل رمز وهمي مع Google ليكشف هل Client ID/Secret/redirect صحيحة. ما يرجّع أي سر.
-  if (url.searchParams.get("selftest") === "1") {
-    const r = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ code: "selftest", client_id: CLIENT_ID ?? "", client_secret: CLIENT_SECRET ?? "", redirect_uri: REDIRECT_URI, grant_type: "authorization_code" }),
-    });
-    const j = await r.json().catch(() => ({}));
-    return json(200, { configured, hasId: !!CLIENT_ID, hasSecret: !!CLIENT_SECRET, hasKey: !!TOKEN_KEY, redirectUri: REDIRECT_URI, site: SITE, google: j.error ?? null, desc: String(j.error_description ?? "").slice(0, 100) });
-  }
   if (!configured) return redirect("error", "not_configured");
   const state = await verifyState(url.searchParams.get("state") ?? "");
   if (url.searchParams.get("error")) return redirect("error", "denied", state?.o ?? SITE);

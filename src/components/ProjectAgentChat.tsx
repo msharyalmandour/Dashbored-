@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { AlertTriangle, ArrowUp, Check, CheckCircle2, ClipboardCheck, Loader2, Undo2, Wrench } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
+import AgentOrb from "./ui/AgentOrb";
+import StreamedText from "./ui/StreamedText";
+import ThinkingLine from "./ui/ThinkingLine";
 import { ghostBtn, primaryBtn } from "./ui/page";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -17,12 +20,15 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 
 interface Turn extends AskTurn {
   actions?: AgentAction[];
+  /** تقرير مراجعة المقترح (يظهر ببطاقات، بدون أي تنفيذ تلقائي) */
   review?: ProposalReview;
+  /** وقت وصول الرد — عشان الردود الجديدة بس تظهر كلمة كلمة */
+  at?: number;
 }
 
 /** حالة كل إجراء: تم (مع طريقة التراجع لو فيه) أو فشل */
 interface ActionState {
-  status: "done" | "failed";
+  status: "done" | "failed" | "dismissed";
   undo?: () => Promise<{ error?: string }>;
   undone?: boolean;
 }
@@ -39,17 +45,12 @@ const REVIEW_CHIP = { label: "راجع المقترح قبل التسليم", as
 const verdictAr = { ready: "جاهز للتسليم", almost: "قريب — ناقصه شوية", not_ready: "يحتاج شغل قبل التسليم" } as const;
 const verdictColor = { ready: "text-[#7fd6a0]", almost: "text-[#FFB444]", not_ready: "text-[#ff8a8a]" } as const;
 
-const orbStyle = {
-  background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)",
-  boxShadow: "0 0 0 14px rgba(255,140,40,.07),0 0 100px rgba(255,140,40,.6)",
-};
-
 // المحادثة تبقى لو انقفلت اللوحة أو تنقّلتوا بين الصفحات (لين يتحدّث المتصفح)
 let cachedTurns: Turn[] = [];
 let cachedStates: Record<string, ActionState> = {};
 
-/** الوكيل: يعرف تقدّمكم ومهامكم ومقترحكم ويجاوب من بياناتكم. لما تأمرونه صراحة («احفظ السؤال بالمقترح»، «وزّع المهام»)
-    ينفّذ مباشرة بصلاحياتكم مع زر تراجع، وغير كذا يقترح ببطاقة تضغطونها أو تتجاهلونها. إنشاء المهام للقائد فقط.
+/** الوكيل: يعرف تقدّمكم ومهامكم ومقترحكم ويجاوب من بياناتكم. أي تعديل يقترحه («احفظ السؤال بالمقترح»، «وزّع المهام»)
+    يطلع ببطاقة، وما ينفّذ شي إلا لما تضغطون «وافق» (أو «لا» لتتجاهلونه)، وبعدها يظهر زر تراجع. إنشاء المهام للقائد فقط.
     compact = داخل اللوحة الجانبية (بدون الكرة الكبيرة)، وsuggestions = اقتراحات القسم الحالي. */
 export default function ProjectAgentChat({ compact = false, suggestions }: { compact?: boolean; suggestions?: string[] }) {
   const { team, currentUser, isLeader, canWrite } = useAuth();
@@ -156,8 +157,8 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
     setTurns((t) => [
       ...t,
       r.data
-        ? { role: "agent", text: r.data.summary || "هذي مراجعة مقترحكم:", review: r.data }
-        : { role: "agent", text: r.message ?? "تعذّرت المراجعة." },
+        ? { role: "agent", text: r.data.summary || "هذي مراجعة مقترحكم:", review: r.data, at: Date.now() }
+        : { role: "agent", text: r.message ?? "تعذّرت المراجعة.", at: Date.now() },
     ]);
   };
 
@@ -167,26 +168,13 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
     if (q === REVIEW_CHIP.ask) return runReview();
     setText("");
     const history = turns.map(({ role, text: t }) => ({ role, text: t }));
-    const turnIndex = turns.length + 1;
     setTurns((t) => [...t, { role: "user", text: q }]);
     setBusy(true);
     const r = await askProjectAgent(q, history);
     const actions = r.data?.actions ?? [];
-    setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? "تعذّر الرد.", actions }]);
-
-    // الأوامر الصريحة تتنفّذ مباشرة، بالترتيب
-    let ran = 0;
-    let failed = 0;
-    for (const [j, a] of actions.entries()) {
-      if (a.type === "open" || !a.auto || !allowed(a)) continue;
-      const s = await run(a);
-      setStates((prev) => ({ ...prev, [`${turnIndex}-${j}`]: s }));
-      if (s.status === "done") ran++;
-      else failed++;
-    }
+    setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? "تعذّر الرد.", actions, at: Date.now() }]);
+    // دايماً بموافقة: ما نفّذ شي لين تضغطون «وافق» (نتجاهل a.auto من الخادم)
     setBusy(false);
-    if (failed > 0) showToast({ title: "ما انحفظ كل شي", desc: "فيه إجراء ما تنفّذ — جرّبوا الزر تحت الرد.", icon: Check, tone: "rose" });
-    else if (ran > 0) showToast({ title: "تم", desc: ran === 1 ? "الوكيل نفّذ طلبكم." : `الوكيل نفّذ ${ran} إجراءات.`, icon: Check, tone: "brand" });
   };
 
   const apply = async (key: string, a: AgentAction) => {
@@ -258,7 +246,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
                 : "border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)]",
             )}
           >
-            <p className="whitespace-pre-wrap">{t.text}</p>
+            <p className="whitespace-pre-wrap">{t.role === "agent" ? <StreamedText text={t.text} at={t.at} /> : t.text}</p>
             {t.review && (
               <div className="mt-3 space-y-2.5">
                 <div className="flex items-center gap-3 rounded-2xl border border-[rgba(255,107,0,.3)] p-3">
@@ -376,11 +364,18 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
                               </button>
                             )}
                           </>
+                        ) : s?.status === "dismissed" ? (
+                          <span className="text-xs text-[#B8ADA2]">تجاهلناه.</span>
                         ) : allowed(a) ? (
-                          <button onClick={() => apply(key, a)} disabled={applying !== null || busy} className={primaryBtn}>
-                            {applying === key ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                            {s?.status === "failed" ? "حاولوا مرة ثانية" : label(a)}
-                          </button>
+                          <>
+                            <button onClick={() => apply(key, a)} disabled={applying !== null || busy} title={label(a)} className={primaryBtn}>
+                              {applying === key ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                              {s?.status === "failed" ? "حاولوا مرة ثانية" : "وافق"}
+                            </button>
+                            <button onClick={() => setStates((prev) => ({ ...prev, [key]: { status: "dismissed" } }))} disabled={applying !== null} className={ghostBtn}>
+                              لا
+                            </button>
+                          </>
                         ) : (
                           <span className="text-xs text-[#B8ADA2]">{a.type === "add_task" ? "إنشاء المهام للقائد — اطلبوها منه." : a.type === "update_task" ? "هذي مهمة عضو ثاني — صاحبها أو القائد يحدّثها." : "ما عندكم صلاحية تعديل حاليًا."}</span>
                         )}
@@ -399,7 +394,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
       {busy && (
         <li className={clsx("flex", !compact && "justify-end")}>
           <div className="inline-flex items-center gap-2 rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-4 py-3 text-sm text-[#B8ADA2]">
-            <Loader2 size={14} className="animate-spin" /> الوكيل يشتغل على مشروعكم…
+            <ThinkingLine />
           </div>
         </li>
       )}
@@ -470,7 +465,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
         {!started && (
           <p className="text-sm leading-relaxed text-[#B8ADA2]">
             اسألوه عن وضعكم، أو أعطوه أمر: «احفظ سؤال البحث في المقترح»، «حط هدف الدراسة»،{" "}
-            {isLeader ? "«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء»." : "ويقترح عليكم مهام يعتمدها القائد."} ينفّذ مباشرة ومعه زر تراجع.
+            {isLeader ? "«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء»." : "ويقترح عليكم مهام يعتمدها القائد."} يقترح وأنتم توافقون: ما ينفّذ شي بدون ضغطة «وافق».
           </p>
         )}
         {chipRow}
@@ -488,11 +483,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
       <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[80px] -z-10 h-[300px] w-[380px] -translate-x-1/2 rounded-full bg-[#FFB444] opacity-45 blur-[100px]" />
 
       <div className="mx-auto flex max-w-[720px] flex-col items-center gap-5 text-center">
-        <div
-          aria-hidden
-          className={clsx("ld-breath rounded-full transition-all duration-500", started ? "h-14 w-14" : "h-24 w-24 md:h-[120px] md:w-[120px]")}
-          style={started ? { ...orbStyle, boxShadow: "0 0 0 8px rgba(255,140,40,.07),0 0 50px rgba(255,140,40,.5)" } : orbStyle}
-        />
+        <AgentOrb size={started ? 56 : 112} state={busy ? "thinking" : "idle"} className="transition-all duration-500" />
         <h1 className={clsx("font-kufi font-extrabold leading-tight", started ? "text-2xl" : "mt-3 text-4xl md:text-5xl")}>وش نسوي اليوم؟</h1>
         {!started && <p className="text-base font-light text-[#B8ADA2] md:text-lg">الوكيل يعرف بحثكم ومهامكم. اطلبوا، وهو يجهّز.</p>}
         {messages}

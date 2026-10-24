@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import MinutesNew from "./pages/MinutesNew";
 import TopProgress from "./components/ui/TopProgress";
 import { useAuth } from "./context/AuthContext";
 import { isFemaleUser } from "./lib/gender";
@@ -96,6 +97,7 @@ export default function App() {
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/files" element={<Files />} />
         <Route path="/meeting-minutes" element={<MeetingMinutes />} />
+        <Route path="/meeting-minutes/new" element={<MinutesNew />} />
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/story" element={<Story />} />
         <Route path="/guide" element={<Guide />} />

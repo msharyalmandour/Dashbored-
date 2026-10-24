@@ -9,11 +9,16 @@ import { homeSection, morePages, sectionForPath } from "../lib/navSections";
 import { useAiConversations } from "../hooks/useAiConversations";
 import AiLockedCard from "./AiLockedCard";
 import ProjectAgentChat from "./ProjectAgentChat";
+import AgentOrb from "./ui/AgentOrb";
+import StreamedText from "./ui/StreamedText";
+import ThinkingLine from "./ui/ThinkingLine";
 
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   imageDataUrl?: string;
+  /** وقت وصول رد الكوتش — عشان الرد الجديد بس يظهر كلمة كلمة */
+  at?: number;
 }
 
 interface PendingImage {
@@ -46,7 +51,7 @@ const sectionPrompts: Record<string, string[]> = {
   write: ["وش ناقص بمقترحنا؟", "كيف أحسّن صياغة هدف الدراسة؟", "جهّزونا لأسئلة المشرف/ة عن المنهجية"],
   collect: ["وش الاختبار الإحصائي المناسب لبياناتنا؟", "وش لازم نجهّز قبل توزيع الاستبيان؟", "كم عينة نحتاج تقريبًا؟"],
   team: ["مين عليه ضغط؟", "كيف نوزّع المهام بعدل؟", "جهّزوا لنا تقرير مساهمة الفريق"],
-  supervisor: ["وش ناقص قبل اجتماعنا مع المشرف/ة؟", "حوّلوا ملاحظاتها لمهام", "جهّزوا لنا نقاط الاجتماع الجاي"],
+  supervisor: ["جهّز جدول أعمال للاجتماع", "وش ناقص قبل اجتماعنا مع المشرف/ة؟", "حوّلوا ملاحظاتها لمهام"],
   calendar: ["وش عندنا هالأسبوع؟", "وش اللي متأخر عندنا؟", "رتّبوا لنا أسبوعنا"],
 };
 
@@ -59,7 +64,6 @@ function placeFor(pathname: string): { label: string; sectionId?: string } {
   return { label: more?.label ?? "Wesync" };
 }
 
-const orbBg = "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)";
 
 function contentFor(m: ChatMessage): string | ContentBlock[] {
   if (!m.imageDataUrl) return m.content;
@@ -206,7 +210,7 @@ export default function AiAssistant() {
       return;
     }
     if (sentIn) void history.saveMessage(sentIn, { role: "assistant", content: data.text, hadImage: false });
-    if (stillHere) setMessages((prev) => [...prev, { role: "assistant", content: data.text }]);
+    if (stillHere) setMessages((prev) => [...prev, { role: "assistant", content: data.text, at: Date.now() }]);
   };
 
   const place = placeFor(location.pathname);
@@ -220,15 +224,17 @@ export default function AiAssistant() {
         onClick={() => setOpen(true)}
         aria-label="وكيل Wesync"
         title={`وكيل Wesync — أنتم في: ${place.label}`}
-        className={`ld-breath fixed bottom-20 start-4 z-40 h-14 w-14 rounded-full transition-transform hover:scale-105 motion-reduce:animate-none md:bottom-6 md:start-6 print:hidden ${open ? "hidden" : ""}`}
-        style={{ background: orbBg, boxShadow: "0 0 0 6px rgba(255,140,40,.08),0 0 40px rgba(255,140,40,.55)" }}
-      />
+        className={`fixed bottom-20 start-4 z-40 rounded-full transition-transform hover:scale-105 md:bottom-6 md:start-6 print:hidden ${open ? "hidden" : ""}`}
+      >
+        <AgentOrb size={56} state={loading ? "thinking" : "idle"} />
+      </button>
 
+      {open && <div aria-hidden className="fixed inset-0 z-[39] bg-black/45 backdrop-blur-[2px]" onClick={() => setOpen(false)} />}
       {open && (
         <div
           role="dialog"
           aria-label="وكيل Wesync"
-          className="fixed inset-y-0 start-0 z-40 flex w-full max-w-[420px] flex-col border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.92)] text-[#F4F0EC] shadow-[0_24px_80px_rgba(255,100,0,.12),0_0_0_1px_rgba(0,0,0,.4)] backdrop-blur-2xl backdrop-saturate-150 md:inset-y-3 md:start-3 md:w-[400px] md:rounded-[28px]"
+          className="fixed inset-y-0 start-0 z-40 flex w-full max-w-[420px] flex-col border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.92)] text-[#F4F0EC] shadow-[0_24px_80px_rgba(255,100,0,.12),0_0_0_1px_rgba(0,0,0,.4)] backdrop-blur-2xl backdrop-saturate-150 md:inset-y-3 md:start-3 md:w-[420px] md:rounded-[28px]"
         >
           <div className="flex items-center justify-between gap-2 px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
@@ -237,7 +243,7 @@ export default function AiAssistant() {
                   <ArrowRight size={16} />
                 </button>
               ) : (
-                <span aria-hidden className="h-9 w-9 shrink-0 rounded-full" style={{ background: orbBg, boxShadow: "0 0 24px rgba(255,140,40,.5)" }} />
+                <AgentOrb size={36} state={loading ? "thinking" : "idle"} />
               )}
               <div className="min-w-0">
                 <p className="truncate font-kufi text-[15px] font-bold">{view === "history" ? "محادثاتكم السابقة" : tab === "agent" ? "وكيل Wesync" : "كوتش الفريق"}</p>
@@ -386,11 +392,11 @@ export default function AiAssistant() {
                     }`}
                   >
                     {m.imageDataUrl && <img src={m.imageDataUrl} alt="مرفقة" className="mb-2 max-h-40 w-full rounded-2xl object-cover" />}
-                    {m.content}
+                    {m.role === "assistant" ? <StreamedText text={m.content} at={m.at} /> : m.content}
                   </div>
                 ))}
                 {loading && (
-                  <div className="max-w-[88%] rounded-3xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm text-[#B8ADA2]">يكتب...</div>
+                  <div className="max-w-[88%] rounded-3xl border border-white/10 bg-white/[0.05] px-4 py-2.5"><ThinkingLine /></div>
                 )}
                 {error && <p className="text-xs font-semibold text-rose-400">{error}</p>}
                 <div ref={bottomRef} />

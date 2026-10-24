@@ -336,7 +336,7 @@ Output ONLY JSON: {"answer":"...","actions":[{"type":"set_aim","text":"...","aut
 Rules:
 - answer: short, warm, practical Arabic (Saudi-friendly, gender-neutral plural "أنتم/عندكم"). Base facts ONLY on the snapshot: never invent progress, names, dates or numbers; if something is missing from the snapshot, say it is not set yet and point to where to set it. Max ~120 words, plain text, no markdown symbols. When asked "وش أسوي/وين وصلنا", give the 1-3 most important next steps from the snapshot (overdue tasks first, then current stage, supervisor feedback, upcoming events).
 - actions (0-8, only when useful). The app executes them with the user's own permissions:
-  * "auto": true ONLY when the user's CURRENT message explicitly orders you to do it now (e.g. "احفظ / حط / ضيف / سجّل / اكتب في المقترح / سوّ مهمة / وزّع المهام / أعطِ فلان مهمة"), or confirms ("إيه احفظه / تمام سوّها") a proposal you made in the previous agent turn. Otherwise "auto": false and it shows as a suggestion card the team approves. When auto is true, write the answer in past tense as done ("حفظت سؤال البحث بالمقترح ✓").
+  * Every action is shown to the team as a card and NOTHING is saved until they press «وافق». Always set "auto": false. NEVER write the answer as if it was already done (no "حفظت / سجلت / ضفت ✓"): say you prepared it and ask them to approve, e.g. "جهّزت لكم السؤال، اضغطوا وافق عشان ينحفظ بالمقترح". When the user explicitly orders something ("احفظ / حط / ضيف / وزّع المهام"), prepare the action(s) immediately without asking more questions.
   * set_aim: when the user tells you what they want to study or asks you to write/save the aim. If they dictate the exact aim text, use their text verbatim (fix only typos). Otherwise one academic Arabic sentence starting with "يهدف هذا البحث إلى" built strictly from what THEY said plus the snapshot title/gap — do not add facts or variables they did not mention.
   * add_questions: when they want research questions saved/added. If they dictate the question, save their exact text (fix only typos, add "؟"). Otherwise 1-4 clear one-sentence research questions in academic Arabic that follow from what they said. Never duplicate snapshot.researchQuestions.
   * add_task: a concrete task (title max 80 chars imperative Arabic, description one sentence, days 1-30 until due, priority low/medium/high). "assignee" = "me" or a member name EXACTLY as written in snapshot.members. Only the leader (snapshot.you.isLeader) can create tasks: if the user is not the leader, never set auto on add_task and tell them the leader has to create it. When the leader asks to distribute/split work ("وزّع المهام على الأعضاء"), create one add_task per member covering the work fairly (consider each member's open tasks in the snapshot). If the leader names someone who is not in snapshot.members, do not guess: ask who they mean.
@@ -368,7 +368,8 @@ async function handleAsk(db: Db, teamId: string, userId: string, question: strin
   const actions: Record<string, unknown>[] = [];
   const PRIORITIES = new Set(["low", "medium", "high"]);
   for (const a of (Array.isArray(parsed?.actions) ? (parsed!.actions as Record<string, unknown>[]) : []).slice(0, 8)) {
-    const auto = a.auto === true;
+    // دايماً بموافقة الفريق (قرار المالكة): ما فيه تنفيذ تلقائي
+    const auto = false;
     if (a.type === "set_aim" && str(a.text, 500)) actions.push({ type: "set_aim", text: str(a.text, 500), auto });
     else if (a.type === "add_questions" && Array.isArray(a.texts)) {
       const texts = (a.texts as unknown[]).map((x) => str(x, 300)).filter((x) => x && !existingQs.has(x)).slice(0, 4);
@@ -385,7 +386,7 @@ async function handleAsk(db: Db, teamId: string, userId: string, question: strin
         priority: PRIORITIES.has(String(a.priority)) ? String(a.priority) : "medium",
         assigneeId: assignee?.id ?? userId,
         assigneeName: assignee?.name ?? "",
-        auto: auto && isLeader && !!assignee,
+        auto: false,
       });
     } else if (a.type === "set_questions" && Array.isArray(a.texts)) {
       const texts = (a.texts as unknown[]).map((x) => str(x, 300)).filter(Boolean).slice(0, 10);
@@ -397,7 +398,7 @@ async function handleAsk(db: Db, teamId: string, userId: string, question: strin
       const status = ["todo", "in-progress", "done"].includes(String(a.status)) ? String(a.status) : "done";
       // صلاحية قاعدة البيانات: صاحب المهمة أو القائد
       const mayEdit = isLeader || ref.assigneeId === userId;
-      actions.push({ type: "update_task", taskId: ref.id, title: clip(ref.title, 100), status, auto: auto && mayEdit, allowed: mayEdit });
+      actions.push({ type: "update_task", taskId: ref.id, title: clip(ref.title, 100), status, auto: false, allowed: mayEdit });
     } else if (a.type === "add_event" && str(a.title, 120) && /^\d{4}-\d{2}-\d{2}$/.test(String(a.date)) && String(a.date) >= String(snapshot.today)) {
       const time = /^([01]?\d|2[0-3]):[0-5]\d$/.test(String(a.time)) ? String(a.time).padStart(5, "0") : "09:00";
       const eventType = ["meeting", "review", "fieldwork", "deadline"].includes(String(a.eventType)) ? String(a.eventType) : "meeting";

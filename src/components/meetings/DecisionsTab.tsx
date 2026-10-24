@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { CheckCircle2, Clock, HelpCircle, Loader2, MessageCircle, Plus, Send, Trash2, X } from "lucide-react";
-import Card from "../ui/Card";
+import clsx from "clsx";
+import { CheckCircle2, Clock, HelpCircle, MessageCircle, Plus, Send, Trash2, X } from "lucide-react";
+import LoadingButton from "../ui/LoadingButton";
+import { glassCard, pillField } from "../ui/researchUi";
 import EmptyState from "../ui/EmptyState";
 import ThreeDotsMenu from "../ui/ThreeDotsMenu";
 import { useToast } from "../../context/ToastContext";
@@ -17,8 +19,6 @@ interface DecisionsTabProps {
   onAsk: (input: { question: string; options: string[]; neededBy?: string }) => Promise<{ id?: string; error?: string }>;
   onCancel: (id: string) => Promise<{ error?: string }>;
 }
-
-const inputClass = "w-full rounded-xl border border-brand-100 bg-paper/60 px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-brand-300";
 
 /** «طلب قرار»: سؤال بخيارين إلى أربعة تجاوب عليه المشرف/ة بضغطة (من إيميل أو رابطها)، بدل اجتماع كامل. */
 export default function DecisionsTab({ decisions, availability, supervisorUrl, canWrite, onAsk, onCancel }: DecisionsTabProps) {
@@ -61,70 +61,67 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
   const overdue = (d: DecisionRequestRow) => replyDays !== null && now - new Date(d.createdAt).getTime() > replyDays * 86_400_000;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {replyDays !== null && (
-        <p className="flex items-center gap-2 rounded-2xl border border-brand-100/70 bg-paper/50 px-4 py-2.5 text-xs text-brand-950/65">
-          <Clock size={14} className="text-brand-500" />
-          المشرف/ة ترد عادةً خلال <b className="text-brand-950">{replyDays} {replyDays <= 2 ? "يوم" : "أيام"}</b>. {availability?.note && <span className="text-brand-950/50">— {availability.note}</span>}
+        <p className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-[#B8ADA2]">
+          <Clock size={14} className="text-[#FFB444]" />
+          المشرف/ة ترد عادةً خلال <b className="text-[#F4F0EC]">{replyDays} {replyDays <= 2 ? "يوم" : "أيام"}</b>. {availability?.note && <span>— {availability.note}</span>}
         </p>
       )}
 
       {canWrite && (
-        <Card tone="cream" className="space-y-4">
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-lg shadow-brand-500/20">
-              <HelpCircle size={20} />
-            </span>
-            <div>
-              <h3 className="font-display text-base font-extrabold text-brand-950">اسألوا المشرف/ة بقرار</h3>
-              <p className="text-xs text-brand-950/55">سؤال محدد بخيارات: تضغط خيارًا وينتهي الموضوع، بدون اجتماع.</p>
-            </div>
+        <section className={clsx(glassCard, "space-y-4 p-6")}>
+          <div>
+            <h3 className="font-kufi text-xl font-extrabold">اسألوا المشرف/ة بقرار</h3>
+            <p className="mt-1 text-sm text-[#B8ADA2]">سؤال محدد بخيارات: تضغط خيارًا وينتهي الموضوع، بدون اجتماع.</p>
           </div>
-          <input value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={400} placeholder="مثال: نعتمد المنهج الكمي أو النوعي؟" aria-label="السؤال" className={inputClass} />
+          <input value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={400} placeholder="مثال: نعتمد المنهج الكمي أو النوعي؟" aria-label="السؤال" className={pillField} />
           <div className="space-y-2">
             {options.map((o, i) => (
-              <div key={i} className="flex gap-2">
-                <input value={o} onChange={(e) => setOptions((p) => p.map((x, j) => (j === i ? e.target.value : x)))} maxLength={120} placeholder={`الخيار ${i + 1}`} aria-label={`الخيار ${i + 1}`} className={inputClass} />
+              <div key={i} className="flex items-center gap-2">
+                <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/20 text-xs text-[#B8ADA2]">{i + 1}</span>
+                <input value={o} onChange={(e) => setOptions((p) => p.map((x, j) => (j === i ? e.target.value : x)))} maxLength={120} placeholder={`الخيار ${i + 1}`} aria-label={`الخيار ${i + 1}`} className={pillField} />
                 {options.length > 2 && (
-                  <button onClick={() => setOptions((p) => p.filter((_, j) => j !== i))} aria-label="حذف الخيار" className="rounded-xl px-2.5 text-brand-950/40 hover:bg-rose-500/10 hover:text-rose-500">
+                  <button onClick={() => setOptions((p) => p.filter((_, j) => j !== i))} aria-label="حذف الخيار" className="rounded-full p-2 text-[#B8ADA2] hover:bg-rose-500/10 hover:text-rose-400">
                     <X size={16} />
                   </button>
                 )}
               </div>
             ))}
             {options.length < 4 && (
-              <button onClick={() => setOptions((p) => [...p, ""])} className="flex items-center gap-1 text-xs font-bold text-brand-700 hover:underline">
+              <button onClick={() => setOptions((p) => [...p, ""])} className="flex items-center gap-1 text-xs font-bold text-[#FFB444] hover:underline">
                 <Plus size={13} />
                 أضيفوا خيارًا
               </button>
             )}
           </div>
           <div className="flex flex-wrap items-end gap-3">
-            <label className="text-xs font-semibold text-brand-950/60">
+            <label className="text-xs font-semibold text-[#B8ADA2]">
               نحتاج الرد قبل (اختياري)
-              <input type="date" min={toISODate(new Date())} value={neededBy} onChange={(e) => setNeededBy(e.target.value)} className={`${inputClass} mt-1`} />
+              <input type="date" min={toISODate(new Date())} value={neededBy} onChange={(e) => setNeededBy(e.target.value)} className={clsx(pillField, "mt-1")} />
             </label>
-            <button onClick={submit} disabled={!valid || saving} className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-brand-500/25 transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 motion-reduce:transition-none">
-              {saving ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+            <LoadingButton loading={saving} error={!!error} loadingText="جاري الإرسال…" savedText="✓ انرسل" onClick={submit} disabled={!valid}>
+              <Send size={15} />
               أرسلوا الطلب
-            </button>
+            </LoadingButton>
           </div>
-          {error && <p role="alert" className="rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm font-medium text-rose-600">{error}</p>}
-        </Card>
+          {error && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{error}</p>}
+        </section>
       )}
 
       {decisions.length === 0 ? (
-        <Card>
+        <div className={clsx(glassCard, "p-2")}>
           <EmptyState icon={HelpCircle} title="ما فيه طلبات قرار بعد" desc="أي سؤال تتأخرون فيه بسبب انتظار الرد، اكتبوه هنا بخيارات واضحة." />
-        </Card>
+        </div>
       ) : (
         <div className="space-y-3">
+          <h4 className="font-kufi text-lg font-bold">الأسئلة المرسلة</h4>
           {open.map((d) => (
-            <Card key={d.id} className="space-y-3 !p-4 sm:!p-5">
+            <div key={d.id} className={clsx(glassCard, "space-y-3 p-5")}>
               <div className="flex items-start justify-between gap-2">
-                <p className="font-extrabold text-brand-950">{d.question}</p>
+                <p className="font-bold">{d.question}</p>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-accent-300/50 bg-amber-accent-100/40 px-2.5 py-1 text-[11px] font-bold text-amber-accent-700">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#FFB444]/40 bg-[#FFB444]/10 px-2.5 py-1 text-[11px] font-bold text-[#FFB444]">
                     <Clock size={12} />
                     بانتظار القرار
                   </span>
@@ -133,39 +130,39 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               </div>
               <ul className="flex flex-wrap gap-2">
                 {d.options.map((o) => (
-                  <li key={o} className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold text-brand-950/70">{o}</li>
+                  <li key={o} className="rounded-full border border-white/[0.14] px-3.5 py-1 text-xs font-semibold text-[#E6DBD1]">{o}</li>
                 ))}
               </ul>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-brand-950/50">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[#B8ADA2]">
                 {d.neededBy && <span>مطلوب قبل {formatDateShort(d.neededBy)} ({relativeDayLabel(d.neededBy)})</span>}
-                {overdue(d) && <span className="rounded-full bg-amber-accent-100/50 px-2 py-0.5 font-bold text-amber-accent-700">تجاوز المدة المتوقعة، ذكّروا بلطف</span>}
+                {overdue(d) && <span className="rounded-full bg-[#FFB444]/15 px-2 py-0.5 font-bold text-[#FFB444]">تجاوز المدة المتوقعة، ذكّروا بلطف</span>}
                 <span className="flex-1" />
                 {supervisorUrl && (
-                  <a href={whatsappUrl(decisionRequestMessage(d.question, supervisorUrl))} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 font-bold text-brand-700 hover:bg-surface-muted">
+                  <a href={whatsappUrl(decisionRequestMessage(d.question, supervisorUrl))} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 font-bold text-[#B8ADA2] hover:border-[#FF8A24]/50 hover:text-[#F4F0EC]">
                     <MessageCircle size={12} />
                     بواتساب
                   </a>
                 )}
               </div>
-            </Card>
+            </div>
           ))}
           {done.map((d) => (
-            <Card key={d.id} className="space-y-2.5 !p-4 sm:!p-5">
+            <div key={d.id} className={clsx(glassCard, "space-y-2.5 p-5")}>
               <div className="flex items-start justify-between gap-2">
-                <p className="font-extrabold text-brand-950">{d.question}</p>
-                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-500">
+                <p className="font-bold">{d.question}</p>
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#7fd6a0]/40 bg-[#7fd6a0]/10 px-2.5 py-1 text-[11px] font-bold text-[#7fd6a0]">
                   <CheckCircle2 size={12} />
                   تم القرار
                 </span>
               </div>
               <ul className="flex flex-wrap gap-2">
                 {d.options.map((o, i) => (
-                  <li key={o} className={`rounded-full px-3 py-1 text-xs font-semibold ${i === d.chosenIndex ? "bg-emerald-500/15 text-emerald-500 ring-1 ring-emerald-400/40" : "bg-surface-muted text-brand-950/40 line-through"}`}>{o}</li>
+                  <li key={o} className={clsx("rounded-full px-3.5 py-1 text-xs font-semibold", i === d.chosenIndex ? "bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : "border border-white/10 text-[#B8ADA2]/60 line-through")}>{o}</li>
                 ))}
               </ul>
-              {d.answerNote && <p className="text-sm text-brand-950/70">«{d.answerNote}»</p>}
-              <p className="text-xs text-brand-950/45">{d.supervisorName || "المشرف/ة"} · {d.answeredAt ? formatDateShort(d.answeredAt.slice(0, 10)) : ""}</p>
-            </Card>
+              {d.answerNote && <p className="text-sm text-[#E6DBD1]">«{d.answerNote}»</p>}
+              <p className="text-xs text-[#B8ADA2]">{d.supervisorName || "المشرف/ة"} · {d.answeredAt ? formatDateShort(d.answeredAt.slice(0, 10)) : ""}</p>
+            </div>
           ))}
         </div>
       )}

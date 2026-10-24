@@ -19,6 +19,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTeamPayments } from "../hooks/useTeamPayments";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
 import { daysUntil, formatDateLong } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 export default function Pricing() {
   const { team, isLeader, setTeamPlan } = useAuth();
@@ -60,16 +61,10 @@ export default function Pricing() {
             Wesync Premium
           </span>
 
-          <h1 className="relative mt-4 font-display text-2xl font-extrabold leading-snug text-brand-950 sm:text-3xl">
-            بحثكم يستحق مساحة تواكبه
-            <br />
-            <span className="bg-gradient-to-l from-brand-600 to-amber-accent-600 bg-clip-text text-transparent">
-              من أول فكرة، لآخر صفحة
-            </span>
+          <h1 className="relative mt-4 font-display text-2xl font-extrabold leading-snug text-brand-950 sm:text-3xl">{tr("بحثكم يستحق مساحة تواكبه")}<br />
+            <span className="bg-gradient-to-l from-brand-600 to-amber-accent-600 bg-clip-text text-transparent">{tr("من أول فكرة، لآخر صفحة")}</span>
           </h1>
-          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">
-            باقتين بسيطتين لفريقكم كامل — Basic من {BASIC_PRICE} ريال، وAI بكل ميزات الذكاء الاصطناعي، شهريًا لكل عضو 🌱
-          </p>
+          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("باقتين بسيطتين لفريقكم كامل — Basic من {0} ريال، وAI بكل ميزات الذكاء الاصطناعي، شهريًا لكل عضو 🌱", BASIC_PRICE)}</p>
 
           <div className="relative mx-auto mt-7 flex w-fit items-center justify-center">
             <GrowingPlant className="h-32 w-32 opacity-95 sm:h-40 sm:w-40" />
@@ -95,32 +90,26 @@ export default function Pricing() {
               <div className="glass-panel relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper/80 p-6 backdrop-blur-xl">
                 {isAi && (
                   <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-                    <Wand2 size={11} />
-                    الأكثر قيمة
-                  </span>
+                    <Wand2 size={11} />{tr("الأكثر قيمة")}</span>
                 )}
                 <p className="font-display text-lg font-extrabold text-brand-950">
-                  {isAi ? "باقة AI" : "باقة Basic"}
+                  {isAi ? tr("باقة AI") : tr("باقة Basic")}
                 </p>
                 <p className="mt-0.5 text-xs text-brand-950/50">
-                  {isAi ? "كل شي بالإضافة للذكاء الاصطناعي" : "كل أدوات إدارة البحث"}
+                  {isAi ? tr("كل شي بالإضافة للذكاء الاصطناعي") : tr("كل أدوات إدارة البحث")}
                 </p>
                 <div className="mt-4 flex items-baseline gap-1.5">
                   <span className="font-display text-4xl font-extrabold text-brand-950">{price}</span>
-                  <span className="text-sm font-semibold text-brand-950/50">ريال / شهريًا لكل عضو</span>
+                  <span className="text-sm font-semibold text-brand-950/50">{tr("ريال / شهريًا لكل عضو")}</span>
                 </div>
                 {isAi && isFounder && (
-                  <p className="mt-1 text-[11px] font-bold text-amber-accent-700">
-                    سعر المؤسسين — بدل {AI_PRICE} ريال، ثابت مدى اشتراككم
-                  </p>
+                  <p className="mt-1 text-[11px] font-bold text-amber-accent-700">{trx("سعر المؤسسين — بدل {0} ريال، ثابت مدى اشتراككم", AI_PRICE)}</p>
                 )}
 
                 <ul className="mt-5 flex-1 space-y-2.5">
                   {isAi ? (
                     <li className="flex items-start gap-2.5 text-sm font-bold text-brand-950/80">
-                      <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />
-                      كل مزايا Basic
-                    </li>
+                      <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />{tr("كل مزايا Basic")}</li>
                   ) : (
                     basicHighlights.map((label) => (
                       <li key={label} className="flex items-start gap-2.5 text-sm text-brand-950/70">
@@ -140,9 +129,7 @@ export default function Pricing() {
                     ))
                   ) : (
                     <li className="flex items-start gap-2.5 text-sm text-brand-950/40">
-                      <Lock size={15} className="mt-0.5 shrink-0" />
-                      بدون المساعد الذكي ووكيل البحث وتحسين الصياغة
-                    </li>
+                      <Lock size={15} className="mt-0.5 shrink-0" />{tr("بدون المساعد الذكي ووكيل البحث وتحسين الصياغة")}</li>
                   )}
                 </ul>
 
@@ -157,15 +144,13 @@ export default function Pricing() {
                 >
                   {selected ? (
                     <>
-                      <BadgeCheck size={16} />
-                      باقتكم الحالية
-                    </>
+                      <BadgeCheck size={16} />{tr("باقتكم الحالية")}</>
                   ) : planBusy === plan ? (
-                    "جاري التغيير..."
+                    tr("جاري التغيير...")
                   ) : isLeader ? (
-                    `انتقلوا لباقة ${isAi ? "AI" : "Basic"}`
+                    tr("انتقلوا لباقة {0}", isAi ? "AI" : "Basic")
                   ) : (
-                    "التغيير من قائدة الفريق"
+                    tr("التغيير من قائدة الفريق")
                   )}
                 </button>
               </div>
@@ -179,9 +164,7 @@ export default function Pricing() {
         <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{planError}</p>
       )}
       {team?.isOnTrial && (
-        <p className="rounded-2xl bg-amber-accent-50 px-4 py-3 text-xs font-semibold text-amber-accent-700">
-          أنتم الحين بفترة التجربة — كل ميزات AI مفتوحة لكم مهما كانت الباقة المختارة، واختياركم يبدأ يسري مع أول اشتراك.
-        </p>
+        <p className="rounded-2xl bg-amber-accent-50 px-4 py-3 text-xs font-semibold text-amber-accent-700">{tr("أنتم الحين بفترة التجربة — كل ميزات AI مفتوحة لكم مهما كانت الباقة المختارة، واختياركم يبدأ يسري مع أول اشتراك.")}</p>
       )}
 
       {/* Price card */}
@@ -190,29 +173,25 @@ export default function Pricing() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-950/10 to-transparent" />
           <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-accent-100/70 blur-3xl" />
           <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-            {currentPlan === "ai" ? "باقة AI" : "باقة Basic"}
+            {currentPlan === "ai" ? tr("باقة AI") : tr("باقة Basic")}
           </span>
 
           <div className="relative flex flex-col items-start gap-1">
             <p className="flex items-center gap-1.5 text-xs font-bold text-brand-950/50">
-              <BadgeCheck size={14} className="text-brand-500" />
-              حالة الاشتراك: {subscriptionStateLabel[state]}
-            </p>
+              <BadgeCheck size={14} className="text-brand-500" />{trx("حالة الاشتراك: {0}", subscriptionStateLabel[state])}</p>
             <div className="flex items-baseline gap-1.5">
               <span className="font-display text-4xl font-extrabold text-brand-950">{total}</span>
-              <span className="text-sm font-semibold text-brand-950/50">ريال / شهريًا</span>
+              <span className="text-sm font-semibold text-brand-950/50">{tr("ريال / شهريًا")}</span>
             </div>
-            <p className="text-xs text-brand-950/45">
-              {pricePerPerson} ريال × {memberCount} {memberCount === 1 ? "عضو" : "أعضاء"} بفريقكم
-            </p>
+            <p className="text-xs text-brand-950/45">{trx("{0} ريال × {1} {2} بفريقكم", pricePerPerson, memberCount, memberCount === 1 ? tr("عضو") : tr("أعضاء"))}</p>
           </div>
 
           {team?.subscriptionEndDate && (
             <p className="mt-4 flex items-center gap-1.5 rounded-xl bg-surface-muted px-3 py-2 text-xs font-semibold text-brand-950/60">
               <CalendarClock size={14} className="text-brand-500" />
               {isActive
-                ? `متبقٍ ${Math.max(daysLeft, 0)} ${daysLeft === 1 ? "يوم" : "أيام"} — ينتهي ${formatDateLong(team.subscriptionEndDate)}`
-                : `انتهى بتاريخ ${formatDateLong(team.subscriptionEndDate)}`}
+                ? tr("متبقٍ {0} {1} — ينتهي {2}", Math.max(daysLeft, 0), daysLeft === 1 ? tr("يوم") : tr("أيام"), formatDateLong(team.subscriptionEndDate))
+                : tr("انتهى بتاريخ {0}", formatDateLong(team.subscriptionEndDate))}
             </p>
           )}
 
@@ -222,18 +201,16 @@ export default function Pricing() {
             className="relative mt-6 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-l from-brand-500 to-brand-600 py-3.5 text-sm font-extrabold text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_16px_-4px_rgba(0,0,0,0.25)] transition-shadow hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.4),0_8px_20px_-4px_rgba(0,0,0,0.3)] disabled:cursor-default disabled:opacity-70 disabled:shadow-none"
           >
             <CreditCard size={16} />
-            {isActive ? "اشتراككم مفعّل ✓" : "ادفعوا حصتكم الآن"}
+            {isActive ? tr("اشتراككم مفعّل ✓") : tr("ادفعوا حصتكم الآن")}
           </button>
 
-          <p className="mt-3 text-center text-[11px] text-brand-950/40">
-            ٧ أيام تجربة مجانية كاملة المزايا عند بداية الفريق · دفع آمن عبر Moyasar
-          </p>
+          <p className="mt-3 text-center text-[11px] text-brand-950/40">{tr("٧ أيام تجربة مجانية كاملة المزايا عند بداية الفريق · دفع آمن عبر Moyasar")}</p>
         </div>
       </div>
 
       {/* Split payment roster — مين دفع حصته */}
       <Card>
-        <CardHeader title="حصص الأعضاء هالشهر" subtitle="Who's paid" />
+        <CardHeader title={tr("حصص الأعضاء هالشهر")} subtitle="Who's paid" />
         <ul className="space-y-2.5">
           {roster.map((member) => {
             const hasPaid = paidProfileIds.has(member.id);
@@ -250,59 +227,39 @@ export default function Pricing() {
                 </div>
                 {hasPaid ? (
                   <span className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm shadow-brand-500/30">
-                    <Check size={12} />
-                    دفع حصته
-                  </span>
+                    <Check size={12} />{tr("دفع حصته")}</span>
                 ) : (
-                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-bold text-brand-950/40">
-                    لسا
-                  </span>
+                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-bold text-brand-950/40">{tr("لسا")}</span>
                 )}
               </li>
             );
           })}
         </ul>
-        <p className="mt-3 text-xs text-brand-950/45">
-          كل عضو يدفع نصيبه ({pricePerPerson} ريال) بشكل مستقل — يمدد اشتراك الفريق بحصته مباشرة،
-          بدون انتظار البقية.
-        </p>
+        <p className="mt-3 text-xs text-brand-950/45">{trx("كل عضو يدفع نصيبه ({0} ريال) بشكل مستقل — يمدد اشتراك الفريق بحصته مباشرة، بدون انتظار البقية.", pricePerPerson)}</p>
       </Card>
 
       <Card>
-        <CardHeader title="أسئلة شائعة" subtitle="FAQ" />
+        <CardHeader title={tr("أسئلة شائعة")} subtitle="FAQ" />
         <div className="space-y-4 text-sm">
           <div>
-            <p className="font-bold text-brand-950">هل السعر ثابت مهما كان عدد الفريق؟</p>
-            <p className="mt-1 text-brand-950/55">
-              لا، السعر {pricePerPerson} ريال لكل شخص، فيتغيّر تلقائيًا حسب عدد أعضاء فريقكم.
-            </p>
+            <p className="font-bold text-brand-950">{tr("هل السعر ثابت مهما كان عدد الفريق؟")}</p>
+            <p className="mt-1 text-brand-950/55">{trx("لا، السعر {0} ريال لكل شخص، فيتغيّر تلقائيًا حسب عدد أعضاء فريقكم.", pricePerPerson)}</p>
           </div>
           <div>
-            <p className="font-bold text-brand-950">لازم قائد الفريق يدفع، ولا أي عضو يقدر؟</p>
-            <p className="mt-1 text-brand-950/55">
-              أي عضو يقدر يدفع حصته بنفسه بأي وقت — ما يحتاج ينتظر قائد الفريق. قائد الفريق بس هو
-              اللي يقدر يدفع الفاتورة كاملة عن الكل دفعة وحدة لو حبى.
-            </p>
+            <p className="font-bold text-brand-950">{tr("لازم قائد الفريق يدفع، ولا أي عضو يقدر؟")}</p>
+            <p className="mt-1 text-brand-950/55">{tr("أي عضو يقدر يدفع حصته بنفسه بأي وقت — ما يحتاج ينتظر قائد الفريق. قائد الفريق بس هو اللي يقدر يدفع الفاتورة كاملة عن الكل دفعة وحدة لو حبى.")}</p>
           </div>
           <div>
-            <p className="font-bold text-brand-950">كيف يتفعّل الاشتراك بعد الدفع؟</p>
-            <p className="mt-1 text-brand-950/55">
-              بالتحويل عبر STC Pay وإرسال إثبات التحويل نفعّل اشتراككم خلال ساعة كحد أقصى. الدفع
-              بالبطاقة يتفعّل خلال ثوانٍ فور نجاحه، وهو قيد التشغيل.
-            </p>
+            <p className="font-bold text-brand-950">{tr("كيف يتفعّل الاشتراك بعد الدفع؟")}</p>
+            <p className="mt-1 text-brand-950/55">{tr("بالتحويل عبر STC Pay وإرسال إثبات التحويل نفعّل اشتراككم خلال ساعة كحد أقصى. الدفع بالبطاقة يتفعّل خلال ثوانٍ فور نجاحه، وهو قيد التشغيل.")}</p>
           </div>
           <div>
-            <p className="font-bold text-brand-950">أقدر أغيّر الباقة؟</p>
-            <p className="mt-1 text-brand-950/55">
-              قائدة الفريق تغيّرها أثناء التجربة، أو قبل التجديد بأسبوع، أو بعد انتهاء الاشتراك.
-              نمنع التبديل بنص الشهر عشان الحسبة تبقى عادلة لكل الفرق.
-            </p>
+            <p className="font-bold text-brand-950">{tr("أقدر أغيّر الباقة؟")}</p>
+            <p className="mt-1 text-brand-950/55">{tr("قائدة الفريق تغيّرها أثناء التجربة، أو قبل التجديد بأسبوع، أو بعد انتهاء الاشتراك. نمنع التبديل بنص الشهر عشان الحسبة تبقى عادلة لكل الفرق.")}</p>
           </div>
           <div className="flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5">
             <ShieldCheck size={16} className="mt-0.5 shrink-0 text-brand-500" />
-            <p className="text-xs text-brand-950/55">
-              معلومات بطاقتكم ما تمر إلا عبر Moyasar مباشرة — الموقع ما يخزّن أي بيانات دفع.
-            </p>
+            <p className="text-xs text-brand-950/55">{tr("معلومات بطاقتكم ما تمر إلا عبر Moyasar مباشرة — الموقع ما يخزّن أي بيانات دفع.")}</p>
           </div>
         </div>
       </Card>

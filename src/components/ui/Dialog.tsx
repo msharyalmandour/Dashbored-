@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { tr } from "../../lib/i18n";
 
 /** نافذة زجاجية: تتقفل بـEsc أو بالضغط خارجها أو زر الإغلاق، والتركيز ينتقل لها أول ما تنفتح */
 export default function Dialog({
@@ -43,7 +44,7 @@ export default function Dialog({
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="font-kufi text-xl font-extrabold">{title}</h2>
-          <button onClick={onClose} aria-label="إغلاق" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-[#B8ADA2] hover:text-[#F4F0EC]">
+          <button onClick={onClose} aria-label={tr("إغلاق")} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-[#B8ADA2] hover:text-[#F4F0EC]">
             <X size={16} />
           </button>
         </div>

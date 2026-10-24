@@ -46,6 +46,7 @@ import {
   type ChipTone,
 } from "../components/ui/page";
 import { playChime } from "../lib/sound";
+import { tr, trx } from "../lib/i18n";
 
 const TASK_ATTACHMENTS_KEY = "nursync.taskAttachments";
 
@@ -59,10 +60,10 @@ function loadTaskAttachments(): Record<string, AttachedFileMeta> {
 }
 
 const celebrations = [
-  "عاشت الأيادي!",
-  "خطوة قدام في بحثك 👏",
-  "تقدم ما ينكسر",
-  "أنت قدها وقدود!",
+  tr("عاشت الأيادي!"),
+  tr("خطوة قدام في بحثك 👏"),
+  tr("تقدم ما ينكسر"),
+  tr("أنت قدها وقدود!"),
 ];
 
 const sectionLabel = Object.fromEntries(
@@ -77,25 +78,25 @@ const statusTone: Record<TaskStatus, ChipTone> = {
 };
 
 const statusLabel: Record<TaskStatus, string> = {
-  todo: "لم يبدأ",
-  "in-progress": "قيد التنفيذ",
-  done: "مكتملة",
-  overdue: "متأخرة",
+  todo: tr("لم يبدأ"),
+  "in-progress": tr("قيد التنفيذ"),
+  done: tr("مكتملة"),
+  overdue: tr("متأخرة"),
 };
 
 const priorityLabel: Record<TaskPriority, string> = {
-  low: "منخفضة",
-  medium: "متوسطة",
-  high: "عالية",
+  low: tr("منخفضة"),
+  medium: tr("متوسطة"),
+  high: tr("عالية"),
 };
 
 const filters: { id: string; label: string }[] = [
-  { id: "all", label: "الكل" },
-  { id: "mine", label: "مهامي" },
-  { id: "todo", label: "لم تبدأ" },
-  { id: "in-progress", label: "قيد التنفيذ" },
-  { id: "overdue", label: "متأخرة" },
-  { id: "done", label: "مكتملة" },
+  { id: "all", label: tr("الكل") },
+  { id: "mine", label: tr("مهامي") },
+  { id: "todo", label: tr("لم تبدأ") },
+  { id: "in-progress", label: tr("قيد التنفيذ") },
+  { id: "overdue", label: tr("متأخرة") },
+  { id: "done", label: tr("مكتملة") },
 ];
 
 export default function Tasks() {
@@ -176,8 +177,8 @@ export default function Tasks() {
   const memberById = (id: string) =>
     roster.find((m) => m.id === id) ?? {
       id,
-      name: "عضو",
-      initials: "؟",
+      name: tr("عضو"),
+      initials: tr("؟"),
       color: "brand",
     };
 
@@ -206,7 +207,7 @@ export default function Tasks() {
     await updateStatus(task.id, nextStatus);
     if (nextStatus === "done") {
       const line = celebrations[Math.floor(Math.random() * celebrations.length)];
-      showToast({ title: line, desc: `أكملت: ${task.title}`, icon: PartyPopperIcon, tone: "amber" });
+      showToast({ title: line, desc: tr("أكملت: {0}", task.title), icon: PartyPopperIcon, tone: "amber" });
       playChime();
       setJustCompleted(true);
     }
@@ -230,15 +231,13 @@ export default function Tasks() {
 
   const header = (
     <PageHeader
-      kicker="الفريق"
-      title="مهامي"
-      subtitle="كل اللي عليك وعلى الفريق، مرتبة بالأقرب موعد."
+      kicker={tr("الفريق")}
+      title={tr("مهامي")}
+      subtitle={tr("كل اللي عليك وعلى الفريق، مرتبة بالأقرب موعد.")}
       action={
         isLeader && canWrite ? (
           <button onClick={() => setShowForm((s) => !s)} className={primaryBtn}>
-            <Plus size={16} />
-            مهمة جديدة
-          </button>
+            <Plus size={16} />{tr("مهمة جديدة")}</button>
         ) : undefined
       }
     />
@@ -250,7 +249,7 @@ export default function Tasks() {
       <div className="flex items-center gap-1 rounded-full border border-brand-500/30 bg-paper/50 p-1">
         <button
           onClick={() => setView("list")}
-          title="عرض قائمة"
+          title={tr("عرض قائمة")}
           className={clsx(
             "rounded-full p-2",
             view === "list" ? "bg-brand-500 text-[#1a0f00]" : "text-brand-950/50 hover:bg-surface-muted",
@@ -260,7 +259,7 @@ export default function Tasks() {
         </button>
         <button
           onClick={() => setView("board")}
-          title="عرض لوحة"
+          title={tr("عرض لوحة")}
           className={clsx(
             "rounded-full p-2",
             view === "board" ? "bg-brand-500 text-[#1a0f00]" : "text-brand-950/50 hover:bg-surface-muted",
@@ -276,16 +275,16 @@ export default function Tasks() {
     <>
       {nearest ? (
         <HighlightCard
-          kicker="أقرب موعد"
+          kicker={tr("أقرب موعد")}
           title={nearest.title}
           subtitle={`${relativeDayLabel(nearest.dueDate)} · ${memberById(nearest.assigneeId).name}`}
         />
       ) : (
-        <HighlightCard kicker="أقرب موعد" title="ما عندكم مهام مفتوحة" subtitle="عاشت الأيادي 🎉" />
+        <HighlightCard kicker={tr("أقرب موعد")} title={tr("ما عندكم مهام مفتوحة")} subtitle={tr("عاشت الأيادي 🎉")} />
       )}
       <ReadinessPanel
-        title="إنجاز المهام"
-        subtitle={`${doneCount} من ${tasks.length}`}
+        title={tr("إنجاز المهام")}
+        subtitle={tr("{0} من {1}", doneCount, tasks.length)}
         done={doneCount}
         total={tasks.length}
         items={railItems}
@@ -309,19 +308,19 @@ export default function Tasks() {
           >
             <X size={18} />
           </button>
-          <h3 className="mb-4 text-base font-bold text-brand-950">إسناد مهمة جديدة</h3>
+          <h3 className="mb-4 text-base font-bold text-brand-950">{tr("إسناد مهمة جديدة")}</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">عنوان المهمة</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("عنوان المهمة")}</span>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
-                placeholder="مثال: مراجعة الفصل الثالث"
+                placeholder={tr("مثال: مراجعة الفصل الثالث")}
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">إسناد إلى</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("إسناد إلى")}</span>
               <select
                 value={form.assigneeId || assignableMembers[0]?.id || ""}
                 onChange={(e) => setForm({ ...form, assigneeId: e.target.value })}
@@ -335,9 +334,7 @@ export default function Tasks() {
               </select>
             </label>
             <label className="block text-sm md:col-span-2">
-              <span className="mb-1 flex items-center justify-between font-semibold text-brand-950/70">
-                الوصف
-                <ImproveWritingButton
+              <span className="mb-1 flex items-center justify-between font-semibold text-brand-950/70">{tr("الوصف")}<ImproveWritingButton
                   value={form.description}
                   onImproved={(text) => setForm({ ...form, description: text })}
                 />
@@ -347,11 +344,11 @@ export default function Tasks() {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 rows={2}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
-                placeholder="تفاصيل مختصرة عن المهمة"
+                placeholder={tr("تفاصيل مختصرة عن المهمة")}
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">تاريخ الاستحقاق</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("تاريخ الاستحقاق")}</span>
               <input
                 type="date"
                 value={form.dueDate}
@@ -360,15 +357,15 @@ export default function Tasks() {
               />
             </label>
             <label className="block text-sm">
-              <span className="mb-1 block font-semibold text-brand-950/70">الأولوية</span>
+              <span className="mb-1 block font-semibold text-brand-950/70">{tr("الأولوية")}</span>
               <select
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value as TaskPriority })}
                 className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
               >
-                <option value="low">منخفضة</option>
-                <option value="medium">متوسطة</option>
-                <option value="high">عالية</option>
+                <option value="low">{tr("منخفضة")}</option>
+                <option value="medium">{tr("متوسطة")}</option>
+                <option value="high">{tr("عالية")}</option>
               </select>
             </label>
           </div>
@@ -380,9 +377,7 @@ export default function Tasks() {
           <button
             onClick={handleAssign}
             className="mt-4 rounded-xl bg-brand-500 px-5 py-2 text-sm font-bold text-white hover:bg-brand-600"
-          >
-            إسناد المهمة
-          </button>
+          >{tr("إسناد المهمة")}</button>
         </Card>
       )}
 
@@ -402,7 +397,7 @@ export default function Tasks() {
           onDelete={deleteTask}
         />
       ) : (
-        <Panel title="كل المهام" hint={`${openTasks.length} مهمة مفتوحة`}>
+        <Panel title={tr("كل المهام")} hint={tr("{0} مهمة مفتوحة", openTasks.length)}>
         <div className="flex flex-col gap-2.5">
           {filtered.map((task) => {
             const assignee = memberById(task.assigneeId);
@@ -422,8 +417,8 @@ export default function Tasks() {
                     title={
                       canToggle
                         ? task.status === "done"
-                          ? "إلغاء الإكمال"
-                          : "تعليم كمكتملة"
+                          ? tr("إلغاء الإكمال")
+                          : tr("تعليم كمكتملة")
                         : undefined
                     }
                     className={clsx(
@@ -462,8 +457,8 @@ export default function Tasks() {
                     <ThreeDotsMenu
                       items={[
                         {
-                          label: "حذف المهمة",
-                          confirmLabel: "تأكيد الحذف؟",
+                          label: tr("حذف المهمة"),
+                          confirmLabel: tr("تأكيد الحذف؟"),
                           icon: Trash2,
                           tone: "danger",
                           onClick: () => deleteTask(task.id),
@@ -475,14 +470,14 @@ export default function Tasks() {
 
                 <div className="flex flex-wrap items-center gap-3 border-t border-brand-100/20 pt-3">
                   <StatusChip tone={statusTone[task.status]}>{statusLabel[task.status]}</StatusChip>
-                  {task.priority === "high" && <StatusChip tone="late">أولوية {priorityLabel[task.priority]}</StatusChip>}
+                  {task.priority === "high" && <StatusChip tone="late">{trx("أولوية {0}", priorityLabel[task.priority])}</StatusChip>}
                   <span className="text-sm text-brand-950/50">{formatDateShort(task.dueDate)}</span>
                   {canToggle && !taskAttachments[task.id] && (
                     <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} />
                   )}
                   <button
                     onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
-                    title="التعليقات"
+                    title={tr("التعليقات")}
                     className={clsx(
                       "-m-2 flex items-center gap-1 p-2 text-xs font-semibold",
                       isExpanded ? "text-brand-600" : "text-brand-950/45 hover:text-brand-600",
@@ -514,12 +509,12 @@ export default function Tasks() {
               icon={ListChecks}
               title={
                 filter === "mine"
-                  ? "ما عليك مهام هنا"
+                  ? tr("ما عليك مهام هنا")
                   : filter === "done"
-                    ? "ولا مهمة مكتملة بعد"
-                    : "ما فيه مهام مطابقة"
+                    ? tr("ولا مهمة مكتملة بعد")
+                    : tr("ما فيه مهام مطابقة")
               }
-              desc={filter === "mine" ? "عاشت الأيادي 🎉" : "بهذا الفلتر حاليًا"}
+              desc={filter === "mine" ? tr("عاشت الأيادي 🎉") : tr("بهذا الفلتر حاليًا")}
             />
           )}
         </div>

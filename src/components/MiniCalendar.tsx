@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import clsx from "clsx";
 import { arabicMonths, arabicWeekdaysShort, toISODate } from "../lib/date";
 import type { CalendarEvent } from "../data/types";
+import { tr } from "../lib/i18n";
 
 const eventDot: Record<CalendarEvent["type"], string> = {
   meeting: "bg-sky-accent-500",
@@ -71,14 +72,14 @@ export default function MiniCalendar({
         <div className="flex gap-1">
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-            aria-label="الشهر السابق"
+            aria-label={tr("الشهر السابق")}
             className="rounded-lg p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
           >
             <ChevronRight size={16} />
           </button>
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-            aria-label="الشهر التالي"
+            aria-label={tr("الشهر التالي")}
             className="rounded-lg p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
           >
             <ChevronLeft size={16} />

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import clsx from "clsx";
+import { tr } from "../../lib/i18n";
 
 type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   /** شغّال الحين؟ (الصفحة هي اللي تعرف — الزر بس يعرض الحالة) */
@@ -25,9 +26,9 @@ const variants = {
 export default function LoadingButton({
   loading = false,
   error = false,
-  loadingText = "جاري الحفظ…",
-  savedText = "✓ انحفظ",
-  errorText = "أعد المحاولة",
+  loadingText = tr("جاري الحفظ…"),
+  savedText = tr("✓ انحفظ"),
+  errorText = tr("أعد المحاولة"),
   showSaved = true,
   variant = "primary",
   className,
@@ -87,7 +88,7 @@ export default function LoadingButton({
         children
       )}
       <span className="sr-only" role="status" aria-live="polite">
-        {state === "loading" ? loadingText : state === "saved" ? "تم الحفظ" : state === "error" ? "تعذّر الحفظ" : ""}
+        {state === "loading" ? loadingText : state === "saved" ? tr("تم الحفظ") : state === "error" ? tr("تعذّر الحفظ") : ""}
       </span>
     </button>
   );

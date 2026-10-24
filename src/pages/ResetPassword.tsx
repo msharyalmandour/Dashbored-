@@ -2,6 +2,7 @@ import { useState } from "react";
 import { KeyRound } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
+import { tr } from "../lib/i18n";
 
 export default function ResetPassword() {
   const { updatePassword, cancelPasswordRecovery } = useAuth();
@@ -15,7 +16,7 @@ export default function ResetPassword() {
     e.preventDefault();
     setError(null);
     if (password !== confirm) {
-      setError("كلمتا المرور غير متطابقتين");
+      setError(tr("كلمتا المرور غير متطابقتين"));
       return;
     }
     setSubmitting(true);
@@ -34,9 +35,7 @@ export default function ResetPassword() {
           <div className="mb-3">
             <Logo size={48} />
           </div>
-          <h1 className="font-display text-2xl font-extrabold text-brand-950">
-            تعيين كلمة مرور جديدة
-          </h1>
+          <h1 className="font-display text-2xl font-extrabold text-brand-950">{tr("تعيين كلمة مرور جديدة")}</h1>
         </div>
 
         {done ? (
@@ -44,23 +43,17 @@ export default function ResetPassword() {
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-600">
               <KeyRound size={22} />
             </span>
-            <p className="mt-4 text-sm font-semibold text-brand-950/70">
-              تم تحديث كلمة مرورك بنجاح. تقدر تكمل استخدام حسابك الحين.
-            </p>
+            <p className="mt-4 text-sm font-semibold text-brand-950/70">{tr("تم تحديث كلمة مرورك بنجاح. تقدر تكمل استخدام حسابك الحين.")}</p>
             <button
               onClick={() => (window.location.hash = "#/")}
               className="mt-5 w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
-            >
-              الذهاب للوحة التحكم
-            </button>
+            >{tr("الذهاب للوحة التحكم")}</button>
           </div>
         ) : (
           <>
             <form onSubmit={handleSubmit} className="space-y-3">
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">
-                  كلمة المرور الجديدة
-                </span>
+                <span className="mb-1 block font-semibold text-brand-950/70">{tr("كلمة المرور الجديدة")}</span>
                 <input
                   required
                   type="password"
@@ -73,9 +66,7 @@ export default function ResetPassword() {
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-1 block font-semibold text-brand-950/70">
-                  تأكيد كلمة المرور
-                </span>
+                <span className="mb-1 block font-semibold text-brand-950/70">{tr("تأكيد كلمة المرور")}</span>
                 <input
                   required
                   type="password"
@@ -99,16 +90,14 @@ export default function ResetPassword() {
                 disabled={submitting}
                 className="w-full rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-60"
               >
-                {submitting ? "..." : "حفظ كلمة المرور"}
+                {submitting ? "..." : tr("حفظ كلمة المرور")}
               </button>
             </form>
 
             <button
               onClick={cancelPasswordRecovery}
               className="mt-4 w-full text-center text-sm font-semibold text-brand-600 hover:underline"
-            >
-              إلغاء والرجوع لتسجيل الدخول
-            </button>
+            >{tr("إلغاء والرجوع لتسجيل الدخول")}</button>
           </>
         )}
       </div>

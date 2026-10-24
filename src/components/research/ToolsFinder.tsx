@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import Term from "../Term";
 import { saveToolToLibrary } from "../../hooks/useValidatedTools";
 import type { ToolFinding } from "../../data/types";
+import { tr } from "../../lib/i18n";
 
 function SaveToLibrary({ tool }: { tool: ToolFinding }) {
   const { currentUser } = useAuth();
@@ -24,15 +25,15 @@ function SaveToLibrary({ tool }: { tool: ToolFinding }) {
       className="flex items-center gap-1.5 text-[11px] font-bold text-brand-600 hover:underline disabled:opacity-70"
     >
       {state === "saving" ? <Loader2 size={12} className="animate-spin" /> : state === "saved" || state === "dup" ? <Check size={12} /> : <BookmarkPlus size={12} />}
-      {state === "saved" ? "انحفظت بالمكتبة المشتركة" : state === "dup" ? "موجودة بالمكتبة أصلًا" : state === "error" ? "تعذّر الحفظ — حاولوا مرة ثانية" : "احفظوها بمكتبة الأدوات"}
+      {state === "saved" ? tr("انحفظت بالمكتبة المشتركة") : state === "dup" ? tr("موجودة بالمكتبة أصلًا") : state === "error" ? tr("تعذّر الحفظ — حاولوا مرة ثانية") : tr("احفظوها بمكتبة الأدوات")}
     </button>
   );
 }
 
 const examples: [string, string][] = [
-  ["الاحتراق الوظيفي", "ممرضات العناية المركزة"],
-  ["رضا المرضى", "مرضى التنويم"],
-  ["الإجهاد المهني", "الممرضات"],
+  [tr("الاحتراق الوظيفي"), tr("ممرضات العناية المركزة")],
+  [tr("رضا المرضى"), tr("مرضى التنويم")],
+  [tr("الإجهاد المهني"), tr("الممرضات")],
 ];
 
 /** «دوّري لنا أداة معتمدة» — يقترح استبيانات/مقاييس موثّقة لمتغير بحثكم مع ثباتها
@@ -50,26 +51,21 @@ export default function ToolsFinder() {
     <div className="space-y-4">
       <Card tone="cream">
         <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-950">
-          <Ruler size={18} className="text-brand-500" />
-          دوّروا لنا أداة قياس معتمدة
-        </h3>
-        <p className="mb-4 text-xs text-brand-950/50">
-          «الأداة» هي الاستبيان أو المقياس اللي تعبّئونه على المشاركين. بدل ما تصممون استبيان من الصفر (ويحتاج اختبار صدق
-          وثبات)، الأفضل تستخدمون استبيان معتمد. اكتبوا الشي اللي تبون تقيسونه ونقترح لكم أدوات من دراسات حقيقية.
-        </p>
+          <Ruler size={18} className="text-brand-500" />{tr("دوّروا لنا أداة قياس معتمدة")}</h3>
+        <p className="mb-4 text-xs text-brand-950/50">{tr("«الأداة» هي الاستبيان أو المقياس اللي تعبّئونه على المشاركين. بدل ما تصممون استبيان من الصفر (ويحتاج اختبار صدق وثبات)، الأفضل تستخدمون استبيان معتمد. اكتبوا الشي اللي تبون تقيسونه ونقترح لكم أدوات من دراسات حقيقية.")}</p>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.4fr_1fr_auto]">
           <input
             value={construct}
             onChange={(e) => setConstruct(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="وش تبون تقيسون؟ مثل: الاحتراق الوظيفي"
+            placeholder={tr("وش تبون تقيسون؟ مثل: الاحتراق الوظيفي")}
             className="w-full rounded-lg border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
           />
           <input
             value={population}
             onChange={(e) => setPopulation(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="على مين؟ (اختياري) مثل: ممرضات العناية المركزة"
+            placeholder={tr("على مين؟ (اختياري) مثل: ممرضات العناية المركزة")}
             className="w-full rounded-lg border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
           />
           <button
@@ -78,12 +74,12 @@ export default function ToolsFinder() {
             className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-            {busy ? "جاري البحث..." : "دوّر"}
+            {busy ? tr("جاري البحث...") : tr("دوّر")}
           </button>
         </div>
         {!construct.trim() && !busy && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold text-brand-950/40">جرّبوا مثلًا:</span>
+            <span className="text-[11px] font-bold text-brand-950/40">{tr("جرّبوا مثلًا:")}</span>
             {examples.map(([c, p]) => (
               <button
                 key={c}
@@ -97,9 +93,7 @@ export default function ToolsFinder() {
         )}
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />
-            نبحث عن دراسات تطوير وتحقق للمقاييس ونستخرج بيانات كل أداة — ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لقسم ثاني وننبّهكم لما يجهز.
-          </p>
+            <Loader2 size={13} className="animate-spin" />{tr("نبحث عن دراسات تطوير وتحقق للمقاييس ونستخرج بيانات كل أداة — ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لقسم ثاني وننبّهكم لما يجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
@@ -115,13 +109,8 @@ export default function ToolsFinder() {
             </p>
           )}
           <p className="rounded-2xl bg-surface-muted px-4 py-3 text-xs leading-relaxed text-brand-950/60">
-            <b className="text-brand-950/80">كيف تقرأون البطاقة؟ </b>
-            «الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً ٠٫٧ فأكثر (Cronbach's α).
-            وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.
-          </p>
-          <p className="text-xs text-brand-950/50">
-            الأدوات اللي تحفظونها تنضاف لـ <Link to="/tools-library" className="font-bold text-brand-600 hover:underline">مكتبة أدوات القياس</Link> المشتركة.
-          </p>
+            <b className="text-brand-950/80">{tr("كيف تقرأون البطاقة؟ ")}</b>{tr("«الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً ٠٫٧ فأكثر (Cronbach's α). وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.")}</p>
+          <p className="text-xs text-brand-950/50">{tr("الأدوات اللي تحفظونها تنضاف لـ ")}<Link to="/tools-library" className="font-bold text-brand-600 hover:underline">{tr("مكتبة أدوات القياس")}</Link>{tr(" المشتركة.")}</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {tools.map((t, i) => (
               <Card key={`${t.toolName}-${i}`} className="space-y-2.5">
@@ -131,14 +120,14 @@ export default function ToolsFinder() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                   {[
-                    ["الفقرات", t.items],
-                    ["الثبات", t.reliability],
-                    ["اللغات", t.languages],
-                    ["الفئة", t.population],
+                    [tr("الفقرات"), t.items],
+                    [tr("الثبات"), t.reliability],
+                    [tr("اللغات"), t.languages],
+                    [tr("الفئة"), t.population],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl bg-surface-muted p-2">
-                      <p className="font-bold text-brand-950/40">{label === "الثبات" ? <Term id="reliability">الثبات</Term> : label}</p>
-                      <p className="mt-0.5 text-brand-950/75">{value || "غير مذكور بالملخص"}</p>
+                      <p className="font-bold text-brand-950/40">{label === "الثبات" ? <Term id="reliability">{tr("الثبات")}</Term> : label}</p>
+                      <p className="mt-0.5 text-brand-950/75">{value || tr("غير مذكور بالملخص")}</p>
                     </div>
                   ))}
                 </div>
@@ -166,8 +155,8 @@ export default function ToolsFinder() {
       {tools && tools.length === 0 && (
         <EmptyState
           icon={Ruler}
-          title="ما لقينا أدوات واضحة"
-          desc="جربوا صياغة ثانية للمتغير (بالإنجليزي أحيانًا تعطي نتائج أفضل)، أو اذكروا الفئة."
+          title={tr("ما لقينا أدوات واضحة")}
+          desc={tr("جربوا صياغة ثانية للمتغير (بالإنجليزي أحيانًا تعطي نتائج أفضل)، أو اذكروا الفئة.")}
         />
       )}
     </div>

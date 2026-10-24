@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import clsx from "clsx";
 import type { LiteratureTheme } from "../../data/types";
+import { tr } from "../../lib/i18n";
 
 /* لغة التصميم لصفحات قسم «أبحث» (المكتبة، الدراسات، المراجعة):
    ألوان ثابتة من التصميم — مو من ثيم الموقع — عشان تطلع نفس المرجع بأي ثيم. */
@@ -57,7 +58,7 @@ export function SourceBadge({ children }: { children: ReactNode }) {
 
 /** نص المصدر من رابط الدراسة (ما عندنا حقل مصدر محفوظ بالمكتبة) */
 export function sourceFromLink(link?: string): string {
-  if (!link) return "يدوي";
+  if (!link) return tr("يدوي");
   const l = link.toLowerCase();
   if (l.includes("pubmed")) return "PubMed";
   if (l.includes("openalex")) return "OpenAlex";
@@ -65,17 +66,17 @@ export function sourceFromLink(link?: string): string {
   try {
     return new URL(link).hostname.replace(/^www\./, "");
   } catch {
-    return "رابط";
+    return tr("رابط");
   }
 }
 
 /** أسماء المحاور بالعربي (القيم المخزّنة إنجليزي) */
 export const themeLabelAr: Record<LiteratureTheme, string> = {
-  Delirium: "الهذيان",
-  "Nursing Knowledge": "معرفة الممرضات",
-  "Detection Tools": "أدوات الكشف",
-  "Tool Utilization": "استخدام الأدوات",
-  "Patient Outcomes": "نتائج المرضى",
+  Delirium: tr("الهذيان"),
+  "Nursing Knowledge": tr("معرفة الممرضات"),
+  "Detection Tools": tr("أدوات الكشف"),
+  "Tool Utilization": tr("استخدام الأدوات"),
+  "Patient Outcomes": tr("نتائج المرضى"),
 };
 
 /** شعارات مصادر البحث — رسم مبسّط داخل بلاطة كريمية (مو ملفات الشعار الرسمية) */

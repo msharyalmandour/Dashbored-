@@ -13,6 +13,7 @@ import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
 import IdeaButton from "./IdeaButton";
 import InstallAppButton from "./InstallAppButton";
+import { tr } from "../lib/i18n";
 
 const linkBase = "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors";
 const linkOn = "bg-brand-500 text-white shadow-sm shadow-brand-500/30";
@@ -55,10 +56,10 @@ export default function Sidebar({
         <sec.icon size={18} />
         <span className="flex-1">{sec.label}</span>
         {state === "current" && (
-          <span className={clsx("rounded-full px-2 py-0.5 text-[10px] font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>أنتم هنا</span>
+          <span className={clsx("rounded-full px-2 py-0.5 text-[10px] font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>{tr("أنتم هنا")}</span>
         )}
         {state === "done" && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title="خلصتوا هالجزء">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title={tr("خلصتوا هالجزء")}>
             <Check size={11} />
           </span>
         )}
@@ -103,11 +104,11 @@ export default function Sidebar({
           </NavLink>
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">رحلة البحث</p>
+          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">{tr("رحلة البحث")}</p>
           {journeySections.map(renderSection)}
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">شغل الفريق</p>
+          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">{tr("شغل الفريق")}</p>
           {workSections.map(renderSection)}
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
@@ -116,7 +117,7 @@ export default function Sidebar({
             aria-expanded={moreExpanded}
             className="flex w-full items-center gap-2 rounded-full px-4 py-1.5 text-start text-[11px] font-bold tracking-wide text-amber-accent-400/70 hover:bg-surface-muted/70"
           >
-            <span className="flex-1">المزيد</span>
+            <span className="flex-1">{tr("المزيد")}</span>
             <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />
           </button>
           {moreExpanded &&
@@ -146,9 +147,7 @@ export default function Sidebar({
               )
             }
           >
-            <Compass size={18} />
-            دليل الطالب
-          </NavLink>
+            <Compass size={18} />{tr("دليل الطالب")}</NavLink>
 
           {isSuperAdmin && (
             <NavLink
@@ -163,9 +162,7 @@ export default function Sidebar({
                 )
               }
             >
-              <ShieldCheck size={18} />
-              إدارة الاشتراكات
-            </NavLink>
+              <ShieldCheck size={18} />{tr("إدارة الاشتراكات")}</NavLink>
           )}
         </nav>
 
@@ -181,7 +178,7 @@ export default function Sidebar({
               </div>
               <button
                 onClick={logout}
-                title="تسجيل الخروج"
+                title={tr("تسجيل الخروج")}
                 className="rounded-full p-2 text-brand-950/40 hover:bg-paper hover:text-brand-700"
               >
                 <LogOut size={16} />

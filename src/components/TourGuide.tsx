@@ -4,6 +4,7 @@ import { useTour } from "../context/TourContext";
 import { guideIntro, guideName } from "../data/onboardingTour";
 import { isNarrationAvailable, onSpeakingChange, speak, stopSpeaking } from "../lib/speech";
 import ErrorBoundary from "./ErrorBoundary";
+import { tr, trx } from "../lib/i18n";
 
 const MUTED_KEY = "nursync.tourMuted";
 
@@ -59,7 +60,7 @@ export default function TourGuide() {
 
       <button
         onClick={close}
-        title="إنهاء الجولة"
+        title={tr("إنهاء الجولة")}
         className="absolute end-5 top-5 z-10 rounded-lg p-1.5 text-white/35 hover:bg-white/10 hover:text-white/70"
       >
         <X size={18} />
@@ -68,9 +69,7 @@ export default function TourGuide() {
       <div className="absolute inset-x-0 bottom-0 z-10 flex animate-[hero-in_0.9s_ease-out] flex-col items-center gap-4 px-6 pb-10 text-center">
         <div className="max-w-sm">
           <p className="text-xs font-bold text-amber-300/85">
-            <span className="text-white/90">{guideName}</span> · خطوة {activeIndex + 1} من{" "}
-            {steps.length} — {step.label}
-          </p>
+            <span className="text-white/90">{guideName}</span>{trx(" · خطوة {0} من {1} — {2}", activeIndex + 1, steps.length, step.label)}</p>
           <p className="mt-2 font-display text-xl font-bold text-white">{step.title}</p>
           <p className="mx-auto mt-1.5 max-w-xs text-sm leading-relaxed text-white/45">
             {step.body}
@@ -89,7 +88,7 @@ export default function TourGuide() {
             className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-bold text-white/35 hover:bg-white/10 hover:text-white/65"
           >
             {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-            {muted ? "تشغيل الصوت" : "كتم الصوت"}
+            {muted ? tr("تشغيل الصوت") : tr("كتم الصوت")}
           </button>
         )}
 
@@ -107,15 +106,13 @@ export default function TourGuide() {
             <button
               onClick={prev}
               className="rounded-xl px-4 py-2 text-sm font-bold text-white/40 hover:bg-white/10"
-            >
-              السابق
-            </button>
+            >{tr("السابق")}</button>
           )}
           <button
             onClick={next}
             className="rounded-xl bg-amber-400 px-6 py-2 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_24px_rgba(251,191,36,0.4)]"
           >
-            {isLast ? "خلصنا! 🎉" : "التالي"}
+            {isLast ? tr("خلصنا! 🎉") : tr("التالي")}
           </button>
         </div>
       </div>

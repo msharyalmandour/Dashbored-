@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { tr } from "../lib/i18n";
 
 export interface SupervisorMessage {
   id: string;
@@ -33,8 +34,8 @@ const mockMessages: SupervisorMessage[] = [
   {
     id: "mock-1",
     sender: "supervisor",
-    senderName: "د. المشرفة",
-    body: "راجعوا صياغة الفجوة البحثية، وأضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات. وضّحوا معايير الاشتمال والاستبعاد قبل الاجتماع الجاي.",
+    senderName: tr("د. المشرفة"),
+    body: tr("راجعوا صياغة الفجوة البحثية، وأضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات. وضّحوا معايير الاشتمال والاستبعاد قبل الاجتماع الجاي."),
     createdAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
     readAt: null,
   },
@@ -83,11 +84,11 @@ export function useSupervisorMessages() {
   const reply = async (body: string): Promise<{ error?: string }> => {
     const text = body.trim();
     if (!text) return {};
-    if (text.length > 1500) return { error: "الرسالة طويلة — الحد ١٥٠٠ حرف." };
+    if (text.length > 1500) return { error: tr("الرسالة طويلة — الحد ١٥٠٠ حرف.") };
     if (!isSupabaseConfigured || !teamId || !currentUser) {
       setMessages((prev) => [
         ...prev,
-        { id: `local-${Date.now()}`, sender: "team", senderName: currentUser?.name ?? "الفريق", body: text, createdAt: new Date().toISOString(), readAt: null },
+        { id: `local-${Date.now()}`, sender: "team", senderName: currentUser?.name ?? tr("الفريق"), body: text, createdAt: new Date().toISOString(), readAt: null },
       ]);
       return {};
     }
@@ -98,7 +99,7 @@ export function useSupervisorMessages() {
       body: text,
       created_by: currentUser.id,
     });
-    if (error) return { error: "ما انرسل الرد — تأكدوا أن اشتراك الفريق فعّال وحاولوا مرة ثانية." };
+    if (error) return { error: tr("ما انرسل الرد — تأكدوا أن اشتراك الفريق فعّال وحاولوا مرة ثانية.") };
     await load();
     return {};
   };

@@ -31,6 +31,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { tr } from "../lib/i18n";
 
 interface PaletteItem {
   to: string;
@@ -43,36 +44,36 @@ interface PaletteItem {
 }
 
 const baseItems: PaletteItem[] = [
-  { to: "/tasks?new=1", label: "مهمة جديدة", icon: Plus, action: true, keywords: "اضافة اضف مهمة task new" },
-  { to: "/research-search?tab=studies", label: "ابحث عن دراسات لبحثكم", icon: Search, action: true, keywords: "بحث دراسات ابحاث pubmed scholar" },
-  { to: "/stats", label: "احسب حجم العينة", icon: Calculator, action: true, keywords: "عينة sample size كوكران" },
-  { to: "/feedback", label: "أضف ملاحظات المشرفة", icon: MessageSquareText, action: true, keywords: "ملاحظات دكتورة مشرفة feedback" },
-  { to: "/", label: "الرئيسية", icon: LayoutDashboard },
-  { to: "/proposal", label: "المقترح البحثي", icon: BookOpenText, keywords: "proposal بروبوزل" },
-  { to: "/literature-review", label: "مراجعة الأدبيات", icon: BookMarked, keywords: "literature review" },
-  { to: "/methodology", label: "المنهجية", icon: FlaskConical, keywords: "methods تصميم عينة" },
-  { to: "/ethical-approval", label: "الموافقة الأخلاقية", icon: FileCheck2, keywords: "irb ethics اخلاقيات" },
-  { to: "/tasks", label: "مهامي", icon: ListChecks, keywords: "tasks" },
-  { to: "/evidence", label: "مكتبة الأدلة", icon: Library, keywords: "مراجع references papers" },
-  { to: "/research-search", label: "وكيل البحث العلمي", icon: Search, keywords: "agent" },
-  { to: "/stats", label: "استوديو الإحصاء", icon: Calculator, keywords: "spss احصاء تحليل statistics t-test" },
-  { to: "/feedback", label: "ملاحظات المشرف", icon: MessageSquareText },
-  { to: "/study-kit", label: "الاستبيان والموافقات", icon: ClipboardList, keywords: "consent موافقة استبيان ترجمة" },
-  { to: "/surveys", label: "منشئ الاستبيان", icon: ClipboardList, keywords: "survey questionnaire استبيان استمارة اسئلة ليكرت عينة" },
-  { to: "/tools-library", label: "مكتبة أدوات القياس", icon: Ruler, keywords: "scale questionnaire مقياس" },
-  { to: "/planner", label: "مخطط الموعد", icon: CalendarClock, keywords: "deadline جدول تسليم" },
-  { to: "/viva", label: "تدريب المناقشة", icon: GraduationCap, keywords: "viva defense مناقشة" },
-  { to: "/proposal/export", label: "تصدير المقترح", icon: FileDown, keywords: "word pdf تحميل" },
-  { to: "/glossary", label: "قاموس المصطلحات", icon: BookA, keywords: "معنى مصطلح" },
-  { to: "/team", label: "الفريق", icon: Users },
-  { to: "/timeline", label: "الجدول الزمني", icon: ListTree },
-  { to: "/fieldwork", label: "الميدان", icon: MapPinned },
-  { to: "/files", label: "الملفات", icon: FolderClosed },
-  { to: "/meeting-minutes", label: "محاضر الاجتماعات", icon: NotebookPen },
-  { to: "/calendar", label: "التقويم", icon: CalendarDays },
-  { to: "/story", label: "قصة بحثك", icon: Wand2 },
-  { to: "/guide", label: "دليل الطالب", icon: Compass },
-  { to: "/pricing", label: "الباقات والاشتراك", icon: CreditCard },
+  { to: "/tasks?new=1", label: tr("مهمة جديدة"), icon: Plus, action: true, keywords: tr("اضافة اضف مهمة task new") },
+  { to: "/research-search?tab=studies", label: tr("ابحث عن دراسات لبحثكم"), icon: Search, action: true, keywords: tr("بحث دراسات ابحاث pubmed scholar") },
+  { to: "/stats", label: tr("احسب حجم العينة"), icon: Calculator, action: true, keywords: tr("عينة sample size كوكران") },
+  { to: "/feedback", label: tr("أضف ملاحظات المشرفة"), icon: MessageSquareText, action: true, keywords: tr("ملاحظات دكتورة مشرفة feedback") },
+  { to: "/", label: tr("الرئيسية"), icon: LayoutDashboard },
+  { to: "/proposal", label: tr("المقترح البحثي"), icon: BookOpenText, keywords: tr("proposal بروبوزل") },
+  { to: "/literature-review", label: tr("مراجعة الأدبيات"), icon: BookMarked, keywords: "literature review" },
+  { to: "/methodology", label: tr("المنهجية"), icon: FlaskConical, keywords: tr("methods تصميم عينة") },
+  { to: "/ethical-approval", label: tr("الموافقة الأخلاقية"), icon: FileCheck2, keywords: tr("irb ethics اخلاقيات") },
+  { to: "/tasks", label: tr("مهامي"), icon: ListChecks, keywords: "tasks" },
+  { to: "/evidence", label: tr("مكتبة الأدلة"), icon: Library, keywords: tr("مراجع references papers") },
+  { to: "/research-search", label: tr("وكيل البحث العلمي"), icon: Search, keywords: "agent" },
+  { to: "/stats", label: tr("استوديو الإحصاء"), icon: Calculator, keywords: tr("spss احصاء تحليل statistics t-test") },
+  { to: "/feedback", label: tr("ملاحظات المشرف"), icon: MessageSquareText },
+  { to: "/study-kit", label: tr("الاستبيان والموافقات"), icon: ClipboardList, keywords: tr("consent موافقة استبيان ترجمة") },
+  { to: "/surveys", label: tr("منشئ الاستبيان"), icon: ClipboardList, keywords: tr("survey questionnaire استبيان استمارة اسئلة ليكرت عينة") },
+  { to: "/tools-library", label: tr("مكتبة أدوات القياس"), icon: Ruler, keywords: tr("scale questionnaire مقياس") },
+  { to: "/planner", label: tr("مخطط الموعد"), icon: CalendarClock, keywords: tr("deadline جدول تسليم") },
+  { to: "/viva", label: tr("تدريب المناقشة"), icon: GraduationCap, keywords: tr("viva defense مناقشة") },
+  { to: "/proposal/export", label: tr("تصدير المقترح"), icon: FileDown, keywords: tr("word pdf تحميل") },
+  { to: "/glossary", label: tr("قاموس المصطلحات"), icon: BookA, keywords: tr("معنى مصطلح") },
+  { to: "/team", label: tr("الفريق"), icon: Users },
+  { to: "/timeline", label: tr("الجدول الزمني"), icon: ListTree },
+  { to: "/fieldwork", label: tr("الميدان"), icon: MapPinned },
+  { to: "/files", label: tr("الملفات"), icon: FolderClosed },
+  { to: "/meeting-minutes", label: tr("محاضر الاجتماعات"), icon: NotebookPen },
+  { to: "/calendar", label: tr("التقويم"), icon: CalendarDays },
+  { to: "/story", label: tr("قصة بحثك"), icon: Wand2 },
+  { to: "/guide", label: tr("دليل الطالب"), icon: Compass },
+  { to: "/pricing", label: tr("الباقات والاشتراك"), icon: CreditCard },
 ];
 
 export default function CommandPalette() {
@@ -86,7 +87,7 @@ export default function CommandPalette() {
   const items = useMemo<PaletteItem[]>(
     () =>
       isSuperAdmin
-        ? [...baseItems, { to: "/admin/subscriptions", label: "إدارة الاشتراكات", icon: ShieldCheck }]
+        ? [...baseItems, { to: "/admin/subscriptions", label: tr("إدارة الاشتراكات"), icon: ShieldCheck }]
         : baseItems,
     [isSuperAdmin],
   );
@@ -165,7 +166,7 @@ export default function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKeyDown}
-            placeholder="اكتب أمر أو صفحة… (مثلًا: مهمة، عينة، spss، موافقة)"
+            placeholder={tr("اكتب أمر أو صفحة… (مثلًا: مهمة، عينة، spss، موافقة)")}
             className="w-full bg-transparent text-sm text-brand-950 outline-none placeholder:text-brand-950/35"
           />
           <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[10px] font-bold text-brand-950/40">
@@ -187,13 +188,13 @@ export default function CommandPalette() {
                 <item.icon size={16} />
                 <span className="flex-1 text-start">{item.label}</span>
                 {item.action && (
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>أمر</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
                 )}
               </button>
             </li>
           ))}
           {filtered.length === 0 && (
-            <li className="py-6 text-center text-sm text-brand-950/40">ولا نتيجة</li>
+            <li className="py-6 text-center text-sm text-brand-950/40">{tr("ولا نتيجة")}</li>
           )}
         </ul>
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MoreVertical } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { tr } from "../../lib/i18n";
 
 export interface ThreeDotsMenuItem {
   label: string;
@@ -49,7 +50,7 @@ export default function ThreeDotsMenu({ items }: { items: ThreeDotsMenuItem[] })
           setOpen((o) => !o);
           setConfirmingIndex(null);
         }}
-        aria-label="خيارات إضافية"
+        aria-label={tr("خيارات إضافية")}
         className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-950/35 transition-colors hover:bg-surface-muted hover:text-brand-950/70"
       >
         <MoreVertical size={16} />

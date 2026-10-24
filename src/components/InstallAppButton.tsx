@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Download, MoreVertical, PlusSquare, Share, X } from "lucide-react";
 import { useInstallApp } from "../hooks/useInstallApp";
+import { tr } from "../lib/i18n";
 
 type Variant = "dark" | "light";
 
@@ -40,9 +41,7 @@ export default function InstallAppButton({ variant = "dark", className = "" }: {
         onClick={onClick}
         className={`inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-colors ${btn[variant]} ${className}`}
       >
-        <Download size={14} />
-        ثبّتوا التطبيق على جوالكم
-      </button>
+        <Download size={14} />{tr("ثبّتوا التطبيق على جوالكم")}</button>
 
       {open &&
         createPortal(
@@ -54,43 +53,35 @@ export default function InstallAppButton({ variant = "dark", className = "" }: {
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-display text-lg font-extrabold text-white">Wesync على شاشتكم الرئيسية</p>
-                  <p className="mt-1 text-xs text-white/50">يفتح بملء الشاشة مثل أي تطبيق، وبدون ما تنزّلون شي من المتجر.</p>
+                  <p className="font-display text-lg font-extrabold text-white">{tr("Wesync على شاشتكم الرئيسية")}</p>
+                  <p className="mt-1 text-xs text-white/50">{tr("يفتح بملء الشاشة مثل أي تطبيق، وبدون ما تنزّلون شي من المتجر.")}</p>
                 </div>
-                <button onClick={() => setOpen(false)} className="rounded-full p-1.5 text-white/40 hover:bg-white/10 hover:text-white" aria-label="إغلاق">
+                <button onClick={() => setOpen(false)} className="rounded-full p-1.5 text-white/40 hover:bg-white/10 hover:text-white" aria-label={tr("إغلاق")}>
                   <X size={16} />
                 </button>
               </div>
 
               {mode === "ios" && (
                 <ol className="mt-5 space-y-4">
-                  <Step n={1} icon={Share}>
-                    اضغطوا زر المشاركة أسفل سفاري
-                  </Step>
-                  <Step n={2} icon={PlusSquare}>
-                    مرّروا لتحت واختاروا «إضافة إلى الشاشة الرئيسية»
-                  </Step>
+                  <Step n={1} icon={Share}>{tr("اضغطوا زر المشاركة أسفل سفاري")}</Step>
+                  <Step n={2} icon={PlusSquare}>{tr("مرّروا لتحت واختاروا «إضافة إلى الشاشة الرئيسية»")}</Step>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs font-extrabold text-amber-300">3</span>
-                    <span className="pt-0.5 text-sm text-white/80">اضغطوا «إضافة» — وتلقون أيقونة Wesync بين تطبيقاتكم</span>
+                    <span className="pt-0.5 text-sm text-white/80">{tr("اضغطوا «إضافة» — وتلقون أيقونة Wesync بين تطبيقاتكم")}</span>
                   </li>
                 </ol>
               )}
 
               {mode === "ios-other-browser" && (
-                <p className="mt-5 rounded-2xl bg-amber-400/10 px-4 py-3 text-sm leading-relaxed text-amber-200">
-                  على الآيفون التثبيت يشتغل من <b>سفاري</b> فقط. انسخوا الرابط وافتحوه بسفاري، وبعدها اضغطوا زر المشاركة ← «إضافة إلى الشاشة الرئيسية».
-                </p>
+                <p className="mt-5 rounded-2xl bg-amber-400/10 px-4 py-3 text-sm leading-relaxed text-amber-200">{tr("على الآيفون التثبيت يشتغل من ")}<b>{tr("سفاري")}</b>{tr(" فقط. انسخوا الرابط وافتحوه بسفاري، وبعدها اضغطوا زر المشاركة ← «إضافة إلى الشاشة الرئيسية».")}</p>
               )}
 
               {mode === "manual" && (
                 <ol className="mt-5 space-y-4">
-                  <Step n={1} icon={MoreVertical}>
-                    افتحوا قائمة المتصفح
-                  </Step>
+                  <Step n={1} icon={MoreVertical}>{tr("افتحوا قائمة المتصفح")}</Step>
                   <li className="flex items-start gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs font-extrabold text-amber-300">2</span>
-                    <span className="pt-0.5 text-sm text-white/80">اختاروا «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»</span>
+                    <span className="pt-0.5 text-sm text-white/80">{tr("اختاروا «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»")}</span>
                   </li>
                 </ol>
               )}

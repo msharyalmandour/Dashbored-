@@ -12,6 +12,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
 import type { SectionStatus } from "../data/types";
 import { formatDateLong } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 const PROPOSAL_ATTACHMENTS_KEY = "nursync.proposalAttachments";
 
@@ -25,9 +26,9 @@ function loadProposalAttachments(): Record<string, AttachedFileMeta> {
 }
 
 const statusLabel: Record<SectionStatus, string> = {
-  done: "مكتمل",
-  "in-progress": "قيد العمل",
-  "not-started": "لم يبدأ",
+  done: tr("مكتمل"),
+  "in-progress": tr("قيد العمل"),
+  "not-started": tr("لم يبدأ"),
 };
 
 const statusChip: Record<SectionStatus, string> = {
@@ -96,27 +97,22 @@ export default function Proposal() {
       {/* يبين بس عند الطباعة/تصدير PDF — ترويسة رسمية للمستند */}
       <div className="hidden print:block">
         <h1 className="font-display text-2xl font-extrabold text-brand-950">
-          {project?.title || "المقترح البحثي"}
+          {project?.title || tr("المقترح البحثي")}
         </h1>
         {project?.description && (
           <p className="mt-1 text-sm text-brand-950/60" dir="ltr">
             {project.description}
           </p>
         )}
-        <p className="mt-3 text-xs text-brand-950/45">
-          تم التصدير بتاريخ {formatDateLong(new Date().toISOString().slice(0, 10))} — Wesync
-        </p>
+        <p className="mt-3 text-xs text-brand-950/45">{trx("تم التصدير بتاريخ {0} — Wesync", formatDateLong(new Date().toISOString().slice(0, 10)))}</p>
         <div className="my-4 border-t border-brand-200" />
       </div>
 
       <Card tone="cream" className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div>
-          <h2 className="font-display text-base font-bold text-brand-950">
-            المقترح البحثي <span className="text-brand-950/40">— Research Proposal</span>
+          <h2 className="font-display text-base font-bold text-brand-950">{tr("المقترح البحثي ")}<span className="text-brand-950/40">— Research Proposal</span>
           </h2>
-          <p className="mt-1 text-sm text-brand-950/50">
-            {doneCount} من {sections.length} أقسام مكتملة
-          </p>
+          <p className="mt-1 text-sm text-brand-950/50">{trx("{0} من {1} أقسام مكتملة", doneCount, sections.length)}</p>
         </div>
         <div className="w-full max-w-xs shrink grow">
           <ProgressBar value={completionPct} />
@@ -124,26 +120,22 @@ export default function Proposal() {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             to="/proposal/export"
-            title="وثيقة واحدة تجمع المقترح والمنهجية وقائمة المراجع"
+            title={tr("وثيقة واحدة تجمع المقترح والمنهجية وقائمة المراجع")}
             className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-brand-50"
           >
-            <FileStack size={16} />
-            الوثيقة الكاملة
-          </Link>
+            <FileStack size={16} />{tr("الوثيقة الكاملة")}</Link>
           <button
             onClick={() => window.print()}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
           >
-            <FileDown size={16} />
-            تصدير PDF
-          </button>
+            <FileDown size={16} />{tr("تصدير PDF")}</button>
         </div>
       </Card>
 
       {/* اسم المشرف الأكاديمي — يظهر بصفحة عنوان المقترح المُصدَّرة */}
       <Card className="print:hidden">
         <label className="block text-sm">
-          <span className="mb-1 block font-semibold text-brand-950/70">اسم المشرف الأكاديمي — Supervisor Name</span>
+          <span className="mb-1 block font-semibold text-brand-950/70">{tr("اسم المشرف الأكاديمي — Supervisor Name")}</span>
           <input
             defaultValue={project?.supervisorName ?? ""}
             onBlur={(e) => {
@@ -151,52 +143,52 @@ export default function Proposal() {
                 updateProject({ supervisorName: e.target.value });
               }
             }}
-            placeholder="اسم المشرف/ة"
+            placeholder={tr("اسم المشرف/ة")}
             className="w-full rounded-lg border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
           />
         </label>
         <label className="mt-3 block text-sm">
-          <span className="mb-1 block font-semibold text-brand-950/70">نوع البحث — Research Type</span>
+          <span className="mb-1 block font-semibold text-brand-950/70">{tr("نوع البحث — Research Type")}</span>
           <select
             value={project?.researchType ?? ""}
             onChange={(e) => updateProject({ researchType: e.target.value as NonNullable<typeof project>["researchType"] })}
             className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
           >
-            <option value="">اختاروا النوع</option>
-            <option value="quantitative">كمّي — Quantitative</option>
-            <option value="qualitative">نوعي — Qualitative</option>
-            <option value="mixed-methods">مختلط — Mixed methods</option>
+            <option value="">{tr("اختاروا النوع")}</option>
+            <option value="quantitative">{tr("كمّي — Quantitative")}</option>
+            <option value="qualitative">{tr("نوعي — Qualitative")}</option>
+            <option value="mixed-methods">{tr("مختلط — Mixed methods")}</option>
           </select>
         </label>
         <label className="mt-3 block text-sm">
-          <span className="mb-1 block font-semibold text-brand-950/70">حالة المشروع — Project Status</span>
+          <span className="mb-1 block font-semibold text-brand-950/70">{tr("حالة المشروع — Project Status")}</span>
           <select
             value={project?.status ?? "planning"}
             onChange={(e) => updateProject({ status: e.target.value as NonNullable<typeof project>["status"] })}
             className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
           >
-            <option value="planning">تخطيط</option>
-            <option value="active">جارٍ العمل</option>
-            <option value="writing">كتابة</option>
-            <option value="submitted">تم التسليم</option>
+            <option value="planning">{tr("تخطيط")}</option>
+            <option value="active">{tr("جارٍ العمل")}</option>
+            <option value="writing">{tr("كتابة")}</option>
+            <option value="submitted">{tr("تم التسليم")}</option>
           </select>
         </label>
       </Card>
 
       {/* الملخص — Abstract: ١٥٠-٢٥٠ كلمة تغطي الخلفية والهدف والمنهج والخلاصة، مطلوب رسميًا وأول بند يُقيَّم بالروبريك */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title="الملخص" subtitle="Abstract (150–250 words)" />
+        <CardHeader title={tr("الملخص")} subtitle="Abstract (150–250 words)" />
         <AutoSaveTextarea
           value={project?.abstract ?? ""}
           onSave={(v) => updateProject({ abstract: v })}
-          placeholder="اكتبوا ملخصًا يغطي: الخلفية، هدف الدراسة، المنهج، والخلاصة — بين ١٥٠ و٢٥٠ كلمة."
+          placeholder={tr("اكتبوا ملخصًا يغطي: الخلفية، هدف الدراسة، المنهج، والخلاصة — بين ١٥٠ و٢٥٠ كلمة.")}
           rows={5}
         />
       </Card>
 
       {/* Proposal Progress checklist — كل قسم قابل للتحرير ويُحفظ فورًا */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title="مكونات المقترح البحثي" subtitle="Proposal Components" />
+        <CardHeader title={tr("مكونات المقترح البحثي")} subtitle="Proposal Components" />
         <ul className="divide-y divide-brand-50">
           {sections.map((section) => {
             const owner = memberById(section.ownerId);
@@ -238,7 +230,7 @@ export default function Proposal() {
                 <AutoSaveTextarea
                   value={section.content}
                   onSave={(content) => updateSection(section.key, { content })}
-                  placeholder="اكتبوا محتوى هذا القسم هنا..."
+                  placeholder={tr("اكتبوا محتوى هذا القسم هنا...")}
                 />
               </li>
             );
@@ -248,23 +240,23 @@ export default function Proposal() {
 
       {/* Research Gap */}
       <Card tone="amber" className="print:break-inside-avoid">
-        <CardHeader title="الفجوة البحثية" subtitle="Research Gap" />
+        <CardHeader title={tr("الفجوة البحثية")} subtitle="Research Gap" />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-2xl bg-paper p-4">
-            <p className="mb-2 text-sm font-bold text-brand-950">ما نعرفه</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{tr("ما نعرفه")}</p>
             <AutoSaveTextarea
               value={gap.whatWeKnow.join("\n")}
               onSave={(v) => updateGap({ whatWeKnow: v.split("\n").filter(Boolean) })}
-              placeholder={"سطر لكل نقطة..."}
+              placeholder={tr("سطر لكل نقطة...")}
               rows={4}
             />
           </div>
           <div className="rounded-2xl bg-paper p-4">
-            <p className="mb-2 text-sm font-bold text-brand-950">ما لا نعرفه</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{tr("ما لا نعرفه")}</p>
             <AutoSaveTextarea
               value={gap.whatWeDontKnow.join("\n")}
               onSave={(v) => updateGap({ whatWeDontKnow: v.split("\n").filter(Boolean) })}
-              placeholder={"سطر لكل نقطة..."}
+              placeholder={tr("سطر لكل نقطة...")}
               rows={4}
             />
           </div>
@@ -275,11 +267,11 @@ export default function Proposal() {
         </div>
 
         <div className="rounded-2xl border-2 border-amber-accent-400 bg-paper p-4">
-          <p className="mb-1.5 text-sm font-bold text-amber-accent-700">الفجوة البحثية — Research Gap</p>
+          <p className="mb-1.5 text-sm font-bold text-amber-accent-700">{tr("الفجوة البحثية — Research Gap")}</p>
           <AutoSaveTextarea
             value={gap.gapStatement}
             onSave={(v) => updateGap({ gapStatement: v })}
-            placeholder="اكتبوا صياغة الفجوة البحثية هنا..."
+            placeholder={tr("اكتبوا صياغة الفجوة البحثية هنا...")}
           />
         </div>
 
@@ -288,11 +280,11 @@ export default function Proposal() {
         </div>
 
         <div className="rounded-2xl bg-paper p-4">
-          <p className="mb-1.5 text-sm font-bold text-brand-950">ما ستدرسه — Your Study</p>
+          <p className="mb-1.5 text-sm font-bold text-brand-950">{tr("ما ستدرسه — Your Study")}</p>
           <AutoSaveTextarea
             value={gap.studyConnection}
             onSave={(v) => updateGap({ studyConnection: v })}
-            placeholder="كيف تربط دراستكم بهذي الفجوة؟"
+            placeholder={tr("كيف تربط دراستكم بهذي الفجوة؟")}
           />
         </div>
 
@@ -302,34 +294,31 @@ export default function Proposal() {
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-[0_0_0_4px_rgba(244,63,94,0.14)]">
               <AlertTriangle size={16} />
             </span>
-            <p className="self-center text-sm font-semibold text-rose-600">
-              تنبيه: الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة (Aim) — لازم تُصاغ الفجوة أولًا
-              بشكل نهائي قبل كتابة الهدف.
-            </p>
+            <p className="self-center text-sm font-semibold text-rose-600">{tr("تنبيه: الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة (Aim) — لازم تُصاغ الفجوة أولًا بشكل نهائي قبل كتابة الهدف.")}</p>
           </div>
         )}
       </Card>
 
       {/* Aim & Research Questions */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title="هدف الدراسة وأسئلة البحث" subtitle="Aim & Research Questions" />
+        <CardHeader title={tr("هدف الدراسة وأسئلة البحث")} subtitle="Aim & Research Questions" />
 
         <div className="rounded-2xl bg-surface-muted p-4">
-          <p className="mb-1.5 text-sm font-bold text-brand-950">هدف الدراسة — Purpose / Aim</p>
+          <p className="mb-1.5 text-sm font-bold text-brand-950">{tr("هدف الدراسة — Purpose / Aim")}</p>
           <AutoSaveTextarea
             value={aim.statement}
             onSave={(v) => updateAimStatement(v)}
-            placeholder="اكتبوا هدف الدراسة هنا..."
+            placeholder={tr("اكتبوا هدف الدراسة هنا...")}
           />
         </div>
 
         <div className="mt-3 rounded-2xl bg-surface-muted p-4">
-          <p className="mb-1.5 text-sm font-bold text-brand-950">أسئلة البحث — Research Questions</p>
+          <p className="mb-1.5 text-sm font-bold text-brand-950">{tr("أسئلة البحث — Research Questions")}</p>
           <AutoSaveTextarea
             key={questions.map((q) => q.text).join("|")}
             value={questions.map((q) => q.text).join("\n")}
             onSave={(v) => setResearchQuestions(v.split("\n").filter(Boolean))}
-            placeholder={"سؤال بحث واحد بكل سطر..."}
+            placeholder={tr("سؤال بحث واحد بكل سطر...")}
             rows={4}
           />
           <QuestionSuggestions

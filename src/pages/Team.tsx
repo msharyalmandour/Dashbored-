@@ -30,6 +30,7 @@ import type { Task, TeamMember } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { formatDateLong } from "../lib/date";
 import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
+import { isEn, tr, trx } from "../lib/i18n";
 
 function daysAgo(iso: string): number {
   const diff = Date.now() - new Date(iso).getTime();
@@ -72,23 +73,21 @@ function InviteCard() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-100 text-amber-accent-700">
             <UserPlus size={19} />
           </span>
-          <p className="mt-3 font-bold text-brand-950">دعوة بقية أعضاء الفريق</p>
-          <p className="mt-1 text-sm text-brand-950/55">
-            شاركوا هذا الرابط مع بقية الفريق — كل من يسجّل حساب عبره ينضم لنفس فريقكم تلقائيًا.
-          </p>
+          <p className="mt-3 font-bold text-brand-950">{tr("دعوة بقية أعضاء الفريق")}</p>
+          <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا هذا الرابط مع بقية الفريق — كل من يسجّل حساب عبره ينضم لنفس فريقكم تلقائيًا.")}</p>
           <button
             onClick={copy}
             className="mt-4 flex items-center justify-center gap-2 self-start rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? "تم النسخ" : "نسخ رابط الدعوة"}
+            {copied ? tr("تم النسخ") : tr("نسخ رابط الدعوة")}
           </button>
           <button
             onClick={copyCode}
             className="mt-2 flex items-center gap-1.5 self-start text-xs font-semibold text-brand-950/45 hover:text-brand-700 hover:underline"
           >
             {codeCopied ? <Check size={12} /> : <Copy size={12} />}
-            {codeCopied ? "تم نسخ الرمز" : "الرابط ما اشتغل معهم؟ انسخي رمز الفريق"}
+            {codeCopied ? tr("تم نسخ الرمز") : tr("الرابط ما اشتغل معهم؟ انسخي رمز الفريق")}
           </button>
         </div>
       </Card>
@@ -125,7 +124,7 @@ function UniversityField() {
         onBlur={() => {
           if (draft.trim() !== (team.university ?? "")) updateTeamUniversity(draft);
         }}
-        placeholder="أضيفوا جامعة فريقكم (اختياري)"
+        placeholder={tr("أضيفوا جامعة فريقكم (اختياري)")}
         className="w-full max-w-xs border-b border-dashed border-brand-200 bg-transparent font-semibold text-brand-950/70 outline-none focus:border-brand-400 placeholder:font-normal placeholder:italic placeholder:text-brand-950/35"
       />
     </label>
@@ -148,7 +147,7 @@ function SupervisorContactSection() {
 
   const rotate = async () => {
     if (!supabase || rotating) return;
-    if (!window.confirm("تغيير الرابط يعطّل الرابط القديم فورًا — لازم ترسلون الجديد للمشرفة. نكمل؟")) return;
+    if (!window.confirm(tr("تغيير الرابط يعطّل الرابط القديم فورًا — لازم ترسلون الجديد للمشرفة. نكمل؟"))) return;
     setRotating(true);
     setRotateError(false);
     const { error } = await supabase.rpc("rotate_share_token");
@@ -162,8 +161,8 @@ function SupervisorContactSection() {
   const shareLink = `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}`;
   const waitingDays = team.supervisorNoteAt ? daysAgo(team.supervisorNoteAt) : null;
   const reminderMessage = team.supervisorNote
-    ? `مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n${shareLink}`
-    : `مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على Wesync — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n${shareLink}`;
+    ? tr("مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n{0}", shareLink)
+    : tr("مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على Wesync — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n{0}", shareLink);
 
   const copy = async () => {
     await navigator.clipboard.writeText(shareLink);
@@ -191,13 +190,11 @@ function SupervisorContactSection() {
               <GraduationCap size={18} />
             </span>
             <div>
-              <p className="font-display font-bold text-brand-950">التواصل مع المشرف الأكاديمي</p>
+              <p className="font-display font-bold text-brand-950">{tr("التواصل مع المشرف الأكاديمي")}</p>
               <p className="text-xs text-brand-950/45">Academic Supervisor</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-brand-950/55">
-            شاركوه مع مشرفكم بأي وسيلة تناسبكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.
-          </p>
+          <p className="mt-3 text-sm text-brand-950/55">{tr("شاركوه مع مشرفكم بأي وسيلة تناسبكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.")}</p>
           <p dir="ltr" className="mt-3 truncate rounded-xl bg-surface-muted px-3 py-2 text-start text-xs text-brand-950/60">
             {shareLink}
           </p>
@@ -208,71 +205,58 @@ function SupervisorContactSection() {
               rel="noreferrer"
               className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
             >
-              <MessageCircle size={13} />
-              إرسال واتساب
-            </a>
+              <MessageCircle size={13} />{tr("إرسال واتساب")}</a>
             <button
               onClick={copyReminder}
               className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
             >
               {reminderCopied ? <Check size={13} /> : <Bell size={13} />}
-              {reminderCopied ? "تم النسخ" : "نسخ رسالة تذكير"}
+              {reminderCopied ? tr("تم النسخ") : tr("نسخ رسالة تذكير")}
             </button>
             <button
               onClick={copy}
               className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
-              {copied ? "تم النسخ" : "نسخ الرابط"}
+              {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
             </button>
             <a
-              href={`mailto:?subject=${encodeURIComponent("رابط متابعة فريقنا البحثي على Wesync")}&body=${encodeURIComponent(reminderMessage)}`}
+              href={`mailto:?subject=${encodeURIComponent(tr("رابط متابعة فريقنا البحثي على Wesync"))}&body=${encodeURIComponent(reminderMessage)}`}
               className="flex items-center justify-center gap-1.5 rounded-xl border border-brand-100 px-3.5 py-2 text-xs font-bold text-brand-700 hover:bg-surface-muted"
             >
-              <Mail size={13} />
-              إرسال بالإيميل
-            </a>
+              <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
           <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
             {emailStatus?.state === "active"
-              ? `إشعارات الإيميل مفعّلة للمشرفة (${emailStatus.emailMasked}) — يوصلها تنبيه كل ما تردّون عليها.`
+              ? tr("إشعارات الإيميل مفعّلة للمشرفة ({0}) — يوصلها تنبيه كل ما تردّون عليها.", emailStatus.emailMasked)
               : emailStatus?.state === "pending"
-                ? `المشرفة طلبت إشعارات الإيميل (${emailStatus.emailMasked}) وما أكّدتها بعد.`
-                : "المشرفة تقدر تفعّل إشعارات الإيميل بنفسها من رابطها، وبعدها يوصلها تنبيه كل ما تردّون عليها."}
+                ? tr("المشرفة طلبت إشعارات الإيميل ({0}) وما أكّدتها بعد.", emailStatus.emailMasked)
+                : tr("المشرفة تقدر تفعّل إشعارات الإيميل بنفسها من رابطها، وبعدها يوصلها تنبيه كل ما تردّون عليها.")}
           </p>
           {isLeader && (
-            <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">
-              أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم{" "}
-              <button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
-                {rotating ? "جاري التغيير..." : "غيّروا الرابط"}
+            <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">{tr("أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
+                {rotating ? tr("جاري التغيير...") : tr("غيّروا الرابط")}
               </button>
-              .{rotateError && <span className="font-bold text-rose-600"> تعذّر التغيير — حاولوا مرة ثانية.</span>}
+              .{rotateError && <span className="font-bold text-rose-600">{tr(" تعذّر التغيير — حاولوا مرة ثانية.")}</span>}
             </p>
           )}
         </div>
 
         <div className="relative flex flex-col rounded-2xl bg-surface-muted p-4">
           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-950/50">
-            <MessageSquareQuote size={13} className="text-sky-accent-600" />
-            آخر ملاحظة من المشرف
-          </p>
+            <MessageSquareQuote size={13} className="text-sky-accent-600" />{tr("آخر ملاحظة من المشرف")}</p>
           {team.supervisorNote ? (
             <>
               <p className="mt-3 line-clamp-6 flex-1 whitespace-pre-wrap text-sm leading-relaxed text-brand-950/80">{team.supervisorNote}</p>
               {team.supervisorNoteAt && (
-                <p className="mt-3 text-xs font-semibold text-sky-accent-700">
-                  {formatDateLong(team.supervisorNoteAt.slice(0, 10))} — قبل{" "}
-                  {waitingDays === 0 ? "أقل من يوم" : `${waitingDays} ${waitingDays === 1 ? "يوم" : "أيام"}`}
-                </p>
+                <p className="mt-3 text-xs font-semibold text-sky-accent-700">{trx("{0} — قبل {1}", formatDateLong(team.supervisorNoteAt.slice(0, 10)), waitingDays === 0 ? tr("أقل من يوم") : `${waitingDays} ${waitingDays === 1 ? tr("يوم") : tr("أيام")}`)}</p>
               )}
-              <Link to="/feedback" className="mt-2 text-xs font-bold text-brand-700 underline underline-offset-2">
-                افتحوا المحادثة كاملة وردّوا
-              </Link>
+              <Link to="/feedback" className="mt-2 text-xs font-bold text-brand-700 underline underline-offset-2">{tr("افتحوا المحادثة كاملة وردّوا")}</Link>
             </>
           ) : (
             <div className="mt-3 flex flex-1 flex-col items-start justify-center gap-1.5">
-              <p className="text-sm font-semibold text-amber-accent-600">لسا ما وصلتكم ملاحظة من مشرفكم</p>
-              <p className="text-xs text-brand-950/45">ذكّروه بالرابط عبر واتساب أو رسالة التذكير الجاهزة.</p>
+              <p className="text-sm font-semibold text-amber-accent-600">{tr("لسا ما وصلتكم ملاحظة من مشرفكم")}</p>
+              <p className="text-xs text-brand-950/45">{tr("ذكّروه بالرابط عبر واتساب أو رسالة التذكير الجاهزة.")}</p>
             </div>
           )}
         </div>
@@ -288,7 +272,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${window.location.origin}${window.location.pathname}#/login?ref=${team.referralCode}`;
-  const waMessage = `جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ٧ أيام مجانية 🎁\n${referralLink}`;
+  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ٧ أيام مجانية 🎁\n{0}", referralLink);
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -307,10 +291,8 @@ function ReferralCard() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
             <Gift size={19} />
           </span>
-          <p className="mt-3 font-bold text-brand-950">ادعوا فريق ثاني واربحوا ١٥ يوم مجاني</p>
-          <p className="mt-1 text-sm text-brand-950/55">
-            شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون ١٥ يوم إضافي تلقائيًا.
-          </p>
+          <p className="mt-3 font-bold text-brand-950">{tr("ادعوا فريق ثاني واربحوا ١٥ يوم مجاني")}</p>
+          <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون ١٥ يوم إضافي تلقائيًا.")}</p>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
@@ -318,15 +300,13 @@ function ReferralCard() {
               rel="noreferrer"
               className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
             >
-              <MessageCircle size={13} />
-              واتساب
-            </a>
+              <MessageCircle size={13} />{tr("واتساب")}</a>
             <button
               onClick={copy}
               className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
-              {copied ? "تم النسخ" : "نسخ الرابط"}
+              {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
             </button>
           </div>
 
@@ -334,17 +314,17 @@ function ReferralCard() {
             <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl bg-paper/70 p-2.5">
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-brand-950">{stats.referredCount}</p>
-                <p className="text-[10px] font-semibold text-brand-950/50">فرق دعوتوها</p>
+                <p className="text-[10px] font-semibold text-brand-950/50">{tr("فرق دعوتوها")}</p>
               </div>
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-brand-950">{stats.rewardedCount}</p>
-                <p className="text-[10px] font-semibold text-brand-950/50">فعّلوا اشتراكهم</p>
+                <p className="text-[10px] font-semibold text-brand-950/50">{tr("فعّلوا اشتراكهم")}</p>
               </div>
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-amber-accent-600">
                   {stats.bonusDaysEarned}
                 </p>
-                <p className="text-[10px] font-semibold text-brand-950/50">يوم مجاني ربحتوه</p>
+                <p className="text-[10px] font-semibold text-brand-950/50">{tr("يوم مجاني ربحتوه")}</p>
               </div>
             </div>
           )}
@@ -373,17 +353,17 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
   const imbalanced = rows.length > 1 && mostLoaded.open - leastLoaded.open >= 3;
 
   const copyReport = async () => {
-    const today = new Date().toLocaleDateString("ar-SA-u-nu-latn", {
+    const today = new Date().toLocaleDateString(isEn ? "en-GB" : "ar-SA-u-nu-latn", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
     const lines = [
-      `تقرير مساهمة الفريق — ${today}`,
+      tr("تقرير مساهمة الفريق — {0}", today),
       "",
       ...rows.map(
         ({ member, total, done, overdue }) =>
-          `${member.name}: ${done} من ${total} مهمة مكتملة${overdue > 0 ? ` — ${overdue} متأخرة` : ""}`,
+          tr("{0}: {1} من {2} مهمة مكتملة{3}", member.name, done, total, overdue > 0 ? tr(" — {0} متأخرة", overdue) : ""),
       ),
     ];
     await navigator.clipboard.writeText(lines.join("\n"));
@@ -394,7 +374,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
   return (
     <Card className="card-terra mt-4">
       <CardHeader
-        title="موازنة حمل الفريق"
+        title={tr("موازنة حمل الفريق")}
         subtitle="Workload Balance"
         action={
           <button
@@ -402,7 +382,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
             className="flex items-center gap-1.5 rounded-lg border border-brand-200 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-50"
           >
             {reportCopied ? <Check size={13} /> : <Copy size={13} />}
-            {reportCopied ? "تم النسخ" : "نسخ تقرير المساهمة"}
+            {reportCopied ? tr("تم النسخ") : tr("نسخ تقرير المساهمة")}
           </button>
         }
       />
@@ -415,10 +395,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
                 <span className="truncate font-semibold text-brand-950">
                   {member.name.split(" ")[0]}
                 </span>
-                <span className="shrink-0 text-xs font-bold text-brand-950/50">
-                  {open} مفتوحة
-                  {overdue > 0 && <span className="text-rose-500"> · {overdue} متأخرة</span>}
-                </span>
+                <span className="shrink-0 text-xs font-bold text-brand-950/50">{trx("{0} مفتوحة{1}", open, overdue > 0 && <span className="text-rose-500">{trx(" · {0} متأخرة", overdue)}</span>)}</span>
               </div>
               <PeakBar value={open === 0 ? 0 : Math.max(6, (open / maxOpen) * 100)} height="h-2" />
             </div>
@@ -426,13 +403,7 @@ function WorkloadBalance({ roster, tasks }: { roster: TeamMember[]; tasks: Task[
         ))}
       </ul>
       {imbalanced && (
-        <p className="mt-4 rounded-xl bg-amber-accent-50 px-3 py-2 text-xs font-semibold text-amber-accent-700">
-          الحمل متفاوت شوي — {mostLoaded.member.name.split(" ")[0]}{" "}
-          {g(isFemaleUser(mostLoaded.member), "عندها", "عنده")} {mostLoaded.open} مهام مفتوحة،
-          بينما {leastLoaded.member.name.split(" ")[0]}{" "}
-          {g(isFemaleUser(leastLoaded.member), "عندها", "عنده")} {leastLoaded.open} بس — ممكن
-          توزيع أعدل.
-        </p>
+        <p className="mt-4 rounded-xl bg-amber-accent-50 px-3 py-2 text-xs font-semibold text-amber-accent-700">{trx("الحمل متفاوت شوي — {0} {1} {2} مهام مفتوحة، بينما {3} {4} {5} بس — ممكن توزيع أعدل.", mostLoaded.member.name.split(" ")[0], g(isFemaleUser(mostLoaded.member), tr("عندها"), tr("عنده")), mostLoaded.open, leastLoaded.member.name.split(" ")[0], g(isFemaleUser(leastLoaded.member), tr("عندها"), tr("عنده")), leastLoaded.open)}</p>
       )}
     </Card>
   );
@@ -443,7 +414,7 @@ function ActivityLog() {
 
   return (
     <Card className="mt-4">
-      <CardHeader title="سجل نشاط الفريق" subtitle="Activity Log" />
+      <CardHeader title={tr("سجل نشاط الفريق")} subtitle="Activity Log" />
       <ul className="divide-y divide-brand-50">
         {recentActivity.map((activity) => {
           const member = memberById(activity.memberId);
@@ -478,7 +449,7 @@ export default function Team() {
   return (
     <div>
       <div className="mb-6">
-        <PageHeader kicker="الفريق" title="الفريق" subtitle="ادعوا فريقكم والمشرف/ة، وتابعوا إنجاز كل واحد منكم." />
+        <PageHeader kicker={tr("الفريق")} title={tr("الفريق")} subtitle={tr("ادعوا فريقكم والمشرف/ة، وتابعوا إنجاز كل واحد منكم.")} />
       </div>
       {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
@@ -526,8 +497,8 @@ export default function Team() {
                 <ThreeDotsMenu
                   items={[
                     {
-                      label: "إزالة من الفريق",
-                      confirmLabel: "تأكيد الإزالة؟",
+                      label: tr("إزالة من الفريق"),
+                      confirmLabel: tr("تأكيد الإزالة؟"),
                       icon: UserMinus,
                       tone: "danger",
                       onClick: () => removeMember(member.id),
@@ -547,12 +518,12 @@ export default function Team() {
 
             <p className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-950/35">
               <Clock size={12} />
-              {lastActivityFor(member.id) ? `آخر نشاط ${lastActivityFor(member.id)}` : "لسا ما بدأ نشاط"}
+              {lastActivityFor(member.id) ? tr("آخر نشاط {0}", lastActivityFor(member.id)) : tr("لسا ما بدأ نشاط")}
             </p>
 
             <div className="mt-4">
               <div className="mb-1 flex justify-between text-xs font-semibold text-brand-950/50">
-                <span>نسبة الإنجاز</span>
+                <span>{tr("نسبة الإنجاز")}</span>
                 <span className="text-brand-600">{progress}%</span>
               </div>
               <PeakBar value={progress} />
@@ -561,15 +532,15 @@ export default function Team() {
             <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-100/15 rounded-2xl bg-black/25 py-3 text-center">
               <div>
                 <p className="text-base font-extrabold text-brand-950">{tasksTotal}</p>
-                <p className="text-[11px] text-brand-950/45">إجمالي المهام</p>
+                <p className="text-[11px] text-brand-950/45">{tr("إجمالي المهام")}</p>
               </div>
               <div>
                 <p className="text-base font-extrabold text-brand-600">{tasksDone}</p>
-                <p className="text-[11px] text-brand-950/45">مكتملة</p>
+                <p className="text-[11px] text-brand-950/45">{tr("مكتملة")}</p>
               </div>
               <div>
                 <p className="text-base font-extrabold text-rose-500">{overdue}</p>
-                <p className="text-[11px] text-brand-950/45">متأخرة</p>
+                <p className="text-[11px] text-brand-950/45">{tr("متأخرة")}</p>
               </div>
             </div>
           </Card>

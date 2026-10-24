@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { tr } from "../lib/i18n";
 
 export type ThemeId = "white" | "dark-green" | "black" | "navy";
 
@@ -9,10 +10,10 @@ export interface ThemeOption {
 }
 
 export const themes: ThemeOption[] = [
-  { id: "white", label: "الأساسي", swatch: "#c93f64" },
-  { id: "dark-green", label: "أخضر غامق", swatch: "#0e3a2a" },
-  { id: "black", label: "أسود عنبري", swatch: "#ff6a00" },
-  { id: "navy", label: "كحلي", swatch: "#0e2340" },
+  { id: "white", label: tr("الأساسي"), swatch: "#c93f64" },
+  { id: "dark-green", label: tr("أخضر غامق"), swatch: "#0e3a2a" },
+  { id: "black", label: tr("أسود عنبري"), swatch: "#ff6a00" },
+  { id: "navy", label: tr("كحلي"), swatch: "#0e2340" },
 ];
 
 interface ThemeContextValue {

@@ -1,5 +1,6 @@
 import { Flame, Library, Rocket, Target, Trophy, type LucideIcon } from "lucide-react";
 import type { EvidencePaper, PhaseStatus, Task } from "../data/types";
+import { tr } from "./i18n";
 
 export interface Achievement {
   id: string;
@@ -9,11 +10,11 @@ export interface Achievement {
 }
 
 export const achievements: Achievement[] = [
-  { id: "first-task", title: "أول مهمة مكتملة", desc: "بداية موفقة 🎯", icon: Target },
-  { id: "ten-evidence", title: "١٠ دراسات مراجَعة", desc: "مكتبة أدلة بتتكوّن 📚", icon: Library },
-  { id: "stage-done", title: "مرحلة بحثية كاملة", desc: "خطوة كبيرة للأمام 🏁", icon: Rocket },
-  { id: "no-overdue", title: "صفر مهام متأخرة", desc: "الفريق كله مواكب 🔥", icon: Flame },
-  { id: "half-done", title: "تجاوزتم نص الطريق", desc: "الأصعب خلفكم الآن 🚀", icon: Trophy },
+  { id: "first-task", title: tr("أول مهمة مكتملة"), desc: tr("بداية موفقة 🎯"), icon: Target },
+  { id: "ten-evidence", title: tr("١٠ دراسات مراجَعة"), desc: tr("مكتبة أدلة بتتكوّن 📚"), icon: Library },
+  { id: "stage-done", title: tr("مرحلة بحثية كاملة"), desc: tr("خطوة كبيرة للأمام 🏁"), icon: Rocket },
+  { id: "no-overdue", title: tr("صفر مهام متأخرة"), desc: tr("الفريق كله مواكب 🔥"), icon: Flame },
+  { id: "half-done", title: tr("تجاوزتم نص الطريق"), desc: tr("الأصعب خلفكم الآن 🚀"), icon: Trophy },
 ];
 
 export function getUnlockedAchievementIds(ctx: {

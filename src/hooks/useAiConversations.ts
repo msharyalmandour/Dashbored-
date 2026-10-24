@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 export interface ConversationSummary {
   id: string;
@@ -57,7 +58,7 @@ export function useAiConversations() {
   /** ينشئ محادثة جديدة بعنوان من أول رسالة — يرجّع id أو null لو فشل */
   const createConversation = useCallback(async (userId: string, firstText: string): Promise<string | null> => {
     if (!supabase) return null;
-    const title = firstText.replace(/\s+/g, " ").trim().slice(0, TITLE_MAX) || "محادثة جديدة";
+    const title = firstText.replace(/\s+/g, " ").trim().slice(0, TITLE_MAX) || tr("محادثة جديدة");
     const { data, error } = await supabase
       .from("ai_conversations")
       .insert({ user_id: userId, title })

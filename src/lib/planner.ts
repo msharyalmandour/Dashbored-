@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 /** المخطط العكسي: من تاريخ التسليم النهائي نرجع للخلف ونوزّع الوقت المتبقي على المراحل غير المنتهية بأوزان واقعية،
     مع هامش أمان قبل التسليم. أوزان المراحل تقديرية (من توزيع وقت رسائل التخرج الشائع) — تعدّلونها بالاتفاق مع المشرفة. */
 
@@ -44,7 +45,7 @@ export function backwardPlan(opts: {
 }): { rows: PlanRow[]; totalDays: number; bufferDays: number; warnings: string[] } {
   const warnings: string[] = [];
   const total = daysBetweenIso(opts.startISO, opts.endISO);
-  if (total < 14) return { rows: [], totalDays: total, bufferDays: 0, warnings: ["الفترة بين البداية والتسليم أقل من أسبوعين — عدّلوا التواريخ."] };
+  if (total < 14) return { rows: [], totalDays: total, bufferDays: 0, warnings: [tr("الفترة بين البداية والتسليم أقل من أسبوعين — عدّلوا التواريخ.")] };
 
   const remaining = opts.stages.filter((s) => s.status !== "done").sort((a, b) => a.order - b.order);
   const final = remaining.find((s) => s.stageKey === "final-submission");
@@ -75,7 +76,7 @@ export function backwardPlan(opts: {
     rows.push({
       id: "buffer",
       stageKey: "buffer",
-      titleAr: "هامش أمان (تأخيرات ومراجعة المشرفة)",
+      titleAr: tr("هامش أمان (تأخيرات ومراجعة المشرفة)"),
       start: toIso(cursor),
       target: toIso(cursor + bufferDays * DAY - DAY),
       days: bufferDays,
@@ -93,10 +94,10 @@ export function backwardPlan(opts: {
     });
   }
 
-  if (total < 8 * 7) warnings.push("الوقت المتبقي أقل من ٨ أسابيع — ضيق جدًا لبحث تخرج كامل. ناقشوا مع المشرفة تقليص النطاق أو تمديد الموعد.");
+  if (total < 8 * 7) warnings.push(tr("الوقت المتبقي أقل من ٨ أسابيع — ضيق جدًا لبحث تخرج كامل. ناقشوا مع المشرفة تقليص النطاق أو تمديد الموعد."));
   const dc = rows.find((r) => r.stageKey === "data-collection");
-  if (dc && dc.days < 14) warnings.push(`جمع البيانات ياخذ ${dc.days} يوم فقط — غالبًا ما يكفي (المتوقع ٣ أسابيع فأكثر مع الموافقات).`);
+  if (dc && dc.days < 14) warnings.push(tr("جمع البيانات ياخذ {0} يوم فقط — غالبًا ما يكفي (المتوقع ٣ أسابيع فأكثر مع الموافقات).", dc.days));
   const lit = rows.find((r) => r.stageKey === "literature-review");
-  if (lit && lit.days < 10) warnings.push(`مراجعة الأدبيات ${lit.days} أيام فقط — قليلة.`);
+  if (lit && lit.days < 10) warnings.push(tr("مراجعة الأدبيات {0} أيام فقط — قليلة.", lit.days));
   return { rows, totalDays: total, bufferDays, warnings };
 }

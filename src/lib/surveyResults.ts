@@ -1,6 +1,7 @@
 import { cronbachAlpha, describe, type Descriptive } from "./stats";
 import { likertOptions, type Question } from "./surveyCoach";
 import type { SurveyResponse } from "../hooks/useSurveys";
+import { tr } from "./i18n";
 
 export type QSummary =
   | { kind: "freq"; q: Question; n: number; rows: { label: string; count: number; percent: number }[] }
@@ -48,11 +49,11 @@ export function likertAlpha(questions: Question[], responses: SurveyResponse[]) 
 }
 
 export function alphaLabel(a: number): string {
-  if (a >= 0.9) return "ممتاز (تأكدوا ما فيه عبارات مكررة)";
-  if (a >= 0.8) return "جيد جدًا";
-  if (a >= 0.7) return "مقبول";
-  if (a >= 0.6) return "ضعيف — راجعوا العبارات";
-  return "غير مقبول — العبارات ما تقيس نفس الفكرة";
+  if (a >= 0.9) return tr("ممتاز (تأكدوا ما فيه عبارات مكررة)");
+  if (a >= 0.8) return tr("جيد جدًا");
+  if (a >= 0.7) return tr("مقبول");
+  if (a >= 0.6) return tr("ضعيف — راجعوا العبارات");
+  return tr("غير مقبول — العبارات ما تقيس نفس الفكرة");
 }
 
 const csvCell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
@@ -60,20 +61,20 @@ const csvCell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
 function rowValues(questions: Question[], r: SurveyResponse): string[] {
   return questions.map((q) => {
     const v = r.answers[q.id];
-    return Array.isArray(v) ? v.join("؛ ") : v === undefined ? "" : String(v);
+    return Array.isArray(v) ? v.join(tr("؛ ")) : v === undefined ? "" : String(v);
   });
 }
 
 /** CSV بترميز UTF-8 مع BOM عشان إكسل يقرأ العربي صح */
 export function toCsv(questions: Question[], responses: SurveyResponse[]): string {
-  const head = questions.map((q, i) => csvCell(`س${i + 1}: ${q.text}`)).join(",");
+  const head = questions.map((q, i) => csvCell(tr("س{0}: {1}", i + 1, q.text))).join(",");
   const rows = responses.map((r) => rowValues(questions, r).map(csvCell).join(","));
   return "﻿" + [head, ...rows].join("\r\n");
 }
 
 /** جدول مفصول بـ Tab جاهز للصق بـ«استوديو الإحصاء» */
 export function toTsv(questions: Question[], responses: SurveyResponse[]): string {
-  const head = questions.map((_, i) => `س${i + 1}`).join("\t");
+  const head = questions.map((_, i) => tr("س{0}", i + 1)).join("\t");
   const rows = responses.map((r) => rowValues(questions, r).map((v) => v.replace(/[\t\r\n]+/g, " ")).join("\t"));
   return [head, ...rows].join("\n");
 }

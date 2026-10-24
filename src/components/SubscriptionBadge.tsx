@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { subscriptionStateLabel } from "../lib/subscription";
 import { daysUntil } from "../lib/date";
 import CheckoutModal from "./CheckoutModal";
+import { tr } from "../lib/i18n";
 
 const toneClasses: Record<string, string> = {
   active: "bg-brand-50 text-brand-700 hover:bg-brand-100",
@@ -31,7 +32,7 @@ export default function SubscriptionBadge() {
     subscriptionState === "active"
       ? subscriptionStateLabel.active
       : subscriptionState === "expiring-soon"
-        ? `${Math.max(daysLeft, 0)} ${daysLeft === 1 ? "يوم" : "أيام"} متبقية`
+        ? tr("{0} {1} متبقية", Math.max(daysLeft, 0), daysLeft === 1 ? tr("يوم") : tr("أيام"))
         : subscriptionStateLabel[subscriptionState];
 
   const content = (

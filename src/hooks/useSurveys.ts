@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import type { Question } from "../lib/surveyCoach";
+import { tr } from "../lib/i18n";
 
 export interface Survey {
   id: string;
@@ -100,7 +101,7 @@ export function useSurveys() {
   }, [load]);
 
   const create = async (): Promise<{ id?: string; error?: string }> => {
-    if (surveys.length >= MAX_SURVEYS) return { error: `الحد الأقصى ${MAX_SURVEYS} استبيانات لكل فريق — احذفوا استبيانًا قديمًا أولًا.` };
+    if (surveys.length >= MAX_SURVEYS) return { error: tr("الحد الأقصى {0} استبيانات لكل فريق — احذفوا استبيانًا قديمًا أولًا.", MAX_SURVEYS) };
     if (!isSupabaseConfigured || !team?.id || !currentUser) {
       const s: Survey = {
         id: `demo-${Date.now()}`,
@@ -126,7 +127,7 @@ export function useSurveys() {
       .insert({ team_id: team.id, created_by: currentUser.id, title: "" })
       .select("*")
       .single();
-    if (error || !data) return { error: "ما انعمل الاستبيان — تأكدوا أن اشتراك الفريق فعّال." };
+    if (error || !data) return { error: tr("ما انعمل الاستبيان — تأكدوا أن اشتراك الفريق فعّال.") };
     const s = mapRow(data as Row);
     setSurveys((p) => [s, ...p]);
     return { id: s.id };

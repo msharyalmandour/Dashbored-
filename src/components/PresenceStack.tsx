@@ -1,5 +1,6 @@
 import { useTeamPresence } from "../hooks/useTeamPresence";
 import Avatar from "./ui/Avatar";
+import { tr } from "../lib/i18n";
 
 /** يشوف مين من الفريق متصل بالموقع الحين، لحظيًا — يظهر فقط بوضع Supabase الحقيقي */
 export default function PresenceStack() {
@@ -8,7 +9,7 @@ export default function PresenceStack() {
   if (online.length === 0) return null;
 
   return (
-    <div className="hidden items-center gap-1.5 lg:flex" title="متصلون الآن">
+    <div className="hidden items-center gap-1.5 lg:flex" title={tr("متصلون الآن")}>
       <div className="flex -space-x-2 [direction:ltr]">
         {online.slice(0, 4).map((u) => (
           <div key={u.id} className="relative" title={u.name}>

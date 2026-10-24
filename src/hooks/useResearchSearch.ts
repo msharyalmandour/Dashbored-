@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ResearchSearchQuery, ResearchSearchResult } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 interface SearchRowDb {
   id: string;
@@ -48,7 +49,7 @@ export function useResearchSearch() {
 
   const runSearch = async (topic: string, createdById: string) => {
     if (!isSupabaseConfigured) {
-      return { row: null as ResearchSearchQuery | null, error: "البحث متاح فقط بالوضع الحقيقي" };
+      return { row: null as ResearchSearchQuery | null, error: tr("البحث متاح فقط بالوضع الحقيقي") };
     }
     setSearching(true);
 
@@ -92,7 +93,7 @@ export function useResearchSearch() {
         setSearching(false);
         return {
           row: null as ResearchSearchQuery | null,
-          error: f?.error ?? p?.error ?? fb.error?.message ?? primary.error?.message ?? "تعذّر إتمام البحث",
+          error: f?.error ?? p?.error ?? fb.error?.message ?? primary.error?.message ?? tr("تعذّر إتمام البحث"),
         };
       }
     }

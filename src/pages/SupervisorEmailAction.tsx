@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import Logo from "../components/Logo";
 import { confirmSupervisorEmail, errorText, unsubscribeSupervisorEmail } from "../lib/supervisorEmail";
+import { tr } from "../lib/i18n";
 
 /** صفحة عامة تفتحها المشرفة من رابط الإيميل: تأكيد الاشتراك أو إيقافه. */
 export default function SupervisorEmailAction() {
@@ -15,7 +16,7 @@ export default function SupervisorEmailAction() {
     (async () => {
       if (!token || (action !== "confirm" && action !== "unsubscribe")) {
         setState("error");
-        setMessage("رابط غير صالح.");
+        setMessage(tr("رابط غير صالح."));
         return;
       }
       const res = action === "confirm" ? await confirmSupervisorEmail(token) : await unsubscribeSupervisorEmail(token);
@@ -25,7 +26,7 @@ export default function SupervisorEmailAction() {
         setMessage(errorText[res.error]);
       } else {
         setState("ok");
-        setMessage(action === "confirm" ? "تم تأكيد الاشتراك. بيوصلكم إيميل عند كل رد جديد من الفريق." : "تم إيقاف الإشعارات. ما راح يوصلكم إيميل بعد الحين.");
+        setMessage(action === "confirm" ? tr("تم تأكيد الاشتراك. بيوصلكم إيميل عند كل رد جديد من الفريق.") : tr("تم إيقاف الإشعارات. ما راح يوصلكم إيميل بعد الحين."));
       }
     })();
     return () => {
@@ -42,7 +43,7 @@ export default function SupervisorEmailAction() {
       {state === "loading" && <Loader2 size={28} className="animate-spin text-brand-500" />}
       {state === "ok" && <CheckCircle2 size={36} className="text-brand-500" />}
       {state === "error" && <XCircle size={36} className="text-rose-500" />}
-      <p className="max-w-sm text-sm font-semibold text-brand-950/70">{state === "loading" ? "لحظة…" : message}</p>
+      <p className="max-w-sm text-sm font-semibold text-brand-950/70">{state === "loading" ? tr("لحظة…") : message}</p>
     </div>
   );
 }

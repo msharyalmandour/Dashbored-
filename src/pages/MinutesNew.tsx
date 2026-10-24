@@ -8,6 +8,7 @@ import { ResearchHeader, glassCard, pillField } from "../components/ui/researchU
 import { useAuth } from "../context/AuthContext";
 import { useMinutesActions } from "../hooks/useMinutesActions";
 import { addDaysISO, formatDateFull, formatHijri, isValidISODate } from "../lib/date";
+import { tr } from "../lib/i18n";
 
 interface ActionRow {
   key: number;
@@ -28,7 +29,7 @@ interface Draft {
 }
 
 const DRAFT_KEY = "wesync.minutes.draft";
-const STEPS = ["التاريخ والحاضرون", "وش ناقشتم والقرارات", "البنود المطلوبة"];
+const STEPS = [tr("التاريخ والحاضرون"), tr("وش ناقشتم والقرارات"), tr("البنود المطلوبة")];
 const fieldBox = `${pillField} !rounded-2xl`;
 let rowKey = Date.now();
 
@@ -83,14 +84,14 @@ export default function MinutesNew() {
   if (!canWrite) return <Navigate to="/meeting-minutes" replace />;
 
   const dateProblem = !isValidISODate(meetingDate)
-    ? "اختاروا تاريخ اجتماع صحيح."
+    ? tr("اختاروا تاريخ اجتماع صحيح.")
     : meetingDate > today
-      ? "المحضر يُسجَّل بعد الاجتماع — تاريخه ما يكون بالمستقبل."
+      ? tr("المحضر يُسجَّل بعد الاجتماع — تاريخه ما يكون بالمستقبل.")
       : null;
   const presets = [
-    { label: "اليوم", value: today },
-    { label: "أمس", value: addDaysISO(today, -1) },
-    { label: "قبل يومين", value: addDaysISO(today, -2) },
+    { label: tr("اليوم"), value: today },
+    { label: tr("أمس"), value: addDaysISO(today, -1) },
+    { label: tr("قبل يومين"), value: addDaysISO(today, -2) },
   ];
   const canNext = step === 1 ? !dateProblem : step === 2 ? discussion.trim().length > 0 : true;
 
@@ -115,7 +116,7 @@ export default function MinutesNew() {
     setSaving(false);
     if (r.error || !r.saved) {
       setFailed(true);
-      setError(r.error ?? "تعذّر حفظ المحضر — حاولوا مرة ثانية.");
+      setError(r.error ?? tr("تعذّر حفظ المحضر — حاولوا مرة ثانية."));
       return;
     }
     finished.current = true;
@@ -133,12 +134,10 @@ export default function MinutesNew() {
   return (
     <div className="mx-auto max-w-[760px] space-y-6">
       <Link to="/meeting-minutes" className="inline-flex items-center gap-1.5 text-sm text-[#B8ADA2] hover:text-[#F4F0EC]">
-        <ArrowRight size={14} />
-        الاجتماعات
-      </Link>
-      <ResearchHeader title="محضر جديد" subtitle="اكتبوا بإيجاز، والبنود تتحول لمهام بمسؤول وموعد." />
+        <ArrowRight size={14} />{tr("الاجتماعات")}</Link>
+      <ResearchHeader title={tr("محضر جديد")} subtitle={tr("اكتبوا بإيجاز، والبنود تتحول لمهام بمسؤول وموعد.")} />
 
-      <ol className="flex items-center gap-2" aria-label="الخطوات">
+      <ol className="flex items-center gap-2" aria-label={tr("الخطوات")}>
         {STEPS.map((label, i) => {
           const n = i + 1;
           const done = n < step;
@@ -172,9 +171,7 @@ export default function MinutesNew() {
         {step === 1 && (
           <>
             <div>
-              <label htmlFor="meeting-date" className="mb-2 block text-sm font-semibold">
-                تاريخ الاجتماع
-              </label>
+              <label htmlFor="meeting-date" className="mb-2 block text-sm font-semibold">{tr("تاريخ الاجتماع")}</label>
               <input id="meeting-date" type="date" value={meetingDate} max={today} onChange={(e) => setMeetingDate(e.target.value)} aria-invalid={!!dateProblem} className={clsx(fieldBox, dateProblem && "!border-rose-400")} />
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {presets.map((p) => (
@@ -201,7 +198,7 @@ export default function MinutesNew() {
               </p>
             </div>
             <div>
-              <span className="mb-2 block text-sm font-semibold">الحاضرون</span>
+              <span className="mb-2 block text-sm font-semibold">{tr("الحاضرون")}</span>
               <div className="flex flex-wrap gap-2.5">
                 {roster.map((m) => {
                   const on = attendeeIds.includes(m.id);
@@ -231,32 +228,27 @@ export default function MinutesNew() {
             {hint && (
               <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#FF6B00]/[0.06] p-3.5">
                 <AgentOrb size={34} />
-                <p className="min-w-0 flex-1 text-sm">عندكم جدول أعمال جاهز، تبغون نعبّي النقاط منه؟</p>
+                <p className="min-w-0 flex-1 text-sm">{tr("عندكم جدول أعمال جاهز، تبغون نعبّي النقاط منه؟")}</p>
                 <button
                   type="button"
                   onClick={() => setAgenda(readiness.agendaText)}
                   className="rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-bold text-[#1A0F00]"
-                >
-                  نعم، عبّوها
-                </button>
-                <button type="button" onClick={() => setDismissedHint(true)} className="text-xs text-[#B8ADA2] hover:text-[#F4F0EC]">
-                  لا، شكراً
-                </button>
+                >{tr("نعم، عبّوها")}</button>
+                <button type="button" onClick={() => setDismissedHint(true)} className="text-xs text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("لا، شكراً")}</button>
               </div>
             )}
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold">
-                جدول الأعمال <span className="font-normal text-[#8F8378]">(اختياري)</span>
+              <span className="mb-2 block text-sm font-semibold">{tr("جدول الأعمال ")}<span className="font-normal text-[#8F8378]">{tr("(اختياري)")}</span>
               </span>
-              <textarea value={agenda} onChange={(e) => setAgenda(e.target.value)} rows={agenda ? 5 : 2} className={fieldBox} placeholder="وش كنتم ناوين تناقشون؟" />
+              <textarea value={agenda} onChange={(e) => setAgenda(e.target.value)} rows={agenda ? 5 : 2} className={fieldBox} placeholder={tr("وش كنتم ناوين تناقشون؟")} />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold">وش ناقشتم؟</span>
-              <textarea value={discussion} onChange={(e) => setDiscussion(e.target.value)} rows={4} className={fieldBox} placeholder="أبرز النقاط اللي تناقشتم فيها بالاجتماع" />
+              <span className="mb-2 block text-sm font-semibold">{tr("وش ناقشتم؟")}</span>
+              <textarea value={discussion} onChange={(e) => setDiscussion(e.target.value)} rows={4} className={fieldBox} placeholder={tr("أبرز النقاط اللي تناقشتم فيها بالاجتماع")} />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold">القرارات</span>
-              <textarea value={decisions} onChange={(e) => setDecisions(e.target.value)} rows={3} className={fieldBox} placeholder="القرارات اللي اتفقتوا عليها" />
+              <span className="mb-2 block text-sm font-semibold">{tr("القرارات")}</span>
+              <textarea value={decisions} onChange={(e) => setDecisions(e.target.value)} rows={3} className={fieldBox} placeholder={tr("القرارات اللي اتفقتوا عليها")} />
             </label>
           </>
         )}
@@ -265,30 +257,28 @@ export default function MinutesNew() {
           <>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-bold">البنود المطلوبة</p>
-                <p className="text-xs text-[#B8ADA2]">كل بند يتحول لمهمة بمسؤول وموعد، وتتابعون إنجازها.</p>
+                <p className="font-bold">{tr("البنود المطلوبة")}</p>
+                <p className="text-xs text-[#B8ADA2]">{tr("كل بند يتحول لمهمة بمسؤول وموعد، وتتابعون إنجازها.")}</p>
               </div>
               <button type="button" onClick={addRow} className="flex shrink-0 items-center gap-1 rounded-full border border-[#FF8A24]/50 px-3.5 py-1.5 text-xs font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
-                <Plus size={13} />
-                أضيفوا بند
-              </button>
+                <Plus size={13} />{tr("أضيفوا بند")}</button>
             </div>
             {rows.length === 0 ? (
-              <p className="rounded-2xl bg-white/[0.04] p-4 text-sm text-[#B8ADA2]">ما فيه بنود. تقدرون تحفظون المحضر بدونها، أو تضيفون بنود تتحول لمهام.</p>
+              <p className="rounded-2xl bg-white/[0.04] p-4 text-sm text-[#B8ADA2]">{tr("ما فيه بنود. تقدرون تحفظون المحضر بدونها، أو تضيفون بنود تتحول لمهام.")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {rows.map((r) => (
                   <li key={r.key} className="grid grid-cols-1 gap-2 rounded-2xl bg-white/[0.04] p-3 sm:grid-cols-[1fr_9rem_9rem_auto]">
-                    <input value={r.text} onChange={(e) => patchRow(r.key, { text: e.target.value })} placeholder="وش المطلوب؟" aria-label="نص البند" className={fieldBox} />
-                    <select value={r.assigneeId} onChange={(e) => patchRow(r.key, { assigneeId: e.target.value })} aria-label="المسؤول" className={fieldBox}>
+                    <input value={r.text} onChange={(e) => patchRow(r.key, { text: e.target.value })} placeholder={tr("وش المطلوب؟")} aria-label={tr("نص البند")} className={fieldBox} />
+                    <select value={r.assigneeId} onChange={(e) => patchRow(r.key, { assigneeId: e.target.value })} aria-label={tr("المسؤول")} className={fieldBox}>
                       {roster.map((m) => (
                         <option key={m.id} value={m.id} className="text-black">
                           {m.name}
                         </option>
                       ))}
                     </select>
-                    <input type="date" value={r.dueDate} onChange={(e) => patchRow(r.key, { dueDate: e.target.value })} aria-label="الموعد" className={fieldBox} />
-                    <button type="button" onClick={() => setRows((x) => x.filter((y) => y.key !== r.key))} aria-label="حذف البند" className="grid place-items-center rounded-full px-2.5 text-[#B8ADA2] hover:bg-rose-500/10 hover:text-rose-400">
+                    <input type="date" value={r.dueDate} onChange={(e) => patchRow(r.key, { dueDate: e.target.value })} aria-label={tr("الموعد")} className={fieldBox} />
+                    <button type="button" onClick={() => setRows((x) => x.filter((y) => y.key !== r.key))} aria-label={tr("حذف البند")} className="grid place-items-center rounded-full px-2.5 text-[#B8ADA2] hover:bg-rose-500/10 hover:text-rose-400">
                       <Trash2 size={16} />
                     </button>
                   </li>
@@ -298,8 +288,8 @@ export default function MinutesNew() {
             <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-white/[0.04] p-4 text-sm">
               <input type="checkbox" checked={sendToSupervisor} onChange={(e) => setSendToSupervisor(e.target.checked)} className="mt-1 h-4 w-4 accent-[#FF6B00]" />
               <span>
-                <span className="block font-bold">أرسلوه للمشرف/ة للاعتماد</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-[#B8ADA2]">تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال ٤٨ ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.</span>
+                <span className="block font-bold">{tr("أرسلوه للمشرف/ة للاعتماد")}</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-[#B8ADA2]">{tr("تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال ٤٨ ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.")}</span>
               </span>
             </label>
             {error && (
@@ -312,28 +302,20 @@ export default function MinutesNew() {
 
         <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-5">
           {step > 1 ? (
-            <button type="button" onClick={() => setStep((s) => s - 1)} className="rounded-full border border-white/[0.14] px-5 py-2.5 text-sm font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">
-              السابق
-            </button>
+            <button type="button" onClick={() => setStep((s) => s - 1)} className="rounded-full border border-white/[0.14] px-5 py-2.5 text-sm font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("السابق")}</button>
           ) : (
             <span />
           )}
-          <span className={clsx("text-[11px] text-[#B8ADA2] transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">
-            المسودة محفوظة
-          </span>
+          <span className={clsx("text-[11px] text-[#B8ADA2] transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
           {step < 3 ? (
             <button
               type="button"
               disabled={!canNext}
               onClick={() => setStep((s) => s + 1)}
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-7 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] transition hover:brightness-110 disabled:opacity-50"
-            >
-              التالي
-            </button>
+            >{tr("التالي")}</button>
           ) : (
-            <LoadingButton loading={saving} error={failed} loadingText="جاري الحفظ…" onClick={submit} disabled={!discussion.trim() || !!dateProblem}>
-              حفظ المحضر
-            </LoadingButton>
+            <LoadingButton loading={saving} error={failed} loadingText={tr("جاري الحفظ…")} onClick={submit} disabled={!discussion.trim() || !!dateProblem}>{tr("حفظ المحضر")}</LoadingButton>
           )}
         </div>
       </section>

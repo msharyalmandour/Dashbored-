@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Infinity as InfinityIcon } from "lucide-react";
 import AgentOrb from "./AgentOrb";
+import { tr } from "../../lib/i18n";
 
-const LINES = ["نرتّب مساحة فريقكم…", "نجيب مهامكم ومواعيدكم…", "نجهّز آخر المستجدات…", "لحظات ونكون جاهزين"];
+const LINES = [tr("نرتّب مساحة فريقكم…"), tr("نجيب مهامكم ومواعيدكم…"), tr("نجهّز آخر المستجدات…"), tr("لحظات ونكون جاهزين")];
 
 /** شاشة التحميل الأول: الكرة فيها ∞ وحلقتين تتوسعان، وجملة تتبدل كل ثانيتين */
 export default function AppSplash() {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { topProgress, useTopProgressActive } from "../../lib/topProgress";
+import { tr } from "../../lib/i18n";
 
 /** شريط برتقالي ٣px أعلى الشاشة: يشتغل مع أي تحميل مسجّل (topProgress.start/done) ومع كل تنقل بين الصفحات */
 export default function TopProgress() {
@@ -29,7 +30,7 @@ export default function TopProgress() {
 
   if (phase === "idle") return null;
   return (
-    <div className="top-progress" data-phase={phase} role="progressbar" aria-label="جاري التحميل" aria-busy={phase === "run"}>
+    <div className="top-progress" data-phase={phase} role="progressbar" aria-label={tr("جاري التحميل")} aria-busy={phase === "run"}>
       <div className="top-progress__bar" />
     </div>
   );

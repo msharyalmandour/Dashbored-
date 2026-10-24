@@ -1,6 +1,7 @@
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { callStudy } from "./useStudyTools";
 import type { AskColumn, AskPlan } from "../lib/surveyAsk";
+import { isEn, lang, tr } from "../lib/i18n";
 
 /** نتيجة «وكيل المشروع»: كل شي مرتبط بدراسات حقيقية (sources = مواقع الدراسات بقائمة papers).
     كلها مقترحات — الواجهة تحفظها بعد موافقة الفريق. */
@@ -58,10 +59,10 @@ export async function runProjectAgent(
   topic: string,
   existing: string[],
 ): Promise<{ data?: AgentResult; message?: string }> {
-  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
+  if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
   const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action, topic, existing } });
   const reply = (data ?? null) as Reply | null;
-  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { message: reply.error };
   if (reply && Array.isArray(reply.questions) && Array.isArray(reply.papers)) {
     return {
@@ -86,9 +87,9 @@ export async function runProjectAgent(
         },
       };
     }
-    return { message: old.message ?? "ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية." };
+    return { message: old.message ?? tr("ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية.") };
   }
-  return { message: "ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية." };
+  return { message: tr("ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية.") };
 }
 
 /** auto = المستخدم أمر صراحة («احفظ»، «وزّع المهام») — الواجهة تنفّذها مباشرة بصلاحياته، وإلا تطلع بطاقة موافقة */
@@ -121,13 +122,13 @@ export async function askProjectAgent(
   question: string,
   history: AskTurn[],
 ): Promise<{ data?: { answer: string; actions: AgentAction[] }; message?: string }> {
-  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
-  const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "ask", question, history } });
+  if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
+  const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "ask", question: isEn ? `${question}\n\n(Reply in English.)` : question, history, lang } });
   const reply = data as { answer?: string; actions?: AgentAction[]; error?: string; limitReached?: boolean; message?: string } | null;
-  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { message: reply.error };
   if (reply?.answer) return { data: { answer: reply.answer, actions: reply.actions ?? [] } };
-  return { message: error ? "الوكيل غير متاح الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
+  return { message: error ? tr("الوكيل غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
 }
 
 export interface ReviewCheck {
@@ -146,22 +147,22 @@ export interface ProposalReview {
 
 /** «راجعوا مقترحنا قبل التسليم»: تقرير جاهزية من بيانات مقترحكم الحقيقية (يوجّه ولا يكتب بدالكم) */
 export async function reviewProposal(): Promise<{ data?: ProposalReview; message?: string }> {
-  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
+  if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
   const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "review" } });
   const reply = data as { review?: ProposalReview; error?: string; limitReached?: boolean; message?: string } | null;
-  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { message: reply.error };
   if (reply?.review) return { data: reply.review };
-  return { message: error ? "المراجعة غير متاحة الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
+  return { message: error ? tr("المراجعة غير متاحة الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
 }
 
 /** «اسألوا بياناتكم»: الذكاء يختار الاختبار بس، والأرقام تنحسب بالمتصفح من ردودكم */
 export async function planSurveyAnalysis(question: string, columns: AskColumn[]): Promise<{ plan?: AskPlan; message?: string }> {
-  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
+  if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
   const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "analyze", question, columns } });
   const reply = data as { plan?: AskPlan; error?: string; limitReached?: boolean; message?: string } | null;
-  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { message: reply.error };
   if (reply?.plan) return { plan: reply.plan };
-  return { message: error ? "التحليل غير متاح الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
+  return { message: error ? tr("التحليل غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
 }

@@ -62,6 +62,7 @@ import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { g, isFemaleUser } from "../lib/gender";
 import { achievements, getUnlockedAchievementIds } from "../lib/achievements";
+import { tr, trx } from "../lib/i18n";
 
 const today = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22);
 const todayIso = toISODate(today);
@@ -74,10 +75,10 @@ const statusStyle: Record<string, string> = {
 };
 
 const statusLabel: Record<string, string> = {
-  todo: "لم يبدأ",
-  "in-progress": "قيد التنفيذ",
-  done: "مكتملة",
-  overdue: "متأخرة",
+  todo: tr("لم يبدأ"),
+  "in-progress": tr("قيد التنفيذ"),
+  done: tr("مكتملة"),
+  overdue: tr("متأخرة"),
 };
 
 const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
@@ -201,8 +202,8 @@ export default function Overview() {
       const lastSeenStage = localStorage.getItem(LAST_SEEN_STAGE_KEY);
       if (lastSeenStage && lastSeenStage !== currentStage.titleAr) {
         showToast({
-          title: "🎉 أنجزتم مرحلة بحثية كاملة!",
-          desc: `وصلتوا لمرحلة ${currentStage.titleAr}`,
+          title: tr("🎉 أنجزتم مرحلة بحثية كاملة!"),
+          desc: tr("وصلتوا لمرحلة {0}", currentStage.titleAr),
           icon: PartyPopper,
           tone: "amber",
         });
@@ -218,7 +219,7 @@ export default function Overview() {
   const topPerformer = [...roster].sort((a, b) => b.tasksDone - a.tasksDone)[0];
   const topPerformerId = topPerformer && topPerformer.tasksDone > 0 ? topPerformer.id : null;
 
-  const projectTitle = project?.title || "مشروعكم البحثي";
+  const projectTitle = project?.title || tr("مشروعكم البحثي");
   const projectSubtitle = project?.description ?? "";
   const deadline = project?.targetSubmissionDate ?? null;
   const remainingDays = deadline ? daysUntil(deadline, today) : null;
@@ -270,14 +271,14 @@ export default function Overview() {
 
   const heroMessage =
     overdueCount > 0
-      ? `عندك ${overdueCount} ${overdueCount === 1 ? "مهمة متأخرة" : "مهام متأخرة"} — خلها أول شي ${g(isFemale, "تسوينه", "تسويه")} اليوم.`
+      ? tr("عندك {0} {1} — خلها أول شي {2} اليوم.", overdueCount, overdueCount === 1 ? tr("مهمة متأخرة") : tr("مهام متأخرة"), g(isFemale, tr("تسوينه"), tr("تسويه")))
       : visitGapDays !== null && visitGapDays >= 2
-        ? `غبتِ ${visitGapDays} أيام — طبيعي جدًا، ${g(isFemale, "خذي", "خذ")} وقتك بس لا تنسى إن بحثك يستناك 🌱`
+        ? tr("غبتِ {0} أيام — طبيعي جدًا، {1} وقتك بس لا تنسى إن بحثك يستناك 🌱", visitGapDays, g(isFemale, tr("خذي"), tr("خذ")))
         : visitGapDays === 1
-          ? `من زمان ما شفناك من أمس! ${g(isFemale, "رجّعي", "رجّع")} نفسك بخطوة بسيطة اليوم 🌱`
+          ? tr("من زمان ما شفناك من أمس! {0} نفسك بخطوة بسيطة اليوم 🌱", g(isFemale, tr("رجّعي"), tr("رجّع")))
           : priorities.length === 0
-            ? `ما عليك شي مستعجل اليوم — وقت زين ${g(isFemale, "تراجعين", "تراجع")} المقترح البحثي أو ${g(isFemale, "ترتاحين", "ترتاح")} شوي ☕`
-            : "فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪";
+            ? tr("ما عليك شي مستعجل اليوم — وقت زين {0} المقترح البحثي أو {1} شوي ☕", g(isFemale, tr("تراجعين"), tr("تراجع")), g(isFemale, tr("ترتاحين"), tr("ترتاح")))
+            : tr("فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪");
 
   const showEmptyProgressState = realOverallProgress === 0 && !currentStage;
 
@@ -293,57 +294,28 @@ export default function Overview() {
               <button
                 onClick={startTour}
                 className="shrink-0 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
-              >
-                ابدأ الجولة
-              </button>
+              >{tr("ابدأ الجولة")}</button>
             )
           }
-        >
-          أول مرة {g(isFemale, "تستخدمين", "تستخدم")} Wesync؟{" "}
-          {tourFinished ? (
-            <>
-              خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر{" "}
-              {g(isFemale, "راجعي", "راجع")}{" "}
-              <Link to="/guide" className="underline underline-offset-2">
-                دليل الطالب
-              </Link>
+        >{trx("أول مرة {0} Wesync؟ {1}", g(isFemale, tr("تستخدمين"), tr("تستخدم")), tourFinished ? (
+            <>{trx("خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر {0} ", g(isFemale, tr("راجعي"), tr("راجع")))}<Link to="/guide" className="underline underline-offset-2">{tr("دليل الطالب")}</Link>
               .
             </>
           ) : (
-            <>
-              خلّي مرشدنا ياخذك بجولة سريعة على أهم صفحات الموقع، أو{" "}
-              {g(isFemale, "راجعي", "راجع")}{" "}
-              <Link to="/guide" className="underline underline-offset-2">
-                دليل الطالب
-              </Link>{" "}
-              المكتوب.
-            </>
-          )}
-        </AlertCard>
+            <>{trx("خلّي مرشدنا ياخذك بجولة سريعة على أهم صفحات الموقع، أو {0} ", g(isFemale, tr("راجعي"), tr("راجع")))}<Link to="/guide" className="underline underline-offset-2">{tr("دليل الطالب")}</Link>{tr(" المكتوب.")}</>
+          ))}</AlertCard>
       )}
 
       {showFlashback && !showGuideBanner && (
-        <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>
-          قبل {daysSinceFirstVisit} {daysSinceFirstVisit === 1 ? "يوم" : "أيام"} كنت بس{" "}
-          {g(isFemale, "بادئة", "بادئ")} بحثك من الصفر — الحين عندك{" "}
-          {realOverallProgress}% خلف ظهرك. {g(isFemale, "كملي", "كمل")} بنفس القوة 🌱
-        </AlertCard>
+        <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>{trx("قبل {0} {1} كنت بس {2} بحثك من الصفر — الحين عندك {3}% خلف ظهرك. {4} بنفس القوة 🌱", daysSinceFirstVisit, daysSinceFirstVisit === 1 ? tr("يوم") : tr("أيام"), g(isFemale, tr("بادئة"), tr("بادئ")), realOverallProgress, g(isFemale, tr("كملي"), tr("كمل")))}</AlertCard>
       )}
 
       {showNightOwl && (
-        <AlertCard tone="violet" icon={Moon} onDismiss={dismissNightOwl}>
-          الساعة كذا وبعدك {g(isFemale, "صاحية", "صاحي")} تراجعين بحثك؟ نحترم الجدّية، بس لا
-          تنسى قسط راحتك — بحثك بينتظرك باكر بنفس المكان 🌙
-        </AlertCard>
+        <AlertCard tone="violet" icon={Moon} onDismiss={dismissNightOwl}>{trx("الساعة كذا وبعدك {0} تراجعين بحثك؟ نحترم الجدّية، بس لا تنسى قسط راحتك — بحثك بينتظرك باكر بنفس المكان 🌙", g(isFemale, tr("صاحية"), tr("صاحي")))}</AlertCard>
       )}
 
       {showDeadlineAlert && deadlineAlertActive && overdueCount === 0 && (
-        <AlertCard tone="warning" icon={AlertTriangle} onDismiss={dismissDeadlineAlert}>
-          موعد قريب: <span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{" "}
-          بعد {nearestDeadlineEventDays} {nearestDeadlineEventDays === 1 ? "يوم" : "أيام"} —{" "}
-          <Link to="/calendar" className="underline underline-offset-2">
-            شوفوا التقويم
-          </Link>
+        <AlertCard tone="warning" icon={AlertTriangle} onDismiss={dismissDeadlineAlert}>{tr("موعد قريب: ")}<span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{trx(" بعد {0} {1} — ", nearestDeadlineEventDays, nearestDeadlineEventDays === 1 ? tr("يوم") : tr("أيام"))}<Link to="/calendar" className="underline underline-offset-2">{tr("شوفوا التقويم")}</Link>
           .
         </AlertCard>
       )}
@@ -363,13 +335,13 @@ export default function Overview() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-violet-500">
-              {unreadSupervisor > 0 ? `رسالة جديدة من مشرفكم${unreadSupervisor > 1 ? ` (${unreadSupervisor})` : ""}` : "آخر رسالة من مشرفكم"}
+              {unreadSupervisor > 0 ? tr("رسالة جديدة من مشرفكم{0}", unreadSupervisor > 1 ? ` (${unreadSupervisor})` : "") : tr("آخر رسالة من مشرفكم")}
               {supervisorMsgAt && ` — ${formatDateLong(supervisorMsgAt.slice(0, 10))}`}
             </p>
             <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-sm font-semibold text-violet-800">
               {latestSupervisorMsg?.body ?? team?.supervisorNote}
             </p>
-            <p className="mt-1 text-xs font-bold text-violet-500 underline underline-offset-2">افتحوا المحادثة وردّوا</p>
+            <p className="mt-1 text-xs font-bold text-violet-500 underline underline-offset-2">{tr("افتحوا المحادثة وردّوا")}</p>
           </div>
         </Link>
       )}
@@ -395,14 +367,10 @@ export default function Overview() {
               {/* Greeting + progress */}
               <div className="lg:col-span-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-700 backdrop-blur-sm">
-                  <Wand2 size={11} />
-                  مساحتكم البحثية
-                </span>
+                  <Wand2 size={11} />{tr("مساحتكم البحثية")}</span>
 
                 <p className="mt-3 flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
-                  <TimeOfDayBadge period={greeting.period} />
-                  {greeting.text}،{" "}
-                  <span className="bg-gradient-to-l from-brand-500 to-brand-700 bg-clip-text text-transparent">
+                  <TimeOfDayBadge period={greeting.period} />{trx("{0}، ", greeting.text)}<span className="bg-gradient-to-l from-brand-500 to-brand-700 bg-clip-text text-transparent">
                     {currentUser?.name.split(" ")[0]}
                   </span>
                 </p>
@@ -416,9 +384,7 @@ export default function Overview() {
                     </p>
                   )}
                   {weekNumber >= 1 && (
-                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">
-                      🔥 أسبوع رقم {weekNumber} من رحلتكم البحثية
-                    </span>
+                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">{trx("🔥 أسبوع رقم {0} من رحلتكم البحثية", weekNumber)}</span>
                   )}
                 </div>
 
@@ -440,23 +406,17 @@ export default function Overview() {
                   <div className="min-w-0 flex-1">
                     {showEmptyProgressState ? (
                       <>
-                        <p className="font-display text-base font-bold text-brand-950">
-                          ابدأوا رحلتكم البحثية اليوم
-                        </p>
-                        <p className="mt-1 text-sm text-brand-950/50">
-                          كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.
-                        </p>
+                        <p className="font-display text-base font-bold text-brand-950">{tr("ابدأوا رحلتكم البحثية اليوم")}</p>
+                        <p className="mt-1 text-sm text-brand-950/50">{tr("كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.")}</p>
                         <Link
                           to="/proposal"
                           className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
                         >
-                          <Wand2 size={14} />
-                          ابدأوا بالمقترح البحثي
-                        </Link>
+                          <Wand2 size={14} />{tr("ابدأوا بالمقترح البحثي")}</Link>
                       </>
                     ) : (
                       <>
-                        <p className="text-xs font-semibold text-brand-950/50">نسبة تقدم البحث الكلية</p>
+                        <p className="text-xs font-semibold text-brand-950/50">{tr("نسبة تقدم البحث الكلية")}</p>
                         {deadline ? (
                           <div className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-1.5 pe-3 ps-2 backdrop-blur-sm">
                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_10px_-2px_rgba(255,106,0,0.6)]">
@@ -465,15 +425,11 @@ export default function Overview() {
                             <span className="text-sm font-semibold text-brand-950/80">
                               {formatDateLong(deadline)}
                             </span>
-                            <span className="rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2 py-0.5 text-[11px] font-extrabold text-white">
-                              متبقٍ {remainingDays} يومًا
-                            </span>
+                            <span className="rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2 py-0.5 text-[11px] font-extrabold text-white">{trx("متبقٍ {0} يومًا", remainingDays)}</span>
                           </div>
                         ) : (
                           <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/80">
-                            <CalendarClock size={15} className="shrink-0" />
-                            ما فيه موعد نهائي محدد بعد
-                          </p>
+                            <CalendarClock size={15} className="shrink-0" />{tr("ما فيه موعد نهائي محدد بعد")}</p>
                         )}
                       </>
                     )}
@@ -484,18 +440,14 @@ export default function Overview() {
                   to="/files"
                   className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-brand-950/70 backdrop-blur-sm transition-colors hover:border-brand-500/40 hover:text-brand-700"
                 >
-                  <UploadCloud size={14} className="text-brand-600" />
-                  اسحبوا أي ملف هنا
-                </Link>
+                  <UploadCloud size={14} className="text-brand-600" />{tr("اسحبوا أي ملف هنا")}</Link>
               </div>
 
               {/* Next meeting — real data, integrated into the hero */}
               <div className="flex flex-col justify-center">
                 <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
                   <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-950/50">
-                    <Video size={13} className="text-brand-600" />
-                    الاجتماع القادم
-                  </p>
+                    <Video size={13} className="text-brand-600" />{tr("الاجتماع القادم")}</p>
                   {nextMeeting ? (
                     <>
                       <p className="mt-3 font-display text-lg font-extrabold text-brand-950">
@@ -510,19 +462,15 @@ export default function Overview() {
                       <Link
                         to="/calendar"
                         className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
-                      >
-                        افتحوا التقويم
-                      </Link>
+                      >{tr("افتحوا التقويم")}</Link>
                     </>
                   ) : (
                     <>
-                      <p className="mt-3 text-sm text-brand-950/60">ما فيه اجتماع مجدول قريب.</p>
+                      <p className="mt-3 text-sm text-brand-950/60">{tr("ما فيه اجتماع مجدول قريب.")}</p>
                       <Link
                         to="/calendar"
                         className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3.5 py-2 text-xs font-bold text-brand-700 transition-colors hover:border-brand-500/40"
-                      >
-                        جدولوا اجتماعًا
-                      </Link>
+                      >{tr("جدولوا اجتماعًا")}</Link>
                     </>
                   )}
                 </div>
@@ -536,8 +484,8 @@ export default function Overview() {
             <TiltCard maxTilt={4}>
               <StatCard
                 icon={Milestone}
-                label="المرحلة الحالية"
-                value={currentStage?.titleAr ?? "لم تبدأ مرحلة بعد"}
+                label={tr("المرحلة الحالية")}
+                value={currentStage?.titleAr ?? tr("لم تبدأ مرحلة بعد")}
                 sub={currentStage?.titleEn ?? "Not started yet"}
                 color="brand"
                 tone="teal"
@@ -548,9 +496,9 @@ export default function Overview() {
             <TiltCard maxTilt={4}>
               <StatCard
                 icon={ListTodo}
-                label="المهمة الحالية"
-                value={currentTask ?? "ما فيه مهمة نشطة الحين"}
-                sub={currentTask ? "قيد التنفيذ الآن" : "أسندوا أول مهمة من صفحة المهام"}
+                label={tr("المهمة الحالية")}
+                value={currentTask ?? tr("ما فيه مهمة نشطة الحين")}
+                sub={currentTask ? tr("قيد التنفيذ الآن") : tr("أسندوا أول مهمة من صفحة المهام")}
                 color="amber-accent"
                 tone="cream"
               />
@@ -560,9 +508,9 @@ export default function Overview() {
             <TiltCard maxTilt={4}>
               <StatCard
                 icon={TrendingUp}
-                label="الخطوة التالية"
+                label={tr("الخطوة التالية")}
                 value={nextStep ?? "—"}
-                sub={nextStep ? "بعد إكمال الحالية" : "ما فيه خطوة تالية محددة"}
+                sub={nextStep ? tr("بعد إكمال الحالية") : tr("ما فيه خطوة تالية محددة")}
                 color="sky-accent"
                 tone="sky"
               />
@@ -572,12 +520,12 @@ export default function Overview() {
             <TiltCard maxTilt={4}>
               <StatCard
                 icon={CalendarClock}
-                label="الموعد القادم"
-                value={nearestDeadlineEvent ? formatDateShort(nearestDeadlineEvent.date) : "لا يوجد"}
+                label={tr("الموعد القادم")}
+                value={nearestDeadlineEvent ? formatDateShort(nearestDeadlineEvent.date) : tr("لا يوجد")}
                 sub={
                   nearestDeadlineEvent
-                    ? `${nearestDeadlineEvent.title} — متبقٍ ${nearestDeadlineEventDays} ${nearestDeadlineEventDays === 1 ? "يوم" : "أيام"}`
-                    : "أضيفوا موعدًا بالتقويم"
+                    ? tr("{0} — متبقٍ {1} {2}", nearestDeadlineEvent.title, nearestDeadlineEventDays, nearestDeadlineEventDays === 1 ? tr("يوم") : tr("أيام"))
+                    : tr("أضيفوا موعدًا بالتقويم")
                 }
                 color="brand"
                 tone="violet"
@@ -628,7 +576,7 @@ export default function Overview() {
         <div className="space-y-4 lg:col-span-2">
           <Card tone="paper" className="card-terra">
             <CardHeader
-              title="رحلة تقدم البحث"
+              title={tr("رحلة تقدم البحث")}
               subtitle="Research Progress Journey"
             />
             <PhaseTracker stages={realStages} />
@@ -636,14 +584,12 @@ export default function Overview() {
 
           <Card interactive>
             <CardHeader
-              title="مهامي القادمة"
+              title={tr("مهامي القادمة")}
               action={
                 <Link
                   to="/tasks"
                   className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-                >
-                  عرض الكل
-                </Link>
+                >{tr("عرض الكل")}</Link>
               }
             />
             <ul className="divide-y divide-brand-50">
@@ -674,9 +620,7 @@ export default function Overview() {
               })}
             </ul>
             {priorities.length === 0 && (
-              <p className="py-6 text-center text-sm text-brand-950/40">
-                ما فيه أولويات معلّقة عليك اليوم — استمتع بيومك 🌿
-              </p>
+              <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه أولويات معلّقة عليك اليوم — استمتع بيومك 🌿")}</p>
             )}
           </Card>
         </div>
@@ -694,14 +638,12 @@ export default function Overview() {
 
           <Card>
             <CardHeader
-              title={selectedDate === todayIso ? "أحداث اليوم" : formatDateShort(selectedDate)}
+              title={selectedDate === todayIso ? tr("أحداث اليوم") : formatDateShort(selectedDate)}
               action={
                 <Link
                   to="/calendar"
                   className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-                >
-                  عرض الكل
-                </Link>
+                >{tr("عرض الكل")}</Link>
               }
             />
             <ul className="space-y-3">
@@ -719,7 +661,7 @@ export default function Overview() {
                 </li>
               ))}
               {dayEvents.length === 0 && upcoming.length === 0 && (
-                <p className="text-sm text-brand-950/40">لا توجد أحداث</p>
+                <p className="text-sm text-brand-950/40">{tr("لا توجد أحداث")}</p>
               )}
             </ul>
           </Card>
@@ -729,15 +671,13 @@ export default function Overview() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card tone="violet" interactive>
           <CardHeader
-            title="تقدم الفريق"
-            subtitle={topPerformerId ? `${topPerformer!.name.split(" ")[0]} الأكثر إنجازًا هذا الأسبوع` : undefined}
+            title={tr("تقدم الفريق")}
+            subtitle={topPerformerId ? tr("{0} الأكثر إنجازًا هذا الأسبوع", topPerformer!.name.split(" ")[0]) : undefined}
             action={
               <Link
                 to="/team"
                 className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-              >
-                عرض الكل
-              </Link>
+              >{tr("عرض الكل")}</Link>
             }
           />
           <div className="flex justify-between">
@@ -763,11 +703,9 @@ export default function Overview() {
 
         <Card tone="amber" interactive>
           <CardHeader
-            title="مراجعة الأدبيات"
+            title={tr("مراجعة الأدبيات")}
             action={
-              <Link to="/literature-review" className="text-xs font-semibold text-brand-600">
-                عرض المكتبة
-              </Link>
+              <Link to="/literature-review" className="text-xs font-semibold text-brand-600">{tr("عرض المكتبة")}</Link>
             }
           />
           <div className="flex items-center gap-2">
@@ -780,30 +718,26 @@ export default function Overview() {
               </span>
             </p>
           </div>
-          <p className="mb-3 text-xs text-brand-950/45">دراسة تمت مراجعتها من إجمالي المجمّعة</p>
+          <p className="mb-3 text-xs text-brand-950/45">{tr("دراسة تمت مراجعتها من إجمالي المجمّعة")}</p>
           <ProgressBar value={litReviewPct} color="amber-accent" track="bg-surface-muted" />
           <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-brand-950/70">الدراسات المتبقية</span>
+            <span className="text-brand-950/70">{tr("الدراسات المتبقية")}</span>
             <span className="font-semibold text-brand-950">{remainingCount}</span>
           </div>
         </Card>
 
         <Card interactive>
           <CardHeader
-            title="آخر نشاط للفريق"
+            title={tr("آخر نشاط للفريق")}
             action={
               <Link
                 to="/team"
                 className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-              >
-                عرض الكل
-              </Link>
+              >{tr("عرض الكل")}</Link>
             }
           />
           {isSupabaseConfigured ? (
-            <p className="py-6 text-center text-sm text-brand-950/40">
-              ما فيه نشاط مسجَّل للفريق بعد — بيظهر هنا أول ما يبدأ الفريق يشتغل 🌱
-            </p>
+            <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه نشاط مسجَّل للفريق بعد — بيظهر هنا أول ما يبدأ الفريق يشتغل 🌱")}</p>
           ) : (
             <ul className="space-y-3">
               {recentActivity.map((activity) => {
@@ -832,7 +766,7 @@ export default function Overview() {
 
       {unlockedAchievements.length > 0 && (
         <Card>
-          <CardHeader title="إنجازاتكم" subtitle="Achievements" />
+          <CardHeader title={tr("إنجازاتكم")} subtitle="Achievements" />
           <div className="flex flex-wrap gap-3">
             {unlockedAchievements.map((a) => (
               <div

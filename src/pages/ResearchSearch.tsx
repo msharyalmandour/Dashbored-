@@ -34,28 +34,29 @@ import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme, ResearchSearchResult } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { formatTimestampLong } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 const SEARCH_MONTHLY_LIMIT = 10;
 const GUIDE_KEY = "wesync.research.guide.dismissed";
 
 const themeOptions: { value: LiteratureTheme; label: string }[] = [
-  { value: "Delirium", label: "الهذيان" },
-  { value: "Nursing Knowledge", label: "معرفة الممرضات" },
-  { value: "Detection Tools", label: "أدوات الكشف" },
-  { value: "Tool Utilization", label: "استخدام الأدوات" },
-  { value: "Patient Outcomes", label: "نتائج المرضى" },
+  { value: "Delirium", label: tr("الهذيان") },
+  { value: "Nursing Knowledge", label: tr("معرفة الممرضات") },
+  { value: "Detection Tools", label: tr("أدوات الكشف") },
+  { value: "Tool Utilization", label: tr("استخدام الأدوات") },
+  { value: "Patient Outcomes", label: tr("نتائج المرضى") },
 ];
 
 const exampleTopics = [
-  "الاحتراق الوظيفي لدى ممرضات العناية المركزة",
-  "رضا المرضى عن الرعاية التمريضية",
-  "الإجهاد المهني وجودة النوم لدى الممرضات",
+  tr("الاحتراق الوظيفي لدى ممرضات العناية المركزة"),
+  tr("رضا المرضى عن الرعاية التمريضية"),
+  tr("الإجهاد المهني وجودة النوم لدى الممرضات"),
 ];
 
 const tabs: { id: ResearchTab; label: string; when: string; icon: typeof Search }[] = [
-  { id: "papers", label: "دراسات قريبة", when: "أبي أعرف وش انكتب قبل عن موضوعي", icon: Search },
-  { id: "tools", label: "أدوات القياس", when: "أبي استبيان جاهز ومعتمد أستخدمه", icon: Ruler },
-  { id: "strategy", label: "خطة البحث", when: "أبي كلمات وجمل أبحث فيها بنفسي", icon: ListTree },
+  { id: "papers", label: tr("دراسات قريبة"), when: tr("أبي أعرف وش انكتب قبل عن موضوعي"), icon: Search },
+  { id: "tools", label: tr("أدوات القياس"), when: tr("أبي استبيان جاهز ومعتمد أستخدمه"), icon: Ruler },
+  { id: "strategy", label: tr("خطة البحث"), when: tr("أبي كلمات وجمل أبحث فيها بنفسي"), icon: ListTree },
 ];
 
 function readGuideDismissed() {
@@ -78,24 +79,22 @@ function HowItWorks() {
     }
   };
   const steps = [
-    ["١", "اكتبوا موضوع بحثكم", "عنوان بحثكم أو موضوعه بكلمات بسيطة — مثل: الاحتراق الوظيفي عند الممرضات."],
-    ["٢", "اضغطوا «ابحث» وانتظروا", "ياخذ حوالي ٢٠ ثانية. تقدرون تتنقلون بالموقع وتكملون شغلكم، ونخبركم لما تجهز النتائج."],
-    ["٣", "اقرأوا وأضيفوا المفيد", "كل دراسة ملخّصة بالعربي. أي وحدة تعجبكم اضغطوا «أضيفوها لمكتبتكم» وتدخل مراجعة الأدبيات وقائمة المراجع تلقائيًا."],
+    [tr("١"), tr("اكتبوا موضوع بحثكم"), tr("عنوان بحثكم أو موضوعه بكلمات بسيطة — مثل: الاحتراق الوظيفي عند الممرضات.")],
+    [tr("٢"), tr("اضغطوا «ابحث» وانتظروا"), tr("ياخذ حوالي ٢٠ ثانية. تقدرون تتنقلون بالموقع وتكملون شغلكم، ونخبركم لما تجهز النتائج.")],
+    [tr("٣"), tr("اقرأوا وأضيفوا المفيد"), tr("كل دراسة ملخّصة بالعربي. أي وحدة تعجبكم اضغطوا «أضيفوها لمكتبتكم» وتدخل مراجعة الأدبيات وقائمة المراجع تلقائيًا.")],
   ];
   return (
     <div className={`${glassCard} relative p-5`}>
       <button
         onClick={close}
-        title="إخفاء الشرح"
-        aria-label="إخفاء الشرح"
+        title={tr("إخفاء الشرح")}
+        aria-label={tr("إخفاء الشرح")}
         className="absolute end-3 top-3 rounded-full p-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]"
       >
         <X size={15} />
       </button>
       <p className="mb-3 flex items-center gap-2 text-sm font-extrabold">
-        <Lightbulb size={16} className="text-[#FFB444]" />
-        أول مرة؟ كذا تستخدمونه بثلاث خطوات
-      </p>
+        <Lightbulb size={16} className="text-[#FFB444]" />{tr("أول مرة؟ كذا تستخدمونه بثلاث خطوات")}</p>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {steps.map(([n, title, desc]) => (
           <div key={n} className="flex gap-3">
@@ -121,7 +120,7 @@ function SearchProgress() {
     return () => clearInterval(t);
   }, []);
   const stage = sec < 6 ? 0 : sec < 13 ? 1 : 2;
-  const steps = ["نبحث في PubMed وOpenAlex", "نختار أقرب الدراسات لموضوعكم", "نلخّصها لكم بالعربي"];
+  const steps = [tr("نبحث في PubMed وOpenAlex"), tr("نختار أقرب الدراسات لموضوعكم"), tr("نلخّصها لكم بالعربي")];
   return (
     <div className="mt-4 rounded-2xl bg-white/[0.05] p-4 text-start" role="status" aria-live="polite">
       <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
@@ -143,9 +142,7 @@ function SearchProgress() {
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[11px] text-[#B8ADA2]">
-        ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.
-      </p>
+      <p className="mt-3 text-[11px] text-[#B8ADA2]">{tr("ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
     </div>
   );
 }
@@ -174,7 +171,7 @@ function ResultCard({
     setAdding(true);
     const { error } = await addPaper({
       title: result.title,
-      authors: result.authors || "غير معروف",
+      authors: result.authors || tr("غير معروف"),
       year: result.year ?? new Date().getFullYear(),
       theme,
       // التصميم والعينة يجون من الملخص الأصلي (لو مذكورين) — الطالبة تراجعهم بعد الإضافة
@@ -188,12 +185,12 @@ function ResultCard({
     setAdding(false);
     if (!error) {
       setAdded(true);
-      showToast({ title: "انضافت لمكتبتكم ✅", desc: "تلقونها بمكتبة الأدلة ومراجعة الأدبيات", icon: Check, tone: "brand" });
+      showToast({ title: tr("انضافت لمكتبتكم ✅"), desc: tr("تلقونها بمكتبة الأدلة ومراجعة الأدبيات"), icon: Check, tone: "brand" });
     }
   };
 
   const peer = result.sourceType === "peer-reviewed";
-  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : "بحث ويب";
+  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : tr("بحث ويب");
 
   return (
     <div className="space-y-3 rounded-2xl bg-white/[0.04] p-5">
@@ -206,10 +203,10 @@ function ResultCard({
             </span>
           </SourceBadge>
           <span
-            title={peer ? "منشورة بمجلة علمية محكّمة" : "مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه"}
+            title={peer ? tr("منشورة بمجلة علمية محكّمة") : tr("مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه")}
             className={`text-[11px] font-semibold ${peer ? "text-[#7fd6a0]" : "text-[#FFB444]"}`}
           >
-            {peer ? "✓ دراسة محكّمة" : result.sourceType === "general" ? "مصدر عام — تأكدوا منه" : "مصدر غير مصنّف"}
+            {peer ? tr("✓ دراسة محكّمة") : result.sourceType === "general" ? tr("مصدر عام — تأكدوا منه") : tr("مصدر غير مصنّف")}
           </span>
           {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.studyDesign}</span>}
           {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.sampleSize}</span>}
@@ -229,7 +226,7 @@ function ResultCard({
 
       <p className="text-[15px] leading-relaxed text-[#B8ADA2]">{result.summaryAr}</p>
       <p className="rounded-2xl bg-white/[0.05] px-4 py-2.5 text-xs leading-relaxed text-[#B8ADA2]">
-        <b className="font-bold text-[#F4F0EC]">ليش تهمّكم؟ </b>
+        <b className="font-bold text-[#F4F0EC]">{tr("ليش تهمّكم؟ ")}</b>
         {result.relevanceReason}
       </p>
 
@@ -240,18 +237,14 @@ function ResultCard({
           className="flex items-center gap-1.5 font-bold text-[#FFB444] hover:text-[#FFC85A] disabled:opacity-70"
         >
           {adding ? <Loader2 size={14} className="animate-spin" /> : added ? <Check size={14} /> : <Library size={14} />}
-          {added ? "انضافت للمكتبة" : "+ أضف للمكتبة"}
+          {added ? tr("انضافت للمكتبة") : tr("+ أضف للمكتبة")}
         </button>
         <a href={result.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
-          <ExternalLink size={13} />
-          الدراسة الأصلية
-        </a>
+          <ExternalLink size={13} />{tr("الدراسة الأصلية")}</a>
         <button
           onClick={() => setMore((v) => !v)}
           className="ms-auto flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]"
-        >
-          خيارات أكثر
-          <ChevronDown size={13} className={`transition-transform ${more ? "rotate-180" : ""}`} />
+        >{tr("خيارات أكثر")}<ChevronDown size={13} className={`transition-transform ${more ? "rotate-180" : ""}`} />
         </button>
       </div>
 
@@ -263,7 +256,7 @@ function ResultCard({
             </div>
           )}
           <label className="block">
-            <span className="mb-1 block text-[11px] font-bold text-[#B8ADA2]">وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)</span>
+            <span className="mb-1 block text-[11px] font-bold text-[#B8ADA2]">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as LiteratureTheme)}
@@ -282,12 +275,10 @@ function ResultCard({
               href={`https://scholar.google.com/scholar?q=${encodeURIComponent(`"${result.title}"`)}`}
               target="_blank"
               rel="noreferrer"
-              title="تشوفون كم مرة اقتُبست هالدراسة"
+              title={tr("تشوفون كم مرة اقتُبست هالدراسة")}
               className="flex items-center gap-1.5 text-[#FFB444] hover:underline"
             >
-              <GraduationCap size={13} />
-              شوفوا عدد الاقتباسات بـ Google Scholar
-            </a>
+              <GraduationCap size={13} />{tr("شوفوا عدد الاقتباسات بـ Google Scholar")}</a>
             {result.doi && (
               <span dir="ltr" className="font-mono">
                 DOI {result.doi}
@@ -338,14 +329,12 @@ export default function ResearchSearch() {
   if (view === "agent") {
     return (
       <div className="space-y-5">
-        {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
+        {!aiOk && <AiLockedCard feature={tr("وكيل البحث العلمي")} />}
         {aiOk && <ProjectAgentChat />}
         {aiOk && (
           <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
-              <span>
-                جهّزوا لنا البداية
-                <span className="ms-2 text-xs font-normal text-[#B8ADA2]">دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم</span>
+              <span>{tr("جهّزوا لنا البداية")}<span className="ms-2 text-xs font-normal text-[#B8ADA2]">{tr("دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم")}</span>
               </span>
               <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
             </summary>
@@ -364,7 +353,7 @@ export default function ResearchSearch() {
 
   return (
     <div className="space-y-6">
-      {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
+      {!aiOk && <AiLockedCard feature={tr("وكيل البحث العلمي")} />}
 
       {aiOk && (
         <div className="flex flex-wrap gap-2">
@@ -382,8 +371,8 @@ export default function ResearchSearch() {
         <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-[#F4F0EC] sm:px-8 md:py-12">
           <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[160px] -z-10 h-[360px] w-[560px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
           <div className="mx-auto flex max-w-[720px] flex-col items-center gap-4">
-            <h1 className="font-kufi text-3xl font-extrabold leading-tight md:text-5xl">عن وش تدوّرون؟</h1>
-            <p className="text-base font-light text-[#B8ADA2] md:text-lg">نبحث في <bdi>PubMed</bdi> و<bdi>OpenAlex</bdi> مع بعض، ونلخّص لكم كل دراسة بالعربي.</p>
+            <h1 className="font-kufi text-3xl font-extrabold leading-tight md:text-5xl">{tr("عن وش تدوّرون؟")}</h1>
+            <p className="text-base font-light text-[#B8ADA2] md:text-lg">{tr("نبحث في ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" مع بعض، ونلخّص لكم كل دراسة بالعربي.")}</p>
 
             <form
               onSubmit={(e) => {
@@ -395,19 +384,19 @@ export default function ResearchSearch() {
               <input
                 value={st.topic}
                 onChange={(e) => st.setTopic(e.target.value)}
-                placeholder="مثال: الاحتراق الوظيفي لدى ممرضات العناية المركزة"
-                aria-label="موضوع البحث"
+                placeholder={tr("مثال: الاحتراق الوظيفي لدى ممرضات العناية المركزة")}
+                aria-label={tr("موضوع البحث")}
                 dir="auto"
                 className={fieldPill}
               />
               <button type="submit" disabled={st.searching || !st.topic.trim()} className={`${gradientPill} !px-7 !py-3 shrink-0`}>
                 {st.searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                {st.searching ? "جاري البحث..." : "ابحث"}
+                {st.searching ? tr("جاري البحث...") : tr("ابحث")}
               </button>
             </form>
 
             <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-[#B8ADA2]">
-              <span>المصادر:</span>
+              <span>{tr("المصادر:")}</span>
               {([["pubmed", "PubMed"], ["openalex", "OpenAlex"]] as const).map(([k, label]) => (
                 <span key={k} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 py-1 ps-3.5 pe-1.5 text-[#F4F0EC]">
                   <Check size={13} className="text-[#FFB444]" />
@@ -419,7 +408,7 @@ export default function ResearchSearch() {
                 href={`https://scholar.google.com/scholar?q=${encodeURIComponent(st.topic.trim())}`}
                 target="_blank"
                 rel="noreferrer"
-                title="يفتح Google Scholar بنفس العنوان بنافذة جديدة — مو داخل بحث Wesync"
+                title={tr("يفتح Google Scholar بنفس العنوان بنافذة جديدة — مو داخل بحث Wesync")}
                 className="flex items-center gap-2 rounded-full border border-dashed border-white/25 py-1 ps-3.5 pe-1.5 text-[#E6DBD1] transition hover:border-[#FF8A24]/60"
               >
                 <ExternalLink size={12} />
@@ -427,11 +416,11 @@ export default function ResearchSearch() {
                 <SourceLogo name="scholar" />
               </a>
             </div>
-            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">النتائج تجي من <bdi>PubMed</bdi> و<bdi>OpenAlex</bdi>، و<bdi>Google Scholar</bdi> يفتح ببحث خارجي بنفس عنوانكم.</p>
+            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بنفس عنوانكم.")}</p>
 
             {!st.topic.trim() && !st.searching && (
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="text-[11px] font-bold text-[#B8ADA2]/70">جرّبوا مثلًا:</span>
+                <span className="text-[11px] font-bold text-[#B8ADA2]/70">{tr("جرّبوا مثلًا:")}</span>
                 {exampleTopics.map((ex) => (
                   <button
                     key={ex}
@@ -447,9 +436,7 @@ export default function ResearchSearch() {
             {st.searching && <div className="w-full"><SearchProgress /></div>}
 
             {!st.searching && (
-              <p className="text-[11px] text-[#B8ADA2]/80">
-                استخدمتم {usedThisMonth} من {SEARCH_MONTHLY_LIMIT} عمليات بحث هالشهر (باقي {left}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.
-              </p>
+              <p className="text-[11px] text-[#B8ADA2]/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
             )}
 
             {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
@@ -473,11 +460,11 @@ export default function ResearchSearch() {
       {st.tab === "papers" && st.activeResult && (
         <div ref={resultsRef} className={`${glassCard} scroll-mt-24 space-y-4 p-6`}>
           <div>
-            <h2 className="font-kufi text-2xl font-extrabold">النتائج</h2>
+            <h2 className="font-kufi text-2xl font-extrabold">{tr("النتائج")}</h2>
             <p className="mt-1 text-sm text-[#B8ADA2]">
               {st.activeResult.results.length > 0
-                ? `لقينا ${st.activeResult.results.length} دراسة قريبة من «${st.activeResult.queryText}» — مرتّبة من الأقرب لموضوعكم للأبعد.`
-                : "ما لقينا نتائج"}
+                ? tr("لقينا {0} دراسة قريبة من «{1}» — مرتّبة من الأقرب لموضوعكم للأبعد.", st.activeResult.results.length, st.activeResult.queryText)
+                : tr("ما لقينا نتائج")}
             </p>
           </div>
 
@@ -485,11 +472,9 @@ export default function ResearchSearch() {
             <div className="flex items-start gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#FF6B00]/[0.06] p-4">
               <Wand2 size={18} className="mt-0.5 shrink-0 text-[#FFB444]" />
               <div>
-                <p className="text-sm font-bold">وش يميّز بحثكم عن اللي انكتب؟</p>
+                <p className="text-sm font-bold">{tr("وش يميّز بحثكم عن اللي انكتب؟")}</p>
                 <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">{st.activeResult.noveltyNote}</p>
-                <p className="mt-1.5 text-[11px] text-[#B8ADA2]/70">
-                  هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.
-                </p>
+                <p className="mt-1.5 text-[11px] text-[#B8ADA2]/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
               </div>
             </div>
           )}
@@ -497,8 +482,8 @@ export default function ResearchSearch() {
           {st.activeResult.results.length === 0 ? (
             <EmptyState
               icon={Search}
-              title="ما لقينا نتائج كافية"
-              desc="جرّبوا تعدّلون صياغة العنوان أو تخصّصونه أكثر (مثلًا: أضيفوا الفئة أو المكان)."
+              title={tr("ما لقينا نتائج كافية")}
+              desc={tr("جرّبوا تعدّلون صياغة العنوان أو تخصّصونه أكثر (مثلًا: أضيفوا الفئة أو المكان).")}
             />
           ) : (
             st.activeResult.results.map((r, i) => (
@@ -518,19 +503,17 @@ export default function ResearchSearch() {
       <div className={aiOk && st.tab === "papers" ? "space-y-3" : "hidden"}>
         <div>
           <h3 className="flex items-center gap-2 font-kufi text-lg font-bold">
-            <BadgeCheck size={16} className="text-[#FFB444]" />
-            عمليات البحث السابقة
-          </h3>
-          <p className="text-xs text-[#B8ADA2]">اضغطوا على أي بحث لعرض نتائجه مرة ثانية — مجانًا وبدون ما يحسب من حدكم.</p>
+            <BadgeCheck size={16} className="text-[#FFB444]" />{tr("عمليات البحث السابقة")}</h3>
+          <p className="text-xs text-[#B8ADA2]">{tr("اضغطوا على أي بحث لعرض نتائجه مرة ثانية — مجانًا وبدون ما يحسب من حدكم.")}</p>
         </div>
         {st.searchesLoading ? (
-          <p className="text-sm text-[#B8ADA2]">جاري التحميل...</p>
+          <p className="text-sm text-[#B8ADA2]">{tr("جاري التحميل...")}</p>
         ) : st.searches.length === 0 ? (
           <div className={`${glassCard} p-2`}>
             <EmptyState
               icon={Search}
-              title={g(isFemale, "ما بحثتوا بعد", "ما بحثتوا بعد")}
-              desc="أول بحث تسوّونه بيظهر هنا عشان ترجعون له بدون إعادة البحث."
+              title={g(isFemale, tr("ما بحثتوا بعد"), tr("ما بحثتوا بعد"))}
+              desc={tr("أول بحث تسوّونه بيظهر هنا عشان ترجعون له بدون إعادة البحث.")}
             />
           </div>
         ) : (
@@ -545,15 +528,15 @@ export default function ResearchSearch() {
               >
                 <p className="truncate text-sm font-bold" dir="auto">{s.queryText}</p>
                 <p className="text-xs text-[#B8ADA2]">
-                  {[formatTimestampLong(s.createdAt), `${s.results.length} نتيجة`].filter(Boolean).join(" · ")}
+                  {[formatTimestampLong(s.createdAt), tr("{0} نتيجة", s.results.length)].filter(Boolean).join(" · ")}
                 </p>
               </button>
               {(isLeader || s.createdById === currentUser?.id) && (
                 <ThreeDotsMenu
                   items={[
                     {
-                      label: "حذف عملية البحث",
-                      confirmLabel: "تأكيد الحذف؟",
+                      label: tr("حذف عملية البحث"),
+                      confirmLabel: tr("تأكيد الحذف؟"),
                       icon: Trash2,
                       tone: "danger",
                       onClick: () => st.deleteSearch(s.id),

@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 /** ذاكرة المشرف/ة على جهازه فقط (localStorage) — الرابط بدون حساب، فما فيه شي يتخزن بالخادم.
     تغذّي: «وش تغيّر من آخر زيارة»، علامات الاعتماد، وقائمة «فرقي». */
 
@@ -63,18 +64,18 @@ export function buildSeen(s: SnapshotLike, teamMsgCount: number): SeenSnapshot {
   };
 }
 
-const sectionWord = { "not-started": "لم يبدأ", "in-progress": "قيد التنفيذ", done: "مكتمل" } as const;
+const sectionWord = { "not-started": tr("لم يبدأ"), "in-progress": tr("قيد التنفيذ"), done: tr("مكتمل") } as const;
 
 /** الفرق بين آخر مرة شافت فيها المشرفة التقرير والحين — سطور جاهزة للعرض */
 export function diffSince(prev: SeenSnapshot, s: SnapshotLike, teamMsgCount: number | null): string[] {
   const out: string[] = [];
   const fresh = s.tasks.filter((t) => !(t.title in prev.tasks));
-  if (fresh.length) out.push(`${fresh.length} ${fresh.length === 1 ? "مهمة جديدة" : "مهام جديدة"}`);
+  if (fresh.length) out.push(`${fresh.length} ${fresh.length === 1 ? tr("مهمة جديدة") : tr("مهام جديدة")}`);
   for (const t of s.tasks) {
     const before = prev.tasks[t.title];
     if (before === undefined || before === t.status) continue;
-    if (t.status === "done") out.push(`خلّصوا: «${t.title}»`);
-    else if (t.status === "overdue") out.push(`تأخّرت: «${t.title}»`);
+    if (t.status === "done") out.push(tr("خلّصوا: «{0}»", t.title));
+    else if (t.status === "overdue") out.push(tr("تأخّرت: «{0}»", t.title));
   }
   for (const p of s.proposalSections) {
     const before = prev.sections[p.key] as keyof typeof sectionWord | undefined;
@@ -82,7 +83,7 @@ export function diffSince(prev: SeenSnapshot, s: SnapshotLike, teamMsgCount: num
   }
   if (teamMsgCount !== null && teamMsgCount > prev.teamMsgCount) {
     const n = teamMsgCount - prev.teamMsgCount;
-    out.push(`${n} ${n === 1 ? "رد جديد" : "ردود جديدة"} من الفريق`);
+    out.push(tr("{0} {1} من الفريق", n, n === 1 ? tr("رد جديد") : tr("ردود جديدة")));
   }
   return out;
 }

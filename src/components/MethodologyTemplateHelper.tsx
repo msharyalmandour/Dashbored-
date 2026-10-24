@@ -3,25 +3,10 @@ import { Check, Copy, Wand2 } from "lucide-react";
 import clsx from "clsx";
 import Card, { CardHeader } from "./ui/Card";
 import { methodologyTemplates, type MethodologyTemplate } from "../data/methodologyTemplates";
+import { tr } from "../lib/i18n";
 
 function buildTemplateText(t: MethodologyTemplate): string {
-  return `تصميم الدراسة:
-${t.studyDesign}
-
-معايير الاشتمال:
-${t.inclusionCriteria.map((c) => `- ${c}`).join("\n")}
-
-معايير الاستبعاد:
-${t.exclusionCriteria.map((c) => `- ${c}`).join("\n")}
-
-أسلوب اختيار العينة:
-${t.samplingTechnique}
-
-طريقة جمع البيانات:
-${t.dataCollectionMethods.map((c) => `- ${c}`).join("\n")}
-
-أداة الدراسة المقترحة:
-${t.suggestedTool}`;
+  return tr("تصميم الدراسة:\n{0}\n\nمعايير الاشتمال:\n{1}\n\nمعايير الاستبعاد:\n{2}\n\nأسلوب اختيار العينة:\n{3}\n\nطريقة جمع البيانات:\n{4}\n\nأداة الدراسة المقترحة:\n{5}", t.studyDesign, t.inclusionCriteria.map((c) => `- ${c}`).join("\n"), t.exclusionCriteria.map((c) => `- ${c}`).join("\n"), t.samplingTechnique, t.dataCollectionMethods.map((c) => `- ${c}`).join("\n"), t.suggestedTool);
 }
 
 /** قوالب مبدئية حسب نوع الدراسة — نقطة بداية جاهزة للنسخ بدل الصفحة
@@ -52,14 +37,11 @@ export default function MethodologyTemplateHelper({
   return (
     <Card tone="sky">
       <CardHeader
-        title="قوالب جاهزة تساعدكم تبدؤون"
+        title={tr("قوالب جاهزة تساعدكم تبدؤون")}
         subtitle="Starter Templates"
         action={<Wand2 size={18} className="text-sky-accent-600" />}
       />
-      <p className="mb-3 text-sm text-brand-950/55">
-        اختاروا أقرب نوع لدراستكم، وبنقترح لكم هيكل مبدئي (معايير اشتمال، أسلوب عينة، طريقة جمع
-        بيانات) تعدّلونه حسب دراستكم الفعلية — بدل ما تبدؤون من صفحة فاضية.
-      </p>
+      <p className="mb-3 text-sm text-brand-950/55">{tr("اختاروا أقرب نوع لدراستكم، وبنقترح لكم هيكل مبدئي (معايير اشتمال، أسلوب عينة، طريقة جمع بيانات) تعدّلونه حسب دراستكم الفعلية — بدل ما تبدؤون من صفحة فاضية.")}</p>
       <div className="flex flex-wrap gap-2">
         {methodologyTemplates.map((t) => (
           <button
@@ -80,12 +62,12 @@ export default function MethodologyTemplateHelper({
       {active && (
         <div className="mt-4 space-y-3 rounded-2xl bg-surface-muted p-4">
           <div>
-            <p className="text-xs font-bold text-brand-950/45">تصميم الدراسة</p>
+            <p className="text-xs font-bold text-brand-950/45">{tr("تصميم الدراسة")}</p>
             <p className="mt-0.5 text-sm text-brand-950/80">{active.studyDesign}</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-bold text-brand-950/45">معايير الاشتمال</p>
+              <p className="text-xs font-bold text-brand-950/45">{tr("معايير الاشتمال")}</p>
               <ul className="mt-1 space-y-1">
                 {active.inclusionCriteria.map((c, i) => (
                   <li key={i} className="flex gap-1.5 text-xs text-brand-950/70">
@@ -96,7 +78,7 @@ export default function MethodologyTemplateHelper({
               </ul>
             </div>
             <div>
-              <p className="text-xs font-bold text-brand-950/45">معايير الاستبعاد</p>
+              <p className="text-xs font-bold text-brand-950/45">{tr("معايير الاستبعاد")}</p>
               <ul className="mt-1 space-y-1">
                 {active.exclusionCriteria.map((c, i) => (
                   <li key={i} className="flex gap-1.5 text-xs text-brand-950/70">
@@ -108,11 +90,11 @@ export default function MethodologyTemplateHelper({
             </div>
           </div>
           <div>
-            <p className="text-xs font-bold text-brand-950/45">أسلوب اختيار العينة</p>
+            <p className="text-xs font-bold text-brand-950/45">{tr("أسلوب اختيار العينة")}</p>
             <p className="mt-0.5 text-sm text-brand-950/80">{active.samplingTechnique}</p>
           </div>
           <div>
-            <p className="text-xs font-bold text-brand-950/45">طريقة جمع البيانات</p>
+            <p className="text-xs font-bold text-brand-950/45">{tr("طريقة جمع البيانات")}</p>
             <ul className="mt-1 space-y-1">
               {active.dataCollectionMethods.map((c, i) => (
                 <li key={i} className="flex gap-1.5 text-xs text-brand-950/70">
@@ -123,7 +105,7 @@ export default function MethodologyTemplateHelper({
             </ul>
           </div>
           <div>
-            <p className="text-xs font-bold text-brand-950/45">أداة الدراسة المقترحة</p>
+            <p className="text-xs font-bold text-brand-950/45">{tr("أداة الدراسة المقترحة")}</p>
             <p className="mt-0.5 text-sm text-brand-950/80">{active.suggestedTool}</p>
           </div>
 
@@ -133,16 +115,14 @@ export default function MethodologyTemplateHelper({
               className="flex items-center gap-2 rounded-xl bg-sky-accent-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-accent-600"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
-              {copied ? "تم نسخ القالب" : "نسخ القالب"}
+              {copied ? tr("تم نسخ القالب") : tr("نسخ القالب")}
             </button>
             {onApply && (
               <button
                 onClick={() => onApply(active)}
                 className="flex items-center gap-2 rounded-xl border border-sky-accent-300 bg-paper px-4 py-2.5 text-sm font-bold text-sky-accent-700 hover:bg-sky-accent-50"
               >
-                <Wand2 size={16} />
-                تعبئة حقول المنهجية بهذا القالب
-              </button>
+                <Wand2 size={16} />{tr("تعبئة حقول المنهجية بهذا القالب")}</button>
             )}
           </div>
         </div>

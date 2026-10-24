@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, ExternalLink, FileText, X } from "lucide-react";
 import { GoogleDriveLogo } from "./BrandLogos";
 import { driveNotice, useDriveNotice } from "../../lib/driveNotice";
+import { tr } from "../../lib/i18n";
 
 /** إشعار الرفع لدرايف: ينزل من فوق ← شريط تقدّم ← أيقونة الملف تطير لشعار درايف ← ✓ خضراء ← النتيجة، ويختفي بعد ٤ ثواني */
 export default function DriveNotice() {
@@ -56,24 +57,22 @@ export default function DriveNotice() {
           <div className="min-w-0 flex-1 text-start">
             {failed ? (
               <>
-                <p className="text-sm font-bold">ما انرفع لدرايف</p>
-                <p className="text-xs text-[#B8ADA2]">{n.message ?? "المحضر محفوظ عندنا. جرّبوا «رفع لدرايف» من المحضر."}</p>
+                <p className="text-sm font-bold">{tr("ما انرفع لدرايف")}</p>
+                <p className="text-xs text-[#B8ADA2]">{n.message ?? tr("المحضر محفوظ عندنا. جرّبوا «رفع لدرايف» من المحضر.")}</p>
               </>
             ) : done ? (
               <>
-                <p className="text-sm font-bold">انحفظ في درايف</p>
-                <p className="text-xs text-[#B8ADA2]">وصل للفريق وللمشرف</p>
+                <p className="text-sm font-bold">{tr("انحفظ في درايف")}</p>
+                <p className="text-xs text-[#B8ADA2]">{tr("وصل للفريق وللمشرف")}</p>
                 {n.link && (
                   <a href={n.link} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-[#FFB444] hover:underline">
-                    <ExternalLink size={12} />
-                    افتح الملف
-                  </a>
+                    <ExternalLink size={12} />{tr("افتح الملف")}</a>
                 )}
               </>
             ) : (
               <>
-                <p className="text-sm font-bold">نرفع المحضر لدرايف…</p>
-                <p className="text-xs text-[#B8ADA2]">ثواني ويوصل لمجلد الفريق</p>
+                <p className="text-sm font-bold">{tr("نرفع المحضر لدرايف…")}</p>
+                <p className="text-xs text-[#B8ADA2]">{tr("ثواني ويوصل لمجلد الفريق")}</p>
               </>
             )}
           </div>

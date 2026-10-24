@@ -1,21 +1,22 @@
 import { useRef, useState } from "react";
 import { FileUp, Loader2, MessageCircleQuestion, Send, X } from "lucide-react";
 import { useResearchAgent } from "../../hooks/useResearchAgent";
+import { tr } from "../../lib/i18n";
 
 const MAX_PDF_BYTES = 5 * 1024 * 1024;
 
 const quickQuestions = [
-  "وش حجم العينة وكيف اختاروها؟",
-  "وش الأداة اللي استخدموها؟",
-  "وش حدود الدراسة (Limitations)؟",
-  "كيف تفيد بحثنا؟",
+  tr("وش حجم العينة وكيف اختاروها؟"),
+  tr("وش الأداة اللي استخدموها؟"),
+  tr("وش حدود الدراسة (Limitations)؟"),
+  tr("كيف تفيد بحثنا؟"),
 ];
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
-    reader.onerror = () => reject(new Error("تعذّر قراءة الملف"));
+    reader.onerror = () => reject(new Error(tr("تعذّر قراءة الملف")));
     reader.readAsDataURL(file);
   });
 }
@@ -56,7 +57,7 @@ export default function PaperQA({
       try {
         pdfBase64 = await fileToBase64(pdf);
       } catch {
-        setError("تعذّر قراءة الملف — جربوا ملف ثاني.");
+        setError(tr("تعذّر قراءة الملف — جربوا ملف ثاني."));
         return;
       }
     }
@@ -74,11 +75,11 @@ export default function PaperQA({
     e.target.value = "";
     if (!file) return;
     if (file.type !== "application/pdf") {
-      setError("الملف لازم يكون PDF.");
+      setError(tr("الملف لازم يكون PDF."));
       return;
     }
     if (file.size > MAX_PDF_BYTES) {
-      setError("الـ PDF أكبر من ٥ ميجا — جربوا ملف أصغر.");
+      setError(tr("الـ PDF أكبر من ٥ ميجا — جربوا ملف أصغر."));
       return;
     }
     setError(null);
@@ -91,16 +92,14 @@ export default function PaperQA({
         onClick={() => setOpen(true)}
         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-brand-600 hover:bg-surface-muted"
       >
-        <MessageCircleQuestion size={13} />
-        اسألوا عن هذي الدراسة
-      </button>
+        <MessageCircleQuestion size={13} />{tr("اسألوا عن هذي الدراسة")}</button>
     );
   }
 
   return (
     <div className="mt-2 w-full space-y-2.5 rounded-2xl border border-brand-100 bg-surface-muted/60 p-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-extrabold text-brand-950/70">اسألوا عن الدراسة</p>
+        <p className="text-xs font-extrabold text-brand-950/70">{tr("اسألوا عن الدراسة")}</p>
         <button onClick={() => setOpen(false)} className="rounded-md p-1 text-brand-950/40 hover:bg-paper">
           <X size={14} />
         </button>
@@ -112,16 +111,14 @@ export default function PaperQA({
           <p className="max-w-[96%] whitespace-pre-wrap rounded-2xl bg-paper px-3 py-2 text-xs leading-relaxed text-brand-950/80">
             {a.a}
             <span className="mt-1.5 block text-[10px] text-brand-950/35">
-              {a.usedPdf ? "من ملف الـ PDF" : "من ملخص الدراسة فقط"}
+              {a.usedPdf ? tr("من ملف الـ PDF") : tr("من ملخص الدراسة فقط")}
             </span>
           </p>
         </div>
       ))}
 
       {!hasMaterial && (
-        <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-[11px] font-semibold text-amber-accent-700">
-          ما فيه ملخص محفوظ لهذي الدراسة — ارفعوا ملف PDF لها وأجاوب منه.
-        </p>
+        <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-[11px] font-semibold text-amber-accent-700">{tr("ما فيه ملخص محفوظ لهذي الدراسة — ارفعوا ملف PDF لها وأجاوب منه.")}</p>
       )}
 
       <div className="flex flex-wrap gap-1.5">
@@ -143,7 +140,7 @@ export default function PaperQA({
             <input ref={fileRef} type="file" accept="application/pdf" onChange={onPick} className="hidden" />
             <button
               onClick={() => fileRef.current?.click()}
-              title="ارفعوا PDF للدراسة (حتى ٥ ميجا)"
+              title={tr("ارفعوا PDF للدراسة (حتى ٥ ميجا)")}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-100 bg-paper text-brand-950/50 hover:bg-brand-50"
             >
               <FileUp size={15} />
@@ -154,7 +151,7 @@ export default function PaperQA({
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="اكتبوا سؤالكم عن الدراسة..."
+          placeholder={tr("اكتبوا سؤالكم عن الدراسة...")}
           className="min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3 py-2 text-xs outline-none focus:border-brand-300"
         />
         <button
@@ -169,9 +166,7 @@ export default function PaperQA({
         <p className="flex items-center gap-1.5 text-[11px] font-semibold text-brand-950/55">
           <FileUp size={11} />
           {pdf.name}
-          <button onClick={() => setPdf(null)} className="text-rose-500 hover:underline">
-            إزالة
-          </button>
+          <button onClick={() => setPdf(null)} className="text-rose-500 hover:underline">{tr("إزالة")}</button>
         </p>
       )}
       {error && <p className="text-[11px] font-semibold text-rose-600">{error}</p>}

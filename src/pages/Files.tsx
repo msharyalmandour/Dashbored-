@@ -10,6 +10,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
 import type { DriveFile } from "../data/types";
 import { formatDateShort } from "../lib/date";
+import { tr } from "../lib/i18n";
 
 type Kind = "pdf" | "doc" | "sheet" | "image";
 
@@ -42,7 +43,7 @@ function formatSize(bytes: number): string {
 }
 
 function categoryLabel(f: DriveFile) {
-  return f.category === "meeting-minutes" ? "محاضر الاجتماعات" : "عام";
+  return f.category === "meeting-minutes" ? tr("محاضر الاجتماعات") : tr("عام");
 }
 
 export default function Files() {
@@ -65,9 +66,9 @@ export default function Files() {
   return (
     <div className="space-y-6">
       <PageHeader
-        kicker="الفريق"
-        title="الملفات"
-        subtitle="كل ملفات البحث بمكان واحد، ومرتبطة بمجلد الفريق على درايف."
+        kicker={tr("الفريق")}
+        title={tr("الملفات")}
+        subtitle={tr("كل ملفات البحث بمكان واحد، ومرتبطة بمجلد الفريق على درايف.")}
       />
 
       <PageColumns
@@ -75,19 +76,17 @@ export default function Files() {
           <>
             {teamFolderLink ? (
               <a href={teamFolderLink} target="_blank" rel="noreferrer" className="block">
-                <HighlightCard kicker="درايف الفريق" title="افتحوا مجلد الفريق كامل" subtitle="يفتح في تبويب جديد">
+                <HighlightCard kicker={tr("درايف الفريق")} title={tr("افتحوا مجلد الفريق كامل")} subtitle={tr("يفتح في تبويب جديد")}>
                   <ExternalLink size={16} className="mt-3 text-brand-950/80" />
                 </HighlightCard>
               </a>
             ) : (
               <Panel>
                 <p className="flex items-start gap-2 text-sm text-brand-950/55">
-                  <FolderOpen size={16} className="mt-0.5 shrink-0 text-amber-accent-400" />
-                  مجلد الفريق بدرايف يُنشأ تلقائيًا أول ما ترفعون أول ملف — بعدها يظهر هنا رابط لفتحه كامل.
-                </p>
+                  <FolderOpen size={16} className="mt-0.5 shrink-0 text-amber-accent-400" />{tr("مجلد الفريق بدرايف يُنشأ تلقائيًا أول ما ترفعون أول ملف — بعدها يظهر هنا رابط لفتحه كامل.")}</p>
               </Panel>
             )}
-            <Panel title="تصنيف الملفات">
+            <Panel title={tr("تصنيف الملفات")}>
               <ul className="space-y-1.5">
                 {["all", ...folders].map((f) => {
                   const count = f === "all" ? files.length : files.filter((x) => categoryLabel(x) === f).length;
@@ -102,7 +101,7 @@ export default function Files() {
                             : "text-brand-950/60 hover:bg-brand-500/10",
                         )}
                       >
-                        {f === "all" ? "كل الملفات" : f}
+                        {f === "all" ? tr("كل الملفات") : f}
                         <span className="text-xs opacity-80">{count}</span>
                       </button>
                     </li>
@@ -114,10 +113,10 @@ export default function Files() {
         }
         main={
           <>
-            <Panel title="رفع ملف">
+            <Panel title={tr("رفع ملف")}>
               <FileAttach onAttach={reload} />
             </Panel>
-            <Panel title={folder === "all" ? "كل الملفات" : folder} hint={`${filtered.length} ملف`}>
+            <Panel title={folder === "all" ? tr("كل الملفات") : folder} hint={tr("{0} ملف", filtered.length)}>
               <ul className="flex flex-col gap-2.5">
                 {filtered.map((file) => {
                   const kind = detectKind(file.mimeType);
@@ -144,9 +143,7 @@ export default function Files() {
                           rel="noreferrer"
                           className="flex shrink-0 items-center gap-1 rounded-full border border-brand-500/30 px-3 py-1.5 text-xs font-semibold text-amber-accent-400 transition-colors hover:bg-brand-500/10"
                         >
-                          <ExternalLink size={12} />
-                          فتح بدرايف
-                        </a>
+                          <ExternalLink size={12} />{tr("فتح بدرايف")}</a>
                       )}
                       {uploader && (
                         <div className="hidden items-center gap-1.5 text-xs text-brand-950/45 sm:flex">
@@ -164,8 +161,8 @@ export default function Files() {
                   <li>
                     <EmptyState
                       icon={FileIcon}
-                      title="لا ملفات هنا بعد"
-                      desc="أرفقوا أول ملف للفريق — أي مستند أو صورة أو جدول يخص بحثكم."
+                      title={tr("لا ملفات هنا بعد")}
+                      desc={tr("أرفقوا أول ملف للفريق — أي مستند أو صورة أو جدول يخص بحثكم.")}
                     />
                   </li>
                 )}

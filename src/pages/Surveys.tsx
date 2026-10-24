@@ -6,8 +6,9 @@ import EmptyState from "../components/ui/EmptyState";
 import Term from "../components/Term";
 import { useAuth } from "../context/AuthContext";
 import { MAX_SURVEYS, useSurveys } from "../hooks/useSurveys";
+import { tr, trx } from "../lib/i18n";
 
-const statusLabel = { draft: "مسوّدة", open: "مفتوح", closed: "مغلق" } as const;
+const statusLabel = { draft: tr("مسوّدة"), open: tr("مفتوح"), closed: tr("مغلق") } as const;
 const statusTone: Record<"draft" | "open" | "closed", ChipTone> = { draft: "todo", open: "done", closed: "late" };
 
 export default function Surveys() {
@@ -26,15 +27,13 @@ export default function Surveys() {
   return (
     <div className="space-y-6">
       <PageHeader
-        kicker="اجمع وحلّل"
-        title="منشئ الاستبيان"
-        subtitle="نبني معكم استبيان بحثكم خطوة بخطوة — ونشرح لكم ليش كل خطوة، وننبّهكم على الأخطاء الشائعة قبل ما توصلون للمشاركين."
+        kicker={tr("اجمع وحلّل")}
+        title={tr("منشئ الاستبيان")}
+        subtitle={tr("نبني معكم استبيان بحثكم خطوة بخطوة — ونشرح لكم ليش كل خطوة، وننبّهكم على الأخطاء الشائعة قبل ما توصلون للمشاركين.")}
         action={
           canWrite ? (
             <button onClick={start} disabled={surveys.length >= MAX_SURVEYS} className={primaryBtn}>
-              <Plus size={16} />
-              استبيان جديد
-            </button>
+              <Plus size={16} />{tr("استبيان جديد")}</button>
           ) : undefined
         }
       />
@@ -42,41 +41,39 @@ export default function Surveys() {
 
       <PageColumns
         side={
-          <Panel title="رحلة الاستبيان">
+          <Panel title={tr("رحلة الاستبيان")}>
             <ol className="space-y-2 text-sm text-brand-950/70">
-              <li className={rowSurface}><b className="text-brand-950">١. الهدف</b> — وش تبغون تعرفون؟</li>
-              <li className={rowSurface}><b className="text-brand-950">٢. الأسئلة</b> — مع مراجعة تلقائية لصياغتها</li>
-              <li className={rowSurface}><b className="text-brand-950">٣. الموافقة</b> — <Term id="consent">الموافقة المستنيرة</Term></li>
-              <li className={rowSurface}><b className="text-brand-950">٤. جرّبوا</b> — <Term id="pilot">دراسة استطلاعية</Term> قبل النشر</li>
-              <li className={rowSurface}><b className="text-brand-950">٥. انشروا</b> — رابط بدون حساب وحجم العينة</li>
-              <li className={rowSurface}><b className="text-brand-950">٦. النتائج</b> — جداول وثبات وتصدير</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("١. الهدف")}</b>{tr(" — وش تبغون تعرفون؟")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("٢. الأسئلة")}</b>{tr(" — مع مراجعة تلقائية لصياغتها")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("٣. الموافقة")}</b> — <Term id="consent">{tr("الموافقة المستنيرة")}</Term></li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("٤. جرّبوا")}</b> — <Term id="pilot">{tr("دراسة استطلاعية")}</Term>{tr(" قبل النشر")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("٥. انشروا")}</b>{tr(" — رابط بدون حساب وحجم العينة")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("٦. النتائج")}</b>{tr(" — جداول وثبات وتصدير")}</li>
             </ol>
           </Panel>
         }
         main={
           <>
             {loading ? (
-              <p className="py-8 text-center text-sm text-brand-950/50">جاري التحميل…</p>
+              <p className="py-8 text-center text-sm text-brand-950/50">{tr("جاري التحميل…")}</p>
             ) : surveys.length === 0 ? (
-              <EmptyState icon={ClipboardPen} title="ما عندكم استبيانات بعد" desc="اضغطوا «استبيان جديد» وأول خطوة نساعدكم فيها تحددون الهدف." />
+              <EmptyState icon={ClipboardPen} title={tr("ما عندكم استبيانات بعد")} desc={tr("اضغطوا «استبيان جديد» وأول خطوة نساعدكم فيها تحددون الهدف.")} />
             ) : (
-              <Panel title="استبياناتكم" hint={`${surveys.length} من ${MAX_SURVEYS}`}>
+              <Panel title={tr("استبياناتكم")} hint={tr("{0} من {1}", surveys.length, MAX_SURVEYS)}>
                 <div className="flex flex-col gap-2.5">
                   {surveys.map((s) => (
                     <div key={s.id} className={`${rowSurface} flex items-center gap-3`}>
                       <Link to={`/surveys/${s.id}`} className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-brand-950">{s.title || "استبيان بدون عنوان"}</p>
-                        <p className="mt-0.5 text-xs text-brand-950/45">{s.questions.length} سؤال{s.isPilot ? " · تجريبي" : ""}</p>
+                        <p className="truncate font-semibold text-brand-950">{s.title || tr("استبيان بدون عنوان")}</p>
+                        <p className="mt-0.5 text-xs text-brand-950/45">{trx("{0} سؤال{1}", s.questions.length, s.isPilot ? tr(" · تجريبي") : "")}</p>
                       </Link>
                       <StatusChip tone={statusTone[s.status]}>{statusLabel[s.status]}</StatusChip>
-                      <Link to={`/surveys/${s.id}`} className="text-sm font-semibold text-amber-accent-400 hover:underline">
-                        افتحوه
-                      </Link>
+                      <Link to={`/surveys/${s.id}`} className="text-sm font-semibold text-amber-accent-400 hover:underline">{tr("افتحوه")}</Link>
                       {canWrite && (
                         <button
-                          onClick={() => window.confirm("تحذفون هذا الاستبيان وكل ردوده؟ ما ينرجع.") && remove(s.id)}
+                          onClick={() => window.confirm(tr("تحذفون هذا الاستبيان وكل ردوده؟ ما ينرجع.")) && remove(s.id)}
                           className="rounded-lg p-1.5 text-brand-950/35 hover:bg-rose-500/10 hover:text-rose-500"
-                          title="حذف"
+                          title={tr("حذف")}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -86,9 +83,7 @@ export default function Surveys() {
                 </div>
               </Panel>
             )}
-            <p className="text-[11px] leading-relaxed text-brand-950/40">
-              حد الفريق {MAX_SURVEYS} استبيانات. الردود مجهولة، وتنحفظ عندنا بحيث تشوفها أنتم بس. لازم يراجع الاستبيان المشرف/ـة و<Term id="irb">لجنة الأخلاقيات</Term> بجهتكم قبل النشر.
-            </p>
+            <p className="text-[11px] leading-relaxed text-brand-950/40">{trx("حد الفريق {0} استبيانات. الردود مجهولة، وتنحفظ عندنا بحيث تشوفها أنتم بس. لازم يراجع الاستبيان المشرف/ـة و", MAX_SURVEYS)}<Term id="irb">{tr("لجنة الأخلاقيات")}</Term>{tr(" بجهتكم قبل النشر.")}</p>
           </>
         }
       />

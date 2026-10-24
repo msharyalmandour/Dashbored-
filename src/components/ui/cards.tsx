@@ -4,6 +4,7 @@ import { ChevronDown, X } from "lucide-react";
 import clsx from "clsx";
 import Card, { type CardTone } from "./Card";
 import ProgressBar from "./ProgressBar";
+import { tr } from "../../lib/i18n";
 
 /** ==========================================================================
     نظام بطاقات premium — Insight / Progress / Action / Alert / Expandable
@@ -222,7 +223,7 @@ export function AlertCard({
       {onDismiss && (
         <button
           onClick={onDismiss}
-          aria-label="إغلاق التنبيه"
+          aria-label={tr("إغلاق التنبيه")}
           className={clsx("shrink-0 rounded-lg p-2.5 -m-1 hover:bg-black/5", t.iconText)}
         >
           <X size={16} />

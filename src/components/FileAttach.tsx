@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import type { FileItem } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 type Kind = FileItem["kind"];
 type AttachState = "idle" | "dragging" | "uploading" | "done" | "error";
@@ -53,7 +54,7 @@ export default function FileAttach({
   const [state, setState] = useState<AttachState>("idle");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const defaultLabel = g(isFemale, "أرفقي ملف", "أرفق ملف");
+  const defaultLabel = g(isFemale, tr("أرفقي ملف"), tr("أرفق ملف"));
   const btnLabel = label ?? defaultLabel;
 
   const handleFile = async (file: File) => {
@@ -138,11 +139,11 @@ export default function FileAttach({
             <Paperclip size={14} />
           )}
           {state === "uploading"
-            ? g(isFemale, "جاري الإرفاق...", "جاري الإرفاق...")
+            ? g(isFemale, tr("جاري الإرفاق..."), tr("جاري الإرفاق..."))
             : state === "done"
-              ? "تم الإرفاق"
+              ? tr("تم الإرفاق")
               : state === "error"
-                ? "فشل الرفع — حاول ثانية"
+                ? tr("فشل الرفع — حاول ثانية")
                 : btnLabel}
         </button>
         <input ref={inputRef} type="file" className="hidden" onChange={onInputChange} />
@@ -179,15 +180,15 @@ export default function FileAttach({
       )}
       <p className="text-sm font-semibold text-brand-950/70">
         {state === "uploading"
-          ? "جاري الإرفاق..."
+          ? tr("جاري الإرفاق...")
           : state === "done"
-            ? "تم الإرفاق بنجاح!"
+            ? tr("تم الإرفاق بنجاح!")
             : state === "error"
-              ? "فشل الرفع لدرايف — حاول مرة ثانية"
+              ? tr("فشل الرفع لدرايف — حاول مرة ثانية")
               : g(
                   isFemale,
-                  "اسحبي الملف هنا أو اضغطي للاختيار",
-                  "اسحب الملف هنا أو اضغط للاختيار",
+                  tr("اسحبي الملف هنا أو اضغطي للاختيار"),
+                  tr("اسحب الملف هنا أو اضغط للاختيار"),
                 )}
       </p>
       <input ref={inputRef} type="file" className="hidden" onChange={onInputChange} />

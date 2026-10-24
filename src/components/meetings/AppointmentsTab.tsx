@@ -10,6 +10,7 @@ import { formatDateFull, formatDateShort, relativeDayLabel, toISODate } from "..
 import { availabilityRequestMessage, bookingRequestMessage, generateSlots, WEEKDAY_NAMES, whatsappUrl } from "../../lib/meetings";
 import { notifySupervisor } from "../../lib/supervisorNotify";
 import type { MeetingBookingRow, SupervisorAvailabilityRow } from "../../data/types";
+import { tr, trx } from "../../lib/i18n";
 
 interface AppointmentsTabProps {
   availability: SupervisorAvailabilityRow | null;
@@ -21,10 +22,10 @@ interface AppointmentsTabProps {
 }
 
 const STATUS: Record<MeetingBookingRow["status"], { label: string; cls: string; icon: typeof Clock }> = {
-  confirmed: { label: "مؤكد", cls: "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]", icon: CalendarCheck },
-  pending: { label: "بانتظار تأكيد المشرف/ة", cls: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]", icon: Clock },
-  declined: { label: "اعتذرت، اقترحوا غيره", cls: "border-rose-400/40 bg-rose-500/10 text-rose-300", icon: CalendarX },
-  cancelled: { label: "ملغي", cls: "border-white/15 bg-white/[0.04] text-[#B8ADA2]", icon: CalendarX },
+  confirmed: { label: tr("مؤكد"), cls: "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]", icon: CalendarCheck },
+  pending: { label: tr("بانتظار تأكيد المشرف/ة"), cls: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]", icon: Clock },
+  declined: { label: tr("اعتذرت، اقترحوا غيره"), cls: "border-rose-400/40 bg-rose-500/10 text-rose-300", icon: CalendarX },
+  cancelled: { label: tr("ملغي"), cls: "border-white/15 bg-white/[0.04] text-[#B8ADA2]", icon: CalendarX },
 };
 
 /** أوقات المشرف/ة المتاحة (تحددها مرة وحدة من رابطها) والحجز منها بضغطة، مع تأكيد تلقائي لو فعّلته. */
@@ -57,9 +58,9 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
     setPickedTime(null);
     setNote("");
     if (r.status === "confirmed") {
-      showToast({ title: "تم حجز الموعد", desc: `${formatDateFull(date)} الساعة ${time} — انضاف لتقويمكم.`, icon: Check, tone: "brand" });
+      showToast({ title: tr("تم حجز الموعد"), desc: tr("{0} الساعة {1} — انضاف لتقويمكم.", formatDateFull(date), time), icon: Check, tone: "brand" });
     } else {
-      showToast({ title: "انرسل اقتراح الموعد", desc: "بانتظار تأكيد المشرف/ة.", icon: Send, tone: "brand" });
+      showToast({ title: tr("انرسل اقتراح الموعد"), desc: tr("بانتظار تأكيد المشرف/ة."), icon: Send, tone: "brand" });
       if (r.id) notifySupervisor("booking", r.id);
     }
   };
@@ -75,18 +76,15 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
       {hasWindows ? (
         <section className={clsx(glassCard, "space-y-5 p-6")}>
           <div>
-            <h3 className="font-kufi text-xl font-extrabold">احجزوا من أوقات المشرف/ة</h3>
-            <p className="mt-1 text-xs text-[#B8ADA2]">
-              {availability!.windows.map((w) => `${WEEKDAY_NAMES[w.weekday]} ${w.start}–${w.end}`).join(" · ")} · {availability!.slotMinutes} دقيقة
-              {availability!.autoConfirm ? " · يتأكد الحجز تلقائيًا" : " · تؤكده المشرف/ة"}
-            </p>
+            <h3 className="font-kufi text-xl font-extrabold">{tr("احجزوا من أوقات المشرف/ة")}</h3>
+            <p className="mt-1 text-xs text-[#B8ADA2]">{trx("{0} · {1} دقيقة{2}", availability!.windows.map((w) => `${WEEKDAY_NAMES[w.weekday]} ${w.start}–${w.end}`).join(" · "), availability!.slotMinutes, availability!.autoConfirm ? tr(" · يتأكد الحجز تلقائيًا") : tr(" · تؤكده المشرف/ة"))}</p>
           </div>
 
           {days.length === 0 ? (
-            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm text-[#B8ADA2]">ما فيه أوقات متاحة خلال ٣ أسابيع. أرسلوا لها واتساب تفتح أوقاتًا جديدة.</p>
+            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm text-[#B8ADA2]">{tr("ما فيه أوقات متاحة خلال ٣ أسابيع. أرسلوا لها واتساب تفتح أوقاتًا جديدة.")}</p>
           ) : (
             <>
-              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label="الأيام المتاحة">
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label={tr("الأيام المتاحة")}>
                 {days.map((d) => (
                   <button
                     key={d.date}
@@ -126,10 +124,10 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                   <p className="text-sm font-bold">
                     {formatDateFull(activeDate)} · {pickedTime}
                   </p>
-                  <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder="ملاحظة للاجتماع (اختياري): وش نبغى نناقش؟" aria-label="ملاحظة" className={pillField} />
-                  <LoadingButton loading={busy} error={!!error} loadingText="جاري الحجز…" savedText="✓ تم" onClick={() => book(activeDate, pickedTime)}>
+                  <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} placeholder={tr("ملاحظة للاجتماع (اختياري): وش نبغى نناقش؟")} aria-label={tr("ملاحظة")} className={pillField} />
+                  <LoadingButton loading={busy} error={!!error} loadingText={tr("جاري الحجز…")} savedText={tr("✓ تم")} onClick={() => book(activeDate, pickedTime)}>
                     <CalendarCheck size={15} />
-                    {availability!.autoConfirm ? "احجزوا الموعد" : "اقترحوا هذا الموعد"}
+                    {availability!.autoConfirm ? tr("احجزوا الموعد") : tr("اقترحوا هذا الموعد")}
                   </LoadingButton>
                 </div>
               )}
@@ -140,25 +138,20 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
       ) : (
         <section className={clsx(glassCard, "space-y-4 p-6")}>
           <div>
-            <h3 className="font-kufi text-xl font-extrabold">المشرف/ة ما حدد أوقاته بعد</h3>
-            <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">اطلبوا منه/ا يحدد أوقاته المتاحة مرة وحدة من رابطه، وبعدها تحجزون من نفس الأوقات بدون رسائل رايحة جاية.</p>
+            <h3 className="font-kufi text-xl font-extrabold">{tr("المشرف/ة ما حدد أوقاته بعد")}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">{tr("اطلبوا منه/ا يحدد أوقاته المتاحة مرة وحدة من رابطه، وبعدها تحجزون من نفس الأوقات بدون رسائل رايحة جاية.")}</p>
           </div>
           {supervisorUrl && (
             <a href={whatsappUrl(availabilityRequestMessage(supervisorUrl))} target="_blank" rel="noreferrer" className={gradientPill}>
-              <MessageCircle size={15} />
-              اطلبوا الأوقات بواتساب
-            </a>
+              <MessageCircle size={15} />{tr("اطلبوا الأوقات بواتساب")}</a>
           )}
           {canWrite && (
             <div className="space-y-2.5 rounded-2xl bg-white/[0.04] p-4">
-              <p className="text-xs font-bold text-[#B8ADA2]">أو اقترحوا موعدًا مباشرة (يظهر له/ا للتأكيد)</p>
+              <p className="text-xs font-bold text-[#B8ADA2]">{tr("أو اقترحوا موعدًا مباشرة (يظهر له/ا للتأكيد)")}</p>
               <div className="flex flex-wrap gap-2">
-                <input type="date" min={today} value={manualDate} onChange={(e) => setManualDate(e.target.value)} aria-label="تاريخ الاقتراح" className={clsx(pillField, "!w-auto")} />
-                <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} aria-label="وقت الاقتراح" className={clsx(pillField, "!w-auto")} />
-                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">
-                  {busy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                  اقترحوا الموعد
-                </button>
+                <input type="date" min={today} value={manualDate} onChange={(e) => setManualDate(e.target.value)} aria-label={tr("تاريخ الاقتراح")} className={clsx(pillField, "!w-auto")} />
+                <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} aria-label={tr("وقت الاقتراح")} className={clsx(pillField, "!w-auto")} />
+                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />)}</button>
               </div>
               {error && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{error}</p>}
             </div>
@@ -168,11 +161,11 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
 
       {mine.length === 0 ? (
         <div className={clsx(glassCard, "p-2")}>
-          <EmptyState icon={CalendarClock} title="ما فيه مواعيد محجوزة" desc="الموعد المؤكد يظهر هنا وبتقويمكم وبالرئيسية." />
+          <EmptyState icon={CalendarClock} title={tr("ما فيه مواعيد محجوزة")} desc={tr("الموعد المؤكد يظهر هنا وبتقويمكم وبالرئيسية.")} />
         </div>
       ) : (
         <div className="space-y-2.5">
-          <h4 className="font-kufi text-lg font-bold">مواعيدكم</h4>
+          <h4 className="font-kufi text-lg font-bold">{tr("مواعيدكم")}</h4>
           {mine.map((b) => {
             const st = STATUS[b.status];
             const Icon = st.icon;
@@ -188,7 +181,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                       {relativeDayLabel(b.date)}
                       {b.note ? ` · ${b.note}` : ""}
                     </p>
-                    {b.supervisorNote && <p className="mt-1 text-xs text-[#E6DBD1]">ملاحظة المشرف/ة: {b.supervisorNote}</p>}
+                    {b.supervisorNote && <p className="mt-1 text-xs text-[#E6DBD1]">{trx("ملاحظة المشرف/ة: {0}", b.supervisorNote)}</p>}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold ${st.cls}`}>
@@ -196,11 +189,11 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                       {st.label}
                     </span>
                     {b.status === "pending" && supervisorUrl && (
-                      <a href={whatsappUrl(bookingRequestMessage(formatDateFull(b.date), b.time, supervisorUrl))} target="_blank" rel="noreferrer" aria-label="تذكير بواتساب" className="grid h-8 w-8 place-items-center rounded-full border border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]">
+                      <a href={whatsappUrl(bookingRequestMessage(formatDateFull(b.date), b.time, supervisorUrl))} target="_blank" rel="noreferrer" aria-label={tr("تذكير بواتساب")} className="grid h-8 w-8 place-items-center rounded-full border border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]">
                         <MessageCircle size={14} />
                       </a>
                     )}
-                    {live && canWrite && <ThreeDotsMenu items={[{ label: "إلغاء الموعد", confirmLabel: "تأكيد الإلغاء؟", icon: Trash2, tone: "danger", onClick: () => onCancel(b.id) }]} />}
+                    {live && canWrite && <ThreeDotsMenu items={[{ label: tr("إلغاء الموعد"), confirmLabel: tr("تأكيد الإلغاء؟"), icon: Trash2, tone: "danger", onClick: () => onCancel(b.id) }]} />}
                   </div>
                 </div>
               </div>

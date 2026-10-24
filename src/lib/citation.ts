@@ -1,4 +1,5 @@
 import type { EvidencePaper } from "../data/types";
+import { tr } from "./i18n";
 
 export type CitationStyle = "apa" | "vancouver";
 
@@ -14,7 +15,7 @@ export function toAPA(paper: EvidencePaper): string {
   const { year, title, link } = paper;
   const authors = stripTrailingPeriod(paper.authors);
   const base = `${authors} (${year}). ${title}.`;
-  return link ? `${base} تم الاسترجاع من ${link}` : base;
+  return link ? tr("{0} تم الاسترجاع من {1}", base, link) : base;
 }
 
 /** يصيغ اقتباس Vancouver مبسّط (الأسلوب الشائع بالمجلات الطبية والتمريضية) */
@@ -23,7 +24,7 @@ export function toVancouver(paper: EvidencePaper, index?: number): string {
   const authors = stripTrailingPeriod(paper.authors);
   const prefix = index ? `${index}. ` : "";
   const base = `${prefix}${authors}. ${title}. ${year}.`;
-  return link ? `${base} متوفر من: ${link}` : base;
+  return link ? tr("{0} متوفر من: {1}", base, link) : base;
 }
 
 export function toCitation(paper: EvidencePaper, style: CitationStyle, index?: number): string {

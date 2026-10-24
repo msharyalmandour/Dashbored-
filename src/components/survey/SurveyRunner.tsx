@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { likertOptions, type Question } from "../../lib/surveyCoach";
+import { tr } from "../../lib/i18n";
 
 export type AnswerMap = Record<string, string | string[] | number>;
 
@@ -58,8 +59,8 @@ export default function SurveyRunner({
     return (
       <div className="py-16 text-center">
         <CheckCircle2 size={48} className="mx-auto text-amber-300" />
-        <h2 className="mt-5 font-display text-2xl font-extrabold text-white">شكرًا لمشاركتكم 🌱</h2>
-        <p className="mt-2 text-sm text-white/55">تم استلام إجاباتكم.</p>
+        <h2 className="mt-5 font-display text-2xl font-extrabold text-white">{tr("شكرًا لمشاركتكم 🌱")}</h2>
+        <p className="mt-2 text-sm text-white/55">{tr("تم استلام إجاباتكم.")}</p>
       </div>
     );
   }
@@ -67,23 +68,19 @@ export default function SurveyRunner({
   if (!agreed) {
     return (
       <div className="space-y-5">
-        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{title || "استبيان بحثي"}</h1>
+        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{title || tr("استبيان بحثي")}</h1>
         {intro && <p className="text-sm leading-relaxed text-white/60">{intro}</p>}
         <div className={box}>
-          <h2 className="text-sm font-extrabold text-amber-300">الموافقة على المشاركة</h2>
+          <h2 className="text-sm font-extrabold text-amber-300">{tr("الموافقة على المشاركة")}</h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-white/75">{consent}</p>
           <label className="mt-5 flex cursor-pointer items-start gap-3 text-sm font-semibold text-white/85">
-            <input type="checkbox" checked={tick} onChange={(e) => setTick(e.target.checked)} className="mt-1 h-4 w-4 accent-amber-400" />
-            قرأت المعلومات أعلاه وأوافق على المشاركة طوعًا
-          </label>
+            <input type="checkbox" checked={tick} onChange={(e) => setTick(e.target.checked)} className="mt-1 h-4 w-4 accent-amber-400" />{tr("قرأت المعلومات أعلاه وأوافق على المشاركة طوعًا")}</label>
         </div>
         <button
           disabled={!tick}
           onClick={() => setAgreed(true)}
           className="w-full rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3.5 text-sm font-extrabold text-neutral-950 disabled:opacity-40"
-        >
-          ابدأوا الاستبيان
-        </button>
+        >{tr("ابدأوا الاستبيان")}</button>
       </div>
     );
   }
@@ -91,9 +88,9 @@ export default function SurveyRunner({
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{title || "استبيان بحثي"}</h1>
+        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{title || tr("استبيان بحثي")}</h1>
         {intro && <p className="mt-2 text-sm leading-relaxed text-white/60">{intro}</p>}
-        {isPilot && <p className="mt-2 rounded-xl bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-200">نسخة تجريبية — ملاحظاتكم عن وضوح الأسئلة تهمنا.</p>}
+        {isPilot && <p className="mt-2 rounded-xl bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-200">{tr("نسخة تجريبية — ملاحظاتكم عن وضوح الأسئلة تهمنا.")}</p>}
       </div>
 
       {questions.map((q, i) => {
@@ -144,7 +141,7 @@ export default function SurveyRunner({
                 />
               )}
             </div>
-            {missing.includes(q.id) && <p className="mt-2 text-xs font-bold text-rose-300 sm:ps-9">هذا السؤال مطلوب</p>}
+            {missing.includes(q.id) && <p className="mt-2 text-xs font-bold text-rose-300 sm:ps-9">{tr("هذا السؤال مطلوب")}</p>}
           </section>
         );
       })}
@@ -156,7 +153,7 @@ export default function SurveyRunner({
         className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3.5 text-sm font-extrabold text-neutral-950 disabled:opacity-60"
       >
         {busy && <Loader2 size={16} className="animate-spin" />}
-        {preview ? "إرسال (معاينة — ما ينحفظ شي)" : "إرسال الإجابات"}
+        {preview ? tr("إرسال (معاينة — ما ينحفظ شي)") : tr("إرسال الإجابات")}
       </button>
     </div>
   );

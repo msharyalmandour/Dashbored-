@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import type { SearchStrategy, ToolFinding } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 interface AgentReply {
   error?: string;
@@ -16,12 +17,12 @@ interface AgentReply {
     أخطاء تقنية (supabase-js يخفي نص الأخطاء غير 2xx، فالدالة ترجّع 200
     مع error/limitReached للحالات المتوقعة). */
 async function callAgent<T extends AgentReply>(body: Record<string, unknown>) {
-  if (!isSupabaseConfigured) return { data: null as T | null, message: "هذي الميزة متاحة فقط بالوضع الحقيقي" };
+  if (!isSupabaseConfigured) return { data: null as T | null, message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي") };
   const { data, error } = await supabase!.functions.invoke("research-agent", { body });
   const reply = (data ?? null) as T | null;
-  if (reply?.limitReached) return { data: null as T | null, message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.limitReached) return { data: null as T | null, message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { data: null as T | null, message: reply.error };
-  if (error || !reply) return { data: null as T | null, message: "ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية." };
+  if (error || !reply) return { data: null as T | null, message: tr("ما وصل الرد — تأكدوا من الاتصال وحاولوا مرة ثانية.") };
   return { data: reply, message: undefined as string | undefined };
 }
 
@@ -38,7 +39,7 @@ export function useResearchAgent() {
     });
     setBusy(false);
     if (r.data?.sourcesFailed) {
-      return { tools: [] as ToolFinding[], caveat: "", message: "تعذّر الوصول لقواعد الأبحاث الحين — حاولوا بعد شوي." };
+      return { tools: [] as ToolFinding[], caveat: "", message: tr("تعذّر الوصول لقواعد الأبحاث الحين — حاولوا بعد شوي.") };
     }
     return { tools: r.data?.tools ?? [], caveat: r.data?.caveat ?? "", message: r.message };
   }, []);

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { g, isFemaleUser } from "../lib/gender";
 import { MOYASAR_PUBLISHABLE_KEY } from "../lib/moyasar";
+import { tr } from "../lib/i18n";
 
 const SCRIPT_SRC = "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
 const STYLE_HREF = "https://cdn.moyasar.com/mpf/1.15.0/moyasar.css";
@@ -77,7 +78,7 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
     if (!team) return;
     loadMoyasarAssets()
       .then(() => setReady(true))
-      .catch(() => setError("تعذّر تحميل نموذج الدفع — تأكدي من اتصال الإنترنت وحاولي مرة ثانية"));
+      .catch(() => setError(tr("تعذّر تحميل نموذج الدفع — تأكدي من اتصال الإنترنت وحاولي مرة ثانية")));
   }, [team]);
 
   useEffect(() => {
@@ -88,8 +89,8 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
       currency: "SAR",
       description:
         mode === "full"
-          ? `اشتراك فريق ${team.name} — الفاتورة كاملة`
-          : `حصة ${currentUser.name} — فريق ${team.name}`,
+          ? tr("اشتراك فريق {0} — الفاتورة كاملة", team.name)
+          : tr("حصة {0} — فريق {1}", currentUser.name, team.name),
       publishable_api_key: MOYASAR_PUBLISHABLE_KEY,
       callback_url: window.location.href,
       methods: ["creditcard"],
@@ -105,8 +106,8 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
         <CreditCard size={16} className="text-amber-accent-600" />
         <p className="text-sm font-bold text-brand-950">
           {mode === "full"
-            ? `ادفعوا الآن بالبطاقة — تفعيل فوري (${amountRiyals} ريال / شهر لـ ${memberCount} ${memberCount === 1 ? "عضو" : "أعضاء"})`
-            : `${g(isFemale, "ادفعي", "ادفع")} حصتك بالبطاقة — تفعيل فوري (${amountRiyals} ريال)`}
+            ? tr("ادفعوا الآن بالبطاقة — تفعيل فوري ({0} ريال / شهر لـ {1} {2})", amountRiyals, memberCount, memberCount === 1 ? tr("عضو") : tr("أعضاء"))
+            : tr("{0} حصتك بالبطاقة — تفعيل فوري ({1} ريال)", g(isFemale, tr("ادفعي"), tr("ادفع")), amountRiyals)}
         </p>
       </div>
       {error ? (

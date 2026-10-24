@@ -11,6 +11,7 @@ import { teamMembers } from "../data/mockData";
 import type { Team, TeamMember } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { canTeamWrite, getTeamSubscriptionState, type TeamSubscriptionState } from "../lib/subscription";
+import { tr } from "../lib/i18n";
 
 interface AuthResult {
   error?: string;
@@ -56,7 +57,7 @@ const STORAGE_KEY = "nursync.currentUserId";
 
 const mockTeam: Team = {
   id: "mock-team",
-  name: "فريق البحث التجريبي",
+  name: tr("فريق البحث التجريبي"),
   subscriptionEndDate: "2030-01-01",
   memberCount: teamMembers.length,
   monthlyPrice: 40,
@@ -102,13 +103,13 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
     mode: "mock",
     passwordRecovery: false,
     loginAsMock,
-    signInWithPassword: async () => ({ error: "Supabase غير مفعّل" }),
-    signUpWithPassword: async () => ({ error: "Supabase غير مفعّل" }),
-    resetPassword: async () => ({ error: "Supabase غير مفعّل" }),
-    updatePassword: async () => ({ error: "Supabase غير مفعّل" }),
+    signInWithPassword: async () => ({ error: tr("Supabase غير مفعّل") }),
+    signUpWithPassword: async () => ({ error: tr("Supabase غير مفعّل") }),
+    resetPassword: async () => ({ error: tr("Supabase غير مفعّل") }),
+    updatePassword: async () => ({ error: tr("Supabase غير مفعّل") }),
     cancelPasswordRecovery: () => {},
-    updateTeamUniversity: async () => ({ error: "Supabase غير مفعّل" }),
-    setTeamPlan: async () => ({ error: "Supabase غير مفعّل" }),
+    updateTeamUniversity: async () => ({ error: tr("Supabase غير مفعّل") }),
+    setTeamPlan: async () => ({ error: tr("Supabase غير مفعّل") }),
     logout,
   };
 

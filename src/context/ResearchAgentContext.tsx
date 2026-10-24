@@ -6,6 +6,7 @@ import { useToast } from "./ToastContext";
 import { useResearchSearch } from "../hooks/useResearchSearch";
 import { useResearchAgent } from "../hooks/useResearchAgent";
 import type { ResearchSearchQuery, ResearchSearchResult, SearchStrategy, ToolFinding } from "../data/types";
+import { tr } from "../lib/i18n";
 
 export type ResearchTab = "papers" | "tools" | "strategy";
 
@@ -111,11 +112,11 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (error || !row) {
-      setSearchError("تعذّر إتمام البحث — حاولوا مرة ثانية.");
+      setSearchError(tr("تعذّر إتمام البحث — حاولوا مرة ثانية."));
       return;
     }
     setActiveResult({ results: row.results, noveltyNote: row.noveltyNote, queryText: row.queryText });
-    finished("papers", "نتائج البحث جاهزة ✅", `${row.results.length} دراسة قريبة من بحثكم — افتحوا وكيل البحث`);
+    finished("papers", tr("نتائج البحث جاهزة ✅"), tr("{0} دراسة قريبة من بحثكم — افتحوا وكيل البحث", row.results.length));
   }, [topic, currentUser, searching, runSearch, finished]);
 
   const showSearch = useCallback((s: ResearchSearchQuery) => {
@@ -137,7 +138,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
       return;
     }
     setToolsResult({ tools: r.tools, caveat: r.caveat });
-    finished("tools", "أدوات القياس جاهزة ✅", `${r.tools.length} أداة مقترحة`);
+    finished("tools", tr("أدوات القياس جاهزة ✅"), tr("{0} أداة مقترحة", r.tools.length));
   }, [toolsForm, toolsBusy, agent, finished]);
 
   const startStrategy = useCallback(async () => {
@@ -149,11 +150,11 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
     const r = await agent.buildStrategy(t);
     setStrategyBusy(false);
     if (r.message || !r.strategy) {
-      setStrategyMessage(r.message ?? "تعذّر بناء الاستراتيجية — حاولوا مرة ثانية.");
+      setStrategyMessage(r.message ?? tr("تعذّر بناء الاستراتيجية — حاولوا مرة ثانية."));
       return;
     }
     setStrategy(r.strategy);
-    finished("strategy", "خطة البحث جاهزة ✅", "كلمات مفتاحية وجمل بحث جاهزة للنسخ");
+    finished("strategy", tr("خطة البحث جاهزة ✅"), tr("كلمات مفتاحية وجمل بحث جاهزة للنسخ"));
   }, [strategyTopic, strategyBusy, agent, finished]);
 
   const running: ResearchTab | null = searching ? "papers" : toolsBusy ? "tools" : strategyBusy ? "strategy" : null;
@@ -176,9 +177,9 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
   );
 
   const pillLabel: Record<ResearchTab, string> = {
-    papers: "دراسات قريبة",
-    tools: "أدوات القياس",
-    strategy: "خطة البحث",
+    papers: tr("دراسات قريبة"),
+    tools: tr("أدوات القياس"),
+    strategy: tr("خطة البحث"),
   };
 
   return (
@@ -200,9 +201,9 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
           </span>
           <span className="min-w-0">
             <span className="block truncate">
-              {running ? `جاري البحث: ${pillLabel[pillTarget]}` : `جاهزة: ${pillLabel[pillTarget]} — اضغطوا للعرض`}
+              {running ? tr("جاري البحث: {0}", pillLabel[pillTarget]) : tr("جاهزة: {0} — اضغطوا للعرض", pillLabel[pillTarget])}
             </span>
-            {running && <span className="block truncate text-[11px] font-medium text-brand-950/50">تقدرون تكملون شغلكم، نخبركم لما نخلّص</span>}
+            {running && <span className="block truncate text-[11px] font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
           </span>
           {!running && <Search size={14} className="shrink-0 text-brand-950/40" />}
         </Link>

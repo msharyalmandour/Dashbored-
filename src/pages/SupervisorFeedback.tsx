@@ -14,6 +14,7 @@ import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { notifySupervisor } from "../lib/supervisorEmail";
 import { formatDateLong } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 interface Draft {
   comment: string;
@@ -76,7 +77,7 @@ export default function SupervisorFeedback() {
   };
 
   const supervisorLink = team?.shareToken ? `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}` : null;
-  const nudgeMessage = `مرحبًا دكتور/ة، رددنا على ملاحظتكم بخصوص بحثنا — تقدرون تشوفون الرد وتكملون المحادثة من هنا:\n${supervisorLink ?? ""}`;
+  const nudgeMessage = tr("مرحبًا دكتور/ة، رددنا على ملاحظتكم بخصوص بحثنا — تقدرون تشوفون الرد وتكملون المحادثة من هنا:\n{0}", supervisorLink ?? "");
 
   const toTasks = (body: string) => {
     setRaw(body);
@@ -98,7 +99,7 @@ export default function SupervisorFeedback() {
     const r = await callStudy<{ items?: { comment: string; sectionKey: string }[] }>({ action: "feedback", text: raw });
     setSplitting(false);
     if (r.message || !r.data?.items) {
-      setSplitMsg(r.message ?? "تعذّر التقسيم — جرّبوا التقسيم البسيط.");
+      setSplitMsg(r.message ?? tr("تعذّر التقسيم — جرّبوا التقسيم البسيط."));
       return;
     }
     setDrafts(r.data.items.map((i) => ({ ...i, keep: true })));
@@ -109,10 +110,10 @@ export default function SupervisorFeedback() {
     const chosen = drafts.filter((d) => d.keep && d.comment.trim());
     const { error } = await addItems(chosen, currentUser.id, project?.id ?? null);
     if (error) {
-      showToast({ title: "ما انحفظت", desc: error, icon: Trash2, tone: "rose" });
+      showToast({ title: tr("ما انحفظت"), desc: error, icon: Trash2, tone: "rose" });
       return;
     }
-    showToast({ title: `انضافت ${chosen.length} ملاحظة ✅`, icon: Check, tone: "brand" });
+    showToast({ title: tr("انضافت {0} ملاحظة ✅", chosen.length), icon: Check, tone: "brand" });
     setDrafts(null);
     setRaw("");
   };
@@ -137,7 +138,7 @@ export default function SupervisorFeedback() {
     });
     setMailBusy(false);
     if (r.message || !r.data?.text) {
-      setMailMsg(r.message ?? "تعذّرت كتابة المسودة.");
+      setMailMsg(r.message ?? tr("تعذّرت كتابة المسودة."));
       return;
     }
     setMailText(r.data.text);
@@ -146,16 +147,14 @@ export default function SupervisorFeedback() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-extrabold text-brand-950">ملاحظات المشرف</h1>
-        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">
-          ملاحظات المشرفة غالبًا تجي بشكل كلام طويل وتضيع. هنا تحوّلونها لقائمة مهام صغيرة، كل وحدة تنحل وتنعلّم، وتشوفون وين وقفتوا.
-        </p>
+        <h1 className="text-xl font-extrabold text-brand-950">{tr("ملاحظات المشرف")}</h1>
+        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">{tr("ملاحظات المشرفة غالبًا تجي بشكل كلام طويل وتضيع. هنا تحوّلونها لقائمة مهام صغيرة، كل وحدة تنحل وتنعلّم، وتشوفون وين وقفتوا.")}</p>
       </div>
 
       {items.length > 0 && (
         <Card tone="teal" className="flex flex-wrap items-center gap-4">
           <div className="min-w-[10rem] flex-1">
-            <p className="text-xs font-bold text-brand-950/50">تقدّمكم بملاحظات المشرفة</p>
+            <p className="text-xs font-bold text-brand-950/50">{tr("تقدّمكم بملاحظات المشرفة")}</p>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-100">
               <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${pct}%` }} />
             </div>
@@ -169,13 +168,9 @@ export default function SupervisorFeedback() {
       {(messages.length > 0 || isSupabaseConfigured) && (
         <Card tone="paper" className="space-y-3">
           <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <GraduationCap size={18} className="text-violet-500" />
-            رسائل المشرفة
-          </h3>
+            <GraduationCap size={18} className="text-violet-500" />{tr("رسائل المشرفة")}</h3>
           {messages.length === 0 ? (
-            <p className="text-xs leading-relaxed text-brand-950/55">
-              لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.
-            </p>
+            <p className="text-xs leading-relaxed text-brand-950/55">{tr("لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.")}</p>
           ) : (
             <ul className="max-h-96 space-y-2.5 overflow-y-auto pe-1">
               {messages.map((m) => {
@@ -188,7 +183,7 @@ export default function SupervisorFeedback() {
                       }`}
                     >
                       <p className="text-[11px] font-bold text-brand-950/45">
-                        {fromSup ? m.senderName || "المشرفة" : m.senderName ? `أنتم — ${m.senderName}` : "أنتم"}
+                        {fromSup ? m.senderName || tr("المشرفة") : m.senderName ? tr("أنتم — {0}", m.senderName) : tr("أنتم")}
                         <span className="ms-2 font-medium">{formatDateLong(m.createdAt.slice(0, 10))}</span>
                       </p>
                       <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{m.body}</p>
@@ -197,9 +192,7 @@ export default function SupervisorFeedback() {
                           onClick={() => toTasks(m.body)}
                           className="mt-2 flex items-center gap-1.5 text-xs font-bold text-violet-600 underline underline-offset-2 hover:text-violet-700"
                         >
-                          <ClipboardCheck size={12} />
-                          حوّلوها لمهام
-                        </button>
+                          <ClipboardCheck size={12} />{tr("حوّلوها لمهام")}</button>
                       )}
                     </div>
                   </li>
@@ -213,22 +206,19 @@ export default function SupervisorFeedback() {
               onChange={(e) => setReplyText(e.target.value)}
               rows={2}
               maxLength={1500}
-              placeholder="ردّوا على المشرفة (تشوفه لما تفتح رابطها)"
+              placeholder={tr("ردّوا على المشرفة (تشوفه لما تفتح رابطها)")}
               className="min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
             />
             <button
               onClick={sendReply}
               disabled={replyBusy || !replyText.trim()}
               className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-            >
-              {replyBusy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-              إرسال
-            </button>
+            >{trx("{0}إرسال", replyBusy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />)}</button>
           </div>
           {replyErr && <p className="text-xs font-semibold text-rose-600">{replyErr}</p>}
           {nudge && supervisorLink && (
             <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/70 p-3">
-              <p className="min-w-0 flex-1 text-xs font-semibold text-brand-950/70">{emailSent ? "انرسل ردّكم ووصلها إيميل تنبيه ✓ — تقدرون تنبّهونها بواتساب أيضًا لو الموضوع عاجل." : "انرسل ردّكم. لو المشرفة مفعّلة إشعارات الإيميل يوصلها تنبيه، وإلا نبّهوها بواتساب عشان تشوفه."}</p>
+              <p className="min-w-0 flex-1 text-xs font-semibold text-brand-950/70">{emailSent ? tr("انرسل ردّكم ووصلها إيميل تنبيه ✓ — تقدرون تنبّهونها بواتساب أيضًا لو الموضوع عاجل.") : tr("انرسل ردّكم. لو المشرفة مفعّلة إشعارات الإيميل يوصلها تنبيه، وإلا نبّهوها بواتساب عشان تشوفه.")}</p>
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(nudgeMessage)}`}
                 target="_blank"
@@ -236,35 +226,25 @@ export default function SupervisorFeedback() {
                 onClick={() => setNudge(false)}
                 className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-brand-600"
               >
-                <MessageCircle size={14} />
-                نبّهوها بواتساب
-              </a>
-              <button onClick={() => setNudge(false)} className="text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">
-                لاحقًا
-              </button>
+                <MessageCircle size={14} />{tr("نبّهوها بواتساب")}</a>
+              <button onClick={() => setNudge(false)} className="text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
             </div>
           )}
-          <p className="text-[11px] text-brand-950/40">
-            ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.
-          </p>
+          <p className="text-[11px] text-brand-950/40">{tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}</p>
         </Card>
       )}
 
       <Card tone="cream" className="space-y-3">
         <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-          <ClipboardCheck size={18} className="text-brand-500" />
-          الصقوا ملاحظات المشرفة
-        </h3>
-        <p className="text-xs text-brand-950/55">
-          انسخوا الملاحظات من الإيميل أو الواتساب أو الورقة (ولو مكتوبة عربي وإنجليزي مخلوط عادي). نقسّمها لمهام واضحة تراجعونها قبل الحفظ.
-        </p>
+          <ClipboardCheck size={18} className="text-brand-500" />{tr("الصقوا ملاحظات المشرفة")}</h3>
+        <p className="text-xs text-brand-950/55">{tr("انسخوا الملاحظات من الإيميل أو الواتساب أو الورقة (ولو مكتوبة عربي وإنجليزي مخلوط عادي). نقسّمها لمهام واضحة تراجعونها قبل الحفظ.")}</p>
         <textarea
           id="feedback-raw"
           value={raw}
           onChange={(e) => setRaw(e.target.value)}
           rows={5}
           dir="auto"
-          placeholder="مثال: The sample size needs justification. أضيفوا دراسات سعودية. وضّحوا معايير الاستبعاد..."
+          placeholder={tr("مثال: The sample size needs justification. أضيفوا دراسات سعودية. وضّحوا معايير الاستبعاد...")}
           className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
         />
         <div className="flex flex-wrap items-center gap-2">
@@ -275,26 +255,24 @@ export default function SupervisorFeedback() {
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
             >
               {splitting ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
-              {splitting ? "جاري التقسيم..." : "قسّمها بالذكاء الاصطناعي"}
+              {splitting ? tr("جاري التقسيم...") : tr("قسّمها بالذكاء الاصطناعي")}
             </button>
           )}
           <button
             onClick={splitBasic}
             disabled={!raw.trim()}
             className="rounded-xl border border-brand-200 bg-paper px-4 py-2 text-sm font-bold text-brand-950/70 hover:bg-surface-muted disabled:opacity-50"
-          >
-            تقسيم بسيط (سطر = ملاحظة)
-          </button>
+          >{tr("تقسيم بسيط (سطر = ملاحظة)")}</button>
         </div>
         {splitMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{splitMsg}</p>}
         {!aiOk && isSupabaseConfigured && (
-          <p className="text-[11px] text-brand-950/45">التقسيم الذكي متاح بباقة AI. التقسيم البسيط مجاني.</p>
+          <p className="text-[11px] text-brand-950/45">{tr("التقسيم الذكي متاح بباقة AI. التقسيم البسيط مجاني.")}</p>
         )}
       </Card>
 
       {drafts && (
         <Card className="space-y-3">
-          <p className="text-sm font-extrabold text-brand-950">راجعوا المهام قبل الحفظ ({drafts.filter((d) => d.keep).length})</p>
+          <p className="text-sm font-extrabold text-brand-950">{trx("راجعوا المهام قبل الحفظ ({0})", drafts.filter((d) => d.keep).length)}</p>
           <ul className="space-y-2">
             {drafts.map((d, i) => (
               <li key={i} className="flex flex-wrap items-center gap-2 rounded-xl bg-surface-muted p-2.5">
@@ -324,12 +302,8 @@ export default function SupervisorFeedback() {
             ))}
           </ul>
           <div className="flex gap-2">
-            <button onClick={saveDrafts} className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600">
-              احفظوا المهام
-            </button>
-            <button onClick={() => setDrafts(null)} className="rounded-xl px-4 py-2 text-sm font-bold text-brand-950/50 hover:bg-surface-muted">
-              إلغاء
-            </button>
+            <button onClick={saveDrafts} className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600">{tr("احفظوا المهام")}</button>
+            <button onClick={() => setDrafts(null)} className="rounded-xl px-4 py-2 text-sm font-bold text-brand-950/50 hover:bg-surface-muted">{tr("إلغاء")}</button>
           </div>
         </Card>
       )}
@@ -339,9 +313,9 @@ export default function SupervisorFeedback() {
           <div className="flex gap-2">
             {(
               [
-                ["open", `مفتوحة (${open.length})`],
-                ["done", `منجزة (${done.length})`],
-                ["all", "الكل"],
+                ["open", tr("مفتوحة ({0})", open.length)],
+                ["done", tr("منجزة ({0})", done.length)],
+                ["all", tr("الكل")],
               ] as const
             ).map(([id, label]) => (
               <button
@@ -360,7 +334,7 @@ export default function SupervisorFeedback() {
             value={manual}
             onChange={(e) => setManual(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addManual()}
-            placeholder="أضيفوا ملاحظة يدويًا..."
+            placeholder={tr("أضيفوا ملاحظة يدويًا...")}
             className="min-w-[12rem] flex-1 rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
           />
           <select
@@ -375,18 +349,17 @@ export default function SupervisorFeedback() {
             ))}
           </select>
           <button onClick={addManual} disabled={!manual.trim()} className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">
-            <Plus size={15} /> إضافة
-          </button>
+            <Plus size={15} />{tr(" إضافة")}</button>
         </div>
 
         {loading ? (
-          <p className="text-sm text-brand-950/45">جاري التحميل...</p>
+          <p className="text-sm text-brand-950/45">{tr("جاري التحميل...")}</p>
         ) : shown.length === 0 ? (
           <Card>
             <EmptyState
               icon={ClipboardCheck}
-              title={items.length === 0 ? "ما فيه ملاحظات بعد" : "ما فيه ملاحظات بهذا التصنيف"}
-              desc="الصقوا ملاحظات المشرفة بالأعلى، أو أضيفوا ملاحظة يدويًا."
+              title={items.length === 0 ? tr("ما فيه ملاحظات بعد") : tr("ما فيه ملاحظات بهذا التصنيف")}
+              desc={tr("الصقوا ملاحظات المشرفة بالأعلى، أو أضيفوا ملاحظة يدويًا.")}
             />
           </Card>
         ) : (
@@ -394,7 +367,7 @@ export default function SupervisorFeedback() {
             <Card key={i.id} className="flex flex-wrap items-center gap-3">
               <button
                 onClick={() => patch(i.id, { status: i.status === "done" ? "open" : "done" })}
-                title={i.status === "done" ? "أعيدوها مفتوحة" : "علّموها منجزة"}
+                title={i.status === "done" ? tr("أعيدوها مفتوحة") : tr("علّموها منجزة")}
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 ${
                   i.status === "done" ? "border-brand-500 bg-brand-500 text-white" : "border-brand-200 text-transparent hover:border-brand-400"
                 }`}
@@ -404,17 +377,17 @@ export default function SupervisorFeedback() {
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-semibold ${i.status === "done" ? "text-brand-950/40 line-through" : "text-brand-950"}`}>{i.comment}</p>
                 <p className="mt-0.5 text-[11px] text-brand-950/45">
-                  {sectionLabels[i.sectionKey] ?? "أخرى"} · {formatDateLong(i.feedbackDate)}
-                  {i.status === "done" && i.resolvedAt ? ` · انحلّت ${formatDateLong(i.resolvedAt.slice(0, 10))}` : ""}
+                  {sectionLabels[i.sectionKey] ?? tr("أخرى")} · {formatDateLong(i.feedbackDate)}
+                  {i.status === "done" && i.resolvedAt ? tr(" · انحلّت {0}", formatDateLong(i.resolvedAt.slice(0, 10))) : ""}
                 </p>
               </div>
               <select
                 value={i.assigneeId ?? ""}
                 onChange={(e) => patch(i.id, { assigneeId: e.target.value || null })}
                 className="rounded-lg border border-brand-100 bg-paper px-2 py-1.5 text-xs outline-none"
-                title="مين مسؤول عنها؟"
+                title={tr("مين مسؤول عنها؟")}
               >
-                <option value="">بدون مسؤول</option>
+                <option value="">{tr("بدون مسؤول")}</option>
                 {roster.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.name}
@@ -422,7 +395,7 @@ export default function SupervisorFeedback() {
                 ))}
               </select>
               {i.assigneeId && memberName(i.assigneeId) && <span className="sr-only">{memberName(i.assigneeId)}</span>}
-              <button onClick={() => remove(i.id)} title="حذف" className="rounded-lg p-1.5 text-brand-950/30 hover:bg-rose-50 hover:text-rose-600">
+              <button onClick={() => remove(i.id)} title={tr("حذف")} className="rounded-lg p-1.5 text-brand-950/30 hover:bg-rose-50 hover:text-rose-600">
                 <Trash2 size={15} />
               </button>
             </Card>
@@ -430,24 +403,16 @@ export default function SupervisorFeedback() {
         )}
       </div>
 
-      {!hasAiAccess(team) && isSupabaseConfigured && <AiLockedCard feature="تقسيم الملاحظات وكتابة رسائل المشرفة" />}
+      {!hasAiAccess(team) && isSupabaseConfigured && <AiLockedCard feature={tr("تقسيم الملاحظات وكتابة رسائل المشرفة")} />}
 
       {aiOk && (
         <Card className="space-y-3">
           <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <Mail size={18} className="text-brand-500" />
-            رسالة للمشرفة
-          </h3>
-          <p className="text-xs text-brand-950/55">
-            المشرفة مشغولة وتتأخر أحيانًا، والأفضل تتابعونها بلطف. نكتب لكم مسودة تعدّلونها وترسلونها بأنفسكم (ما نرسل شي عنكم).
-          </p>
+            <Mail size={18} className="text-brand-500" />{tr("رسالة للمشرفة")}</h3>
+          <p className="text-xs text-brand-950/55">{tr("المشرفة مشغولة وتتأخر أحيانًا، والأفضل تتابعونها بلطف. نكتب لكم مسودة تعدّلونها وترسلونها بأنفسكم (ما نرسل شي عنكم).")}</p>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => writeMail("remind")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">
-              تذكير بانتظار ملاحظاتها
-            </button>
-            <button onClick={() => writeMail("progress")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">
-              تحديث بتقدّمنا
-            </button>
+            <button onClick={() => writeMail("remind")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">{tr("تذكير بانتظار ملاحظاتها")}</button>
+            <button onClick={() => writeMail("progress")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">{tr("تحديث بتقدّمنا")}</button>
             {mailBusy && <Loader2 size={18} className="animate-spin self-center text-brand-500" />}
           </div>
           {mailMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm text-amber-accent-700">{mailMsg}</p>}
@@ -472,7 +437,7 @@ export default function SupervisorFeedback() {
                 className="flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline"
               >
                 {copied ? <Check size={13} /> : <Copy size={13} />}
-                {copied ? "تم النسخ" : "نسخ الرسالة"}
+                {copied ? tr("تم النسخ") : tr("نسخ الرسالة")}
               </button>
             </div>
           )}

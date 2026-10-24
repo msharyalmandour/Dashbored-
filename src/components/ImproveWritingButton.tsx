@@ -4,6 +4,7 @@ import { Wand2, RefreshCw, Lock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { hasAiAccess } from "../lib/plans";
 import { supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 /** زر "حسّن الصياغة" — يرسل النص لـ Claude عبر Edge Function ويرجّع نسخة
     محسّنة أكاديميًا، بنفس لغة النص الأصلي. يظهر فقط بوضع Supabase الحقيقي. */
@@ -25,12 +26,10 @@ export default function ImproveWritingButton({
     return (
       <Link
         to="/pricing"
-        title="تحسين الصياغة ضمن باقة AI"
+        title={tr("تحسين الصياغة ضمن باقة AI")}
         className="flex items-center gap-1.5 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-bold text-brand-950/50 hover:text-brand-700"
       >
-        <Lock size={12} />
-        حسّن الصياغة (باقة AI)
-      </Link>
+        <Lock size={12} />{tr("حسّن الصياغة (باقة AI)")}</Link>
     );
   }
 
@@ -57,7 +56,7 @@ export default function ImproveWritingButton({
       className="flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-100 disabled:opacity-50"
     >
       {loading ? <RefreshCw size={12} className="animate-spin" /> : <Wand2 size={12} />}
-      {loading ? "جارٍ التحسين..." : error ? "حاول مرة ثانية" : "حسّن الصياغة"}
+      {loading ? tr("جارٍ التحسين...") : error ? tr("حاول مرة ثانية") : tr("حسّن الصياغة")}
     </button>
   );
 }

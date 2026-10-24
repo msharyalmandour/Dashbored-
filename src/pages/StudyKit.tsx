@@ -9,6 +9,7 @@ import { useMethodology } from "../hooks/useMethodology";
 import { useChecklist } from "../hooks/useChecklist";
 import { beforeDataChecklist, buildTemplate, templateMeta, translationChecklist, type ChecklistItem, type TemplateId } from "../lib/studyTemplates";
 import { downloadTextAsWord } from "../lib/textDoc";
+import { tr } from "../lib/i18n";
 
 type Tab = "docs" | "translation" | "before";
 
@@ -70,9 +71,9 @@ export default function StudyKit() {
   const { methodology } = useMethodology();
   const [tab, setTab] = useState<Tab>("docs");
   const [template, setTemplate] = useState<TemplateId>("consent-ar");
-  const [university, setUniversity] = useState("جامعة الملك عبدالعزيز — كلية التمريض");
+  const [university, setUniversity] = useState(tr("جامعة الملك عبدالعزيز — كلية التمريض"));
   const [toolName, setToolName] = useState("");
-  const [duration, setDuration] = useState("١٠–١٥ دقيقة");
+  const [duration, setDuration] = useState(tr("١٠–١٥ دقيقة"));
   const [contactEmail, setContactEmail] = useState("");
   const [text, setText] = useState("");
   const [copied, setCopied] = useState(false);
@@ -100,17 +101,17 @@ export default function StudyKit() {
   const ids = Object.keys(templateMeta) as TemplateId[];
 
   const tabs: { id: Tab; label: string; when: string; icon: typeof FileText }[] = [
-    { id: "docs", label: "النماذج الجاهزة", when: "إذن، موافقة، خطاب جهة", icon: FileText },
-    { id: "translation", label: "ترجمة الاستبيان", when: "خطواتها وتتبّعها", icon: Languages },
-    { id: "before", label: "قبل جمع البيانات", when: "قائمة التحقق الأخيرة", icon: ListChecks },
+    { id: "docs", label: tr("النماذج الجاهزة"), when: tr("إذن، موافقة، خطاب جهة"), icon: FileText },
+    { id: "translation", label: tr("ترجمة الاستبيان"), when: tr("خطواتها وتتبّعها"), icon: Languages },
+    { id: "before", label: tr("قبل جمع البيانات"), when: tr("قائمة التحقق الأخيرة"), icon: ListChecks },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        kicker="اجمع وحلّل"
-        title="الاستبيانات والموافقات"
-        subtitle="كل الأوراق اللي تحتاجونها قبل ما توزعون الاستبيان: إذن الأداة، موافقة المشارك، خطاب الجهة، وخطوات الترجمة."
+        kicker={tr("اجمع وحلّل")}
+        title={tr("الاستبيانات والموافقات")}
+        subtitle={tr("كل الأوراق اللي تحتاجونها قبل ما توزعون الاستبيان: إذن الأداة، موافقة المشارك، خطاب الجهة، وخطوات الترجمة.")}
         action={<Segmented items={tabs.map((t) => ({ id: t.id, label: t.label }))} value={tab} onChange={setTab} />}
       />
       <p className="-mt-3 text-sm text-brand-950/50">{tabs.find((t) => t.id === tab)?.when}</p>
@@ -119,7 +120,7 @@ export default function StudyKit() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.6fr]">
           <div className="space-y-3">
             <Card className="space-y-2">
-              <p className="text-sm font-extrabold text-brand-950">اختاروا النموذج</p>
+              <p className="text-sm font-extrabold text-brand-950">{tr("اختاروا النموذج")}</p>
               {ids.map((id) => (
                 <button
                   key={id}
@@ -134,13 +135,13 @@ export default function StudyKit() {
               ))}
             </Card>
             <Card className="space-y-2.5">
-              <p className="text-sm font-extrabold text-brand-950">بيانات تتعبّى بالنموذج</p>
+              <p className="text-sm font-extrabold text-brand-950">{tr("بيانات تتعبّى بالنموذج")}</p>
               {(
                 [
-                  ["الجامعة / الكلية", university, setUniversity],
-                  ["اسم الأداة (للإذن)", toolName, setToolName],
-                  ["مدة تعبئة الاستبيان", duration, setDuration],
-                  ["إيميل التواصل", contactEmail, setContactEmail],
+                  [tr("الجامعة / الكلية"), university, setUniversity],
+                  [tr("اسم الأداة (للإذن)"), toolName, setToolName],
+                  [tr("مدة تعبئة الاستبيان"), duration, setDuration],
+                  [tr("إيميل التواصل"), contactEmail, setContactEmail],
                 ] as const
               ).map(([label, val, set]) => (
                 <label key={label} className="block">
@@ -152,7 +153,7 @@ export default function StudyKit() {
                   />
                 </label>
               ))}
-              <p className="text-[11px] text-brand-950/40">العنوان والمشرفة والفريق والفئة تنسحب تلقائيًا من بيانات مشروعكم.</p>
+              <p className="text-[11px] text-brand-950/40">{tr("العنوان والمشرفة والفريق والفئة تنسحب تلقائيًا من بيانات مشروعكم.")}</p>
             </Card>
           </div>
 
@@ -173,15 +174,13 @@ export default function StudyKit() {
                   className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-paper px-3 py-1.5 text-xs font-bold text-brand-950/70 hover:bg-surface-muted"
                 >
                   {copied ? <Check size={13} /> : <Copy size={13} />}
-                  {copied ? "تم النسخ" : "نسخ"}
+                  {copied ? tr("تم النسخ") : tr("نسخ")}
                 </button>
                 <button
                   onClick={() => downloadTextAsWord(meta.label, text, meta.rtl, `${meta.label}.docx`)}
                   className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-600"
                 >
-                  <FileDown size={13} />
-                  تنزيل Word
-                </button>
+                  <FileDown size={13} />{tr("تنزيل Word")}</button>
               </div>
             </div>
             <textarea
@@ -191,10 +190,7 @@ export default function StudyKit() {
               dir={meta.rtl ? "rtl" : "ltr"}
               className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
             />
-            <p className="text-[11px] leading-relaxed text-brand-950/45">
-              هذا قالب بداية مبني على عناصر الموافقة المستنيرة المعتمدة (الطوعية، حق الانسحاب، السرية). ما بين [أقواس] لازم تعبّونه. لجنة أخلاقيات
-              الجهة والمشرفة لهم الكلمة النهائية — لو عندهم نموذج رسمي استخدموه. تنبيه: تعديلاتكم اليدوية على النص تنمسح لو غيّرتوا النموذج أو الحقول الجانبية — انسخوا أو نزّلوا قبلها.
-            </p>
+            <p className="text-[11px] leading-relaxed text-brand-950/45">{tr("هذا قالب بداية مبني على عناصر الموافقة المستنيرة المعتمدة (الطوعية، حق الانسحاب، السرية). ما بين [أقواس] لازم تعبّونه. لجنة أخلاقيات الجهة والمشرفة لهم الكلمة النهائية — لو عندهم نموذج رسمي استخدموه. تنبيه: تعديلاتكم اليدوية على النص تنمسح لو غيّرتوا النموذج أو الحقول الجانبية — انسخوا أو نزّلوا قبلها.")}</p>
           </Card>
         </div>
       )}
@@ -202,11 +198,8 @@ export default function StudyKit() {
       {tab === "translation" && (
         <Card className="space-y-3">
           <div>
-            <h3 className="text-base font-bold text-brand-950">خطوات ترجمة وتكييف استبيان أجنبي</h3>
-            <p className="text-xs leading-relaxed text-brand-950/55">
-              لو تبون تستخدمون استبيان إنجليزي بعينة عربية، ما يكفي تترجمونه بأنفسكم — لازم خطوات موثّقة (ترجمة أمامية وعكسية ومراجعة خبراء). الخطوات
-              مشتركة مع فريقكم، وأي عضو يعلّم اللي خلّصتوه.
-            </p>
+            <h3 className="text-base font-bold text-brand-950">{tr("خطوات ترجمة وتكييف استبيان أجنبي")}</h3>
+            <p className="text-xs leading-relaxed text-brand-950/55">{tr("لو تبون تستخدمون استبيان إنجليزي بعينة عربية، ما يكفي تترجمونه بأنفسكم — لازم خطوات موثّقة (ترجمة أمامية وعكسية ومراجعة خبراء). الخطوات مشتركة مع فريقكم، وأي عضو يعلّم اللي خلّصتوه.")}</p>
           </div>
           <Checklist listKey="translation" items={translationChecklist} projectId={project?.id ?? null} userId={currentUser?.id ?? null} />
         </Card>
@@ -215,8 +208,8 @@ export default function StudyKit() {
       {tab === "before" && (
         <Card className="space-y-3">
           <div>
-            <h3 className="text-base font-bold text-brand-950">جاهزين لجمع البيانات؟</h3>
-            <p className="text-xs leading-relaxed text-brand-950/55">تأكدوا من كل نقطة قبل ما توزعون أول استبيان — ضياع الموافقات أكثر شي يوقف البحث بآخر لحظة.</p>
+            <h3 className="text-base font-bold text-brand-950">{tr("جاهزين لجمع البيانات؟")}</h3>
+            <p className="text-xs leading-relaxed text-brand-950/55">{tr("تأكدوا من كل نقطة قبل ما توزعون أول استبيان — ضياع الموافقات أكثر شي يوقف البحث بآخر لحظة.")}</p>
           </div>
           <Checklist listKey="before-data" items={beforeDataChecklist} projectId={project?.id ?? null} userId={currentUser?.id ?? null} />
         </Card>

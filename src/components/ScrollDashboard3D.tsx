@@ -6,6 +6,7 @@ import tasksImg from "../assets/landing/dash-tasks.jpg";
 import supervisorImg from "../assets/landing/dash-supervisor.jpg";
 import statsImg from "../assets/landing/dash-stats.jpg";
 import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
+import { tr, trx } from "../lib/i18n";
 
 interface Step {
   title: string;
@@ -16,32 +17,32 @@ interface Step {
 
 const steps: Step[] = [
   {
-    title: "لوحة فريقكم",
-    desc: "كل شي بنظرة: التقدم، المتأخر، والخطوة الجاية. وأول ما تفتحون يقول لكم: وش تسوين الحين؟",
-    chip: "وش تسوين الحين؟",
+    title: tr("لوحة فريقكم"),
+    desc: tr("كل شي بنظرة: التقدم، المتأخر، والخطوة الجاية. وأول ما تفتحون يقول لكم: وش تسوين الحين؟"),
+    chip: tr("وش تسوين الحين؟"),
     image: overviewImg,
   },
   {
-    title: "مهام بدون فوضى",
-    desc: "وزّعوا الشغل على الفريق، وكل وحدة تعرف مهمتها ويجيها تنبيه قبل الموعد — مو قروب واتساب ضايع.",
-    chip: "تنبيه قبل التسليم",
+    title: tr("مهام بدون فوضى"),
+    desc: tr("وزّعوا الشغل على الفريق، وكل وحدة تعرف مهمتها ويجيها تنبيه قبل الموعد — مو قروب واتساب ضايع."),
+    chip: tr("تنبيه قبل التسليم"),
     image: tasksImg,
   },
   {
-    title: "مشرفتكم بالصورة",
-    desc: "رابط لها بدون حساب: تشوف تقدمكم وتراسلكم، وملاحظاتها تتحوّل لمهام تخلصونها وحدة وحدة.",
-    chip: "رسالة جديدة من المشرفة",
+    title: tr("مشرفتكم بالصورة"),
+    desc: tr("رابط لها بدون حساب: تشوف تقدمكم وتراسلكم، وملاحظاتها تتحوّل لمهام تخلصونها وحدة وحدة."),
+    chip: tr("رسالة جديدة من المشرفة"),
     image: supervisorImg,
   },
   {
-    title: "الإحصاء بالعربي",
-    desc: "اختاروا الاختبار المناسب لبياناتكم، احسبوه، وخذوا تفسير جاهز لنتائجكم بدون ما تضيعون بالمعادلات.",
-    chip: "اختاروا الاختبار الصح",
+    title: tr("الإحصاء بالعربي"),
+    desc: tr("اختاروا الاختبار المناسب لبياناتكم، احسبوه، وخذوا تفسير جاهز لنتائجكم بدون ما تضيعون بالمعادلات."),
+    chip: tr("اختاروا الاختبار الصح"),
     image: statsImg,
   },
   {
-    title: "اختاروا باقتكم",
-    desc: "Basic يدير بحثكم كامل. AI يضيف كوتش ذكي يفكّر معكم ويدرّبكم على المناقشة.",
+    title: tr("اختاروا باقتكم"),
+    desc: tr("Basic يدير بحثكم كامل. AI يضيف كوتش ذكي يفكّر معكم ويدرّبكم على المناقشة."),
   },
 ];
 
@@ -79,10 +80,10 @@ function PlanCards() {
         <p className="font-display text-base font-extrabold text-white">Basic</p>
         <p className="mt-1 flex items-baseline gap-1.5 text-white">
           <span className="font-display text-3xl font-extrabold">{BASIC_PRICE}</span>
-          <span className="text-[11px] font-semibold text-white/55">ريال / شهريًا لكل عضو</span>
+          <span className="text-[11px] font-semibold text-white/55">{tr("ريال / شهريًا لكل عضو")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/65">
-          {["لوحة الفريق والمهام والتنبيهات", "المقترح والمنهجية والإحصاء", "محادثة المشرفة + تقويم الجوال"].map((t) => (
+          {[tr("لوحة الفريق والمهام والتنبيهات"), tr("المقترح والمنهجية والإحصاء"), tr("محادثة المشرفة + تقويم الجوال")].map((t) => (
             <li key={t} className="flex items-start gap-2">
               <Check size={13} className="mt-0.5 shrink-0 text-white/60" />
               {t}
@@ -95,23 +96,21 @@ function PlanCards() {
         style={{ transform: "translateZ(70px)" }}
       >
         <span className="absolute end-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-2.5 py-0.5 text-[10px] font-extrabold text-neutral-950">
-          <Wand2 size={10} />
-          الأكثر قيمة
-        </span>
+          <Wand2 size={10} />{tr("الأكثر قيمة")}</span>
         <p className="font-display text-base font-extrabold text-amber-200">AI</p>
         <p className="mt-1 flex items-baseline gap-1.5 text-white">
           <span className="font-display text-3xl font-extrabold">{AI_PRICE}</span>
-          <span className="text-[11px] font-semibold text-white/55">ريال / شهريًا لكل عضو</span>
+          <span className="text-[11px] font-semibold text-white/55">{tr("ريال / شهريًا لكل عضو")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/75">
-          {["كل مزايا Basic", "كوتش يعرف بحثكم وينصحكم بالأولويات", "وكيل بحث + تدريب مناقشة + تحسين الصياغة"].map((t) => (
+          {[tr("كل مزايا Basic"), tr("كوتش يعرف بحثكم وينصحكم بالأولويات"), tr("وكيل بحث + تدريب مناقشة + تحسين الصياغة")].map((t) => (
             <li key={t} className="flex items-start gap-2">
               <Wand2 size={12} className="mt-0.5 shrink-0 text-amber-300" />
               {t}
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[11px] font-bold text-amber-300">أول ١٥ فريق: {FOUNDER_AI_PRICE} ريال ثابتة</p>
+        <p className="mt-2 text-[11px] font-bold text-amber-300">{trx("أول ١٥ فريق: {0} ريال ثابتة", FOUNDER_AI_PRICE)}</p>
       </div>
     </div>
   );
@@ -263,17 +262,13 @@ export default function ScrollDashboard3D() {
                 <Link
                   to="/login"
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-extrabold text-neutral-950 shadow-[0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-transform hover:scale-[1.04]"
-                >
-                  ابدأوا مجانًا ٧ أيام
-                  <ArrowLeft size={15} />
+                >{tr("ابدأوا مجانًا ٧ أيام")}<ArrowLeft size={15} />
                 </Link>
-                <a href="#pricing" className="text-xs font-bold text-white/60 underline underline-offset-4 hover:text-amber-300">
-                  قارنوا كل التفاصيل
-                </a>
+                <a href="#pricing" className="text-xs font-bold text-white/60 underline underline-offset-4 hover:text-amber-300">{tr("قارنوا كل التفاصيل")}</a>
               </div>
             )}
             {/* مؤشر الخطوات */}
-            <div className="mt-6 flex items-center gap-2" role="tablist" aria-label="خطوات الجولة">
+            <div className="mt-6 flex items-center gap-2" role="tablist" aria-label={tr("خطوات الجولة")}>
               {steps.map((s, i) => (
                 <button
                   key={s.title}
@@ -285,9 +280,7 @@ export default function ScrollDashboard3D() {
               ))}
             </div>
             <p className="mt-5 hidden items-center gap-1.5 text-[11px] font-semibold text-white/35 lg:flex">
-              <span className="inline-block h-4 w-2.5 rounded-full border border-white/25 after:mx-auto after:mt-0.5 after:block after:h-1 after:w-1 after:animate-bounce after:rounded-full after:bg-white/50 motion-reduce:after:animate-none" />
-              كمّلوا التمرير
-            </p>
+              <span className="inline-block h-4 w-2.5 rounded-full border border-white/25 after:mx-auto after:mt-0.5 after:block after:h-1 after:w-1 after:animate-bounce after:rounded-full after:bg-white/50 motion-reduce:after:animate-none" />{tr("كمّلوا التمرير")}</p>
           </div>
 
           {/* المشهد ثلاثي الأبعاد */}

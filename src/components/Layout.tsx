@@ -20,35 +20,36 @@ import StageCelebration from "./ui/StageCelebration";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
+import { tr, trx } from "../lib/i18n";
 
 const titles: Record<string, string> = {
-  "/": "نظرة عامة",
-  "/proposal": "المقترح البحثي",
-  "/literature-review": "مراجعة الأدبيات",
-  "/methodology": "المنهجية",
-  "/ethical-approval": "الموافقة الأخلاقية",
-  "/research-search": "وكيل البحث العلمي",
-  "/stats": "استوديو الإحصاء",
-  "/feedback": "ملاحظات المشرف",
-  "/study-kit": "الاستبيانات والموافقات",
-  "/tools-library": "مكتبة أدوات القياس",
-  "/planner": "مخطط الموعد",
-  "/viva": "تدريب المناقشة",
-  "/glossary": "قاموس المصطلحات",
-  "/meeting-minutes": "الاجتماعات والمشرف/ة",
-  "/meeting-minutes/new": "محضر جديد",
-  "/proposal/export": "تصدير المقترح",
-  "/tasks": "مهامي",
-  "/evidence": "مكتبة الأدلة",
-  "/team": "الفريق",
-  "/timeline": "الجدول الزمني",
-  "/fieldwork": "الميدان",
-  "/files": "الملفات",
-  "/calendar": "التقويم",
-  "/story": "قصة بحثك",
-  "/guide": "دليل الطالب",
-  "/pricing": "الباقات والاشتراك",
-  "/admin/subscriptions": "إدارة الاشتراكات",
+  "/": tr("نظرة عامة"),
+  "/proposal": tr("المقترح البحثي"),
+  "/literature-review": tr("مراجعة الأدبيات"),
+  "/methodology": tr("المنهجية"),
+  "/ethical-approval": tr("الموافقة الأخلاقية"),
+  "/research-search": tr("وكيل البحث العلمي"),
+  "/stats": tr("استوديو الإحصاء"),
+  "/feedback": tr("ملاحظات المشرف"),
+  "/study-kit": tr("الاستبيانات والموافقات"),
+  "/tools-library": tr("مكتبة أدوات القياس"),
+  "/planner": tr("مخطط الموعد"),
+  "/viva": tr("تدريب المناقشة"),
+  "/glossary": tr("قاموس المصطلحات"),
+  "/meeting-minutes": tr("الاجتماعات والمشرف/ة"),
+  "/meeting-minutes/new": tr("محضر جديد"),
+  "/proposal/export": tr("تصدير المقترح"),
+  "/tasks": tr("مهامي"),
+  "/evidence": tr("مكتبة الأدلة"),
+  "/team": tr("الفريق"),
+  "/timeline": tr("الجدول الزمني"),
+  "/fieldwork": tr("الميدان"),
+  "/files": tr("الملفات"),
+  "/calendar": tr("التقويم"),
+  "/story": tr("قصة بحثك"),
+  "/guide": tr("دليل الطالب"),
+  "/pricing": tr("الباقات والاشتراك"),
+  "/admin/subscriptions": tr("إدارة الاشتراكات"),
 };
 
 /** الصفحات اللي لبست ترويسة التصميم الموحّد (PageHeader) — العنوان فيها يظهر بالصفحة نفسها */
@@ -126,16 +127,10 @@ export default function Layout() {
                     className="flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
                   >
                     <CreditCard size={13} />
-                    {isLeader ? "فعّلوا الاشتراك الآن" : "ادفعوا حصتكم"}
+                    {isLeader ? tr("فعّلوا الاشتراك الآن") : tr("ادفعوا حصتكم")}
                   </button>
                 }
-              >
-                أنتم بفترة التجربة المجانية 🎉 — باقي{" "}
-                {trialDaysLeft <= 0 ? "أقل من يوم" : `${trialDaysLeft} ${trialDaysLeft === 1 ? "يوم" : "أيام"}`}
-                . أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو{" "}
-                <Link to="/pricing" className="underline underline-offset-2">
-                  شوفوا الباقات
-                </Link>
+              >{trx("أنتم بفترة التجربة المجانية 🎉 — باقي {0}. أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو ", trialDaysLeft <= 0 ? tr("أقل من يوم") : `${trialDaysLeft} ${trialDaysLeft === 1 ? tr("يوم") : tr("أيام")}`)}<Link to="/pricing" className="underline underline-offset-2">{tr("شوفوا الباقات")}</Link>
                 .
               </AlertCard>
             )}
@@ -143,18 +138,9 @@ export default function Layout() {
               <AlertCard tone="warning" icon={AlertTriangle}>
                 <div>
                   {subscriptionState === "none" ? (
-                    <>
-                      اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم
-                      المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها.{" "}
-                      ادفعوا الآن بالبطاقة لتفعيل فوري — أي عضو يقدر يدفع حصته بس، مو لازم قائد
-                      الفريق.
-                    </>
+                    <>{tr("اشتراك فريقكم لسا ما تفعّل — تقدرون تشوفون كل بياناتكم المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. ادفعوا الآن بالبطاقة لتفعيل فوري — أي عضو يقدر يدفع حصته بس، مو لازم قائد الفريق.")}</>
                   ) : (
-                    <>
-                      اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس
-                      ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا
-                      للاستمرار في استخدام كل المزايا.
-                    </>
+                    <>{tr("اشتراك فريقكم انتهى — تقدرون تشوفون كل بياناتكم المحفوظة، بس ما تقدرون تضيفون مهام جديدة أو تعدّلون عليها. جدّدوا للاستمرار في استخدام كل المزايا.")}</>
                   )}
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <button
@@ -162,12 +148,10 @@ export default function Layout() {
                       className="flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
                     >
                       <CreditCard size={13} />
-                      {isLeader ? "ادفعوا الآن بالبطاقة" : "ادفعوا حصتكم بالبطاقة"}
+                      {isLeader ? tr("ادفعوا الآن بالبطاقة") : tr("ادفعوا حصتكم بالبطاقة")}
                     </button>
                     {isLeader && (
-                      <span className="text-xs font-semibold text-brand-950/45">
-                        أو الطريقة اليدوية بالأسفل
-                      </span>
+                      <span className="text-xs font-semibold text-brand-950/45">{tr("أو الطريقة اليدوية بالأسفل")}</span>
                     )}
                   </div>
                   {isLeader && isSupabaseConfigured && (

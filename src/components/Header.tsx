@@ -8,6 +8,8 @@ import PresenceStack from "./PresenceStack";
 import NotificationsBell from "./NotificationsBell";
 import SubscriptionBadge from "./SubscriptionBadge";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
+import LangToggle from "./ui/LangToggle";
+import { tr } from "../lib/i18n";
 
 export default function Header({
   title,
@@ -30,7 +32,7 @@ export default function Header({
       <div className="flex min-w-0 items-center gap-2">
         <button
           onClick={onMenuClick}
-          aria-label="فتح القائمة"
+          aria-label={tr("فتح القائمة")}
           className="shrink-0 rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted md:hidden"
         >
           <Menu size={18} />
@@ -44,9 +46,7 @@ export default function Header({
           className="hidden w-full max-w-sm items-center gap-2 rounded-full border border-brand-100/60 bg-paper/40 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] pe-2.5 ps-3 text-sm md:flex"
         >
           <Search size={16} className="shrink-0 text-brand-950/30" />
-          <span className="flex-1 truncate text-start text-brand-950/30">
-            ابحث أو انتقل بسرعة...
-          </span>
+          <span className="flex-1 truncate text-start text-brand-950/30">{tr("ابحث أو انتقل بسرعة...")}</span>
           <kbd className="shrink-0 rounded-full border border-brand-200/60 bg-paper/60 px-2 py-0.5 text-[10px] font-bold text-brand-950/40">
             Ctrl K
           </kbd>
@@ -62,11 +62,13 @@ export default function Header({
             setSoundEnabled(next);
             setSoundOn(next);
           }}
-          title={soundOn ? "إيقاف أصوات التفاعل" : "تشغيل أصوات التفاعل"}
+          title={soundOn ? tr("إيقاف أصوات التفاعل") : tr("تشغيل أصوات التفاعل")}
           className="rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted"
         >
           {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>
+
+        <LangToggle />
 
         <ThemeSwitcher />
 

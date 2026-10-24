@@ -7,14 +7,15 @@ import { useTasksData } from "../hooks/useTasksData";
 import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { daysUntil } from "../lib/date";
 import Avatar from "./ui/Avatar";
+import { tr } from "../lib/i18n";
 
 const URGENT_WINDOW_DAYS = 2;
 
 function dueLabel(days: number): string {
-  if (days < 0) return "متأخرة";
-  if (days === 0) return "مستحقة اليوم";
-  if (days === 1) return "مستحقة غدًا";
-  return `مستحقة بعد ${days} أيام`;
+  if (days < 0) return tr("متأخرة");
+  if (days === 0) return tr("مستحقة اليوم");
+  if (days === 1) return tr("مستحقة غدًا");
+  return tr("مستحقة بعد {0} أيام", days);
 }
 
 export default function NotificationsBell() {
@@ -40,7 +41,7 @@ export default function NotificationsBell() {
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        title="التنبيهات"
+        title={tr("التنبيهات")}
         className="relative rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted"
       >
         <Bell size={18} />
@@ -61,7 +62,7 @@ export default function NotificationsBell() {
           <div className="absolute end-0 top-12 z-20 w-80 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
             {attention > 0 && (
               <>
-                <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">يحتاج انتباهك</p>
+                <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">{tr("يحتاج انتباهك")}</p>
                 <div className="mb-2 space-y-1">
                   {latestSupervisorMsg && (
                     <Link
@@ -74,7 +75,7 @@ export default function NotificationsBell() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-brand-950">
-                          {unreadSupervisor > 1 ? `${unreadSupervisor} رسائل جديدة من المشرفة` : "رسالة جديدة من المشرفة"}
+                          {unreadSupervisor > 1 ? tr("{0} رسائل جديدة من المشرفة", unreadSupervisor) : tr("رسالة جديدة من المشرفة")}
                         </p>
                         <p className="mt-0.5 line-clamp-2 text-xs text-brand-950/55">{latestSupervisorMsg.body}</p>
                       </div>
@@ -110,7 +111,7 @@ export default function NotificationsBell() {
               </>
             )}
 
-            <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">آخر تنبيهات الفريق</p>
+            <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">{tr("آخر تنبيهات الفريق")}</p>
             <div className="max-h-80 space-y-1 overflow-y-auto">
               {activityItems.map((activity) => {
                 const member = memberById(activity.memberId);
@@ -133,7 +134,7 @@ export default function NotificationsBell() {
                 );
               })}
               {activityItems.length === 0 && (
-                <p className="px-2 py-4 text-center text-sm text-brand-950/40">لا توجد تنبيهات جديدة</p>
+                <p className="px-2 py-4 text-center text-sm text-brand-950/40">{tr("لا توجد تنبيهات جديدة")}</p>
               )}
             </div>
           </div>

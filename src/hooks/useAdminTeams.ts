@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import type { Team } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import { tr } from "../lib/i18n";
 
 const mockTeams: Team[] = [
   {
     id: "team-delirium",
-    name: "فريق دليريوم — سارة العتيبي",
+    name: tr("فريق دليريوم — سارة العتيبي"),
     subscriptionEndDate: "2030-01-01",
     memberCount: 5,
     monthlyPrice: 40,
@@ -15,7 +16,7 @@ const mockTeams: Team[] = [
   },
   {
     id: "team-trials",
-    name: "فريق تجارب — نورة القحطاني",
+    name: tr("فريق تجارب — نورة القحطاني"),
     subscriptionEndDate: fromToday(2),
     memberCount: 4,
     monthlyPrice: 40,
@@ -25,7 +26,7 @@ const mockTeams: Team[] = [
   },
   {
     id: "team-safety",
-    name: "فريق سلامة المريض — بندر العتيبي",
+    name: tr("فريق سلامة المريض — بندر العتيبي"),
     subscriptionEndDate: fromToday(-10),
     memberCount: 6,
     monthlyPrice: 40,
@@ -35,7 +36,7 @@ const mockTeams: Team[] = [
   },
   {
     id: "team-community",
-    name: "فريق التمريض المجتمعي — ريم الدوسري",
+    name: tr("فريق التمريض المجتمعي — ريم الدوسري"),
     subscriptionEndDate: null,
     memberCount: 3,
     monthlyPrice: 40,

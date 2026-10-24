@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Copy, ImageDown, MessageCircle, Share2 } from "lucide-react";
 import { projectMeta, recentActivity, teamMembers } from "../data/mockData";
 import { formatDateLong } from "../lib/date";
+import { tr } from "../lib/i18n";
 
 interface ShareUpdateProps {
   mode: "supabase" | "mock";
@@ -20,31 +21,15 @@ function buildMockMessage(): string {
     .map((a) => `• ${memberName(a.memberId)} ${a.action} ${a.target}`)
     .join("\n");
 
-  return `📋 تحديث تقدم بحث: ${projectMeta.name}
-
-نسبة التقدم: ${projectMeta.overallProgress}%
-المرحلة الحالية: ${projectMeta.currentStageAr}
-المهمة الحالية: ${projectMeta.currentTask}
-الموعد القادم: ${projectMeta.nextDeadlineLabel} — ${formatDateLong(projectMeta.nextDeadlineDate)}
-
-آخر التحديثات:
-${activityLines}
-
-تم إنشاؤه عبر Wesync`;
+  return tr("📋 تحديث تقدم بحث: {0}\n\nنسبة التقدم: {1}%\nالمرحلة الحالية: {2}\nالمهمة الحالية: {3}\nالموعد القادم: {4} — {5}\n\nآخر التحديثات:\n{6}\n\nتم إنشاؤه عبر Wesync", projectMeta.name, projectMeta.overallProgress, projectMeta.currentStageAr, projectMeta.currentTask, projectMeta.nextDeadlineLabel, formatDateLong(projectMeta.nextDeadlineDate), activityLines);
 }
 
 function buildRealMessage(props: Omit<ShareUpdateProps, "mode">): string {
   const { projectTitle, overallProgress, currentStageAr, currentTaskTitle, nextLabel, nextDate } = props;
   const nextLine =
-    nextLabel && nextDate ? `الموعد القادم: ${nextLabel} — ${formatDateLong(nextDate)}\n\n` : "";
+    nextLabel && nextDate ? tr("الموعد القادم: {0} — {1}\n\n", nextLabel, formatDateLong(nextDate)) : "";
 
-  return `📋 تحديث تقدم بحث: ${projectTitle}
-
-نسبة التقدم: ${overallProgress}%
-المرحلة الحالية: ${currentStageAr ?? "لم تبدأ مرحلة بعد"}
-المهمة الحالية: ${currentTaskTitle ?? "ما فيه مهمة نشطة الحين"}
-
-${nextLine}تم إنشاؤه عبر Wesync`;
+  return tr("📋 تحديث تقدم بحث: {0}\n\nنسبة التقدم: {1}%\nالمرحلة الحالية: {2}\nالمهمة الحالية: {3}\n\n{4}تم إنشاؤه عبر Wesync", projectTitle, overallProgress, currentStageAr ?? tr("لم تبدأ مرحلة بعد"), currentTaskTitle ?? tr("ما فيه مهمة نشطة الحين"), nextLine);
 }
 
 /** بطاقة تقدّم قابلة للنشر (1080×1350) بهوية Wesync — بدون عنوان البحث ولا أسماء، فقط النسبة والمرحلة. */
@@ -76,15 +61,15 @@ async function makeProgressCard(percent: number, stageAr: string | null): Promis
   ctx.fillText(`${percent}%`, W / 2, 700);
   ctx.fillStyle = "#ffffff";
   ctx.font = "700 58px Tajawal, sans-serif";
-  ctx.fillText("من رحلة بحثنا انتهت", W / 2, 810);
+  ctx.fillText(tr("من رحلة بحثنا انتهت"), W / 2, 810);
   if (stageAr) {
     ctx.fillStyle = "rgba(255,255,255,0.7)";
     ctx.font = "500 44px Tajawal, sans-serif";
-    ctx.fillText(`مرحلتنا الحالية: ${stageAr}`, W / 2, 900);
+    ctx.fillText(tr("مرحلتنا الحالية: {0}", stageAr), W / 2, 900);
   }
   ctx.fillStyle = "rgba(255,255,255,0.55)";
   ctx.font = "500 34px Tajawal, sans-serif";
-  ctx.fillText("بحثكم يخلص بوقته.. مو بآخر ليلة", W / 2, H - 110);
+  ctx.fillText(tr("بحثكم يخلص بوقته.. مو بآخر ليلة"), W / 2, H - 110);
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
 }
 
@@ -132,11 +117,9 @@ export default function ShareUpdate(props: ShareUpdateProps) {
         className="flex w-full items-center justify-between gap-3"
       >
         <span className="flex items-center gap-2 font-display text-base font-bold text-brand-950">
-          <Share2 size={18} className="text-brand-500" />
-          شارك التحديث
-        </span>
+          <Share2 size={18} className="text-brand-500" />{tr("شارك التحديث")}</span>
         <span className="text-sm text-brand-950/45">
-          {open ? "إخفاء" : "جهّز رسالة جاهزة لمشرفتكم"}
+          {open ? tr("إخفاء") : tr("جهّز رسالة جاهزة لمشرفتكم")}
         </span>
       </button>
 
@@ -155,7 +138,7 @@ export default function ShareUpdate(props: ShareUpdateProps) {
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
-              {copied ? "تم النسخ" : "نسخ النص"}
+              {copied ? tr("تم النسخ") : tr("نسخ النص")}
             </button>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(message)}`}
@@ -163,16 +146,12 @@ export default function ShareUpdate(props: ShareUpdateProps) {
               rel="noreferrer"
               className="flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-surface-muted"
             >
-              <MessageCircle size={16} />
-              مشاركة عبر واتساب
-            </a>
+              <MessageCircle size={16} />{tr("مشاركة عبر واتساب")}</a>
             <button
               onClick={shareCard}
               className="flex items-center gap-2 rounded-xl border border-brand-100 px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-surface-muted"
             >
-              <ImageDown size={16} />
-              بطاقة تقدّم (صورة)
-            </button>
+              <ImageDown size={16} />{tr("بطاقة تقدّم (صورة)")}</button>
           </div>
         </div>
       )}

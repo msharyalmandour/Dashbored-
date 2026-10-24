@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { projectMeta, teamMembers } from "../data/mockData";
 import { formatDateLong, toISODate } from "../lib/date";
 import { g, isFemaleUser } from "../lib/gender";
+import { tr, trx } from "../lib/i18n";
 
 const SUBMITTED_KEY = "nursync.submittedAt";
 const CAPSULE_KEY = "nursync.timecapsule";
@@ -75,23 +76,17 @@ export default function Celebration() {
             <GraduationCap size={30} />
           </div>
           <p className="flex items-center justify-center gap-2 font-display text-2xl font-extrabold text-brand-950">
-            <PartyPopper size={22} className="text-amber-accent-500" />
-            مبروك يا {firstName}!
-          </p>
-          <p className="mt-2 text-sm text-brand-950/60">
-            {g(isFemale, "سلّمتِ", "سلّمت")} بحثك النهائي — إنجاز يستاهل الاحتفال 🎉
-          </p>
+            <PartyPopper size={22} className="text-amber-accent-500" />{trx("مبروك يا {0}!", firstName)}</p>
+          <p className="mt-2 text-sm text-brand-950/60">{trx("{0} بحثك النهائي — إنجاز يستاهل الاحتفال 🎉", g(isFemale, tr("سلّمتِ"), tr("سلّمت")))}</p>
 
           <div className="mt-5 rounded-2xl border border-brand-100 bg-surface-muted p-4 text-start">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-950/40">
-              شهادة إنجاز بحث
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-950/40">{tr("شهادة إنجاز بحث")}</p>
             <p className="mt-1 font-display text-lg font-bold text-brand-950">{projectMeta.name}</p>
             <p className="text-xs text-brand-700" dir="ltr">
               {projectMeta.subtitle}
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-brand-950/50">
-              <span>الفريق البحثي: {teamMembers.map((m) => m.name.split(" ")[0]).join("، ")}</span>
+              <span>{trx("الفريق البحثي: {0}", teamMembers.map((m) => m.name.split(" ")[0]).join(tr("، ")))}</span>
               <span>{formatDateLong(toISODate(new Date(submittedAt)))}</span>
             </div>
           </div>
@@ -103,25 +98,21 @@ export default function Celebration() {
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
                 <Mail size={16} />
               </span>
-              <p className="font-display font-bold text-brand-950">
-                رجعتلك رسالتك من يوم بدأتِ 💌
-              </p>
+              <p className="font-display font-bold text-brand-950">{tr("رجعتلك رسالتك من يوم بدأتِ 💌")}</p>
             </div>
             {capsule.why && (
               <p className="text-sm text-brand-950/70">
-                <span className="font-semibold text-brand-950">وقتها قلتِ ليش بدأتِ:</span>{" "}
+                <span className="font-semibold text-brand-950">{tr("وقتها قلتِ ليش بدأتِ:")}</span>{" "}
                 {capsule.why}
               </p>
             )}
             {capsule.hope && (
               <p className="mt-2 text-sm text-brand-950/70">
-                <span className="font-semibold text-brand-950">وكنتِ تتمنين:</span> {capsule.hope}
+                <span className="font-semibold text-brand-950">{tr("وكنتِ تتمنين:")}</span> {capsule.hope}
               </p>
             )}
             <p className="mt-3 flex items-center gap-1.5 text-sm font-semibold text-brand-700">
-              <Wand2 size={14} />
-              {g(isFemale, "وصلتِ لها", "وصلت لها")} — بكل فخر.
-            </p>
+              <Wand2 size={14} />{trx("{0} — بكل فخر.", g(isFemale, tr("وصلتِ لها"), tr("وصلت لها")))}</p>
           </div>
         )}
 
@@ -129,9 +120,7 @@ export default function Celebration() {
           <Link
             to="/"
             className="inline-block rounded-xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600"
-          >
-            الرجوع للرئيسية
-          </Link>
+          >{tr("الرجوع للرئيسية")}</Link>
         </div>
       </div>
     </div>

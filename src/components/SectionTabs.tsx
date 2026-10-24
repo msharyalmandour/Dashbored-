@@ -1,15 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import clsx from "clsx";
-import { isPathIn, sectionForPath } from "../lib/navSections";
+import { isTabActive, sectionForPath } from "../lib/navSections";
 
 /** تبويبات القسم: الصفحات القريبة من بعض (مثلًا أبحث ← الوكيل / المكتبة / الأدبيات) تظهر فوق كل صفحة منها،
     بدل ما كل وحدة بند مستقل بالقائمة. */
 export default function SectionTabs() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const section = sectionForPath(pathname);
   if (!section || section.pages.length < 2) return null;
-  // أطول مسار مطابق هو التبويب النشط (عشان /surveys/ما يلخبط مع غيره)
-  const active = [...section.pages].filter((p) => isPathIn(pathname, p.to)).sort((a, b) => b.to.length - a.to.length)[0];
+  // أطول مسار مطابق هو التبويب النشط (عشان /surveys/ما يلخبط مع غيره)، والتبويب اللي يحمل ?tab=… يتقدّم على شقيقه بنفس المسار
+  const active = [...section.pages]
+    .filter((p) => isTabActive(pathname, search, p.to))
+    .sort((a, b) => b.to.length - a.to.length)[0];
   return (
     <nav aria-label={section.label} className="mb-5 flex max-w-full gap-1.5 overflow-x-auto pb-1 print:hidden">
       <span className="flex shrink-0 items-center gap-1.5 pe-2 text-xs font-bold text-amber-accent-400/80">

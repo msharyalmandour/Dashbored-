@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDaysISO, formatDateFull, formatHijri, formatMonthYear, isValidISODate, relativeDayLabel } from "./date";
+import { addDaysISO, formatDateFull, formatHijri, formatMonthYear, formatTimestampLong, isValidISODate, relativeDayLabel } from "./date";
 
 describe("date helpers", () => {
   it("validates real calendar dates only", () => {
@@ -30,5 +30,15 @@ describe("date helpers", () => {
     expect(relativeDayLabel("2026-10-19", now)).toBe("قبل يومين");
     expect(relativeDayLabel("2026-10-16", now)).toBe("قبل 5 أيام");
     expect(relativeDayLabel("2026-09-01", now)).toBe("قبل 50 يوم");
+  });
+});
+
+describe("formatTimestampLong", () => {
+  it("يتعامل مع وقت كامل من القاعدة بدون NaN", () => {
+    expect(formatTimestampLong("2026-10-23T13:10:00.000Z")).toMatch(/^\d{1,2} أكتوبر 2026$/);
+  });
+  it("قيمة غير صالحة ترجع نص فاضي", () => {
+    expect(formatTimestampLong("")).toBe("");
+    expect(formatTimestampLong("غير تاريخ")).toBe("");
   });
 });

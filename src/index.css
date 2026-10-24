@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-kufi: "Noto Kufi Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Tajawal", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
 
   /* Primary — dusty rose (الوضع الأساسي الافتراضي) */
@@ -727,4 +728,141 @@ button:not(:disabled):active {
 .gold-groove-soft {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 181, 71, 0.38) 20%, rgba(255, 181, 71, 0.38) 80%, transparent);
+}
+
+/* ===================================================================
+   حركة الشعارات (درايف / قوقل / آبل): طفو هادئ + هالة نابضة، وأسرع لما الربط شغّال.
+   كلها تتوقف عند تفعيل «تقليل الحركة» بالجهاز.
+   =================================================================== */
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(-3deg); }
+}
+@keyframes logo-ring {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  100% { transform: scale(1.65); opacity: 0; }
+}
+.logo-tile {
+  animation: logo-float 4.2s ease-in-out infinite;
+  transition: transform 0.25s ease;
+}
+.logo-tile-active { animation-duration: 1.6s; }
+.logo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 138, 36, 0.55);
+  animation: logo-ring 2.8s ease-out infinite;
+  pointer-events: none;
+}
+.logo-tile-active .logo-ring { animation-duration: 1.2s; }
+a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
+@media (prefers-reduced-motion: reduce) {
+  .logo-tile, .logo-ring { animation: none !important; }
+  .logo-ring { opacity: 0; }
+}
+
+/* ===================================================================
+   صفحة الهبوط (Obsidian × Ember): توهّج ضبابي، زجاج مصنفر، حبيبات فيلم، حركة هادئة.
+   =================================================================== */
+@keyframes ld-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes ld-breath { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.05); opacity: 1; } }
+.ld-float { animation: ld-float 8s ease-in-out infinite; }
+.ld-breath { animation: ld-breath 10s ease-in-out infinite; }
+.ld-btn { transition: transform 0.2s, box-shadow 0.2s; }
+.ld-btn:hover { transform: translateY(-2px); }
+.ld-glass { backdrop-filter: blur(24px) saturate(140%); -webkit-backdrop-filter: blur(24px) saturate(140%); }
+.ld-grain {
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.ld-faq summary { cursor: pointer; list-style: none; }
+.ld-faq summary::-webkit-details-marker { display: none; }
+.ld-faq[open] .ld-faq-chev { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .ld-float, .ld-breath { animation: none; } }
+
+/* حركات صفحة الهبوط: ظهور عند التمرير، دخول الهيرو، بارالاكس خفيف. كلها تتوقف عند «تقليل الحركة». */
+@keyframes ld-rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes ld-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+.ld-rise { opacity: 0; animation: ld-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; animation-delay: var(--d, 0ms); }
+.ld-hero-img { animation: ld-zoom 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.ld-fx { opacity: 0; transform: translateY(34px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: var(--d, 0ms); }
+.ld-fx.ld-in { opacity: 1; transform: none; }
+.ld-fx-left { transform: translateX(-60px) scale(0.94); }
+.ld-fx-right { transform: translateX(60px) scale(0.94); }
+.ld-par { transform: translate3d(0, calc(var(--sy, 0) * var(--k, -0.1) * 1px), 0); will-change: transform; }
+.ld-sheen { position: relative; overflow: hidden; }
+.ld-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: ld-sheen 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes ld-walk { 0%, 100% { transform: scale(1.04) translateX(0); } 50% { transform: scale(1.1) translateX(-2.5%); } }
+.ld-walk { animation: ld-zoom 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both, ld-walk 16s ease-in-out 2.4s infinite; }
+@keyframes ld-ember { 0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; } 15% { opacity: 0.9; } 100% { transform: translate3d(var(--dx), -90vh, 0) scale(1.2); opacity: 0; } }
+.ld-embers i { position: absolute; bottom: -10px; width: var(--w); aspect-ratio: 1; border-radius: 50%; background: #ffb547; box-shadow: 0 0 10px 2px rgba(255, 138, 36, 0.8); animation: ld-ember var(--t) linear var(--d) infinite; }
+@keyframes ld-sheen { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ld-rise, .ld-fx { opacity: 1; transform: none; animation: none; transition: none; }
+  .ld-hero-img, .ld-walk, .ld-sheen::after { animation: none; }
+  .ld-embers { display: none; }
+  .ld-par { transform: none; }
+}
+
+/* ========== مكونات مشتركة (المرحلة ١): الكرة، شريط التحميل، اللمعان، الشاشة الأولى ========== */
+.agent-orb { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.agent-orb__body {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%, #5A1A04 100%);
+  box-shadow: 0 0 0 calc(var(--orb, 96px) * 0.12) rgba(255, 140, 40, 0.07), 0 0 calc(var(--orb, 96px) * 0.8) rgba(255, 140, 40, 0.55);
+}
+.agent-orb__halo { position: absolute; inset: 0; border-radius: 50%; opacity: 0; pointer-events: none; }
+.agent-orb[data-state="idle"] .agent-orb__body { animation: ao-breathe 6s ease-in-out infinite; }
+.agent-orb[data-state="thinking"] .agent-orb__body { animation: ao-think 7s linear infinite; }
+.agent-orb[data-state="thinking"] .agent-orb__halo { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 140, 40, 0.5); animation: ao-halo 2.2s ease-out infinite; }
+.agent-orb[data-state="celebrate"] .agent-orb__body { animation: ao-pop 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1; }
+.agent-orb[data-state="celebrate"] .agent-orb__halo { opacity: 1; animation: ao-burst 0.9s ease-out 1 forwards; }
+@keyframes ao-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+@keyframes ao-think {
+  0% { transform: rotate(0) scale(1); border-radius: 50%; }
+  25% { transform: rotate(90deg) scale(1.03); border-radius: 56% 44% 52% 48% / 48% 54% 46% 52%; }
+  50% { transform: rotate(180deg) scale(1.05); border-radius: 46% 54% 44% 56% / 54% 46% 56% 44%; }
+  75% { transform: rotate(270deg) scale(1.03); border-radius: 54% 46% 56% 44% / 46% 56% 44% 54%; }
+  100% { transform: rotate(360deg) scale(1); border-radius: 50%; }
+}
+@keyframes ao-halo { 0% { box-shadow: 0 0 0 0 rgba(255, 140, 40, 0.5); } 100% { box-shadow: 0 0 0 calc(var(--orb, 96px) * 0.45) rgba(255, 140, 40, 0); } }
+@keyframes ao-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes ao-burst { 0% { box-shadow: 0 0 0 0 rgba(255, 200, 90, 0.7); opacity: 1; } 100% { box-shadow: 0 0 0 calc(var(--orb, 96px) * 0.7) rgba(255, 200, 90, 0); opacity: 0; } }
+
+/* الشاشة الأولى: حلقتين تتوسعان خلف الكرة */
+.app-splash__ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255, 138, 36, 0.45); animation: ao-ring 2.8s ease-out infinite; animation-delay: var(--d, 0s); opacity: 0; }
+@keyframes ao-ring { 0% { transform: scale(0.7); opacity: 0.8; } 100% { transform: scale(2.4); opacity: 0; } }
+.app-splash__line { animation: ao-fade 0.5s ease-out both; }
+@keyframes ao-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* شريط التحميل العلوي */
+.top-progress { position: fixed; inset-inline: 0; top: 0; z-index: 300; height: 3px; pointer-events: none; }
+.top-progress__bar { height: 100%; width: 0; background: linear-gradient(270deg, #FFB444, #FF6B00); box-shadow: 0 0 10px rgba(255, 107, 0, 0.7); border-start-end-radius: 3px; border-end-end-radius: 3px; }
+.top-progress[data-phase="run"] .top-progress__bar { animation: tp-run 8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
+.top-progress[data-phase="finish"] .top-progress__bar { width: 100%; transition: width 0.2s ease-out, opacity 0.3s 0.2s; opacity: 0; }
+@keyframes tp-run { 0% { width: 0; } 15% { width: 55%; } 100% { width: 90%; } }
+
+/* لمعان الهياكل بدل spinner */
+.skeleton { position: relative; overflow: hidden; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 180, 68, 0.14) 50%, transparent 80%);
+  animation: sk-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes sk-shimmer { to { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-orb__body, .agent-orb__halo, .app-splash__ring, .app-splash__line, .skeleton::after { animation: none !important; }
+  .agent-orb__halo, .app-splash__ring { display: none; }
+  .top-progress[data-phase="run"] .top-progress__bar { animation: none; width: 70%; }
 }

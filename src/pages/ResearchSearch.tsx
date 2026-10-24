@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   BadgeCheck,
   Check,
@@ -15,7 +16,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import Card from "../components/ui/Card";
+import { FilterPill, ResearchHeader, SourceBadge, SourceLogo, glassCard, gradientPill, sourceKey } from "../components/ui/researchUi";
 import AiLockedCard from "../components/AiLockedCard";
 import PaperQA from "../components/research/PaperQA";
 import ToolsFinder from "../components/research/ToolsFinder";
@@ -32,7 +33,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import type { LiteratureTheme, ResearchSearchResult } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
-import { formatDateLong } from "../lib/date";
+import { formatTimestampLong } from "../lib/date";
 
 const SEARCH_MONTHLY_LIMIT = 10;
 const GUIDE_KEY = "wesync.research.guide.dismissed";
@@ -82,32 +83,33 @@ function HowItWorks() {
     ["٣", "اقرأوا وأضيفوا المفيد", "كل دراسة ملخّصة بالعربي. أي وحدة تعجبكم اضغطوا «أضيفوها لمكتبتكم» وتدخل مراجعة الأدبيات وقائمة المراجع تلقائيًا."],
   ];
   return (
-    <Card tone="teal" className="relative">
+    <div className={`${glassCard} relative p-5`}>
       <button
         onClick={close}
         title="إخفاء الشرح"
-        className="absolute end-3 top-3 rounded-lg p-1.5 text-brand-950/40 hover:bg-paper/60"
+        aria-label="إخفاء الشرح"
+        className="absolute end-3 top-3 rounded-full p-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]"
       >
         <X size={15} />
       </button>
-      <p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-brand-950">
-        <Lightbulb size={16} className="text-brand-600" />
+      <p className="mb-3 flex items-center gap-2 text-sm font-extrabold">
+        <Lightbulb size={16} className="text-[#FFB444]" />
         أول مرة؟ كذا تستخدمونه بثلاث خطوات
       </p>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {steps.map(([n, title, desc]) => (
           <div key={n} className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-extrabold text-white">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#FF8A24] text-xs font-extrabold text-[#FFB444]">
               {n}
             </span>
             <div>
-              <p className="text-sm font-bold text-brand-950">{title}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-brand-950/60">{desc}</p>
+              <p className="text-sm font-bold">{title}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-[#B8ADA2]">{desc}</p>
             </div>
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -121,10 +123,10 @@ function SearchProgress() {
   const stage = sec < 6 ? 0 : sec < 13 ? 1 : 2;
   const steps = ["نبحث في PubMed وOpenAlex", "نختار أقرب الدراسات لموضوعكم", "نلخّصها لكم بالعربي"];
   return (
-    <div className="mt-4 rounded-2xl bg-surface-muted p-4" role="status" aria-live="polite">
-      <div className="h-1.5 overflow-hidden rounded-full bg-brand-100">
+    <div className="mt-4 rounded-2xl bg-white/[0.05] p-4 text-start" role="status" aria-live="polite">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
-          className="h-full rounded-full bg-brand-500 transition-all duration-1000"
+          className="h-full rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] transition-all duration-1000"
           style={{ width: `${Math.min(92, 12 + sec * 4.5)}%` }}
         />
       </div>
@@ -133,7 +135,7 @@ function SearchProgress() {
           <li
             key={s}
             className={`flex items-center gap-2 text-xs font-semibold ${
-              i < stage ? "text-brand-600" : i === stage ? "text-brand-950" : "text-brand-950/30"
+              i < stage ? "text-[#FFB444]" : i === stage ? "text-[#F4F0EC]" : "text-[#F4F0EC]/30"
             }`}
           >
             {i < stage ? <Check size={13} /> : i === stage ? <Loader2 size={13} className="animate-spin" /> : <span className="w-[13px]" />}
@@ -141,7 +143,7 @@ function SearchProgress() {
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[11px] text-brand-950/50">
+      <p className="mt-3 text-[11px] text-[#B8ADA2]">
         ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.
       </p>
     </div>
@@ -191,73 +193,62 @@ function ResultCard({
   };
 
   const peer = result.sourceType === "peer-reviewed";
+  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : "بحث ويب";
 
   return (
-    <Card className="space-y-3">
-      <div className="flex items-start gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-extrabold text-brand-950/50">
-          {index + 1}
-        </span>
-        <div className="min-w-0 flex-1">
-          <a
-            href={result.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm font-bold leading-snug text-brand-950 hover:text-brand-600"
+    <div className="space-y-3 rounded-2xl bg-white/[0.04] p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <SourceBadge>
+            <span className="flex items-center gap-1.5">
+              {sourceKey(result.source) && <SourceLogo name={sourceKey(result.source)!} size={16} />}
+              {sourceLabel}
+            </span>
+          </SourceBadge>
+          <span
+            title={peer ? "منشورة بمجلة علمية محكّمة" : "مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه"}
+            className={`text-[11px] font-semibold ${peer ? "text-[#7fd6a0]" : "text-[#FFB444]"}`}
           >
-            {result.title}
-            <ExternalLink size={12} className="ms-1.5 inline text-brand-950/40" />
-          </a>
-          {(result.authors || result.year || result.journal) && (
-            <p className="mt-1 text-xs text-brand-950/45">
-              {[result.authors, result.year, result.journal].filter(Boolean).join(" · ")}
-            </p>
-          )}
+            {peer ? "✓ دراسة محكّمة" : result.sourceType === "general" ? "مصدر عام — تأكدوا منه" : "مصدر غير مصنّف"}
+          </span>
+          {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.studyDesign}</span>}
+          {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.sampleSize}</span>}
         </div>
+        <span className="text-sm text-[#B8ADA2]">{result.year ?? ""}</span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
-        <span
-          title={peer ? "منشورة بمجلة علمية محكّمة" : "مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه"}
-          className={`rounded-full px-2.5 py-1 ${peer ? "bg-brand-100 text-brand-700" : "bg-amber-accent-100 text-amber-accent-700"}`}
-        >
-          {peer ? "✓ دراسة محكّمة" : result.sourceType === "general" ? "مصدر عام — تأكدوا منه" : "مصدر غير مصنّف"}
-        </span>
-        {result.studyDesign && (
-          <span className="rounded-full bg-sky-accent-50 px-2.5 py-1 text-sky-accent-600">{result.studyDesign}</span>
-        )}
-        {result.sampleSize && (
-          <span className="rounded-full bg-surface-muted px-2.5 py-1 text-brand-950/60">{result.sampleSize}</span>
-        )}
-      </div>
+      <a href={result.url} target="_blank" rel="noreferrer" dir="auto" className="block text-[17px] font-bold leading-snug hover:text-[#FFB444]">
+        <span className="me-2 text-sm font-semibold text-[#B8ADA2]">{index + 1}.</span>
+        {result.title}
+      </a>
+      {(result.authors || result.journal) && (
+        <p className="text-xs text-[#B8ADA2]/80" dir="auto">
+          {[result.authors, result.journal].filter(Boolean).join(" · ")}
+        </p>
+      )}
 
-      <p className="text-sm leading-relaxed text-brand-950/75">{result.summaryAr}</p>
-      <p className="rounded-xl bg-surface-muted px-3 py-2 text-xs leading-relaxed text-brand-950/65">
-        <b className="font-bold text-brand-950/80">ليش تهمّكم؟ </b>
+      <p className="text-[15px] leading-relaxed text-[#B8ADA2]">{result.summaryAr}</p>
+      <p className="rounded-2xl bg-white/[0.05] px-4 py-2.5 text-xs leading-relaxed text-[#B8ADA2]">
+        <b className="font-bold text-[#F4F0EC]">ليش تهمّكم؟ </b>
         {result.relevanceReason}
       </p>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-4 text-sm">
         <button
           onClick={handleAdd}
           disabled={adding || added}
-          className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-70"
+          className="flex items-center gap-1.5 font-bold text-[#FFB444] hover:text-[#FFC85A] disabled:opacity-70"
         >
-          {adding ? <Loader2 size={13} className="animate-spin" /> : added ? <Check size={13} /> : <Library size={13} />}
-          {added ? "انضافت لمكتبتكم" : "أضيفوها لمكتبتكم"}
+          {adding ? <Loader2 size={14} className="animate-spin" /> : added ? <Check size={14} /> : <Library size={14} />}
+          {added ? "انضافت للمكتبة" : "+ أضف للمكتبة"}
         </button>
-        <a
-          href={result.url}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-1.5 rounded-xl border border-brand-200 px-3.5 py-2 text-xs font-bold text-brand-950/70 hover:bg-surface-muted"
-        >
+        <a href={result.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
           <ExternalLink size={13} />
-          افتحوا الدراسة
+          الدراسة الأصلية
         </a>
         <button
           onClick={() => setMore((v) => !v)}
-          className="ms-auto flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-brand-950/50 hover:bg-surface-muted"
+          className="ms-auto flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]"
         >
           خيارات أكثر
           <ChevronDown size={13} className={`transition-transform ${more ? "rotate-180" : ""}`} />
@@ -265,26 +256,19 @@ function ResultCard({
       </div>
 
       {more && (
-        <div className="space-y-3 rounded-2xl border border-brand-100 p-3">
+        <div className="space-y-3 rounded-2xl border border-white/10 p-4">
           {result.abstract && (
             <div>
-              <PaperQA
-                title={result.title}
-                abstract={result.abstract}
-                keyFinding={result.keyFinding}
-                projectTitle={projectTitle}
-              />
+              <PaperQA title={result.title} abstract={result.abstract} keyFinding={result.keyFinding} projectTitle={projectTitle} />
             </div>
           )}
           <label className="block">
-            <span className="mb-1 block text-[11px] font-bold text-brand-950/45">
-              وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)
-            </span>
+            <span className="mb-1 block text-[11px] font-bold text-[#B8ADA2]">وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)</span>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as LiteratureTheme)}
               disabled={added}
-              className="rounded-lg border border-brand-100 bg-paper px-2.5 py-1.5 text-xs outline-none focus:border-brand-300 disabled:opacity-50"
+              className="rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] px-3 py-1.5 text-xs text-[#F4F0EC] outline-none focus:border-[#FF8A24] disabled:opacity-50"
             >
               {themeOptions.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -293,20 +277,17 @@ function ResultCard({
               ))}
             </select>
           </label>
-          <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-brand-950/45">
+          <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-[#B8ADA2]">
             <a
               href={`https://scholar.google.com/scholar?q=${encodeURIComponent(`"${result.title}"`)}`}
               target="_blank"
               rel="noreferrer"
               title="تشوفون كم مرة اقتُبست هالدراسة"
-              className="flex items-center gap-1.5 text-brand-600 hover:underline"
+              className="flex items-center gap-1.5 text-[#FFB444] hover:underline"
             >
               <GraduationCap size={13} />
               شوفوا عدد الاقتباسات بـ Google Scholar
             </a>
-            {result.source && (
-              <span>المصدر: {result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : "بحث ويب"}</span>
-            )}
             {result.doi && (
               <span dir="ltr" className="font-mono">
                 DOI {result.doi}
@@ -315,7 +296,7 @@ function ResultCard({
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -344,165 +325,181 @@ export default function ResearchSearch() {
 
   const busyOn: Record<ResearchTab, boolean> = { papers: st.searching, tools: st.toolsBusy, strategy: st.strategyBusy };
 
-  return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-extrabold text-brand-950">وكيل البحث العلمي</h1>
-        <p className="mt-1 text-sm leading-relaxed text-brand-950/55">
-          يدوّر لكم على الدراسات السابقة اللي تحتاجونها لمقترح بحثكم، ويلخّصها بالعربي — بدل ما تضيعون ساعات تدوّرون بأنفسكم.
-          المصادر حقيقية (PubMed وOpenAlex)، وكل دراسة لها رابطها الأصلي.
-        </p>
-      </div>
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const [params] = useSearchParams();
+  const view: "agent" | "studies" = params.get("tab") === "studies" ? "studies" : "agent";
 
+  // أول ما تطلع نتائج جديدة، ننزل لها — الطالب ما يضطر يدوّر عنها تحت
+  useEffect(() => {
+    if (view === "studies" && st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.activeResult]);
+
+  if (view === "agent") {
+    return (
+      <div className="space-y-5">
+        {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
+        {aiOk && <ProjectAgentChat />}
+        {aiOk && (
+          <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
+              <span>
+                جهّزوا لنا البداية
+                <span className="ms-2 text-xs font-normal text-[#B8ADA2]">دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم</span>
+              </span>
+              <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mt-4">
+              <AgentKickstart />
+            </div>
+          </details>
+        )}
+      </div>
+    );
+  }
+
+  const activeTab = tabs.find((t) => t.id === st.tab) ?? tabs[0];
+  const fieldPill =
+    "min-w-0 flex-1 bg-transparent text-base text-[#F4F0EC] outline-none placeholder:text-[#8F8378] md:text-[17px]";
+
+  return (
+    <div className="space-y-6">
       {!aiOk && <AiLockedCard feature="وكيل البحث العلمي" />}
 
-      {aiOk && <ProjectAgentChat />}
-
-      {aiOk && <AgentKickstart />}
+      {aiOk && (
+        <div className="flex flex-wrap gap-2">
+          {tabs.map((t) => (
+            <FilterPill key={t.id} active={st.tab === t.id} onClick={() => st.setTab(t.id)}>
+              {busyOn[t.id] ? `${t.label} …` : t.label}
+            </FilterPill>
+          ))}
+        </div>
+      )}
 
       {aiOk && <HowItWorks />}
 
-      {aiOk && (
-        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-          {tabs.map(({ id, label, when, icon: Icon }) => {
-            const active = st.tab === id;
-            return (
-              <button
-                key={id}
-                onClick={() => st.setTab(id)}
-                className={`flex items-start gap-3 rounded-2xl border p-3.5 text-start transition-colors ${
-                  active
-                    ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/40"
-                    : "border-brand-100 bg-paper hover:bg-surface-muted"
-                }`}
-              >
-                <span
-                  className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                    active ? "bg-brand-500 text-white" : "bg-surface-muted text-brand-950/50"
-                  }`}
-                >
-                  {busyOn[id] ? <Loader2 size={17} className="animate-spin" /> : <Icon size={17} />}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-extrabold text-brand-950">{label}</span>
-                  <span className="mt-0.5 block text-xs leading-snug text-brand-950/55">{when}</span>
-                </span>
+      {aiOk && st.tab === "papers" && (
+        <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-[#F4F0EC] sm:px-8 md:py-12">
+          <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[160px] -z-10 h-[360px] w-[560px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
+          <div className="mx-auto flex max-w-[720px] flex-col items-center gap-4">
+            <h1 className="font-kufi text-3xl font-extrabold leading-tight md:text-5xl">عن وش تدوّرون؟</h1>
+            <p className="text-base font-light text-[#B8ADA2] md:text-lg">نبحث في <bdi>PubMed</bdi> و<bdi>OpenAlex</bdi> مع بعض، ونلخّص لكم كل دراسة بالعربي.</p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                st.startSearch();
+              }}
+              className="mt-2 flex w-full items-center gap-3 rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] py-2 ps-2 pe-6 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-[22px]"
+            >
+              <input
+                value={st.topic}
+                onChange={(e) => st.setTopic(e.target.value)}
+                placeholder="مثال: الاحتراق الوظيفي لدى ممرضات العناية المركزة"
+                aria-label="موضوع البحث"
+                dir="auto"
+                className={fieldPill}
+              />
+              <button type="submit" disabled={st.searching || !st.topic.trim()} className={`${gradientPill} !px-7 !py-3 shrink-0`}>
+                {st.searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                {st.searching ? "جاري البحث..." : "ابحث"}
               </button>
-            );
-          })}
-        </div>
+            </form>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-[#B8ADA2]">
+              <span>المصادر:</span>
+              {([["pubmed", "PubMed"], ["openalex", "OpenAlex"]] as const).map(([k, label]) => (
+                <span key={k} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 py-1 ps-3.5 pe-1.5 text-[#F4F0EC]">
+                  <Check size={13} className="text-[#FFB444]" />
+                  {label}
+                  <SourceLogo name={k} />
+                </span>
+              ))}
+              <a
+                href={`https://scholar.google.com/scholar?q=${encodeURIComponent(st.topic.trim())}`}
+                target="_blank"
+                rel="noreferrer"
+                title="يفتح Google Scholar بنفس العنوان بنافذة جديدة — مو داخل بحث Wesync"
+                className="flex items-center gap-2 rounded-full border border-dashed border-white/25 py-1 ps-3.5 pe-1.5 text-[#E6DBD1] transition hover:border-[#FF8A24]/60"
+              >
+                <ExternalLink size={12} />
+                Google Scholar
+                <SourceLogo name="scholar" />
+              </a>
+            </div>
+            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">النتائج تجي من <bdi>PubMed</bdi> و<bdi>OpenAlex</bdi>، و<bdi>Google Scholar</bdi> يفتح ببحث خارجي بنفس عنوانكم.</p>
+
+            {!st.topic.trim() && !st.searching && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <span className="text-[11px] font-bold text-[#B8ADA2]/70">جرّبوا مثلًا:</span>
+                {exampleTopics.map((ex) => (
+                  <button
+                    key={ex}
+                    onClick={() => st.setTopic(ex)}
+                    className="rounded-full border border-white/[0.14] px-3.5 py-1 text-xs text-[#E6DBD1] transition hover:border-[#FF8A24]/60 hover:bg-[#FF6B00]/10"
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {st.searching && <div className="w-full"><SearchProgress /></div>}
+
+            {!st.searching && (
+              <p className="text-[11px] text-[#B8ADA2]/80">
+                استخدمتم {usedThisMonth} من {SEARCH_MONTHLY_LIMIT} عمليات بحث هالشهر (باقي {left}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.
+              </p>
+            )}
+
+            {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
+            {st.limitMessage && (
+              <p className="flex items-start gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-2.5 text-start text-sm font-medium text-[#FFB444]">
+                <Wand2 size={15} className="mt-0.5 shrink-0" />
+                {st.limitMessage}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {aiOk && st.tab !== "papers" && (
+        <ResearchHeader title={activeTab.label} subtitle={activeTab.when} />
       )}
 
       {aiOk && st.tab === "tools" && <ToolsFinder />}
       {aiOk && st.tab === "strategy" && <SearchStrategy />}
 
-      {aiOk && st.tab === "papers" && (
-        <Card tone="cream">
-          <h3 className="mb-1 flex items-center gap-2 text-base font-bold text-brand-950">
-            <Search size={18} className="text-brand-500" />
-            وش موضوع بحثكم؟
-          </h3>
-          <p className="mb-3 text-xs text-brand-950/50">
-            اكتبوا العنوان أو الفكرة بجملة وحدة. كل ما كان أوضح (الفئة + الموضوع) كانت النتائج أدق.
-          </p>
-          <div className="flex flex-col gap-3 md:flex-row">
-            <input
-              value={st.topic}
-              onChange={(e) => st.setTopic(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && st.startSearch()}
-              placeholder="مثال: الاحتراق الوظيفي لدى ممرضات العناية المركزة"
-              className="w-full rounded-lg border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
-            />
-            <button
-              onClick={st.startSearch}
-              disabled={st.searching || !st.topic.trim()}
-              className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-            >
-              {st.searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-              {st.searching ? "جاري البحث..." : "ابحث"}
-            </button>
-          </div>
-
-          {!st.topic.trim() && !st.searching && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-brand-950/40">جرّبوا مثلًا:</span>
-              {exampleTopics.map((ex) => (
-                <button
-                  key={ex}
-                  onClick={() => st.setTopic(ex)}
-                  className="rounded-full border border-brand-100 bg-paper px-3 py-1 text-xs text-brand-700 hover:bg-surface-muted"
-                >
-                  {ex}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {st.searching && <SearchProgress />}
-
-          {!st.searching && (
-            <p className="mt-3 text-[11px] text-brand-950/45">
-              استخدمتم {usedThisMonth} من {SEARCH_MONTHLY_LIMIT} عمليات بحث هالشهر (باقي {left}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.
-            </p>
-          )}
-
-          {st.topic.trim() && (
-            <a
-              href={`https://scholar.google.com/scholar?q=${encodeURIComponent(st.topic.trim())}`}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:underline"
-            >
-              <GraduationCap size={13} />
-              تبون تدوّرون بنفس العنوان في Google Scholar؟ (يفتح بنافذة جديدة)
-            </a>
-          )}
-          {st.searchError && (
-            <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-600">{st.searchError}</p>
-          )}
-          {st.limitMessage && (
-            <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">
-              <Wand2 size={15} className="mt-0.5 shrink-0" />
-              {st.limitMessage}
-            </p>
-          )}
-        </Card>
-      )}
-
       {st.tab === "papers" && st.activeResult && (
-        <div className="space-y-3">
+        <div ref={resultsRef} className={`${glassCard} scroll-mt-24 space-y-4 p-6`}>
           <div>
-            <p className="text-sm font-extrabold text-brand-950">
+            <h2 className="font-kufi text-2xl font-extrabold">النتائج</h2>
+            <p className="mt-1 text-sm text-[#B8ADA2]">
               {st.activeResult.results.length > 0
-                ? `لقينا ${st.activeResult.results.length} دراسة قريبة من «${st.activeResult.queryText}»`
+                ? `لقينا ${st.activeResult.results.length} دراسة قريبة من «${st.activeResult.queryText}» — مرتّبة من الأقرب لموضوعكم للأبعد.`
                 : "ما لقينا نتائج"}
             </p>
-            {st.activeResult.results.length > 0 && (
-              <p className="text-xs text-brand-950/50">مرتّبة من الأقرب لموضوعكم للأبعد. ابدأوا من الأولى.</p>
-            )}
           </div>
 
           {st.activeResult.noveltyNote && (
-            <Card tone="teal" className="flex items-start gap-3">
-              <Wand2 size={18} className="mt-0.5 shrink-0 text-brand-600" />
+            <div className="flex items-start gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#FF6B00]/[0.06] p-4">
+              <Wand2 size={18} className="mt-0.5 shrink-0 text-[#FFB444]" />
               <div>
-                <p className="text-sm font-bold text-brand-950">وش يميّز بحثكم عن اللي انكتب؟</p>
-                <p className="mt-1 text-sm leading-relaxed text-brand-950/70">{st.activeResult.noveltyNote}</p>
-                <p className="mt-1.5 text-[11px] text-brand-950/45">
+                <p className="text-sm font-bold">وش يميّز بحثكم عن اللي انكتب؟</p>
+                <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">{st.activeResult.noveltyNote}</p>
+                <p className="mt-1.5 text-[11px] text-[#B8ADA2]/70">
                   هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.
                 </p>
               </div>
-            </Card>
+            </div>
           )}
 
           {st.activeResult.results.length === 0 ? (
-            <Card>
-              <EmptyState
-                icon={Search}
-                title="ما لقينا نتائج كافية"
-                desc="جرّبوا تعدّلون صياغة العنوان أو تخصّصونه أكثر (مثلًا: أضيفوا الفئة أو المكان)."
-              />
-            </Card>
+            <EmptyState
+              icon={Search}
+              title="ما لقينا نتائج كافية"
+              desc="جرّبوا تعدّلون صياغة العنوان أو تخصّصونه أكثر (مثلًا: أضيفوا الفئة أو المكان)."
+            />
           ) : (
             st.activeResult.results.map((r, i) => (
               <ResultCard
@@ -520,25 +517,25 @@ export default function ResearchSearch() {
 
       <div className={aiOk && st.tab === "papers" ? "space-y-3" : "hidden"}>
         <div>
-          <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <BadgeCheck size={16} className="text-brand-500" />
+          <h3 className="flex items-center gap-2 font-kufi text-lg font-bold">
+            <BadgeCheck size={16} className="text-[#FFB444]" />
             عمليات البحث السابقة
           </h3>
-          <p className="text-xs text-brand-950/45">اضغطوا على أي بحث لعرض نتائجه مرة ثانية — مجانًا وبدون ما يحسب من حدكم.</p>
+          <p className="text-xs text-[#B8ADA2]">اضغطوا على أي بحث لعرض نتائجه مرة ثانية — مجانًا وبدون ما يحسب من حدكم.</p>
         </div>
         {st.searchesLoading ? (
-          <p className="text-sm text-brand-950/45">جاري التحميل...</p>
+          <p className="text-sm text-[#B8ADA2]">جاري التحميل...</p>
         ) : st.searches.length === 0 ? (
-          <Card>
+          <div className={`${glassCard} p-2`}>
             <EmptyState
               icon={Search}
               title={g(isFemale, "ما بحثتوا بعد", "ما بحثتوا بعد")}
               desc="أول بحث تسوّونه بيظهر هنا عشان ترجعون له بدون إعادة البحث."
             />
-          </Card>
+          </div>
         ) : (
           st.searches.map((s) => (
-            <Card key={s.id} interactive className="flex items-center justify-between gap-3">
+            <div key={s.id} className={`${glassCard} flex items-center justify-between gap-3 px-5 py-3.5 transition hover:border-[#FF8A24]/60`}>
               <button
                 onClick={() => {
                   st.showSearch(s);
@@ -546,9 +543,9 @@ export default function ResearchSearch() {
                 }}
                 className="min-w-0 flex-1 text-start"
               >
-                <p className="truncate text-sm font-bold text-brand-950">{s.queryText}</p>
-                <p className="text-xs text-brand-950/45">
-                  {formatDateLong(s.createdAt)} · {s.results.length} نتيجة
+                <p className="truncate text-sm font-bold" dir="auto">{s.queryText}</p>
+                <p className="text-xs text-[#B8ADA2]">
+                  {[formatTimestampLong(s.createdAt), `${s.results.length} نتيجة`].filter(Boolean).join(" · ")}
                 </p>
               </button>
               {(isLeader || s.createdById === currentUser?.id) && (
@@ -564,7 +561,7 @@ export default function ResearchSearch() {
                   ]}
                 />
               )}
-            </Card>
+            </div>
           ))
         )}
       </div>

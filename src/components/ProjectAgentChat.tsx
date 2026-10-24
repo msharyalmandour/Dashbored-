@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUp, Check, CheckCircle2, Loader2, Undo2 } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
-import { Panel, ghostBtn, primaryBtn } from "./ui/page";
+import { ghostBtn, primaryBtn } from "./ui/page";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useProposal } from "../hooks/useProposal";
@@ -26,15 +26,27 @@ interface ActionState {
   undone?: boolean;
 }
 
-const QUICK = ["وين وصلنا؟ وش أسوي اليوم؟", "احفظ سؤال البحث في المقترح: …", "وزّع مهام الأسبوع على الأعضاء", "حط اجتماع مع المشرف …", "وش اللي متأخر عندنا؟"];
+/** اقتراحات سريعة: الاسم المختصر بالزر، والنص الكامل هو اللي يوصل الوكيل */
+const SUGGESTIONS = [
+  { label: "وين وصلنا؟", ask: "وين وصلنا؟ وش أسوي اليوم؟" },
+  { label: "وش المتأخر؟", ask: "وش اللي متأخر عندنا؟" },
+];
+const LEADER_SUGGESTION = { label: "وزّع مهام الأسبوع", ask: "وزّع مهام الأسبوع على الأعضاء" };
+const MEMBER_SUGGESTION = { label: "جهّز اجتماع المشرف/ة", ask: "وش ناقص قبل اجتماعنا مع المشرف/ة؟" };
+
+const orbStyle = {
+  background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)",
+  boxShadow: "0 0 0 14px rgba(255,140,40,.07),0 0 100px rgba(255,140,40,.6)",
+};
 
 // المحادثة تبقى لو انقفلت اللوحة أو تنقّلتوا بين الصفحات (لين يتحدّث المتصفح)
 let cachedTurns: Turn[] = [];
 let cachedStates: Record<string, ActionState> = {};
 
 /** الوكيل: يعرف تقدّمكم ومهامكم ومقترحكم ويجاوب من بياناتكم. لما تأمرونه صراحة («احفظ السؤال بالمقترح»، «وزّع المهام»)
-    ينفّذ مباشرة بصلاحياتكم مع زر تراجع، وغير كذا يقترح ببطاقة تضغطونها أو تتجاهلونها. إنشاء المهام للقائد فقط. */
-export default function ProjectAgentChat({ compact = false }: { compact?: boolean }) {
+    ينفّذ مباشرة بصلاحياتكم مع زر تراجع، وغير كذا يقترح ببطاقة تضغطونها أو تتجاهلونها. إنشاء المهام للقائد فقط.
+    compact = داخل اللوحة الجانبية (بدون الكرة الكبيرة)، وsuggestions = اقتراحات القسم الحالي. */
+export default function ProjectAgentChat({ compact = false, suggestions }: { compact?: boolean; suggestions?: string[] }) {
   const { team, currentUser, isLeader, canWrite } = useAuth();
   const { showToast } = useToast();
   const { aim, gap, questions, updateAimStatement, updateGap, setResearchQuestions } = useProposal();
@@ -69,8 +81,9 @@ export default function ProjectAgentChat({ compact = false }: { compact?: boolea
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [turns.length, busy]);
 
-  if (!isSupabaseConfigured) return null;
-  if (!hasAiAccess(team)) return <AiLockedCard feature="الوكيل" />;
+  // بالنسخة التجريبية (mock) نعرض الواجهة معطّلة بدل ما نخفيها
+  const mock = !isSupabaseConfigured;
+  if (!mock && !hasAiAccess(team)) return <AiLockedCard feature="الوكيل" />;
 
   const allowed = (a: AgentAction) =>
     canWrite && (a.type === "add_task" ? isLeader : a.type === "update_task" ? a.allowed !== false : true);
@@ -132,7 +145,7 @@ export default function ProjectAgentChat({ compact = false }: { compact?: boolea
 
   const send = async (raw?: string) => {
     const q = (raw ?? text).trim();
-    if (!q || busy) return;
+    if (!q || busy || mock) return;
     setText("");
     const history = turns.map(({ role, text: t }) => ({ role, text: t }));
     const turnIndex = turns.length + 1;
@@ -207,188 +220,236 @@ export default function ProjectAgentChat({ compact = false }: { compact?: boolea
   const statusAr = { todo: "لم تبدأ", "in-progress": "قيد التنفيذ", done: "منجزة" } as const;
   const eventAr = { meeting: "اجتماع", review: "مراجعة", fieldwork: "عمل ميداني", deadline: "موعد نهائي" } as const;
 
-  const bubbleUser = compact ? "ms-auto bg-brand-500 text-white" : "bg-brand-500/20 text-brand-950";
-  const bubbleAgent = compact ? "bg-surface-muted text-brand-950/85" : "bg-black/30 text-brand-950/90";
-  const card = compact ? "rounded-xl border border-brand-100 bg-paper/60 p-3" : "rounded-xl border border-brand-500/30 p-3";
+  const started = turns.length > 0;
+  const chips: { label: string; ask: string }[] = suggestions
+    ? suggestions.map((s) => ({ label: s, ask: s }))
+    : [...SUGGESTIONS, isLeader ? LEADER_SUGGESTION : MEMBER_SUGGESTION];
 
-  const body = (
-    <>
-      {turns.length === 0 && (
-        <div className="mb-4">
-          <p className="text-sm leading-relaxed text-brand-950/65">
-            اسألوه عن وضعكم، أو أعطوه أمر: «احفظ سؤال البحث في المقترح»، «حط هدف الدراسة»، {isLeader ? "«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء»." : "ويقترح عليكم مهام يعتمدها القائد."} ينفّذ مباشرة ومعه زر تراجع.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {QUICK.filter((q) => isLeader || !q.startsWith("وزّع")).map((q) => (
-              <button
-                key={q}
-                onClick={() => (q.includes("…") ? setText(q.replace("…", "").trim() + " ") : send(q))}
-                className="rounded-full border border-brand-500/30 px-3.5 py-1.5 text-xs font-semibold text-brand-950/70 hover:border-brand-500/60 hover:text-brand-950"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {turns.length > 0 && (
-        <ul className={clsx("mb-4 space-y-3 overflow-y-auto pe-1", compact ? "flex-1" : "max-h-[28rem]")}>
-          {turns.map((t, i) => (
-            <li key={i} className={clsx("flex", compact ? "flex-col" : t.role === "user" ? "justify-start" : "justify-end")}>
-              <div className={clsx("max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-relaxed", t.role === "user" ? bubbleUser : bubbleAgent)}>
-                <p className="whitespace-pre-wrap">{t.text}</p>
-                {t.actions && t.actions.length > 0 && (
-                  <div className="mt-3 space-y-2.5">
-                    {t.actions.map((a, j) => {
-                      const key = `${i}-${j}`;
-                      if (a.type === "open")
-                        return (
-                          <Link key={key} to={a.to} className={ghostBtn}>
-                            {a.label}
-                          </Link>
-                        );
-                      const s = states[key];
-                      const chosen = a.type === "add_task" ? (assignees[key] ?? a.assigneeId) : undefined;
-                      return (
-                        <div key={key} className={card}>
-                          {a.type === "set_aim" && <p className="font-semibold">{a.text}</p>}
-                          {(a.type === "set_gap") && <p className="font-semibold">{a.text}</p>}
-                          {a.type === "set_questions" && (
-                            <>
-                              <p className="mb-1 text-xs text-brand-950/50">القائمة الجديدة لأسئلة البحث:</p>
-                              <ol className="list-decimal space-y-1 pe-5 font-semibold">
-                                {a.texts.map((x, k) => (
-                                  <li key={k}>{x}</li>
+  const messages = started && (
+    <ul className={clsx("w-full space-y-3 overflow-y-auto pe-1 text-start", compact ? "min-h-0 flex-1" : "max-h-[26rem]")}>
+      {turns.map((t, i) => (
+        <li key={i} className={clsx("flex", compact ? "flex-col" : t.role === "user" ? "justify-start" : "justify-end")}>
+          <div
+            className={clsx(
+              "max-w-[92%] rounded-3xl px-4 py-3 text-sm leading-relaxed",
+              t.role === "user"
+                ? compact
+                  ? "ms-auto bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]"
+                  : "bg-[#FF6B00]/20"
+                : "border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)]",
+            )}
+          >
+            <p className="whitespace-pre-wrap">{t.text}</p>
+            {t.actions && t.actions.length > 0 && (
+              <div className="mt-3 space-y-2.5">
+                {t.actions.map((a, j) => {
+                  const key = `${i}-${j}`;
+                  if (a.type === "open")
+                    return (
+                      <Link key={key} to={a.to} className={ghostBtn}>
+                        {a.label}
+                      </Link>
+                    );
+                  const s = states[key];
+                  const chosen = a.type === "add_task" ? (assignees[key] ?? a.assigneeId) : undefined;
+                  return (
+                    <div key={key} className="rounded-2xl border border-[rgba(255,107,0,.3)] p-3">
+                      {a.type === "set_aim" && <p className="font-semibold">{a.text}</p>}
+                      {a.type === "set_gap" && <p className="font-semibold">{a.text}</p>}
+                      {a.type === "set_questions" && (
+                        <>
+                          <p className="mb-1 text-xs text-[#B8ADA2]">القائمة الجديدة لأسئلة البحث:</p>
+                          <ol className="list-decimal space-y-1 pe-5 font-semibold">
+                            {a.texts.map((x, k) => (
+                              <li key={k}>{x}</li>
+                            ))}
+                          </ol>
+                        </>
+                      )}
+                      {a.type === "update_task" && (
+                        <p>
+                          <b>{a.title}</b>
+                          <span className="block text-xs text-[#B8ADA2]">الحالة ← {statusAr[a.status]}</span>
+                        </p>
+                      )}
+                      {a.type === "add_event" && (
+                        <p>
+                          <b>{a.title}</b>
+                          <span className="block text-xs text-[#B8ADA2]">
+                            {eventAr[a.eventType]} — {formatDateLong(a.date)}
+                            {a.eventType !== "deadline" && ` الساعة ${a.time}`}
+                            {a.location && ` — ${a.location}`}
+                          </span>
+                        </p>
+                      )}
+                      {a.type === "add_questions" && (
+                        <ul className="list-disc space-y-1 pe-5 font-semibold">
+                          {a.texts.map((x, k) => (
+                            <li key={k}>{x}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {a.type === "add_task" && (
+                        <div>
+                          <b>{a.title}</b>
+                          {a.description && <span className="block text-xs text-[#B8ADA2]">{a.description}</span>}
+                          <span className="block text-xs text-[#B8ADA2]/80">
+                            موعدها بعد {a.days} أيام
+                            {s?.status === "done" && ` — مسندة لـ ${memberName(chosen) ?? a.assigneeName ?? "؟"}`}
+                          </span>
+                          {!s && isLeader && roster.length > 0 && (
+                            <label className="mt-2 flex items-center gap-2 text-xs text-[#B8ADA2]">
+                              لمين؟
+                              <select
+                                value={chosen ?? ""}
+                                onChange={(e) => setAssignees((p) => ({ ...p, [key]: e.target.value }))}
+                                className="rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] px-3 py-1 text-xs text-[#F4F0EC] outline-none"
+                              >
+                                {roster.map((m) => (
+                                  <option key={m.id} value={m.id} className="text-black">
+                                    {m.id === currentUser?.id ? `${m.name} (أنت)` : m.name}
+                                  </option>
                                 ))}
-                              </ol>
-                            </>
+                              </select>
+                            </label>
                           )}
-                          {a.type === "update_task" && (
-                            <p>
-                              <b>{a.title}</b>
-                              <span className="block text-xs text-brand-950/55">الحالة ← {statusAr[a.status]}</span>
-                            </p>
-                          )}
-                          {a.type === "add_event" && (
-                            <p>
-                              <b>{a.title}</b>
-                              <span className="block text-xs text-brand-950/55">
-                                {eventAr[a.eventType]} — {formatDateLong(a.date)}
-                                {a.eventType !== "deadline" && ` الساعة ${a.time}`}
-                                {a.location && ` — ${a.location}`}
-                              </span>
-                            </p>
-                          )}
-                          {a.type === "add_questions" && (
-                            <ul className="list-disc space-y-1 pe-5 font-semibold">
-                              {a.texts.map((x, k) => (
-                                <li key={k}>{x}</li>
-                              ))}
-                            </ul>
-                          )}
-                          {a.type === "add_task" && (
-                            <div>
-                              <b>{a.title}</b>
-                              {a.description && <span className="block text-xs text-brand-950/60">{a.description}</span>}
-                              <span className="block text-xs text-brand-950/45">
-                                موعدها بعد {a.days} أيام
-                                {s?.status === "done" && ` — مسندة لـ ${memberName(chosen) ?? a.assigneeName ?? "؟"}`}
-                              </span>
-                              {!s && isLeader && roster.length > 0 && (
-                                <label className="mt-2 flex items-center gap-2 text-xs text-brand-950/60">
-                                  لمين؟
-                                  <select
-                                    value={chosen ?? ""}
-                                    onChange={(e) => setAssignees((p) => ({ ...p, [key]: e.target.value }))}
-                                    className="rounded-lg border border-brand-100 bg-paper px-2 py-1 text-xs text-brand-950"
-                                  >
-                                    {roster.map((m) => (
-                                      <option key={m.id} value={m.id}>
-                                        {m.id === currentUser?.id ? `${m.name} (أنت)` : m.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </label>
-                              )}
-                            </div>
-                          )}
-                          <div className="mt-2.5 flex flex-wrap items-center gap-3">
-                            {s?.status === "done" ? (
-                              <>
-                                <span className={clsx("inline-flex items-center gap-1.5 text-sm font-semibold", s.undone ? "text-brand-950/45" : "text-[#7fd6a0]")}>
-                                  <CheckCircle2 size={15} /> {s.undone ? "تراجعنا عنه" : "تم"}
-                                </span>
-                                {s.undo && !s.undone && (
-                                  <button onClick={() => undo(key)} disabled={applying !== null} className="inline-flex items-center gap-1 text-xs font-semibold text-brand-950/55 hover:text-brand-950">
-                                    {applying === key ? <Loader2 size={12} className="animate-spin" /> : <Undo2 size={12} />} تراجع
-                                  </button>
-                                )}
-                              </>
-                            ) : allowed(a) ? (
-                              <button onClick={() => apply(key, a)} disabled={applying !== null || busy} className={primaryBtn}>
-                                {applying === key ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                                {s?.status === "failed" ? "حاولوا مرة ثانية" : label(a)}
-                              </button>
-                            ) : (
-                              <span className="text-xs text-brand-950/50">{a.type === "add_task" ? "إنشاء المهام للقائد — اطلبوها منه." : a.type === "update_task" ? "هذي مهمة عضو ثاني — صاحبها أو القائد يحدّثها." : "ما عندكم صلاحية تعديل حاليًا."}</span>
-                            )}
-                          </div>
                         </div>
-                      );
-                    })}
-                    {t.actions.some((a) => a.type === "set_aim" || a.type === "add_questions" || a.type === "set_questions" || a.type === "set_gap") && (
-                      <p className="text-[11px] text-brand-950/40">ناقشوها مع المشرف/ة قبل التسليم، وتقدرون تعدّلونها من صفحة المقترح.</p>
-                    )}
-                  </div>
+                      )}
+                      <div className="mt-2.5 flex flex-wrap items-center gap-3">
+                        {s?.status === "done" ? (
+                          <>
+                            <span className={clsx("inline-flex items-center gap-1.5 text-sm font-semibold", s.undone ? "text-[#B8ADA2]" : "text-[#7fd6a0]")}>
+                              <CheckCircle2 size={15} /> {s.undone ? "تراجعنا عنه" : "تم"}
+                            </span>
+                            {s.undo && !s.undone && (
+                              <button onClick={() => undo(key)} disabled={applying !== null} className="inline-flex items-center gap-1 text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">
+                                {applying === key ? <Loader2 size={12} className="animate-spin" /> : <Undo2 size={12} />} تراجع
+                              </button>
+                            )}
+                          </>
+                        ) : allowed(a) ? (
+                          <button onClick={() => apply(key, a)} disabled={applying !== null || busy} className={primaryBtn}>
+                            {applying === key ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                            {s?.status === "failed" ? "حاولوا مرة ثانية" : label(a)}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-[#B8ADA2]">{a.type === "add_task" ? "إنشاء المهام للقائد — اطلبوها منه." : a.type === "update_task" ? "هذي مهمة عضو ثاني — صاحبها أو القائد يحدّثها." : "ما عندكم صلاحية تعديل حاليًا."}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {t.actions.some((a) => a.type === "set_aim" || a.type === "add_questions" || a.type === "set_questions" || a.type === "set_gap") && (
+                  <p className="text-[11px] text-[#B8ADA2]/80">ناقشوها مع المشرف/ة قبل التسليم، وتقدرون تعدّلونها من صفحة المقترح.</p>
                 )}
               </div>
-            </li>
-          ))}
-          {busy && (
-            <li className={clsx("flex", !compact && "justify-end")}>
-              <div className={clsx("inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm text-brand-950/60", bubbleAgent)}>
-                <Loader2 size={14} className="animate-spin" /> الوكيل يشتغل على مشروعكم…
-              </div>
-            </li>
-          )}
-          <div ref={endRef} />
-        </ul>
+            )}
+          </div>
+        </li>
+      ))}
+      {busy && (
+        <li className={clsx("flex", !compact && "justify-end")}>
+          <div className="inline-flex items-center gap-2 rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-4 py-3 text-sm text-[#B8ADA2]">
+            <Loader2 size={14} className="animate-spin" /> الوكيل يشتغل على مشروعكم…
+          </div>
+        </li>
       )}
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          send();
-        }}
-        className="flex items-end gap-2"
-      >
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              send();
-            }
-          }}
-          rows={2}
-          maxLength={800}
-          placeholder={isLeader ? "مثال: أعطِ نورة مهمة جمع الدراسات لين الخميس" : "مثال: احفظ سؤال البحث في المقترح: …"}
-          aria-label="رسالتكم للوكيل"
-          className="min-h-[3rem] flex-1 resize-none rounded-2xl border border-brand-100 bg-paper px-4 py-3 text-sm outline-none focus:border-brand-300"
-        />
-        <button type="submit" disabled={busy || !text.trim()} aria-label="إرسال" className={clsx(primaryBtn, "!h-12 !w-12 !p-0")}>
-          <ArrowUp size={18} />
-        </button>
-      </form>
-    </>
+      <div ref={endRef} />
+    </ul>
   );
 
-  if (compact) return <div className="flex min-h-0 flex-1 flex-col p-4">{body}</div>;
+  const form = (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        send();
+      }}
+      className={clsx(
+        "flex w-full items-center gap-3 rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] py-2 ps-5 pe-2",
+        compact ? "mt-2" : "mt-2 py-2.5 ps-6 pe-2.5 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-[22px]",
+      )}
+    >
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        maxLength={800}
+        disabled={mock}
+        placeholder={
+          mock
+            ? "الوكيل يشتغل بالنسخة الحقيقية"
+            : isLeader
+              ? "مثال: أعطِ نورة مهمة جمع الدراسات لين الخميس"
+              : "مثال: احفظ سؤال البحث في المقترح: …"
+        }
+        aria-label="رسالتكم للوكيل"
+        className="min-w-0 flex-1 bg-transparent text-base text-[#F4F0EC] outline-none placeholder:text-[#8F8378] disabled:opacity-60 md:text-[15px]"
+      />
+      <button
+        type="submit"
+        disabled={busy || mock || !text.trim()}
+        aria-label="إرسال"
+        className={clsx(
+          "flex shrink-0 items-center justify-center rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00] shadow-[0_0_30px_rgba(255,140,40,.5)] transition hover:brightness-110 disabled:opacity-50",
+          compact ? "h-10 w-10" : "h-12 w-12 md:h-14 md:w-14",
+        )}
+      >
+        {busy ? <Loader2 size={20} className="animate-spin" /> : <ArrowUp size={compact ? 18 : 22} strokeWidth={2.6} />}
+      </button>
+    </form>
+  );
+
+  const chipRow = !started && (
+    <div className={clsx("flex flex-wrap gap-2.5", compact ? "justify-start" : "justify-center")}>
+      {chips.map((q) => (
+        <button
+          key={q.label}
+          type="button"
+          disabled={mock}
+          onClick={() => send(q.ask)}
+          className="rounded-full border border-white/[0.14] px-[18px] py-2 text-start text-[15px] text-[#E6DBD1] transition hover:border-[#FF8A24]/60 hover:bg-[#FF6B00]/10 disabled:opacity-50"
+        >
+          {q.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // داخل اللوحة الجانبية: بدون الكرة الكبيرة
+  if (compact)
+    return (
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-5 text-[#F4F0EC]">
+        {!started && (
+          <p className="text-sm leading-relaxed text-[#B8ADA2]">
+            اسألوه عن وضعكم، أو أعطوه أمر: «احفظ سؤال البحث في المقترح»، «حط هدف الدراسة»،{" "}
+            {isLeader ? "«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء»." : "ويقترح عليكم مهام يعتمدها القائد."} ينفّذ مباشرة ومعه زر تراجع.
+          </p>
+        )}
+        {chipRow}
+        {messages}
+        <div className="mt-auto">{form}</div>
+      </div>
+    );
+
   return (
-    <Panel title="اسألوا الوكيل عن مشروعكم" hint="يعرف مهامكم ومقترحكم وتقدمكم — وينفّذ أوامركم">
-      {body}
-    </Panel>
+    <section
+      aria-label="الوكيل"
+      className="relative isolate overflow-hidden rounded-[40px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_50%,#0A0605_100%)] px-5 py-12 text-[#F4F0EC] sm:px-8 md:min-h-[720px] md:py-16"
+    >
+      <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[200px] -z-10 h-[560px] w-[700px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-45 blur-[110px]" />
+      <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[80px] -z-10 h-[300px] w-[380px] -translate-x-1/2 rounded-full bg-[#FFB444] opacity-45 blur-[100px]" />
+
+      <div className="mx-auto flex max-w-[720px] flex-col items-center gap-5 text-center">
+        <div
+          aria-hidden
+          className={clsx("ld-breath rounded-full transition-all duration-500", started ? "h-14 w-14" : "h-24 w-24 md:h-[120px] md:w-[120px]")}
+          style={started ? { ...orbStyle, boxShadow: "0 0 0 8px rgba(255,140,40,.07),0 0 50px rgba(255,140,40,.5)" } : orbStyle}
+        />
+        <h1 className={clsx("font-kufi font-extrabold leading-tight", started ? "text-2xl" : "mt-3 text-4xl md:text-5xl")}>وش نسوي اليوم؟</h1>
+        {!started && <p className="text-base font-light text-[#B8ADA2] md:text-lg">الوكيل يعرف بحثكم ومهامكم. اطلبوا، وهو يجهّز.</p>}
+        {messages}
+        {form}
+        {chipRow}
+      </div>
+    </section>
   );
 }

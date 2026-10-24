@@ -44,7 +44,7 @@ interface PaletteItem {
 
 const baseItems: PaletteItem[] = [
   { to: "/tasks?new=1", label: "مهمة جديدة", icon: Plus, action: true, keywords: "اضافة اضف مهمة task new" },
-  { to: "/research-search", label: "ابحث عن دراسات لبحثكم", icon: Search, action: true, keywords: "بحث دراسات ابحاث pubmed scholar" },
+  { to: "/research-search?tab=studies", label: "ابحث عن دراسات لبحثكم", icon: Search, action: true, keywords: "بحث دراسات ابحاث pubmed scholar" },
   { to: "/stats", label: "احسب حجم العينة", icon: Calculator, action: true, keywords: "عينة sample size كوكران" },
   { to: "/feedback", label: "أضف ملاحظات المشرفة", icon: MessageSquareText, action: true, keywords: "ملاحظات دكتورة مشرفة feedback" },
   { to: "/", label: "الرئيسية", icon: LayoutDashboard },

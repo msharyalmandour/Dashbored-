@@ -14,7 +14,7 @@ import AiAssistant from "./AiAssistant";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import BottomNav from "./BottomNav";
-import Skeleton from "./ui/Skeleton";
+import AppSplash from "./ui/AppSplash";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
@@ -63,41 +63,16 @@ const pageHeaderRoutes = new Set([
   "/stats",
 ]);
 
+/** صفحات عنوانها داخل الصفحة نفسها — الشريط العلوي ما يكرره (بدون تفعيل ستايل الترويسة الموحّدة) */
+const titleInPageRoutes = new Set(["/research-search", "/evidence", "/literature-review"]);
+
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen bg-surface">
-        <div className="hidden w-64 shrink-0 border-l border-brand-100/60 p-4 md:block">
-          <Skeleton className="h-10 w-32" />
-          <div className="mt-8 space-y-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-9" />
-            ))}
-          </div>
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex items-center justify-between border-b border-brand-100/60 px-8 py-5">
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-9 w-9 rounded-full" />
-          </div>
-          <main className="flex-1 space-y-4 px-8 py-6">
-            <Skeleton className="h-32" />
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-24" />
-              ))}
-            </div>
-            <Skeleton className="h-48" />
-          </main>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AppSplash />;
 
   if (!currentUser) {
     if (location.pathname === "/") return <Landing />;
@@ -133,6 +108,7 @@ export default function Layout() {
           title={title}
           onMenuClick={() => setMobileNavOpen(true)}
           hideTitleOnDesktop={pageHeaderRoutes.has(location.pathname)}
+          hideTitle={titleInPageRoutes.has(location.pathname)}
         />
         <main className="flex-1 px-4 py-6 pb-24 sm:px-8 md:pb-6">
           <div className="space-y-6">

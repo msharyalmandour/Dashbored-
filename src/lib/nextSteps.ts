@@ -13,7 +13,7 @@ export interface NextStep {
 export const STAGE_ACTION: Record<string, { title: string; why: string; to: string; cta: string }> = {
   topic: { title: "ثبّتوا عنوان بحثكم", why: "كل شي بعده يبني عليه — اكتبوه بجملة واضحة (الفئة + المتغير).", to: "/proposal", cta: "افتحوا المقترح" },
   proposal: { title: "كمّلوا أقسام المقترح", why: "المقترح هو أساس البحث، والمشرفة تراجعه أول شي.", to: "/proposal", cta: "افتحوا المقترح" },
-  "literature-review": { title: "دوّروا دراسات وأضيفوها لمكتبتكم", why: "مراجعة الأدبيات تحدد فجوتكم البحثية.", to: "/research-search", cta: "ابدأوا البحث" },
+  "literature-review": { title: "دوّروا دراسات وأضيفوها لمكتبتكم", why: "مراجعة الأدبيات تحدد فجوتكم البحثية.", to: "/research-search?tab=studies", cta: "ابدأوا البحث" },
   "research-gap": { title: "اكتبوا الفجوة البحثية", why: "الفجوة تبرر ليش بحثكم مهم — اربطوها بالدراسات اللي جمعتوها.", to: "/proposal", cta: "اكتبوا الفجوة" },
   "research-questions": { title: "صيغوا أسئلة البحث", why: "استخدموا إطار PICO — سؤال لكل متغير رئيسي.", to: "/proposal", cta: "افتحوا الأسئلة" },
   methodology: { title: "حدّدوا منهجيتكم", why: "التصميم والعينة والأداة — وبعدها تحسبون حجم العينة.", to: "/methodology", cta: "افتحوا المنهجية" },

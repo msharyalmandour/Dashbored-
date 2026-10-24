@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Check, ExternalLink, FileText, FolderOpen, HardDrive, Link2, Loader2, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, ExternalLink, RefreshCw, FileText, FolderOpen, HardDrive, Link2, Loader2, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
 import Card from "./ui/Card";
+import { GoogleDriveLogo, LogoTile } from "./ui/BrandLogos";
 import ThreeDotsMenu from "./ui/ThreeDotsMenu";
 import { useToast } from "../context/ToastContext";
 import { disconnectDrive, driveErrorMessage, shareDriveFolder, startDriveConnect, type DriveStatus } from "../lib/driveTeam";
@@ -25,19 +26,71 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
   const [busy, setBusy] = useState<"connect" | "share" | null>(null);
   const [doctorEmail, setDoctorEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  const [waiting, setWaiting] = useState(false);
+  const popup = useRef<Window | null>(null);
+
+  // بعد ما نفتح نافذة قوقل: نتابع الحالة كل ٣ ثواني (لين ٥ دقايق) ونكمل لحالنا لما يتم الربط
+  useEffect(() => {
+    if (!waiting) return;
+    if (status.connected) {
+      setWaiting(false);
+      setBusy(null);
+      return;
+    }
+    const started = Date.now();
+    const t = setInterval(() => {
+      if (Date.now() - started > 5 * 60_000) {
+        setWaiting(false);
+        setBusy(null);
+        return;
+      }
+      onChanged();
+    }, 3000);
+    return () => clearInterval(t);
+  }, [waiting, status.connected, onChanged]);
+
+  // تعذّر فحص الحالة — ما نخفي البطاقة بصمت
+  if (status.unreachable) {
+    return (
+      <Card tone="cream" className="flex flex-wrap items-center justify-between gap-3 !p-4">
+        <p className="flex items-center gap-2 text-sm text-brand-950/70">
+          <HardDrive size={16} className="text-brand-500" />
+          تعذّر فحص ربط الدرايف الحين{status.errorCode && status.errorCode !== "failed" ? ` (${status.errorCode})` : ""}.
+        </p>
+        <button onClick={onChanged} className="flex items-center gap-1.5 rounded-xl border border-brand-100 px-3.5 py-2 text-sm font-bold text-brand-700 hover:bg-surface-muted">
+          <RefreshCw size={14} />
+          أعيدوا المحاولة
+        </button>
+      </Card>
+    );
+  }
 
   if (!status.configured) return null;
 
   const connect = async () => {
     setBusy("connect");
     setMsg(null);
+    // نفتح النافذة فورًا (قبل أي انتظار) عشان المتصفح ما يحجبها؛ لو انحجبت نرجع للتحويل بنفس الصفحة
+    popup.current = window.open("", "_blank");
     const r = await startDriveConnect();
     if (r.data?.url) {
+      if (popup.current && !popup.current.closed) {
+        popup.current.location.href = r.data.url;
+        setWaiting(true);
+        return;
+      }
       window.location.href = r.data.url;
       return;
     }
+    popup.current?.close();
     setMsg(driveErrorMessage(r.error));
     setBusy(null);
+  };
+
+  const cancelWaiting = () => {
+    setWaiting(false);
+    setBusy(null);
+    popup.current?.close();
   };
 
   const share = async () => {
@@ -79,9 +132,9 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         {/* الرأس */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-lg shadow-brand-500/25 ring-1 ring-white/20">
-              <HardDrive size={22} />
-            </span>
+            <LogoTile active={waiting} className="h-12 w-12 rounded-2xl bg-white/[0.06] ring-1 ring-white/15">
+              <GoogleDriveLogo size={28} />
+            </LogoTile>
             <div>
               <h3 className="font-display text-base font-extrabold text-brand-950">درايف الفريق</h3>
               <p className="mt-0.5 text-xs text-brand-950/55">محاضر الاجتماعات مرتبة بمكان واحد يشوفه الكل</p>
@@ -128,7 +181,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
                   className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-brand-500/25 transition-transform hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 motion-reduce:transition-none"
                 >
                   {busy === "connect" ? <Loader2 size={16} className="animate-spin" /> : <HardDrive size={16} />}
-                  اربطوا درايف Google
+                  {waiting ? "ننتظر موافقتكم بقوقل…" : "اربطوا درايف Google"}
                 </button>
               ) : (
                 <p className="rounded-xl bg-surface-muted px-3.5 py-2 text-xs font-bold text-brand-950/60">قائد الفريق هو اللي يربط الدرايف، وتظهر لكم هنا بعدها.</p>
@@ -191,6 +244,13 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
           </div>
         )}
 
+        {waiting && (
+          <p className="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-brand-500/10 px-3.5 py-2.5 text-sm text-brand-950/80">
+            <Loader2 size={14} className="animate-spin" />
+            أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.
+            <button onClick={cancelWaiting} className="font-bold text-brand-700 underline underline-offset-2">إلغاء</button>
+          </p>
+        )}
         {msg && <p role="alert" className="mt-4 rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm font-medium text-rose-600">{msg}</p>}
       </div>
     </Card>

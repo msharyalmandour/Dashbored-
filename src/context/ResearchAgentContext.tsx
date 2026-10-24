@@ -187,7 +187,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
       {/* مؤشر عائم: يبان بأي صفحة غير صفحة الوكيل طول ما فيه بحث شغّال أو نتيجة ما انشافت */}
       {!onResearchPage && pillTarget && (
         <Link
-          to="/research-search"
+          to="/research-search?tab=studies"
           onClick={() => setTab(pillTarget)}
           className="fixed bottom-20 end-4 z-40 flex max-w-[calc(100vw-7rem)] items-center gap-2.5 rounded-full border border-brand-200/60 bg-paper/85 py-2.5 pe-5 ps-3 text-sm font-bold text-brand-950 shadow-xl backdrop-blur-xl transition-transform hover:scale-[1.02] print:hidden md:bottom-6 md:end-6"
         >

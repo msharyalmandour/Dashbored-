@@ -4,9 +4,8 @@ import PaperQA from "../components/research/PaperQA";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { hasAiAccess } from "../lib/plans";
 import clsx from "clsx";
-import Card from "../components/ui/Card";
+import { FilterPill, ResearchHeader, SourceTag, glassCard, gradientPill, pillField, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
 import Avatar from "../components/ui/Avatar";
-import PeakBar from "../components/ui/PeakBar";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
@@ -114,84 +113,78 @@ export default function EvidenceLibrary() {
     setShowForm(false);
   };
 
+  const countFor = (id: "all" | EvidenceSection) => (id === "all" ? papers.length : papers.filter((p) => p.section === id).length);
+  const fieldBox = `${pillField} !rounded-2xl`;
+  const toolBtn =
+    "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-[#B8ADA2] transition hover:border-[#FF8A24]/50 hover:text-[#F4F0EC]";
+  const segBtn = (on: boolean) =>
+    clsx(
+      "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+      on ? "bg-[#FF6B00]/20 text-[#FFB444]" : "text-[#B8ADA2] hover:text-[#F4F0EC]",
+    );
+
   return (
-    <div className="space-y-5">
-      {papers.length > 0 && (
-        <Card tone="paper" className="card-terra flex items-center gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-brand-950/50">
-              <span>تقدم المراجعة</span>
-              <span className="font-display text-sm font-extrabold text-brand-600">
-                {reviewedCount} من {papers.length} دراسة
-              </span>
-            </div>
-            <PeakBar value={(reviewedCount / papers.length) * 100} />
-          </div>
-        </Card>
-      )}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          {sectionFilters.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className={clsx(
-                "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-                filter === f.id
-                  ? "bg-brand-500 text-white"
-                  : "bg-paper text-brand-950/60 hover:bg-surface-muted",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
-        >
-          {showForm ? <X size={16} /> : <Plus size={16} />}
-          {showForm ? "إلغاء" : g(isFemale, "أضيفي دراسة جديدة", "أضف دراسة جديدة")}
-        </button>
+    <div className="space-y-6">
+      <ResearchHeader
+        title="مكتبة الأدلة"
+        subtitle={
+          papers.length === 0
+            ? "دراساتكم المحفوظة تنجمع هنا، مرتبة حسب محاور بحثكم."
+            : `${papers.length} دراسات حفظتوها، مرتبة حسب محاور بحثكم. ${reviewedCount} منها تمت مراجعتها.`
+        }
+        action={
+          <button onClick={() => setShowForm((v) => !v)} className={gradientPill}>
+            {showForm ? <X size={16} /> : <Plus size={16} />}
+            {showForm ? "إلغاء" : g(isFemale, "أضف دراسة", "أضف دراسة")}
+          </button>
+        }
+      />
+
+      <div className="flex flex-wrap gap-2">
+        {sectionFilters.map((f) => (
+          <FilterPill key={f.id} active={filter === f.id} count={countFor(f.id)} onClick={() => setFilter(f.id)}>
+            {f.label}
+          </FilterPill>
+        ))}
       </div>
 
       {showForm && (
-        <Card tone="sky">
+        <div className={clsx(glassCard, "p-5")}>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               placeholder="عنوان الدراسة"
-              className="col-span-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={clsx(pillField, "col-span-full")}
             />
             <input
               value={form.authors}
               onChange={(e) => setForm((f) => ({ ...f, authors: e.target.value }))}
               placeholder="المؤلفون"
-              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={pillField}
             />
             <input
               type="number"
               value={form.year}
               onChange={(e) => setForm((f) => ({ ...f, year: Number(e.target.value) }))}
               placeholder="سنة النشر"
-              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={pillField}
             />
             <select
               value={form.theme}
               onChange={(e) => setForm((f) => ({ ...f, theme: e.target.value as LiteratureTheme }))}
-              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={pillField}
             >
               {themeOptions.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {themeLabelAr[t]}
                 </option>
               ))}
             </select>
             <select
               value={form.section}
               onChange={(e) => setForm((f) => ({ ...f, section: e.target.value as EvidenceSection }))}
-              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={pillField}
             >
               {sectionFilters
                 .filter((s) => s.id !== "all")
@@ -205,100 +198,71 @@ export default function EvidenceLibrary() {
               value={form.studyDesign}
               onChange={(e) => setForm((f) => ({ ...f, studyDesign: e.target.value }))}
               placeholder="تصميم الدراسة"
-              className="rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={clsx(pillField, "col-span-full")}
             />
             <textarea
               value={form.keyFinding}
               onChange={(e) => setForm((f) => ({ ...f, keyFinding: e.target.value }))}
               placeholder="أهم النتائج"
               rows={2}
-              className="col-span-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={clsx(fieldBox, "col-span-full")}
             />
             <textarea
               value={form.relevance}
               onChange={(e) => setForm((f) => ({ ...f, relevance: e.target.value }))}
               placeholder="الصلة بالبحث"
               rows={2}
-              className="col-span-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+              className={clsx(fieldBox, "col-span-full")}
             />
           </div>
-          <button
-            onClick={submitPaper}
-            disabled={!form.title.trim()}
-            className="mt-3 rounded-xl bg-sky-accent-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-accent-600 disabled:opacity-50"
-          >
+          <button onClick={submitPaper} disabled={!form.title.trim()} className={clsx(gradientPill, "mt-4")}>
             حفظ الدراسة
           </button>
-        </Card>
+        </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-muted px-4 py-3">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-semibold text-brand-950/60">أسلوب الاقتباس:</span>
-          <div className="flex overflow-hidden rounded-lg border border-brand-100">
+      {papers.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] p-1">
             {(["apa", "vancouver"] as CitationStyle[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setCitationStyle(s)}
-                className={clsx(
-                  "px-3 py-1.5 text-xs font-bold transition-colors",
-                  citationStyle === s
-                    ? "bg-brand-500 text-white"
-                    : "bg-paper text-brand-950/55 hover:bg-surface-muted",
-                )}
-              >
+              <button key={s} onClick={() => setCitationStyle(s)} className={segBtn(citationStyle === s)}>
                 {s === "apa" ? "APA" : "Vancouver"}
               </button>
             ))}
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex overflow-hidden rounded-lg border border-brand-100">
+          <div className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] p-1">
             {(
               [
                 ["cards", "بطاقات", LayoutGrid],
                 ["table", "جدول مقارنة", Table2],
               ] as const
             ).map(([id, label, Icon]) => (
-              <button
-                key={id}
-                onClick={() => setView(id)}
-                className={clsx(
-                  "flex items-center gap-1 px-3 py-1.5 text-xs font-bold transition-colors",
-                  view === id ? "bg-brand-500 text-white" : "bg-paper text-brand-950/55 hover:bg-surface-muted",
-                )}
-              >
+              <button key={id} onClick={() => setView(id)} className={segBtn(view === id)}>
                 <Icon size={12} />
                 {label}
               </button>
             ))}
           </div>
           {view === "table" && (
-            <button
-              onClick={() => copyComparisonTable(filtered)}
-              className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 text-xs font-bold text-brand-700 hover:bg-paper"
-            >
+            <button onClick={() => copyComparisonTable(filtered)} className={toolBtn}>
               {copiedTable ? <Check size={13} /> : <Copy size={13} />}
               {copiedTable ? "تم نسخ الجدول" : "نسخ الجدول (Word / Excel)"}
             </button>
           )}
-          <button
-            onClick={() => copyReferenceList(filtered)}
-            className="flex items-center gap-1.5 rounded-lg border border-brand-100 px-3 py-1.5 text-xs font-bold text-brand-700 hover:bg-paper"
-          >
+          <button onClick={() => copyReferenceList(filtered)} className={toolBtn}>
             {copiedList ? <Check size={13} /> : <Copy size={13} />}
             {copiedList ? "تم نسخ القائمة" : "نسخ كل المراجع"}
           </button>
         </div>
-      </div>
+      )}
 
       {view === "table" && filtered.length > 0 && (
-        <Card className="overflow-x-auto p-0">
+        <div className={clsx(glassCard, "overflow-x-auto p-0")}>
           <table className="w-full min-w-[720px] border-collapse text-start text-xs">
             <thead>
-              <tr className="bg-surface-muted text-brand-950/55">
+              <tr className="text-[#B8ADA2]">
                 {["الدراسة", "التصميم والعينة", "أهم النتائج", "الصلة ببحثنا"].map((h) => (
-                  <th key={h} className="px-3 py-2.5 text-start font-extrabold">
+                  <th key={h} className="px-4 py-3 text-start font-bold">
                     {h}
                   </th>
                 ))}
@@ -306,52 +270,36 @@ export default function EvidenceLibrary() {
             </thead>
             <tbody>
               {filtered.map((paper) => (
-                <tr key={paper.id} className="border-t border-brand-100/60 align-top">
-                  <td className="w-[28%] px-3 py-2.5">
-                    <p className="font-bold leading-snug text-brand-950">{paper.title}</p>
-                    <p className="mt-0.5 text-[11px] text-brand-950/45">
+                <tr key={paper.id} className="border-t border-white/10 align-top">
+                  <td className="w-[28%] px-4 py-3">
+                    <p className="font-bold leading-snug">{paper.title}</p>
+                    <p className="mt-0.5 text-[11px] text-[#B8ADA2]">
                       {paper.authors} · {paper.year}
                     </p>
                   </td>
-                  <td className="w-[16%] px-3 py-2.5 text-brand-950/70">{paper.studyDesign || "—"}</td>
-                  <td className="w-[28%] px-3 py-2.5 text-brand-950/70">{paper.keyFinding || "—"}</td>
-                  <td className="px-3 py-2.5 text-brand-950/70">{paper.relevance || "—"}</td>
+                  <td className="w-[16%] px-4 py-3 text-[#B8ADA2]">{paper.studyDesign || "—"}</td>
+                  <td className="w-[28%] px-4 py-3 text-[#B8ADA2]">{paper.keyFinding || "—"}</td>
+                  <td className="px-4 py-3 text-[#B8ADA2]">{paper.relevance || "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </Card>
+        </div>
       )}
 
       <div className={view === "cards" || filtered.length === 0 ? "grid grid-cols-1 gap-4 md:grid-cols-2" : "hidden"}>
-        {filtered.map((paper, i) => {
+        {filtered.map((paper) => {
           const addedBy = memberById(paper.addedById);
+          const reviewed = paper.reviewStatus === "reviewed";
           return (
-            <Card
-              key={paper.id}
-              tone="paper"
-              interactive
-              className="card-terra flex gap-3"
-              style={{ animationDelay: `${(i % 6) * 1.2}s` }}
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                <BookMarked size={18} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  {paper.link ? (
-                    <a
-                      href={paper.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-start gap-1.5 font-semibold leading-snug text-brand-950 hover:text-brand-600"
-                    >
-                      {paper.title}
-                      <ExternalLink size={12} className="mt-1 shrink-0 text-brand-950/35" />
-                    </a>
-                  ) : (
-                    <p className="font-semibold leading-snug text-brand-950">{paper.title}</p>
-                  )}
+            <article key={paper.id} className={clsx(glassCard, "flex flex-col p-5")}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <SourceTag label={sourceFromLink(paper.link)} />
+                  {reviewed && <span className="text-[11px] font-semibold text-[#7fd6a0]">✓ تمت مراجعتها</span>}
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-[#B8ADA2]">{paper.year}</span>
                   {(isLeader || paper.addedById === currentUser?.id) && (
                     <ThreeDotsMenu
                       items={[
@@ -366,76 +314,90 @@ export default function EvidenceLibrary() {
                     />
                   )}
                 </div>
-                <p className="mt-1 text-sm text-brand-950/50">
-                  {paper.authors} · {paper.year} · {paper.studyDesign}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-sky-accent-50 px-2 py-0.5 text-[11px] font-bold text-sky-accent-600">
-                    {paper.theme}
-                  </span>
-                  <button
-                    onClick={() =>
-                      updateReviewStatus(paper.id, paper.reviewStatus === "reviewed" ? "collected" : "reviewed")
-                    }
-                    className={clsx(
-                      "rounded-full px-2 py-0.5 text-[11px] font-bold transition-colors",
-                      paper.reviewStatus === "reviewed"
-                        ? "bg-brand-50 text-brand-600 hover:bg-brand-100"
-                        : "bg-amber-accent-50 text-amber-accent-600 hover:bg-amber-accent-100",
-                    )}
-                  >
-                    {paper.reviewStatus === "reviewed" ? "تمت مراجعتها" : "تم جمعها"}
-                  </button>
-                </div>
-                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <div className="rounded-xl bg-surface-muted p-2.5">
-                    <p className="text-[11px] font-bold text-brand-950/45">أهم النتائج</p>
-                    <p className="mt-0.5 text-xs text-brand-950/70">{paper.keyFinding || "—"}</p>
-                  </div>
-                  <div className="rounded-xl bg-surface-muted p-2.5">
-                    <p className="text-[11px] font-bold text-brand-950/45">الصلة بالبحث</p>
-                    <p className="mt-0.5 text-xs text-brand-950/70">{paper.relevance || "—"}</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-xs text-brand-950/40">
-                    {addedBy && (
-                      <>
-                        <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
-                        أضافها {addedBy.name.split(" ")[0]}
-                      </>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => copyCitation(paper)}
-                    className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-600 hover:bg-surface-muted"
-                  >
-                    {copiedId === paper.id ? <Check size={13} /> : <Quote size={13} />}
-                    {copiedId === paper.id ? "تم النسخ" : "نسخ الاقتباس"}
-                  </button>
-                </div>
-                {canAsk && (
-                  <PaperQA
-                    title={paper.title}
-                    keyFinding={paper.keyFinding}
-                    relevance={paper.relevance}
-                    projectTitle={project?.title}
-                    allowPdf
-                  />
+              </div>
+
+              <h3 className="mt-3 text-[17px] font-bold leading-snug" dir="auto">
+                {paper.link ? (
+                  <a href={paper.link} target="_blank" rel="noreferrer" className="hover:text-[#FFB444]">
+                    {paper.title}
+                  </a>
+                ) : (
+                  paper.title
+                )}
+              </h3>
+              <p className="mt-2 flex-1 text-[15px] leading-relaxed text-[#B8ADA2]">{paper.keyFinding || paper.relevance || "—"}</p>
+
+              <div className="mt-4 flex items-center justify-between gap-2 border-t border-white/10 pt-3 text-sm">
+                <span className="flex items-center gap-1.5 text-[#FFB444]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFB444]" />
+                  {themeLabelAr[paper.theme] ?? paper.theme}
+                </span>
+                {paper.link && (
+                  <a href={paper.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[#B8ADA2] hover:text-[#F4F0EC]">
+                    <ExternalLink size={13} />
+                    الأصل
+                  </a>
                 )}
               </div>
-            </Card>
+
+              <details className="group mt-3">
+                <summary className="cursor-pointer list-none text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">
+                  تفاصيل وأدوات <span className="inline-block transition-transform group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="mt-3 space-y-3 text-sm">
+                  <p className="text-[#B8ADA2]">
+                    {paper.authors} · {paper.studyDesign}
+                  </p>
+                  {paper.relevance && (
+                    <div className="rounded-2xl bg-white/[0.05] p-3">
+                      <p className="text-[11px] font-bold text-[#B8ADA2]">الصلة بالبحث</p>
+                      <p className="mt-0.5 text-xs leading-relaxed">{paper.relevance}</p>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => updateReviewStatus(paper.id, reviewed ? "collected" : "reviewed")}
+                      className={clsx(
+                        "rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
+                        reviewed ? "border-[#7fd6a0]/60 text-[#7fd6a0]" : "border-[#FF8A24]/60 text-[#FFB444] hover:bg-[#FF6B00]/10",
+                      )}
+                    >
+                      {reviewed ? "تمت مراجعتها" : "تم جمعها — علّموها مراجَعة"}
+                    </button>
+                    <button onClick={() => copyCitation(paper)} className={toolBtn}>
+                      {copiedId === paper.id ? <Check size={13} /> : <Quote size={13} />}
+                      {copiedId === paper.id ? "تم النسخ" : "نسخ الاقتباس"}
+                    </button>
+                  </div>
+                  {addedBy && (
+                    <div className="flex items-center gap-1.5 text-xs text-[#B8ADA2]">
+                      <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />
+                      أضافها {addedBy.name.split(" ")[0]}
+                    </div>
+                  )}
+                  {canAsk && (
+                    <PaperQA
+                      title={paper.title}
+                      keyFinding={paper.keyFinding}
+                      relevance={paper.relevance}
+                      projectTitle={project?.title}
+                      allowPdf
+                    />
+                  )}
+                </div>
+              </details>
+            </article>
           );
         })}
         {filtered.length === 0 && (
-          <div className="col-span-full">
+          <div className={clsx(glassCard, "col-span-full p-2")}>
             <EmptyState
               icon={BookMarked}
               title={filter === "all" ? "المكتبة لسا فاضية" : "لا توجد دراسات بهذا القسم"}
               desc={
                 filter === "all"
-                  ? "أول دراسة تضيفينها هنا تبدأ مكتبة أدلة بحثكم — أضيفي أول دراسة."
-                  : "جربي فلتر ثاني، أو أضيفي دراسة جديدة تحت هذا القسم."
+                  ? "أول دراسة تضيفونها هنا تبدأ مكتبة أدلة بحثكم — أضيفوا أول دراسة، أو احفظوها من «البحث عن دراسات»."
+                  : "جرّبوا فلتر ثاني، أو أضيفوا دراسة جديدة تحت هذا القسم."
               }
             />
           </div>

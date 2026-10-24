@@ -39,7 +39,8 @@ export const journeySections: NavSection[] = [
     icon: Search,
     stages: ["topic", "literature-review"],
     pages: [
-      { to: "/research-search", label: "وكيل البحث" },
+      { to: "/research-search", label: "الوكيل" },
+      { to: "/research-search?tab=studies", label: "البحث عن دراسات" },
       { to: "/evidence", label: "مكتبة الأدلة" },
       { to: "/literature-review", label: "مراجعة الأدبيات" },
     ],
@@ -115,8 +116,17 @@ export const morePages: { to: string; label: string; icon: LucideIcon }[] = [
 
 export const allSections = [...journeySections, ...workSections];
 
+/** الرابط ممكن يحمل ?tab=… (تبويب داخل نفس الصفحة) — المقارنة بالمسار تتجاهله */
 export function isPathIn(pathname: string, to: string): boolean {
-  return to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(`${to}/`);
+  const path = to.split("?")[0];
+  return path === "/" ? pathname === "/" : pathname === path || pathname.startsWith(`${path}/`);
+}
+
+/** هل هذا التبويب هو الحالي؟ لو الرابط يحمل ?tab=… لازم يطابقه، وإلا يطابق المسار فقط */
+export function isTabActive(pathname: string, search: string, to: string): boolean {
+  const [, qs] = to.split("?");
+  if (!isPathIn(pathname, to)) return false;
+  return qs ? new URLSearchParams(search).get(qs.split("=")[0]) === qs.split("=")[1] : true;
 }
 
 export function sectionForPath(pathname: string): NavSection | undefined {

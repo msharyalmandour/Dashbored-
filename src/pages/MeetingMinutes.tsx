@@ -258,11 +258,11 @@ export default function MeetingMinutes() {
       </Dialog>
 
       <Dialog open={dlg === "drive"} onClose={() => setDlg(null)} title="درايف الفريق">
-        {driveStatus && driveStatus.configured ? (
+        {driveStatus && (driveStatus.configured || driveStatus.unreachable) ? (
           <DriveCard status={driveStatus} onChanged={refreshDrive} />
         ) : (
           <p className="text-sm leading-relaxed text-[#B8ADA2]">
-            {driveStatus?.unreachable ? "ما قدرنا نوصل لخدمة الدرايف الحين. جرّبوا بعد شوي." : "ربط الدرايف مو مفعّل على الخادم بعد."}
+            ربط الدرايف مو مفعّل على الخادم بعد.
           </p>
         )}
       </Dialog>

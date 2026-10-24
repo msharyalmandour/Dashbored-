@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { callStudy } from "./useStudyTools";
+import type { AskColumn, AskPlan } from "../lib/surveyAsk";
 
 /** نتيجة «وكيل المشروع»: كل شي مرتبط بدراسات حقيقية (sources = مواقع الدراسات بقائمة papers).
     كلها مقترحات — الواجهة تحفظها بعد موافقة الفريق. */
@@ -152,4 +153,15 @@ export async function reviewProposal(): Promise<{ data?: ProposalReview; message
   if (reply?.error) return { message: reply.error };
   if (reply?.review) return { data: reply.review };
   return { message: error ? "المراجعة غير متاحة الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
+}
+
+/** «اسألوا بياناتكم»: الذكاء يختار الاختبار بس، والأرقام تنحسب بالمتصفح من ردودكم */
+export async function planSurveyAnalysis(question: string, columns: AskColumn[]): Promise<{ plan?: AskPlan; message?: string }> {
+  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
+  const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "analyze", question, columns } });
+  const reply = data as { plan?: AskPlan; error?: string; limitReached?: boolean; message?: string } | null;
+  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.error) return { message: reply.error };
+  if (reply?.plan) return { plan: reply.plan };
+  return { message: error ? "التحليل غير متاح الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
 }

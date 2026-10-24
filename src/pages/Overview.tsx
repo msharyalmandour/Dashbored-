@@ -33,6 +33,7 @@ import MiniCalendar from "../components/MiniCalendar";
 import PhaseTracker from "../components/PhaseTracker";
 import StuckHelp from "../components/StuckHelp";
 import TodayCard from "../components/TodayCard";
+import DriveLinkedCard from "../components/DriveLinkedCard";
 import { isStageReady } from "../lib/stageAdvance";
 import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
 import { summarizeCollection } from "../lib/dataCollection";
@@ -585,6 +586,8 @@ export default function Overview() {
           </div>
         </div>
       </div>
+
+      <DriveLinkedCard />
 
       {/* بطاقة «اليوم» تحت الهيرو: خطوة وحدة بدل أربع بطاقات متكدّسة فوقه */}
       <TodayCard

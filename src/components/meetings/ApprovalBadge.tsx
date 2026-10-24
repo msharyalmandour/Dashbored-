@@ -3,10 +3,10 @@ import type { ApprovalStatus } from "../../data/types";
 import { APPROVAL_LABEL } from "../../lib/meetings";
 
 const tone: Record<(typeof APPROVAL_LABEL)[ApprovalStatus]["tone"], string> = {
-  muted: "border-brand-100 bg-surface-muted text-brand-950/50",
-  amber: "border-amber-accent-300/50 bg-amber-accent-100/40 text-amber-accent-700",
-  green: "border-emerald-400/30 bg-emerald-500/10 text-emerald-500",
-  rose: "border-rose-300/40 bg-rose-500/10 text-rose-500",
+  muted: "border-white/15 bg-white/[0.04] text-[#B8ADA2]",
+  amber: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]",
+  green: "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]",
+  rose: "border-rose-400/40 bg-rose-500/10 text-rose-300",
 };
 
 const icon: Record<ApprovalStatus, typeof Clock> = {

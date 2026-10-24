@@ -34,6 +34,7 @@ const titles: Record<string, string> = {
   "/viva": "تدريب المناقشة",
   "/glossary": "قاموس المصطلحات",
   "/meeting-minutes": "الاجتماعات والمشرف/ة",
+  "/meeting-minutes/new": "محضر جديد",
   "/proposal/export": "تصدير المقترح",
   "/tasks": "مهامي",
   "/evidence": "مكتبة الأدلة",
@@ -55,7 +56,6 @@ const pageHeaderRoutes = new Set([
   "/timeline",
   "/calendar",
   "/files",
-  "/meeting-minutes",
   "/study-kit",
   "/surveys",
   "/tools-library",
@@ -64,7 +64,7 @@ const pageHeaderRoutes = new Set([
 ]);
 
 /** صفحات عنوانها داخل الصفحة نفسها — الشريط العلوي ما يكرره (بدون تفعيل ستايل الترويسة الموحّدة) */
-const titleInPageRoutes = new Set(["/research-search", "/evidence", "/literature-review"]);
+const titleInPageRoutes = new Set(["/research-search", "/evidence", "/literature-review", "/meeting-minutes", "/meeting-minutes/new"]);
 
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();

@@ -27,13 +27,19 @@ if (typeof document !== "undefined") {
 }
 
 let dict: Record<string, string> = {};
+/** صفحات البحث (المقترح، المنهجية، الأدبيات، الإحصاء) إنجليزي دايمًا — قاموسها الصغير يتحمّل حتى بالعربي */
+let researchDict: Record<string, string> = {};
 
-/** يحمّل قاموس الإنجليزي قبل تشغيل التطبيق (للعربي ما يحمّل شي) */
+/** يحمّل قاموس الإنجليزي قبل تشغيل التطبيق: كامل بالإنجليزي، وقاموس صفحات البحث بس بالعربي */
 export async function loadDictionary(): Promise<void> {
-  if (!isEn) return;
+  if (!isEn) {
+    researchDict = (await import("../i18n/research-en.json")).default as Record<string, string>;
+    return;
+  }
   const files = import.meta.glob<{ default: Record<string, string> }>("../i18n/en/*.json");
   const parts = await Promise.all(Object.values(files).map((load) => load()));
   dict = Object.assign({}, ...parts.map((p) => p.default));
+  researchDict = dict;
 }
 
 export function setLang(next: Lang) {
@@ -48,17 +54,17 @@ export function setLang(next: Lang) {
 
 const norm = (s: string) => s.replace(/\s+/g, " ").trim();
 
-function lookup(s: string): string {
-  if (!isEn) return s;
+function lookupIn(d: Record<string, string>, s: string): string {
   const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(s);
   if (!m || !m[2]) return s;
-  const hit = dict[norm(m[2])];
+  const hit = d[norm(m[2])];
   return hit === undefined ? s : `${m[1]}${hit}${m[3]}`;
 }
 
-/** نص مترجم. {0} {1}… أماكن القيم */
-export function tr(s: string, ...args: unknown[]): string {
-  const out = lookup(s);
+const lookup = (s: string) => (isEn ? lookupIn(dict, s) : s);
+const lookupResearch = (s: string) => lookupIn(researchDict, s);
+
+function fill(out: string, args: unknown[]): string {
   if (!args.length) return out;
   return out.replace(/\{(\d+)\}/g, (_, i: string) => {
     const v = args[Number(i)];
@@ -66,10 +72,27 @@ export function tr(s: string, ...args: unknown[]): string {
   });
 }
 
-/** مثل tr لكن القيم ممكن تكون عناصر React (روابط، خط عريض…) */
-export function trx(s: string, ...args: ReactNode[]): ReactNode {
-  const out = lookup(s);
+function fillNodes(out: string, args: ReactNode[]): ReactNode {
   if (!args.length) return out;
   const pieces = out.split(/\{(\d+)\}/);
   return createElement(Fragment, null, ...pieces.map((p, i) => (i % 2 ? args[Number(p)] : p)));
+}
+
+/** نص مترجم. {0} {1}… أماكن القيم */
+export function tr(s: string, ...args: unknown[]): string {
+  return fill(lookup(s), args);
+}
+
+/** مثل tr لكن القيم ممكن تكون عناصر React (روابط، خط عريض…) */
+export function trx(s: string, ...args: ReactNode[]): ReactNode {
+  return fillNodes(lookup(s), args);
+}
+
+/** نص صفحات البحث: إنجليزي بأي لغة (منهج التمريض بالإنجليزي) */
+export function tre(s: string, ...args: unknown[]): string {
+  return fill(lookupResearch(s), args);
+}
+
+export function trxe(s: string, ...args: ReactNode[]): ReactNode {
+  return fillNodes(lookupResearch(s), args);
 }

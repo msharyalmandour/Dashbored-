@@ -131,3 +131,9 @@ export function getGreeting(date: Date = new Date()): Greeting {
 }
 
 export { arabicMonths, arabicWeekdays, arabicWeekdaysShort };
+
+/** «24 October 2026» دايمًا بالإنجليزي — لصفحات البحث وملفاتها */
+export function formatDateLongEn(value: string): string {
+  const date = parseDate(value);
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}

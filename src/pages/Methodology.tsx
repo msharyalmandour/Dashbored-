@@ -4,7 +4,7 @@ import Card, { CardHeader } from "../components/ui/Card";
 import MethodologyTemplateHelper from "../components/MethodologyTemplateHelper";
 import { useMethodology } from "../hooks/useMethodology";
 import type { MethodologyTemplate } from "../data/methodologyTemplates";
-import { tr } from "../lib/i18n";
+import { tre } from "../lib/i18n";
 
 /** حقل نصي بسطر واحد يُحفظ عند الخروج منه فقط */
 function EditableField({
@@ -26,7 +26,7 @@ function EditableField({
         onBlur={() => {
           if (draft !== value) onSave(draft);
         }}
-        placeholder={tr("لم يُحدد بعد")}
+        placeholder={tre("لم يُحدد بعد")}
         className="mt-1 w-full bg-transparent text-sm font-semibold text-brand-950 outline-none placeholder:font-normal placeholder:italic placeholder:text-brand-950/35"
       />
     </div>
@@ -55,7 +55,7 @@ function EditableListField({
           if (next.join("\n") !== items.join("\n")) onSave(next);
         }}
         rows={3}
-        placeholder={tr("سطر لكل عنصر...")}
+        placeholder={tre("سطر لكل عنصر...")}
         className="mt-1 w-full resize-y bg-transparent text-sm text-brand-950/85 outline-none placeholder:italic placeholder:text-brand-950/35"
       />
     </div>
@@ -81,23 +81,23 @@ export default function Methodology() {
   };
 
   return (
-    <div className="space-y-5">
+    <div dir="ltr" lang="en" className="space-y-5">
       <Card tone="cream" className="flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
           <FlaskConical size={18} />
         </span>
         <div>
-          <h2 className="font-display text-base font-bold text-brand-950">{tr("المنهجية — Methodology")}</h2>
-          <p className="mt-0.5 text-sm text-brand-950/50">{tr("عبّوا الحقول تحت مباشرة — تُحفظ فورًا وتظهر لكل الفريق.")}</p>
+          <h2 className="font-display text-base font-bold text-brand-950">{tre("المنهجية — Methodology")}</h2>
+          <p className="mt-0.5 text-sm text-brand-950/50">{tre("عبّوا الحقول تحت مباشرة — تُحفظ فورًا وتظهر لكل الفريق.")}</p>
         </div>
       </Card>
 
       <MethodologyTemplateHelper onApply={applyTemplate} />
 
       <Card>
-        <CardHeader title={tr("تصميم الدراسة")} subtitle="Study Design" />
+        <CardHeader title={tre("تصميم الدراسة")} />
         <EditableField
-          label={tr("نوع التصميم (كمي / كيفي / مختلط)")}
+          label={tre("نوع التصميم (كمي / كيفي / مختلط)")}
           value={methodology.studyDesign}
           onSave={(v) => updateMethodology({ studyDesign: v })}
         />
@@ -106,24 +106,22 @@ export default function Methodology() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>
           <CardHeader
-            title={tr("مكان الدراسة")}
-            subtitle="Study Setting"
+            title={tre("مكان الدراسة")}
             action={<MapPin size={18} className="text-brand-600" />}
           />
           <EditableField
-            label={tr("المكان")}
+            label={tre("المكان")}
             value={methodology.studySetting}
             onSave={(v) => updateMethodology({ studySetting: v })}
           />
         </Card>
         <Card>
           <CardHeader
-            title={tr("مجتمع الدراسة")}
-            subtitle="Population"
+            title={tre("مجتمع الدراسة")}
             action={<Users2 size={18} className="text-brand-600" />}
           />
           <EditableField
-            label={tr("الفئة المستهدفة")}
+            label={tre("الفئة المستهدفة")}
             value={methodology.population}
             onSave={(v) => updateMethodology({ population: v })}
           />
@@ -131,25 +129,25 @@ export default function Methodology() {
       </div>
 
       <Card>
-        <CardHeader title={tr("العينة")} subtitle="Sampling" action={<Ruler size={18} className="text-brand-600" />} />
+        <CardHeader title={tre("العينة")} action={<Ruler size={18} className="text-brand-600" />} />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <EditableListField
-            label={tr("معايير الاشتمال — Inclusion Criteria")}
+            label={tre("معايير الاشتمال — Inclusion Criteria")}
             items={methodology.sampling.inclusionCriteria}
             onSave={(v) => updateMethodology({ sampling: { ...methodology.sampling, inclusionCriteria: v } })}
           />
           <EditableListField
-            label={tr("معايير الاستبعاد — Exclusion Criteria")}
+            label={tre("معايير الاستبعاد — Exclusion Criteria")}
             items={methodology.sampling.exclusionCriteria}
             onSave={(v) => updateMethodology({ sampling: { ...methodology.sampling, exclusionCriteria: v } })}
           />
           <EditableField
-            label={tr("حجم العينة — Sample Size")}
+            label={tre("حجم العينة — Sample Size")}
             value={methodology.sampling.sampleSize}
             onSave={(v) => updateMethodology({ sampling: { ...methodology.sampling, sampleSize: v } })}
           />
           <EditableField
-            label={tr("أسلوب اختيار العينة — Sampling Technique")}
+            label={tre("أسلوب اختيار العينة — Sampling Technique")}
             value={methodology.sampling.samplingTechnique}
             onSave={(v) => updateMethodology({ sampling: { ...methodology.sampling, samplingTechnique: v } })}
           />
@@ -158,18 +156,17 @@ export default function Methodology() {
 
       <Card>
         <CardHeader
-          title={tr("جمع البيانات")}
-          subtitle="Data Collection"
+          title={tre("جمع البيانات")}
           action={<ClipboardList size={18} className="text-brand-600" />}
         />
         <div className="space-y-3">
           <EditableListField
-            label={tr("طريقة الجمع (مقابلة / استبيان / ملاحظة / أخرى)")}
+            label={tre("طريقة الجمع (مقابلة / استبيان / ملاحظة / أخرى)")}
             items={methodology.dataCollectionMethods}
             onSave={(v) => updateMethodology({ dataCollectionMethods: v })}
           />
           <EditableField
-            label={tr("إجراء جمع البيانات — الخطة العامة لكيفية الجمع فعليًا")}
+            label={tre("إجراء جمع البيانات — الخطة العامة لكيفية الجمع فعليًا")}
             value={methodology.dataCollectionProcedure}
             onSave={(v) => updateMethodology({ dataCollectionProcedure: v })}
           />
@@ -177,28 +174,28 @@ export default function Methodology() {
       </Card>
 
       <Card>
-        <CardHeader title={tr("تحليل البيانات")} subtitle="Data Analysis" />
+        <CardHeader title={tre("تحليل البيانات")} />
         <EditableField
-          label={tr("طريقة التحليل (إحصائي / موضوعاتي / أخرى)")}
+          label={tre("طريقة التحليل (إحصائي / موضوعاتي / أخرى)")}
           value={methodology.dataAnalysis}
           onSave={(v) => updateMethodology({ dataAnalysis: v })}
         />
       </Card>
 
       <Card>
-        <CardHeader title={tr("الاعتبارات الأخلاقية")} subtitle="Ethical Considerations" />
+        <CardHeader title={tre("الاعتبارات الأخلاقية")} />
         <EditableField
-          label={tr("الموافقات الأخلاقية والموافقة المستنيرة")}
+          label={tre("الموافقات الأخلاقية والموافقة المستنيرة")}
           value={methodology.ethicalConsiderations}
           onSave={(v) => updateMethodology({ ethicalConsiderations: v })}
         />
       </Card>
 
       <Card>
-        <CardHeader title={tr("أداة الدراسة")} subtitle="Study Tool" />
+        <CardHeader title={tre("أداة الدراسة")} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-2xl bg-surface-muted p-4">
-            <p className="text-xs font-bold text-brand-950/45">{tr("النوع")}</p>
+            <p className="text-xs font-bold text-brand-950/45">{tre("النوع")}</p>
             <select
               value={methodology.studyTool.type}
               onChange={(e) =>
@@ -208,13 +205,13 @@ export default function Methodology() {
               }
               className="mt-1 w-full bg-transparent text-sm font-semibold text-brand-950 outline-none"
             >
-              <option value="undecided">{tr("لم يُحدد بعد")}</option>
-              <option value="existing">{tr("أداة جاهزة")}</option>
-              <option value="developed">{tr("أداة مطوَّرة")}</option>
+              <option value="undecided">{tre("لم يُحدد بعد")}</option>
+              <option value="existing">{tre("أداة جاهزة")}</option>
+              <option value="developed">{tre("أداة مطوَّرة")}</option>
             </select>
           </div>
           <EditableField
-            label={tr("اسم الأداة")}
+            label={tre("اسم الأداة")}
             value={methodology.studyTool.name}
             onSave={(v) => updateMethodology({ studyTool: { ...methodology.studyTool, name: v } })}
           />

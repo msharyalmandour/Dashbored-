@@ -8,6 +8,7 @@ import { formatDateLong } from "../lib/date";
 import { homeSection, morePages, sectionForPath } from "../lib/navSections";
 import { useAiConversations } from "../hooks/useAiConversations";
 import AiLockedCard from "./AiLockedCard";
+import ProjectAgentChat from "./ProjectAgentChat";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -80,6 +81,8 @@ export default function AiAssistant() {
   const history = useAiConversations();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"chat" | "history">("chat");
+  // «الوكيل» ينفّذ أوامركم على المشروع (يحفظ بالمقترح، يسند المهام)، و«الكوتش» محادثة ونصايح
+  const [tab, setTab] = useState<"agent" | "coach">("agent");
   const [activeId, setActiveId] = useState<string | null>(null);
   const activeIdRef = useRef<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -237,14 +240,14 @@ export default function AiAssistant() {
                 <span aria-hidden className="h-9 w-9 shrink-0 rounded-full" style={{ background: orbBg, boxShadow: "0 0 24px rgba(255,140,40,.5)" }} />
               )}
               <div className="min-w-0">
-                <p className="truncate font-kufi text-[15px] font-bold">{view === "history" ? "محادثاتكم السابقة" : "وكيل Wesync"}</p>
+                <p className="truncate font-kufi text-[15px] font-bold">{view === "history" ? "محادثاتكم السابقة" : tab === "agent" ? "وكيل Wesync" : "كوتش الفريق"}</p>
                 <p className="truncate text-xs text-[#B8ADA2]">
                   {view === "history" ? "خاصة فيكم — ما يشوفها أحد من الفريق" : `أنتم في: ${place.label}`}
                 </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              {aiOk && (
+              {aiOk && tab === "coach" && (
                 <>
                   <button onClick={newChat} title="محادثة جديدة" className={circleBtn}>
                     <MessageSquarePlus size={16} />
@@ -265,10 +268,35 @@ export default function AiAssistant() {
           </div>
           <div aria-hidden className="mx-5 h-px bg-gradient-to-l from-transparent via-[rgba(255,107,0,.35)] to-transparent" />
 
+          {aiOk && view === "chat" && (
+            <div role="tablist" className="mx-5 mt-3 flex gap-1 rounded-full border border-white/[0.12] bg-white/[0.04] p-1">
+              {(
+                [
+                  ["agent", "الوكيل ينفّذ"],
+                  ["coach", "الكوتش"],
+                ] as const
+              ).map(([id, text]) => (
+                <button
+                  key={id}
+                  role="tab"
+                  aria-selected={tab === id}
+                  onClick={() => setTab(id)}
+                  className={`flex-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
+                    tab === id ? "bg-gradient-to-l from-[#ffb547] to-[#ff6a00] text-[#1a0f00]" : "text-[#B8ADA2] hover:text-white"
+                  }`}
+                >
+                  {text}
+                </button>
+              ))}
+            </div>
+          )}
+
           {!aiOk ? (
             <div className="flex-1 overflow-y-auto p-4">
               <AiLockedCard feature="المساعد البحثي" />
             </div>
+          ) : tab === "agent" && view === "chat" ? (
+            <ProjectAgentChat compact suggestions={prompts} />
           ) : view === "history" ? (
             <div className="flex-1 space-y-2 overflow-y-auto p-5">
               {!history.loaded ? (

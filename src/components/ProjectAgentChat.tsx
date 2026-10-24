@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUp, Check, CheckCircle2, Loader2, Undo2 } from "lucide-react";
+import { AlertTriangle, ArrowUp, Check, CheckCircle2, ClipboardCheck, Loader2, Undo2, Wrench } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
 import AgentOrb from "./ui/AgentOrb";
@@ -13,13 +13,15 @@ import { useProposal } from "../hooks/useProposal";
 import { useTasksData } from "../hooks/useTasksData";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useTeamRoster } from "../hooks/useTeamRoster";
-import { askProjectAgent, type AgentAction, type AskTurn } from "../hooks/useProjectAgent";
+import { askProjectAgent, reviewProposal, type AgentAction, type AskTurn, type ProposalReview } from "../hooks/useProjectAgent";
 import { addDaysISO, formatDateLong, toISODate } from "../lib/date";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 
 interface Turn extends AskTurn {
   actions?: AgentAction[];
+  /** تقرير مراجعة المقترح (يظهر ببطاقات، بدون أي تنفيذ تلقائي) */
+  review?: ProposalReview;
   /** وقت وصول الرد — عشان الردود الجديدة بس تظهر كلمة كلمة */
   at?: number;
 }
@@ -38,6 +40,10 @@ const SUGGESTIONS = [
 ];
 const LEADER_SUGGESTION = { label: "وزّع مهام الأسبوع", ask: "وزّع مهام الأسبوع على الأعضاء" };
 const MEMBER_SUGGESTION = { label: "جهّز اجتماع المشرف/ة", ask: "وش ناقص قبل اجتماعنا مع المشرف/ة؟" };
+/** مو سؤال للوكيل — يشغّل مراجعة المقترح الكاملة (تقرير جاهزية) */
+const REVIEW_CHIP = { label: "راجع المقترح قبل التسليم", ask: "__review__" };
+const verdictAr = { ready: "جاهز للتسليم", almost: "قريب — ناقصه شوية", not_ready: "يحتاج شغل قبل التسليم" } as const;
+const verdictColor = { ready: "text-[#7fd6a0]", almost: "text-[#FFB444]", not_ready: "text-[#ff8a8a]" } as const;
 
 // المحادثة تبقى لو انقفلت اللوحة أو تنقّلتوا بين الصفحات (لين يتحدّث المتصفح)
 let cachedTurns: Turn[] = [];
@@ -143,9 +149,23 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
     return { status: "failed" };
   };
 
+  const runReview = async () => {
+    setTurns((t) => [...t, { role: "user", text: "راجع مقترحنا قبل التسليم" }]);
+    setBusy(true);
+    const r = await reviewProposal();
+    setBusy(false);
+    setTurns((t) => [
+      ...t,
+      r.data
+        ? { role: "agent", text: r.data.summary || "هذي مراجعة مقترحكم:", review: r.data, at: Date.now() }
+        : { role: "agent", text: r.message ?? "تعذّرت المراجعة.", at: Date.now() },
+    ]);
+  };
+
   const send = async (raw?: string) => {
     const q = (raw ?? text).trim();
     if (!q || busy || mock) return;
+    if (q === REVIEW_CHIP.ask) return runReview();
     setText("");
     const history = turns.map(({ role, text: t }) => ({ role, text: t }));
     setTurns((t) => [...t, { role: "user", text: q }]);
@@ -210,7 +230,7 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
   const started = turns.length > 0;
   const chips: { label: string; ask: string }[] = suggestions
     ? suggestions.map((s) => ({ label: s, ask: s }))
-    : [...SUGGESTIONS, isLeader ? LEADER_SUGGESTION : MEMBER_SUGGESTION];
+    : [...SUGGESTIONS, isLeader ? LEADER_SUGGESTION : MEMBER_SUGGESTION, REVIEW_CHIP];
 
   const messages = started && (
     <ul className={clsx("w-full space-y-3 overflow-y-auto pe-1 text-start", compact ? "min-h-0 flex-1" : "max-h-[26rem]")}>
@@ -227,6 +247,36 @@ export default function ProjectAgentChat({ compact = false, suggestions }: { com
             )}
           >
             <p className="whitespace-pre-wrap">{t.role === "agent" ? <StreamedText text={t.text} at={t.at} /> : t.text}</p>
+            {t.review && (
+              <div className="mt-3 space-y-2.5">
+                <div className="flex items-center gap-3 rounded-2xl border border-[rgba(255,107,0,.3)] p-3">
+                  <span className="text-3xl font-extrabold tabular-nums">{t.review.score}</span>
+                  <div>
+                    <p className={clsx("text-sm font-bold", verdictColor[t.review.verdict])}>{verdictAr[t.review.verdict]}</p>
+                    <p className="text-xs text-[#B8ADA2]">
+                      {t.review.checks.filter((c) => c.status === "fix").length} لازم يتعدّل · {t.review.checks.filter((c) => c.status === "warn").length} يستاهل تحسين
+                    </p>
+                  </div>
+                </div>
+                {[...t.review.checks]
+                  .sort((a, b) => ({ fix: 0, warn: 1, ok: 2 })[a.status] - ({ fix: 0, warn: 1, ok: 2 })[b.status])
+                  .map((c, k) => (
+                    <div key={k} className="rounded-2xl border border-white/[0.12] p-3">
+                      <p className="flex items-center gap-1.5 font-semibold">
+                        {c.status === "ok" ? <CheckCircle2 size={14} className="text-[#7fd6a0]" /> : c.status === "fix" ? <AlertTriangle size={14} className="text-[#ff8a8a]" /> : <ClipboardCheck size={14} className="text-[#FFB444]" />}
+                        {c.area}
+                      </p>
+                      <p className="mt-1 text-[13px] text-[#E6DBD1]">{c.finding}</p>
+                      {c.status !== "ok" && c.fix && (
+                        <p className="mt-1.5 flex items-start gap-1.5 text-xs text-[#B8ADA2]">
+                          <Wrench size={12} className="mt-0.5 shrink-0" /> {c.fix}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                <p className="text-[11px] text-[#B8ADA2]/80">مراجعة آلية من بيانات مقترحكم الحالية — تنفعكم قبل ما تعرضونه على المشرف/ة، ورأيها هو المعتمد.</p>
+              </div>
+            )}
             {t.actions && t.actions.length > 0 && (
               <div className="mt-3 space-y-2.5">
                 {t.actions.map((a, j) => {

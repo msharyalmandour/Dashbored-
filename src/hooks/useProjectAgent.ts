@@ -128,3 +128,28 @@ export async function askProjectAgent(
   if (reply?.answer) return { data: { answer: reply.answer, actions: reply.actions ?? [] } };
   return { message: error ? "الوكيل غير متاح الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
 }
+
+export interface ReviewCheck {
+  area: string;
+  status: "ok" | "warn" | "fix";
+  finding: string;
+  fix: string;
+}
+
+export interface ProposalReview {
+  score: number;
+  verdict: "ready" | "almost" | "not_ready";
+  summary: string;
+  checks: ReviewCheck[];
+}
+
+/** «راجعوا مقترحنا قبل التسليم»: تقرير جاهزية من بيانات مقترحكم الحقيقية (يوجّه ولا يكتب بدالكم) */
+export async function reviewProposal(): Promise<{ data?: ProposalReview; message?: string }> {
+  if (!isSupabaseConfigured) return { message: "هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم)." };
+  const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "review" } });
+  const reply = data as { review?: ProposalReview; error?: string; limitReached?: boolean; message?: string } | null;
+  if (reply?.limitReached) return { message: reply.message ?? "وصلتوا للحد المتاح" };
+  if (reply?.error) return { message: reply.error };
+  if (reply?.review) return { data: reply.review };
+  return { message: error ? "المراجعة غير متاحة الحين — جرّبوا بعد شوي." : "ما وصل الرد — حاولوا مرة ثانية." };
+}

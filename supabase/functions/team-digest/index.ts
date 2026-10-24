@@ -70,6 +70,11 @@ async function claim(kind: string, refId: string, profileKey: string): Promise<b
   return !error;
 }
 
+/** لو فشل الإرسال نفك التسجيل، عشان التذكير يعاد بالدورة الجاية بدل ما يضيع */
+async function release(claimed: { kind: string; refId: string; key: string }[]): Promise<void> {
+  for (const c of claimed) await admin.from("reminder_log").delete().eq("kind", c.kind).eq("ref_id", c.refId).eq("recipient", c.key);
+}
+
 // ───────────────────────── التقرير الأسبوعي ─────────────────────────
 
 interface Weekly {
@@ -162,17 +167,23 @@ async function runWeekly(): Promise<{ sent: number; skipped?: string }> {
 
     if (supOk && (await claim("weekly-supervisor", teamId, `${sub!.email}|${week}`))) {
       const w = await buildWeekly(teamId, "supervisor");
+      let ok = false;
       if (w) {
         const footer = `وصلك هذا لأنك فعّلت إشعارات Wesync لهذا الفريق. <a href="${site()}/supervisor-email/unsubscribe/${sub!.confirm_token}" style="color:#888">إيقاف الإيميلات</a>`;
-        if (await sendEmail(sub!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text)) sent++;
+        ok = await sendEmail(sub!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text);
       }
+      if (ok) sent++;
+      else await release([{ kind: "weekly-supervisor", refId: teamId, key: `${sub!.email}|${week}` }]);
     }
     if (leaderOk && (await claim("weekly-leader", teamId, `${leader!.id}|${week}`))) {
       const w = await buildWeekly(teamId, "team");
+      let ok = false;
       if (w) {
         const footer = `توقفون التذكيرات من صفحة الفريق ← «تذكيرات بالإيميل».`;
-        if (await sendEmail(leader!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text)) sent++;
+        ok = await sendEmail(leader!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text);
       }
+      if (ok) sent++;
+      else await release([{ kind: "weekly-leader", refId: teamId, key: `${leader!.id}|${week}` }]);
     }
   }
   return { sent };
@@ -214,14 +225,20 @@ async function runDaily(): Promise<{ sent: number; skipped?: string }> {
       // كل مهمة تنذكر مرة وحدة لكل حالة (قربت / متأخرة) — ما نزعجهم كل يوم بنفس الشي
       const dueSoon: string[] = [];
       const late: string[] = [];
+      const claimed: { kind: string; refId: string; key: string }[] = [];
+      const take = async (kind: string, refId: string) => {
+        if (!(await claim(kind, refId, m.id))) return false;
+        claimed.push({ kind, refId, key: m.id });
+        return true;
+      };
       for (const t of mine) {
         const isLate = t.due_date < today;
-        if (await claim(isLate ? "task-late" : "task-soon", t.id, m.id)) (isLate ? late : dueSoon).push(`${esc(t.title)} <span style="color:#888">(${esc(arDate(t.due_date))})</span>`);
+        if (await take(isLate ? "task-late" : "task-soon", t.id)) (isLate ? late : dueSoon).push(`${esc(t.title)} <span style="color:#888">(${esc(arDate(t.due_date))})</span>`);
       }
       const fbNew: string[] = [];
-      for (const f of fb) if (await claim("feedback", f.id, m.id)) fbNew.push(esc(f.comment.slice(0, 200)));
+      for (const f of fb) if (await take("feedback", f.id)) fbNew.push(esc(f.comment.slice(0, 200)));
       const msgNew: string[] = [];
-      for (const x of msgs) if (await claim("sup-message", x.id, m.id)) msgNew.push(esc(x.body.slice(0, 200)));
+      for (const x of msgs) if (await take("sup-message", x.id)) msgNew.push(esc(x.body.slice(0, 200)));
       if (!dueSoon.length && !late.length && !fbNew.length && !msgNew.length) continue;
 
       const firstName = String(m.name ?? "").split(" ")[0];
@@ -244,6 +261,7 @@ async function runDaily(): Promise<{ sent: number; skipped?: string }> {
         .filter(Boolean)
         .join("، ");
       if (await sendEmail(m.email, subject, html, text)) sent++;
+      else await release(claimed);
     }
   }
   return { sent };

@@ -110,6 +110,9 @@ export type AgentAction =
   | { type: "set_gap"; text: string; auto?: boolean }
   | { type: "update_task"; taskId: string; title: string; status: "todo" | "in-progress" | "done"; auto?: boolean; allowed?: boolean }
   | { type: "add_event"; title: string; date: string; time: string; eventType: "meeting" | "review" | "fieldwork" | "deadline"; location: string; auto?: boolean }
+  | { type: "remember"; note: string; auto?: boolean }
+  | { type: "forget"; memoryId: string; note: string; auto?: boolean }
+  | { type: "add_feedback_items"; items: { comment: string; sectionKey: string; assigneeId: string | null; assigneeName: string }[]; auto?: boolean }
   | { type: "open"; to: string; label: string };
 
 export interface AskTurn {
@@ -165,4 +168,42 @@ export async function planSurveyAnalysis(question: string, columns: AskColumn[])
   if (reply?.error) return { message: reply.error };
   if (reply?.plan) return { plan: reply.plan };
   return { message: error ? tr("التحليل غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
+}
+
+export interface PaperReading {
+  title: string;
+  authors: string;
+  year: number | null;
+  studyDesign: string;
+  sampleAndSetting: string;
+  keyFinding: string;
+  limitations: string;
+  relevance: string;
+  theme: string;
+  section: "background" | "literature-review" | "gap" | "methodology" | "other";
+  summaryAr: string;
+}
+
+const toBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(",")[1] ?? "");
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+
+export const MAX_PAPER_BYTES = 4 * 1024 * 1024;
+
+/** «مساعد القراءة»: يرفع ورقة PDF ويرجّع ملخص منظّم (الاقتراح يتحفظ بمكتبة الأدلة بعد موافقتكم) */
+export async function readPaperPdf(file: File): Promise<{ data?: PaperReading; message?: string }> {
+  if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) return { message: tr("الملف لازم يكون PDF.") };
+  if (file.size > MAX_PAPER_BYTES) return { message: tr("الملف كبير (الحد ٤ ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.") };
+  const pdfBase64 = await toBase64(file);
+  const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "read", fileName: file.name, pdfBase64 } });
+  const reply = data as { paper?: PaperReading; error?: string; limitReached?: boolean; message?: string } | null;
+  if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
+  if (reply?.error) return { message: reply.error };
+  if (reply?.paper) return { data: reply.paper };
+  return { message: error ? tr("قراءة الورقة غير متاحة الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
 }

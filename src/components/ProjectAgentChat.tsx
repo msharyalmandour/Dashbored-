@@ -13,6 +13,11 @@ import { useProposal } from "../hooks/useProposal";
 import { useTasksData } from "../hooks/useTasksData";
 import { useCalendarEvents } from "../hooks/useCalendarEvents";
 import { useTeamRoster } from "../hooks/useTeamRoster";
+import { useResearchStages } from "../hooks/useResearchStages";
+import { useResearchProject } from "../hooks/useResearchProject";
+import { sectionLabels, useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
+import { useProjectMemory } from "../hooks/useProjectMemory";
+import { watchAll } from "../lib/agentWatch";
 import { askProjectAgent, reviewProposal, type AgentAction, type AskTurn, type ProposalReview } from "../hooks/useProjectAgent";
 import { addDaysISO, formatDateLong, toISODate } from "../lib/date";
 import { hasAiAccess } from "../lib/plans";
@@ -69,6 +74,10 @@ export default function ProjectAgentChat({
   const { tasks, addTask, updateStatus } = useTasksData();
   const { addEvent } = useCalendarEvents();
   const { roster } = useTeamRoster();
+  const { stages } = useResearchStages();
+  const { project } = useResearchProject();
+  const { items: feedback, addItems: addFeedbackItems } = useSupervisorFeedback();
+  const { add: addMemory, remove: removeMemory } = useProjectMemory();
   const [turns, setTurnsState] = useState<Turn[]>(cachedTurns);
   const [states, setStatesState] = useState<Record<string, ActionState>>(cachedStates);
   const [assignees, setAssignees] = useState<Record<string, string>>({});
@@ -150,6 +159,24 @@ export default function ProjectAgentChat({
       const { error } = await addEvent({ title: a.title, date: a.date, time: a.time, type: a.eventType, location: a.location });
       return { status: error ? "failed" : "done" };
     }
+    if (a.type === "remember" && currentUser) {
+      const { id, error } = await addMemory(a.note, currentUser.id);
+      if (error || !id) return { status: "failed" };
+      return { status: "done", undo: () => removeMemory(id) };
+    }
+    if (a.type === "forget" && currentUser) {
+      const { error } = await removeMemory(a.memoryId);
+      if (error) return { status: "failed" };
+      return { status: "done", undo: async () => ({ error: (await addMemory(a.note, currentUser.id)).error }) };
+    }
+    if (a.type === "add_feedback_items" && currentUser) {
+      const { error } = await addFeedbackItems(
+        a.items.map((i) => ({ comment: i.comment, sectionKey: i.sectionKey, assigneeId: i.assigneeId })),
+        currentUser.id,
+        project?.id ?? null,
+      );
+      return { status: error ? "failed" : "done" };
+    }
     if (a.type === "add_task" && currentUser) {
       const { error } = await addTask({
         title: a.title,
@@ -225,6 +252,9 @@ export default function ProjectAgentChat({
       update_task: tr("حالة المهمة تحدّثت."),
       add_event: tr("الموعد انضاف للتقويم."),
       add_task: tr("المهمة انضافت."),
+      remember: tr("انحفظ بذاكرة المشروع."),
+      forget: tr("انشال من ذاكرة المشروع."),
+      add_feedback_items: tr("ملاحظات المشرف انضافت لمتتبّع الملاحظات."),
       open: "",
     })[a.type];
   const label = (a: AgentAction): string =>
@@ -236,12 +266,46 @@ export default function ProjectAgentChat({
       update_task: tr("حدّثوا الحالة"),
       add_event: tr("أضيفوه للتقويم"),
       add_task: tr("أضف المهمة"),
+      remember: tr("تذكّروا هذا"),
+      forget: tr("انسوا هذا"),
+      add_feedback_items: tr("أضيفوها لمتتبّع الملاحظات"),
       open: "",
     })[a.type];
   const statusAr = { todo: tr("لم تبدأ"), "in-progress": tr("قيد التنفيذ"), done: tr("منجزة") } as const;
   const eventAr = { meeting: tr("اجتماع"), review: tr("مراجعة"), fieldwork: tr("عمل ميداني"), deadline: tr("موعد نهائي") } as const;
 
   const started = turns.length > 0;
+  const nudges = mock
+    ? []
+    : watchAll({
+        today: new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10),
+        aim: aim.statement,
+        questions: questions.map((q) => q.text),
+        tasks,
+        stages,
+        feedbackOpen: feedback.filter((f) => f.status === "open"),
+        submissionDate: project?.targetSubmissionDate ?? null,
+        isLeader,
+      }).slice(0, 4);
+  const watchRow = !started && nudges.length > 0 && (
+    <ul className={clsx("w-full space-y-2", compact ? "text-start" : "mx-auto max-w-[720px] text-start")} aria-label={tr("تنبيهات الوكيل")}>
+      {nudges.map((n) => (
+        <li key={n.id}>
+          <button
+            type="button"
+            onClick={() => send(n.ask)}
+            className={clsx(
+              "flex w-full items-start gap-2 rounded-2xl border px-3.5 py-2.5 text-start text-[13px] leading-relaxed transition hover:bg-[#FF6B00]/10",
+              n.level === "warn" ? "border-[#FF8A24]/60 text-[#FFD9B0]" : "border-white/[0.14] text-[#E6DBD1]",
+            )}
+          >
+            <AlertTriangle size={14} className={clsx("mt-0.5 shrink-0", n.level === "warn" ? "text-[#FFB444]" : "text-[#B8ADA2]")} />
+            <span>{n.text}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
   const chips: { label: string; ask: string }[] = suggestions
     ? suggestions.map((s) => ({ label: s, ask: s }))
     : [...SUGGESTIONS, isLeader ? LEADER_SUGGESTION : MEMBER_SUGGESTION, REVIEW_CHIP];
@@ -330,6 +394,31 @@ export default function ProjectAgentChat({
                             {a.location && ` — ${a.location}`}
                           </span>
                         </p>
+                      )}
+                      {a.type === "remember" && (
+                        <p>
+                          <span className="block text-xs text-[#B8ADA2]">{tr("أتذكّره بكل محادثة:")}</span>
+                          <b>{a.note}</b>
+                        </p>
+                      )}
+                      {a.type === "forget" && (
+                        <p>
+                          <span className="block text-xs text-[#B8ADA2]">{tr("أشيل من الذاكرة:")}</span>
+                          <b>{a.note}</b>
+                        </p>
+                      )}
+                      {a.type === "add_feedback_items" && (
+                        <ul className="space-y-2">
+                          {a.items.map((it, k) => (
+                            <li key={k} className="font-semibold">
+                              {it.comment}
+                              <span className="block text-xs font-normal text-[#B8ADA2]">
+                                {sectionLabels[it.sectionKey] ?? sectionLabels.other}
+                                {it.assigneeName && ` — ${it.assigneeName}`}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
                       )}
                       {a.type === "add_questions" && (
                         <ul className="list-disc space-y-1 pe-5 font-semibold">
@@ -468,6 +557,7 @@ export default function ProjectAgentChat({
         {!started && (
           <p className="text-sm leading-relaxed text-[#B8ADA2]">{trx("اسألوه عن وضعكم، أو أعطوه أمر: «احفظ سؤال البحث في المقترح»، «حط هدف الدراسة»، {0} يقترح وأنتم توافقون: ما ينفّذ شي بدون ضغطة «وافق».", isLeader ? tr("«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء».") : tr("ويقترح عليكم مهام يعتمدها القائد."))}</p>
         )}
+        {watchRow}
         {chipRow}
         {messages}
         <div className="mt-auto">{form}</div>
@@ -488,6 +578,7 @@ export default function ProjectAgentChat({
         {!started && <p className="text-base font-light text-[#B8ADA2] md:text-lg">{tr("الوكيل يعرف بحثكم ومهامكم. اطلبوا، وهو يجهّز.")}</p>}
         {messages}
         {form}
+        {watchRow}
         {chipRow}
       </div>
     </section>

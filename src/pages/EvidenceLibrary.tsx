@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Plus, Quote, Table2, Trash2, X } from "lucide-react";
 import PaperQA from "../components/research/PaperQA";
+import PaperReaderCard from "../components/research/PaperReaderCard";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { hasAiAccess } from "../lib/plans";
 import clsx from "clsx";
@@ -140,6 +141,8 @@ export default function EvidenceLibrary() {
           </button>
         }
       />
+
+      {canAsk && currentUser && <PaperReaderCard onSave={(p) => addPaper({ ...p, addedById: currentUser.id })} />}
 
       <div className="flex flex-wrap gap-2">
         {sectionFilters.map((f) => (

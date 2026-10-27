@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Copy, ImageDown, MessageCircle, Share2 } from "lucide-react";
 import { projectMeta, recentActivity, teamMembers } from "../data/mockData";
 import { formatDateLong } from "../lib/date";
@@ -46,10 +46,14 @@ async function makeProgressCard(percent: number, stageAr: string | null): Promis
   } catch {
     // نكمل بالخط الاحتياطي
   }
-  const bg = ctx.createLinearGradient(0, 0, W * 0.3, H);
-  bg.addColorStop(0, "#1d2bd8");
-  bg.addColorStop(1, "#0a1470");
-  ctx.fillStyle = bg;
+  // هوية Wesync الثابتة: أسود Obsidian مع توهّج Ember برتقالي
+  ctx.fillStyle = "#080808";
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W / 2, H * 0.48, 40, W / 2, H * 0.48, W * 0.85);
+  glow.addColorStop(0, "rgba(255,138,36,0.55)");
+  glow.addColorStop(0.45, "rgba(255,106,0,0.18)");
+  glow.addColorStop(1, "rgba(8,8,8,0)");
+  ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
   ctx.textAlign = "center";
   ctx.direction = "rtl";
@@ -79,19 +83,35 @@ async function makeProgressCard(percent: number, stageAr: string | null): Promis
 export default function ShareUpdate(props: ShareUpdateProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [cardBlob, setCardBlob] = useState<Blob | null>(null);
   const message = props.mode === "mock" ? buildMockMessage() : buildRealMessage(props);
 
+  // نجهّز الصورة أول ما تنفتح اللوحة: سفاري (آيفون) يرفض navigator.share لو سبقه انتظار
+  // داخل نفس الضغطة، فتطلع رسالة خطأ بدل قائمة المشاركة/AirDrop
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    makeProgressCard(props.overallProgress, props.currentStageAr).then((b) => {
+      if (alive) setCardBlob(b);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [open, props.overallProgress, props.currentStageAr]);
+
   const shareCard = async () => {
-    const blob = await makeProgressCard(props.overallProgress, props.currentStageAr);
+    const blob = cardBlob ?? (await makeProgressCard(props.overallProgress, props.currentStageAr));
     if (!blob) return;
-    const file = new File([blob], "wesync-progress.png", { type: "image/png" });
+    const file = new File([blob], "wesync-progress.png", { type: "image/png", lastModified: Date.now() });
     try {
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file] });
         return;
       }
-    } catch {
-      // المستخدم أغلق نافذة المشاركة، أو غير مدعومة — ننزّل الصورة
+    } catch (e) {
+      // المستخدم سكّر قائمة المشاركة بنفسه — ما ننزّل شي
+      if ((e as DOMException)?.name === "AbortError") return;
+      // غير مدعومة أو انرفضت — ننزّل الصورة بدلها
     }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);

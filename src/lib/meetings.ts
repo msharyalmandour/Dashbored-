@@ -183,5 +183,6 @@ export const availabilityRequestMessage = (link: string) =>
 export const supervisorInviteMessage = (link: string, projectTitle?: string) =>
   tr("السلام عليكم ورحمة الله،\nنستخدم منصة Wesync لتنظيم بحث تخرجنا{0}. هذا رابطكم الخاص (بدون تسجيل دخول ولا تنزيل برنامج) تشوفون منه تقدمنا، وتعتمدون محاضر اجتماعاتنا، وتجاوبون على أسئلتنا بضغطة، وتحددون أوقاتكم المتاحة للاجتماعات:\n{1}\n\nمن نفس الصفحة تقدرون تفعّلون تنبيهات الإيميل عشان يوصلكم كل طلب جديد.\nشاكرين وقتكم.\n(أُرسلت من Wesync)", projectTitle ? ` («${projectTitle}»)` : "", link);
 
+/** "@" تبقى كما هي: تطبيقات مثل Gmail وOutlook على الجوال ترفض العنوان لو انكتب name%40uni.edu.sa */
 export const mailtoUrl = (to: string, subject: string, body: string) =>
-  `mailto:${encodeURIComponent(to.trim())}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  `mailto:${encodeURIComponent(to.replace(/\s+/g, "")).replace(/%40/g, "@")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

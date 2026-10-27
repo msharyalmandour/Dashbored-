@@ -38,18 +38,19 @@ const supabaseAdmin = createClient(
 
 // حدود استخدام يومية/شهرية لكل فريق — تحكّم بتكلفة Anthropic API الحقيقية.
 // الرسائل ودّية بقصد (مو خطأ أحمر) عشان الطالبة تعرف بالضبط وش صار ومتى يرجع يشتغل.
-const CHAT_DAILY_LIMIT = 20;
-const SEARCH_MONTHLY_LIMIT = 10;
+// سعر الإطلاق: المساعد إضافة بـ٣٩ للفريق — الحدود محسوبة عشان أقصى استخدام يظل رابح
+const CHAT_DAILY_LIMIT = 7;
+const SEARCH_MONTHLY_LIMIT = 2;
 // آخر ٢٠ رسالة (~١٠ تبادلات) تكفي كسياق لشات دعم بحثي — نحدّها عشان
 // محادثة طويلة جدًا ما تخلي تكلفة كل رسالة جديدة تكبر بلا حد (كل رسالة
 // جديدة أصلًا ترسل كل السجل قبلها)
 const MAX_CHAT_HISTORY = 20;
 const CHAT_LIMIT_MESSAGE =
-  "وصلتوا للحد اليومي لرسائل المساعد الذكي (٢٠ رسالة) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
+  "وصلتوا للحد اليومي لرسائل المساعد الذكي (٧ رسائل للفريق) — الحد يتجدد تلقائيًا باكر 🌱 لو محتاجين مساعدة الحين، دليل الطالب فيه إجابات لأغلب الأسئلة الشائعة.";
 const AI_PLAN_REQUIRED_MESSAGE =
-  "المساعد الذكي وباقي ميزات الذكاء الاصطناعي متاحة بباقة AI (٥٩ ريال شهريًا لكل عضو). تقدر قائدة الفريق تنتقل لها من صفحة «الباقات والاشتراك».";
+  "المساعد الذكي وباقي ميزات الذكاء الاصطناعي إضافة على اشتراك الفريق (٣٩ ريال شهريًا للفريق كامل). تقدر قائدة الفريق تضيفها من صفحة «الباقات والاشتراك».";
 const SEARCH_LIMIT_MESSAGE =
-  "وصلتوا للحد الشهري لعمليات وكيل البحث العلمي (١٠ عمليات) — يتجدد أول الشهر الجاي. تقدرون ترجعون لعمليات البحث السابقة بالأسفل بأي وقت.";
+  "وصلتوا للحد الشهري لعمليات البحث الذكي عن دراسات (عمليتين) — يتجدد أول الشهر الجاي. تقدرون ترجعون لعمليات البحث السابقة بالأسفل بأي وقت.";
 
 const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
 // صوت افتراضي عام يدعم العربية عبر نموذج eleven_multilingual_v2 — بدّليه
@@ -336,7 +337,7 @@ async function loadBillingFacts(
 ): Promise<string | null> {
   try {
     const [teamRes, membersRes, paymentsRes] = await Promise.all([
-      db.from("teams").select("subscription_end_date, on_trial, monthly_price, plan").eq("id", teamId).single(),
+      db.from("teams").select("subscription_end_date, on_trial, is_founder, plan").eq("id", teamId).single(),
       db.from("profiles").select("id", { count: "exact", head: true }).eq("team_id", teamId),
       db
         .from("payments")
@@ -347,7 +348,7 @@ async function loadBillingFacts(
         .limit(5),
     ]);
     if (teamRes.error || !teamRes.data) return null;
-    const team = teamRes.data as { subscription_end_date: string | null; on_trial: boolean; monthly_price: number | string; plan: string };
+    const team = teamRes.data as { subscription_end_date: string | null; on_trial: boolean; is_founder: boolean; plan: string };
 
     const sk = Deno.env.get("MOYASAR_SECRET_KEY") ?? "";
     const gateway = sk.startsWith("sk_live_") ? "live" : sk.startsWith("sk_test_") ? "test" : "unknown";
@@ -357,7 +358,7 @@ async function loadBillingFacts(
       subscriptionEndDate: team.subscription_end_date,
       onTrial: !!team.on_trial,
       plan: team.plan === "basic" ? "basic" : "ai",
-      monthlyPrice: Number(team.monthly_price),
+      isFounder: !!team.is_founder,
       memberCount: membersRes.count ?? 1,
       todayISO: new Date().toISOString().slice(0, 10),
       payments: ((paymentsRes.data ?? []) as Array<{ amount: number | string; created_at: string; profile_id: string | null }>).map(
@@ -454,7 +455,9 @@ Deno.serve(async (req: Request) => {
         teamSnapshot = await loadTeamSnapshot(supabase, teamId, user.id, page);
       }
       const response = await anthropic.messages.create({
-        model: "claude-sonnet-5",
+        // أسئلة الشات اليومية (وش أسوي الحين، اشرح لي هالاختبار) يكفيها Haiku — أرخص بكثير
+        // من Sonnet، والمهام الثقيلة (البحث، مراجعة المقترح) تبقى على Sonnet. effort مو مدعوم على Haiku 4.5
+        model: "claude-haiku-4-5",
         max_tokens: 2000,
         // نفس مرجع البروتوكولات يتكرر بكل رسالة — نكاشه (cache_control) عشان
         // ما ندفع سعره كامل إلا أول مرة، والتكرارات تكلفتها أقل بكثير
@@ -463,9 +466,6 @@ Deno.serve(async (req: Request) => {
           ...(teamSnapshot ? [{ type: "text" as const, text: teamSnapshot }] : []),
           ...(billingFacts ? [{ type: "text" as const, text: billingFacts }] : []),
         ],
-        // effort منخفض يكفي لأسئلة الشات المباشرة (مو استنتاج معقّد متعدد
-        // الخطوات) — يوفر بدون ما يأثر على جودة إجابة سؤال عادي
-        output_config: { effort: "low" },
         messages,
       });
       return new Response(JSON.stringify({ text: textFrom(response.content) }), {

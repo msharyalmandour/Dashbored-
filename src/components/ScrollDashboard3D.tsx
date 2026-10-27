@@ -5,7 +5,7 @@ import overviewImg from "../assets/landing/dash-overview.jpg";
 import tasksImg from "../assets/landing/dash-tasks.jpg";
 import supervisorImg from "../assets/landing/dash-supervisor.jpg";
 import statsImg from "../assets/landing/dash-stats.jpg";
-import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE } from "../lib/plans";
+import { AI_ADDON_FOUNDER, AI_PRICE, BASIC_PRICE } from "../lib/plans";
 import { tr, trx } from "../lib/i18n";
 
 interface Step {
@@ -80,7 +80,7 @@ function PlanCards() {
         <p className="font-display text-base font-extrabold text-white">Basic</p>
         <p className="mt-1 flex items-baseline gap-1.5 text-white">
           <span className="font-display text-3xl font-extrabold">{BASIC_PRICE}</span>
-          <span className="text-[11px] font-semibold text-white/55">{tr("ريال / شهريًا لكل عضو")}</span>
+          <span className="text-[11px] font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/65">
           {[tr("لوحة الفريق والمهام والتنبيهات"), tr("المقترح والمنهجية والإحصاء"), tr("محادثة المشرفة + تقويم الجوال")].map((t) => (
@@ -100,7 +100,7 @@ function PlanCards() {
         <p className="font-display text-base font-extrabold text-amber-200">AI</p>
         <p className="mt-1 flex items-baseline gap-1.5 text-white">
           <span className="font-display text-3xl font-extrabold">{AI_PRICE}</span>
-          <span className="text-[11px] font-semibold text-white/55">{tr("ريال / شهريًا لكل عضو")}</span>
+          <span className="text-[11px] font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/75">
           {[tr("كل مزايا Basic"), tr("كوتش يعرف بحثكم وينصحكم بالأولويات"), tr("وكيل بحث + تدريب مناقشة + تحسين الصياغة")].map((t) => (
@@ -110,7 +110,7 @@ function PlanCards() {
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[11px] font-bold text-amber-300">{trx("أول ١٥ فريق: {0} ريال ثابتة", FOUNDER_AI_PRICE)}</p>
+        <p className="mt-2 text-[11px] font-bold text-amber-300">{trx("أول ١٥ فريق: المساعد بـ{0} ريال بس", AI_ADDON_FOUNDER)}</p>
       </div>
     </div>
   );
@@ -262,7 +262,7 @@ export default function ScrollDashboard3D() {
                 <Link
                   to="/login"
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-extrabold text-neutral-950 shadow-[0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-transform hover:scale-[1.04]"
-                >{tr("ابدأوا مجانًا ٧ أيام")}<ArrowLeft size={15} />
+                >{tr("ابدأوا مجانًا ١٤ يوم")}<ArrowLeft size={15} />
                 </Link>
                 <a href="#pricing" className="text-xs font-bold text-white/60 underline underline-offset-4 hover:text-amber-300">{tr("قارنوا كل التفاصيل")}</a>
               </div>

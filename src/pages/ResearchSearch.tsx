@@ -36,7 +36,7 @@ import { g, isFemaleUser } from "../lib/gender";
 import { formatTimestampLong } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 
-const SEARCH_MONTHLY_LIMIT = 10;
+const SEARCH_MONTHLY_LIMIT = 2;
 const GUIDE_KEY = "wesync.research.guide.dismissed";
 
 const themeOptions: { value: LiteratureTheme; label: string }[] = [

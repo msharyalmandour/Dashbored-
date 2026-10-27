@@ -51,13 +51,13 @@ export default function PlanComparison({ variant = "dark" }: { variant?: Variant
       <div className="grid grid-cols-[minmax(0,1fr)_4.5rem_5.5rem] items-end gap-2 px-3 py-4 sm:grid-cols-[minmax(0,1fr)_9rem_10rem] sm:px-6 sm:px-6">
         <p className={`font-display text-base font-extrabold ${t.head}`}>{tr("الفرق بنظرة")}</p>
         <div className="text-center">
-          <p className={`text-xs font-extrabold ${t.head}`}>Basic</p>
+          <p className={`text-xs font-extrabold ${t.head}`}>{tr("الفريق")}</p>
           <p className={`text-[11px] ${t.basicText}`}>{trx("{0} ريال", BASIC_PRICE)}</p>
         </div>
         <div className="text-center">
           <p className={`inline-flex items-center gap-1 text-xs font-extrabold ${t.aiText}`}>
             <Wand2 size={11} />
-            AI
+            {tr("+ المساعد")}
           </p>
           <p className={`text-[11px] ${t.basicText}`}>{trx("{0} ريال", AI_PRICE)}</p>
         </div>

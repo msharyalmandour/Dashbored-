@@ -19,6 +19,7 @@ import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { formatDateLong } from "../lib/date";
 import { getTeamSubscriptionState, subscriptionStateLabel } from "../lib/subscription";
 import { tr, trx } from "../lib/i18n";
+import { teamMonthlyTotal } from "../lib/plans";
 
 interface TeamMemberRow {
   id: string;
@@ -97,7 +98,7 @@ export default function AdminSubscriptions() {
     return s === "expired" || s === "none";
   }).length;
   const monthlyRevenue = activeTeams.reduce(
-    (sum, t) => sum + t.monthlyPrice * t.memberCount,
+    (sum, t) => sum + teamMonthlyTotal(t.plan, t.isFounder, t.memberCount),
     0,
   );
 
@@ -109,7 +110,7 @@ export default function AdminSubscriptions() {
         </span>
         <div>
           <h1 className="font-display text-xl font-extrabold text-brand-950">{tr("إدارة الاشتراكات")}</h1>
-          <p className="text-sm text-brand-950/55">{tr("٤٠ ريال شهريًا لكل شخص — فعّلي اشتراك أي فريق بعد ما تتأكدين من تحويل STC Pay.")}</p>
+          <p className="text-sm text-brand-950/55">{tr("سعر الإطلاق للفريق كامل: ١٩ لحاله، ٣٩ لشخصين، ٤٩ من ٣–٥، والمساعد +٣٩ (+١٩ للمؤسسين ولحاله). فعّلي اشتراك أي فريق بعد ما تتأكدين من التحويل.")}</p>
         </div>
       </Card>
 
@@ -171,7 +172,7 @@ export default function AdminSubscriptions() {
                     <span className="rounded-full bg-surface-muted px-2 py-0.5 font-bold text-brand-700">
                       {team.plan === "ai" ? tr("باقة AI") : tr("باقة Basic")}
                     </span>
-                    <span>{trx("{0} ريال/شخص — ", team.monthlyPrice)}<span className="font-bold text-brand-700">{trx("{0} ريال/شهر", team.monthlyPrice * team.memberCount)}</span>
+                    <span><span className="font-bold text-brand-700">{trx("{0} ريال/شهر", teamMonthlyTotal(team.plan, team.isFounder, team.memberCount))}</span>
                     </span>
                     {team.university && (
                       <span className="flex items-center gap-1.5">

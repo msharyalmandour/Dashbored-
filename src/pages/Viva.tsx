@@ -86,7 +86,7 @@ export default function Viva() {
 
       {aiOk && (
         <Card tone="cream" className="space-y-3">
-          <p className="text-sm text-brand-950/70">{tr("الأفضل تكتبون مقترحكم ومنهجيتكم أولًا (كل ما كانوا أوضح كانت الأسئلة أدق). المتاح ٨ جلسات بالشهر لكل فريق.")}</p>
+          <p className="text-sm text-brand-950/70">{tr("الأفضل تكتبون مقترحكم ومنهجيتكم أولًا (كل ما كانوا أوضح كانت الأسئلة أدق). المتاح ٣ جلسات بالشهر لكل فريق.")}</p>
           <button
             onClick={generate}
             disabled={busy}

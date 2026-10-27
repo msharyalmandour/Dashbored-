@@ -103,7 +103,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: team, error: teamError } = await supabaseAdmin
     .from("teams")
-    .select("subscription_end_date, monthly_price, referred_by_team_id, referral_reward_granted")
+    .select("subscription_end_date, plan, is_founder, referred_by_team_id, referral_reward_granted")
     .eq("id", teamId)
     .single();
 
@@ -112,16 +112,18 @@ Deno.serve(async (req: Request) => {
     return new Response("error", { status: 500, headers: corsHeaders });
   }
 
-  // كل عضو يقدر يدفع حصته لحاله بدل ما شخص واحد يدفع الفاتورة كاملة — فبدل
-  // ما كل دفعة تمدد شهر كامل بشكل ثابت، نمدد بالتناسب: دفعة = حصة شخص واحد
-  // من أصل N أعضاء تمدد (١/N) من الشهر، ودفعة الفاتورة كاملة تمدد شهر كامل
-  // زي قبل. هذا يخلي الاشتراك تراكمي — كل عضو يدفع يزيد رصيد الأيام مباشرة،
-  // بدون ما ننتظر الكل يدفعون قبل لا يستفيد الفريق من أي شيء.
+  // السعر للفريق كامل (سعر الإطلاق، نفس public.team_monthly_total): باحث لحاله 19، شخصين 39،
+  // ٣–٥ أعضاء 49، والمساعد الذكي +19 للباحث لحاله، +39 للفريق (+19 للمؤسسين).
+  // كل عضو يقدر يدفع نصيبه لحاله، فنمدد بالتناسب: (المبلغ ÷ اشتراك الفريق) × ٣٠ يوم —
+  // الدفعات تتراكم، ودفعة الفريق كامل تمدد شهر كامل.
   const { count: memberCount } = await supabaseAdmin
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("team_id", teamId);
-  const totalMonthlyCost = (team.monthly_price as number) * Math.max(memberCount ?? 1, 1);
+  const members = Math.max(memberCount ?? 1, 1);
+  const basePrice = members <= 1 ? 19 : members === 2 ? 39 : 49;
+  const addon = team.plan === "ai" ? (members <= 1 ? 19 : team.is_founder ? 19 : 39) : 0;
+  const totalMonthlyCost = basePrice + addon;
   const daysToAdd =
     totalMonthlyCost > 0 ? Math.max(Math.round((amount / totalMonthlyCost) * 30), 1) : 30;
 
@@ -139,7 +141,7 @@ Deno.serve(async (req: Request) => {
     .update({ subscription_end_date: newEndStr, on_trial: false })
     .eq("id", teamId);
 
-  // أول تمديد حقيقي لفريق مُحال يعطي الفريق الداعي ١٥ يوم مجاني — مرة وحدة بس، نفس منطق admin_extend_subscription
+  // أول تمديد حقيقي لفريق مُحال: شهر مجاني للفريقين (الداعي والجديد) — مرة وحدة بس، نفس منطق admin_extend_subscription
   if (team.referred_by_team_id && !team.referral_reward_granted) {
     const { data: referrerTeam } = await supabaseAdmin
       .from("teams")
@@ -153,7 +155,7 @@ Deno.serve(async (req: Request) => {
         : new Date();
       const refBase = refCurrentEnd > today ? refCurrentEnd : today;
       const refNewEnd = new Date(refBase);
-      refNewEnd.setDate(refNewEnd.getDate() + 15);
+      refNewEnd.setDate(refNewEnd.getDate() + 30);
 
       await supabaseAdmin
         .from("teams")
@@ -161,7 +163,12 @@ Deno.serve(async (req: Request) => {
         .eq("id", team.referred_by_team_id as string);
     }
 
-    await supabaseAdmin.from("teams").update({ referral_reward_granted: true }).eq("id", teamId);
+    const bonusEnd = new Date(newEnd);
+    bonusEnd.setDate(bonusEnd.getDate() + 30);
+    await supabaseAdmin
+      .from("teams")
+      .update({ referral_reward_granted: true, subscription_end_date: bonusEnd.toISOString().slice(0, 10) })
+      .eq("id", teamId);
   }
 
   return new Response("ok", { status: 200, headers: corsHeaders });

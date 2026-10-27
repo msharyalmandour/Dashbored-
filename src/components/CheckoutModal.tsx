@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import MoyasarPayment from "./MoyasarPayment";
 import { tr, trx } from "../lib/i18n";
+import { memberShare, teamMonthlyTotal } from "../lib/plans";
 
 /** نافذة دفع منبثقة تلخّص الطلب قبل تضمين نموذج Moyasar الفعلي، وتعرض حالة
     نجاح واضحة لما يرجع المستخدم بعد الدفع (Moyasar يرجّعه بـ ?status=paid
@@ -33,8 +34,9 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   if (!team) return null;
 
   const memberCount = roster.length || 1;
-  const pricePerPerson = team.monthlyPrice ?? 40;
-  const total = mode === "full" ? pricePerPerson * memberCount : pricePerPerson;
+  const teamTotal = teamMonthlyTotal(team.plan, team.isFounder, memberCount);
+  const share = memberShare(teamTotal, memberCount);
+  const total = mode === "full" ? teamTotal : share;
 
   return (
     <div
@@ -106,7 +108,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
                   {mode === "full" ? tr("عدد الأعضاء") : tr("حصتك أنت")}
                 </span>
                 <span className="font-semibold text-brand-950">
-                  {mode === "full" ? memberCount : tr("{0} ريال", pricePerPerson)}
+                  {mode === "full" ? memberCount : tr("{0} ريال", share)}
                 </span>
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-brand-100 pt-3">

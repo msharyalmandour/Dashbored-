@@ -272,7 +272,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${window.location.origin}${window.location.pathname}#/login?ref=${team.referralCode}`;
-  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ٧ أيام مجانية 🎁\n{0}", referralLink);
+  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ١٤ يوم مجانية، وأول ما تشتركون ناخذ شهر هدية أنا وأنتم 🎁\n{0}", referralLink);
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);

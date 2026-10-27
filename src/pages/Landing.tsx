@@ -6,12 +6,24 @@ import HeroVideo from "../components/HeroVideo";
 import WelcomeVoice from "../components/WelcomeVoice";
 import InstallAppButton from "../components/InstallAppButton";
 import PlanComparison from "../components/PlanComparison";
-import { AI_PRICE, BASIC_PRICE, FOUNDER_AI_PRICE, aiFeatures, basicHighlights } from "../lib/plans";
+import {
+  AI_ADDON_FOUNDER,
+  AI_ADDON_SOLO,
+  AI_ADDON_TEAM,
+  AI_PRICE,
+  DUO_PRICE,
+  MAX_TEAM_MEMBERS,
+  SOLO_PRICE,
+  TEAM_PRICE,
+  TRIAL_DAYS,
+  aiFeatures,
+  basicHighlights,
+  memberShare,
+} from "../lib/plans";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import LangToggle from "../components/ui/LangToggle";
 import { tr, trx } from "../lib/i18n";
 
-const TEAM_SIZE = 5;
 
 const font = "font-display";
 /** خصائص حركة الظهور: يضاف لها كلاس ld-fx وتتأخر بالمللي ثانية للتتابع */
@@ -74,16 +86,24 @@ const faqs = [
     a: tr("التطبيق بسيط وبالعربي بالكامل، ودليل الطالب داخل التطبيق يمشي وياكم خطوة بخطوة من أول يوم."),
   },
   {
-    q: tr("لو حبينا نوقف الاشتراك بعد شهر أو شهرين؟"),
-    a: tr("تقدرون توقفون في أي وقت تبونه، ما فيه أي التزام طويل أو شروط جزائية."),
+    q: tr("لو حبينا نوقف الاشتراك بالإجازة أو بعد التسليم؟"),
+    a: tr("ما فيه تجديد تلقائي أصلًا ولا نسحب من بطاقتكم. إذا ما دفعتم يتجمّد الفريق مجانًا (قراءة فقط) وبياناتكم محفوظة لين ترجعون."),
   },
   {
     q: tr("هل بيانات وملفات فريقنا آمنة؟"),
     a: tr("بياناتكم خاصة بفريقكم فقط، ومحمية بنظام صلاحيات — كل عضو يشوف اللي يخصه حسب دوره في الفريق."),
   },
   {
-    q: tr("ينفع نستخدمه لو فريقنا أكبر أو أصغر من ٥ أعضاء؟"),
-    a: tr("أكيد، السعر لكل شخص ({0} ريال Basic، أو {1} ريال AI)، فتقدرون تضيفون أو تحذفون أعضاء ويتغيّر السعر تلقائيًا حسب عدد فريقكم.", BASIC_PRICE, AI_PRICE),
+    q: tr("ينفع لو فريقنا أقل من ٥ أعضاء؟"),
+    a: tr("أكيد. السعر للفريق كامل مو لكل شخص: لحالك {0} ريال، شخصين {1}، ومن ٣ إلى {2} أعضاء {3} ريال بالشهر. والمشرفة مجانًا دايمًا وما تنحسب.", SOLO_PRICE, DUO_PRICE, MAX_TEAM_MEMBERS, TEAM_PRICE),
+  },
+  {
+    q: tr("هل الذكاء الاصطناعي يكتب البحث عنّا؟"),
+    a: tr("لا. المساعد يرتّب ويشرح ويقترح، والكتابة منكم — عشان بحثكم يطلع من شغلكم، وتدافعون عنه بالمناقشة وأنتم واثقين."),
+  },
+  {
+    q: tr("ظروفي ما تسمح بالدفع؟"),
+    a: tr("عندنا منحة لعدد محدود من الطلاب. راسلونا واتساب (الزر الأخضر تحت) وقولوا لنا عن وضعكم، بدون إحراج."),
   },
   {
     q: tr("لو واجهنا مشكلة أو سؤال، كيف الدعم؟"),
@@ -352,6 +372,14 @@ function DoorsCoverflow() {
   );
 }
 
+/** المواقف اللي تتكرر بكل فريق بحث — نبدأ بالألم، وبعدها الحل */
+const pains = [
+  { pain: tr("٥٠٠ رسالة بالقروب، ولا وحدة مهمة."), fix: tr("المهام والملفات والقرارات بمكانها، مو ضايعة بين الستيكرز.") },
+  { pain: tr("واحد شايل البحث كله، والباقي «إن شاء الله»."), fix: tr("الكل يشوف مين سوّى وش.. بدون إحراج ولا مواجهة.") },
+  { pain: tr("المشرفة رسلت ملاحظات، ومحد يدري مين يعدّل وش."), fix: tr("كل ملاحظة تصير مهمة باسم صاحبها وموعدها.") },
+  { pain: tr("انتبهتوا للتسليم قبله بيومين."), fix: tr("مخطط الموعد يوزّع الأسابيع من يوم التسليم للخلف.") },
+];
+
 const pillars = [
   { n: tr("٠١"), k: tr("وضوح"), t: tr("لكل مهمة صاحب وموعد."), d: tr("انتهى سؤال «مين عليه هذا الجزء؟». كل بند من الاجتماع يصير مهمة باسم صاحبها.") },
   { n: tr("٠٢"), k: tr("عدالة"), t: tr("العبء موزّع، والجهد ظاهر."), d: tr("ترون من يحمل أكثر من طاقته ومن يقدر يساعد، مع تقرير مساهمة جاهز للمشرف/ة.") },
@@ -441,12 +469,12 @@ export default function Landing() {
             <h1 {...rise(300)} className={`ld-rise ${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>{tr("بحثكم يخلص")}<br />
               <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">{tr("بوقته، مو بآخر ليلة")}</span>
             </h1>
-            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">{tr("مساحة واحدة تجمع فريقكم ومشرفكم وكل مراحل البحث، من أول فكرة حتى يوم التسليم.")}</p>
+            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">{tr("قروب واتساب ضايع، وواحد شايل الشغل كله، وملاحظات المشرفة محد يدري عنها؟ Wesync يجمع فريقكم ومشرفكم وكل مراحل البحث بمكان واحد — كل واحد يعرف وش عليه، ومتى.")}</p>
             <div {...rise(700)} className="ld-rise mt-9 flex flex-wrap items-center gap-3">
               <CtaButton>{tr("ابدأوا فريقكم")}</CtaButton>
               <a href="#how" className={glassBtn}>{tr("شاهدوا كيف يعمل")}</a>
             </div>
-            <p {...rise(900)} className="ld-rise mt-5 text-sm text-[#BDAFA3]">{trx("تجربة مجانية ٧ أيام كاملة المزايا · الباقات تبدأ من {0} ريال شهريًا لكل عضو", BASIC_PRICE)}</p>
+            <p {...rise(900)} className="ld-rise mt-5 text-sm text-[#BDAFA3]">{trx("{0} يوم مجانًا بدون بطاقة · الفريق كامل بـ{1} ريال بالشهر · المشرفة مجانًا", TRIAL_DAYS, TEAM_PRICE)}</p>
           </div>
         </div>
       </section>
@@ -463,6 +491,25 @@ export default function Landing() {
         <p className="relative mt-6 text-center text-xs text-[#BDAFA3]">{tr("الأقسام نفسها اللي بالمنصّة، والبيانات أمثلة للتوضيح.")}</p>
       </section>
 
+      {/* ================= PAINS ================= */}
+      <section className="relative mx-auto max-w-[1100px] px-6 pb-24 pt-6 sm:px-9">
+        <div {...fx()} className="ld-fx mx-auto max-w-[640px] text-center">
+          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("تعرفون هالمواقف؟")}</div>
+          <h2 className={`${font} mt-2.5 text-[32px] font-extrabold leading-[1.35] md:text-[44px]`}>{tr("مشكلة بحث التخرج مو البحث.. الفوضى اللي حوله.")}</h2>
+        </div>
+        <div className="mt-12 grid gap-4 md:grid-cols-2">
+          {pains.map((p, i) => (
+            <div key={p.pain} {...fx(i * 120)} className="ld-fx ld-glass rounded-[28px] border border-white/[0.1] bg-white/[0.035] p-6">
+              <p className={`${font} text-[21px] font-bold leading-[1.5] text-[#F6F1EC]`}>{p.pain}</p>
+              <p className="mt-3 flex items-start gap-2 text-[15px] text-[#FFD9A8]">
+                <Check size={16} className="mt-1 shrink-0 text-[#FFB444]" />
+                {p.fix}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ================= STATEMENT ================= */}
       <section
         className="relative overflow-hidden px-6 pb-[140px] pt-[150px] text-center sm:px-9"
@@ -474,7 +521,7 @@ export default function Landing() {
         <div {...fx()} className="ld-fx relative mx-auto max-w-[900px]">
           <div className="text-sm tracking-[2px] text-[#F1D9C4]">{tr("فلسفتنا")}</div>
           <h2 className={`${font} mt-[18px] text-[40px] font-extrabold leading-[1.3] md:text-[62px]`}>{tr("Wesync لا يكتب بحثكم.")}</h2>
-          <p className={`${font} mt-3 text-[22px] leading-[1.6] text-[#2A0E04] md:text-[30px]`}>{tr("يرتّب كل ما حوله،")}<br />{tr("لتتفرّغوا لما يهمّ فعلًا.")}</p>
+          <p className={`${font} mt-3 text-[22px] leading-[1.6] text-[#2A0E04] md:text-[30px]`}>{tr("يرتّب كل ما حوله،")}<br />{tr("فبحثكم يطلع من شغلكم.. وبضمير مرتاح.")}</p>
         </div>
       </section>
 
@@ -516,16 +563,21 @@ export default function Landing() {
       {/* ================= PRICING ================= */}
       <section id="pricing" className="relative mx-auto max-w-[1100px] scroll-mt-4 px-6 pb-24 pt-14 sm:px-9">
         <div {...fx()} className="ld-fx mx-auto max-w-[640px] text-center">
-          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("الباقات")}</div>
-          <h2 className={`${font} mb-2 mt-2.5 text-[34px] font-extrabold md:text-[46px]`}>{tr("اختاروا ما يناسب فريقكم.")}</h2>
-          <p className="text-[#BDAFA3]">{trx("الأسعار شهريًا لكل عضو — فريق من {0} أعضاء يدفع {1} ريال بـ Basic أو {2} ريال بـ AI. تجربة ٧ أيام كاملة المزايا لأي فريق جديد.", TEAM_SIZE, BASIC_PRICE * TEAM_SIZE, AI_PRICE * TEAM_SIZE)}</p>
+          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("سعر الإطلاق")}</div>
+          <h2 className={`${font} mb-2 mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>{trx("الفريق كامل بـ{0} ريال.", TEAM_PRICE)}<br />
+            <span className="font-normal text-[#FFD9A8]">{tr("نصيبك أقل من كوب قهوة.")}</span>
+          </h2>
+          <p className="text-[#BDAFA3]">{trx("اشتراك واحد للفريق كامل حتى {0} أعضاء — مو لكل شخص. لحالك {1} ريال، شخصين {2}. المشرفة مجانًا دايمًا، و{3} يوم تجربة بدون بطاقة.", MAX_TEAM_MEMBERS, SOLO_PRICE, DUO_PRICE, TRIAL_DAYS)}</p>
         </div>
 
         <div className="mt-14 grid items-stretch gap-[22px] md:grid-cols-2">
           <div {...fx(100)} className="ld-fx ld-glass flex flex-col gap-[22px] rounded-[34px] border border-white/[0.12] bg-white/[0.04] p-[34px]">
-            <div><div className={`${font} text-[22px] font-semibold`}>Basic</div><div className="text-[15px] text-[#BDAFA3]">{tr("كل أدوات إدارة البحث، بدون ذكاء اصطناعي")}</div></div>
-            <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{BASIC_PRICE}</span><span className="text-[#BDAFA3]">{tr("ريال شهريًا لكل عضو")}</span></div>
-            <Link to="/login?signup=1" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">{tr("ابدأوا بـ Basic")}</Link>
+            <div><div className={`${font} text-[22px] font-semibold`}>{tr("اشتراك الفريق")}</div><div className="text-[15px] text-[#BDAFA3]">{tr("كل أدوات تنظيم البحث للفريق كامل")}</div></div>
+            <div>
+              <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{TEAM_PRICE}</span><span className="text-[#BDAFA3]">{tr("ريال شهريًا للفريق كامل")}</span></div>
+              <div className="mt-2 text-sm text-[#FFD9A8]">{trx("يعني {0} ريال بس لكل عضو لو كنتم {1}", memberShare(TEAM_PRICE, MAX_TEAM_MEMBERS), MAX_TEAM_MEMBERS)}</div>
+            </div>
+            <Link to="/login?signup=1" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">{trx("ابدأوا {0} يوم مجانًا", TRIAL_DAYS)}</Link>
             <ul className="space-y-3 border-t border-white/10 pt-5 text-[15px] text-[#E6DBD1]">
               {basicHighlights.map((item) => (
                 <li key={item} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFB444]" />{item}</li>
@@ -541,12 +593,15 @@ export default function Landing() {
               boxShadow: "0 40px 100px rgba(255,107,0,.28),inset 0 1px 0 rgba(255,240,210,.35)",
             }}
           >
-            <span className="absolute end-[22px] top-[22px] rounded-full bg-[#F6F1EC] px-3.5 py-[5px] text-xs font-semibold text-[#1A0F00]">{trx("أول ١٥ فريق: {0} ريال ثابتة", FOUNDER_AI_PRICE)}</span>
-            <div><div className={`${font} text-[22px] font-semibold`}>AI</div><div className="text-[15px] text-[#E6DBD1]">{tr("كل شي بالإضافة لمساعد بحثي ذكي")}</div></div>
-            <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{AI_PRICE}</span><span className="text-[#E6DBD1]">{tr("ريال شهريًا لكل عضو")}</span></div>
-            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">{tr("ابدأوا تجربة AI المجانية")}</Link>
+            <span className="absolute end-[22px] top-[22px] rounded-full bg-[#F6F1EC] px-3.5 py-[5px] text-xs font-semibold text-[#1A0F00]">{trx("أول ١٥ فريق: المساعد بـ{0} بس", AI_ADDON_FOUNDER)}</span>
+            <div><div className={`${font} text-[22px] font-semibold`}>{tr("الفريق + المساعد الذكي")}</div><div className="text-[15px] text-[#E6DBD1]">{tr("مساعد يرتّب ويشرح ويقترح — مو بديل عنكم")}</div></div>
+            <div>
+              <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{AI_PRICE}</span><span className="text-[#E6DBD1]">{tr("ريال شهريًا للفريق كامل")}</span></div>
+              <div className="mt-2 text-sm text-[#FFE3A3]">{trx("اشتراك الفريق + المساعد بـ{0} ريال (لحالك +{1})", AI_ADDON_TEAM, AI_ADDON_SOLO)}</div>
+            </div>
+            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">{tr("جرّبوا المساعد مجانًا")}</Link>
             <ul className="space-y-3 border-t border-white/[0.18] pt-5 text-[15px] text-[#F6F1EC]">
-              <li className="text-[#F1D9C4]">{tr("كل مزايا Basic، إضافةً إلى:")}</li>
+              <li className="text-[#F1D9C4]">{tr("كل اللي باشتراك الفريق، إضافةً إلى:")}</li>
               {aiFeatures.map((f) => (
                 <li key={f.title} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFE3A3]" /><span><b className="font-semibold">{f.title}</b> — {f.desc}</span></li>
               ))}
@@ -555,7 +610,7 @@ export default function Landing() {
         </div>
 
         <details className="ld-faq mx-auto mt-10 max-w-3xl rounded-[28px] border border-white/10 bg-white/[0.03] px-6 py-4">
-          <summary className="flex items-center justify-between gap-3 font-semibold">{tr("وش الفرق بين Basic وAI بالتفصيل؟")}<ChevronDown size={18} className="ld-faq-chev shrink-0 text-[#FFB444] transition-transform" />
+          <summary className="flex items-center justify-between gap-3 font-semibold">{tr("وش يضيف المساعد الذكي بالتفصيل؟")}<ChevronDown size={18} className="ld-faq-chev shrink-0 text-[#FFB444] transition-transform" />
           </summary>
           <div className="mt-5"><PlanComparison variant="dark" /></div>
         </details>
@@ -563,13 +618,26 @@ export default function Landing() {
         <div className="mx-auto mt-8 max-w-md text-start text-sm text-white/50">
           <p className="mb-3 font-bold text-white">{tr("كيف يتم الدفع؟")}</p>
           <ol className="space-y-2.5">
-            {[tr("حوّلوا عبر STC Pay وأرسلوا لنا إثبات التحويل من داخل التطبيق"), tr("نفعّل اشتراك فريقكم خلال ساعة كحد أقصى"), tr("الدفع المباشر بالبطاقة قريبًا")].map((step, i) => (
+            {[tr("ادفعوا بـ Apple Pay أو STC Pay أو مدى"), tr("كل واحد يدفع نصيبه، أو القائد يدفع عن الكل"), tr("يتفعّل الاشتراك خلال ثوانٍ — بدون تجديد تلقائي")].map((step, i) => (
               <li key={step} className="flex items-center gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFB444]/15 text-[11px] font-bold text-[#FFB444]">{i + 1}</span>
                 {step}
               </li>
             ))}
           </ol>
+        </div>
+
+        <div className="mx-auto mt-10 grid max-w-3xl gap-3 sm:grid-cols-3">
+          {[
+            { k: tr("بالإجازة؟"), v: tr("الفريق يتجمّد مجانًا، وبياناتكم محفوظة لين ترجعون.") },
+            { k: tr("ادعوا فريق ثاني"), v: tr("أول ما يشتركون: شهر مجاني لكم ولهم.") },
+            { k: tr("ظروفك ما تسمح؟"), v: tr("عندنا منحة محدودة — اطلبوها واتساب بدون إحراج.") },
+          ].map((perk) => (
+            <div key={perk.k} className="rounded-[22px] border border-white/10 bg-white/[0.03] px-5 py-4 text-start">
+              <div className="text-sm font-bold text-[#FFB444]">{perk.k}</div>
+              <div className="mt-1 text-sm text-[#BDAFA3]">{perk.v}</div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -597,7 +665,7 @@ export default function Landing() {
           <h2 className={`${font} text-[38px] font-extrabold leading-[1.3] md:text-[60px]`}>{tr("الليلة الأخيرة قبل التسليم؟")}<br />
             <span className="font-normal">{tr("خلّوها ليلة عادية.")}</span>
           </h2>
-          <p className="mx-auto mb-9 mt-[18px] max-w-xl text-lg font-light text-[#E6DBD1] md:text-xl">{tr("ابدأوا اليوم، وادعوا فريقكم ومشرفكم في دقيقة.")}</p>
+          <p className="mx-auto mb-9 mt-[18px] max-w-xl text-lg font-light text-[#E6DBD1] md:text-xl">{trx("{0} يوم مجانًا بدون بطاقة. ادعوا فريقكم ومشرفكم في دقيقة.", TRIAL_DAYS)}</p>
           <CtaButton big>{tr("ابدأوا فريقكم")}</CtaButton>
         </div>
       </section>

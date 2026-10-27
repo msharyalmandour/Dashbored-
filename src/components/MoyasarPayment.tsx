@@ -5,6 +5,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { g, isFemaleUser } from "../lib/gender";
 import { MOYASAR_PUBLISHABLE_KEY } from "../lib/moyasar";
 import { tr } from "../lib/i18n";
+import { memberShare, teamMonthlyTotal } from "../lib/plans";
 
 const SCRIPT_SRC = "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
 const STYLE_HREF = "https://cdn.moyasar.com/mpf/1.15.0/moyasar.css";
@@ -20,6 +21,7 @@ declare global {
         publishable_api_key: string;
         callback_url: string;
         methods: string[];
+        apple_pay?: { country: string; label: string; validate_merchant_url: string };
         metadata?: Record<string, string>;
       }) => void;
     };
@@ -52,7 +54,7 @@ function loadMoyasarAssets(): Promise<void> {
   });
 }
 
-/** نموذج دفع فوري بالبطاقة عبر Moyasar — بديل أسرع لرفع إثبات تحويل STC Pay
+/** نموذج دفع فوري (بطاقة/مدى، Apple Pay، STC Pay) عبر Moyasar — بديل أسرع لرفع إثبات تحويل STC Pay
     اليدوي. الاشتراك يتفعّل تلقائيًا خلال ثوانٍ بعد نجاح الدفع (عبر webhook)،
     بدون انتظار مراجعة يدوية.
 
@@ -70,8 +72,9 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
   const [error, setError] = useState<string | null>(null);
 
   const memberCount = roster.length || 1;
-  const pricePerPerson = team?.monthlyPrice ?? 40;
-  const amountRiyals = mode === "full" ? pricePerPerson * memberCount : pricePerPerson;
+  // نفس حسبة السيرفر (team_monthly_total / moyasar-webhook): السعر للفريق كامل، والحصة تتقرّب لفوق
+  const teamTotal = team ? teamMonthlyTotal(team.plan, team.isFounder, memberCount) : 0;
+  const amountRiyals = mode === "full" ? teamTotal : memberShare(teamTotal, memberCount);
   const isFemale = isFemaleUser(currentUser);
 
   useEffect(() => {
@@ -93,7 +96,13 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
           : tr("حصة {0} — فريق {1}", currentUser.name, team.name),
       publishable_api_key: MOYASAR_PUBLISHABLE_KEY,
       callback_url: window.location.href,
-      methods: ["creditcard"],
+      // Apple Pay يحتاج توثيق الدومين بلوحة Moyasar، وSTC Pay يحتاج تفعيله من حسابهم — لو مو مفعّلين ما يطلعون
+      methods: ["creditcard", "applepay", "stcpay"],
+      apple_pay: {
+        country: "SA",
+        label: "Wesync",
+        validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
+      },
       metadata: { team_id: team.id, profile_id: currentUser.id },
     });
   }, [ready, team, currentUser, amountRiyals, mode]);
@@ -106,8 +115,8 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
         <CreditCard size={16} className="text-amber-accent-600" />
         <p className="text-sm font-bold text-brand-950">
           {mode === "full"
-            ? tr("ادفعوا الآن بالبطاقة — تفعيل فوري ({0} ريال / شهر لـ {1} {2})", amountRiyals, memberCount, memberCount === 1 ? tr("عضو") : tr("أعضاء"))
-            : tr("{0} حصتك بالبطاقة — تفعيل فوري ({1} ريال)", g(isFemale, tr("ادفعي"), tr("ادفع")), amountRiyals)}
+            ? tr("ادفعوا الآن — تفعيل فوري ({0} ريال / شهر لـ {1} {2})", amountRiyals, memberCount, memberCount === 1 ? tr("عضو") : tr("أعضاء"))
+            : tr("{0} حصتك — تفعيل فوري ({1} ريال)", g(isFemale, tr("ادفعي"), tr("ادفع")), amountRiyals)}
         </p>
       </div>
       {error ? (

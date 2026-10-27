@@ -10,3 +10,7 @@
 - Don't push to `main` directly; PRs only when the owner asks.
 - Long-term goals (Wesync Meet vs Zoom/Teams, wow features, 10 usability ideas) live
   in `docs/ROADMAP.md` — owner asked to keep them (2026-10-01). Proposals only; not built.
+- Product/pricing/marketing decisions follow the owner's validation rule (2026-10-27): pick a precise
+  user segment → find the problem that recurs for them → test the fix with real users → measure
+  **repeat usage** (weekly active teams, members active per team, supervisor activity, actual payment),
+  never compliments, likes, sign-up counts or "I'd pay" survey answers alone.

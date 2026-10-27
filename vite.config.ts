@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
       ? [
           VitePWA({
             registerType: 'autoUpdate',
+            workbox: { importScripts: ['push-sw.js'] },
             manifest: {
               name: 'Wesync — منصة إدارة أبحاث التخرج',
               short_name: 'Wesync',

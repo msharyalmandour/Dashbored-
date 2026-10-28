@@ -138,3 +138,36 @@
 }
 html[data-reduce-motion="true"] .v3-ring { --v3p: var(--v3-target, 0%); }
 html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="true"] .v3-bw:hover { transform: none; }
+
+/* ── إشعارات الرئيسية: تنزل من فوق بنطّة خفيفة (0.6s) وتطلع لفوق وهي تختفي (0.4s) ── */
+.ws-toast {
+  background: linear-gradient(180deg, rgba(58,24,11,.97), rgba(24,10,6,.97));
+  border: 1px solid rgba(255,195,140,.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 30px 70px rgba(0,0,0,.55);
+  color: var(--ws-c-text);
+  transform-origin: 50% 0;
+  animation: ws-toast-in .6s cubic-bezier(.2,.9,.25,1.1) both;
+}
+.ws-toast.out { animation: ws-toast-out .4s ease-in both; }
+/* شريط العمر: ينقص خلال ٥ ثواني، ويوقف مع الماوس أو الضغط (animation-play-state من الواجهة) */
+.ws-life { position: absolute; inset: 0; display: block; background: linear-gradient(90deg, var(--ws-c-accent), #FFC777); transform-origin: right center; animation: ws-life 5s linear both; }
+[dir="ltr"] .ws-life { transform-origin: left center; }
+/* دوّارة متدرجة (بس وقت «جاري الربط») */
+.ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #FFB444 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
+/* ✓ خضرا تنط مرة وحدة */
+.ws-ok { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; background: rgba(127,224,166,.16); color: var(--ws-c-done); box-shadow: 0 0 18px rgba(127,224,166,.3); animation: ws-pop .5s cubic-bezier(.3,1.6,.5,1) both; }
+/* مفتاح الإيميل: ينزلق بـ spring ويتوهج لما يشتغل */
+.ws-toggle { position: relative; display: block; width: 50px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.14); transition: background .3s, box-shadow .3s; }
+.ws-toggle b { position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: inset-inline-start .45s cubic-bezier(.5,1.6,.4,1); }
+.ws-toggle.on { background: linear-gradient(90deg, var(--ws-c-accent), #FFB547); box-shadow: 0 0 16px rgba(255,138,36,.5); }
+.ws-toggle.on b { inset-inline-start: 25px; }
+
+@keyframes ws-toast-in {
+  0% { opacity: 0; transform: perspective(900px) translateY(-70px) rotateX(-70deg) scale(.92); }
+  70% { opacity: 1; transform: perspective(900px) translateY(6px) rotateX(8deg) scale(1); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ws-toast-out { to { opacity: 0; transform: perspective(900px) translateY(-40px) rotateX(30deg) scale(.94); } }
+@keyframes ws-life { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes ws-spin { to { transform: rotate(360deg); } }
+@keyframes ws-pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }

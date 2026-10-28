@@ -7,6 +7,7 @@ import Avatar from "../components/ui/Avatar";
 import Dialog from "../components/ui/Dialog";
 import FocusSession from "../components/FocusSession";
 import NotificationsBell from "../components/NotificationsBell";
+import HomeToasts from "../components/home/HomeToasts";
 import { V3Glow, TYPE_LABEL, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -200,6 +201,7 @@ export default function Overview() {
   return (
     <div className="v3 relative">
       <V3Glow />
+      <HomeToasts />
 
       {showGuide && (
         <div className="relative mb-4">

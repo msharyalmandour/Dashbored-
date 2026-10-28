@@ -10,17 +10,18 @@ const LINES = [
 ];
 
 /** «الوكيل يفكّر»: كرة بحالة thinking + جملة خفيفة تتبدل كل ٣ ثواني */
-export default function ThinkingLine({ className }: { className?: string }) {
+export default function ThinkingLine({ className, steps }: { className?: string; steps?: string[] }) {
+  const lines = steps && steps.length > 0 ? steps : LINES;
   const [i, setI] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setI((n) => (n + 1) % LINES.length), 3000);
+    const t = setInterval(() => setI((n) => (n + 1) % lines.length), 3000);
     return () => clearInterval(t);
   }, []);
   return (
     <span className={className ?? "inline-flex items-center gap-3"} role="status" aria-live="polite">
       <AgentOrb size={26} state="thinking" />
       <span key={i} className="st-fade text-sm text-[#B8ADA2]">
-        {LINES[i]}
+        {lines[i % lines.length]}
       </span>
     </span>
   );

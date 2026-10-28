@@ -18,6 +18,9 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { sectionLabels, useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
 import { useProjectMemory } from "../hooks/useProjectMemory";
 import { watchAll } from "../lib/agentWatch";
+import { buildStatus, isStatusQuestion, quickRepliesFor, THINKING_STEPS, type QuickReply, type StatusSnapshot } from "../lib/agentExtras";
+import AgentStatusCard from "./agent/AgentStatusCard";
+import AgentQuickReplies from "./agent/AgentQuickReplies";
 import { askProjectAgent, reviewProposal, type AgentAction, type AskTurn, type ProposalReview } from "../hooks/useProjectAgent";
 import { addDaysISO, formatDateLong, toISODate } from "../lib/date";
 import { hasAiAccess } from "../lib/plans";
@@ -28,6 +31,10 @@ interface Turn extends AskTurn {
   actions?: AgentAction[];
   /** تقرير مراجعة المقترح (يظهر ببطاقات، بدون أي تنفيذ تلقائي) */
   review?: ProposalReview;
+  /** بطاقة وضع المشروع (لأسئلة «وين وصلنا») */
+  status?: StatusSnapshot;
+  /** ردود سريعة منطقية بعد الرد */
+  replies?: QuickReply[];
   /** وقت وصول الرد — عشان الردود الجديدة بس تظهر كلمة كلمة */
   at?: number;
 }
@@ -72,7 +79,7 @@ export default function ProjectAgentChat({
   const { showToast } = useToast();
   const { aim, gap, questions, updateAimStatement, updateGap, setResearchQuestions } = useProposal();
   const { tasks, addTask, updateStatus } = useTasksData();
-  const { addEvent } = useCalendarEvents();
+  const { addEvent, events: calendarEvents } = useCalendarEvents();
   const { roster } = useTeamRoster();
   const { stages } = useResearchStages();
   const { project } = useResearchProject();
@@ -213,7 +220,10 @@ export default function ProjectAgentChat({
     setBusy(true);
     const r = await askProjectAgent(q, history);
     const actions = r.data?.actions ?? [];
-    setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? tr("تعذّر الرد."), actions, at: Date.now() }]);
+    const today = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
+    const status = r.data && isStatusQuestion(q) ? buildStatus({ today, tasks, stages, events: calendarEvents }) : undefined;
+    const replies = r.data ? quickRepliesFor({ question: q, actionTypes: actions.map((a) => a.type), isLeader, status }) : [];
+    setTurns((t) => [...t, { role: "agent", text: r.data?.answer ?? r.message ?? tr("تعذّر الرد."), actions, status, replies, at: Date.now() }]);
     // دايماً بموافقة: ما نفّذ شي لين تضغطون «وافق» (نتجاهل a.auto من الخادم)
     setBusy(false);
   };
@@ -325,6 +335,7 @@ export default function ProjectAgentChat({
             )}
           >
             <p className="whitespace-pre-wrap">{t.role === "agent" ? <StreamedText text={t.text} at={t.at} /> : t.text}</p>
+            {t.status && <AgentStatusCard status={t.status} />}
             {t.review && (
               <div className="mt-3 space-y-2.5">
                 <div className="flex items-center gap-3 rounded-2xl border border-[rgba(255,107,0,.3)] p-3">
@@ -486,8 +497,13 @@ export default function ProjectAgentChat({
       {busy && (
         <li className={clsx("flex", !compact && "justify-end")}>
           <div className="inline-flex items-center gap-2 rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-4 py-3 text-sm text-[#B8ADA2]">
-            <ThinkingLine />
+            <ThinkingLine steps={THINKING_STEPS} />
           </div>
+        </li>
+      )}
+      {!busy && turns.length > 0 && turns[turns.length - 1].role === "agent" && (
+        <li>
+          <AgentQuickReplies items={turns[turns.length - 1].replies ?? []} onPick={(ask) => send(ask)} disabled={mock} />
         </li>
       )}
       <div ref={endRef} />

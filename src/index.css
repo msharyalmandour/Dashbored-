@@ -2,6 +2,7 @@
 @import "./styles/tokens.css";
 @import "./styles/motion.css";
 @import "./styles/paper.css";
+@import "./styles/home-lux.css";
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;

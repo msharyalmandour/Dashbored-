@@ -8,8 +8,7 @@ import Dialog from "../components/ui/Dialog";
 import FocusSession from "../components/FocusSession";
 import NotificationsBell from "../components/NotificationsBell";
 import HomeToasts from "../components/home/HomeToasts";
-import TeamTogether from "../components/home/TeamTogether";
-import NextMeetingCard from "../components/home/NextMeetingCard";
+import { MeetLuxCard, TeamRow, WeekLuxCard } from "../components/home/TeamMeetLux";
 import { V3Glow, TYPE_LABEL, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -36,7 +35,7 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { isEn, tr } from "../lib/i18n";
 
 // بالعرض التجريبي البيانات مثبّتة على أغسطس ٢٠٢٦، فنثبّت «اليوم» عليه عشان الحسابات تطلع منطقية
-const now = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22, 10);
+const now = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22, 6);
 const todayIso = toISODate(now);
 
 const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
@@ -527,10 +526,11 @@ export default function Overview() {
         </section>
       </div>
 
-      {/* ── الفريق مع بعض + الاجتماع الجاي والتقويم ── */}
-      <div className="relative mb-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1.4fr_1fr] lg:gap-5">
-        <TeamTogether tasks={tasks} today={todayIso} style={rise(5)} />
-        <NextMeetingCard today={todayIso} now={now} style={rise(6)} />
+      {/* ── الفريق مع بعض (بعرض الصفحة) + الاجتماع الجاي (يمين) وهالأسبوع (يسار) ── */}
+      <TeamRow tasks={tasks} today={todayIso} style={rise(5)} />
+      <div className="relative mb-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1.1fr_1fr] lg:gap-[18px]">
+        <MeetLuxCard now={now} style={rise(6)} />
+        <WeekLuxCard today={todayIso} now={now} style={rise(7)} />
       </div>
 
       {/* ── ٦) تحسّن الأسبوع (بس لو فيه تحسّن) ── */}

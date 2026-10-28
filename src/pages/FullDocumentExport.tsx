@@ -102,18 +102,18 @@ export default function FullDocumentExport() {
           <ArrowRight size={16} />{tre("رجوع للمقترح")}</Link>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => exportWord("dark")}
-            disabled={exportingWord}
-            title={tre("تصميم Wesync الداكن — للقراءة على الشاشة وللعرض")}
-            className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950 hover:bg-surface-muted disabled:opacity-60"
-          >{trxe("{0}Word — تصميم Wesync", exportingWord ? <Loader2 size={16} className="animate-spin" /> : <FileType2 size={16} />)}</button>
-          <button
             onClick={() => exportWord("official")}
             disabled={exportingWord}
-            title={tre("أبيض بنسق الروبريك الرسمي — للتسليم والطباعة")}
+            title={tre("أبيض بنسق الروبريك الرسمي — للتسليم والطباعة ولرفعه على Google Drive")}
+            className="flex items-center gap-2 rounded-xl border border-brand-300 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950 hover:bg-surface-muted disabled:opacity-60"
+          >{trxe("{0}Word رسمي (مناسب لدرايف والتسليم)", exportingWord ? <Loader2 size={16} className="animate-spin" /> : <FileType2 size={16} />)}</button>
+          <button
+            onClick={() => exportWord("dark")}
+            disabled={exportingWord}
+            title={tre("تصميم Wesync الداكن يظهر صح بـ Microsoft Word فقط — Google Drive وGoogle Docs ما يعرضون خلفية الصفحة فيطلع النص باهت")}
             className="flex items-center gap-2 rounded-xl border border-brand-200 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950/70 hover:bg-surface-muted disabled:opacity-60"
           >
-            <FileType2 size={16} />{tre("Word رسمي للتسليم")}</button>
+            <FileType2 size={16} />{tre("Word داكن (للعرض بوورد فقط)")}</button>
           <button
             onClick={() => window.print()}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600"

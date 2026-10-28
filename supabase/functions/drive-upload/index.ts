@@ -130,6 +130,45 @@ function jsonError(message: string, status = 400) {
   });
 }
 
+const CATEGORY_FOLDERS: Record<string, string> = {
+  general: "ملفات عامة",
+  "meeting-minutes": "محاضر الاجتماعات",
+  "ethical-approval": "الموافقة الأخلاقية",
+};
+
+/** مجلد فرعي مرتب لكل نوع ملف داخل مجلد الفريق (يُنشأ أول مرة) — لو فشل أي شي نرجع لمجلد الفريق نفسه بدل ما نفشل الرفع */
+async function ensureSubfolder(accessToken: string, parentId: string, name: string): Promise<string> {
+  try {
+    const q = `name='${name.replace(/'/g, "\\'")}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+    const found = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id)&pageSize=1`,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    if (found.ok) {
+      const id = ((await found.json()) as { files?: { id: string }[] }).files?.[0]?.id;
+      if (id) return id;
+    }
+    const created = await fetch("https://www.googleapis.com/drive/v3/files?supportsAllDrives=true&fields=id", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ name, mimeType: "application/vnd.google-apps.folder", parents: [parentId] }),
+    });
+    if (created.ok) return ((await created.json()) as { id: string }).id;
+    console.error("Drive subfolder creation failed:", await created.text());
+  } catch (e) {
+    console.error("Drive subfolder error:", e);
+  }
+  return parentId;
+}
+
+/** اسم موحّد: «٢٠٢٦-١٠-٢٨ — الاسم الأصلي» (بتاريخ الرياض) عشان الملفات تترتب زمنيًا بدرايف */
+function tidyName(original: string): string {
+  const name = original.trim() || "ملف";
+  if (/^\d{4}-\d{2}-\d{2}/.test(name)) return name;
+  const day = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
+  return `${day} — ${name}`;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -164,7 +203,8 @@ Deno.serve(async (req: Request) => {
     const form = await req.formData();
     const file = form.get("file");
     if (!(file instanceof File)) return jsonError("ما فيه ملف مرفق بالطلب");
-    const category = form.get("category") === "meeting-minutes" ? "meeting-minutes" : "general";
+    const rawCategory = String(form.get("category") ?? "");
+    const category = rawCategory === "meeting-minutes" || rawCategory === "ethical-approval" ? rawCategory : "general";
     const meetingMinutesId = form.get("meeting_minutes_id") as string | null;
 
     // توكن وصول حقيقي عبر حساب الخدمة — صلاحيته محصورة على المجلدات اللي
@@ -185,7 +225,9 @@ Deno.serve(async (req: Request) => {
     // قبل ما نضيف هذا الجزء، تُصلَح تلقائيًا أول رفعة جديدة لها
     await ensureFolderIsLinkShared(accessToken, folderId);
 
-    const metadata = { name: file.name, parents: [folderId] };
+    const targetFolder = await ensureSubfolder(accessToken, folderId, CATEGORY_FOLDERS[category]);
+    const driveName = tidyName(file.name);
+    const metadata = { name: driveName, parents: [targetFolder] };
     const boundary = `wesync-${crypto.randomUUID()}`;
     const encoder = new TextEncoder();
     const fileBytes = new Uint8Array(await file.arrayBuffer());
@@ -231,7 +273,7 @@ Deno.serve(async (req: Request) => {
       .from("files")
       .insert({
         research_project_id: projectId,
-        name: file.name,
+        name: driveName,
         mime_type: file.type || "application/octet-stream",
         size_bytes: file.size,
         category,

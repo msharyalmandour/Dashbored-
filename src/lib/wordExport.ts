@@ -96,7 +96,7 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
     styles: {
       default: {
         document: {
-          run: { font: "Times New Roman", size: 24 },
+          run: { font: { ascii: "Times New Roman", hAnsi: "Times New Roman", cs: "Arial", eastAsia: "Arial" }, size: 24 },
           paragraph: { spacing: { line: 360, lineRule: "auto" } },
         },
       },

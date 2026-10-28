@@ -33,6 +33,7 @@ import PhaseTracker from "../components/PhaseTracker";
 import StuckHelp from "../components/StuckHelp";
 import TodayCard from "../components/TodayCard";
 import HomeUpdates from "../components/home/HomeUpdates";
+import AlertsCard from "../components/PushToggle";
 import { isStageReady } from "../lib/stageAdvance";
 import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
 import { summarizeCollection } from "../lib/dataCollection";
@@ -596,6 +597,7 @@ export default function Overview() {
 
         {/* Calendar + upcoming */}
         <div className="space-y-4">
+          <AlertsCard />
           <Card tone="sky">
             <MiniCalendar
               events={calendarEvents}

@@ -5,7 +5,7 @@ import { GoogleDriveLogo } from "../ui/BrandLogos";
 import { useAuth } from "../../context/AuthContext";
 import { useSupervisorMessages } from "../../hooks/useSupervisorMessages";
 import { useResearchProject } from "../../hooks/useResearchProject";
-import { getDriveStatus, type DriveStatus } from "../../lib/driveTeam";
+import { getDriveStatus, peekDriveStatus, type DriveStatus } from "../../lib/driveTeam";
 import { openAgent } from "../../lib/agentBus";
 import { formatDateShort } from "../../lib/date";
 import { tr } from "../../lib/i18n";
@@ -42,13 +42,23 @@ export default function HomeUpdates() {
   const { currentUser } = useAuth();
   const { messages, unread } = useSupervisorMessages();
   const { project } = useResearchProject();
-  const [drive, setDrive] = useState<DriveStatus | null>(null);
-  const [driveHidden, setDriveHidden] = useState(false);
+  // آخر حالة معروفة بالجهاز تظهر فورًا — دالة الدرايف أحيانًا تتأخر ثواني فكانت البطاقة تطلع متأخر
+  const [drive, setDrive] = useState<DriveStatus | null>(() => peekDriveStatus(currentUser?.id));
+  const [driveHidden, setDriveHidden] = useState(() => {
+    const d = peekDriveStatus(currentUser?.id);
+    if (!currentUser || !d?.googleEmail) return false;
+    try {
+      return localStorage.getItem(driveSeenKey(currentUser.id, d.googleEmail)) === "1";
+    } catch {
+      return false;
+    }
+  });
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    getDriveStatus().then((s) => alive && setDrive(s));
+    // فشل الفحص ما يمسح الحالة المعروفة
+    getDriveStatus().then((s) => alive && !s.unreachable && setDrive(s));
     return () => {
       alive = false;
     };

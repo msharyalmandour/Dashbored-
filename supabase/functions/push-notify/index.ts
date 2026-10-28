@@ -15,7 +15,7 @@ const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json; charset=utf-8" } });
 
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
-const site = () => (Deno.env.get("SITE_URL") ?? "https://dashbored-sigma.vercel.app").replace(/\/$/, "");
+const site = () => (Deno.env.get("SITE_URL") ?? "https://wesyncapp.com").replace(/\/$/, "");
 
 const riyadhDate = (offsetDays = 0) => new Date(Date.now() + 3 * 3600000 + offsetDays * 86400000).toISOString().slice(0, 10);
 
@@ -92,7 +92,7 @@ async function runDaily(): Promise<{ sent: number }> {
     const soonCount = mine.length - late;
     const first = mine.sort((a, b) => a.due_date.localeCompare(b.due_date))[0].title;
     const parts = [late > 0 ? `${late} متأخرة` : "", soonCount > 0 ? `${soonCount} موعدها اليوم أو بكرة` : ""].filter(Boolean).join(" و");
-    const n = await sendTo(list, { title: "مهامك", body: `${parts}. أقربها: ${first}`.slice(0, 160), url: `${site()}/tasks`, tag: "daily-tasks" });
+    const n = await sendTo(list, { title: "مهامك", body: `${parts}. أقربها: ${first}`.slice(0, 160), url: `${site()}/#/tasks`, tag: "daily-tasks" });
     if (n === 0) await admin.from("reminder_log").delete().eq("kind", "push-daily").eq("ref_id", profileId).eq("recipient", today);
     sent += n;
   }
@@ -116,7 +116,7 @@ Deno.serve(async (req: Request) => {
       if (!u?.user) return json(401, { error: "unauthorized" });
       if (action === "key") return json(200, { publicKey: (await getKeys()).publicKey });
       const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").eq("profile_id", u.user.id);
-      const n = await sendTo((subs ?? []) as Sub[], { title: "Wesync", body: "الإشعارات شغّالة ✓ بتوصلك تذكيرات مهامك هنا.", url: `${site()}/tasks`, tag: "test" });
+      const n = await sendTo((subs ?? []) as Sub[], { title: "Wesync", body: "الإشعارات شغّالة ✓ بتوصلك تذكيرات مهامك هنا.", url: `${site()}/#/tasks`, tag: "test" });
       return json(200, { sent: n });
     }
     if (!(await secretOk(req.headers.get("x-digest-secret")))) return json(401, { error: "unauthorized" });

@@ -19,7 +19,7 @@ import Avatar from "../components/ui/Avatar";
 import PeakBar from "../components/ui/PeakBar";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import ContributionCard from "../components/ContributionCard";
-import PushToggle from "../components/PushToggle";
+import AlertsCard from "../components/PushToggle";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useReferralStats } from "../hooks/useReferralStats";
@@ -551,7 +551,7 @@ export default function Team() {
       </div>
 
       <WorkloadBalance roster={roster} tasks={tasks} />
-      {mode === "supabase" && <PushToggle />}
+      <AlertsCard />
       {mode === "supabase" && isLeader && <ContributionCard roster={roster} tasks={tasks} />}
       {isLeader && mode === "supabase" && (
         <div className="mt-4">

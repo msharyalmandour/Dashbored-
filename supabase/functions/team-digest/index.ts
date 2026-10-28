@@ -1,8 +1,10 @@
 // إيميلات دورية للفريق والمشرف/ة — تشتغل من pg_cron (verify_jwt=false، التوثيق بسر الجدولة في الهيدر):
-//   weekly : تقرير أسبوعي (المنجز، المتأخر، الجاي، المراحل، قرارات تنتظر) للمشرف/ة المؤكَّد/ة إيميله وقائد الفريق
+//   weekly : تقرير أسبوعي (المنجز، المتأخر، الجاي، المراحل، قرارات تنتظر) للمشرف/ة المؤكَّد/ة إيميله ولكل عضو مفعّل تذكيرات الإيميل
 //   daily  : تذكير لكل عضو بمهامه اللي موعدها خلال يومين أو متأخرة، وأي ملاحظة/رسالة جديدة من المشرف/ة
 //   preview: (عضو مسجّل دخول) يرجّع نص التقرير الأسبوعي لفريقه بدون إرسال — للمعاينة من الموقع
-// كل إرسال ينسجّل في reminder_log عشان ما يتكرر. الأعضاء يقدرون يوقفون التذكيرات (profiles.email_reminders).
+// كل إرسال ينسجّل في reminder_log عشان ما يتكرر. العضو اللي مطفي «تذكيرات الإيميل» (profiles.email_reminders = false)
+// ما يوصله لا تذكير يومي ولا تقرير أسبوعي — المفتاح ببطاقة «التنبيهات» بصفحة الفريق.
+// الروابط بالإيميل لازم تكون #/… لأن الموقع يستخدم HashRouter (/tasks بدون # = 404 على Vercel).
 // أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (وSITE_URL اختياري). سر الجدولة: تولّده القاعدة (Vault) — راجع supabase/PENDING_digest_secret_and_cron.sql
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -15,7 +17,8 @@ const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json; charset=utf-8" } });
 
 const esc = (s: string) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const site = () => (Deno.env.get("SITE_URL") ?? "https://dashbored-sigma.vercel.app").replace(/\/$/, "");
+const site = () => (Deno.env.get("SITE_URL") ?? "https://wesyncapp.com").replace(/\/$/, "");
+const STOP_HINT = "توقفون التذكيرات من صفحة الفريق ← «التنبيهات» ← «تذكيرات الإيميل».";
 
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 
@@ -138,7 +141,7 @@ ${project?.target_submission_date ? `<br>🏁 موعد التسليم: ${esc(arD
         ),
       ]) +
       section(audience === "supervisor" ? "قرارات تنتظر رأيك" : "قرارات تنتظر المشرف/ة", ((decisions ?? []) as { question: string }[]).map((d) => esc(d.question))),
-    audience === "supervisor" ? `${site()}/supervisor/${team.share_token}` : `${site()}/`,
+    audience === "supervisor" ? `${site()}/#/supervisor/${team.share_token}` : `${site()}/#/`,
     audience === "supervisor" ? "افتح لوحة الفريق" : "افتحوا Wesync",
   );
   const text = `${team.name ?? "الفريق"}: أنجزوا ${doneWeek.length} مهمة هالأسبوع، ${overdue.length} متأخرة، ${upcoming.length} موعدها الأسبوع الجاي.`;
@@ -154,13 +157,14 @@ async function runWeekly(): Promise<{ sent: number; skipped?: string }> {
   let sent = 0;
   const { data: teams } = await admin.from("teams").select("id").limit(1000);
   for (const { id: teamId } of (teams ?? []) as { id: string }[]) {
-    const [{ data: sub }, { data: leader }] = await Promise.all([
+    const [{ data: sub }, { data: members }] = await Promise.all([
       admin.from("supervisor_email_subscriptions").select("email, confirm_token, confirmed_at, unsubscribed_at").eq("team_id", teamId).maybeSingle(),
-      admin.from("profiles").select("id, email, email_reminders").eq("team_id", teamId).eq("role", "leader").limit(1).maybeSingle(),
+      admin.from("profiles").select("id, email, email_reminders").eq("team_id", teamId),
     ]);
     const supOk = sub?.email && sub.confirmed_at && !sub.unsubscribed_at;
-    const leaderOk = leader?.email && leader.email_reminders !== false;
-    if (!supOk && !leaderOk) continue;
+    // كل عضو مفعّل التذكيرات (الافتراضي)؛ المطفي ما نرسل له شي
+    const recipients = ((members ?? []) as { id: string; email: string | null; email_reminders: boolean | null }[]).filter((m) => !!m.email && m.email_reminders !== false);
+    if (!supOk && !recipients.length) continue;
     // فريق بدون أي مهمة = ما بدأ يستخدم المنصة، ما نزعج أحد
     const { count } = await admin.from("tasks").select("id", { count: "exact", head: true }).eq("team_id", teamId);
     if (!count) continue;
@@ -169,21 +173,19 @@ async function runWeekly(): Promise<{ sent: number; skipped?: string }> {
       const w = await buildWeekly(teamId, "supervisor");
       let ok = false;
       if (w) {
-        const footer = `وصلك هذا لأنك فعّلت إشعارات Wesync لهذا الفريق. <a href="${site()}/supervisor-email/unsubscribe/${sub!.confirm_token}" style="color:#888">إيقاف الإيميلات</a>`;
+        const footer = `وصلك هذا لأنك فعّلت إشعارات Wesync لهذا الفريق. <a href="${site()}/#/supervisor-email/unsubscribe/${sub!.confirm_token}" style="color:#888">إيقاف الإيميلات</a>`;
         ok = await sendEmail(sub!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text);
       }
       if (ok) sent++;
       else await release([{ kind: "weekly-supervisor", refId: teamId, key: `${sub!.email}|${week}` }]);
     }
-    if (leaderOk && (await claim("weekly-leader", teamId, `${leader!.id}|${week}`))) {
-      const w = await buildWeekly(teamId, "team");
-      let ok = false;
-      if (w) {
-        const footer = `توقفون التذكيرات من صفحة الفريق ← «تذكيرات بالإيميل».`;
-        ok = await sendEmail(leader!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text);
-      }
-      if (ok) sent++;
-      else await release([{ kind: "weekly-leader", refId: teamId, key: `${leader!.id}|${week}` }]);
+    // نفس نوع السجل القديم (weekly-leader) عشان القائد ما يوصله التقرير مرتين بأسبوع التحويل
+    const teamWeekly = recipients.length ? await buildWeekly(teamId, "team") : null;
+    for (const m of recipients) {
+      if (!teamWeekly || !(await claim("weekly-leader", teamId, `${m.id}|${week}`))) continue;
+      const html = teamWeekly.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${STOP_HINT}</p></div>`);
+      if (await sendEmail(m.email!, teamWeekly.subject, html, teamWeekly.text)) sent++;
+      else await release([{ kind: "weekly-leader", refId: teamId, key: `${m.id}|${week}` }]);
     }
   }
   return { sent };
@@ -248,9 +250,9 @@ async function runDaily(): Promise<{ sent: number; skipped?: string }> {
           section("مهام متأخرة — يمديك تلحقها", late) +
           section("ملاحظات جديدة من المشرف/ة", fbNew) +
           section("رسائل جديدة من المشرف/ة", msgNew),
-        `${site()}/${dueSoon.length || late.length ? "tasks" : msgNew.length ? "" : "feedback"}`,
+        `${site()}/#/${dueSoon.length || late.length ? "tasks" : msgNew.length ? "" : "feedback"}`,
         dueSoon.length || late.length ? "افتح مهامي" : "افتح Wesync",
-        "توقفون التذكيرات من صفحة الفريق ← «تذكيرات بالإيميل».",
+        STOP_HINT,
       );
       const subject = late.length
         ? `عندك ${late.length} مهمة متأخرة`

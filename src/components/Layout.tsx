@@ -44,6 +44,7 @@ const titles: Record<string, string> = {
   "/team": tr("الفريق"),
   "/timeline": tr("الجدول الزمني"),
   "/fieldwork": tr("الميدان"),
+  "/collect": tr("أجمع وأحلّل"),
   "/files": tr("الملفات"),
   "/calendar": tr("التقويم"),
   "/story": tr("قصة بحثك"),
@@ -63,6 +64,7 @@ const pageHeaderRoutes = new Set([
   "/surveys",
   "/tools-library",
   "/fieldwork",
+  "/collect",
   "/stats",
 ]);
 

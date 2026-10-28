@@ -26,6 +26,7 @@ import EvidenceLibrary from "./pages/EvidenceLibrary";
 import Team from "./pages/Team";
 import Timeline from "./pages/Timeline";
 import Fieldwork from "./pages/Fieldwork";
+import Collect from "./pages/Collect";
 import Files from "./pages/Files";
 import MeetingMinutes from "./pages/MeetingMinutes";
 import CalendarPage from "./pages/CalendarPage";
@@ -95,6 +96,7 @@ export default function App() {
         <Route path="/team" element={<Team />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/fieldwork" element={<Fieldwork />} />
+        <Route path="/collect" element={<Collect />} />
         <Route path="/files" element={<Files />} />
         <Route path="/meeting-minutes" element={<MeetingMinutes />} />
         <Route path="/meeting-minutes/new" element={<MinutesNew />} />

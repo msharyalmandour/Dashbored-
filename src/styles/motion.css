@@ -116,6 +116,12 @@
 /* الدخول: وحدة ورا الثانية بفرق ٧٠ms (--v3-i = ترتيب البطاقة) */
 .v3-rise { animation: v3-rise .8s cubic-bezier(.2,.8,.2,1) calc(var(--v3-i, 0) * 70ms) both; }
 
+/* دوائر المشاركين: تنط بنابض وحدة ورا الثانية، والمشارك الجاي ينبض */
+.v3-dots > span { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + var(--v3-d, 0) * 40ms) both; }
+.v3-dots > span.v3-next-dot { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + var(--v3-d, 0) * 40ms) both, v3-glow 2s ease-in-out 1.6s infinite; }
+/* أعمدة التشبّع/اكتمال العينة تطلع لفوق */
+.v3-bars-y > div { transform-origin: bottom; animation: v3-grow-y .9s cubic-bezier(.2,.8,.2,1) calc(.45s + var(--v3-i, 0) * 80ms) both; }
+
 /* «انحفظ ✓»: fade والصح ينرسم */
 .v3-saved { display: inline-flex; align-items: center; gap: 6px; animation: v3-fade .35s ease-out both; }
 .v3-saved path { stroke-dasharray: 30; animation: v3-draw .6s ease-out .1s both; }
@@ -138,6 +144,8 @@
 @keyframes v3-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes v3-caret { 0%, 49% { background-size: 2px 20px; } 50%, 100% { background-size: 0 20px; } }
 @keyframes v3-late { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,138,122,.15); } 50% { box-shadow: inset 0 0 0 1px rgba(255,138,122,.5), 0 0 30px rgba(255,100,80,.12); } }
+@keyframes v3-pop { 0% { transform: scale(.3); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes v3-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes v3-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes v3-draw { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
 @keyframes v3-drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-60px, 40px) scale(1.08); } 100% { transform: translate(30px, -20px) scale(.96); } }

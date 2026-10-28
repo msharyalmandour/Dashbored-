@@ -63,6 +63,7 @@ export const journeySections: NavSection[] = [
     icon: ClipboardList,
     stages: ["data-collection", "analysis"],
     pages: [
+      { to: "/collect", label: tr("المحطات") },
       { to: "/study-kit", label: tr("الاستبيانات والموافقات") },
       { to: "/surveys", label: tr("منشئ الاستبيان") },
       { to: "/tools-library", label: tr("أدوات القياس") },

@@ -298,7 +298,7 @@ export default function Tasks() {
     if (!r) return null;
     const when = r.dueDate === today ? tr("تذكير اليوم") : r.dueDate === tomorrow ? tr("تذكير بكرة") : tr("تذكير {0}", formatDateShort(r.dueDate));
     return (
-      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-[11px] text-[#FFB444]">
+      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-xs text-[#FFB444]">
         <Bell size={11} aria-hidden />
         {when}
       </span>
@@ -309,7 +309,7 @@ export default function Tasks() {
     t.status !== "done" && isLate(t) ? (
       <span className="font-bold text-[#FF8A7A]">{lateLabel(t.dueDate)}</span>
     ) : (
-      <span className="text-[#CFC6BE]">
+      <span className="text-[var(--ws-c-text)]">
         {t.dueDate === today ? tr("اليوم") : t.dueDate === tomorrow ? tr("بكرة") : formatDateShort(t.dueDate)}
       </span>
     );
@@ -379,14 +379,14 @@ export default function Tasks() {
               aria-expanded={isExpanded}
               className="flex min-h-[28px] w-full flex-wrap items-center gap-x-2 gap-y-1 text-start"
             >
-              <span className={clsx("text-[15px] font-bold", task.status === "done" && "text-[#B8ADA2] line-through decoration-white/30")} dir="auto">
+              <span className={clsx("text-[15px] font-bold", task.status === "done" && "text-[var(--ws-c-muted)] line-through decoration-white/30")} dir="auto">
                 {task.title}
               </span>
-              {task.priority === "high" && task.status !== "done" && <span className="v3-st late text-[11px]">{tr("أولوية عالية")}</span>}
+              {task.priority === "high" && task.status !== "done" && <span className="v3-st late text-xs">{tr("أولوية عالية")}</span>}
               {reminderBadge(task)}
-              {taskAttachments[task.id] && <FileText size={13} className="text-[#B8ADA2]" aria-label={tr("فيها مرفق")} />}
+              {taskAttachments[task.id] && <FileText size={13} className="text-[var(--ws-c-muted)]" aria-label={tr("فيها مرفق")} />}
               {taskComments.length > 0 && (
-                <span className="inline-flex items-center gap-0.5 text-[11px] text-[#B8ADA2]">
+                <span className="inline-flex items-center gap-0.5 text-xs text-[var(--ws-c-muted)]">
                   <MessageCircle size={12} aria-hidden />
                   {num(taskComments.length)}
                 </span>
@@ -416,14 +416,14 @@ export default function Tasks() {
           <div className="hidden md:block">{statusChip(task)}</div>
           <ThreeDotsMenu
             items={menu}
-            buttonClassName="v3-tap grid h-11 w-11 place-items-center rounded-full text-[#B8ADA2] transition-colors hover:bg-white/[0.07] hover:text-[#F6F1EC]"
+            buttonClassName="v3-tap grid h-11 w-11 place-items-center rounded-full text-[var(--ws-c-muted)] transition-colors hover:bg-white/[0.07] hover:text-[var(--ws-c-text)]"
           />
         </div>
 
         {isExpanded && (
           <div className="mt-3 flex flex-col gap-3 border-t border-white/[0.07] pt-3 md:ms-10">
             {task.description && (
-              <p className="m-0 whitespace-pre-wrap text-sm leading-7 text-[#E9DED3]" dir="auto">
+              <p className="m-0 whitespace-pre-wrap text-sm leading-7 text-[var(--ws-c-text)]" dir="auto">
                 {task.description}
               </p>
             )}
@@ -440,7 +440,7 @@ export default function Tasks() {
             )}
             <div className="flex flex-wrap items-center gap-3">
               {taskAttachments[task.id] ? (
-                <span className="flex items-center gap-1.5 text-[13px] text-[#FFB444]">
+                <span className="flex items-center gap-1.5 text-[13px] text-[var(--ws-c-muted)]">
                   <FileText size={14} />
                   <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
                 </span>
@@ -476,7 +476,7 @@ export default function Tasks() {
           <p className="v3-mut m-0 mt-1 text-[15px] sm:text-base">{tr("كل اللي عليك وعلى الفريق، مرتبة بالأقرب موعد.")}</p>
         </div>
         {isLeader && canWrite && (
-          <button type="button" onClick={() => setShowForm((s) => !s)} className="v3-bw" aria-expanded={showForm}>
+          <button type="button" onClick={() => setShowForm((s) => !s)} className="v3-bd" aria-expanded={showForm}>
             <Plus size={18} aria-hidden />
             {tr("مهمة جديدة")}
           </button>
@@ -490,7 +490,7 @@ export default function Tasks() {
             type="button"
             onClick={() => setShowForm(false)}
             aria-label={tr("إغلاق")}
-            className="v3-tap absolute end-3 top-3 grid h-11 w-11 place-items-center rounded-full text-[#B8ADA2] hover:text-[#F6F1EC]"
+            className="v3-tap absolute end-3 top-3 grid h-11 w-11 place-items-center rounded-full text-[var(--ws-c-muted)] hover:text-[var(--ws-c-text)]"
           >
             <X size={18} />
           </button>
@@ -599,7 +599,7 @@ export default function Tasks() {
             )}
           </div>
           {focus && (
-            <button type="button" className="v3-bw shrink-0" onClick={() => openTask(focus.id)}>
+            <button type="button" className={clsx(showForm ? "v3-bd" : "v3-bw", "shrink-0")} onClick={() => openTask(focus.id)}>
               {tr("افتح ←")}
             </button>
           )}
@@ -637,23 +637,23 @@ export default function Tasks() {
                 onClick={() => setFilter(f.id)}
                 className={clsx(
                   "v3-tap flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-4 text-[15px] transition-all",
-                  on ? "bg-[#F6F1EC] font-bold text-[#160904] shadow-[0_0_22px_rgba(255,200,140,.35)]" : "text-[#CFC6BE] hover:text-[#F6F1EC]",
+                  on ? "bg-[#F6F1EC] font-bold text-[#160904] shadow-[0_0_22px_rgba(255,200,140,.35)]" : "text-[var(--ws-c-text)] hover:text-[var(--ws-c-text)]",
                 )}
               >
                 {f.label}
-                <span className={clsx("rounded-full px-[7px] text-[11px] font-bold", on ? "bg-[#160904] text-[#FFB444]" : "bg-white/10")}>{num(counts[f.id])}</span>
+                <span className={clsx("rounded-full px-[7px] text-xs font-bold", on ? "bg-[#160904] text-[#FFB444]" : "bg-white/10")}>{num(counts[f.id])}</span>
               </button>
             );
           })}
         </div>
         <label className="v3-g v3-rise flex min-h-[48px] min-w-[200px] flex-1 items-center gap-2 !rounded-full px-4" style={rise(4)}>
-          <Search size={17} className="shrink-0 text-[#A99E94]" aria-hidden />
+          <Search size={17} className="shrink-0 text-[var(--ws-c-muted)]" aria-hidden />
           <span className="sr-only">{tr("ابحث في المهام")}</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={tr("ابحث في المهام…")}
-            className="min-w-0 flex-1 bg-transparent text-sm text-[#F6F1EC] outline-none placeholder:text-[#A99E94]"
+            className="min-w-0 flex-1 bg-transparent text-sm text-[var(--ws-c-text)] outline-none placeholder:text-[var(--ws-c-muted)]"
             type="search"
           />
         </label>
@@ -673,7 +673,7 @@ export default function Tasks() {
               title={label}
               className={clsx(
                 "v3-tap grid h-11 w-11 place-items-center rounded-full transition-colors",
-                view === id ? "bg-[#F6F1EC] text-[#160904]" : "text-[#CFC6BE] hover:text-[#F6F1EC]",
+                view === id ? "bg-[#F6F1EC] text-[#160904]" : "text-[var(--ws-c-text)] hover:text-[var(--ws-c-text)]",
               )}
             >
               <Icon size={17} />
@@ -739,7 +739,7 @@ export default function Tasks() {
                         <span id={`grp-${g.key}`} className="v3-k text-base">
                           {g.label}
                         </span>
-                        <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 text-[11px]">{num(g.items.length)}</span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 text-xs">{num(g.items.length)}</span>
                         {collapsible && expanded && !query.trim() && (
                           <button type="button" className="v3-link ms-auto !min-h-[36px]" onClick={() => setOpenGroups((s) => ({ ...s, [g.key]: false }))}>
                             {tr("اخفها")}

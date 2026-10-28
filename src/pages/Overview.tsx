@@ -347,7 +347,7 @@ export default function Overview() {
                   {canWrite && (
                     <>
                       {" · "}
-                      <button type="button" className="v3-link !min-h-[32px] align-baseline" onClick={openDeadlineEditor}>
+                      <button type="button" className="v3-link !min-h-[32px] align-baseline" style={{ color: "var(--ws-c-accent-2)", textDecoration: "none" }} onClick={openDeadlineEditor}>
                         {tr("عدّل")}
                       </button>
                     </>

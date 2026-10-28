@@ -47,7 +47,7 @@ export default function NotificationsBell() {
         <Bell size={18} />
         {badgeCount > 0 && (
           <span
-            className={`absolute -top-1 -end-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white ${
+            className={`absolute -top-1 -end-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full text-xs font-bold text-white ${
               attention > 0 ? "bg-rose-500" : "bg-amber-accent-500"
             }`}
           >

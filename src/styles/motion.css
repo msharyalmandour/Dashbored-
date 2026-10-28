@@ -51,7 +51,8 @@
 .v3-bd:hover { border-color: var(--ws-c-border-hover); background: rgba(255,255,255,.1); }
 .v3-bw:disabled, .v3-bd:disabled { opacity: .55; cursor: default; }
 .v3-bw:focus-visible, .v3-bd:focus-visible, .v3-tap:focus-visible { outline: 2px solid var(--ws-c-accent-2); outline-offset: 2px; }
-.v3-link { display: inline-flex; align-items: center; min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; font-weight: 700; color: var(--ws-c-accent-2); cursor: pointer; }
+.v3-link { display: inline-flex; align-items: center; min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; font-weight: 700; color: var(--ws-c-text); text-decoration: underline; text-decoration-color: rgba(234,227,220,.3); text-underline-offset: 4px; cursor: pointer; }
+.v3-link:hover { text-decoration-color: currentColor; }
 
 /* شارات الحالة — ثابتة (بدون نبض) */
 .v3-st { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ws-fs-label); font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }

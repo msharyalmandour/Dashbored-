@@ -71,7 +71,7 @@ export default function TasksKanban({
           >
             <div className="flex items-center justify-between px-1">
               <span className={`v3-st ${col.tone}`}>{col.label}</span>
-              <span className="text-xs font-semibold text-[#8F857C]">{colTasks.length}</span>
+              <span className="text-xs font-semibold text-[var(--ws-c-muted)]">{colTasks.length}</span>
             </div>
 
             {colTasks.map((task) => {
@@ -91,7 +91,7 @@ export default function TasksKanban({
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-bold text-[#F6F1EC]" dir="auto">{task.title}</p>
+                    <p className="text-sm font-bold text-[var(--ws-c-text)]" dir="auto">{task.title}</p>
                     {isLeader && onDelete && (
                       <ThreeDotsMenu
                         items={[
@@ -107,11 +107,11 @@ export default function TasksKanban({
                     )}
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className={`v3-st text-[11px] ${priorityStyle[task.priority]}`}>
+                    <span className={`v3-st text-xs ${priorityStyle[task.priority]}`}>
                       {task.priority === "low" ? tr("منخفضة") : task.priority === "medium" ? tr("متوسطة") : tr("عالية")}
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] text-[#B8ADA2]">{formatDateShort(task.dueDate)}</span>
+                      <span className="text-xs text-[var(--ws-c-muted)]">{formatDateShort(task.dueDate)}</span>
                       <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
                     </div>
                   </div>

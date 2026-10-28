@@ -47,10 +47,10 @@ function WriteTabs({ live }: { live?: Live }) {
             ref={on ? activeRef : undefined}
             aria-current={on ? "page" : undefined}
             className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-4 text-[15px] transition-all"
-            style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700, boxShadow: "0 0 22px rgba(255,200,140,.35)" } : { color: "#CFC6BE" }}
+            style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700, boxShadow: "0 0 22px rgba(255,200,140,.35)" } : { color: "var(--ws-c-text)" }}
           >
             {t.label}
-            <span className="rounded-full px-[7px] text-[11px] font-bold" style={on ? { background: "#160904", color: "#FFB444" } : { background: "rgba(255,255,255,.1)" }}>
+            <span className="rounded-full px-[7px] text-xs font-bold" style={on ? { background: "#160904", color: "#FFB444" } : { background: "rgba(255,255,255,.1)" }}>
               {num(t.n)}/{num(t.of)}
             </span>
           </Link>

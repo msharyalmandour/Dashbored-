@@ -284,7 +284,7 @@ export default function Methodology() {
                       aria-pressed={preview === t.id}
                       onClick={() => setPreview(preview === t.id ? null : t.id)}
                       className="v3-tap min-h-[44px] rounded-full px-4 text-sm"
-                      style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700 } : { background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "#E9DED3" }}
+                      style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700 } : { background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "var(--ws-c-text)" }}
                     >
                       {isEn ? t.label : TEMPLATE_AR[t.id] ?? t.label}
                     </button>
@@ -296,22 +296,22 @@ export default function Methodology() {
               <div className="v3-g2 mt-4 grid gap-3 p-4 text-sm" dir="ltr" lang="en">
                 <p className="m-0 font-bold">{previewT.studyDesign}</p>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <ul className="m-0 list-disc ps-5 text-[#CFC6BE]">
+                  <ul className="m-0 list-disc ps-5 text-[var(--ws-c-text)]">
                     {previewT.inclusionCriteria.map((c, i) => (
                       <li key={i}>{c}</li>
                     ))}
                   </ul>
-                  <ul className="m-0 list-disc ps-5 text-[#CFC6BE]">
+                  <ul className="m-0 list-disc ps-5 text-[var(--ws-c-text)]">
                     {previewT.exclusionCriteria.map((c, i) => (
                       <li key={i}>{c}</li>
                     ))}
                   </ul>
                 </div>
-                <p className="m-0 text-[#CFC6BE]">
+                <p className="m-0 text-[var(--ws-c-text)]">
                   {previewT.samplingTechnique} · {previewT.dataCollectionMethods.join(", ")} · {previewT.suggestedTool}
                 </p>
                 <div className="flex flex-wrap gap-2" dir={isEn ? "ltr" : "rtl"}>
-                  <button type="button" className="v3-bw !text-sm" onClick={() => applyTemplate(previewT)}>
+                  <button type="button" className="v3-bd !text-sm" onClick={() => applyTemplate(previewT)}>
                     <Wand2 size={15} />
                     {tr("عبّوا المنهجية بهالقالب")}
                   </button>
@@ -358,7 +358,7 @@ export default function Methodology() {
                   }}
                 >
                   <span className={`flex items-center justify-between gap-3 ${ethics ? "" : "w-full"}`}>
-                    <span className="flex h-10 w-10 items-center justify-center rounded-[13px]" style={{ background: "rgba(255,140,40,.14)", color: "#FFB444" }}>
+                    <span className="flex h-10 w-10 items-center justify-center rounded-[13px]" style={isOpen ? { background: "rgba(255,140,40,.14)", color: "#FF9A3C" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}>
                       {p.icon}
                     </span>
                     {!ethics && <span className={`v3-st ${chip[0]}`}>{chip[1]}</span>}
@@ -367,7 +367,7 @@ export default function Methodology() {
                     <span className="v3-k block text-[17px]">{bi(p.ar, p.en)}</span>
                     {!isEn && <span className="v3-en block">{p.en}</span>}
                   </span>
-                  <span className={`line-clamp-2 text-sm ${ethics ? "min-w-[180px] flex-1" : ""}`} dir="auto" style={{ color: summary ? "#E9DED3" : "#776C63" }}>
+                  <span className={`line-clamp-2 text-sm ${ethics ? "min-w-[180px] flex-1" : ""}`} dir="auto" style={{ color: summary ? "#E9DED3" : "var(--ws-c-muted)" }}>
                     {summary || (ethics ? tr("تُسحب من الموافقة الأخلاقية") : tr("اضغطوا وحددوه"))}
                   </span>
                   {ethics && <span className={`v3-st ${chip[0]}`}>{chip[1]}</span>}
@@ -414,7 +414,7 @@ export default function Methodology() {
               {fields(openPart.key)}
 
               <div className="v3-g2 flex gap-2 px-3.5 py-3 text-[13px] leading-relaxed" style={{ borderColor: "rgba(255,180,68,.25)" }}>
-                <Sparkles size={15} color="#FFB444" className="mt-1 shrink-0" />
+                <Sparkles size={15} className="mt-1 shrink-0 text-[var(--ws-c-muted)]" aria-hidden />
                 <span>{tipFor(openPart.key, project?.researchType ?? "")}</span>
               </div>
 

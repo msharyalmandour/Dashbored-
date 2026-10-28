@@ -50,7 +50,7 @@ export default function Header({
         >
           <Search size={16} className="shrink-0 text-brand-950/30" />
           <span className="flex-1 truncate text-start text-brand-950/30">{tr("ابحث أو انتقل بسرعة...")}</span>
-          <kbd className="shrink-0 rounded-full border border-brand-200/60 bg-paper/60 px-2 py-0.5 text-[10px] font-bold text-brand-950/40">
+          <kbd className="shrink-0 rounded-full border border-brand-200/60 bg-paper/60 px-2 py-0.5 text-xs font-bold text-brand-950/40">
             Ctrl K
           </kbd>
         </button>

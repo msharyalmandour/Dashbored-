@@ -221,7 +221,7 @@ export default function EthicalApprovalPage() {
           <Wand2 size={16} />
           {tr("عبّوه تلقائيًا من الفريق")}
         </button>
-        <button type="button" className="v3-bw" onClick={() => exportWord("official")} disabled={exporting} title={tr("نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة")}>
+        <button type="button" className="v3-bd" onClick={() => exportWord("official")} disabled={exporting} title={tr("نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة")}>
           {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} />}
           {tr("النموذج الرسمي (Word)")}
         </button>
@@ -236,8 +236,8 @@ export default function EthicalApprovalPage() {
             : current
               ? { background: "#F6F1EC", color: "#160904", boxShadow: "0 0 0 6px rgba(255,180,68,.2)" }
               : s.started
-                ? { border: "1.5px solid #FFB444", color: "#FFB444" }
-                : { border: "1.5px solid rgba(255,255,255,.25)", color: "#A99E94" };
+                ? { border: "1.5px solid rgba(255,255,255,.45)", color: "var(--ws-c-text)" }
+                : { border: "1.5px solid rgba(255,255,255,.25)", color: "var(--ws-c-muted)" };
           return (
             <div key={s.id} className="flex flex-1 items-center gap-2">
               <button
@@ -334,7 +334,7 @@ export default function EthicalApprovalPage() {
                         onClick={() => setStopIdx(STOPS.findIndex((s) => s.step === 3 && s.group === gi))}
                         aria-pressed={on}
                         className="v3-tap min-h-[44px] shrink-0 rounded-full px-3.5 text-[13px]"
-                        style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700 } : { background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "#E9DED3" }}
+                        style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700 } : { background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "var(--ws-c-text)" }}
                       >
                         {isEn ? g.en : g.ar} · {num(answered)}/{num(g.keys.length)}
                       </button>
@@ -360,7 +360,7 @@ export default function EthicalApprovalPage() {
                               aria-checked={val === a.v}
                               onClick={() => updateEthicalApproval({ principles: { [k]: a.v } as Partial<EthicalPrinciples> })}
                               className="v3-tap min-h-[44px] rounded-full px-3.5 text-[13px] font-bold transition-colors"
-                              style={val === a.v ? a.on : { color: "#A99E94" }}
+                              style={val === a.v ? a.on : { color: "var(--ws-c-muted)" }}
                             >
                               {tr(a.label)}
                             </button>
@@ -474,7 +474,7 @@ export default function EthicalApprovalPage() {
             {pulled.map((p) => (
               <div key={p.label} className="rounded-[14px] px-3 py-2.5" style={{ background: "rgba(0,0,0,.2)" }}>
                 <div className="v3-mut text-xs">{p.label}</div>
-                <div className="line-clamp-3 text-sm leading-relaxed" dir="auto" style={{ color: p.value.trim() ? undefined : "#776C63" }}>
+                <div className="line-clamp-3 text-sm leading-relaxed" dir="auto" style={{ color: p.value.trim() ? undefined : "var(--ws-c-muted)" }}>
                   {p.value.trim() || tr("لم يُحدد بعد")}
                 </div>
                 {p.to && (

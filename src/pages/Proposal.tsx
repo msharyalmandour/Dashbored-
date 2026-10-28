@@ -206,7 +206,7 @@ export default function Proposal() {
     >
       <div className="text-sm font-bold">{title}</div>
       {!isEn && <div className="v3-en">{en}</div>}
-      <p className="mt-1.5 line-clamp-4 text-[13px] leading-relaxed" dir="auto" style={{ color: body ? "#CFC6BE" : variant === "aim" ? "#FFB444" : "#776C63" }}>
+      <p className="mt-1.5 line-clamp-4 text-[13px] leading-relaxed" dir="auto" style={{ color: body ? "var(--ws-c-text)" : variant === "aim" ? "var(--ws-c-muted)" : "var(--ws-c-muted)" }}>
         {body || emptyText}
       </p>
     </div>
@@ -280,7 +280,7 @@ export default function Proposal() {
                   >
                     <span
                       className="flex h-6 w-6 items-center justify-center rounded-full text-xs"
-                      style={s.status === "done" ? { background: "#7FE0A6", color: "#0b2015" } : on ? { background: "#F6F1EC", color: "#160904" } : { border: "1.5px solid rgba(255,255,255,.22)", color: "#CFC6BE" }}
+                      style={s.status === "done" ? { background: "#7FE0A6", color: "#0b2015" } : on ? { background: "#F6F1EC", color: "#160904" } : { border: "1.5px solid rgba(255,255,255,.22)", color: "var(--ws-c-text)" }}
                     >
                       {s.status === "done" ? <CheckSvg size={13} /> : (i + 1).toLocaleString(isEn ? "en" : "ar-EG")}
                     </span>
@@ -311,7 +311,7 @@ export default function Proposal() {
                       ) : (
                         <span
                           className="v3-k flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[13px]"
-                          style={on ? { background: "#F6F1EC", color: "#160904" } : { border: "1.5px solid rgba(255,255,255,.22)", color: "#CFC6BE" }}
+                          style={on ? { background: "#F6F1EC", color: "#160904" } : { border: "1.5px solid rgba(255,255,255,.22)", color: "var(--ws-c-text)" }}
                         >
                           {(i + 1).toLocaleString(isEn ? "en" : "ar-EG")}
                         </span>
@@ -328,7 +328,7 @@ export default function Proposal() {
             </ol>
 
             <div className="mt-3 flex flex-col gap-2">
-              <button type="button" className="v3-bw" onClick={() => window.print()}>
+              <button type="button" className="v3-bd" onClick={() => window.print()}>
                 <FileDown size={16} />
                 {tr("صدّر PDF")}
               </button>
@@ -417,7 +417,7 @@ export default function Proposal() {
                         </label>
                       </div>
                       <label className="flex flex-col gap-1.5">
-                        <span className="text-sm font-bold text-[#FFB444]">
+                        <span className="text-sm font-bold">
                           {tr("الفجوة")} {!isEn && <span className="v3-en font-normal">· Research Gap</span>}
                         </span>
                         <AutoSaveTextarea value={gap.gapStatement} onSave={(v) => saved(updateGap({ gapStatement: v }))} placeholder={tr("اكتبوا صياغة الفجوة البحثية هنا...")} className="!border-[rgba(255,180,68,.45)]" />
@@ -480,7 +480,7 @@ export default function Proposal() {
                 </div>
 
                 {sectionAttachments[active.key] && (
-                  <p className="m-0 flex items-center gap-1.5 text-xs text-[#FFB444]">
+                  <p className="m-0 flex items-center gap-1.5 text-xs text-[var(--ws-c-muted)]">
                     <Paperclip size={12} />
                     <bdi className="truncate">{sectionAttachments[active.key].name}</bdi>
                   </p>
@@ -495,7 +495,7 @@ export default function Proposal() {
                     <FileAttach compact onAttach={(m) => attachToSection(active.key, m)} buttonClassName="v3-bd !text-sm" />
                   )}
                   <button type="button" className="v3-bd !text-sm" onClick={draftPrompt}>
-                    <Sparkles size={15} color="#FFB444" />
+                    <Sparkles size={15} aria-hidden />
                     {showThread ? tr("اكتب لي مسودة من الفجوة") : tr("اكتب لي مسودة")}
                   </button>
                   <span className="ms-auto">
@@ -616,7 +616,7 @@ export default function Proposal() {
               <div className="v3-bar" aria-hidden>
                 <i style={{ width: `${Math.min(100, (abstractWords / 250) * 100)}%`, background: abstractWords > 250 ? "#FF8A7A" : undefined }} />
               </div>
-              <div className="text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#7FE0A6" : "#B8ADA2" }}>
+              <div className="text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#7FE0A6" : "var(--ws-c-muted)" }}>
                 {trx("{0} / ١٥٠–٢٥٠ كلمة", abstractWords.toLocaleString(isEn ? "en" : "ar-EG"))}
               </div>
             </div>
@@ -629,7 +629,7 @@ export default function Proposal() {
               <div className="v3-mut text-[13px] leading-relaxed">{tr("يدوّر لكم دراسات لمراجعة الأدبيات، ويساعدكم تصيغون كل قسم من الفجوة.")}</div>
               <button
                 type="button"
-                className="v3-bw !text-sm"
+                className="v3-bd !text-sm"
                 onClick={() => openAgent(active ? tr("ساعدني في قسم «{0}» بالمقترح البحثي", bi(active.labelAr, active.labelEn)) : undefined)}
               >
                 {tr("اسأل الوكيل")}

@@ -230,7 +230,7 @@ export default function Collect() {
                 </div>
                 <span
                   className="grid h-11 w-11 place-items-center rounded-[15px] sm:h-[46px] sm:w-[46px]"
-                  style={now ? { background: "#F6F1EC", color: "#160904" } : { background: "rgba(255,140,40,.14)", color: "#FFB444" }}
+                  style={now ? { background: "linear-gradient(90deg,#FF6A00,#FF9A3C)", color: "#1A0802" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}
                 >
                   <Icon size={21} aria-hidden />
                 </span>
@@ -248,7 +248,7 @@ export default function Collect() {
                   size={20}
                   aria-hidden
                   className="hidden shrink-0 self-center lg:block ltr:rotate-180"
-                  style={{ color: s.state === "done" ? "#FFB444" : "rgba(255,255,255,.25)" }}
+                  style={{ color: s.state === "done" ? "var(--ws-c-muted)" : "rgba(255,255,255,.25)" }}
                 />
               )}
             </li>
@@ -291,7 +291,7 @@ export default function Collect() {
                         ...({ ["--v3-d" as string]: i } as CSSProperties),
                         ...(filled
                           ? { background: "linear-gradient(135deg,#FF7A10,#FFC85A)", color: "#1A0802" }
-                          : { border: `1.5px dashed ${next ? "rgba(255,180,68,.7)" : "rgba(255,255,255,.2)"}`, color: next ? "#FFB444" : "#776C63" }),
+                          : { border: `1.5px dashed ${next ? "rgba(255,180,68,.7)" : "rgba(255,255,255,.2)"}`, color: next ? "#FFB444" : "var(--ws-c-muted)" }),
                       }}
                     >
                       {perDot === 1 ? num(i + 1) : ""}
@@ -339,7 +339,7 @@ export default function Collect() {
                       </span>
                       <span className="v3-mut text-[13px] sm:text-sm">{relativeDayLabel(r.createdAt.slice(0, 10))}</span>
                       <span className="v3-mut col-start-2 text-[13px] sm:col-start-auto sm:text-sm">{qCount ? tr("{0}/{1} سؤال", num(Math.min(answered, qCount)), num(qCount)) : "—"}</span>
-                      <span className={clsx("v3-st w-fit text-[11px]", complete ? "done" : "doing")}>{complete ? tr("مكتمل") : tr("ناقص")}</span>
+                      <span className={clsx("v3-st w-fit text-xs", complete ? "done" : "doing")}>{complete ? tr("مكتمل") : tr("ناقص")}</span>
                     </li>
                   );
                 })}
@@ -374,7 +374,7 @@ export default function Collect() {
             </p>
             <button
               type="button"
-              className="v3-bw !min-h-[44px] !text-sm"
+              className="v3-bd !min-h-[44px] !text-sm"
               onClick={() =>
                 openAgent(
                   qual
@@ -446,7 +446,7 @@ export default function Collect() {
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3.5">
           {tools.map((t, i) => (
             <Link key={t.to} to={t.to} className="v3-g v3-hover v3-rise flex min-h-[44px] flex-col gap-2 !rounded-[22px] p-4" style={rise(8 + i)}>
-              <span className="grid h-[38px] w-[38px] place-items-center rounded-xl bg-[rgba(255,140,40,.14)] text-[#FFB444]">
+              <span className="grid h-[38px] w-[38px] place-items-center rounded-xl bg-white/[0.07] text-[var(--ws-c-text)]">
                 <t.icon size={19} aria-hidden />
               </span>
               <div>

@@ -56,7 +56,7 @@ export default function Sidebar({
         <sec.icon size={18} />
         <span className="flex-1">{sec.label}</span>
         {state === "current" && (
-          <span className={clsx("rounded-full px-2 py-0.5 text-[10px] font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>{tr("أنتم هنا")}</span>
+          <span className={clsx("rounded-full px-2 py-0.5 text-xs font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>{tr("أنتم هنا")}</span>
         )}
         {state === "done" && (
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title={tr("خلصتوا هالجزء")}>
@@ -104,18 +104,18 @@ export default function Sidebar({
           </NavLink>
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">{tr("رحلة البحث")}</p>
+          <p className="px-4 pb-1 text-xs font-bold tracking-wide text-amber-accent-400/70">{tr("رحلة البحث")}</p>
           {journeySections.map(renderSection)}
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <p className="px-4 pb-1 text-[11px] font-bold tracking-wide text-amber-accent-400/70">{tr("شغل الفريق")}</p>
+          <p className="px-4 pb-1 text-xs font-bold tracking-wide text-amber-accent-400/70">{tr("شغل الفريق")}</p>
           {workSections.map(renderSection)}
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
           <button
             onClick={() => setMoreOpen(!moreExpanded)}
             aria-expanded={moreExpanded}
-            className="flex w-full items-center gap-2 rounded-full px-4 py-1.5 text-start text-[11px] font-bold tracking-wide text-amber-accent-400/70 hover:bg-surface-muted/70"
+            className="flex w-full items-center gap-2 rounded-full px-4 py-1.5 text-start text-xs font-bold tracking-wide text-amber-accent-400/70 hover:bg-surface-muted/70"
           >
             <span className="flex-1">{tr("المزيد")}</span>
             <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />

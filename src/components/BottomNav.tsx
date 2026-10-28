@@ -25,14 +25,14 @@ export default function BottomNav({ onMenu }: { onMenu: () => void }) {
           to={it.to}
           end={it.end}
           className={({ isActive }) =>
-            clsx("flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold", isActive ? "text-brand-500" : "text-brand-950/50")
+            clsx("flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-bold", isActive ? "text-brand-500" : "text-brand-950/50")
           }
         >
           <it.icon size={20} />
           {it.label}
         </NavLink>
       ))}
-      <button onClick={onMenu} className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold text-brand-950/50">
+      <button onClick={onMenu} className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-bold text-brand-950/50">
         <Menu size={20} />{tr("القائمة")}</button>
     </nav>
   );

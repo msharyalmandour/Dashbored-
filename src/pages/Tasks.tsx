@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
@@ -33,6 +33,7 @@ import { useTaskComments } from "../hooks/useTaskComments";
 import { proposalSections } from "../data/mockData";
 import type { TaskPriority, TaskStatus } from "../data/types";
 import { formatDateShort, relativeDayLabel } from "../lib/date";
+import { groupTasks } from "../lib/taskGroups";
 import {
   HighlightCard,
   PageColumns,
@@ -173,6 +174,8 @@ export default function Tasks() {
       return task.status === filter;
     });
   }, [tasks, filter, currentUser]);
+
+  const groups = useMemo(() => groupTasks(filtered, new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10)), [filtered]);
 
   const memberById = (id: string) =>
     roster.find((m) => m.id === id) ?? {
@@ -399,7 +402,13 @@ export default function Tasks() {
       ) : (
         <Panel title={tr("كل المهام")} hint={tr("{0} مهمة مفتوحة", openTasks.length)}>
         <div className="flex flex-col gap-2.5">
-          {filtered.map((task) => {
+          {groups.map((g) => (
+            <Fragment key={g.key}>
+              <p className={clsx("mt-2 flex items-center gap-2 text-xs font-extrabold first:mt-0", g.key === "overdue" ? "text-rose-400" : "text-brand-950/55")}>
+                {g.label}
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold">{g.items.length}</span>
+              </p>
+          {g.items.map((task) => {
             const assignee = memberById(task.assigneeId);
             const canToggle = canToggleTask(task);
             const taskComments = comments.filter((c) => c.taskId === task.id);
@@ -504,6 +513,8 @@ export default function Tasks() {
               </div>
             );
           })}
+            </Fragment>
+          ))}
           {filtered.length === 0 && (
             <EmptyState
               icon={ListChecks}

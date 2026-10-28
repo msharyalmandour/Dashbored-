@@ -9,8 +9,11 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
 import type { ProposalSectionKey, ResearchProjectStatus, ResearchType, SectionStatus } from "../data/types";
 import { formatDateLongEn } from "../lib/date";
-import WriteHeader, { TYPE_LABEL, V3Glow } from "../components/v3/WriteHeader";
+import WriteHeader, { TYPE_LABEL, V3Glow, num } from "../components/v3/WriteHeader";
 import { CheckSvg } from "../components/v3/Motion";
+import PaperToggle from "../components/v3/PaperToggle";
+import { usePaperMode } from "../lib/paperMode";
+import { useTypingPresence } from "../hooks/useTypingPresence";
 import { openAgent } from "../lib/agentBus";
 import { isEn, tr, trx } from "../lib/i18n";
 
@@ -110,7 +113,8 @@ function SavedNote({ at }: { at: number | null }) {
 export default function Proposal() {
   const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } = useProposal();
   const { project, updateProject } = useResearchProject();
-  const { canWrite } = useAuth();
+  const { canWrite, currentUser } = useAuth();
+  const [paper, setPaper] = usePaperMode(currentUser?.id);
   const { roster } = useTeamRoster();
   const memberById = (id: string) => roster.find((m) => m.id === id);
 
@@ -156,6 +160,16 @@ export default function Proposal() {
   const gapRelated = active && (active.key === "gap" || active.key === "aim" || active.key === "questions");
   const showThread = active && (active.key === "aim" || active.key === "questions");
   const next = ordered[activeIdx + 1];
+  // عدد الكلمات و«فلان يكتب الحين» تحت النص
+  const typing = useTypingPresence(`proposal:${active?.key ?? ""}`);
+  const savedText =
+    active?.key === "aim" ? aim.statement : active?.key === "questions" ? questions.map((q) => q.text).join(" ") : active?.key === "gap" ? [gap.whatWeKnow.join(" "), gap.whatWeDontKnow.join(" "), gap.gapStatement, gap.studyConnection].join(" ") : active?.content ?? "";
+  const [liveWords, setLiveWords] = useState<{ key: string; n: number } | null>(null);
+  const words = liveWords && liveWords.key === active?.key ? liveWords.n : countWords(savedText);
+  const onWriting = (d: string) => {
+    if (active && active.key !== "gap") setLiveWords({ key: active.key, n: countWords(d) });
+    typing.ping();
+  };
 
   const markDoneAndNext = async () => {
     if (!active) return;
@@ -327,8 +341,13 @@ export default function Proposal() {
 
           {/* ٢) المحرر — قسم واحد */}
           <div className="flex min-w-0 flex-col gap-4">
+            <div className="flex justify-end">
+              <PaperToggle on={paper} onChange={setPaper} />
+            </div>
             {active && (
-              <section className="v3-g v3-rise flex flex-col gap-4 p-5 sm:px-6 sm:py-[22px]" style={rise(2)} aria-labelledby="v3-sec-title">
+              <section className={`v3-g v3-rise ws-write flex flex-col gap-4 p-5 sm:px-6 sm:py-[22px]${paper ? " is-paper" : ""}`} style={rise(2)} aria-labelledby="v3-sec-title">
+                <div className="ws-paper-layer" aria-hidden />
+                <div className="ws-paper-margin" aria-hidden />
                 <div className="flex flex-wrap items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="v3-eye">{trx("القسم {0} من {1}", (activeIdx + 1).toLocaleString(isEn ? "en" : "ar-EG"), ordered.length.toLocaleString(isEn ? "en" : "ar-EG"))}</div>
@@ -364,8 +383,14 @@ export default function Proposal() {
                 </div>
 
                 {/* خيط الفجوة: ٤ بطاقات تتعبّى من قسم الفجوة */}
+                {gapRelated && (
+                  <div className="ws-paper-only flex-wrap gap-2">
+                    {gap.gapStatement.trim() && <span className="ws-paper-chip" dir="auto">{tr("الفجوة: {0}", gap.gapStatement.trim().length > 90 ? `${gap.gapStatement.trim().slice(0, 90)}…` : gap.gapStatement.trim())}</span>}
+                    {!gap.connectsToAim && <span className="ws-paper-chip warn">{tr("الهدف لازم يطلع من الفجوة")}</span>}
+                  </div>
+                )}
                 {showThread && (
-                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  <div className="ws-dark-only grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                     {threadCard(tr("اللي نعرفه"), "What we know", gap.whatWeKnow.join("، "), "plain", tr("لسا ما انكتب — من قسم الفجوة"))}
                     {threadCard(tr("اللي ما نعرفه"), "What we don't know", gap.whatWeDontKnow.join("، "), "plain", tr("لسا ما انكتب — من قسم الفجوة"))}
                     {threadCard(tr("الفجوة"), "Research Gap", gap.gapStatement, "gap", tr("اكتبوا الفجوة أول من قسم «الفجوة المعرفية»"))}
@@ -409,6 +434,7 @@ export default function Proposal() {
                       label={tr("هدف الدراسة")}
                       value={aim.statement}
                       onSave={(v) => saved(updateAimStatement(v))}
+                      onDraft={onWriting}
                       placeholder={tr("اكتبوا هدف الدراسة… مثال: «تستكشف هذه الدراسة تجربة … خلال …»")}
                       rows={5}
                       className="min-h-[120px]"
@@ -420,6 +446,7 @@ export default function Proposal() {
                         key={questions.map((q) => q.text).join("|")}
                         value={questions.map((q) => q.text).join("\n")}
                         onSave={(v) => saved(setResearchQuestions(v.split("\n").filter(Boolean)))}
+                        onDraft={onWriting}
                         placeholder={tr("سؤال بحث واحد بكل سطر...")}
                         rows={5}
                         className="min-h-[120px]"
@@ -436,6 +463,7 @@ export default function Proposal() {
                       label={bi(active.labelAr, active.labelEn)}
                       value={active.content}
                       onSave={(content) => saved(updateSection(active.key, { content }))}
+                      onDraft={onWriting}
                       placeholder={tr("اكتبوا محتوى هذا القسم هنا...")}
                       rows={8}
                       className="min-h-[160px]"
@@ -458,7 +486,11 @@ export default function Proposal() {
                   </p>
                 )}
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="ws-write-foot flex flex-wrap items-center gap-2.5">
+                  <span className="v3-mut text-sm">{tr("{0} كلمة", num(words))}</span>
+                  {typing.names.length > 0 && (
+                    <span className="v3-mut text-sm">· {typing.names.length === 1 ? tr("{0} يكتب الحين", typing.names[0]) : tr("{0} يكتبون الحين", typing.names.join(tr(" و")))}</span>
+                  )}
                   {canWrite && !sectionAttachments[active.key] && (
                     <FileAttach compact onAttach={(m) => attachToSection(active.key, m)} buttonClassName="v3-bd !text-sm" />
                   )}

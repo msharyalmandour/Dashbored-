@@ -3,6 +3,9 @@ import { Check, ExternalLink, FileCheck2, Loader2, Wand2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import FileAttach from "../components/FileAttach";
 import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
+import PaperToggle from "../components/v3/PaperToggle";
+import { usePaperMode } from "../lib/paperMode";
+import { useAuth } from "../context/AuthContext";
 import { SavedTick } from "../components/v3/Motion";
 import { useEthicalApproval } from "../hooks/useEthicalApproval";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -129,6 +132,8 @@ const STEP2: (keyof EthicalApproval)[] = ["piName", "piAffiliation", "piEmail", 
 export default function EthicalApprovalPage() {
   const { ethicalApproval: ea, updateEthicalApproval } = useEthicalApproval();
   const { project } = useResearchProject();
+  const { currentUser } = useAuth();
+  const [paper, setPaper] = usePaperMode(currentUser?.id);
   const { aim } = useProposal();
   const { methodology } = useMethodology();
   const { roster } = useTeamRoster();
@@ -197,6 +202,9 @@ export default function EthicalApprovalPage() {
     <div className="v3 relative">
       <V3Glow />
       <WriteHeader fallbackTitle={tr("الموافقة الأخلاقية")} style={rise(0)} live={{ ethics: s3 }} />
+      <div className="relative -mt-2 mb-3 flex justify-end">
+        <PaperToggle on={paper} onChange={setPaper} />
+      </div>
 
       {/* بطاقة الطلب */}
       <div className="v3-g v3-rise relative mb-4 flex flex-wrap items-center gap-4 p-5 sm:px-6" style={rise(1)}>
@@ -254,7 +262,9 @@ export default function EthicalApprovalPage() {
 
       <div className="relative flex flex-col gap-5 xl:flex-row xl:items-start">
         {/* القسم الحالي */}
-        <section className="v3-g v3-rise min-w-0 flex-1 p-5 sm:px-6 sm:py-[22px]" style={rise(3)} aria-labelledby="v3-step-title">
+        <section className={`v3-g v3-rise ws-write min-w-0 flex-1 p-5 sm:px-6 sm:py-[22px]${paper ? " is-paper" : ""}`} style={rise(3)} aria-labelledby="v3-step-title">
+          <div className="ws-paper-layer" aria-hidden />
+          <div className="ws-paper-margin" aria-hidden />
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="v3-eye">{trx("الخطوة {0} من {1}", num(stop.step), num(4))}</div>

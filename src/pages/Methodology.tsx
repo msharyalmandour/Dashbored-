@@ -6,6 +6,9 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { methodologyTemplates, type MethodologyTemplate } from "../data/methodologyTemplates";
 import type { Methodology as MethodologyData } from "../data/types";
 import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
+import PaperToggle from "../components/v3/PaperToggle";
+import { usePaperMode } from "../lib/paperMode";
+import { useAuth } from "../context/AuthContext";
 import { SavedTick } from "../components/v3/Motion";
 import { METHOD_READY, type MethodPartKey } from "../lib/writeProgress";
 import { isEn, tr, trx } from "../lib/i18n";
@@ -141,6 +144,8 @@ function tipFor(key: PartKey, type: string): string {
 export default function Methodology() {
   const { methodology: m, updateMethodology } = useMethodology();
   const { project } = useResearchProject();
+  const { currentUser } = useAuth();
+  const [paper, setPaper] = usePaperMode(currentUser?.id);
   const [open, setOpen] = useState<PartKey | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -253,6 +258,9 @@ export default function Methodology() {
     <div className="v3 relative">
       <V3Glow />
       <WriteHeader fallbackTitle={tr("المنهجية")} style={rise(0)} live={{ methodology: readyCount }} />
+      <div className="relative -mt-2 mb-3 flex justify-end">
+        <PaperToggle on={paper} onChange={setPaper} />
+      </div>
 
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-[18px]">
@@ -383,9 +391,11 @@ export default function Methodology() {
               role="dialog"
               aria-labelledby="v3-drawer-title"
               key={openPart.key}
-              className="v3-g fixed inset-x-0 bottom-0 z-[61] flex max-h-[88vh] flex-col gap-4 overflow-y-auto rounded-b-none p-[22px] pb-[calc(22px+env(safe-area-inset-bottom))] outline-none lg:pb-[22px] lg:sticky lg:top-4 lg:z-auto lg:max-h-[calc(100vh-2rem)] lg:w-[390px] lg:shrink-0 lg:rounded-b-[28px]"
+              className={`v3-g ws-write${paper ? " is-paper" : ""} fixed inset-x-0 bottom-0 z-[61] flex max-h-[88vh] flex-col gap-4 overflow-y-auto rounded-b-none p-[22px] pb-[calc(22px+env(safe-area-inset-bottom))] outline-none lg:pb-[22px] lg:sticky lg:top-4 lg:z-auto lg:max-h-[calc(100vh-2rem)] lg:w-[390px] lg:shrink-0 lg:rounded-b-[28px]`}
               style={{ borderColor: "rgba(255,180,68,.35)", background: "linear-gradient(180deg,rgba(40,16,8,.92),rgba(20,8,4,.92))" }}
             >
+              <div className="ws-paper-layer" aria-hidden />
+              <div className="ws-paper-margin" aria-hidden />
               <div className="flex items-center gap-2.5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-[13px]" style={{ background: "rgba(255,140,40,.14)", color: "#FFB444" }}>
                   {openPart.icon}

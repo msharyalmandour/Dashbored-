@@ -6,6 +6,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { methodologyTemplates, type MethodologyTemplate } from "../data/methodologyTemplates";
 import type { Methodology as MethodologyData } from "../data/types";
 import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
+import { SavedTick } from "../components/v3/Motion";
 import { METHOD_READY, type MethodPartKey } from "../lib/writeProgress";
 import { isEn, tr, trx } from "../lib/i18n";
 
@@ -26,14 +27,18 @@ const TEMPLATE_AR: Record<string, string> = {
 /** حقل بسطر/أسطر يُحفظ عند الخروج منه — نفس سلوك الحقول السابقة */
 function Field({ label, en, value, onSave, rows = 1, placeholder }: { label: string; en?: string; value: string; onSave: (v: string) => void; rows?: number; placeholder?: string }) {
   const [draft, setDraft] = useState(value);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     if (document.activeElement !== ref.current) setDraft(value);
   }, [value]);
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-bold">
-        {label} {en && !isEn && <span className="v3-en font-normal">{en}</span>}
+      <span className="flex flex-wrap items-center gap-x-2 text-sm font-bold">
+        <span>
+          {label} {en && !isEn && <span className="v3-en font-normal">{en}</span>}
+        </span>
+        <SavedTick at={savedAt} />
       </span>
       <textarea
         ref={ref}
@@ -42,7 +47,10 @@ function Field({ label, en, value, onSave, rows = 1, placeholder }: { label: str
         value={draft}
         onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setDraft(e.target.value)}
         onBlur={() => {
-          if (draft !== value) onSave(draft);
+          if (draft !== value) {
+            onSave(draft);
+            setSavedAt(Date.now());
+          }
         }}
         placeholder={placeholder ?? tr("لم يُحدد بعد")}
         className={`v3-field !text-sm${draft.trim() ? "" : " v3-empty"}`}

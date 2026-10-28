@@ -605,7 +605,7 @@ export default function Tasks() {
           )}
         </section>
 
-        <section className="v3-g v3-rise flex flex-1 items-center gap-5 p-5 sm:px-6" style={rise(2)} aria-label={tr("إنجاز المهام")}>
+        <section className="v3-g v3-hover v3-rise flex flex-1 items-center gap-5 p-5 sm:px-6" style={rise(2)} aria-label={tr("إنجاز المهام")}>
           <div className="relative h-[84px] w-[84px] shrink-0">
             <div className="v3-ring h-[84px] w-[84px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0}٪ مكتمل", num(pct))} />
             <span className="v3-k absolute inset-0 grid place-items-center text-xl" aria-hidden>
@@ -766,7 +766,7 @@ export default function Tasks() {
 
         <aside className="flex min-w-0 flex-col gap-4">
           {/* حمل الفريق */}
-          <section className="v3-g v3-rise flex flex-col gap-3 p-[18px]" style={rise(7)} aria-labelledby="load-title">
+          <section className="v3-g v3-hover v3-rise flex flex-col gap-3 p-[18px]" style={rise(7)} aria-labelledby="load-title">
             <div>
               <h2 id="load-title" className="v3-k m-0 text-base">
                 {tr("حمل الفريق")}
@@ -826,7 +826,7 @@ export default function Tasks() {
           </section>
 
           {/* التذكيرات */}
-          <section className="v3-g v3-rise flex flex-col gap-2 p-[18px]" style={rise(8)} aria-labelledby="rem-title">
+          <section className="v3-g v3-hover v3-rise flex flex-col gap-2 p-[18px]" style={rise(8)} aria-labelledby="rem-title">
             <div>
               <h2 id="rem-title" className="v3-k m-0 text-base">
                 {tr("التذكيرات")}

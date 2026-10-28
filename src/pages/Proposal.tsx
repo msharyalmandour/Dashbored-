@@ -10,6 +10,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import type { ProposalSectionKey, ResearchProjectStatus, ResearchType, SectionStatus } from "../data/types";
 import { formatDateLongEn } from "../lib/date";
 import WriteHeader, { TYPE_LABEL, V3Glow } from "../components/v3/WriteHeader";
+import { CheckSvg } from "../components/v3/Motion";
 import { openAgent } from "../lib/agentBus";
 import { isEn, tr, trx } from "../lib/i18n";
 
@@ -44,12 +45,6 @@ const PROJECT_STATUS: Record<ResearchProjectStatus, string> = {
 };
 
 const countWords = (s: string) => (s.trim() ? s.trim().split(/\s+/).length : 0);
-
-const CheckSvg = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M5 12.5l4.5 4.5L19 7" />
-  </svg>
-);
 
 /** حقل نصي يُحفظ عند الخروج منه (blur) فقط — نفس السلوك السابق، بشكل v3 */
 function AutoSaveTextarea({

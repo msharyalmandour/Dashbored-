@@ -3,6 +3,7 @@ import { Check, ExternalLink, FileCheck2, Loader2, Wand2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import FileAttach from "../components/FileAttach";
 import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
+import { SavedTick } from "../components/v3/Motion";
 import { useEthicalApproval } from "../hooks/useEthicalApproval";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useProposal } from "../hooks/useProposal";
@@ -36,6 +37,7 @@ function Field({
   placeholder?: string;
 }) {
   const [draft, setDraft] = useState(value);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   useEffect(() => {
     if (document.activeElement !== ref.current) setDraft(value);
@@ -47,13 +49,19 @@ function Field({
     placeholder,
     onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setDraft(e.target.value),
     onBlur: () => {
-      if (draft !== value) onSave(draft);
+      if (draft !== value) {
+        onSave(draft);
+        setSavedAt(Date.now());
+      }
     },
   };
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-bold">
-        {label} {en && !isEn && <span className="v3-en font-normal">{en}</span>}
+      <span className="flex flex-wrap items-center gap-x-2 text-sm font-bold">
+        <span>
+          {label} {en && !isEn && <span className="v3-en font-normal">{en}</span>}
+        </span>
+        <SavedTick at={savedAt} />
       </span>
       {rows ? (
         <textarea {...common} rows={rows} className={`v3-field !text-sm${draft.trim() ? "" : " v3-empty"}`} />
@@ -230,7 +238,7 @@ export default function EthicalApprovalPage() {
                 aria-current={current ? "step" : undefined}
                 className="v3-tap flex min-h-[44px] shrink-0 items-center gap-3 rounded-2xl px-1.5 text-start"
               >
-                <span className="v3-k flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-[15px]" style={circle}>
+                <span className={`v3-k flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-[15px]${current && !s.done ? " v3-glow" : ""}`} style={circle}>
                   {s.done ? <Check size={16} /> : num(s.id)}
                 </span>
                 <span className="leading-tight">

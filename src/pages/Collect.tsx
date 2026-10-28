@@ -355,7 +355,7 @@ export default function Collect() {
 
         <aside className="flex min-w-0 flex-col gap-4">
           {/* المحلل */}
-          <section className="v3-g v3-rise flex flex-col gap-2.5 p-[18px]" style={{ ...rise(6), borderColor: "rgba(255,180,68,.3)" }} aria-labelledby="analyst-title">
+          <section className="v3-g v3-hover v3-rise flex flex-col gap-2.5 p-[18px]" style={{ ...rise(6), borderColor: "rgba(255,180,68,.3)" }} aria-labelledby="analyst-title">
             <div className="flex items-center gap-2.5">
               <span className="v3-orb h-[30px] w-[30px]" aria-hidden />
               <div>
@@ -389,7 +389,7 @@ export default function Collect() {
           </section>
 
           {/* التشبّع (كيفي) أو اكتمال العينة (كمي) */}
-          <section className="v3-g v3-rise flex flex-col gap-2.5 p-[18px]" style={rise(7)} aria-labelledby="chart-title">
+          <section className="v3-g v3-hover v3-rise flex flex-col gap-2.5 p-[18px]" style={rise(7)} aria-labelledby="chart-title">
             <div>
               <h2 id="chart-title" className="v3-k m-0 text-[15px]">
                 {qual ? tr("التشبّع") : tr("اكتمال العينة")}

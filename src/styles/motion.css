@@ -113,12 +113,13 @@
 .v3-typing i:nth-child(2) { animation-delay: .15s; }
 .v3-typing i:nth-child(3) { animation-delay: .3s; }
 
-/* الدخول: وحدة ورا الثانية بفرق ٧٠ms (--v3-i = ترتيب البطاقة) */
-.v3-rise { animation: v3-rise .8s cubic-bezier(.2,.8,.2,1) calc(var(--v3-i, 0) * 70ms) both; }
+/* الدخول: وحدة ورا الثانية بفرق ٧٠ms (--v3-i = ترتيب البطاقة)، مرة وحدة عند فتح الصفحة.
+   التأخير له سقف (٨ خطوات) عشان ولا بطاقة تتأخر على المستخدم مهما كثرت */
+.v3-rise { animation: v3-rise .8s cubic-bezier(.2,.8,.2,1) calc(min(var(--v3-i, 0), 8) * 70ms) both; }
 
 /* دوائر المشاركين: تنط بنابض وحدة ورا الثانية، والمشارك الجاي ينبض */
-.v3-dots > span { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + var(--v3-d, 0) * 40ms) both; }
-.v3-dots > span.v3-next-dot { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + var(--v3-d, 0) * 40ms) both, v3-glow 2s ease-in-out 1.6s infinite; }
+.v3-dots > span { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + min(var(--v3-d, 0), 24) * 40ms) both; }
+.v3-dots > span.v3-next-dot { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + min(var(--v3-d, 0), 24) * 40ms) both, v3-glow 2s ease-in-out 1.6s infinite; }
 /* أعمدة التشبّع/اكتمال العينة تطلع لفوق */
 .v3-bars-y > div { transform-origin: bottom; animation: v3-grow-y .9s cubic-bezier(.2,.8,.2,1) calc(.45s + var(--v3-i, 0) * 80ms) both; }
 
@@ -150,7 +151,14 @@
 @keyframes v3-draw { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
 @keyframes v3-drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-60px, 40px) scale(1.08); } 100% { transform: translate(30px, -20px) scale(.96); } }
 
+/* تقليل الحركة: كل شي يوقف — داخل صفحات v3 وأي قطعة v3 برّاها (درج الوكيل، أزرار الاقتراحات) */
 @media (prefers-reduced-motion: reduce) {
-  .v3 *, .v3 *::before, .v3 *::after, .v3-blob { animation: none !important; transition: none !important; }
+  .v3 *, .v3 *::before, .v3 *::after,
+  [class*="v3-"], [class*="v3-"]::before, [class*="v3-"]::after,
+  .v3-typing i, .v3-dots > span, .v3-bars-y > div, .v3-saved path {
+    animation: none !important;
+    transition: none !important;
+  }
   .v3-ring { --v3p: var(--v3-target, 0%); }
+  .v3-g.v3-hover:hover, .v3-bw:hover { transform: none; }
 }

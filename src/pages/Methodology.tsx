@@ -6,6 +6,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { methodologyTemplates, type MethodologyTemplate } from "../data/methodologyTemplates";
 import type { Methodology as MethodologyData } from "../data/types";
 import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
+import { METHOD_READY, type MethodPartKey } from "../lib/writeProgress";
 import { isEn, tr, trx } from "../lib/i18n";
 
 /* المنهجية — ترتيب v3 (لوحة «أكتب — المنهجية»): قوالب فوق، خريطة ٧ أجزاء، وكل جزء يفتح لوحة جانبية
@@ -13,7 +14,7 @@ import { isEn, tr, trx } from "../lib/i18n";
 
 const bi = (ar: string, en: string) => (isEn ? en : ar);
 
-type PartKey = "design" | "setting" | "population" | "sample" | "collection" | "analysis" | "ethics";
+type PartKey = MethodPartKey;
 
 const TEMPLATE_AR: Record<string, string> = {
   "cross-sectional": "مسحية مقطعية",
@@ -78,16 +79,16 @@ interface Part {
 }
 
 const PARTS: Part[] = [
-  { key: "design", ar: "التصميم", en: "Study design", icon: <FlaskConical size={18} />, summary: (m) => m.studyDesign, ready: (m) => !!m.studyDesign.trim() },
-  { key: "setting", ar: "مكان الدراسة", en: "Setting", icon: <MapPin size={18} />, summary: (m) => m.studySetting, ready: (m) => !!m.studySetting.trim() },
-  { key: "population", ar: "مجتمع الدراسة", en: "Population", icon: <Users2 size={18} />, summary: (m) => m.population, ready: (m) => !!m.population.trim() },
+  { key: "design", ar: "التصميم", en: "Study design", icon: <FlaskConical size={18} />, summary: (m) => m.studyDesign, ready: METHOD_READY.design },
+  { key: "setting", ar: "مكان الدراسة", en: "Setting", icon: <MapPin size={18} />, summary: (m) => m.studySetting, ready: METHOD_READY.setting },
+  { key: "population", ar: "مجتمع الدراسة", en: "Population", icon: <Users2 size={18} />, summary: (m) => m.population, ready: METHOD_READY.population },
   {
     key: "sample",
     ar: "العينة",
     en: "Sample",
     icon: <Ruler size={18} />,
     summary: (m) => [m.sampling.sampleSize, m.sampling.samplingTechnique].filter((x) => x.trim()).join(" · "),
-    ready: (m) => m.sampling.inclusionCriteria.length > 0 && !!m.sampling.sampleSize.trim() && !!m.sampling.samplingTechnique.trim(),
+    ready: METHOD_READY.sample,
   },
   {
     key: "collection",
@@ -95,10 +96,10 @@ const PARTS: Part[] = [
     en: "Data collection",
     icon: <ClipboardList size={18} />,
     summary: (m) => [m.dataCollectionMethods.join("، "), m.studyTool.name].filter((x) => x.trim()).join(" · "),
-    ready: (m) => m.dataCollectionMethods.length > 0,
+    ready: METHOD_READY.collection,
   },
-  { key: "analysis", ar: "التحليل", en: "Data analysis", icon: <LineChart size={18} />, summary: (m) => m.dataAnalysis, ready: (m) => !!m.dataAnalysis.trim() },
-  { key: "ethics", ar: "الاعتبارات الأخلاقية", en: "Ethical considerations", icon: <ShieldCheck size={18} />, summary: (m) => m.ethicalConsiderations, ready: (m) => !!m.ethicalConsiderations.trim() },
+  { key: "analysis", ar: "التحليل", en: "Data analysis", icon: <LineChart size={18} />, summary: (m) => m.dataAnalysis, ready: METHOD_READY.analysis },
+  { key: "ethics", ar: "الاعتبارات الأخلاقية", en: "Ethical considerations", icon: <ShieldCheck size={18} />, summary: (m) => m.ethicalConsiderations, ready: METHOD_READY.ethics },
 ];
 
 /** نصيحة ثابتة لكل جزء، تتغيّر حسب نوع البحث */
@@ -243,7 +244,7 @@ export default function Methodology() {
   return (
     <div className="v3 relative">
       <V3Glow />
-      <WriteHeader fallbackTitle={tr("المنهجية")} style={rise(0)} />
+      <WriteHeader fallbackTitle={tr("المنهجية")} style={rise(0)} live={{ methodology: readyCount }} />
 
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-[18px]">

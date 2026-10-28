@@ -7,7 +7,8 @@ import { isTabActive, sectionForPath } from "../lib/navSections";
 export default function SectionTabs() {
   const { pathname, search } = useLocation();
   const section = sectionForPath(pathname);
-  if (!section || section.pages.length < 2) return null;
+  // «أكتب» له تبويبات بعدّادات داخل ترويسة صفحاته (WriteHeader)
+  if (!section || section.pages.length < 2 || section.id === "write") return null;
   // أطول مسار مطابق هو التبويب النشط (عشان /surveys/ما يلخبط مع غيره)، والتبويب اللي يحمل ?tab=… يتقدّم على شقيقه بنفس المسار
   const active = [...section.pages]
     .filter((p) => isTabActive(pathname, search, p.to))

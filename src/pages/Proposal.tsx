@@ -241,7 +241,7 @@ export default function Proposal() {
 
       <div className="relative print:hidden">
         <V3Glow />
-        <WriteHeader fallbackTitle={tr("المقترح البحثي")} style={rise(0)} />
+        <WriteHeader fallbackTitle={tr("المقترح البحثي")} style={rise(0)} live={{ proposal: doneCount }} />
 
         <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)_270px]">
           {/* ١) عمود الأقسام */}

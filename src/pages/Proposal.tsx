@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AlertCircle, Check, Eye, FileDown, Paperclip, Sparkles } from "lucide-react";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import QuestionSuggestions from "../components/QuestionSuggestions";
@@ -118,10 +118,12 @@ export default function Proposal() {
   const doneCount = ordered.filter((s) => s.status === "done").length;
   const pct = ordered.length ? Math.round((doneCount / ordered.length) * 100) : 0;
 
-  const [activeKey, setActiveKey] = useState<ProposalSectionKey | null>(null);
+  // ?section=<key> (من «افتح القسم ←» بالرئيسية) يفتح القسم نفسه مباشرة
+  const [searchParams] = useSearchParams();
+  const [activeKey, setActiveKey] = useState<ProposalSectionKey | null>(() => (searchParams.get("section") as ProposalSectionKey | null) || null);
   // أول ما توصل الأقسام: نفتح أول قسم ما خلص
   useEffect(() => {
-    if (activeKey || ordered.length === 0) return;
+    if (ordered.length === 0 || (activeKey && ordered.some((s) => s.key === activeKey))) return;
     setActiveKey((ordered.find((s) => s.status !== "done") ?? ordered[0]).key);
   }, [ordered, activeKey]);
   const activeIdx = Math.max(

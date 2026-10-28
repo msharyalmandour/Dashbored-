@@ -1,7 +1,9 @@
-/* ───────────── Wesync v3: زجاج مصنفر + حركة مشتركة (أكتب · مهامي · أجمع وأحلّل) ─────────────
-   الهوية ثابتة: أسود #080808، برتقالي #ff6a00/#ff8a24/#ffb547، ذهبي فاتح #FFF0C2، خط Tajawal.
-   كل البطاقات لها أساس داكن خفيف تحت الزجاج، عشان تبقى مقروءة لو أحد مختار ثيم فاتح.
-   الحركة للإحساس بس: الدخول (rise) مرة وحدة عند فتح الصفحة، وكلها تقف مع prefers-reduced-motion. */
+/* ───────────── Wesync v3: زجاج هادي + حركة مريحة (أكتب · مهامي · أجمع وأحلّل · الرئيسية) ─────────────
+   القيم كلها من styles/tokens.css. القواعد:
+   - الحركة عند الدخول (مرة وحدة) وعند التفاعل بس. ولا حركة تشتغل للأبد: لا لمعات تتكرر، ولا نبض، ولا دوران، ولا خلفية تتحرك.
+     (الاستثناء الوحيد: مؤشرات «يشتغل» زي نقاط الوكيل، وتختفي أول ما يخلص.)
+   - البرتقالي للزر الأساسي والعنصر الحالي والموعد بس.
+   - «قلّل الحركة» (من الإعدادات أو الجهاز) يوقف كل شي — بـ tokens.css. */
 
 @property --v3p {
   syntax: "<percentage>";
@@ -9,156 +11,130 @@
   initial-value: 0%;
 }
 
-.v3 { color: #F6F1EC; font-family: "Tajawal", "IBM Plex Sans Arabic", sans-serif; }
+.v3 { color: var(--ws-c-text); font-family: var(--ws-font); font-size: var(--ws-fs-body); line-height: var(--ws-lh-body); }
 .v3 .v3-k { font-family: "Tajawal", sans-serif; font-weight: 800; }
-.v3 .v3-mut { color: #B8ADA2; }
-.v3 .v3-eye { font-size: 12px; letter-spacing: .08em; color: #FFB444; font-weight: 600; }
-.v3 .v3-en { font-size: 12px; color: #8F857C; letter-spacing: .02em; }
+.v3 .v3-mut { color: var(--ws-c-muted); }
+.v3 .v3-eye { font-size: var(--ws-fs-label); letter-spacing: .04em; color: var(--ws-c-muted); font-weight: 700; }
+.v3 .v3-en { font-size: var(--ws-fs-label); color: var(--ws-c-en); letter-spacing: .02em; }
 
-/* بطاقة زجاج */
+/* بطاقة زجاج هادية */
 .v3-g {
   position: relative;
   box-sizing: border-box;
   border-radius: 28px;
-  border: 1px solid rgba(255,255,255,.11);
-  background: linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.025)), rgba(14,10,8,.72);
-  backdrop-filter: blur(30px) saturate(150%);
-  -webkit-backdrop-filter: blur(30px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 30px 80px rgba(0,0,0,.32);
-  transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, box-shadow .35s;
+  border: 1px solid var(--ws-c-border);
+  background: linear-gradient(180deg, var(--ws-c-surface), var(--ws-c-surface-2)), rgba(15, 11, 9, .72);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 50px rgba(0,0,0,.25);
+  transition: transform var(--ws-hover-dur) ease, border-color var(--ws-hover-dur) ease;
 }
-.v3-g.v3-hover:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,190,120,.3);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 30px 70px rgba(255,110,0,.12);
-}
-.v3-g2 { box-sizing: border-box; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
+.v3-g.v3-hover:hover { transform: translateY(var(--ws-hover-lift)); border-color: var(--ws-c-border-hover); }
+.v3-g2 { box-sizing: border-box; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid var(--ws-c-border); }
 
-/* الأزرار: الأساسي أبيض كبسولي، الثانوي زجاجي — ٤٤px لمس على الأقل */
+/* الأزرار: زر أساسي واحد بالشاشة (برتقالي متدرج)، والباقي زجاجي — ٤٤px لمس على الأقل */
 .v3-bw, .v3-bd {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; padding: 0 22px; border-radius: 999px;
-  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
+  font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none;
   box-sizing: border-box; white-space: nowrap;
 }
 .v3-bw {
-  position: relative; overflow: hidden; border: 0;
-  background: #F6F1EC; color: #160904;
-  box-shadow: 0 10px 30px rgba(255,180,90,.18);
-  transition: transform .2s, box-shadow .2s;
+  border: 0;
+  background: linear-gradient(90deg, var(--ws-c-accent), var(--ws-c-accent-2));
+  color: var(--ws-c-on-accent);
+  box-shadow: 0 10px 28px rgba(255,106,0,.28);
+  transition: transform .2s ease, box-shadow .2s ease;
 }
-.v3-bw:hover { transform: translateY(-1px); box-shadow: 0 14px 36px rgba(255,170,80,.32); }
-.v3-bw::after {
-  content: ""; position: absolute; top: 0; bottom: 0; width: 30%; pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(255,190,110,.55), transparent);
-  animation: v3-sweep 3.6s ease-in-out 1s infinite;
-}
-.v3-bd { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: #F6F1EC; transition: border-color .2s, background .2s; }
-.v3-bd:hover { border-color: rgba(255,180,68,.45); background: rgba(255,255,255,.1); }
+.v3-bw:hover { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(255,106,0,.34); }
+.v3-bd { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: var(--ws-c-text); transition: border-color .2s, background .2s; }
+.v3-bd:hover { border-color: var(--ws-c-border-hover); background: rgba(255,255,255,.1); }
 .v3-bw:disabled, .v3-bd:disabled { opacity: .55; cursor: default; }
-.v3-bw:focus-visible, .v3-bd:focus-visible, .v3-tap:focus-visible { outline: 2px solid #FFB547; outline-offset: 2px; }
-.v3-link { display: inline-flex; align-items: center; min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 13px; font-weight: 700; color: #FFB444; cursor: pointer; }
+.v3-bw:focus-visible, .v3-bd:focus-visible, .v3-tap:focus-visible { outline: 2px solid var(--ws-c-accent-2); outline-offset: 2px; }
+.v3-link { display: inline-flex; align-items: center; min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; font-weight: 700; color: var(--ws-c-accent-2); cursor: pointer; }
 
-/* شارات الحالة */
-.v3-st { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
-.v3-st.done { background: rgba(127,224,166,.12); color: #7FE0A6; }
-.v3-st.doing { background: rgba(255,180,68,.14); color: #FFB444; }
-.v3-st.todo { background: rgba(255,255,255,.07); color: #A99E94; }
-.v3-st.late { background: rgba(255,138,122,.13); color: #FF8A7A; }
-.v3-st.doing::before, .v3-st.late::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: v3-pulse 1.8s ease-out infinite; }
+/* شارات الحالة — ثابتة (بدون نبض) */
+.v3-st { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ws-fs-label); font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.v3-st.done { background: rgba(127,224,166,.12); color: var(--ws-c-done); }
+.v3-st.doing { background: rgba(255,154,60,.12); color: var(--ws-c-accent-2); }
+.v3-st.todo { background: rgba(255,255,255,.07); color: var(--ws-c-muted); }
+.v3-st.late { background: rgba(255,138,122,.13); color: var(--ws-c-late); }
+.v3-st.doing::before, .v3-st.late::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* سطر مهمة متأخرة: إطار أحمر ينبض بهدوء كل 2.4s */
-.v3-late-row { animation: v3-late 2.4s ease-in-out infinite; }
+/* سطر مهمة متأخرة: إطار أحمر هادي ثابت */
+.v3-late-row { box-shadow: inset 0 0 0 1px rgba(255,138,122,.22); }
 
 /* حقول الكتابة */
 .v3-field {
   width: 100%; box-sizing: border-box; resize: vertical;
-  background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.08); border-radius: 16px;
-  padding: 14px 16px; font: inherit; font-size: 15px; line-height: 1.8; color: #E9DED3; outline: none;
-  transition: border-color .25s, box-shadow .25s;
+  background: rgba(0,0,0,.22); border: 1px solid var(--ws-c-border); border-radius: 16px;
+  padding: 14px 16px; font: inherit; font-size: var(--ws-fs-body); line-height: 1.8; color: var(--ws-c-text); outline: none;
+  transition: border-color var(--ws-hover-dur), box-shadow var(--ws-hover-dur);
 }
-.v3-field::placeholder { color: #776C63; }
-.v3-field:focus { border-color: rgba(255,180,68,.5); box-shadow: 0 0 0 3px rgba(255,140,40,.12); }
-/* مربع الكتابة الفاضي: مؤشر برتقالي يومض */
-.v3-field.v3-empty:not(:focus) { caret-color: #FFB444; background-image: linear-gradient(#FFB444, #FFB444); background-repeat: no-repeat; background-size: 2px 20px; background-position: right 16px top 17px; animation: v3-caret 1s steps(1) infinite; }
-[dir="ltr"] .v3-field.v3-empty:not(:focus) { background-position: left 16px top 17px; }
-.v3-select { min-height: 44px; border-radius: 14px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.1); color: #F6F1EC; padding: 0 12px; font: inherit; font-size: 14px; outline: none; }
-.v3-select option { background: #141010; color: #F6F1EC; }
+.v3-field::placeholder { color: #8A7F75; }
+.v3-field:focus { border-color: rgba(255,154,60,.5); box-shadow: 0 0 0 3px rgba(255,106,0,.12); }
+.v3-select { min-height: 44px; border-radius: 14px; background: rgba(0,0,0,.25); border: 1px solid var(--ws-c-border); color: var(--ws-c-text); padding: 0 12px; font: inherit; font-size: 15px; outline: none; }
+.v3-select option { background: #141010; color: var(--ws-c-text); }
 
-/* حلقة النسبة: تتعبّى من ٠ — --v3-target هي النسبة النهائية */
+/* حلقة النسبة: تتعبّى مرة وحدة — --v3-target هي النسبة النهائية */
 .v3-ring {
   border-radius: 50%; flex: none; position: relative;
-  background: conic-gradient(#FFB444 0 var(--v3p), rgba(255,255,255,.1) 0);
+  background: conic-gradient(var(--ws-c-accent-2) 0 var(--v3p), rgba(255,255,255,.1) 0);
   -webkit-mask: radial-gradient(circle, transparent 58%, #000 59%);
   mask: radial-gradient(circle, transparent 58%, #000 59%);
   --v3p: var(--v3-target, 0%);
-  animation: v3-ring 1.6s cubic-bezier(.2,.8,.2,1) .3s both;
+  animation: v3-ring 1s var(--ws-ease) .2s both;
 }
 
-/* شريط تقدّم يتعبّى من الصفر ثم لمعة */
+/* شريط تقدّم يتعبّى مرة وحدة (بدون لمعة متكررة) */
 .v3-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
-.v3-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #FF6A00, #FFB547); transform-origin: right center; animation: v3-grow 1.3s cubic-bezier(.2,.8,.2,1) .4s both; position: relative; overflow: hidden; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.v3-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--ws-c-accent), var(--ws-c-accent-2)); transform-origin: right center; animation: v3-grow 1s var(--ws-ease) .3s both; transition: width .5s var(--ws-ease); }
 [dir="ltr"] .v3-bar > i { transform-origin: left center; }
-.v3-bar > i::after { content: ""; position: absolute; inset: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: v3-sweep 2.8s ease-in-out 1.6s infinite; }
 
-/* العنصر الحالي: لمعة ذهبية كل 4.5s + إطار يتوهج */
-.v3-sheen { position: relative; overflow: hidden; }
-.v3-sheen::before { content: ""; position: absolute; top: 0; bottom: 0; width: 30%; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(255,220,170,.13), transparent); animation: v3-sweep 4.5s ease-in-out infinite; }
-.v3-glow { animation: v3-glow 2.6s ease-in-out infinite; }
+/* العنصر الحالي: إطار برتقالي ثابت (بدون لمعة ولا توهّج متكرر) */
+.v3-sheen { position: relative; }
+.v3-glow { box-shadow: 0 0 0 1px rgba(255,154,60,.35), 0 0 0 4px rgba(255,106,0,.08); }
 
-/* كرة الوكيل تتنفس + نقاط تنط وهو يشتغل */
-.v3-orb { border-radius: 50%; flex: none; background: radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%, #5A1A04 100%); box-shadow: 0 0 30px rgba(255,140,30,.55); animation: v3-breath 3.2s ease-in-out infinite; }
+/* كرة الوكيل: ثابتة. نقاط «يكتب…» تطلع بس والوكيل يشتغل */
+.v3-orb { border-radius: 50%; flex: none; background: radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%, #5A1A04 100%); box-shadow: 0 0 18px rgba(255,140,30,.35); }
 .v3-typing { display: inline-flex; gap: 4px; vertical-align: middle; margin-inline-start: 6px; }
-.v3-typing i { width: 5px; height: 5px; border-radius: 50%; background: #FFB444; animation: v3-dots 1.2s infinite; }
+.v3-typing i { width: 5px; height: 5px; border-radius: 50%; background: var(--ws-c-accent-2); animation: v3-dots 1.2s infinite; }
 .v3-typing i:nth-child(2) { animation-delay: .15s; }
 .v3-typing i:nth-child(3) { animation-delay: .3s; }
 
-/* الدخول: وحدة ورا الثانية بفرق ٧٠ms (--v3-i = ترتيب البطاقة)، مرة وحدة عند فتح الصفحة.
-   التأخير له سقف (٨ خطوات) عشان ولا بطاقة تتأخر على المستخدم مهما كثرت */
-.v3-rise { animation: v3-rise .8s cubic-bezier(.2,.8,.2,1) calc(min(var(--v3-i, 0), 8) * 70ms) both; }
+/* الدخول: translateY 12px→0 + opacity في 0.6s، والبطاقات ورا بعض بفرق 70ms (سقف ٨ خطوات عشان ما يتأخر شي).
+   مرة وحدة: تحديث البيانات ما يعيد تركيب البطاقة، فما يعيد الدخول */
+.v3-rise { animation: v3-rise var(--ws-rise-dur) var(--ws-ease) calc(min(var(--v3-i, 0), 8) * var(--ws-stagger)) both; }
 
-/* دوائر المشاركين: تنط بنابض وحدة ورا الثانية، والمشارك الجاي ينبض */
-.v3-dots > span { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + min(var(--v3-d, 0), 24) * 40ms) both; }
-.v3-dots > span.v3-next-dot { animation: v3-pop .5s cubic-bezier(.3,1.6,.5,1) calc(.5s + min(var(--v3-d, 0), 24) * 40ms) both, v3-glow 2s ease-in-out 1.6s infinite; }
-/* أعمدة التشبّع/اكتمال العينة تطلع لفوق */
-.v3-bars-y > div { transform-origin: bottom; animation: v3-grow-y .9s cubic-bezier(.2,.8,.2,1) calc(.45s + var(--v3-i, 0) * 80ms) both; }
+/* دوائر المشاركين: تطلع مرة وحدة ورا بعض. الجاي إطاره برتقالي ثابت */
+.v3-dots > span { animation: v3-rise .45s var(--ws-ease) calc(.3s + min(var(--v3-d, 0), 24) * 30ms) both; }
+/* أعمدة الرسم تطلع لفوق مرة وحدة */
+.v3-bars-y > div { transform-origin: bottom; animation: v3-grow-y .8s var(--ws-ease) calc(.35s + var(--v3-i, 0) * 70ms) both; }
 
-/* «انحفظ ✓»: fade والصح ينرسم */
-.v3-saved { display: inline-flex; align-items: center; gap: 6px; animation: v3-fade .35s ease-out both; }
-.v3-saved path { stroke-dasharray: 30; animation: v3-draw .6s ease-out .1s both; }
+/* «انحفظ ✓»: fade والصح ينرسم (مرة وحدة عند الحفظ) */
+.v3-saved { display: inline-flex; align-items: center; gap: 6px; animation: v3-fade .3s ease-out both; }
+.v3-saved path { stroke-dasharray: 30; animation: v3-draw .5s ease-out .1s both; }
 
-/* خلفية الصفحة: توهّج برتقالي يتحرك ببطء */
-.v3-blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(150px); animation: v3-drift 18s ease-in-out infinite alternate; will-change: transform; }
-.v3-blob.alt { animation-duration: 13s; animation-direction: alternate-reverse; }
+/* خلفية الصفحة: توهّج برتقالي ثابت وخفيف (≤ .22) */
+.v3-blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(150px); opacity: var(--ws-glow-opacity); }
+.v3-blob.alt { opacity: .14; }
 
 /* شريط أفقي ينسحب (الجوال) */
 .v3-scroll-x { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .v3-scroll-x::-webkit-scrollbar { display: none; }
 
-@keyframes v3-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-@keyframes v3-sweep { 0% { transform: translateX(160%) skewX(-18deg); } 60%, 100% { transform: translateX(-260%) skewX(-18deg); } }
-@keyframes v3-pulse { 0% { box-shadow: 0 0 0 0 currentColor; } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-@keyframes v3-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,180,68,0); } 50% { box-shadow: 0 0 0 4px rgba(255,180,68,.12), 0 0 40px rgba(255,150,40,.25); } }
-@keyframes v3-breath { 0%, 100% { transform: scale(.94); box-shadow: 0 0 24px rgba(255,140,30,.45); } 50% { transform: scale(1.05); box-shadow: 0 0 54px rgba(255,170,50,.9); } }
+@keyframes v3-rise { from { opacity: 0; transform: translateY(var(--ws-rise-y)); } to { opacity: 1; transform: none; } }
 @keyframes v3-dots { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 @keyframes v3-ring { from { --v3p: 0%; } }
 @keyframes v3-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes v3-caret { 0%, 49% { background-size: 2px 20px; } 50%, 100% { background-size: 0 20px; } }
-@keyframes v3-late { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,138,122,.15); } 50% { box-shadow: inset 0 0 0 1px rgba(255,138,122,.5), 0 0 30px rgba(255,100,80,.12); } }
-@keyframes v3-pop { 0% { transform: scale(.3); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes v3-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes v3-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes v3-draw { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
-@keyframes v3-drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-60px, 40px) scale(1.08); } 100% { transform: translate(30px, -20px) scale(.96); } }
 
-/* تقليل الحركة: كل شي يوقف — داخل صفحات v3 وأي قطعة v3 برّاها (درج الوكيل، أزرار الاقتراحات) */
+/* تقليل الحركة: الحلقة تطلع بقيمتها النهائية مباشرة (الإيقاف العام بـ tokens.css) */
 @media (prefers-reduced-motion: reduce) {
-  .v3 *, .v3 *::before, .v3 *::after,
-  [class*="v3-"], [class*="v3-"]::before, [class*="v3-"]::after,
-  .v3-typing i, .v3-dots > span, .v3-bars-y > div, .v3-saved path {
-    animation: none !important;
-    transition: none !important;
-  }
   .v3-ring { --v3p: var(--v3-target, 0%); }
   .v3-g.v3-hover:hover, .v3-bw:hover { transform: none; }
 }
+html[data-reduce-motion="true"] .v3-ring { --v3p: var(--v3-target, 0%); }
+html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="true"] .v3-bw:hover { transform: none; }

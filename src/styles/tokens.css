@@ -1,0 +1,99 @@
+/* ───────────── Wesync — tokens الراحة البصرية (مصدر واحد للألوان والخط والحركة) ─────────────
+   مبنية على دراسات الراحة البصرية للشاشات الداكنة:
+   - نص أساسي مو أبيض صافي، ونص ثانوي ما ينزل تحت #ABA095 (تباين مريح بدون وهج).
+   - البرتقالي لثلاث أشياء بس: الزر الأساسي، والعنصر الحالي، والموعد. الأحمر الهادي للمتأخر بس، والأخضر للخلصان.
+   - توهّج الخلفية خفيف (≤ .22).
+   - الحركة عند الدخول (مرة وحدة) وعند التفاعل بس — ولا حركة تشتغل للأبد.
+   الهوية ثابتة: Obsidian × Ember + Tajawal. */
+
+:root {
+  /* الألوان */
+  --ws-c-bg: #0F0B09;
+  --ws-c-surface: rgba(255, 255, 255, 0.06);
+  --ws-c-surface-2: rgba(255, 255, 255, 0.025);
+  --ws-c-border: rgba(255, 255, 255, 0.09);
+  --ws-c-border-hover: rgba(255, 255, 255, 0.16);
+  --ws-c-text: #EAE3DC;
+  --ws-c-muted: #ABA095;
+  --ws-c-en: #9C9187;
+  --ws-c-accent: #FF6A00;
+  --ws-c-accent-2: #FF9A3C;
+  --ws-c-on-accent: #1A0802;
+  --ws-c-late: #FF8A7A;
+  --ws-c-done: #7FE0A6;
+  --ws-c-warn: #FFC777;
+  --ws-glow-opacity: 0.22;
+
+  /* الخط */
+  --ws-font: "Tajawal", "IBM Plex Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --ws-fs-body: 16px;
+  --ws-lh-body: 1.7;
+  --ws-fs-label: 13px;
+  --ws-fs-min: 12px;
+
+  /* الحركة */
+  --ws-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ws-rise-y: 12px;
+  --ws-rise-dur: 0.6s;
+  --ws-stagger: 70ms;
+  --ws-hover-dur: 0.25s;
+  --ws-hover-lift: -2px;
+
+  /* وضع الورقة (أكتب) */
+  --ws-paper-bg: radial-gradient(120% 90% at 50% 40%, #F1E6CF 0, #EADBBE 70%, #DCC7A2 100%);
+  --ws-paper-ink: #3B2A1E;
+  --ws-paper-head: #2C1E14;
+  --ws-paper-caret: #B04A1E;
+  --ws-paper-en: #8A6E50;
+  --ws-paper-margin: rgba(170, 70, 50, 0.28);
+}
+
+/* نفس القيم كـ Tailwind theme: bg-ws-bg، text-ws-muted، border-ws-line … */
+@theme {
+  --color-ws-bg: #0F0B09;
+  --color-ws-glass: rgba(255, 255, 255, 0.06);
+  --color-ws-line: rgba(255, 255, 255, 0.09);
+  --color-ws-text: #EAE3DC;
+  --color-ws-muted: #ABA095;
+  --color-ws-en: #9C9187;
+  --color-ws-accent: #FF6A00;
+  --color-ws-accent2: #FF9A3C;
+  --color-ws-late: #FF8A7A;
+  --color-ws-done: #7FE0A6;
+  --color-ws-warn: #FFC777;
+  --ease-ws: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* «قلّل الحركة»: مفتاح بالإعدادات (data-reduce-motion على <html>) أو إعداد الجهاز — يوقف كل حركة وانتقال بالموقع */
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* هدوء: الحركات اللي كانت تشتغل للأبد وهي ساكنة (تنفّس، نبض، لمعة، خلفية تتحرك) صارت ثابتة.
+   مؤشرات «يشتغل» (دوّارة التحميل، نقاط الوكيل وهو يفكّر، هيكل التحميل) باقية لأنها توقف أول ما يخلص الشغل. */
+.card-terra,
+.cine-cta,
+.logo-tile,
+.agent-orb[data-state="idle"] .agent-orb__body,
+.hu-ping,
+.hu-breathe,
+.hu-sweep,
+.wsa-orb,
+[class*="card-float"],
+[class*="orb-pulse"],
+[class*="ping_2.6s"],
+[class*="ember-drift"] {
+  animation: none !important;
+}
+.logo-ring, .hu-ping { display: none !important; }

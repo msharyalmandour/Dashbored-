@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 @import "./styles/motion.css";
 
 @theme {
@@ -76,13 +77,13 @@
    بلمسة الألوان الجديدة. كل مكوّن بالموقع (البطاقات، الأزرار، حلقة
    التقدم...) يلبسها تلقائيًا لأنها كلها مبنية على نفس هذي المتغيرات. */
 :root[data-theme="black"] {
-  --ws-bg: #080808;
-  --ws-surface: #121212;
+  --ws-bg: #0F0B09;
+  --ws-surface: #17110e;
   --ws-orange: #ff6a00;
   --ws-ember: #ff8a24;
   --ws-amber: #ffb547;
-  --ws-text: #f5f5f5;
-  --ws-muted: #929292;
+  --ws-text: #EAE3DC;
+  --ws-muted: #ABA095;
 
   --color-brand-50: #170d06;
   --color-brand-100: #21130a;
@@ -122,7 +123,7 @@
 
   --color-surface: var(--ws-bg);
   --color-surface-muted: var(--ws-surface);
-  --color-paper: #0f0f0f;
+  --color-paper: #120d0b;
   --color-ink: var(--ws-text);
   --color-overlay-soft: rgba(255, 138, 36, 0.1);
   --color-track: rgba(245, 245, 245, 0.12);

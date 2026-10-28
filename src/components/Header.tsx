@@ -16,6 +16,7 @@ export default function Header({
   onMenuClick,
   hideTitleOnDesktop = false,
   hideTitle = false,
+  homeMode = false,
 }: {
   title: string;
   onMenuClick?: () => void;
@@ -23,6 +24,8 @@ export default function Header({
   hideTitleOnDesktop?: boolean;
   /** العنوان داخل الصفحة نفسها — ما نكرره بالشريط العلوي بأي حجم شاشة */
   hideTitle?: boolean;
+  /** الرئيسية فيها مربع ⌘K والجرس بترويستها، فنخفيهم هنا على الشاشات الكبيرة عشان ما يتكررون */
+  homeMode?: boolean;
 }) {
   const { currentUser } = useAuth();
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
@@ -43,7 +46,7 @@ export default function Header({
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
         <button
           onClick={() => window.dispatchEvent(new Event("nursync:open-command-palette"))}
-          className="hidden w-full max-w-sm items-center gap-2 rounded-full border border-brand-100/60 bg-paper/40 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] pe-2.5 ps-3 text-sm md:flex"
+          className={clsx("hidden w-full max-w-sm items-center gap-2 rounded-full border border-brand-100/60 bg-paper/40 py-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] pe-2.5 ps-3 text-sm", homeMode ? "md:hidden" : "md:flex")}
         >
           <Search size={16} className="shrink-0 text-brand-950/30" />
           <span className="flex-1 truncate text-start text-brand-950/30">{tr("ابحث أو انتقل بسرعة...")}</span>
@@ -72,7 +75,9 @@ export default function Header({
 
         <ThemeSwitcher />
 
-        <NotificationsBell />
+        <div className={clsx(homeMode && "md:hidden")}>
+          <NotificationsBell />
+        </div>
 
         {currentUser && (
           <div className="flex items-center gap-2">

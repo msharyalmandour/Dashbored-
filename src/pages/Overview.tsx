@@ -1,55 +1,19 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import {
-  AlertCircle,
-  AlertTriangle,
-  BookOpenCheck,
-  CalendarClock,
-  CheckCircle2,
-  Circle,
-  Coffee,
-  Compass,
-  Crown,
-  History,
-  ListTodo,
-  Milestone,
-  Moon,
-  PartyPopper,
-  Wand2,
-  TrendingUp,
-  UploadCloud,
-  Video,
-} from "lucide-react";
-import Card, { CardHeader } from "../components/ui/Card";
+import { BookOpen, Check, ChevronDown, Compass, Flag, PartyPopper, Search } from "lucide-react";
+import clsx from "clsx";
 import { AlertCard } from "../components/ui/cards";
-import ShareUpdate from "../components/ShareUpdate";
-import TimeOfDayBadge from "../components/TimeOfDayBadge";
 import Avatar from "../components/ui/Avatar";
-import ProgressBar from "../components/ui/ProgressBar";
-import RingProgress from "../components/ui/RingProgress";
-import StatCard from "../components/StatCard";
-import MiniCalendar from "../components/MiniCalendar";
-import PhaseTracker from "../components/PhaseTracker";
-import StuckHelp from "../components/StuckHelp";
-import TodayCard from "../components/TodayCard";
-import HomeUpdates from "../components/home/HomeUpdates";
-import AlertsCard from "../components/PushToggle";
-import { isStageReady } from "../lib/stageAdvance";
-import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
-import { summarizeCollection } from "../lib/dataCollection";
-import { computeNextSteps } from "../lib/nextSteps";
-import TiltCard from "../components/cinematic/TiltCard";
-import CountUp from "../components/cinematic/CountUp";
-import { useMouseParallax } from "../hooks/useMouseParallax";
+import Dialog from "../components/ui/Dialog";
+import FocusSession from "../components/FocusSession";
+import NotificationsBell from "../components/NotificationsBell";
+import { V3Glow, TYPE_LABEL, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTour } from "../context/TourContext";
 import { recentActivity, teamMembers as mockTeamMembers } from "../data/mockData";
-import { daysUntil, formatDateLong, formatDateShort, getGreeting, toISODate } from "../lib/date";
-import { getDailyQuote } from "../data/motivation";
-import { useVisitGap } from "../hooks/useVisitGap";
-import { useFirstVisit } from "../hooks/useFirstVisit";
-import { useCalendarEvents } from "../hooks/useCalendarEvents";
+import type { Task } from "../data/types";
+import { daysUntil, formatDateFull, formatDateLong, formatDateShort, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
@@ -57,707 +21,547 @@ import { useMethodology } from "../hooks/useMethodology";
 import { useTasksData } from "../hooks/useTasksData";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
-import { getCurrentStage, getOverallProgress } from "../lib/progress";
+import { useFiles } from "../hooks/useFiles";
+import { useSurveys, useSurveyResponseCounts } from "../hooks/useSurveys";
+import { summarizeCollection } from "../lib/dataCollection";
+import { computeNextSteps } from "../lib/nextSteps";
+import { isStageReady } from "../lib/stageAdvance";
+import { getCurrentStage } from "../lib/progress";
+import { splitReminders } from "../lib/taskReminders";
+import { isLate, paceStatus, streakDays, timeLeft, todayList, weeklyImprovement } from "../lib/homeCalm";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
-import { g, isFemaleUser } from "../lib/gender";
-import { achievements, getUnlockedAchievementIds } from "../lib/achievements";
-import { tr, trx } from "../lib/i18n";
+import { isEn, tr } from "../lib/i18n";
 
-const today = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22);
-const todayIso = toISODate(today);
-
-const statusStyle: Record<string, string> = {
-  todo: "text-sky-accent-600 bg-sky-accent-50",
-  "in-progress": "text-amber-accent-600 bg-amber-accent-50",
-  done: "text-brand-600 bg-brand-50",
-  overdue: "text-rose-600 bg-rose-50",
-};
-
-const statusLabel: Record<string, string> = {
-  todo: tr("لم يبدأ"),
-  "in-progress": tr("قيد التنفيذ"),
-  done: tr("مكتملة"),
-  overdue: tr("متأخرة"),
-};
+// بالعرض التجريبي البيانات مثبّتة على أغسطس ٢٠٢٦، فنثبّت «اليوم» عليه عشان الحسابات تطلع منطقية
+const now = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22, 10);
+const todayIso = toISODate(now);
 
 const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
-const FLASHBACK_DISMISSED_KEY = "nursync.flashbackDismissedAt";
-const FLASHBACK_MIN_DAYS = 3;
-const FLASHBACK_RESURFACE_DAYS = 7;
-const ACHIEVEMENTS_SEEN_KEY = "nursync.achievementsSeen";
 const LAST_SEEN_STAGE_KEY = "nursync.lastSeenStage";
-const NIGHT_OWL_DISMISSED_KEY = "nursync.nightOwlDismissedOn";
-const DEADLINE_ALERT_DISMISSED_KEY = "nursync.deadlineAlertDismissedAt";
-const DEADLINE_ALERT_RESURFACE_DAYS = 2;
-const DEADLINE_ALERT_WINDOW_DAYS = 3;
+
+const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
+
+const PRIORITY_MINUTES: Record<string, number> = { high: 60, medium: 30, low: 15 };
+
+const plural = (n: number, one: string, two: string, few: string, many: string) =>
+  n === 1 ? one : n === 2 ? two : n >= 3 && n <= 10 ? tr(few, num(n)) : tr(many, num(n));
 
 export default function Overview() {
-  const { currentUser, mode, isLeader } = useAuth();
+  const { currentUser, mode, isLeader, canWrite } = useAuth();
   const { startTour, finished: tourFinished } = useTour();
-  const isFemale = isFemaleUser(currentUser);
-  const { ref: heroParallaxRef } = useMouseParallax(6);
-  const visitGapDays = useVisitGap();
-  const { daysSince: daysSinceFirstVisit } = useFirstVisit();
-  const [selectedDate, setSelectedDate] = useState(todayIso);
-  const { events: calendarEvents } = useCalendarEvents();
-  const { stages: realStages, updateStage } = useResearchStages();
-  const { papers: realEvidencePapers } = useEvidencePapers();
-  const { sections: realProposalSections, gap: realResearchGap, questions: realResearchQuestions } = useProposal();
-  const { methodology: realMethodology } = useMethodology();
-  const { tasks: realTasks } = useTasksData();
+  const { showToast } = useToast();
+  const { stages } = useResearchStages();
+  const { papers } = useEvidencePapers();
+  const { sections, gap, questions } = useProposal();
+  const { methodology } = useMethodology();
+  const { tasks: allTasks } = useTasksData();
   const { roster } = useTeamRoster();
   const { project, updateProject } = useResearchProject();
-  const currentStage = getCurrentStage(realStages);
+  const { files } = useFiles();
   const { surveys } = useSurveys();
   const surveyCounts = useSurveyResponseCounts(surveys);
-  const collection = summarizeCollection(surveys, surveyCounts, realMethodology.sampling.sampleSize);
-  const stageAutoData = {
-    dataCollection: { collected: collection.collected, target: collection.target },
-    proposalSections: realProposalSections,
-    researchGap: realResearchGap,
-    researchQuestions: realResearchQuestions,
-    methodology: realMethodology,
-    evidencePapers: realEvidencePapers,
-  };
-  const nextSteps = computeNextSteps({
-    stageReady: !!currentStage && isStageReady(currentStage, stageAutoData, project?.title ?? ""),
-    todayIso,
-    currentUserId: currentUser?.id ?? "",
-    tasks: realTasks,
-    stages: realStages,
-    sections: realProposalSections,
-    hasDeadline: !!project?.targetSubmissionDate,
-    evidenceCount: realEvidencePapers.length,
-    hasTitle: !!project?.title?.trim(),
-  });
-  const realOverallProgress = getOverallProgress(realStages, stageAutoData);
-  const [showGuideBanner, setShowGuideBanner] = useState(
-    () => localStorage.getItem(GUIDE_BANNER_KEY) !== "1",
-  );
-  const [showFlashback, setShowFlashback] = useState(() => {
-    if (daysSinceFirstVisit < FLASHBACK_MIN_DAYS) return false;
-    const dismissedAt = localStorage.getItem(FLASHBACK_DISMISSED_KEY);
-    if (!dismissedAt) return true;
-    const daysSinceDismiss = (Date.now() - new Date(dismissedAt).getTime()) / 86_400_000;
-    return daysSinceDismiss >= FLASHBACK_RESURFACE_DAYS;
-  });
+  const collection = summarizeCollection(surveys, surveyCounts, methodology.sampling.sampleSize);
+  const currentStage = getCurrentStage(stages);
 
-  const dismissGuideBanner = () => {
-    localStorage.setItem(GUIDE_BANNER_KEY, "1");
-    setShowGuideBanner(false);
-  };
-
-  const dismissFlashback = () => {
-    localStorage.setItem(FLASHBACK_DISMISSED_KEY, new Date().toISOString());
-    setShowFlashback(false);
-  };
-
-  const currentHour = new Date().getHours();
-  const isDeepNight = currentHour >= 1 && currentHour < 5;
-  const [showNightOwl, setShowNightOwl] = useState(
-    () => isDeepNight && localStorage.getItem(NIGHT_OWL_DISMISSED_KEY) !== toISODate(new Date()),
-  );
-  const dismissNightOwl = () => {
-    localStorage.setItem(NIGHT_OWL_DISMISSED_KEY, toISODate(new Date()));
-    setShowNightOwl(false);
-  };
-
-  const [showDeadlineAlert, setShowDeadlineAlert] = useState(() => {
-    const dismissedAt = localStorage.getItem(DEADLINE_ALERT_DISMISSED_KEY);
-    if (!dismissedAt) return true;
-    const daysSinceDismiss = (Date.now() - new Date(dismissedAt).getTime()) / 86_400_000;
-    return daysSinceDismiss >= DEADLINE_ALERT_RESURFACE_DAYS;
-  });
-  const dismissDeadlineAlert = () => {
-    localStorage.setItem(DEADLINE_ALERT_DISMISSED_KEY, new Date().toISOString());
-    setShowDeadlineAlert(false);
-  };
-
-  const unlockedAchievementIds = getUnlockedAchievementIds({
-    tasks: realTasks,
-    evidenceLibrary: realEvidencePapers,
-    researchStages: realStages,
-    overallProgress: realOverallProgress,
-  });
-  const unlockedAchievements = achievements.filter((a) => unlockedAchievementIds.has(a.id));
-  const { showToast } = useToast();
-
-  useEffect(() => {
-    const seen: string[] = JSON.parse(localStorage.getItem(ACHIEVEMENTS_SEEN_KEY) ?? "[]");
-    const seenSet = new Set(seen);
-    const fresh = achievements.filter((a) => unlockedAchievementIds.has(a.id) && !seenSet.has(a.id));
-    if (fresh.length > 0) {
-      // نسجّلها «مشوفة» بدون إشعار منبثق — تظهر بقسم إنجازاتكم تحت، وما تغطي على المحتوى
-      localStorage.setItem(
-        ACHIEVEMENTS_SEEN_KEY,
-        JSON.stringify([...seenSet, ...fresh.map((a) => a.id)]),
-      );
+  const [showGuide, setShowGuide] = useState(() => {
+    try {
+      return localStorage.getItem(GUIDE_BANNER_KEY) !== "1";
+    } catch {
+      return false;
     }
+  });
+  const [updatesOpen, setUpdatesOpen] = useState(false);
+  const [focusOpen, setFocusOpen] = useState(false);
+  const [editDeadline, setEditDeadline] = useState(false);
+  const [deadlineDraft, setDeadlineDraft] = useState("");
+  const [deadlineError, setDeadlineError] = useState<string | null>(null);
 
-    if (currentStage) {
-      const lastSeenStage = localStorage.getItem(LAST_SEEN_STAGE_KEY);
-      if (lastSeenStage && lastSeenStage !== currentStage.titleAr) {
-        showToast({
-          title: tr("🎉 أنجزتم مرحلة بحثية كاملة!"),
-          desc: tr("وصلتوا لمرحلة {0}", currentStage.titleAr),
-          icon: PartyPopper,
-          tone: "amber",
-        });
-        localStorage.setItem(LAST_SEEN_STAGE_KEY, currentStage.titleAr);
-        return;
+  // احتفال انتقال المرحلة (مثل قبل)
+  useEffect(() => {
+    if (!currentStage) return;
+    try {
+      const last = localStorage.getItem(LAST_SEEN_STAGE_KEY);
+      if (last && last !== currentStage.titleAr) {
+        showToast({ title: tr("🎉 أنجزتم مرحلة بحثية كاملة!"), desc: tr("وصلتوا لمرحلة {0}", currentStage.titleAr), icon: PartyPopper, tone: "amber" });
       }
       localStorage.setItem(LAST_SEEN_STAGE_KEY, currentStage.titleAr);
+    } catch {
+      // بدون تخزين: بدون احتفال
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentStage?.titleAr]);
 
-  const weekNumber = Math.floor(daysSinceFirstVisit / 7) + 1;
-  const topPerformer = [...roster].sort((a, b) => b.tasksDone - a.tasksDone)[0];
-  const topPerformerId = topPerformer && topPerformer.tasksDone > 0 ? topPerformer.id : null;
-
-  const projectTitle = project?.title || tr("مشروعكم البحثي");
-  const projectSubtitle = project?.description ?? "";
-  const deadline = project?.targetSubmissionDate ?? null;
-  const remainingDays = deadline ? daysUntil(deadline, today) : null;
-
-  const reviewedCount = realEvidencePapers.filter((p) => p.reviewStatus === "reviewed").length;
-  const collectedCount = realEvidencePapers.length;
-  const remainingCount = collectedCount - reviewedCount;
-  const litReviewPct = collectedCount > 0 ? Math.round((reviewedCount / collectedCount) * 100) : 0;
-
-  const priorities = [...realTasks]
-    .filter((t) => t.status !== "done")
-    .sort((a, b) => {
-      const order = { overdue: 0, "in-progress": 1, todo: 2, done: 3 };
-      return order[a.status] - order[b.status];
-    })
-    .slice(0, 5);
-  const currentTask = priorities[0]?.title;
-  const nextStep = priorities[1]?.title;
-
-  const upcoming = calendarEvents
-    .filter((e) => e.date >= todayIso)
-    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
-    .slice(0, 4);
-
-  const dayEvents = calendarEvents
-    .filter((e) => e.date === selectedDate)
-    .sort((a, b) => a.time.localeCompare(b.time));
-
+  // التذكيرات («تذكير: …») مو مهام لحالها — نفس منطق صفحة المهام
+  const tasks = useMemo(() => splitReminders(allTasks).visible, [allTasks]);
   const memberById = (id: string) => roster.find((m) => m.id === id);
-  const mockMemberById = (id: string) => mockTeamMembers.find((m) => m.id === id)!;
+  const firstName = (name?: string) => (name ?? "").split(" ")[0];
 
-  const greeting = getGreeting();
-  const dailyQuote = getDailyQuote(new Date(), greeting.period);
-  const overdueCount = realTasks.filter((t) => t.status === "overdue").length;
+  const deadline = project?.targetSubmissionDate ?? null;
+  const daysLeft = deadline ? daysUntil(deadline, now) : null;
+  const left = deadline ? timeLeft(deadline, now) : null;
+  const pace = paceStatus(tasks, todayIso, daysLeft ?? 0);
+  const today3 = todayList(tasks, todayIso);
+  const streak = streakDays(tasks.map((t) => t.completedAt), todayIso);
+  const improvement = weeklyImprovement(tasks, todayIso);
 
-  const nextMeeting = calendarEvents
-    .filter((e) => e.type === "meeting" && e.date >= todayIso)
-    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0];
+  // ── الخطوة الجاية: أهم مهمة (عليك أول)، وإلا خطوة الرحلة المقترحة ──
+  const openSorted = tasks.filter((t) => t.status !== "done").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  const nextTask =
+    today3.find((t) => t.assigneeId === currentUser?.id) ?? today3[0] ?? openSorted.find((t) => t.assigneeId === currentUser?.id) ?? openSorted[0];
+  const journeyStep = computeNextSteps({
+    stageReady:
+      !!currentStage &&
+      isStageReady(
+        currentStage,
+        { dataCollection: { collected: collection.collected, target: collection.target }, proposalSections: sections, researchGap: gap, researchQuestions: questions, methodology, evidencePapers: papers },
+        project?.title ?? "",
+      ),
+    todayIso,
+    currentUserId: currentUser?.id ?? "",
+    tasks,
+    stages,
+    sections,
+    hasDeadline: !!deadline,
+    evidenceCount: papers.length,
+    hasTitle: !!project?.title?.trim(),
+  })[0];
+  const sectionOf = (t: Task) => sections.find((s) => s.key === t.sectionKey);
+  const taskLink = (t: Task) => (t.sectionKey && sectionOf(t) ? `/proposal?section=${t.sectionKey}` : `/tasks?task=${t.id}`);
+  const taskSub = (t: Task) => {
+    const sec = sectionOf(t);
+    if (sec) return tr("المقترح · القسم {0}", num(sec.order));
+    return t.description?.trim() || "";
+  };
 
-  const nearestDeadlineEvent = calendarEvents
-    .filter((e) => e.type === "deadline" && e.date >= todayIso)
-    .sort((a, b) => a.date.localeCompare(b.date))[0];
-  const nearestDeadlineEventDays = nearestDeadlineEvent
-    ? daysUntil(nearestDeadlineEvent.date, today)
-    : null;
-  const deadlineAlertActive =
-    overdueCount > 0 ||
-    (nearestDeadlineEventDays !== null && nearestDeadlineEventDays <= DEADLINE_ALERT_WINDOW_DAYS);
+  // ── المقترح: القسم X من ٧ ──
+  const orderedSections = [...sections].sort((a, b) => a.order - b.order);
+  const doneSections = orderedSections.filter((s) => s.status === "done").length;
+  const currentSection = orderedSections.find((s) => s.status !== "done");
+  const remainingSections = orderedSections.length - doneSections;
 
-  const heroMessage =
-    overdueCount > 0
-      ? tr("عندك {0} {1} — خلها أول شي {2} اليوم.", overdueCount, overdueCount === 1 ? tr("مهمة متأخرة") : tr("مهام متأخرة"), g(isFemale, tr("تسوينه"), tr("تسويه")))
-      : visitGapDays !== null && visitGapDays >= 2
-        ? tr("غبتِ {0} أيام — طبيعي جدًا، {1} وقتك بس لا تنسى إن بحثك يستناك 🌱", visitGapDays, g(isFemale, tr("خذي"), tr("خذ")))
-        : visitGapDays === 1
-          ? tr("من زمان ما شفناك من أمس! {0} نفسك بخطوة بسيطة اليوم 🌱", g(isFemale, tr("رجّعي"), tr("رجّع")))
-          : priorities.length === 0
-            ? tr("ما عليك شي مستعجل اليوم — وقت زين {0} المقترح البحثي أو {1} شوي ☕", g(isFemale, tr("تراجعين"), tr("تراجع")), g(isFemale, tr("ترتاحين"), tr("ترتاح")))
-            : tr("فريق بحثكم يحقق تقدمًا ثابتًا هذا الأسبوع، كمّلوا بنفس الوتيرة 💪");
+  // ── خط المراحل: آخر مرحلة خلصت + الحالية + اللي بعدها، والتسليم بالأخير ──
+  const sortedStages = [...stages].sort((a, b) => a.order - b.order);
+  const curIdx = currentStage ? sortedStages.findIndex((s) => s.id === currentStage.id) : sortedStages.length;
+  const windowStages = sortedStages.slice(Math.max(0, curIdx - 1), Math.max(0, curIdx - 1) + 4);
 
-  const showEmptyProgressState = realOverallProgress === 0 && !currentStage;
+  // ── تحديثات الفريق (آخر ٧ أيام): مهام خلصت وملفات انرفعت من باقي الفريق ──
+  const weekAgo = toISODate(new Date(now.getTime() - 7 * 86400000));
+  type UpdateItem = { id: string; text: string; initials: string; color: string };
+  const updates: UpdateItem[] = isSupabaseConfigured
+    ? [
+        ...tasks
+          .filter((t) => t.status === "done" && t.completedAt && t.completedAt.slice(0, 10) >= weekAgo && t.assigneeId !== currentUser?.id)
+          .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""))
+          .map((t) => {
+            const m = memberById(t.assigneeId);
+            return { id: `t-${t.id}`, at: t.completedAt ?? "", text: tr("{0}: خلصت «{1}»", firstName(m?.name) || tr("عضو"), t.title), initials: m?.initials ?? "؟", color: m?.color ?? "brand" };
+          }),
+        ...files
+          .filter((f) => f.createdAt && f.createdAt.slice(0, 10) >= weekAgo && f.uploadedById && f.uploadedById !== currentUser?.id)
+          .map((f) => {
+            const m = memberById(f.uploadedById);
+            return { id: `f-${f.id}`, at: f.createdAt, text: tr("{0}: ملف جديد «{1}»", firstName(m?.name) || tr("عضو"), f.name), initials: m?.initials ?? "؟", color: m?.color ?? "brand" };
+          }),
+      ]
+        .sort((a, b) => b.at.localeCompare(a.at))
+        .map(({ id, text, initials, color }) => ({ id, text, initials, color }))
+    : recentActivity.map((a) => {
+        const m = mockTeamMembers.find((x) => x.id === a.memberId)!;
+        return { id: a.id, text: `${firstName(m.name)} ${a.action} «${a.target}»`, initials: m.initials, color: m.color };
+      });
+
+  const typeLabel = project?.researchType ? (isEn ? TYPE_LABEL[project.researchType][1] : TYPE_LABEL[project.researchType][0]) : "";
+  const supervisor = project?.supervisorName?.trim();
+  const englishTitle = project?.description && /[A-Za-z]/.test(project.description) ? project.description : "";
+
+  const saveDeadline = async () => {
+    if (!deadlineDraft) return;
+    const { error } = await updateProject({ targetSubmissionDate: deadlineDraft });
+    if (error) {
+      setDeadlineError(error);
+      return;
+    }
+    setDeadlineError(null);
+    setEditDeadline(false);
+  };
+  const openDeadlineEditor = () => {
+    setDeadlineDraft(deadline ?? toISODate(new Date(now.getTime() + 30 * 86400000)));
+    setDeadlineError(null);
+    setEditDeadline(true);
+  };
+
+  const dueChip = (t: Task) =>
+    isLate(t, todayIso) ? (
+      <span className="v3-st late">{lateText(t.dueDate)}</span>
+    ) : (
+      <span className="v3-st todo !text-[var(--ws-c-text)]">{tr("اليوم")}</span>
+    );
 
   return (
-    <div className="space-y-6">
-      {showGuideBanner && (
-        <AlertCard
-          tone="warning"
-          icon={Compass}
-          onDismiss={dismissGuideBanner}
-          action={
-            !tourFinished && (
-              <button
-                onClick={startTour}
-                className="shrink-0 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
-              >{tr("ابدأ الجولة")}</button>
-            )
-          }
-        >{trx("أول مرة {0} Wesync؟ {1}", g(isFemale, tr("تستخدمين"), tr("تستخدم")), tourFinished ? (
-            <>{trx("خلّصتوا الجولة التعريفية 🎉 لو احتجتوا تفاصيل أكثر {0} ", g(isFemale, tr("راجعي"), tr("راجع")))}<Link to="/guide" className="underline underline-offset-2">{tr("دليل الطالب")}</Link>
-              .
+    <div className="v3 relative">
+      <V3Glow />
+
+      {showGuide && (
+        <div className="relative mb-4">
+          <AlertCard
+            tone="warning"
+            icon={Compass}
+            onDismiss={() => {
+              try {
+                localStorage.setItem(GUIDE_BANNER_KEY, "1");
+              } catch {
+                // ما يهم
+              }
+              setShowGuide(false);
+            }}
+            action={
+              !tourFinished && (
+                <button onClick={startTour} className="v3-bd shrink-0 !min-h-[40px] !text-sm">
+                  {tr("ابدأ الجولة")}
+                </button>
+              )
+            }
+          >
+            {tr("أول مرة تستخدمون Wesync؟ خذوا جولة سريعة على أهم الصفحات، أو افتحوا ")}
+            <Link to="/guide" className="underline underline-offset-2">
+              {tr("دليل الطالب")}
+            </Link>
+            .
+          </AlertCard>
+        </div>
+      )}
+
+      {/* ── ١) الترحيب + ⌘K + الجرس ── */}
+      <header className="v3-rise relative mb-5 flex flex-wrap items-center gap-4" style={rise(0)}>
+        <div className="min-w-0 flex-[1_1_280px]">
+          <h1 className="v3-k m-0 text-[24px] leading-snug sm:text-[26px]">{tr("يعطيك العافية يا {0}", firstName(currentUser?.name))}</h1>
+          <p className="v3-mut m-0 text-[15px]">
+            {formatDateFull(todayIso)}
+            {streak >= 2 && <> · {tr("{0} أيام ورا بعض تشتغلون 👏", num(streak))}</>}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("nursync:open-command-palette"))}
+          className="v3-g hidden min-h-[46px] w-[300px] items-center gap-2.5 !rounded-full px-[18px] text-start text-sm md:flex"
+          aria-label={tr("ابحث أو اكتب أمر…")}
+        >
+          <Search size={16} className="text-[var(--ws-c-muted)]" aria-hidden />
+          <span className="v3-mut flex-1">{tr("ابحث أو اكتب أمر…")}</span>
+          <kbd className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-0.5 text-xs text-[var(--ws-c-muted)]">⌘K</kbd>
+        </button>
+        <div className="hidden md:block">
+          <NotificationsBell />
+        </div>
+      </header>
+
+      {/* ── ٢) موضوع بحثنا ── */}
+      <section className="v3-g v3-hover v3-rise relative mb-3 flex flex-wrap items-center gap-[18px] !rounded-[24px] px-5 py-[18px] sm:px-6" style={rise(1)} aria-labelledby="topic-title">
+        <span className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] bg-white/[0.07]" aria-hidden>
+          <BookOpen size={21} />
+        </span>
+        <div className="min-w-0 flex-[1_1_260px]">
+          <div className="v3-mut text-[13px] font-bold">{tr("موضوع بحثنا")}</div>
+          {project?.title?.trim() ? (
+            <>
+              <h2 id="topic-title" className="v3-k m-0 text-[20px] leading-[1.45] sm:text-[22px]" dir="auto">
+                {project.title}
+              </h2>
+              {englishTitle && (
+                <div className="v3-en" dir="ltr" style={{ textAlign: isEn ? "left" : "right" }}>
+                  {englishTitle}
+                </div>
+              )}
             </>
           ) : (
-            <>{trx("خلّي مرشدنا ياخذك بجولة سريعة على أهم صفحات الموقع، أو {0} ", g(isFemale, tr("راجعي"), tr("راجع")))}<Link to="/guide" className="underline underline-offset-2">{tr("دليل الطالب")}</Link>{tr(" المكتوب.")}</>
-          ))}</AlertCard>
-      )}
-
-      {showFlashback && !showGuideBanner && (
-        <AlertCard tone="success" icon={History} onDismiss={dismissFlashback}>{trx("قبل {0} {1} كنت بس {2} بحثك من الصفر — الحين عندك {3}% خلف ظهرك. {4} بنفس القوة 🌱", daysSinceFirstVisit, daysSinceFirstVisit === 1 ? tr("يوم") : tr("أيام"), g(isFemale, tr("بادئة"), tr("بادئ")), realOverallProgress, g(isFemale, tr("كملي"), tr("كمل")))}</AlertCard>
-      )}
-
-      {showNightOwl && (
-        <AlertCard tone="violet" icon={Moon} onDismiss={dismissNightOwl}>{trx("الساعة كذا وبعدك {0} تراجعين بحثك؟ نحترم الجدّية، بس لا تنسى قسط راحتك — بحثك بينتظرك باكر بنفس المكان 🌙", g(isFemale, tr("صاحية"), tr("صاحي")))}</AlertCard>
-      )}
-
-      {showDeadlineAlert && deadlineAlertActive && overdueCount === 0 && (
-        <AlertCard tone="warning" icon={AlertTriangle} onDismiss={dismissDeadlineAlert}>{tr("موعد قريب: ")}<span className="font-extrabold">{nearestDeadlineEvent!.title}</span>{trx(" بعد {0} {1} — ", nearestDeadlineEventDays, nearestDeadlineEventDays === 1 ? tr("يوم") : tr("أيام"))}<Link to="/calendar" className="underline underline-offset-2">{tr("شوفوا التقويم")}</Link>
-          .
-        </AlertCard>
-      )}
-
-      <HomeUpdates />
-
-      {/* Welcome + progress — WESYNC OBSIDIAN × EMBER hero. يستخدم متغيرات
-          الثيم القياسية (brand-*) مباشرة، مو نسخة محلية — فلو غيّرتوا الثيم
-          من المبدّل (أخضر/كحلي/أساسي) الهيرو يتلوّن معه تلقائيًا بدل ما
-          يبقى برتقالي ثابت. */}
-      <div className="space-y-4">
-        <div
-          ref={heroParallaxRef}
-          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-500/50 via-white/5 to-brand-700/40 p-[1px] shadow-2xl shadow-black/50"
-        >
-          <div className="relative overflow-hidden rounded-[calc(2rem-1px)] bg-paper p-6 sm:p-8">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-[ember-drift_13s_ease-in-out_infinite] rounded-full bg-brand-500/25 blur-[90px] motion-reduce:animate-none" />
-            <div
-              className="pointer-events-none absolute -left-16 bottom-0 h-60 w-60 rounded-full bg-[var(--color-overlay-soft)] blur-[80px] transition-transform duration-300 ease-out motion-reduce:transition-none"
-              style={{ transform: "translate3d(calc(var(--px, 0) * 0.5px), calc(var(--py, 0) * 0.5px), 0)" }}
-            />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-600/60 to-transparent" />
-
-            <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {/* Greeting + progress */}
-              <div className="lg:col-span-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-white/5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-700 backdrop-blur-sm">
-                  <Wand2 size={11} />{tr("مساحتكم البحثية")}</span>
-
-                <p className="mt-3 flex items-center gap-2.5 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
-                  <TimeOfDayBadge period={greeting.period} />{trx("{0}، ", greeting.text)}<span className="bg-gradient-to-l from-brand-500 to-brand-700 bg-clip-text text-transparent">
-                    {currentUser?.name.split(" ")[0]}
-                  </span>
-                </p>
-                <p className="mt-1.5 text-sm text-brand-950/50">{heroMessage}</p>
-
-                <div className="mt-6">
-                  <p className="text-sm font-semibold text-brand-950/80">{projectTitle}</p>
-                  {projectSubtitle && (
-                    <p className="text-xs text-brand-700" dir="ltr">
-                      {projectSubtitle}
-                    </p>
-                  )}
-                  {weekNumber >= 1 && (
-                    <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-bold text-brand-950/50">{trx("🔥 أسبوع رقم {0} من رحلتكم البحثية", weekNumber)}</span>
-                  )}
-                </div>
-
-                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/5 bg-white/[0.03] px-3.5 py-2.5 backdrop-blur-sm">
-                  {greeting.period === "night" ? (
-                    <Moon size={16} className="shrink-0 text-brand-700" />
-                  ) : (
-                    <Coffee size={16} className="shrink-0 text-brand-600" />
-                  )}
-                  <p className="text-sm font-medium italic text-brand-950/70">{dailyQuote}</p>
-                </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-5 rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
-                  <RingProgress value={realOverallProgress} size={104} strokeWidth={9}>
-                    <span className="font-display text-xl font-extrabold text-brand-950">
-                      <CountUp value={realOverallProgress} suffix="%" />
-                    </span>
-                  </RingProgress>
-                  <div className="min-w-0 flex-1">
-                    {showEmptyProgressState ? (
-                      <>
-                        <p className="font-display text-base font-bold text-brand-950">{tr("ابدأوا رحلتكم البحثية اليوم")}</p>
-                        <p className="mt-1 text-sm text-brand-950/50">{tr("كل بحث عظيم يبدأ بخطوة أولى — عبّوا مقترحكم البحثي وشوفوا التقدم يتحرك هنا.")}</p>
-                        <Link
-                          to="/proposal"
-                          className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
-                        >
-                          <Wand2 size={14} />{tr("ابدأوا بالمقترح البحثي")}</Link>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-xs font-semibold text-brand-950/50">{tr("نسبة تقدم البحث الكلية")}</p>
-                        {deadline ? (
-                          <div className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-1.5 pe-3 ps-2 backdrop-blur-sm">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_10px_-2px_rgba(255,106,0,0.6)]">
-                              <CalendarClock size={13} />
-                            </span>
-                            <span className="text-sm font-semibold text-brand-950/80">
-                              {formatDateLong(deadline)}
-                            </span>
-                            <span className="rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2 py-0.5 text-[11px] font-extrabold text-white">{trx("متبقٍ {0} يومًا", remainingDays)}</span>
-                          </div>
-                        ) : (
-                          <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-brand-950/80">
-                            <CalendarClock size={15} className="shrink-0" />{tr("ما فيه موعد نهائي محدد بعد")}</p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <Link
-                  to="/files"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-brand-950/70 backdrop-blur-sm transition-colors hover:border-brand-500/40 hover:text-brand-700"
-                >
-                  <UploadCloud size={14} className="text-brand-600" />{tr("اسحبوا أي ملف هنا")}</Link>
-              </div>
-
-              {/* Next meeting — real data, integrated into the hero */}
-              <div className="flex flex-col justify-center">
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-md">
-                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-950/50">
-                    <Video size={13} className="text-brand-600" />{tr("الاجتماع القادم")}</p>
-                  {nextMeeting ? (
-                    <>
-                      <p className="mt-3 font-display text-lg font-extrabold text-brand-950">
-                        {nextMeeting.title}
-                      </p>
-                      <p className="mt-1 text-sm text-brand-700">
-                        {formatDateLong(nextMeeting.date)} — {nextMeeting.time}
-                      </p>
-                      {nextMeeting.location && (
-                        <p className="mt-1 truncate text-xs text-brand-950/50">{nextMeeting.location}</p>
-                      )}
-                      <Link
-                        to="/calendar"
-                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_16px_-2px_rgba(255,106,0,0.5)] hover:brightness-110"
-                      >{tr("افتحوا التقويم")}</Link>
-                    </>
-                  ) : (
-                    <>
-                      <p className="mt-3 text-sm text-brand-950/60">{tr("ما فيه اجتماع مجدول قريب.")}</p>
-                      <Link
-                        to="/calendar"
-                        className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3.5 py-2 text-xs font-bold text-brand-700 transition-colors hover:border-brand-500/40"
-                      >{tr("جدولوا اجتماعًا")}</Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+            <h2 id="topic-title" className="v3-k m-0 text-[20px]">
+              <Link to="/proposal" className="underline decoration-white/20 underline-offset-4">
+                {tr("اكتبوا موضوع بحثكم ←")}
+              </Link>
+            </h2>
+          )}
         </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="stagger-in" style={{ "--stagger-i": 0 } as CSSProperties}>
-            <TiltCard maxTilt={4}>
-              <StatCard
-                icon={Milestone}
-                label={tr("المرحلة الحالية")}
-                value={currentStage?.titleAr ?? tr("لم تبدأ مرحلة بعد")}
-                sub={currentStage?.titleEn ?? "Not started yet"}
-                color="brand"
-                tone="teal"
-              />
-            </TiltCard>
+        {(typeLabel || supervisor) && (
+          <div className="flex flex-wrap gap-1.5 sm:flex-col sm:items-end">
+            {typeLabel && <span className="v3-st todo !text-[var(--ws-c-text)]">{typeLabel}</span>}
+            {supervisor && <span className="v3-st todo !text-[var(--ws-c-text)]">{tr("المشرف/ة {0}", supervisor)}</span>}
           </div>
-          <div className="stagger-in" style={{ "--stagger-i": 1 } as CSSProperties}>
-            <TiltCard maxTilt={4}>
-              <StatCard
-                icon={ListTodo}
-                label={tr("المهمة الحالية")}
-                value={currentTask ?? tr("ما فيه مهمة نشطة الحين")}
-                sub={currentTask ? tr("قيد التنفيذ الآن") : tr("أسندوا أول مهمة من صفحة المهام")}
-                color="amber-accent"
-                tone="cream"
-              />
-            </TiltCard>
-          </div>
-          <div className="stagger-in" style={{ "--stagger-i": 2 } as CSSProperties}>
-            <TiltCard maxTilt={4}>
-              <StatCard
-                icon={TrendingUp}
-                label={tr("الخطوة التالية")}
-                value={nextStep ?? "—"}
-                sub={nextStep ? tr("بعد إكمال الحالية") : tr("ما فيه خطوة تالية محددة")}
-                color="sky-accent"
-                tone="sky"
-              />
-            </TiltCard>
-          </div>
-          <div className="stagger-in" style={{ "--stagger-i": 3 } as CSSProperties}>
-            <TiltCard maxTilt={4}>
-              <StatCard
-                icon={CalendarClock}
-                label={tr("الموعد القادم")}
-                value={nearestDeadlineEvent ? formatDateShort(nearestDeadlineEvent.date) : tr("لا يوجد")}
-                sub={
-                  nearestDeadlineEvent
-                    ? tr("{0} — متبقٍ {1} {2}", nearestDeadlineEvent.title, nearestDeadlineEventDays, nearestDeadlineEventDays === 1 ? tr("يوم") : tr("أيام"))
-                    : tr("أضيفوا موعدًا بالتقويم")
-                }
-                color="brand"
-                tone="violet"
-              />
-            </TiltCard>
-          </div>
-        </div>
-      </div>
+        )}
+      </section>
 
-      {/* بطاقة «اليوم» تحت الهيرو: خطوة وحدة بدل أربع بطاقات متكدّسة فوقه */}
-      <TodayCard
-        stages={realStages}
-        autoData={stageAutoData}
-        projectTitle={project?.title ?? ""}
-        isLeader={isLeader}
-        isFemale={isFemale}
-        updateStage={updateStage}
-        saveTitle={(title) => updateProject({ title })}
-        nextSteps={nextSteps}
-        onboarding={
-          mode === "supabase"
-            ? {
-                hasTitle: !!project?.title?.trim(),
-                hasSupervisor: !!project?.supervisorName?.trim(),
-                hasMyTask: realTasks.some((t) => t.assigneeId === currentUser?.id),
-              }
-            : null
-        }
-      />
-      <StuckHelp isFemale={isFemale} supervisorName={project?.supervisorName ?? ""} projectTitle={project?.title ?? ""} />
-
-      <Card tone="paper" className="card-terra">
-        <ShareUpdate
-              mode={mode}
-              projectTitle={projectTitle}
-              overallProgress={realOverallProgress}
-              currentStageAr={currentStage?.titleAr ?? null}
-              currentTaskTitle={currentTask ?? null}
-              nextLabel={upcoming[0]?.title ?? null}
-              nextDate={upcoming[0]?.date ?? null}
-            />
-      </Card>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Research journey + priorities */}
-        <div className="space-y-4 lg:col-span-2">
-          <Card tone="paper" className="card-terra">
-            <CardHeader
-              title={tr("رحلة تقدم البحث")}
-              subtitle="Research Progress Journey"
-            />
-            <PhaseTracker stages={realStages} />
-          </Card>
-
-          <Card interactive>
-            <CardHeader
-              title={tr("مهامي القادمة")}
-              action={
-                <Link
-                  to="/tasks"
-                  className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-                >{tr("عرض الكل")}</Link>
-              }
-            />
-            <ul className="divide-y divide-brand-50">
-              {priorities.map((task) => {
-                const assignee = memberById(task.assigneeId);
-                return (
-                  <li key={task.id} className="flex items-center gap-3 py-3">
-                    {task.status === "overdue" ? (
-                      <AlertCircle size={18} className="shrink-0 text-rose-500" />
-                    ) : task.status === "in-progress" ? (
-                      <Circle size={18} className="shrink-0 fill-amber-accent-100 text-amber-accent-500" />
-                    ) : (
-                      <Circle size={18} className="shrink-0 text-sky-accent-400" />
-                    )}
-                    <Link to={`/tasks?task=${task.id}`} className="min-w-0 flex-1 truncate text-sm font-medium text-brand-950 hover:text-brand-700">
-                      {task.title}
-                    </Link>
-                    <div className="flex items-center gap-2">
-                      {assignee && <Avatar initials={assignee.initials} color={assignee.color} size="sm" />}
-                      <span
-                        className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[task.status]}`}
-                      >
-                        {statusLabel[task.status]}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            {priorities.length === 0 && (
-              <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه أولويات معلّقة عليك اليوم — استمتع بيومك 🌿")}</p>
-            )}
-          </Card>
-        </div>
-
-        {/* Calendar + upcoming */}
-        <div className="space-y-4">
-          <AlertsCard />
-          <Card tone="sky">
-            <MiniCalendar
-              events={calendarEvents}
-              today={today}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-          </Card>
-
-          <Card>
-            <CardHeader
-              title={selectedDate === todayIso ? tr("أحداث اليوم") : formatDateShort(selectedDate)}
-              action={
-                <Link
-                  to="/calendar"
-                  className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-                >{tr("عرض الكل")}</Link>
-              }
-            />
-            <ul className="space-y-3">
-              {(dayEvents.length > 0 ? dayEvents : upcoming).map((event) => (
-                <li key={event.id} className="flex items-center gap-3">
-                  <div className="w-12 shrink-0 text-xs font-bold text-brand-950/50">
-                    {event.time}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-brand-950">
-                      {event.title}
-                    </p>
-                    <p className="truncate text-xs text-brand-950/45">{event.location}</p>
-                  </div>
-                </li>
-              ))}
-              {dayEvents.length === 0 && upcoming.length === 0 && (
-                <p className="text-sm text-brand-950/40">{tr("لا توجد أحداث")}</p>
-              )}
-            </ul>
-          </Card>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card tone="violet" interactive>
-          <CardHeader
-            title={tr("تقدم الفريق")}
-            subtitle={topPerformerId ? tr("{0} الأكثر إنجازًا هذا الأسبوع", topPerformer!.name.split(" ")[0]) : undefined}
-            action={
-              <Link
-                to="/team"
-                className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-              >{tr("عرض الكل")}</Link>
-            }
-          />
-          <div className="flex justify-between">
-            {roster.map((m) => (
-              <div key={m.id} className="flex flex-col items-center gap-2">
-                <div className="relative">
-                  {m.id === topPerformerId && (
-                    <Crown
-                      size={14}
-                      className="absolute -top-2 start-1/2 -translate-x-1/2 -translate-y-1/2 rotate-0 fill-amber-accent-400 text-amber-accent-500"
-                    />
-                  )}
-                  <Avatar initials={m.initials} color={m.color} />
-                </div>
-                <span className="text-xs font-semibold text-brand-950/70">
-                  {m.name.split(" ")[0]}
-                </span>
-                <span className="text-sm font-extrabold text-brand-600">{m.progress}%</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card tone="amber" interactive>
-          <CardHeader
-            title={tr("مراجعة الأدبيات")}
-            action={
-              <Link to="/literature-review" className="text-xs font-semibold text-brand-600">{tr("عرض المكتبة")}</Link>
-            }
-          />
-          <div className="flex items-center gap-2">
-            <BookOpenCheck size={18} className="text-amber-accent-600" />
-            <p className="text-2xl font-extrabold text-brand-950">
-              <CountUp value={reviewedCount} />
-              <span className="text-base font-medium text-brand-950/40">
-                {" "}
-                / <CountUp value={collectedCount} />
-              </span>
-            </p>
-          </div>
-          <p className="mb-3 text-xs text-brand-950/45">{tr("دراسة تمت مراجعتها من إجمالي المجمّعة")}</p>
-          <ProgressBar value={litReviewPct} color="amber-accent" track="bg-surface-muted" />
-          <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-brand-950/70">{tr("الدراسات المتبقية")}</span>
-            <span className="font-semibold text-brand-950">{remainingCount}</span>
-          </div>
-        </Card>
-
-        <Card interactive>
-          <CardHeader
-            title={tr("آخر نشاط للفريق")}
-            action={
-              <Link
-                to="/team"
-                className="-m-2 select-none p-2 text-xs font-semibold text-brand-600 hover:underline"
-              >{tr("عرض الكل")}</Link>
-            }
-          />
-          {isSupabaseConfigured ? (
-            <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه نشاط مسجَّل للفريق بعد — بيظهر هنا أول ما يبدأ الفريق يشتغل 🌱")}</p>
+      {/* ── ٣) تحديثات الفريق (مطوية) ── */}
+      <div className="relative mb-5 px-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          {updates.length > 0 ? (
+            <button type="button" className="v3-link !min-h-[44px] !text-[var(--ws-c-muted)]" aria-expanded={updatesOpen} onClick={() => setUpdatesOpen((v) => !v)}>
+              {tr("+ {0} من الفريق", plural(updates.length, tr("تحديث"), tr("تحديثين"), "{0} تحديثات", "{0} تحديث"))}
+              <ChevronDown size={16} className={clsx("ms-1 transition-transform", updatesOpen && "rotate-180")} aria-hidden />
+            </button>
           ) : (
-            <ul className="space-y-3">
-              {recentActivity.map((activity) => {
-                const member = mockMemberById(activity.memberId);
+            <span className="v3-mut">{tr("ما فيه تحديثات جديدة من الفريق هالأسبوع")}</span>
+          )}
+          {!updatesOpen && updates.length > 0 && (
+            <span className="v3-mut ms-auto hidden truncate sm:block" dir="auto">
+              {updates
+                .slice(0, 2)
+                .map((u) => u.text)
+                .join(" · ")}
+            </span>
+          )}
+        </div>
+        {updatesOpen && (
+          <ul className="v3-g2 m-0 mt-1 list-none !rounded-2xl p-2">
+            {updates.slice(0, 8).map((u) => (
+              <li key={u.id} className="flex items-center gap-2.5 px-2 py-2 text-sm">
+                <Avatar initials={u.initials} color={u.color} size="sm" />
+                <span className="min-w-0 flex-1" dir="auto">
+                  {u.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* ── ٤) بطاقة الموعد (البطل) ── */}
+      <section className="v3-g v3-rise relative mb-5 flex flex-col gap-[22px] !rounded-[30px] px-5 py-6 sm:px-[30px] sm:py-7" style={rise(2)} aria-labelledby="deadline-title">
+        {deadline && left ? (
+          <>
+            <div className="flex flex-wrap items-center gap-x-[30px] gap-y-4">
+              <div className="flex items-baseline gap-2.5" aria-hidden>
+                <span className="v3-k text-[80px] leading-[.9] text-[#F2EBE3] sm:text-[96px]">{num(Math.max(0, daysLeft ?? 0))}</span>
+                <span className="v3-k text-[24px] sm:text-[26px]">{daysLeft === 1 ? tr("يوم") : daysLeft === 2 ? tr("يومين") : (daysLeft ?? 0) >= 3 && (daysLeft ?? 0) <= 10 ? tr("أيام") : tr("يوم")}</span>
+              </div>
+              <div className="min-w-[230px] flex-1">
+                <div className="v3-mut text-sm font-bold" id="deadline-title">
+                  {(daysLeft ?? 0) < 0 ? tr("فات موعد التسليم") : tr("باقي على التسليم")}
+                </div>
+                <div className="v3-k my-0.5 text-[22px] sm:text-[24px]">
+                  {formatDateFull(deadline)}
+                  {(daysLeft ?? 0) >= 0 && left.hours > 0 && <span className="v3-mut text-[15px] font-medium"> · {tr("و{0}", plural(left.hours, tr("ساعة"), tr("ساعتين"), "{0} ساعات", "{0} ساعة"))}</span>}
+                </div>
+                <div className="text-[15px]">
+                  {tr("تسليم البحث للمشرف/ة{0}", supervisor ? ` ${supervisor}` : "")}
+                  {canWrite && (
+                    <>
+                      {" · "}
+                      <button type="button" className="v3-link !min-h-[32px] align-baseline" onClick={openDeadlineEditor}>
+                        {tr("عدّل")}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+              {/* صندوق الحالة */}
+              {pace.onTrack ? (
+                <div className="w-full rounded-[20px] border border-[rgba(127,224,166,.25)] bg-[rgba(127,224,166,.07)] px-[18px] py-4 lg:w-[300px] lg:flex-none" role="status">
+                  <div className="text-sm font-bold text-[var(--ws-c-done)]">{tr("ماشين صح")}</div>
+                  <div className="mt-1 text-sm leading-[1.7]">
+                    {pace.open === 0
+                      ? tr("ما عليكم مهام مفتوحة. أضيفوا مهام الأسابيع الجاية عشان يبان الطريق.")
+                      : tr("خلّصتوا {0} هالأسبوع، والمطلوب {1} بالأسبوع عشان توصلون في الوقت.", plural(pace.doneThisWeek, tr("مهمة"), tr("مهمتين"), "{0} مهام", "{0} مهمة"), plural(pace.perWeek, tr("مهمة"), tr("مهمتين"), "{0} مهام", "{0} مهمة"))}
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full rounded-[20px] border border-[rgba(255,199,119,.22)] bg-[rgba(255,199,119,.07)] px-[18px] py-4 lg:w-[300px] lg:flex-none" role="status">
+                  <div className="text-sm font-bold text-[var(--ws-c-warn)]">{tr("متأخرين شوي، والحل بسيط")}</div>
+                  <div className="mt-1 text-sm leading-[1.7]">
+                    {tr("لو خلّصتوا {0} بالأسبوع توصلون في الوقت.", plural(pace.perWeek, tr("مهمة"), tr("مهمتين"), "{0} مهام", "{0} مهمة"))}{" "}
+                    {pace.thisWeek.length > 0 && <>{tr("هالأسبوع: {0}.", pace.thisWeek.map((t) => t.title).join(" + "))}</>}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* خط المراحل بمواعيدها */}
+            {windowStages.length > 0 && (
+              <ol className="v3-scroll-x relative m-0 flex list-none p-0 pt-1.5" aria-label={tr("مراحل البحث")}>
+                {[...windowStages.map((s) => ({ key: s.id, label: isEn ? s.titleEn : s.titleAr, date: s.targetDate, state: s.status === "done" ? "done" : s.id === currentStage?.id ? "now" : "next" })), { key: "deliver", label: tr("التسليم"), date: deadline, state: "deliver" }].map(
+                  (s, i, arr) => (
+                    <li key={s.key} className="relative flex min-w-[92px] flex-1 flex-col items-center gap-1.5 text-center" aria-current={s.state === "now" ? "step" : undefined}>
+                      {i < arr.length - 1 && (
+                        <span aria-hidden className="absolute top-[13px] h-0.5" style={{ insetInlineStart: "50%", width: "100%", background: s.state === "done" ? "var(--ws-c-accent-2)" : "rgba(255,255,255,.1)" }} />
+                      )}
+                      <span className="relative z-[1]">
+                        {s.state === "done" ? (
+                          <span className="grid h-[26px] w-[26px] place-items-center rounded-full bg-[var(--ws-c-done)] text-[#0b2015]">
+                            <Check size={14} strokeWidth={3} />
+                          </span>
+                        ) : s.state === "now" ? (
+                          <span className="grid h-[26px] w-[26px] place-items-center rounded-full bg-[#F2EBE3] shadow-[0_0_0_5px_rgba(255,140,40,.18)]">
+                            <i className="h-[9px] w-[9px] rounded-full bg-[var(--ws-c-accent)]" />
+                          </span>
+                        ) : s.state === "deliver" ? (
+                          <span className="grid h-[26px] w-[26px] place-items-center rounded-[9px] bg-[rgba(255,140,40,.2)] text-[var(--ws-c-accent-2)]">
+                            <Flag size={14} />
+                          </span>
+                        ) : (
+                          <span className="block h-[26px] w-[26px] rounded-full border-[1.5px] border-white/20 bg-[#151010]" />
+                        )}
+                      </span>
+                      <span className={clsx("text-sm", s.state === "now" ? "font-bold" : s.state === "next" ? "text-[var(--ws-c-muted)]" : "")}>{s.label}</span>
+                      <span className="v3-mut text-xs">{s.date ? formatDateShort(s.date) : "—"}</span>
+                    </li>
+                  ),
+                )}
+              </ol>
+            )}
+
+            {orderedSections.length > 0 && (
+              <p className="v3-mut m-0 text-center text-sm">
+                {currentSection ? (
+                  <>
+                    {tr("المقترح:")} <b className="text-[var(--ws-c-text)]">{tr("القسم {0} من {1}", num(currentSection.order), num(orderedSections.length))}</b> ·{" "}
+                    {remainingSections === 1 ? tr("باقي لكم قسم واحد وتخلصون المقترح") : tr("باقي لكم {0} وتخلصون المقترح", plural(remainingSections, tr("قسم"), tr("قسمين"), "{0} أقسام", "{0} قسم"))}
+                  </>
+                ) : (
+                  <b className="text-[var(--ws-c-done)]">{tr("المقترح خلص ✓")}</b>
+                )}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-wrap items-center gap-5">
+            <span className="grid h-[64px] w-[64px] place-items-center rounded-[20px] bg-[rgba(255,140,40,.14)] text-[var(--ws-c-accent-2)]" aria-hidden>
+              <Flag size={28} />
+            </span>
+            <div className="min-w-[220px] flex-1">
+              <h2 id="deadline-title" className="v3-k m-0 text-[24px]">
+                {tr("حدّدوا موعد التسليم")}
+              </h2>
+              <p className="v3-mut m-0 mt-1 text-[15px]">{tr("أول ما تحددونه، نحسب لكم كم يوم باقي، وكم مهمة بالأسبوع تحتاجون عشان توصلون في الوقت.")}</p>
+            </div>
+            {canWrite && (
+              <button type="button" className="v3-bd" onClick={openDeadlineEditor}>
+                {tr("اختاروا التاريخ")}
+              </button>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* ── ٥) وش علينا اليوم؟ + الخطوة الجاية ── */}
+      <div className="relative mb-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1.4fr_1fr] lg:gap-5">
+        <section className="v3-g v3-hover v3-rise !rounded-[28px] px-5 pb-2.5 pt-5 sm:px-6" style={rise(3)} aria-labelledby="today-title">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 id="today-title" className="v3-k m-0 text-[20px]">
+              {tr("وش علينا اليوم؟")}
+            </h2>
+            <Link to="/tasks" className="v3-link !text-[var(--ws-c-muted)]">
+              {tr("مهامي كلها ←")}
+            </Link>
+          </div>
+          {today3.length === 0 ? (
+            <p className="v3-mut m-0 border-t border-white/[0.07] py-5 text-[15px]">{tr("ولا شي متأخر ولا شي موعده اليوم. يوم هادي ☕")}</p>
+          ) : (
+            <ul className="m-0 mt-2 list-none p-0">
+              {today3.map((t) => {
+                const m = memberById(t.assigneeId);
+                const late = isLate(t, todayIso);
                 return (
-                  <li key={activity.id} className="flex items-start gap-3">
-                    <Avatar initials={member.initials} color={member.color} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-brand-950">
-                        <span className="font-semibold">{member.name.split(" ")[0]}</span>{" "}
-                        {activity.action}{" "}
-                        <span className="font-semibold text-brand-700">"{activity.target}"</span>
-                      </p>
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-brand-950/40">
-                        <CheckCircle2 size={12} />
-                        {activity.timeAgo}
-                      </p>
-                    </div>
+                  <li key={t.id} className="border-t border-white/[0.07]">
+                    <Link to={`/tasks?task=${t.id}`} className="flex min-h-[56px] items-center gap-3.5 px-1 py-3">
+                      <span className="h-[22px] w-[22px] shrink-0 rounded-full border-[1.8px]" style={{ borderColor: late ? "var(--ws-c-late)" : "rgba(255,255,255,.3)" }} aria-hidden />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-base font-bold" dir="auto">
+                          {t.title}
+                        </span>
+                        {taskSub(t) && <span className="v3-mut block truncate text-[13px]">{taskSub(t)}</span>}
+                      </span>
+                      {dueChip(t)}
+                      {m && <Avatar initials={m.initials} color={m.color} size="sm" />}
+                    </Link>
                   </li>
                 );
               })}
             </ul>
           )}
-        </Card>
+        </section>
+
+        <section
+          className="v3-g v3-hover v3-rise flex flex-col gap-3 !rounded-[28px] p-6"
+          style={{ ...rise(4), borderColor: "rgba(255,140,40,.3)" }}
+          aria-labelledby="next-title"
+        >
+          <div className="v3-mut text-sm font-bold">{tr("الخطوة الجاية")}</div>
+          {nextTask ? (
+            <>
+              <h2 id="next-title" className="v3-k m-0 text-[22px] leading-[1.35] sm:text-[24px]" dir="auto">
+                {nextTask.title}
+              </h2>
+              <p className="v3-mut m-0 text-[15px] leading-[1.7]">
+                {tr("{0} تقريبًا.", (PRIORITY_MINUTES[nextTask.priority ?? "medium"] ?? 30) === 60 ? tr("ساعة") : tr("{0} دقيقة", num(PRIORITY_MINUTES[nextTask.priority ?? "medium"] ?? 30)))}
+                {sectionOf(nextTask) && <> {tr("في قسم «{0}».", isEn ? sectionOf(nextTask)!.labelEn : sectionOf(nextTask)!.labelAr)}</>}
+              </p>
+              <Link to={taskLink(nextTask)} className="v3-bw mt-auto !min-h-[48px] !text-base">
+                {sectionOf(nextTask) ? tr("افتح القسم ←") : tr("افتح المهمة ←")}
+              </Link>
+            </>
+          ) : journeyStep ? (
+            <>
+              <h2 id="next-title" className="v3-k m-0 text-[22px] leading-[1.35] sm:text-[24px]">
+                {journeyStep.title}
+              </h2>
+              <p className="v3-mut m-0 text-[15px] leading-[1.7]">{journeyStep.why}</p>
+              <Link to={journeyStep.to} className="v3-bw mt-auto !min-h-[48px] !text-base">
+                {journeyStep.cta} ←
+              </Link>
+            </>
+          ) : (
+            <>
+              <h2 id="next-title" className="v3-k m-0 text-[22px]">
+                {tr("ما فيه شي مستعجل")}
+              </h2>
+              <Link to="/proposal" className="v3-bw mt-auto !min-h-[48px] !text-base">
+                {tr("افتح المقترح ←")}
+              </Link>
+            </>
+          )}
+          <button type="button" className="v3-link justify-center !text-[var(--ws-c-muted)]" onClick={() => setFocusOpen(true)}>
+            {tr("أو ابدأ ٢٥ دقيقة تركيز")}
+          </button>
+        </section>
       </div>
 
-      {unlockedAchievements.length > 0 && (
-        <Card>
-          <CardHeader title={tr("إنجازاتكم")} subtitle="Achievements" />
-          <div className="flex flex-wrap gap-3">
-            {unlockedAchievements.map((a) => (
-              <div
-                key={a.id}
-                title={a.desc}
-                className="flex items-center gap-2.5 rounded-2xl border border-brand-100/70 bg-surface-muted px-3.5 py-2.5"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
-                  <a.icon size={15} />
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-brand-950">{a.title}</p>
-                  <p className="text-[11px] text-brand-950/45">{a.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+      {/* ── ٦) تحسّن الأسبوع (بس لو فيه تحسّن) ── */}
+      {improvement && (
+        <p className="v3-mut relative m-0 py-1 text-center text-sm">
+          {tr("هالأسبوع خلّصتوا {0}، أحسن من اللي قبله بـ{1} 👏", plural(improvement.thisWeek, tr("مهمة"), tr("مهمتين"), "{0} مهام", "{0} مهمة"), plural(improvement.diff, tr("مهمة"), tr("مهمتين"), "{0} مهام", "{0} مهمة"))}
+        </p>
       )}
 
+      {mode !== "supabase" && (
+        <p className="v3-mut relative mt-3 text-center text-xs">{tr("عرض تجريبي — التاريخ مثبّت على {0}", formatDateLong(todayIso))}</p>
+      )}
+
+      <Dialog open={focusOpen} onClose={() => setFocusOpen(false)} title={tr("٢٥ دقيقة تركيز")}>
+        <FocusSession />
+      </Dialog>
+
+      <Dialog open={editDeadline} onClose={() => setEditDeadline(false)} title={tr("موعد التسليم")}>
+        <div className="flex flex-col gap-3">
+          <label className="flex flex-col gap-1.5 text-sm font-bold">
+            {tr("تاريخ التسليم")}
+            <input type="date" value={deadlineDraft} onChange={(e) => setDeadlineDraft(e.target.value)} className="v3-select w-full [color-scheme:dark]" />
+          </label>
+          {deadlineError && (
+            <p className="m-0 text-sm text-[var(--ws-c-late)]" role="alert">
+              {deadlineError}
+            </p>
+          )}
+          {!isLeader && <p className="v3-mut m-0 text-xs">{tr("الموعد مشترك لكل الفريق.")}</p>}
+          <button type="button" className="v3-bw" onClick={saveDeadline} disabled={!deadlineDraft}>
+            {tr("احفظ الموعد")}
+          </button>
+        </div>
+      </Dialog>
     </div>
   );
+}
+
+function lateText(dueDate: string) {
+  const n = -daysUntil(dueDate, now);
+  if (n <= 1) return tr("متأخرة يوم");
+  if (n === 2) return tr("متأخرة يومين");
+  return n <= 10 ? tr("متأخرة {0} أيام", num(n)) : tr("متأخرة {0} يوم", num(n));
 }

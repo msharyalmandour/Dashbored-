@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dashbored-goi2tebjs-msharyalmandour.vercel.app/sitemap.xml
+Sitemap: https://wesyncapp.com/sitemap.xml

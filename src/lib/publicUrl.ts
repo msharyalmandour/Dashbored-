@@ -15,3 +15,16 @@ export function publicBase(): string {
 }
 
 export const publicOrigin = (): string => publicBase().replace(/\/$/, "");
+
+/** سفاري يشارك رابط canonical (AirDrop/زر المشاركة) بدل عنوان الصفحة — نخليه دايمًا
+    الدومين الرسمي + نفس الصفحة (#/…)، عشان المستلم يفتح نفس المكان وما يطلع له 404 */
+export function syncCanonicalLink(): void {
+  if (typeof document === "undefined") return;
+  const update = () => {
+    const href = publicBase() + window.location.hash;
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", href);
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", href);
+  };
+  update();
+  window.addEventListener("hashchange", update);
+}

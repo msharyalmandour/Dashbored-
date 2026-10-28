@@ -9,16 +9,16 @@ import { formatDateShort } from "../lib/date";
 import { tr } from "../lib/i18n";
 
 const columns: { id: TaskStatus; label: string; tone: string }[] = [
-  { id: "todo", label: tr("لم يبدأ"), tone: "text-sky-accent-600 bg-sky-accent-50" },
-  { id: "in-progress", label: tr("قيد التنفيذ"), tone: "text-amber-accent-600 bg-amber-accent-50" },
-  { id: "overdue", label: tr("متأخرة"), tone: "text-rose-600 bg-rose-50" },
-  { id: "done", label: tr("مكتملة"), tone: "text-brand-600 bg-brand-50" },
+  { id: "todo", label: tr("ما بدأ"), tone: "todo" },
+  { id: "in-progress", label: tr("نشتغل عليه"), tone: "doing" },
+  { id: "overdue", label: tr("متأخرة"), tone: "late" },
+  { id: "done", label: tr("خلصت"), tone: "done" },
 ];
 
 const priorityStyle: Record<Task["priority"], string> = {
-  low: "text-brand-950/40 bg-surface-muted",
-  medium: "text-amber-accent-600 bg-amber-accent-50",
-  high: "text-rose-600 bg-rose-50",
+  low: "todo",
+  medium: "doing",
+  high: "late",
 };
 
 export default function TasksKanban({
@@ -49,7 +49,7 @@ export default function TasksKanban({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
       {columns.map((col) => {
         const colTasks = tasks.filter((t) => t.status === col.id);
         return (
@@ -65,13 +65,13 @@ export default function TasksKanban({
             className={clsx(
               "flex min-h-[160px] flex-col gap-2 rounded-3xl border border-dashed p-3 transition-colors",
               dragOverCol === col.id
-                ? "border-brand-400 bg-brand-50/50"
-                : "border-brand-100/60 bg-surface-muted/40",
+                ? "border-[rgba(255,180,68,.6)] bg-white/[0.06]"
+                : "border-white/10 bg-white/[0.03]",
             )}
           >
             <div className="flex items-center justify-between px-1">
-              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${col.tone}`}>{col.label}</span>
-              <span className="text-xs font-semibold text-brand-950/35">{colTasks.length}</span>
+              <span className={`v3-st ${col.tone}`}>{col.label}</span>
+              <span className="text-xs font-semibold text-[#8F857C]">{colTasks.length}</span>
             </div>
 
             {colTasks.map((task) => {
@@ -86,12 +86,12 @@ export default function TasksKanban({
                     e.dataTransfer.setData("text/plain", task.id);
                   }}
                   className={clsx(
-                    "space-y-2 rounded-3xl border border-brand-100/60 bg-paper p-3 shadow-sm shadow-brand-950/5",
+                    "space-y-2 rounded-[20px] border border-white/[0.08] bg-white/[0.05] p-3",
                     draggable ? "cursor-grab active:cursor-grabbing" : "opacity-80",
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-brand-950">{task.title}</p>
+                    <p className="text-sm font-bold text-[#F6F1EC]" dir="auto">{task.title}</p>
                     {isLeader && onDelete && (
                       <ThreeDotsMenu
                         items={[
@@ -107,11 +107,11 @@ export default function TasksKanban({
                     )}
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${priorityStyle[task.priority]}`}>
+                    <span className={`v3-st text-[11px] ${priorityStyle[task.priority]}`}>
                       {task.priority === "low" ? tr("منخفضة") : task.priority === "medium" ? tr("متوسطة") : tr("عالية")}
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] text-brand-950/45">{formatDateShort(task.dueDate)}</span>
+                      <span className="text-[11px] text-[#B8ADA2]">{formatDateShort(task.dueDate)}</span>
                       <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
                     </div>
                   </div>

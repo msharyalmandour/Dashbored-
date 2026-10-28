@@ -45,6 +45,7 @@ import {
   type Tip,
 } from "../lib/surveyCoach";
 import { tr, trx } from "../lib/i18n";
+import { publicBase } from "../lib/publicUrl";
 
 type Step = "goal" | "questions" | "consent" | "preview" | "publish" | "results";
 
@@ -234,7 +235,7 @@ export default function SurveyBuilder() {
   const add = (type: QType) => update(s.id, { questions: [...s.questions, blankQuestion(type)] });
   const surveyTips = lintSurvey({ title: s.title, goal: s.goal, questions: s.questions, consent_text: s.consentText });
 
-  const link = `${window.location.origin}${window.location.pathname}#/s/${s.publicToken}`;
+  const link = `${publicBase()}#/s/${s.publicToken}`;
   const canOpen = s.title.trim() && s.questions.length > 0 && s.consentText.trim() && s.questions.every((q) => q.text.trim());
   const sample = sampleSizeProportion({ population: pop ? Number(pop) : null, margin: Number(margin) / 100 || 0.05, loss: Number(loss) / 100 || 0 });
 

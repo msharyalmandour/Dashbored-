@@ -17,6 +17,7 @@ import { notifySupervisor } from "../lib/supervisorNotify";
 import { driveNotice } from "../lib/driveNotice";
 import type { MeetingMinutesRow } from "../data/types";
 import { tr } from "../lib/i18n";
+import { publicOrigin } from "../lib/publicUrl";
 
 type DocInput = Pick<MeetingMinutesRow, "meetingDate" | "agenda" | "attendees" | "discussion" | "decisions" | "actionItems">;
 export interface MinutesFormPayload {
@@ -60,7 +61,7 @@ export function useMinutesActions() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState<JustSaved | null>(() => (location.state as { justSaved?: JustSaved } | null)?.justSaved ?? null);
 
-  const supervisorUrl = team?.shareToken ? supervisorLink(window.location.origin, team.shareToken) : null;
+  const supervisorUrl = team?.shareToken ? supervisorLink(publicOrigin(), team.shareToken) : null;
   const memberName = useCallback((id: string | null | undefined) => roster.find((m) => m.id === id)?.name ?? "", [roster]);
 
   const refreshDrive = useCallback(() => {

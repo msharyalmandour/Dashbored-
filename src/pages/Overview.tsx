@@ -8,6 +8,8 @@ import Dialog from "../components/ui/Dialog";
 import FocusSession from "../components/FocusSession";
 import NotificationsBell from "../components/NotificationsBell";
 import HomeToasts from "../components/home/HomeToasts";
+import TeamTogether from "../components/home/TeamTogether";
+import NextMeetingCard from "../components/home/NextMeetingCard";
 import { V3Glow, TYPE_LABEL, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -523,6 +525,12 @@ export default function Overview() {
             {tr("أو ابدأ ٢٥ دقيقة تركيز")}
           </button>
         </section>
+      </div>
+
+      {/* ── الفريق مع بعض + الاجتماع الجاي والتقويم ── */}
+      <div className="relative mb-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1.4fr_1fr] lg:gap-5">
+        <TeamTogether tasks={tasks} today={todayIso} style={rise(5)} />
+        <NextMeetingCard today={todayIso} now={now} style={rise(6)} />
       </div>
 
       {/* ── ٦) تحسّن الأسبوع (بس لو فيه تحسّن) ── */}

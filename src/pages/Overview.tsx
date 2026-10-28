@@ -8,6 +8,7 @@ import Dialog from "../components/ui/Dialog";
 import FocusSession from "../components/FocusSession";
 import NotificationsBell from "../components/NotificationsBell";
 import HomeToasts from "../components/home/HomeToasts";
+import ErrorBoundary from "../components/ErrorBoundary";
 import { MeetLuxCard, TeamRow, WeekLuxCard } from "../components/home/TeamMeetLux";
 import { V3Glow, TYPE_LABEL, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
@@ -202,7 +203,9 @@ export default function Overview() {
   return (
     <div className="v3 relative">
       <V3Glow />
-      <HomeToasts />
+      <ErrorBoundary>
+        <HomeToasts />
+      </ErrorBoundary>
 
       {showGuide && (
         <div className="relative mb-4">
@@ -527,10 +530,16 @@ export default function Overview() {
       </div>
 
       {/* ── الفريق مع بعض (بعرض الصفحة) + الاجتماع الجاي (يمين) وهالأسبوع (يسار) ── */}
-      <TeamRow tasks={tasks} today={todayIso} style={rise(5)} />
+      <ErrorBoundary>
+        <TeamRow tasks={tasks} today={todayIso} style={rise(5)} />
+      </ErrorBoundary>
       <div className="relative mb-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1.1fr_1fr] lg:gap-[18px]">
-        <MeetLuxCard now={now} style={rise(6)} />
-        <WeekLuxCard today={todayIso} now={now} style={rise(7)} />
+        <ErrorBoundary>
+          <MeetLuxCard now={now} style={rise(6)} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <WeekLuxCard today={todayIso} now={now} style={rise(7)} />
+        </ErrorBoundary>
       </div>
 
       {/* ── ٦) تحسّن الأسبوع (بس لو فيه تحسّن) ── */}

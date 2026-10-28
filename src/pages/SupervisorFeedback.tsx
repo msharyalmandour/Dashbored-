@@ -15,6 +15,7 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { notifySupervisor } from "../lib/supervisorEmail";
 import { formatDateLong } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
+import { publicBase } from "../lib/publicUrl";
 
 interface Draft {
   comment: string;
@@ -76,7 +77,7 @@ export default function SupervisorFeedback() {
     }
   };
 
-  const supervisorLink = team?.shareToken ? `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}` : null;
+  const supervisorLink = team?.shareToken ? `${publicBase()}#/supervisor/${team.shareToken}` : null;
   const nudgeMessage = tr("مرحبًا دكتور/ة، رددنا على ملاحظتكم بخصوص بحثنا — تقدرون تشوفون الرد وتكملون المحادثة من هنا:\n{0}", supervisorLink ?? "");
 
   const toTasks = (body: string) => {

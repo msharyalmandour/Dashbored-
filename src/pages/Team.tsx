@@ -32,6 +32,7 @@ import { g, isFemaleUser } from "../lib/gender";
 import { formatDateLong } from "../lib/date";
 import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
 import { isEn, tr, trx } from "../lib/i18n";
+import { publicBase } from "../lib/publicUrl";
 
 function daysAgo(iso: string): number {
   const diff = Date.now() - new Date(iso).getTime();
@@ -49,7 +50,7 @@ function InviteCard() {
   const [codeCopied, setCodeCopied] = useState(false);
 
   if (!team) return null;
-  const inviteLink = `${window.location.origin}${window.location.pathname}#/login?team=${team.id}`;
+  const inviteLink = `${publicBase()}#/login?team=${team.id}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(inviteLink);
@@ -159,7 +160,7 @@ function SupervisorContactSection() {
     }
     window.location.reload();
   };
-  const shareLink = `${window.location.origin}${window.location.pathname}#/supervisor/${team.shareToken}`;
+  const shareLink = `${publicBase()}#/supervisor/${team.shareToken}`;
   const waitingDays = team.supervisorNoteAt ? daysAgo(team.supervisorNoteAt) : null;
   const reminderMessage = team.supervisorNote
     ? tr("مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n{0}", shareLink)
@@ -272,7 +273,7 @@ function ReferralCard() {
   const [copied, setCopied] = useState(false);
 
   if (!team?.referralCode) return null;
-  const referralLink = `${window.location.origin}${window.location.pathname}#/login?ref=${team.referralCode}`;
+  const referralLink = `${publicBase()}#/login?ref=${team.referralCode}`;
   const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ١٤ يوم مجانية، وأول ما تشتركون ناخذ شهر هدية أنا وأنتم 🎁\n{0}", referralLink);
 
   const copy = async () => {

@@ -6,6 +6,7 @@ import { stageCelebration, useStageCelebration } from "../../lib/stageCelebratio
 import { whatsappUrl } from "../../lib/meetings";
 import { gradientPill } from "./researchUi";
 import { tr, trx } from "../../lib/i18n";
+import { publicOrigin } from "../../lib/publicUrl";
 
 const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tr("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
 const SPARKS = Array.from({ length: 28 }, (_, i) => {
@@ -40,7 +41,7 @@ export default function StageCelebration() {
         <p className="mt-2 text-sm text-[#B8ADA2]">{c.nextTitle ? tr("الجاي: «{0}». خطوة خطوة وبحثكم يخلص بوقته.", c.nextTitle) : tr("بحثكم قطع شوط كبير. عاشت أيديكم.")}</p>
         <div className="mt-7 flex flex-col gap-3">
           <Link to={c.nextTo} onClick={() => stageCelebration.hide()} className={`${gradientPill} !py-3`}>{tr("يلا للمرحلة التالية")}</Link>
-          <a href={whatsappUrl(`${share}\n${window.location.origin}`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#FF8A24]/50 py-3 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
+          <a href={whatsappUrl(`${share}\n${publicOrigin()}`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#FF8A24]/50 py-3 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
             <MessageCircle size={15} />{tr("شاركوها بالقروب")}</a>
           <button onClick={() => stageCelebration.hide()} className="text-xs text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("لاحقًا")}</button>
         </div>

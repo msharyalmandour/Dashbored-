@@ -23,6 +23,7 @@ import {
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import LangToggle from "../components/ui/LangToggle";
 import { tr, trx } from "../lib/i18n";
+import { publicBase } from "../lib/publicUrl";
 
 
 const font = "font-display";
@@ -50,7 +51,7 @@ function CtaButton({ children, big = false }: { children: React.ReactNode; big?:
 /** مشاركة الموقع (واتساب / نسخ الرابط) */
 function ShareSiteRow() {
   const [copied, setCopied] = useState(false);
-  const siteUrl = typeof window !== "undefined" ? window.location.origin + window.location.pathname : "";
+  const siteUrl = publicBase();
   const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد بدل قروبات الواتساب المشتتة 🎓\n{0}", siteUrl);
 
   const copy = async () => {

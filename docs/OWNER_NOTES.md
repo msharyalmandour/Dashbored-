@@ -1,8 +1,11 @@
 # ملاحظات المالك — مواضيع نرجع لها
 
 ## 1. إيميلات المشرفة (حُفظ 2026-10-01)
-المبنى جاهز لكن **ما يرسل لين تُضاف أسرار Resend** (`RESEND_API_KEY`، `EMAIL_FROM` بنطاق موثّق، و`SITE_URL`). التفاصيل: `docs/SUPERVISOR_EMAIL.md`.
-باقي: تجربة إيميل حقيقي، وبند الخصوصية بـ `src/lib/legal.ts`، وفكرة إيميل أسبوعي بملخص التقدم.
+**شغّال (2026-10-28):** الدومين `wesyncapp.com` (مشترى من Vercel، تجديد تلقائي سنوي) مربوط بالموقع و`www` يحوّل عليه.
+Resend (حساب swepozm، منطقة Tokyo) موثّق عبر Auto configure مع Vercel DNS. أسرار Supabase مضافة من المالك:
+`RESEND_API_KEY`، `EMAIL_FROM = Wesync <noreply@wesyncapp.com>`، `SITE_URL = https://wesyncapp.com`.
+تجربة حقيقية: إيميل التأكيد وصل لصندوق Primary في Gmail. التفاصيل: `docs/SUPERVISOR_EMAIL.md`.
+باقي: بند الخصوصية بـ `src/lib/legal.ts`، وفكرة إيميل أسبوعي بملخص التقدم، وتوثيق Apple Pay عند ميسر على `wesyncapp.com`.
 
 ## 2. ملاحظة الدكتورة على «وكيل البحث العلمي» (2026-10-01)
 عرضتُ الأداة على الدكتورة فقالت (بحسب نقل المالك): «هذا تاخذه just for fun، يعني فيه طريقة بالبحث يسوّونها» — ما اتضح المقصود بالضبط.

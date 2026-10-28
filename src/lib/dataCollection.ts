@@ -10,7 +10,7 @@ export interface CollectionSummary {
 
 /** أول رقم بنص حجم العينة («384» أو «حوالي 300 مشارك») — null لو ما فيه رقم */
 export function parseSampleSize(text: string): number | null {
-  const m = text.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).match(/\d+/);
+  const m = (text ?? "").replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).match(/\d+/);
   return m ? Number(m[0]) : null;
 }
 

@@ -444,7 +444,7 @@ export default function AlertsCard() {
                 </div>
                 <p className="wsa-s m-0 mt-0.5">{email.value ? tr("يوصلك إيميل بمهامك المتأخرة، وتقرير الفريق كل أسبوع.") : tr("ما راح يوصلك أي إيميل تذكير ولا تقرير أسبوعي.")}</p>
                 {emailAddr && (
-                  <p className="wsa-s m-0 mt-1.5 truncate" dir="ltr" style={{ color: "#CFC6BE", textAlign: "end" }}>
+                  <p className="wsa-s m-0 mt-1.5 truncate" dir="ltr" style={{ color: "var(--ws-c-muted)", textAlign: "end" }}>
                     {emailAddr}
                   </p>
                 )}

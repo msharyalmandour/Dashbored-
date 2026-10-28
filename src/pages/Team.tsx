@@ -552,7 +552,7 @@ export default function Team() {
 
       <WorkloadBalance roster={roster} tasks={tasks} />
       {mode === "supabase" && <PushToggle />}
-      {mode === "supabase" && <ContributionCard roster={roster} tasks={tasks} />}
+      {mode === "supabase" && isLeader && <ContributionCard roster={roster} tasks={tasks} />}
       {isLeader && mode === "supabase" && (
         <div className="mt-4">
           <ReferralCard />

@@ -5,6 +5,8 @@ import { HighlightCard, PageColumns, PageHeader, Panel, rowSurface } from "../co
 import Avatar from "../components/ui/Avatar";
 import EmptyState from "../components/ui/EmptyState";
 import FileAttach from "../components/FileAttach";
+import { useAuth } from "../context/AuthContext";
+import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { useFiles } from "../hooks/useFiles";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -43,7 +45,7 @@ function formatSize(bytes: number): string {
 }
 
 function categoryLabel(f: DriveFile) {
-  return f.category === "meeting-minutes" ? tr("محاضر الاجتماعات") : tr("عام");
+  return f.category === "meeting-minutes" ? tr("محاضر الاجتماعات") : f.category === "ethical-approval" ? tr("الموافقة الأخلاقية") : tr("عام");
 }
 
 export default function Files() {
@@ -51,7 +53,20 @@ export default function Files() {
   const { roster } = useTeamRoster();
   const { project } = useResearchProject();
   const memberById = (id: string) => roster.find((m) => m.id === id);
+  const { isLeader } = useAuth();
   const [folder, setFolder] = useState("all");
+  const [organizing, setOrganizing] = useState(false);
+  const [organizeMsg, setOrganizeMsg] = useState<string | null>(null);
+  const organize = async () => {
+    setOrganizing(true);
+    setOrganizeMsg(null);
+    const { data, error } = await supabase!.functions.invoke("drive-upload", { body: { action: "organize" } });
+    setOrganizing(false);
+    const r = data as { moved?: number; failed?: number; error?: string } | null;
+    if (error || !r || r.error) return setOrganizeMsg(r?.error ?? tr("تعذّر الترتيب — حاولوا مرة ثانية."));
+    setOrganizeMsg(tr("تم ترتيب {0} ملف{1}.", r.moved ?? 0, r.failed ? tr(" (تعذّر {0})", r.failed) : ""));
+    reload();
+  };
   const teamFolderLink = project?.driveFolderId
     ? `https://drive.google.com/drive/folders/${project.driveFolderId}`
     : null;
@@ -115,6 +130,14 @@ export default function Files() {
           <>
             <Panel title={tr("رفع ملف")}>
               <FileAttach onAttach={reload} />
+              {isLeader && isSupabaseConfigured && (
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-brand-100 pt-3">
+                  <button type="button" onClick={organize} disabled={organizing} className="rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
+                    {organizing ? tr("أرتّب…") : tr("رتّب ملفات درايف")}
+                  </button>
+                  <span className="text-[11px] text-brand-950/55">{organizeMsg ?? tr("ينقل الملفات القديمة لمجلداتها حسب النوع ويضيف التاريخ لاسمها.")}</span>
+                </div>
+              )}
             </Panel>
             <Panel title={folder === "all" ? tr("كل الملفات") : folder} hint={tr("{0} ملف", filtered.length)}>
               <ul className="flex flex-col gap-2.5">

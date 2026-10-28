@@ -60,17 +60,29 @@ export function useResearchProject() {
   );
   const [loading, setLoading] = useState(isSupabaseConfigured);
 
+  // نجيب المشروع، ونحدّثه لحظيًا لو القائدة غيّرت العنوان/المشرف، أو لما ترجعون للتبويب — عشان كل الأعضاء يشوفون نفس الموضوع
   useEffect(() => {
     if (!isSupabaseConfigured) return;
-
-    supabase!
-      .from("research_projects")
-      .select("*")
-      .single()
-      .then(({ data }) => {
-        if (data) setProject(mapRow(data as ResearchProjectRow));
-        setLoading(false);
-      });
+    const load = () =>
+      supabase!
+        .from("research_projects")
+        .select("*")
+        .single()
+        .then(({ data }) => {
+          if (data) setProject(mapRow(data as ResearchProjectRow));
+          setLoading(false);
+        });
+    load();
+    const channel = supabase!
+      .channel(`research-project-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "research_projects" }, load)
+      .subscribe();
+    const onVisible = () => document.visibilityState === "visible" && load();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      supabase!.removeChannel(channel);
+    };
   }, []);
 
   const updateProject = async (updates: { title?: string; abstract?: string; supervisorName?: string; targetSubmissionDate?: string; researchType?: ResearchProject["researchType"]; status?: ResearchProject["status"] }) => {

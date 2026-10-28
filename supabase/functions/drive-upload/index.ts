@@ -162,11 +162,56 @@ async function ensureSubfolder(accessToken: string, parentId: string, name: stri
 }
 
 /** اسم موحّد: «٢٠٢٦-١٠-٢٨ — الاسم الأصلي» (بتاريخ الرياض) عشان الملفات تترتب زمنيًا بدرايف */
-function tidyName(original: string): string {
+function tidyName(original: string, at?: string): string {
   const name = original.trim() || "ملف";
   if (/^\d{4}-\d{2}-\d{2}/.test(name)) return name;
-  const day = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
+  const day = new Date((at ? Date.parse(at) : Date.now()) + 3 * 3600000).toISOString().slice(0, 10);
   return `${day} — ${name}`;
+}
+
+/** «رتّب الملفات» (للقائدة): ينقل ملفات الفريق القديمة لمجلداتها حسب النوع ويضيف تاريخ الرفع لاسم الملف — آمن للتكرار */
+// deno-lint-ignore no-explicit-any
+async function organizeFiles(accessToken: string, projectId: string, folderId: string): Promise<any> {
+  const auth = { Authorization: `Bearer ${accessToken}` };
+  const subfolders = new Map<string, string>();
+  const folderFor = async (category: string) => {
+    if (!subfolders.has(category)) subfolders.set(category, await ensureSubfolder(accessToken, folderId, CATEGORY_FOLDERS[category] ?? CATEGORY_FOLDERS.general));
+    return subfolders.get(category)!;
+  };
+  const { data: files } = await supabaseAdmin.from("files").select("id, name, category, drive_file_id, created_at").eq("research_project_id", projectId).not("drive_file_id", "is", null).limit(500);
+  const { data: minutes } = await supabaseAdmin.from("meeting_minutes").select("id, drive_file_id").eq("research_project_id", projectId).not("drive_file_id", "is", null).limit(500);
+  let moved = 0;
+  let failed = 0;
+  const move = async (fileId: string, category: string, newName?: string): Promise<boolean> => {
+    try {
+      const target = await folderFor(category);
+      const cur = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=parents&supportsAllDrives=true`, { headers: auth });
+      if (!cur.ok) return false;
+      const parents = ((await cur.json()) as { parents?: string[] }).parents ?? [];
+      if (parents.length === 1 && parents[0] === target && !newName) return true;
+      const qs = `supportsAllDrives=true&addParents=${target}${parents.length ? `&removeParents=${parents.join(",")}` : ""}`;
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?${qs}`, {
+        method: "PATCH",
+        headers: { ...auth, "Content-Type": "application/json" },
+        body: JSON.stringify(newName ? { name: newName } : {}),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+  for (const f of (files ?? []) as { id: string; name: string; category: string; drive_file_id: string; created_at: string }[]) {
+    const newName = tidyName(f.name, f.created_at);
+    if (await move(f.drive_file_id, f.category, newName === f.name ? undefined : newName)) {
+      moved++;
+      if (newName !== f.name) await supabaseAdmin.from("files").update({ name: newName }).eq("id", f.id);
+    } else failed++;
+  }
+  for (const m of (minutes ?? []) as { drive_file_id: string }[]) {
+    if (await move(m.drive_file_id, "meeting-minutes")) moved++;
+    else failed++;
+  }
+  return { moved, failed };
 }
 
 Deno.serve(async (req: Request) => {
@@ -199,6 +244,18 @@ Deno.serve(async (req: Request) => {
       .eq("id", projectId)
       .single();
     if (!project) return jsonError("ما لقينا مشروع بحث مرتبط بفريقك", 404);
+
+    if ((req.headers.get("content-type") ?? "").includes("application/json")) {
+      const body = (await req.json().catch(() => ({}))) as { action?: string };
+      if (body.action !== "organize") return jsonError("إجراء غير معروف");
+      const { data: me } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      if (me?.role !== "leader") return jsonError("ترتيب الملفات لقائد الفريق فقط", 403);
+      const token = await getDriveAccessToken();
+      if (!token) return jsonError("تعذّر الاتصال بـ Google Drive", 502);
+      const folder = project.drive_folder_id ?? (await ensureDriveFolder(token, projectId, project.team_id));
+      if (!folder) return jsonError("ما فيه مجلد درايف للفريق بعد — ارفعوا أي ملف أول", 404);
+      return new Response(JSON.stringify(await organizeFiles(token, projectId, folder)), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const form = await req.formData();
     const file = form.get("file");

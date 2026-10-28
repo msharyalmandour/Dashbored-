@@ -8,7 +8,8 @@ import { useProposal } from "../hooks/useProposal";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
 import type { ProposalSectionKey, ResearchProjectStatus, ResearchType, SectionStatus } from "../data/types";
-import { daysUntil, formatDateLongEn } from "../lib/date";
+import { formatDateLongEn } from "../lib/date";
+import WriteHeader, { TYPE_LABEL, V3Glow } from "../components/v3/WriteHeader";
 import { openAgent } from "../lib/agentBus";
 import { isEn, tr, trx } from "../lib/i18n";
 
@@ -35,11 +36,6 @@ const STATUS: Record<SectionStatus, { label: () => string; cls: string }> = {
   "not-started": { label: () => tr("ما بدأ"), cls: "todo" },
 };
 
-const TYPE_LABEL: Record<Exclude<ResearchType, "">, [string, string]> = {
-  quantitative: ["كمّي", "Quantitative"],
-  qualitative: ["نوعي", "Qualitative"],
-  "mixed-methods": ["مختلط", "Mixed methods"],
-};
 const PROJECT_STATUS: Record<ResearchProjectStatus, string> = {
   planning: "التخطيط",
   active: "جارٍ العمل",
@@ -183,13 +179,6 @@ export default function Proposal() {
 
   const owner = active ? memberById(active.ownerId) : undefined;
   const supervisor = project?.supervisorName?.trim();
-  const typeLabel = project?.researchType ? bi(...TYPE_LABEL[project.researchType]) : "";
-  const daysLeft = project?.targetSubmissionDate ? daysUntil(project.targetSubmissionDate) : null;
-  const meta = [
-    typeLabel,
-    supervisor ? tr("المشرف/ة {0}", supervisor) : "",
-    daysLeft !== null && daysLeft >= 0 ? tr("التسليم بعد {0} يوم", daysLeft.toLocaleString(isEn ? "en" : "ar-EG")) : "",
-  ].filter(Boolean);
 
   const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
@@ -251,19 +240,8 @@ export default function Proposal() {
       </div>
 
       <div className="relative print:hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 overflow-hidden rounded-[32px]">
-          <div className="v3-blob" style={{ width: 700, height: 520, insetInlineEnd: -260, top: -320, background: "#D9380A", opacity: 0.32 }} />
-          <div className="v3-blob alt" style={{ width: 420, height: 300, insetInlineEnd: 60, top: -160, background: "#FFD25A", opacity: 0.18, filter: "blur(110px)" }} />
-        </div>
-
-        {/* الترويسة */}
-        <header className="v3-rise relative mb-5 min-w-0" style={rise(0)}>
-          <div className="v3-eye">{tr("رحلة البحث · أكتب")}</div>
-          <h1 className="v3-k m-0 text-[24px] leading-snug sm:text-[30px]" dir="auto">
-            {project?.title?.trim() || tr("المقترح البحثي")}
-          </h1>
-          {meta.length > 0 && <p className="v3-mut m-0 text-sm">{meta.join(" · ")}</p>}
-        </header>
+        <V3Glow />
+        <WriteHeader fallbackTitle={tr("المقترح البحثي")} style={rise(0)} />
 
         <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)_270px]">
           {/* ١) عمود الأقسام */}

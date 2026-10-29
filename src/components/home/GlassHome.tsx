@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUp, BookOpen, Check, Clock, Flag, Gauge, PenLine, Route, Shield, Users } from "lucide-react";
 import clsx from "clsx";
@@ -231,7 +231,7 @@ const polar = (r: number, deg: number) => {
   return { x: +(G.cx + r * Math.cos(a)).toFixed(1), y: +(G.cy - r * Math.sin(a)).toFixed(1) };
 };
 
-function GaugeSvg({ pct }: { pct: number }) {
+export function GaugeSvg({ pct }: { pct: number }) {
   const p = Math.max(0, Math.min(100, pct));
   // RTL: يتعبّى من اليمين لليسار. بالإنجليزي من اليسار لليمين
   const deg = isEn ? 180 - p * 1.8 : p * 1.8;
@@ -541,47 +541,72 @@ export function JourneyCard({ steps, headerNote, style, className }: { steps: Jo
 
       {/* جوال: نقاط وتحت كل نقطة الحالة مختصرة */}
       <div className="lg:hidden">
-        <div className="relative mt-2.5 h-[74px]">
-          <svg className="hg-band absolute inset-0 h-full w-full" viewBox="0 0 340 74" preserveAspectRatio="none" aria-hidden>
-            <defs>
-              <filter id="hg-m6" x="-10%" y="-60%" width="120%" height="220%">
-                <feGaussianBlur stdDeviation="6" />
-              </filter>
-              <filter id="hg-m1">
-                <feGaussianBlur stdDeviation="1.2" />
-              </filter>
-              <linearGradient id="hg-mfb" x1={isEn ? 0 : 1} x2={isEn ? 1 : 0}>
-                <stop offset="0" stopColor="#FFB15C" />
-                <stop offset={curOff * 0.6} stopColor="#FF7A1A" />
-                <stop offset={curOff} stopColor="#C2400A" stopOpacity=".5" />
-                <stop offset="1" stopColor="#5A1A05" stopOpacity=".2" />
-              </linearGradient>
-            </defs>
-            <path d={isEn ? "M0 7 L6 7 L88 12 L170 20 L252 26 L334 30 L340 30 L340 44 L334 44 L252 48 L170 54 L88 62 L6 67 L0 67 Z" : "M340 7 L334 7 L252 12 L170 20 L88 26 L6 30 L0 30 L0 44 L6 44 L88 48 L170 54 L252 62 L334 67 L340 67 Z"} fill="#FF6A00" opacity=".25" filter="url(#hg-m6)" />
-            <path d={isEn ? "M0 18 L6 18 L88 21 L170 27 L252 30 L334 32 L340 32 L340 42 L334 42 L252 44 L170 47 L88 53 L6 56 L0 56 Z" : "M340 18 L334 18 L252 21 L170 27 L88 30 L6 32 L0 32 L0 42 L6 42 L88 44 L170 47 L252 53 L334 56 L340 56 Z"} fill="url(#hg-mfb)" opacity=".55" filter="url(#hg-m1)" />
-            <path d={isEn ? "M0 28 L6 28 L88 30 L170 32.5 L252 34 L334 35 L340 35 L340 39 L334 39 L252 40 L170 41.5 L88 44 L6 46 L0 46 Z" : "M340 28 L334 28 L252 30 L170 32.5 L88 34 L6 35 L0 35 L0 39 L6 39 L88 40 L170 41.5 L252 44 L334 46 L340 46 Z"} fill="url(#hg-mfb)" />
-            {[334, 252, 170, 88, 6].map((x0, i) => {
-              const x = isEn ? 340 - x0 : x0;
-              const s = steps[i];
-              const cur = s && (s.state === "now" || (s.state === "deliver" && i === curIdx));
-              return <circle key={i} cx={x} cy="37" r={cur ? 5 : 3.5} fill={s && (s.state === "done" || cur) ? "#FFF3E8" : "#6E645C"} stroke={cur ? "#FF9A3C" : "none"} strokeWidth="3" />;
-            })}
-          </svg>
-        </div>
-        <ol className="m-0 mt-1.5 flex list-none justify-between p-0">
-          {steps.map((s) => (
-            <li key={s.key} className="w-[62px] text-center" aria-current={s.state === "now" ? "step" : undefined}>
+        <JourneyMini steps={steps} />
+      </div>
+    </section>
+  );
+}
+
+/** شريط الرحلة المصغّر (نقاط + الحالة تحت كل نقطة). long = الحالة بالكلام الكامل بدل المختصر */
+export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; long?: boolean }) {
+  const uid = useId().replace(/:/g, "");
+  const curIdx = Math.max(0, steps.findIndex((s) => s.state === "now" || s.state === "deliver"));
+  const curOff = Math.min(0.95, Math.max(0.05, (760 - XS[curIdx]) / 760));
+  return (
+    <>
+    <div className="relative mt-2.5 h-[74px]">
+      <svg className="hg-band absolute inset-0 h-full w-full" viewBox="0 0 340 74" preserveAspectRatio="none" aria-hidden>
+        <defs>
+          <filter id={`${uid}m6`} x="-10%" y="-60%" width="120%" height="220%">
+            <feGaussianBlur stdDeviation="6" />
+          </filter>
+          <filter id={`${uid}m1`}>
+            <feGaussianBlur stdDeviation="1.2" />
+          </filter>
+          <linearGradient id={`${uid}mfb`} x1={isEn ? 0 : 1} x2={isEn ? 1 : 0}>
+            <stop offset="0" stopColor="#FFB15C" />
+            <stop offset={curOff * 0.6} stopColor="#FF7A1A" />
+            <stop offset={curOff} stopColor="#C2400A" stopOpacity=".5" />
+            <stop offset="1" stopColor="#5A1A05" stopOpacity=".2" />
+          </linearGradient>
+        </defs>
+        <path d={isEn ? "M0 7 L6 7 L88 12 L170 20 L252 26 L334 30 L340 30 L340 44 L334 44 L252 48 L170 54 L88 62 L6 67 L0 67 Z" : "M340 7 L334 7 L252 12 L170 20 L88 26 L6 30 L0 30 L0 44 L6 44 L88 48 L170 54 L252 62 L334 67 L340 67 Z"} fill="#FF6A00" opacity=".25" filter={`url(#${uid}m6)`} />
+        <path d={isEn ? "M0 18 L6 18 L88 21 L170 27 L252 30 L334 32 L340 32 L340 42 L334 42 L252 44 L170 47 L88 53 L6 56 L0 56 Z" : "M340 18 L334 18 L252 21 L170 27 L88 30 L6 32 L0 32 L0 42 L6 42 L88 44 L170 47 L252 53 L334 56 L340 56 Z"} fill={`url(#${uid}mfb)`} opacity=".55" filter={`url(#${uid}m1)`} />
+        <path d={isEn ? "M0 28 L6 28 L88 30 L170 32.5 L252 34 L334 35 L340 35 L340 39 L334 39 L252 40 L170 41.5 L88 44 L6 46 L0 46 Z" : "M340 28 L334 28 L252 30 L170 32.5 L88 34 L6 35 L0 35 L0 39 L6 39 L88 40 L170 41.5 L252 44 L334 46 L340 46 Z"} fill={`url(#${uid}mfb)`} />
+        {[334, 252, 170, 88, 6].map((x0, i) => {
+          const x = isEn ? 340 - x0 : x0;
+          const s = steps[i];
+          const cur = s && (s.state === "now" || (s.state === "deliver" && i === curIdx));
+          return <circle key={i} cx={x} cy="37" r={cur ? 5 : 3.5} fill={s && (s.state === "done" || cur) ? "#FFF3E8" : "#6E645C"} stroke={cur ? "#FF9A3C" : "none"} strokeWidth="3" />;
+        })}
+      </svg>
+    </div>
+    <ol className="m-0 mt-1.5 flex list-none justify-between p-0">
+      {steps.map((s) => (
+        <li key={s.key} className={clsx("text-center", long ? "min-w-0 flex-1" : "w-[62px]")} aria-current={s.state === "now" ? "step" : undefined}>
+          {long ? (
+            <>
+              <div className="text-sm font-extrabold" style={{ color: s.state === "now" ? "#FF9A3C" : "#F2EBE3" }}>
+                {s.label}
+              </div>
+              <div className="text-xs font-bold" style={{ color: STATE_COLOR[s.state] }}>
+                {s.long}
+              </div>
+            </>
+          ) : (
+            <>
               <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#7FE0A6" : s.state === "deliver" ? "#FF9A3C" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
                 {s.short}
               </div>
               <div className="text-xs" style={{ color: s.state === "now" ? "#FF9A3C" : "#ABA095", fontWeight: s.state === "now" ? 800 : 500 }}>
                 {s.label}
               </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
+            </>
+          )}
+        </li>
+      ))}
+    </ol>
+    </>
   );
 }
 

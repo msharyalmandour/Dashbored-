@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent } from "react";
-import { Check, ExternalLink, FileCheck2, Loader2, Wand2 } from "lucide-react";
+import { Check, ExternalLink, Eye, FileCheck2, FileText, Loader2, Wand2 } from "lucide-react";
+import AgentWave from "../components/ui/AgentWave";
+import { EditorCard, SectionRail } from "../components/v3/WriteKit";
+import { openAgent, setAgentContext } from "../lib/agentBus";
 import { Link } from "react-router-dom";
 import FileAttach from "../components/FileAttach";
 import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
-import PaperToggle from "../components/v3/PaperToggle";
 import { usePaperMode } from "../lib/paperMode";
 import { useAuth } from "../context/AuthContext";
 import { SavedTick } from "../components/v3/Motion";
@@ -59,18 +61,14 @@ function Field({
     },
   };
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="flex flex-wrap items-center gap-x-2 text-sm font-bold">
+    <label className="wf-fld !mt-0 block">
+      <span className="wf-lbl flex flex-wrap items-center gap-x-2">
         <span>
-          {label} {en && !isEn && <span className="v3-en font-normal">{en}</span>}
+          {label} {en && !isEn && <span className="font-normal" dir="ltr">· {en}</span>}
         </span>
         <SavedTick at={savedAt} />
       </span>
-      {rows ? (
-        <textarea {...common} rows={rows} className={`v3-field !text-sm${draft.trim() ? "" : " v3-empty"}`} />
-      ) : (
-        <input {...common} type={type} className="v3-select w-full" style={{ colorScheme: "dark" }} />
-      )}
+      {rows ? <textarea {...common} rows={rows} className="wf-ed sm !min-h-0" /> : <input {...common} type={type} className="wf-fin" />}
     </label>
   );
 }
@@ -163,7 +161,6 @@ export default function EthicalApprovalPage() {
   }, [steps, stopIdx, ea.updatedAt]);
   const idx = stopIdx ?? 0;
   const stop = STOPS[idx];
-  const goStep = (step: StepId) => setStopIdx(STOPS.findIndex((s) => s.step === step));
 
   const stopLabel = (s: Stop) => (s.step === 3 && s.group !== undefined ? (isEn ? GROUPS[s.group].en : GROUPS[s.group].ar) : isEn ? steps[s.step - 1].en : steps[s.step - 1].ar);
 
@@ -190,179 +187,155 @@ export default function EthicalApprovalPage() {
   };
 
   const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
-  const pct = Math.round((s3 / PRINCIPLE_KEYS.length) * 100);
 
   const pulled = [
-    { label: tr("عنوان الدراسة"), value: project?.title ?? "", to: null as string | null, where: "" },
-    { label: tr("الهدف"), value: aim.statement, to: "/proposal", where: tr("عدّل في المقترح ←") },
-    { label: tr("التصميم"), value: methodology.studyDesign, to: "/methodology", where: tr("عدّل في المنهجية ←") },
-    { label: tr("مكان الدراسة"), value: methodology.studySetting, to: "/methodology", where: tr("عدّل في المنهجية ←") },
+    { label: tr("عنوان الدراسة"), value: project?.title ?? "", to: null as string | null },
+    { label: tr("الهدف"), value: aim.statement, to: "/proposal?section=aim" },
+    { label: tr("التصميم"), value: methodology.studyDesign, to: "/methodology" },
+    { label: tr("مكان الدراسة"), value: methodology.studySetting, to: "/methodology" },
   ];
+
+  // الأقسام بالقائمة = محطات النموذج: البيانات، الفريق، مجموعات المبادئ الأربع، المرفقات
+  const stopDone = (st: Stop) =>
+    st.step === 3 && st.group !== undefined ? GROUPS[st.group].keys.every((k) => ea.principles[k] !== null) : stepDone[st.step - 1];
+  const stopEn = (st: Stop) => (st.step === 3 && st.group !== undefined ? GROUPS[st.group].en : steps[st.step - 1].en);
+  const stopGroup = (st: Stop) => (st.step <= 2 ? tr("معلومات أساسية") : st.step === 3 ? tr("حماية المشاركين") : tr("الأوراق والمرفقات"));
+  const doneStops = STOPS.filter(stopDone).length;
+  const label = stopLabel(stop);
+  useEffect(() => {
+    setAgentContext(label);
+    return () => setAgentContext(null);
+  }, [label]);
+
+  const hint =
+    stop.step === 1
+      ? tr("العنوان والهدف والتصميم والمكان تنسحب لحالها من المقترح والمنهجية. هنا بس التواريخ والتمويل وإدارة البيانات.")
+      : stop.step === 2
+        ? tr("الباحث الرئيسي غالبًا قائد الفريق. اضغطوا «عبّوه من الفريق» ونعبّي الأسماء والإيميلات، وراجعوها.")
+        : stop.step === 3
+          ? tr("لجنة الأخلاقيات تبغى تعرف كيف بتحمون المشاركين. جاوبوا كل سؤال بـ«نعم» أو «لا» أو «لا ينطبق».")
+          : tr("علّموا المرفقات اللي جهزت، وبعدها نزّلوا النموذج الرسمي Word وقدّموه للجنة.");
 
   return (
     <div className="v3 relative">
       <V3Glow />
       <WriteHeader fallbackTitle={tr("الموافقة الأخلاقية")} style={rise(0)} live={{ ethics: s3 }} />
-      <div className="relative -mt-2 mb-3 flex justify-end">
-        <PaperToggle on={paper} onChange={setPaper} />
-      </div>
 
-      {/* بطاقة الطلب */}
-      <div className="v3-g v3-rise relative mb-4 flex flex-wrap items-center gap-4 p-5 sm:px-6" style={rise(1)}>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[15px]" style={{ background: "linear-gradient(135deg,#FF7A10,#FFC85A)", color: "#1A0802" }}>
-          <FileCheck2 size={22} />
-        </span>
-        <div className="min-w-[220px] flex-1">
-          <div className="v3-k text-xl">
-            {tr("طلب الموافقة الأخلاقية")} {!isEn && <span className="v3-en font-normal">Ethical Approval</span>}
-          </div>
-          <div className="v3-mut text-sm">{tr("مطلوب رسميًا مع المقترح، وبنفس تاريخ تسليمه.")}</div>
-        </div>
-        <button type="button" className="v3-bd" onClick={autoFillFromTeam}>
-          <Wand2 size={16} />
-          {tr("عبّوه تلقائيًا من الفريق")}
-        </button>
-        <button type="button" className="v3-bd" onClick={() => exportWord("official")} disabled={exporting} title={tr("نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة")}>
-          {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} />}
-          {tr("النموذج الرسمي (Word)")}
-        </button>
-      </div>
-
-      {/* شريط الخطوات الأربع */}
-      <nav aria-label={tr("خطوات الطلب")} className="v3-g v3-rise v3-scroll-x relative mb-4 flex items-center gap-2 px-4 py-3 sm:px-6" style={rise(2)}>
-        {steps.map((s, i) => {
-          const current = stop.step === s.id;
-          const circle: CSSProperties = s.done
-            ? { background: "#7FE0A6", color: "#0b2015" }
-            : current
-              ? { background: "#F6F1EC", color: "#160904", boxShadow: "0 0 0 6px rgba(255,180,68,.2)" }
-              : s.started
-                ? { border: "1.5px solid rgba(255,255,255,.45)", color: "var(--ws-c-text)" }
-                : { border: "1.5px solid rgba(255,255,255,.25)", color: "var(--ws-c-muted)" };
-          return (
-            <div key={s.id} className="flex flex-1 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => goStep(s.id)}
-                aria-current={current ? "step" : undefined}
-                className="v3-tap flex min-h-[44px] shrink-0 items-center gap-3 rounded-2xl px-1.5 text-start"
-              >
-                <span className={`v3-k flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-[15px]${current && !s.done ? " v3-glow" : ""}`} style={circle}>
-                  {s.done ? <Check size={16} /> : num(s.id)}
-                </span>
-                <span className="leading-tight">
-                  <span className="block whitespace-nowrap text-[15px] font-bold">{isEn ? s.en : s.ar}</span>
-                  <span className="v3-mut block whitespace-nowrap text-xs">{s.sub}</span>
-                </span>
+      <div className="relative grid grid-cols-1 items-start gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)]">
+        <SectionRail
+          title={tr("نموذج الموافقة الأخلاقية")}
+          items={STOPS.map((st, i) => ({ key: String(i), label: stopLabel(st), en: stopEn(st), done: stopDone(st), group: stopGroup(st) }))}
+          activeKey={String(idx)}
+          onPick={(k) => setStopIdx(Number(k))}
+          style={rise(1)}
+          footer={
+            <>
+              <button type="button" className="wf-gb" onClick={() => exportWord("dark")} disabled={exporting} title={tr("نسخة بتصميم Wesync الداكن للمراجعة على الشاشة")}>
+                <Eye size={16} aria-hidden />
+                {tr("نسخة Wesync")}
               </button>
-              {i < steps.length - 1 && <span aria-hidden className="h-0.5 min-w-[24px] flex-1 rounded-full" style={{ background: "rgba(255,255,255,.12)" }} />}
-            </div>
-          );
-        })}
-      </nav>
+              <button type="button" className="wf-gb" onClick={() => exportWord("official")} disabled={exporting} title={tr("نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة")}>
+                {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} aria-hidden />}
+                {tr("Word الرسمي")}
+              </button>
+            </>
+          }
+        />
 
-      <div className="relative flex flex-col gap-5 xl:flex-row xl:items-start">
-        {/* القسم الحالي */}
-        <section className={`v3-g v3-rise ws-write min-w-0 flex-1 p-5 sm:px-6 sm:py-[22px]${paper ? " is-paper" : ""}`} style={rise(3)} aria-labelledby="v3-step-title">
-          <div className="ws-paper-layer" aria-hidden />
-          <div className="ws-paper-margin" aria-hidden />
-          <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="v3-eye">{trx("الخطوة {0} من {1}", num(stop.step), num(4))}</div>
-              <h2 id="v3-step-title" className="v3-k m-0 text-[22px]">
-                {isEn ? steps[stop.step - 1].en : steps[stop.step - 1].ar}
-              </h2>
-              {!isEn && stop.step === 3 && <div className="v3-en">Section Two — Ethical Principles</div>}
-            </div>
-            {stop.step === 3 && (
-              <div className="flex items-center gap-2.5">
-                <div className="v3-ring h-12 w-12" style={{ ["--v3-target" as string]: `${pct}%`, background: "conic-gradient(#7FE0A6 0 var(--v3p),rgba(255,255,255,.1) 0)" }} aria-hidden />
-                <div className="v3-mut text-[13px]">{trx("{0} من {1}", num(s3), num(PRINCIPLE_KEYS.length))}</div>
-              </div>
-            )}
-          </div>
+        <div className="flex min-w-0 flex-col gap-[18px]">
+          <EditorCard
+            index={idx + 1}
+            total={STOPS.length}
+            title={label}
+            en={stopEn(stop)}
+            paper={paper}
+            onPaper={setPaper}
+            hint={hint}
+            style={rise(2)}
+            titleId="v3-step-title"
+          >
+            <div key={`${stop.step}-${stop.group ?? ""}`} className="flex flex-col gap-3.5">
+              {stop.step === 1 && (
+                <>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {pulled.map((p) => (
+                      <div key={p.label} className="wf-tpl !block">
+                        <div className="text-xs text-[#ABA095]">{p.label}</div>
+                        <div className="line-clamp-2 text-sm leading-relaxed" dir="auto" style={{ color: p.value.trim() ? undefined : "#8F857C" }}>
+                          {p.value.trim() || tr("لم يُحدد بعد")}
+                        </div>
+                        {p.to && (
+                          <Link to={p.to} className="text-xs font-bold text-[#FFC777]">
+                            {tr("عدّل ←")}
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <Field label={tr("تاريخ تقديم الطلب")} type="date" value={ea.applicationDate ?? ""} onSave={(v) => updateEthicalApproval({ applicationDate: v || null })} />
+                    <Field label={tr("تاريخ البدء المتوقع")} type="date" value={ea.expectedStartDate ?? ""} onSave={(v) => updateEthicalApproval({ expectedStartDate: v || null })} />
+                    <Field label={tr("تاريخ الانتهاء المتوقع")} type="date" value={ea.expectedEndDate ?? ""} onSave={(v) => updateEthicalApproval({ expectedEndDate: v || null })} />
+                  </div>
+                  <Field label={tr("كيف ستُدار البيانات وتُحفظ سريتها")} en="Data management" rows={3} value={ea.dataManagementConfidentiality} onSave={(v) => updateEthicalApproval({ dataManagementConfidentiality: v })} />
+                  <Field label={tr("تفاصيل أي تمويل أو دعم مالي (إن وجد)")} en="Funding" rows={2} value={ea.fundingDetails} onSave={(v) => updateEthicalApproval({ fundingDetails: v })} />
+                </>
+              )}
 
-          <div key={`${stop.step}-${stop.group ?? ""}`} className="flex flex-col gap-3.5">
-            {stop.step === 1 && (
-              <>
-                <p className="v3-mut m-0 text-sm">{tr("العنوان والهدف والتصميم والمكان تنسحب لحالها من المقترح والمنهجية (على الجنب). هنا بس التواريخ والتمويل وإدارة البيانات.")}</p>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <Field label={tr("تاريخ تقديم الطلب")} type="date" value={ea.applicationDate ?? ""} onSave={(v) => updateEthicalApproval({ applicationDate: v || null })} />
-                  <Field label={tr("تاريخ البدء المتوقع")} type="date" value={ea.expectedStartDate ?? ""} onSave={(v) => updateEthicalApproval({ expectedStartDate: v || null })} />
-                  <Field label={tr("تاريخ الانتهاء المتوقع")} type="date" value={ea.expectedEndDate ?? ""} onSave={(v) => updateEthicalApproval({ expectedEndDate: v || null })} />
-                </div>
-                <Field label={tr("كيف ستُدار البيانات وتُحفظ سريتها")} en="Data management" rows={3} value={ea.dataManagementConfidentiality} onSave={(v) => updateEthicalApproval({ dataManagementConfidentiality: v })} />
-                <Field label={tr("تفاصيل أي تمويل أو دعم مالي (إن وجد)")} en="Funding" rows={2} value={ea.fundingDetails} onSave={(v) => updateEthicalApproval({ fundingDetails: v })} />
-              </>
-            )}
+              {stop.step === 2 && (
+                <>
+                  <button type="button" className="wf-gb self-start" onClick={autoFillFromTeam}>
+                    <Wand2 size={16} aria-hidden />
+                    {tr("عبّوه من الفريق")}
+                  </button>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Field label={tr("اسم الباحث الرئيسي")} en="PI name" value={ea.piName} onSave={(v) => updateEthicalApproval({ piName: v })} />
+                    <Field label={tr("الجهة")} en="Affiliation" value={ea.piAffiliation} onSave={(v) => updateEthicalApproval({ piAffiliation: v })} />
+                    <Field label={tr("البريد الإلكتروني")} en="Email" type="email" value={ea.piEmail} onSave={(v) => updateEthicalApproval({ piEmail: v })} />
+                    <div className="wf-fld !mt-0">
+                      <span className="wf-lbl">
+                        {tr("نوع الباحث الرئيسي")} {!isEn && <span className="font-normal">· PI type</span>}
+                      </span>
+                      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={tr("نوع الباحث الرئيسي")}>
+                        {(
+                          [
+                            ["undergraduate", tr("بكالوريوس")],
+                            ["graduate", tr("دراسات عليا")],
+                            ["faculty", tr("هيئة تدريس")],
+                          ] as [PiType, string][]
+                        ).map(([v, l]) => (
+                          <button key={v} type="button" role="radio" aria-checked={ea.piType === v} className="wf-opt" onClick={() => updateEthicalApproval({ piType: v })}>
+                            <span className="wf-rd" aria-hidden />
+                            {l}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <Field label={tr("باحثون آخرون — سطر لكل باحث: الاسم — الجهة — البريد")} en="Other researchers" rows={3} value={ea.otherResearchers} onSave={(v) => updateEthicalApproval({ otherResearchers: v })} />
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Field label={tr("اسم/أسماء المشرف الأكاديمي")} en="Supervisor(s)" value={ea.supervisorNames} onSave={(v) => updateEthicalApproval({ supervisorNames: v })} />
+                    <Field label={tr("الرقم الجامعي (إن وجد)")} en="Registration no." value={ea.registrationNo} onSave={(v) => updateEthicalApproval({ registrationNo: v })} />
+                  </div>
+                  <Field label={tr("الأشخاص المشاركون بإجراء الدراسة")} en="Persons involved" rows={2} value={ea.personsInvolved} onSave={(v) => updateEthicalApproval({ personsInvolved: v })} />
+                </>
+              )}
 
-            {stop.step === 2 && (
-              <>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label={tr("اسم الباحث الرئيسي")} en="PI name" value={ea.piName} onSave={(v) => updateEthicalApproval({ piName: v })} />
-                  <Field label={tr("الجهة")} en="Affiliation" value={ea.piAffiliation} onSave={(v) => updateEthicalApproval({ piAffiliation: v })} />
-                  <Field label={tr("البريد الإلكتروني")} en="Email" type="email" value={ea.piEmail} onSave={(v) => updateEthicalApproval({ piEmail: v })} />
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-sm font-bold">
-                      {tr("نوع الباحث الرئيسي")} {!isEn && <span className="v3-en font-normal">PI type</span>}
-                    </span>
-                    <select value={ea.piType} onChange={(e) => updateEthicalApproval({ piType: e.target.value as PiType })} className="v3-select">
-                      <option value="undergraduate">{tr("طالب/ة بكالوريوس")}</option>
-                      <option value="graduate">{tr("طالب/ة دراسات عليا")}</option>
-                      <option value="faculty">{tr("عضو هيئة تدريس")}</option>
-                    </select>
-                  </label>
-                </div>
-                <Field label={tr("باحثون آخرون — سطر لكل باحث: الاسم — الجهة — البريد")} en="Other researchers" rows={3} value={ea.otherResearchers} onSave={(v) => updateEthicalApproval({ otherResearchers: v })} />
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label={tr("اسم/أسماء المشرف الأكاديمي")} en="Supervisor(s)" value={ea.supervisorNames} onSave={(v) => updateEthicalApproval({ supervisorNames: v })} />
-                  <Field label={tr("الرقم الجامعي (إن وجد)")} en="Registration no." value={ea.registrationNo} onSave={(v) => updateEthicalApproval({ registrationNo: v })} />
-                </div>
-                <Field label={tr("الأشخاص المشاركون بإجراء الدراسة")} en="Persons involved" rows={2} value={ea.personsInvolved} onSave={(v) => updateEthicalApproval({ personsInvolved: v })} />
-              </>
-            )}
-
-            {stop.step === 3 && stop.group !== undefined && (
-              <>
-                <div className="v3-scroll-x flex gap-2 pb-1">
-                  {GROUPS.map((g, gi) => {
-                    const on = gi === stop.group;
-                    const answered = g.keys.filter((k) => ea.principles[k] !== null).length;
-                    return (
-                      <button
-                        key={g.id}
-                        type="button"
-                        onClick={() => setStopIdx(STOPS.findIndex((s) => s.step === 3 && s.group === gi))}
-                        aria-pressed={on}
-                        className="v3-tap min-h-[44px] shrink-0 rounded-full px-3.5 text-[13px]"
-                        style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700 } : { background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "var(--ws-c-text)" }}
-                      >
-                        {isEn ? g.en : g.ar} · {num(answered)}/{num(g.keys.length)}
-                      </button>
-                    );
-                  })}
-                </div>
+              {stop.step === 3 && stop.group !== undefined && (
                 <ol className="m-0 list-none p-0">
                   {GROUPS[stop.group].keys.map((k) => {
                     const n = PRINCIPLE_KEYS.indexOf(k) + 1;
                     const val = ea.principles[k];
                     return (
                       <li key={k} className="flex flex-col gap-2.5 border-t py-3 sm:flex-row sm:items-center sm:gap-3.5" style={{ borderColor: "rgba(255,255,255,.07)" }}>
-                        <span className="v3-k v3-mut w-6 shrink-0 text-[13px]">{num(n)}</span>
-                        <p className="m-0 flex-1 text-[15px]" id={`q-${k}`}>
+                        <span className="wf-num w-6 shrink-0 text-[13px] text-[#ABA095]">{n}</span>
+                        <p className="m-0 flex-1 text-[15px] leading-relaxed" id={`q-${k}`}>
                           {tr(QUESTION[k])}
                         </p>
-                        <div role="radiogroup" aria-labelledby={`q-${k}`} className="flex shrink-0 gap-0.5 self-start rounded-full p-[3px] sm:self-auto" style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.08)" }}>
+                        <div role="radiogroup" aria-labelledby={`q-${k}`} className="flex shrink-0 flex-wrap gap-1.5">
                           {ANSWERS.map((a) => (
-                            <button
-                              key={a.v}
-                              type="button"
-                              role="radio"
-                              aria-checked={val === a.v}
-                              onClick={() => updateEthicalApproval({ principles: { [k]: a.v } as Partial<EthicalPrinciples> })}
-                              className="v3-tap min-h-[44px] rounded-full px-3.5 text-[13px] font-bold transition-colors"
-                              style={val === a.v ? a.on : { color: "var(--ws-c-muted)" }}
-                            >
+                            <button key={a.v} type="button" role="radio" aria-checked={val === a.v} onClick={() => updateEthicalApproval({ principles: { [k]: a.v } as Partial<EthicalPrinciples> })} className="wf-opt !min-h-[40px]">
+                              <span className="wf-rd" aria-hidden />
                               {tr(a.label)}
                             </button>
                           ))}
@@ -371,134 +344,155 @@ export default function EthicalApprovalPage() {
                     );
                   })}
                 </ol>
-              </>
-            )}
+              )}
 
-            {stop.step === 4 && (
-              <>
-                <div>
-                  <div className="mb-1.5 text-sm font-bold">
-                    {tr("المرفقات المطلوبة")} {!isEn && <span className="v3-en font-normal">Section Three — Attachments</span>}
-                  </div>
-                  <ul className="m-0 list-none p-0">
-                    {attachmentItems.map((item) => (
-                      <li key={item.key} className="flex items-center justify-between gap-3 border-t py-1" style={{ borderColor: "rgba(255,255,255,.07)" }}>
-                        <label className="flex min-h-[44px] flex-1 cursor-pointer items-center gap-2.5 text-sm font-semibold">
-                          <input
-                            type="checkbox"
-                            checked={ea.attachments[item.key]}
-                            onChange={(e) => updateEthicalApproval({ attachments: { [item.key]: e.target.checked } as Partial<EthicalAttachments> })}
-                            className="h-5 w-5 accent-[#FF8A24]"
-                          />
-                          {tr(item.label)}
-                        </label>
-                        <Link to={item.to} className="v3-link">
-                          {tr("جهّزه من هنا ←")}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-sm font-bold">{tr("النتيجة")}</span>
-                    <select value={ea.outcome} onChange={(e) => updateEthicalApproval({ outcome: e.target.value as typeof ea.outcome })} className="v3-select">
-                      {Object.entries(outcomeLabel).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {tr(label)}
-                        </option>
+              {stop.step === 4 && (
+                <>
+                  <div>
+                    <div className="wf-lbl mb-1.5 text-[13px] font-bold text-[#ABA095]">
+                      {tr("المرفقات المطلوبة")} {!isEn && <span className="font-normal">· Attachments</span>}
+                    </div>
+                    <ul className="m-0 list-none p-0">
+                      {attachmentItems.map((item) => (
+                        <li key={item.key} className="flex items-center justify-between gap-3 border-t py-1" style={{ borderColor: "rgba(255,255,255,.07)" }}>
+                          <label className="flex min-h-[44px] flex-1 cursor-pointer items-center gap-2.5 text-sm font-semibold">
+                            <input
+                              type="checkbox"
+                              checked={ea.attachments[item.key]}
+                              onChange={(e) => updateEthicalApproval({ attachments: { [item.key]: e.target.checked } as Partial<EthicalAttachments> })}
+                              className="h-5 w-5 accent-[#FF8A24]"
+                            />
+                            {tr(item.label)}
+                          </label>
+                          <Link to={item.to} className="text-[13px] font-bold text-[#FFC777]">
+                            {tr("جهّزه من هنا ←")}
+                          </Link>
+                        </li>
                       ))}
-                    </select>
-                  </label>
-                  <Field label={tr("الرقم المرجعي (Ref. Number)")} value={ea.refNumber ?? ""} onSave={(v) => updateEthicalApproval({ refNumber: v || null })} />
-                  <Field label={tr("تاريخ اجتماع اللجنة")} type="date" value={ea.meetingDate ?? ""} onSave={(v) => updateEthicalApproval({ meetingDate: v || null })} />
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  {ea.approvalLetterFileId ? (
-                    <span className="v3-st done !text-sm">
-                      <Check size={15} />
-                      {tr("خطاب الموافقة مرفوع")}
-                    </span>
-                  ) : (
-                    <FileAttach
-                      category="ethical-approval"
-                      label={tr("ارفع خطاب الموافقة الرسمي لما يوصل")}
-                      onAttach={(meta) => {
-                        if (meta.fileRowId) updateEthicalApproval({ approvalLetterFileId: meta.fileRowId });
-                      }}
-                    />
-                  )}
-                  <Link to="/files" className="v3-link gap-1.5">
-                    <ExternalLink size={12} />
-                    {tr("شوف كل الملفات")}
-                  </Link>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" className="v3-bw" onClick={() => exportWord("official")} disabled={exporting}>
-                    {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} />}
-                    {tr("نموذج التقديم الرسمي (Word)")}
-                  </button>
-                  <button type="button" className="v3-bd" onClick={() => exportWord("dark")} disabled={exporting} title={tr("نسخة بتصميم Wesync الداكن للمراجعة على الشاشة")}>
-                    {tr("نسخة Wesync")}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-            {idx > 0 ? (
-              <button type="button" className="v3-bd" onClick={() => setStopIdx(idx - 1)}>
-                {trx("السابق: {0}", stopLabel(STOPS[idx - 1]))}
-              </button>
-            ) : (
-              <span />
-            )}
-            {idx < STOPS.length - 1 && (
-              <button type="button" className="v3-bw" onClick={() => setStopIdx(idx + 1)}>
-                {trx("التالي: {0} ←", stopLabel(STOPS[idx + 1]))}
-              </button>
-            )}
-          </div>
-        </section>
-
-        {/* على الجنب */}
-        <aside className="grid min-w-0 grid-cols-1 content-start gap-4 sm:grid-cols-2 xl:w-[360px] xl:shrink-0 xl:grid-cols-1">
-          <div className="v3-g v3-hover v3-rise flex flex-col gap-3 p-[18px]" style={rise(4)}>
-            <div className="flex items-center justify-between gap-2">
-              <div className="v3-k text-base">{tr("بيانات مسحوبة من المشروع")}</div>
-              <span className="v3-st done">
-                <Check size={12} />
-                {tr("مربوطة")}
-              </span>
+                    </ul>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <label className="wf-fld !mt-0 block">
+                      <span className="wf-lbl">{tr("النتيجة")}</span>
+                      <select value={ea.outcome} onChange={(e) => updateEthicalApproval({ outcome: e.target.value as typeof ea.outcome })} className="wf-fin">
+                        {Object.entries(outcomeLabel).map(([value, l]) => (
+                          <option key={value} value={value}>
+                            {tr(l)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <Field label={tr("الرقم المرجعي (Ref. Number)")} value={ea.refNumber ?? ""} onSave={(v) => updateEthicalApproval({ refNumber: v || null })} />
+                    <Field label={tr("تاريخ اجتماع اللجنة")} type="date" value={ea.meetingDate ?? ""} onSave={(v) => updateEthicalApproval({ meetingDate: v || null })} />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {ea.approvalLetterFileId ? (
+                      <span className="wf-st done !ms-0 !text-sm">
+                        <Check size={15} className="inline" /> {tr("خطاب الموافقة مرفوع")}
+                      </span>
+                    ) : (
+                      <FileAttach
+                        category="ethical-approval"
+                        label={tr("ارفع خطاب الموافقة الرسمي لما يوصل")}
+                        onAttach={(meta) => {
+                          if (meta.fileRowId) updateEthicalApproval({ approvalLetterFileId: meta.fileRowId });
+                        }}
+                      />
+                    )}
+                    <Link to="/files" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#FFC777]">
+                      <ExternalLink size={12} />
+                      {tr("شوف كل الملفات")}
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
-            {pulled.map((p) => (
-              <div key={p.label} className="rounded-[14px] px-3 py-2.5" style={{ background: "rgba(0,0,0,.2)" }}>
-                <div className="v3-mut text-xs">{p.label}</div>
-                <div className="line-clamp-3 text-sm leading-relaxed" dir="auto" style={{ color: p.value.trim() ? undefined : "var(--ws-c-muted)" }}>
-                  {p.value.trim() || tr("لم يُحدد بعد")}
-                </div>
-                {p.to && (
-                  <Link to={p.to} className="v3-link !min-h-[32px] text-xs">
-                    {p.where}
-                  </Link>
-                )}
+
+            <div className="ws-write-foot flex flex-wrap items-center gap-2.5">
+              <span className="text-[13px] text-[#ABA095]">{tr("ينحفظ تلقائيًا")}</span>
+              <span className="flex-1" />
+              <button type="button" className="wf-gb" onClick={() => openAgent(tr("ساعدني أعبّي «{0}» في نموذج الموافقة الأخلاقية", label))}>
+                <AgentWave size={15} />
+                {tr("ساعدني")}
+              </button>
+              {idx > 0 && (
+                <button type="button" className="wf-gb" onClick={() => setStopIdx(idx - 1)}>
+                  {tr("السابق")}
+                </button>
+              )}
+              {idx < STOPS.length - 1 ? (
+                <button type="button" className="wf-pr" onClick={() => setStopIdx(idx + 1)}>
+                  {trx("التالي: {0} ←", stopLabel(STOPS[idx + 1]))}
+                </button>
+              ) : (
+                <button type="button" className="wf-pr" onClick={() => exportWord("official")} disabled={exporting}>
+                  {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} />}
+                  {tr("نموذج التقديم الرسمي (Word)")}
+                </button>
+              )}
+            </div>
+          </EditorCard>
+
+          <div className="grid grid-cols-1 gap-[18px] md:grid-cols-2">
+            <section className="hg-card" style={rise(3)} aria-labelledby="e-tpl-title">
+              <h3 id="e-tpl-title" className="m-0 text-[18px] font-extrabold">
+                {tr("القوالب الجاهزة")}
+              </h3>
+              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("نماذج الموافقة والإذن في حقيبة الاستبيان، تتعبّى ببيانات بحثكم.")}</div>
+              <div className="mt-3 grid gap-2">
+                {[
+                  { t: tr("نموذج الموافقة المستنيرة"), d: tr("للمشاركين قبل البدء") },
+                  { t: tr("خطاب الجهة"), d: tr("إذن جمع البيانات من مكان الدراسة") },
+                ].map((x) => (
+                  <div key={x.t} className="wf-tpl">
+                    <FileText size={18} className="shrink-0 text-[#FFC777]" aria-hidden />
+                    <div className="min-w-0 flex-1">
+                      <b className="text-sm">{x.t}</b>
+                      <div className="text-xs text-[#ABA095]">{x.d}</div>
+                    </div>
+                    <Link to="/study-kit" className="wf-gb !min-h-[38px] !px-3.5">
+                      {tr("افتح")}
+                    </Link>
+                  </div>
+                ))}
               </div>
-            ))}
+            </section>
+
+            <section className="hg-card" style={rise(4)} aria-labelledby="e-ready-title">
+              <h3 id="e-ready-title" className="m-0 text-[18px] font-extrabold">
+                {tr("جاهزية التقديم للجنة")}
+              </h3>
+              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("لما تكتمل الأقسام والمرفقات، نزّلوا النموذج الرسمي وقدّموه.")}</div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/[0.08]" role="progressbar" aria-valuemin={0} aria-valuemax={STOPS.length} aria-valuenow={doneStops} aria-label={tr("جاهزية التقديم")}>
+                <div className="h-full rounded-full" style={{ width: `${(doneStops / STOPS.length) * 100}%`, background: "linear-gradient(90deg,#FF6A00,#FFC777)" }} />
+              </div>
+              <div className="mt-2.5">
+                <div className="wf-kv">
+                  <span>{tr("الأقسام")}</span>
+                  <b className="wf-num">
+                    {doneStops}/{STOPS.length}
+                  </b>
+                </div>
+                <div className="wf-kv">
+                  <span>{tr("المبادئ")}</span>
+                  <b className="wf-num">
+                    {s3}/{PRINCIPLE_KEYS.length}
+                  </b>
+                </div>
+                <div className="wf-kv">
+                  <span>{tr("المرفقات")}</span>
+                  <b className="wf-num">
+                    {s4}/{attachmentItems.length}
+                  </b>
+                </div>
+                <div className="wf-kv">
+                  <span>{tr("النتيجة")}</span>
+                  <b style={{ color: ea.outcome === "granted" ? "#7FE0A6" : ea.outcome === "rejected" ? "#FF8A7A" : "#ABA095" }}>{tr(outcomeLabel[ea.outcome] ?? outcomeLabel.pending)}</b>
+                </div>
+              </div>
+            </section>
           </div>
-          <div className="v3-g v3-hover v3-rise flex items-center gap-3 px-[18px] py-4" style={rise(5)}>
-            <div className="flex h-[58px] w-[46px] shrink-0 items-end justify-center rounded-lg pb-1.5 text-[13px] font-extrabold" style={{ background: "linear-gradient(180deg,#F6F1EC,#E3D3C2)", color: "#2B579A" }} aria-hidden>
-              W
-            </div>
-            <div className="flex-1">
-              <div className="text-sm font-bold">{tr("معاينة النموذج")}</div>
-              <div className="v3-mut text-xs">{trx("يتعبّى وأنتم تجاوبون · {0} من {1} مبدأ", num(s3), num(PRINCIPLE_KEYS.length))}</div>
-            </div>
-            <button type="button" className="v3-bd !text-[13px]" onClick={() => goStep(4)}>
-              {tr("افتح")}
-            </button>
-          </div>
-        </aside>
+        </div>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ import AgentOrb from "./ui/AgentOrb";
 import AgentWave from "./ui/AgentWave";
 import StreamedText from "./ui/StreamedText";
 import ThinkingLine from "./ui/ThinkingLine";
-import { OPEN_AGENT_EVENT } from "../lib/agentBus";
+import { AGENT_CONTEXT_EVENT, OPEN_AGENT_EVENT } from "../lib/agentBus";
 import { isEn, lang, tr, trx } from "../lib/i18n";
 
 interface ChatMessage {
@@ -232,6 +232,14 @@ export default function AiAssistant() {
   };
 
   const place = placeFor(location.pathname);
+  // «الكوتش · القسم المفتوح»: الصفحة ترسله، وينمسح مع تغيّر الصفحة
+  const [ctxLabel, setCtxLabel] = useState<string | null>(null);
+  useEffect(() => {
+    const on = (e: Event) => setCtxLabel((e as CustomEvent<{ label: string | null }>).detail?.label ?? null);
+    window.addEventListener(AGENT_CONTEXT_EVENT, on);
+    return () => window.removeEventListener(AGENT_CONTEXT_EVENT, on);
+  }, []);
+  useEffect(() => setCtxLabel(null), [location.pathname]);
   const prompts = (place.sectionId && sectionPrompts[place.sectionId]) || coachPrompts.slice(0, 3);
   const circleBtn = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-[#B8ADA2] transition hover:border-[#FF8A24]/60 hover:text-[#F4F0EC]";
 
@@ -240,11 +248,16 @@ export default function AiAssistant() {
       {/* الكرة العائمة: نفس كرة صفحة الوكيل (ألوان مباشرة مو متغيرات الثيم عشان تبان بنفس الهوية بأي صفحة) */}
       <button
         onClick={() => setOpen(true)}
-        aria-label={tr("وكيل Wesync")}
-        title={tr("وكيل Wesync — أنتم في: {0}", place.label)}
-        className={`fixed bottom-6 start-6 z-40 hidden rounded-full transition-transform hover:scale-105 print:hidden ${open ? "" : "md:block"}`}
+        aria-label={ctxLabel ? tr("الكوتش · {0}", ctxLabel) : tr("وكيل Wesync")}
+        title={tr("وكيل Wesync — أنتم في: {0}", ctxLabel ?? place.label)}
+        className={`fixed bottom-6 start-6 z-40 hidden items-center gap-2.5 rounded-full transition-transform hover:scale-[1.03] print:hidden ${open ? "" : "md:flex"}`}
       >
         <AgentOrb size={56} state={loading ? "thinking" : "idle"} symbol={<AgentWave size={24} color="#1A0802" />} />
+        {ctxLabel && (
+          <span className="wf-coach hidden lg:inline-block" aria-hidden>
+            {tr("الكوتش")} · <b>{ctxLabel}</b>
+          </span>
+        )}
       </button>
 
       {open && <div aria-hidden className="fixed inset-0 z-[39] bg-black/45 backdrop-blur-[2px]" onClick={() => setOpen(false)} />}

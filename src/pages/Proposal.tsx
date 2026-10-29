@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AlertCircle, Check, Eye, FileDown, Paperclip } from "lucide-react";
 import AgentWave from "../components/ui/AgentWave";
@@ -6,17 +6,16 @@ import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import QuestionSuggestions from "../components/QuestionSuggestions";
 import { useAuth } from "../context/AuthContext";
 import { useProposal } from "../hooks/useProposal";
-import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
-import type { ProposalSectionKey, ResearchProjectStatus, ResearchType, SectionStatus } from "../data/types";
+import type { ProposalSectionKey, ResearchProjectStatus, ResearchType } from "../data/types";
 import { formatDateLongEn } from "../lib/date";
-import WriteHeader, { TYPE_LABEL, V3Glow, num } from "../components/v3/WriteHeader";
-import { CheckSvg } from "../components/v3/Motion";
-import PaperToggle from "../components/v3/PaperToggle";
+import WriteHeader, { TYPE_LABEL, V3Glow } from "../components/v3/WriteHeader";
+import { EditorCard, SectionRail, WordsSaved } from "../components/v3/WriteKit";
 import { usePaperMode } from "../lib/paperMode";
 import { useTypingPresence } from "../hooks/useTypingPresence";
-import { openAgent } from "../lib/agentBus";
-import { isEn, tr, trx } from "../lib/i18n";
+import { openAgent, setAgentContext } from "../lib/agentBus";
+import { daysUntil } from "../lib/date";
+import { isEn, tr } from "../lib/i18n";
 
 /* المقترح البحثي — ترتيب v3 (لوحة «أكتب — المقترح البحثي»): ٣ أعمدة، قسم واحد مفتوح بالمحرر.
    ترتيب واجهة بس: نفس الحقول ونفس طريقة الحفظ (عند الخروج من الحقل) ونفس الجداول. */
@@ -35,11 +34,6 @@ function loadProposalAttachments(): Record<string, AttachedFileMeta> {
 /** نص بالعربي وتحته المصطلح الإنجليزي — بالواجهة الإنجليزية يكفي سطر واحد */
 const bi = (ar: string, en: string) => (isEn ? en : ar);
 
-const STATUS: Record<SectionStatus, { label: () => string; cls: string }> = {
-  done: { label: () => tr("خلص"), cls: "done" },
-  "in-progress": { label: () => tr("نكتبه"), cls: "doing" },
-  "not-started": { label: () => tr("ما بدأ"), cls: "todo" },
-};
 
 const PROJECT_STATUS: Record<ResearchProjectStatus, string> = {
   planning: "التخطيط",
@@ -49,6 +43,34 @@ const PROJECT_STATUS: Record<ResearchProjectStatus, string> = {
 };
 
 const countWords = (s: string) => (s.trim() ? s.trim().split(/\s+/).length : 0);
+
+/** تلميح كل قسم فوق المحرر (والمدى المقترح للكلمات بالذهبي) */
+const range = (r: string) => <b className="wf-num">{r}</b>;
+const SECTION_HINT: Partial<Record<ProposalSectionKey, () => ReactNode>> = {
+  background: () => (
+    <>
+      {tr("ابدأوا بحجم المشكلة عالميًا، بعدين في السعودية، وآخر شي ليش تهم فئة دراستكم.")} {range("300–500")} {tr("كلمة تكفي.")}
+    </>
+  ),
+  "literature-review": () => (
+    <>
+      {tr("رتّبوا الدراسات حسب المحاور مو دراسة دراسة، وقارنوا نتائجها: وين تتفق ووين تختلف.")} {range("8–12")} {tr("دراسة حديثة تكفي.")}
+    </>
+  ),
+  problem: () => (
+    <>
+      {tr("وضّحوا المشكلة بأرقام من الواقع، ووش يصير لو ما انحلّت. فقرة أو فقرتين.")} {range("150–300")} {tr("كلمة.")}
+    </>
+  ),
+  gap: () => <>{tr("اكتبوا اللي نعرفه من الدراسات واللي ما نعرفه، وبعدها الفجوة بجملة وحدة واضحة يطلع منها هدفكم.")}</>,
+  aim: () => <>{tr("جملة وحدة تبدأ بـ«تهدف هذه الدراسة إلى…»، وتطلع مباشرة من الفجوة.")}</>,
+  questions: () => (
+    <>
+      {range("2–4")} {tr("أسئلة، كل سؤال يجاوب جزء من الهدف. النوعي يبدأ بـ«كيف» أو «ما تجربة…»، والكمّي يقيس علاقة أو فرق.")}
+    </>
+  ),
+  methodology: () => <>{tr("ملخص قصير للمنهجية هنا — التفاصيل كاملة تنكتب في صفحة «المنهجية».")}</>,
+};
 
 /** حقل نصي يُحفظ عند الخروج منه (blur) فقط — نفس السلوك السابق، بشكل v3 */
 function AutoSaveTextarea({
@@ -94,34 +116,15 @@ function AutoSaveTextarea({
   );
 }
 
-/** «انحفظ تلقائيًا قبل ثواني ✓» — يتحدّث مع الوقت */
-function SavedNote({ at }: { at: number | null }) {
-  const [, tick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => tick((n) => n + 1), 15000);
-    return () => clearInterval(t);
-  }, []);
-  if (!at) return <span className="v3-mut text-[13px]">{tr("يحفظ تلقائيًا لما تطلعون من الحقل")}</span>;
-  const min = Math.floor((Date.now() - at) / 60000);
-  return (
-    <span key={at} className="v3-saved text-[13px] text-[#7FE0A6]" role="status">
-      {min < 1 ? tr("انحفظ تلقائيًا قبل ثواني") : trx("انحفظ تلقائيًا قبل {0} د", min)}
-      <CheckSvg />
-    </span>
-  );
-}
 
 export default function Proposal() {
   const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } = useProposal();
   const { project, updateProject } = useResearchProject();
   const { canWrite, currentUser } = useAuth();
   const [paper, setPaper] = usePaperMode(currentUser?.id);
-  const { roster } = useTeamRoster();
-  const memberById = (id: string) => roster.find((m) => m.id === id);
 
   const ordered = useMemo(() => [...sections].sort((a, b) => a.order - b.order), [sections]);
   const doneCount = ordered.filter((s) => s.status === "done").length;
-  const pct = ordered.length ? Math.round((doneCount / ordered.length) * 100) : 0;
 
   // ?section=<key> (من «افتح القسم ←» بالرئيسية) يفتح القسم نفسه مباشرة
   const [searchParams] = useSearchParams();
@@ -189,8 +192,14 @@ export default function Proposal() {
     );
   };
 
-  const owner = active ? memberById(active.ownerId) : undefined;
   const supervisor = project?.supervisorName?.trim();
+  const daysLeft = project?.targetSubmissionDate ? daysUntil(project.targetSubmissionDate) : null;
+  // «الكوتش · القسم المفتوح» جنب كرة الوكيل
+  const activeLabel = active ? bi(active.labelAr, active.labelEn) : null;
+  useEffect(() => {
+    setAgentContext(activeLabel);
+    return () => setAgentContext(null);
+  }, [activeLabel]);
 
   const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
@@ -255,134 +264,42 @@ export default function Proposal() {
         <V3Glow />
         <WriteHeader fallbackTitle={tr("المقترح البحثي")} style={rise(0)} live={{ proposal: doneCount }} />
 
-        <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)_270px]">
-          {/* ١) عمود الأقسام */}
-          <nav aria-label={tr("أقسام المقترح")} className="v3-g v3-rise min-w-0 self-start p-4 lg:row-span-2 xl:row-span-1" style={rise(1)}>
-            <div className="flex items-center gap-3.5 px-1.5 pb-3.5">
-              <div className="v3-ring h-14 w-14 lg:h-16 lg:w-16" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0}٪ مكتمل", pct)} />
-              <div>
-                <div className="v3-k text-lg">{tr("المقترح البحثي")}</div>
-                <div className="v3-mut text-[13px]">{trx("{0} من {1} أقسام خلصت", doneCount.toLocaleString(isEn ? "en" : "ar-EG"), ordered.length.toLocaleString(isEn ? "en" : "ar-EG"))}</div>
-              </div>
-            </div>
+        <div className="relative grid grid-cols-1 items-start gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)]">
+          {/* ١) قائمة الأقسام */}
+          <SectionRail
+            title={tr("أقسام المقترح")}
+            items={ordered.map((s) => ({ key: s.key, label: bi(s.labelAr, s.labelEn), en: s.labelEn, done: s.status === "done" }))}
+            activeKey={active?.key}
+            onPick={(k) => setActiveKey(k as ProposalSectionKey)}
+            style={rise(1)}
+            footer={
+              <>
+                <Link to="/proposal/export" className="wf-gb">
+                  <Eye size={16} aria-hidden />
+                  {tr("المستند كامل")}
+                </Link>
+                <button type="button" className="wf-gb" onClick={() => window.print()}>
+                  <FileDown size={16} aria-hidden />
+                  {tr("صدّر PDF")}
+                </button>
+              </>
+            }
+          />
 
-            {/* جوال: شريط أفقي ينسحب */}
-            <div className="v3-scroll-x -mx-1 flex gap-2 px-1 pb-1 lg:hidden">
-              {ordered.map((s, i) => {
-                const on = s.key === active?.key;
-                return (
-                  <button
-                    key={s.key}
-                    type="button"
-                    onClick={() => setActiveKey(s.key)}
-                    aria-current={on ? "step" : undefined}
-                    className="v3-tap flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-3 text-sm font-bold"
-                    style={on ? { background: "rgba(255,140,40,.18)", border: "1px solid rgba(255,180,68,.45)" } : { background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)" }}
-                  >
-                    <span
-                      className="flex h-6 w-6 items-center justify-center rounded-full text-xs"
-                      style={s.status === "done" ? { background: "#7FE0A6", color: "#0b2015" } : on ? { background: "#F6F1EC", color: "#160904" } : { border: "1.5px solid rgba(255,255,255,.22)", color: "var(--ws-c-text)" }}
-                    >
-                      {s.status === "done" ? <CheckSvg size={13} /> : (i + 1).toLocaleString(isEn ? "en" : "ar-EG")}
-                    </span>
-                    {bi(s.labelAr, s.labelEn)}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* كمبيوتر: قائمة عمودية */}
-            <ol className="m-0 hidden list-none flex-col gap-1 p-0 lg:flex">
-              {ordered.map((s, i) => {
-                const on = s.key === active?.key;
-                const st = STATUS[s.status];
-                return (
-                  <li key={s.key}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveKey(s.key)}
-                      aria-current={on ? "step" : undefined}
-                      className={`v3-tap flex min-h-[44px] w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-start ${on ? "v3-sheen" : "hover:bg-white/[0.04]"}`}
-                      style={on ? { background: "rgba(255,140,40,.14)", border: "1px solid rgba(255,180,68,.35)" } : { border: "1px solid transparent" }}
-                    >
-                      {s.status === "done" ? (
-                        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full" style={{ background: "#7FE0A6", color: "#0b2015" }}>
-                          <CheckSvg />
-                        </span>
-                      ) : (
-                        <span
-                          className="v3-k flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[13px]"
-                          style={on ? { background: "#F6F1EC", color: "#160904" } : { border: "1.5px solid rgba(255,255,255,.22)", color: "var(--ws-c-text)" }}
-                        >
-                          {(i + 1).toLocaleString(isEn ? "en" : "ar-EG")}
-                        </span>
-                      )}
-                      <span className="min-w-0 flex-1 leading-tight">
-                        <span className="block text-[15px] font-bold">{bi(s.labelAr, s.labelEn)}</span>
-                        {!isEn && <span className="v3-en block">{s.labelEn}</span>}
-                      </span>
-                      <span className={`v3-st ${st.cls}`}>{st.label()}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-
-            <div className="mt-3 flex flex-col gap-2">
-              <button type="button" className="v3-bd" onClick={() => window.print()}>
-                <FileDown size={16} />
-                {tr("صدّر PDF")}
-              </button>
-              <Link to="/proposal/export" className="v3-bd">
-                <Eye size={16} />
-                {tr("شوف المستند كامل")}
-              </Link>
-            </div>
-          </nav>
-
-          {/* ٢) المحرر — قسم واحد */}
-          <div className="flex min-w-0 flex-col gap-4">
-            <div className="flex justify-end">
-              <PaperToggle on={paper} onChange={setPaper} />
-            </div>
+          {/* ٢) المحرر + الملخص ومعلومات البحث */}
+          <div className="flex min-w-0 flex-col gap-[18px]">
             {active && (
-              <section className={`v3-g v3-rise ws-write flex flex-col gap-4 p-5 sm:px-6 sm:py-[22px]${paper ? " is-paper" : ""}`} style={rise(2)} aria-labelledby="v3-sec-title">
-                <div className="ws-paper-layer" aria-hidden />
-                <div className="ws-paper-margin" aria-hidden />
-                <div className="flex flex-wrap items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="v3-eye">{trx("القسم {0} من {1}", (activeIdx + 1).toLocaleString(isEn ? "en" : "ar-EG"), ordered.length.toLocaleString(isEn ? "en" : "ar-EG"))}</div>
-                    <h2 id="v3-sec-title" className="v3-k m-0 text-[22px] sm:text-[26px]">
-                      {bi(active.labelAr, active.labelEn)}
-                    </h2>
-                    {!isEn && <div className="v3-en text-[13px]">{active.labelEn}</div>}
-                  </div>
-                  <label className={`v3-st ${STATUS[active.status].cls} relative min-h-[32px] cursor-pointer`}>
-                    <span className="sr-only">{tr("حالة القسم")}</span>
-                    {STATUS[active.status].label()}
-                    <select
-                      value={active.status}
-                      disabled={!canWrite}
-                      onChange={(e) => saved(updateSection(active.key, { status: e.target.value as SectionStatus }))}
-                      className="absolute inset-0 cursor-pointer opacity-0"
-                    >
-                      {(Object.keys(STATUS) as SectionStatus[]).map((s) => (
-                        <option key={s} value={s}>
-                          {STATUS[s].label()}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  {owner && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-xs font-bold" style={{ background: "#FFC85A", color: "#1A0A02" }}>
-                        {owner.initials}
-                      </span>
-                      <span className="text-[13px]">{owner.name.split(" ")[0]}</span>
-                    </div>
-                  )}
-                </div>
-
+              <EditorCard
+                index={activeIdx + 1}
+                total={ordered.length}
+                title={bi(active.labelAr, active.labelEn)}
+                en={active.labelEn}
+                paper={paper}
+                onPaper={setPaper}
+                hint={SECTION_HINT[active.key]?.()}
+                style={rise(2)}
+                titleId="v3-sec-title"
+              >
                 {/* خيط الفجوة: ٤ بطاقات تتعبّى من قسم الفجوة */}
                 {gapRelated && (
                   <div className="ws-paper-only flex-wrap gap-2">
@@ -404,30 +321,30 @@ export default function Proposal() {
                   {active.key === "gap" ? (
                     <>
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <label className="flex flex-col gap-1.5">
-                          <span className="text-sm font-bold">
-                            {tr("اللي نعرفه")} {!isEn && <span className="v3-en font-normal">· What we know</span>}
+                        <label className="wf-fld !mt-0">
+                          <span className="wf-lbl">
+                            {tr("اللي نعرفه")} {!isEn && <span className="font-normal">· What we know</span>}
                           </span>
-                          <AutoSaveTextarea value={gap.whatWeKnow.join("\n")} onSave={(v) => saved(updateGap({ whatWeKnow: v.split("\n").filter(Boolean) }))} placeholder={tr("سطر لكل نقطة...")} rows={4} />
+                          <AutoSaveTextarea value={gap.whatWeKnow.join("\n")} onSave={(v) => saved(updateGap({ whatWeKnow: v.split("\n").filter(Boolean) }))} placeholder={tr("سطر لكل نقطة...")} rows={4} className="wf-ed sm" />
                         </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className="text-sm font-bold">
-                            {tr("اللي ما نعرفه")} {!isEn && <span className="v3-en font-normal">· What we don't know</span>}
+                        <label className="wf-fld !mt-0">
+                          <span className="wf-lbl">
+                            {tr("اللي ما نعرفه")} {!isEn && <span className="font-normal">· What we don't know</span>}
                           </span>
-                          <AutoSaveTextarea value={gap.whatWeDontKnow.join("\n")} onSave={(v) => saved(updateGap({ whatWeDontKnow: v.split("\n").filter(Boolean) }))} placeholder={tr("سطر لكل نقطة...")} rows={4} />
+                          <AutoSaveTextarea value={gap.whatWeDontKnow.join("\n")} onSave={(v) => saved(updateGap({ whatWeDontKnow: v.split("\n").filter(Boolean) }))} placeholder={tr("سطر لكل نقطة...")} rows={4} className="wf-ed sm" />
                         </label>
                       </div>
-                      <label className="flex flex-col gap-1.5">
-                        <span className="text-sm font-bold">
-                          {tr("الفجوة")} {!isEn && <span className="v3-en font-normal">· Research Gap</span>}
+                      <label className="wf-fld !mt-0">
+                        <span className="wf-lbl">
+                          {tr("الفجوة")} {!isEn && <span className="font-normal">· Research Gap</span>}
                         </span>
-                        <AutoSaveTextarea value={gap.gapStatement} onSave={(v) => saved(updateGap({ gapStatement: v }))} placeholder={tr("اكتبوا صياغة الفجوة البحثية هنا...")} className="!border-[rgba(255,180,68,.45)]" />
+                        <AutoSaveTextarea value={gap.gapStatement} onSave={(v) => saved(updateGap({ gapStatement: v }))} placeholder={tr("اكتبوا صياغة الفجوة البحثية هنا...")} className="wf-ed sm !shadow-[inset_0_0_0_1.5px_rgba(255,180,68,.45)]" />
                       </label>
-                      <label className="flex flex-col gap-1.5">
-                        <span className="text-sm font-bold">
-                          {tr("وش بتدرسون أنتم")} {!isEn && <span className="v3-en font-normal">· Your Study</span>}
+                      <label className="wf-fld !mt-0">
+                        <span className="wf-lbl">
+                          {tr("وش بتدرسون أنتم")} {!isEn && <span className="font-normal">· Your Study</span>}
                         </span>
-                        <AutoSaveTextarea value={gap.studyConnection} onSave={(v) => saved(updateGap({ studyConnection: v }))} placeholder={tr("كيف تربط دراستكم بهذي الفجوة؟")} />
+                        <AutoSaveTextarea value={gap.studyConnection} onSave={(v) => saved(updateGap({ studyConnection: v }))} placeholder={tr("كيف تربط دراستكم بهذي الفجوة؟")} className="wf-ed sm" />
                       </label>
                     </>
                   ) : active.key === "aim" ? (
@@ -438,7 +355,7 @@ export default function Proposal() {
                       onDraft={onWriting}
                       placeholder={tr("اكتبوا هدف الدراسة… مثال: «تستكشف هذه الدراسة تجربة … خلال …»")}
                       rows={5}
-                      className="min-h-[120px]"
+                      className="wf-ed !min-h-[180px]"
                     />
                   ) : active.key === "questions" ? (
                     <>
@@ -450,7 +367,7 @@ export default function Proposal() {
                         onDraft={onWriting}
                         placeholder={tr("سؤال بحث واحد بكل سطر...")}
                         rows={5}
-                        className="min-h-[120px]"
+                        className="wf-ed !min-h-[180px]"
                       />
                       <QuestionSuggestions
                         topic={project?.title ?? ""}
@@ -465,9 +382,9 @@ export default function Proposal() {
                       value={active.content}
                       onSave={(content) => saved(updateSection(active.key, { content }))}
                       onDraft={onWriting}
-                      placeholder={tr("اكتبوا محتوى هذا القسم هنا...")}
-                      rows={8}
-                      className="min-h-[160px]"
+                      placeholder={tr("اكتبوا {0} هنا…", bi(active.labelAr, active.labelEn))}
+                      rows={10}
+                      className="wf-ed"
                     />
                   )}
 
@@ -475,7 +392,7 @@ export default function Proposal() {
                   {gapRelated && (
                     <details open={!!active.content.trim()} className="v3-g2 px-4 py-2">
                       <summary className="flex min-h-[44px] cursor-pointer items-center text-sm font-bold">{tr("ملاحظات القسم (اختياري)")}</summary>
-                      <AutoSaveTextarea value={active.content} onSave={(content) => saved(updateSection(active.key, { content }))} placeholder={tr("اكتبوا محتوى هذا القسم هنا...")} className="mb-2" />
+                      <AutoSaveTextarea value={active.content} onSave={(content) => saved(updateSection(active.key, { content }))} placeholder={tr("اكتبوا محتوى هذا القسم هنا...")} className="wf-ed sm mb-2" />
                     </details>
                   )}
                 </div>
@@ -488,155 +405,177 @@ export default function Proposal() {
                 )}
 
                 <div className="ws-write-foot flex flex-wrap items-center gap-2.5">
-                  <span className="v3-mut text-sm">{tr("{0} كلمة", num(words))}</span>
-                  {typing.names.length > 0 && (
-                    <span className="v3-mut text-sm">· {typing.names.length === 1 ? tr("{0} يكتب الحين", typing.names[0]) : tr("{0} يكتبون الحين", typing.names.join(tr(" و")))}</span>
-                  )}
-                  {canWrite && !sectionAttachments[active.key] && (
-                    <FileAttach compact onAttach={(m) => attachToSection(active.key, m)} buttonClassName="v3-bd !text-sm" />
-                  )}
-                  <button type="button" className="v3-bd !text-sm" onClick={draftPrompt}>
+                  <WordsSaved
+                    words={words}
+                    extra={
+                      typing.names.length > 0 ? (
+                        <> · {typing.names.length === 1 ? tr("{0} يكتب الحين", typing.names[0]) : tr("{0} يكتبون الحين", typing.names.join(tr(" و")))}</>
+                      ) : savedAt ? (
+                        <span className="text-[#7FE0A6]"> ✓</span>
+                      ) : null
+                    }
+                  />
+                  <span className="flex-1" />
+                  {canWrite && !sectionAttachments[active.key] && <FileAttach compact onAttach={(m) => attachToSection(active.key, m)} buttonClassName="wf-gb" />}
+                  <button type="button" className="wf-gb" onClick={draftPrompt}>
                     <AgentWave size={15} />
                     {showThread ? tr("اكتب لي مسودة من الفجوة") : tr("اكتب لي مسودة")}
                   </button>
-                  <span className="ms-auto">
-                    <SavedNote at={savedAt} />
-                  </span>
-                  {canWrite && (
-                    <button type="button" className="v3-bw !text-sm" onClick={markDoneAndNext} disabled={active.status === "done" && !next}>
-                      {next ? tr("علّمه خلص وانتقل للقسم الجاي ←") : tr("علّمه خلص")}
-                    </button>
-                  )}
+                  {canWrite &&
+                    (active.status === "done" ? (
+                      <button type="button" className="wf-gb" onClick={() => saved(updateSection(active.key, { status: "in-progress" }))}>
+                        <Check size={15} aria-hidden />
+                        {tr("خلص · رجّعه للكتابة")}
+                      </button>
+                    ) : (
+                      <button type="button" className="wf-pr" onClick={markDoneAndNext} disabled={words === 0}>
+                        {tr("علّمه خلص ←")}
+                      </button>
+                    ))}
                 </div>
-              </section>
+              </EditorCard>
             )}
 
             {/* تحذير الفجوة الموجود — بطاقة تحت المحرر */}
             {gapRelated && !gap.connectsToAim && (
-              <div
-                className="v3-g v3-rise flex flex-wrap items-center gap-3.5 px-5 py-4"
-                style={{ ...rise(3), borderColor: "rgba(255,138,122,.3)", background: "linear-gradient(180deg,rgba(255,120,100,.08),rgba(255,255,255,.02)),rgba(14,10,8,.72)" }}
-                role="note"
-              >
+              <div className="hg-card flex flex-wrap items-center gap-3.5 !py-4" style={{ ...rise(3), boxShadow: "inset 0 0 0 1px rgba(255,138,122,.3), 0 30px 70px rgba(0,0,0,.45)" }} role="note">
                 <AlertCircle size={22} color="#FF8A7A" className="shrink-0" />
                 <div className="min-w-[200px] flex-1">
                   <div className="font-bold">{tr("الهدف لازم يطلع من الفجوة")}</div>
-                  <div className="v3-mut text-sm">{tr("الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة. صيغوا الفجوة بشكل نهائي أول، وبعدها اكتبوا الهدف منها.")}</div>
+                  <div className="text-sm text-[#ABA095]">{tr("الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة. صيغوا الفجوة بشكل نهائي أول، وبعدها اكتبوا الهدف منها.")}</div>
                 </div>
                 {active?.key !== "gap" && (
-                  <button type="button" className="v3-bd !text-sm" onClick={() => setActiveKey("gap")}>
+                  <button type="button" className="wf-gb" onClick={() => setActiveKey("gap")}>
                     {tr("وريني الفجوة")}
                   </button>
                 )}
               </div>
             )}
-          </div>
 
-          {/* ٣) العمود الجانبي */}
-          <aside className="grid min-w-0 grid-cols-1 content-start gap-4 sm:grid-cols-2 lg:col-start-2 xl:col-start-auto xl:grid-cols-1">
-            <div className="v3-g v3-hover v3-rise flex flex-col gap-3 p-[18px]" style={rise(4)}>
-              <div className="v3-k text-base">{tr("معلومات البحث")}</div>
-              {!editInfo ? (
-                <>
-                  <div>
-                    <div className="v3-mut text-xs">{tr("المشرف/ة")}</div>
-                    <div className="text-[15px] font-bold" dir="auto">
-                      {supervisor || "—"}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="v3-mut text-xs">{tr("نوع البحث")}</div>
-                    <div className="text-[15px] font-bold">{project?.researchType ? `${TYPE_LABEL[project.researchType][0]} · ${TYPE_LABEL[project.researchType][1]}` : "—"}</div>
-                  </div>
-                  <div>
-                    <div className="v3-mut text-xs">{tr("الحالة")}</div>
-                    <div className="text-[15px] font-bold">{tr(PROJECT_STATUS[project?.status ?? "planning"])}</div>
-                  </div>
+            <div className="grid grid-cols-1 gap-[18px] md:grid-cols-2">
+              {/* الملخص */}
+              <section className="hg-card flex flex-col" style={rise(4)} aria-labelledby="abs-title">
+                <div className="flex items-baseline gap-2">
+                  <h3 id="abs-title" className="m-0 text-[18px] font-extrabold">
+                    {tr("الملخص")}
+                  </h3>
+                  {!isEn && <span className="text-xs text-[#ABA095]" dir="ltr">Abstract</span>}
+                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#7FE0A6" : "#ABA095" }}>
+                    {abstractWords > 0 && (
+                      <>
+                        <span className="wf-num">{abstractWords}</span> /{" "}
+                      </>
+                    )}
+                    <span className="wf-num">150–250</span> {tr("كلمة")}
+                  </span>
+                </div>
+                <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("نكتبه آخر شي، بعد ما تخلص الأقسام.")}</div>
+                <AutoSaveTextarea
+                  label={tr("الملخص")}
+                  value={project?.abstract ?? ""}
+                  onSave={(v) => saved(updateProject({ abstract: v }))}
+                  onDraft={(d) => setAbstractWords(countWords(d))}
+                  placeholder={tr("الخلفية، هدف الدراسة، المنهج، والخلاصة…")}
+                  rows={4}
+                  className="wf-ed sm mt-3"
+                />
+              </section>
+
+              {/* معلومات البحث */}
+              <section className="hg-card flex flex-col" style={rise(5)} aria-labelledby="info-title">
+                <div className="flex items-center">
+                  <h3 id="info-title" className="m-0 text-[18px] font-extrabold">
+                    {tr("معلومات البحث")}
+                  </h3>
                   {canWrite && (
-                    <button type="button" className="v3-link self-start" onClick={() => setEditInfo(true)}>
-                      {tr("عدّل المعلومات")}
+                    <button type="button" className="ms-auto min-h-[44px] px-1 text-[13px] font-bold text-[#FFC777]" onClick={() => setEditInfo((v) => !v)} aria-expanded={editInfo}>
+                      {editInfo ? tr("تم") : tr("عدّل")}
                     </button>
                   )}
-                </>
-              ) : (
-                <>
-                  <label className="flex flex-col gap-1 text-sm">
-                    <span className="v3-mut text-xs">{tr("اسم المشرف/ة")} {!isEn && "· Supervisor"}</span>
-                    <input
-                      defaultValue={project?.supervisorName ?? ""}
-                      dir="auto"
-                      onBlur={(e) => {
-                        if (e.target.value !== (project?.supervisorName ?? "")) saved(updateProject({ supervisorName: e.target.value }));
-                      }}
-                      placeholder={tr("اسم المشرف/ة")}
-                      className="v3-select"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1 text-sm">
-                    <span className="v3-mut text-xs">{tr("نوع البحث")} {!isEn && "· Research Type"}</span>
-                    <select value={project?.researchType ?? ""} onChange={(e) => saved(updateProject({ researchType: e.target.value as ResearchType }))} className="v3-select">
-                      <option value="">{tr("اختاروا النوع")}</option>
-                      {(Object.keys(TYPE_LABEL) as Exclude<ResearchType, "">[]).map((k) => (
-                        <option key={k} value={k}>
-                          {`${TYPE_LABEL[k][0]} — ${TYPE_LABEL[k][1]}`}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="flex flex-col gap-1 text-sm">
-                    <span className="v3-mut text-xs">{tr("الحالة")} {!isEn && "· Project Status"}</span>
-                    <select value={project?.status ?? "planning"} onChange={(e) => saved(updateProject({ status: e.target.value as ResearchProjectStatus }))} className="v3-select">
-                      {(Object.keys(PROJECT_STATUS) as ResearchProjectStatus[]).map((k) => (
-                        <option key={k} value={k}>
-                          {tr(PROJECT_STATUS[k])}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <button type="button" className="v3-bd self-start !text-sm" onClick={() => setEditInfo(false)}>
-                    <Check size={15} />
-                    {tr("تم")}
-                  </button>
-                </>
-              )}
+                </div>
+                {!editInfo ? (
+                  <div className="mt-2">
+                    <div className="wf-kv">
+                      <span>{tr("المشرف/ة")}</span>
+                      <b dir="auto">{supervisor || "—"}</b>
+                    </div>
+                    <div className="wf-kv">
+                      <span>{tr("نوع البحث")}</span>
+                      <b>
+                        {project?.researchType ? (
+                          <>
+                            {TYPE_LABEL[project.researchType][0]} · <bdi>{TYPE_LABEL[project.researchType][1]}</bdi>
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </b>
+                    </div>
+                    <div className="wf-kv">
+                      <span>{tr("المرحلة")}</span>
+                      <b>{tr(PROJECT_STATUS[project?.status ?? "planning"])}</b>
+                    </div>
+                    <div className="wf-kv">
+                      <span>{tr("التسليم")}</span>
+                      <b>
+                        {daysLeft === null ? (
+                          "—"
+                        ) : daysLeft < 0 ? (
+                          tr("فات الموعد")
+                        ) : (
+                          <>
+                            {tr("بعد")} <span className="wf-num">{daysLeft}</span> {tr("يوم")}
+                          </>
+                        )}
+                      </b>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex flex-col gap-1">
+                    <label className="wf-fld !mt-2">
+                      <span className="wf-lbl">
+                        {tr("اسم المشرف/ة")} {!isEn && "· Supervisor"}
+                      </span>
+                      <input
+                        defaultValue={project?.supervisorName ?? ""}
+                        dir="auto"
+                        onBlur={(e) => {
+                          if (e.target.value !== (project?.supervisorName ?? "")) saved(updateProject({ supervisorName: e.target.value }));
+                        }}
+                        placeholder={tr("اسم المشرف/ة")}
+                        className="wf-fin"
+                      />
+                    </label>
+                    <label className="wf-fld !mt-2">
+                      <span className="wf-lbl">
+                        {tr("نوع البحث")} {!isEn && "· Research Type"}
+                      </span>
+                      <select value={project?.researchType ?? ""} onChange={(e) => saved(updateProject({ researchType: e.target.value as ResearchType }))} className="wf-fin">
+                        <option value="">{tr("اختاروا النوع")}</option>
+                        {(Object.keys(TYPE_LABEL) as Exclude<ResearchType, "">[]).map((k) => (
+                          <option key={k} value={k}>
+                            {`${TYPE_LABEL[k][0]} — ${TYPE_LABEL[k][1]}`}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="wf-fld !mt-2">
+                      <span className="wf-lbl">
+                        {tr("المرحلة")} {!isEn && "· Project Status"}
+                      </span>
+                      <select value={project?.status ?? "planning"} onChange={(e) => saved(updateProject({ status: e.target.value as ResearchProjectStatus }))} className="wf-fin">
+                        {(Object.keys(PROJECT_STATUS) as ResearchProjectStatus[]).map((k) => (
+                          <option key={k} value={k}>
+                            {tr(PROJECT_STATUS[k])}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                )}
+              </section>
             </div>
-
-            <div className="v3-g v3-hover v3-rise flex flex-col gap-2.5 p-[18px]" style={rise(5)}>
-              <div className="v3-k text-base">
-                {tr("الملخص")} {!isEn && <span className="v3-mut text-xs font-normal">· Abstract</span>}
-              </div>
-              <div className="v3-mut text-[13px]">{tr("١٥٠–٢٥٠ كلمة. نكتبه آخر شي بعد ما تخلص الأقسام.")}</div>
-              <AutoSaveTextarea
-                label={tr("الملخص")}
-                value={project?.abstract ?? ""}
-                onSave={(v) => saved(updateProject({ abstract: v }))}
-                onDraft={(d) => setAbstractWords(countWords(d))}
-                placeholder={tr("اكتبوا ملخصًا يغطي: الخلفية، هدف الدراسة، المنهج، والخلاصة.")}
-                rows={4}
-              />
-              <div className="v3-bar" aria-hidden>
-                <i style={{ width: `${Math.min(100, (abstractWords / 250) * 100)}%`, background: abstractWords > 250 ? "#FF8A7A" : undefined }} />
-              </div>
-              <div className="text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#7FE0A6" : "var(--ws-c-muted)" }}>
-                {trx("{0} / ١٥٠–٢٥٠ كلمة", abstractWords.toLocaleString(isEn ? "en" : "ar-EG"))}
-              </div>
-            </div>
-
-            <div className="v3-g v3-hover v3-rise flex flex-col gap-2.5 p-[18px]" style={{ ...rise(6), borderColor: "rgba(255,180,68,.3)" }}>
-              <div className="flex items-center gap-2.5">
-                <span className="v3-orb h-[30px] w-[30px]" aria-hidden />
-                <div className="v3-k text-[15px]">{tr("باحث الأدبيات")}</div>
-              </div>
-              <div className="v3-mut text-[13px] leading-relaxed">{tr("يدوّر لكم دراسات لمراجعة الأدبيات، ويساعدكم تصيغون كل قسم من الفجوة.")}</div>
-              <button
-                type="button"
-                className="v3-bd !text-sm"
-                onClick={() => openAgent(active ? tr("ساعدني في قسم «{0}» بالمقترح البحثي", bi(active.labelAr, active.labelEn)) : undefined)}
-              >
-                {tr("اسأل الوكيل")}
-              </button>
-            </div>
-          </aside>
+          </div>
         </div>
       </div>
     </div>

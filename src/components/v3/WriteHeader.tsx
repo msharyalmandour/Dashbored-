@@ -37,22 +37,15 @@ function WriteTabs({ live }: { live?: Live }) {
     { to: "/ethical-approval", label: tr("الموافقة الأخلاقية"), n: live?.ethics ?? principlesAnswered(ethicalApproval.principles), of: PRINCIPLE_KEYS.length },
   ];
   return (
-    <nav aria-label={tr("أكتب")} className="v3-g v3-scroll-x flex max-w-full gap-1 rounded-full p-[5px] print:hidden">
+    <nav aria-label={tr("أكتب")} className="wf-tabs mt-5 print:hidden">
       {tabs.map((t) => {
         const on = pathname.startsWith(t.to);
         return (
-          <Link
-            key={t.to}
-            to={t.to}
-            ref={on ? activeRef : undefined}
-            aria-current={on ? "page" : undefined}
-            className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-4 text-[15px] transition-all"
-            style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700, boxShadow: "0 0 22px rgba(255,200,140,.35)" } : { color: "var(--ws-c-text)" }}
-          >
+          <Link key={t.to} to={t.to} ref={on ? activeRef : undefined} aria-current={on ? "page" : undefined}>
             {t.label}
-            <span className="rounded-full px-[7px] text-xs font-bold" style={on ? { background: "#160904", color: "#FFB444" } : { background: "rgba(255,255,255,.1)" }}>
-              {num(t.n)}/{num(t.of)}
-            </span>
+            <i>
+              {t.n}/{t.of}
+            </i>
           </Link>
         );
       })}
@@ -60,27 +53,37 @@ function WriteTabs({ live }: { live?: Live }) {
   );
 }
 
-/** ترويسة صفحات «أكتب»: عنوان البحث + نوعه + المشرف/ة + الأيام للتسليم، والتبويبات بعدّاداتها */
-/** live: عدّاد الصفحة المفتوحة من حالتها نفسها، عشان يتحدّث مع كل إجابة بدون تحديث الصفحة */
+/** ترويسة صفحات «أكتب» (كرت زجاجي مثل الرئيسية): عنوان البحث، سؤاله بالإنجليزي، نوعه ومنهجه، المشرف/ة، الأيام للتسليم، والتبويبات بعدّاداتها.
+    live: عدّاد الصفحة المفتوحة من حالتها نفسها، عشان يتحدّث مع كل إجابة بدون تحديث الصفحة */
 export default function WriteHeader({ fallbackTitle, style, live }: { fallbackTitle: string; style?: CSSProperties; live?: Live }) {
   const { project } = useResearchProject();
+  const { methodology } = useMethodology();
   const supervisor = project?.supervisorName?.trim();
   const typeLabel = project?.researchType ? (isEn ? TYPE_LABEL[project.researchType][1] : TYPE_LABEL[project.researchType][0]) : "";
+  const method = methodology.dataCollectionMethods.find((m) => typeof m === "string" && m.trim())?.trim() ?? "";
   const daysLeft = project?.targetSubmissionDate ? daysUntil(project.targetSubmissionDate) : null;
-  const meta = [
-    typeLabel,
-    supervisor ? tr("المشرف/ة {0}", supervisor) : "",
-    daysLeft !== null && daysLeft >= 0 ? tr("التسليم بعد {0} يوم", num(daysLeft)) : "",
-  ].filter(Boolean);
+  const englishTitle = project?.description && /[A-Za-z]/.test(project.description) ? project.description : "";
   return (
-    <header className="v3-rise relative mb-5 flex min-w-0 flex-wrap items-center gap-3.5" style={style}>
-      <div className="min-w-0 flex-[1_1_320px]">
-        <div className="v3-eye">{tr("رحلة البحث · أكتب")}</div>
-        <h1 className="v3-k m-0 text-[24px] leading-snug sm:text-[30px]" dir="auto">
-          {project?.title?.trim() || fallbackTitle}
-        </h1>
-        {meta.length > 0 && <p className="v3-mut m-0 text-sm">{meta.join(" · ")}</p>}
-      </div>
+    <header className="hg-card relative mb-[18px] !p-5 lg:!px-[30px] lg:!py-[26px]" style={style}>
+      <h1 className="wf-title" dir="auto">
+        {project?.title?.trim() || fallbackTitle}
+      </h1>
+      {englishTitle && <div className="wf-en">{englishTitle}</div>}
+      {(typeLabel || supervisor || daysLeft !== null) && (
+        <div className="mt-3.5 flex flex-wrap gap-2">
+          {typeLabel && <span className="wf-chip">{method ? `${typeLabel} · ${method}` : typeLabel}</span>}
+          {supervisor && <span className="wf-chip">{tr("المشرف/ة {0}", supervisor)}</span>}
+          {daysLeft !== null && (
+            <span className="wf-chip" style={{ color: daysLeft < 0 ? "#FF8A7A" : "#FFC777" }}>
+              {daysLeft < 0 ? tr("فات موعد التسليم") : (
+                <>
+                  {tr("التسليم بعد")} <span className="wf-num">{daysLeft}</span> {tr("يوم")}
+                </>
+              )}
+            </span>
+          )}
+        </div>
+      )}
       <WriteTabs live={live} />
     </header>
   );

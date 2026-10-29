@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Check, ClipboardList, Copy, FlaskConical, LineChart, MapPin, Ruler, ShieldCheck, Sparkles, Users2, Wand2, X } from "lucide-react";
+import { Check, ClipboardList, Copy, Eye, FileDown, FlaskConical, LineChart, MapPin, Ruler, ShieldCheck, Users2, Wand2 } from "lucide-react";
+import AgentWave from "../components/ui/AgentWave";
+import { EditorCard, SectionRail, WordsSaved } from "../components/v3/WriteKit";
+import { useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
+import { openAgent, setAgentContext } from "../lib/agentBus";
 import { useMethodology } from "../hooks/useMethodology";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { methodologyTemplates, type MethodologyTemplate } from "../data/methodologyTemplates";
 import type { Methodology as MethodologyData } from "../data/types";
-import WriteHeader, { V3Glow, num } from "../components/v3/WriteHeader";
-import PaperToggle from "../components/v3/PaperToggle";
+import WriteHeader, { V3Glow } from "../components/v3/WriteHeader";
 import { usePaperMode } from "../lib/paperMode";
 import { useAuth } from "../context/AuthContext";
 import { SavedTick } from "../components/v3/Motion";
 import { METHOD_READY, type MethodPartKey } from "../lib/writeProgress";
-import { isEn, tr, trx } from "../lib/i18n";
+import { isEn, tr } from "../lib/i18n";
 
 /* المنهجية — ترتيب v3 (لوحة «أكتب — المنهجية»): قوالب فوق، خريطة ٧ أجزاء، وكل جزء يفتح لوحة جانبية
    فيها نفس الحقول السابقة. ترتيب واجهة بس: نفس الحقول، ونفس الحفظ عند الخروج من الحقل. */
@@ -36,10 +39,10 @@ function Field({ label, en, value, onSave, rows = 1, placeholder }: { label: str
     if (document.activeElement !== ref.current) setDraft(value);
   }, [value]);
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="flex flex-wrap items-center gap-x-2 text-sm font-bold">
+    <label className="wf-fld !mt-0 block">
+      <span className="wf-lbl flex flex-wrap items-center gap-x-2">
         <span>
-          {label} {en && !isEn && <span className="v3-en font-normal">{en}</span>}
+          {label} {en && !isEn && <span className="font-normal" dir="ltr">· {en}</span>}
         </span>
         <SavedTick at={savedAt} />
       </span>
@@ -56,7 +59,7 @@ function Field({ label, en, value, onSave, rows = 1, placeholder }: { label: str
           }
         }}
         placeholder={placeholder ?? tr("لم يُحدد بعد")}
-        className={`v3-field !text-sm${draft.trim() ? "" : " v3-empty"}`}
+        className={rows > 1 ? "wf-ed sm !min-h-0" : "wf-fin resize-none"}
       />
     </label>
   );
@@ -143,28 +146,20 @@ function tipFor(key: PartKey, type: string): string {
 
 export default function Methodology() {
   const { methodology: m, updateMethodology } = useMethodology();
+  const { items: feedback } = useSupervisorFeedback();
   const { project } = useResearchProject();
   const { currentUser } = useAuth();
   const [paper, setPaper] = usePaperMode(currentUser?.id);
   const [open, setOpen] = useState<PartKey | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const drawerRef = useRef<HTMLDivElement>(null);
 
   const readyCount = PARTS.filter((p) => p.ready(m)).length;
-  const pct = Math.round((readyCount / PARTS.length) * 100);
   const openIdx = PARTS.findIndex((p) => p.key === open);
   const openPart = openIdx >= 0 ? PARTS[openIdx] : null;
   const currentTemplate = methodologyTemplates.find((t) => t.studyDesign === m.studyDesign)?.id ?? null;
   const previewT = methodologyTemplates.find((t) => t.id === preview) ?? null;
 
-  useEffect(() => {
-    if (!open) return;
-    drawerRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
 
   const applyTemplate = (t: MethodologyTemplate) => {
     updateMethodology({
@@ -221,14 +216,14 @@ export default function Methodology() {
             <ListField label={tr("طريقة الجمع")} en="Methods" items={m.dataCollectionMethods} onSave={(v) => updateMethodology({ dataCollectionMethods: v })} />
             <Field label={tr("إجراء جمع البيانات")} en="Procedure" value={m.dataCollectionProcedure} rows={3} onSave={(v) => updateMethodology({ dataCollectionProcedure: v })} />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-bold">
-                  {tr("نوع الأداة")} {!isEn && <span className="v3-en font-normal">Tool type</span>}
+              <label className="wf-fld !mt-0 block">
+                <span className="wf-lbl">
+                  {tr("نوع الأداة")} {!isEn && <span className="font-normal">· Tool type</span>}
                 </span>
                 <select
                   value={m.studyTool.type}
                   onChange={(e) => updateMethodology({ studyTool: { ...m.studyTool, type: e.target.value as typeof m.studyTool.type } })}
-                  className="v3-select"
+                  className="wf-fin"
                 >
                   <option value="undecided">{tr("لم يُحدد بعد")}</option>
                   <option value="existing">{tr("أداة جاهزة")}</option>
@@ -245,7 +240,7 @@ export default function Methodology() {
         return (
           <>
             <Field label={tr("الموافقات الأخلاقية والموافقة المستنيرة")} en="Ethical considerations" value={m.ethicalConsiderations} rows={4} onSave={(v) => updateMethodology({ ethicalConsiderations: v })} />
-            <Link to="/ethical-approval" className="v3-bd !text-sm">
+            <Link to="/ethical-approval" className="wf-gb self-start">
               <ShieldCheck size={15} />
               {tr("افتحوا الموافقة الأخلاقية")}
             </Link>
@@ -254,181 +249,194 @@ export default function Methodology() {
     }
   };
 
+  // القسم المفتوح: أول ما تفتح الصفحة = أول جزء ما جهز
+  const active = openPart ?? PARTS.find((p) => !p.ready(m)) ?? PARTS[0];
+  const activeIdx = PARTS.findIndex((p) => p.key === active.key);
+  const nextPart = PARTS[activeIdx + 1];
+  const activeLabel = bi(active.ar, active.en);
+  useEffect(() => {
+    setAgentContext(activeLabel);
+    return () => setAgentContext(null);
+  }, [activeLabel]);
+  const partText = [active.summary(m), active.key === "sample" ? [...sampling.inclusionCriteria, ...sampling.exclusionCriteria].join(" ") : "", active.key === "collection" ? m.dataCollectionProcedure : ""].join(" ");
+  const words = partText.trim() ? partText.trim().split(/\s+/).length : 0;
+  const notes = feedback.filter((f) => f.status === "open" && f.sectionKey === "methodology");
+  const type = project?.researchType ?? "";
+
   return (
     <div className="v3 relative">
       <V3Glow />
       <WriteHeader fallbackTitle={tr("المنهجية")} style={rise(0)} live={{ methodology: readyCount }} />
-      <div className="relative -mt-2 mb-3 flex justify-end">
-        <PaperToggle on={paper} onChange={setPaper} />
-      </div>
 
-      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start">
-        <div className="flex min-w-0 flex-1 flex-col gap-[18px]">
-          {/* ابدأوا من قالب */}
-          <div className="v3-g v3-rise p-5 sm:px-[22px]" style={rise(1)}>
-            <div className="flex flex-wrap items-center gap-4">
-              <span className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-[14px]" style={{ background: "linear-gradient(135deg,#FF7A10,#FFC85A)", color: "#1A0802" }}>
-                <Wand2 size={20} />
-              </span>
-              <div className="min-w-[200px] flex-1">
-                <div className="v3-k text-lg">{tr("ابدأوا من قالب")}</div>
-                <div className="v3-mut text-sm">{tr("اختاروا أقرب نوع لدراستكم ونعبّي لكم هيكل مبدئي تعدّلونه.")}</div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {methodologyTemplates.map((t) => {
-                  const on = preview === t.id || (!preview && currentTemplate === t.id);
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      aria-pressed={preview === t.id}
-                      onClick={() => setPreview(preview === t.id ? null : t.id)}
-                      className="v3-tap min-h-[44px] rounded-full px-4 text-sm"
-                      style={on ? { background: "#F6F1EC", color: "#160904", fontWeight: 700 } : { background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "var(--ws-c-text)" }}
-                    >
-                      {isEn ? t.label : TEMPLATE_AR[t.id] ?? t.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            {previewT && (
-              <div className="v3-g2 mt-4 grid gap-3 p-4 text-sm" dir="ltr" lang="en">
-                <p className="m-0 font-bold">{previewT.studyDesign}</p>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <ul className="m-0 list-disc ps-5 text-[var(--ws-c-text)]">
-                    {previewT.inclusionCriteria.map((c, i) => (
-                      <li key={i}>{c}</li>
-                    ))}
-                  </ul>
-                  <ul className="m-0 list-disc ps-5 text-[var(--ws-c-text)]">
-                    {previewT.exclusionCriteria.map((c, i) => (
-                      <li key={i}>{c}</li>
-                    ))}
-                  </ul>
+      <div className="relative grid grid-cols-1 items-start gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)]">
+        <SectionRail
+          title={tr("أقسام المنهجية")}
+          items={PARTS.map((p) => ({ key: p.key, label: bi(p.ar, p.en), en: p.en, done: p.ready(m) }))}
+          activeKey={active.key}
+          onPick={(k) => setOpen(k as PartKey)}
+          style={rise(1)}
+          footer={
+            <>
+              <Link to="/proposal?section=methodology" className="wf-gb">
+                <Eye size={16} aria-hidden />
+                {tr("بالمقترح")}
+              </Link>
+              <button type="button" className="wf-gb" onClick={() => window.print()}>
+                <FileDown size={16} aria-hidden />
+                {tr("صدّر PDF")}
+              </button>
+            </>
+          }
+        />
+
+        <div className="flex min-w-0 flex-col gap-[18px]">
+          <EditorCard
+            index={activeIdx + 1}
+            total={PARTS.length}
+            title={bi(active.ar, active.en)}
+            en={active.en}
+            paper={paper}
+            onPaper={setPaper}
+            hint={tipFor(active.key, type)}
+            style={rise(2)}
+            titleId="m-sec-title"
+          >
+            {/* التصميم: ابدأوا من قالب */}
+            {active.key === "design" && (
+              <div className="wf-fld !mt-0">
+                <span className="wf-lbl">{tr("ابدأوا من قالب (اختياري)")}</span>
+                <div className="flex flex-wrap gap-2">
+                  {methodologyTemplates.map((t) => {
+                    const on = preview === t.id || (!preview && currentTemplate === t.id);
+                    return (
+                      <button key={t.id} type="button" className="wf-opt" aria-pressed={on} onClick={() => setPreview(preview === t.id ? null : t.id)}>
+                        <span className="wf-rd" aria-hidden />
+                        {isEn ? t.label : TEMPLATE_AR[t.id] ?? t.label}
+                      </button>
+                    );
+                  })}
                 </div>
-                <p className="m-0 text-[var(--ws-c-text)]">
-                  {previewT.samplingTechnique} · {previewT.dataCollectionMethods.join(", ")} · {previewT.suggestedTool}
-                </p>
-                <div className="flex flex-wrap gap-2" dir={isEn ? "ltr" : "rtl"}>
-                  <button type="button" className="v3-bd !text-sm" onClick={() => applyTemplate(previewT)}>
-                    <Wand2 size={15} />
-                    {tr("عبّوا المنهجية بهالقالب")}
-                  </button>
-                  <button type="button" className="v3-bd !text-sm" onClick={() => copyTemplate(previewT)}>
-                    {copied ? <Check size={15} /> : <Copy size={15} />}
-                    {copied ? tr("تم نسخ القالب") : tr("نسخ القالب")}
-                  </button>
-                </div>
+                {previewT && (
+                  <div className="v3-g2 mt-3 grid gap-3 p-4 text-sm" dir="ltr" lang="en">
+                    <p className="m-0 font-bold">{previewT.studyDesign}</p>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <ul className="m-0 list-disc ps-5 text-[var(--ws-c-text)]">
+                        {previewT.inclusionCriteria.map((c, i) => (
+                          <li key={i}>{c}</li>
+                        ))}
+                      </ul>
+                      <ul className="m-0 list-disc ps-5 text-[var(--ws-c-text)]">
+                        {previewT.exclusionCriteria.map((c, i) => (
+                          <li key={i}>{c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p className="m-0 text-[var(--ws-c-text)]">
+                      {previewT.samplingTechnique} · {previewT.dataCollectionMethods.join(", ")} · {previewT.suggestedTool}
+                    </p>
+                    <div className="flex flex-wrap gap-2" dir={isEn ? "ltr" : "rtl"}>
+                      <button type="button" className="wf-gb" onClick={() => applyTemplate(previewT)}>
+                        <Wand2 size={15} />
+                        {tr("عبّوا المنهجية بهالقالب")}
+                      </button>
+                      <button type="button" className="wf-gb" onClick={() => copyTemplate(previewT)}>
+                        {copied ? <Check size={15} /> : <Copy size={15} />}
+                        {copied ? tr("تم نسخ القالب") : tr("نسخ القالب")}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-          </div>
 
-          {/* خريطة المنهجية */}
-          <div className="v3-rise flex flex-wrap items-end justify-between gap-3" style={rise(2)}>
-            <div>
-              <h2 className="v3-k m-0 text-xl">{tr("خريطة المنهجية")}</h2>
-              <p className="v3-mut m-0 text-sm">{trx("{0} أجزاء — {1} جاهزة. اضغطوا أي جزء يفتح على الجنب.", num(PARTS.length), num(readyCount))}</p>
+            <div key={active.key} className="flex flex-col gap-3">
+              {fields(active.key)}
             </div>
-            <div className="flex w-full items-center gap-2.5 sm:w-[260px]">
-              <div className="v3-bar flex-1" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-                <i style={{ width: `${pct}%` }} />
-              </div>
-              <span className="v3-k text-[15px]">{num(pct)}٪</span>
-            </div>
-          </div>
 
-          <div className={`grid grid-cols-1 gap-3.5 sm:grid-cols-2 ${open ? "xl:grid-cols-2 2xl:grid-cols-3" : "xl:grid-cols-3"}`}>
-            {PARTS.map((p, i) => {
-              const ready = p.ready(m);
-              const isOpen = open === p.key;
-              const summary = p.summary(m).trim();
-              const ethics = p.key === "ethics";
-              const chip = isOpen ? ["doing", tr("تعدّلونه الحين")] : ready ? ["done", tr("جاهز")] : ethics ? ["doing", tr("مربوط")] : ["todo", tr("ما تحدد")];
-              return (
-                <button
-                  key={p.key}
-                  type="button"
-                  onClick={() => setOpen(isOpen ? null : p.key)}
-                  aria-expanded={isOpen}
-                  className={`v3-g v3-hover v3-rise v3-tap flex min-h-[44px] gap-2.5 rounded-3xl p-[18px] text-start ${ethics ? "flex-row flex-wrap items-center sm:col-span-full" : "flex-col"} ${isOpen ? "v3-sheen v3-glow" : ""}`}
-                  style={{
-                    ...rise(3 + i),
-                    ...(isOpen ? { borderColor: "rgba(255,180,68,.55)", background: "linear-gradient(180deg,rgba(255,150,40,.16),rgba(255,255,255,.03)),rgba(14,10,8,.72)" } : {}),
-                  }}
-                >
-                  <span className={`flex items-center justify-between gap-3 ${ethics ? "" : "w-full"}`}>
-                    <span className="flex h-10 w-10 items-center justify-center rounded-[13px]" style={isOpen ? { background: "rgba(255,140,40,.14)", color: "#FF9A3C" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}>
-                      {p.icon}
+            <div className="ws-write-foot flex flex-wrap items-center gap-2.5">
+              <WordsSaved words={words} />
+              <span className="flex-1" />
+              <button type="button" className="wf-gb" onClick={() => openAgent(tr("ساعدني أكتب جزء «{0}» في منهجية بحثنا", activeLabel))}>
+                <AgentWave size={15} />
+                {tr("اكتب لي مسودة")}
+              </button>
+              <button type="button" className="wf-gb" disabled={activeIdx <= 0} onClick={() => setOpen(PARTS[activeIdx - 1].key)}>
+                {tr("السابق")}
+              </button>
+              {nextPart ? (
+                <button type="button" className="wf-pr" onClick={() => setOpen(nextPart.key)}>
+                  {tr("التالي ←")}
+                </button>
+              ) : (
+                <Link to="/ethical-approval" className="wf-pr">
+                  {tr("للموافقة الأخلاقية ←")}
+                </Link>
+              )}
+            </div>
+          </EditorCard>
+
+          <div className="grid grid-cols-1 gap-[18px] md:grid-cols-2">
+            <section className="hg-card" style={rise(3)} aria-labelledby="m-link-title">
+              <h3 id="m-link-title" className="m-0 text-[18px] font-extrabold">
+                {tr("مربوطة بباقي البحث")}
+              </h3>
+              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
+              <div className="mt-2.5">
+                <div className="wf-kv">
+                  <span>{tr("الأجزاء الجاهزة")}</span>
+                  <b>
+                    <span className="wf-num">
+                      {readyCount}/{PARTS.length}
                     </span>
-                    {!ethics && <span className={`v3-st ${chip[0]}`}>{chip[1]}</span>}
-                  </span>
-                  <span className={ethics ? "min-w-[160px]" : ""}>
-                    <span className="v3-k block text-[17px]">{bi(p.ar, p.en)}</span>
-                    {!isEn && <span className="v3-en block">{p.en}</span>}
-                  </span>
-                  <span className={`line-clamp-2 text-sm ${ethics ? "min-w-[180px] flex-1" : ""}`} dir="auto" style={{ color: summary ? "#E9DED3" : "var(--ws-c-muted)" }}>
-                    {summary || (ethics ? tr("تُسحب من الموافقة الأخلاقية") : tr("اضغطوا وحددوه"))}
-                  </span>
-                  {ethics && <span className={`v3-st ${chip[0]}`}>{chip[1]}</span>}
-                </button>
-              );
-            })}
-          </div>
-          <p className="v3-mut m-0 flex items-center gap-2 text-[13px]">
-            <Check size={14} color="#7FE0A6" />
-            {tr("كل تعديل ينحفظ لما تطلعون من الحقل ويظهر للفريق كامل.")}
-          </p>
-        </div>
-
-        {/* اللوحة الجانبية: جوال = ورقة من تحت، كمبيوتر = عمود جنب الخريطة */}
-        {openPart && (
-          <>
-            <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setOpen(null)} aria-hidden />
-            <div
-              ref={drawerRef}
-              tabIndex={-1}
-              role="dialog"
-              aria-labelledby="v3-drawer-title"
-              key={openPart.key}
-              className={`v3-g ws-write${paper ? " is-paper" : ""} fixed inset-x-0 bottom-0 z-[61] flex max-h-[88vh] flex-col gap-4 overflow-y-auto rounded-b-none p-[22px] pb-[calc(22px+env(safe-area-inset-bottom))] outline-none lg:pb-[22px] lg:sticky lg:top-4 lg:z-auto lg:max-h-[calc(100vh-2rem)] lg:w-[390px] lg:shrink-0 lg:rounded-b-[28px]`}
-              style={{ borderColor: "rgba(255,180,68,.35)", background: "linear-gradient(180deg,rgba(40,16,8,.92),rgba(20,8,4,.92))" }}
-            >
-              <div className="ws-paper-layer" aria-hidden />
-              <div className="ws-paper-margin" aria-hidden />
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[13px]" style={{ background: "rgba(255,140,40,.14)", color: "#FFB444" }}>
-                  {openPart.icon}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 id="v3-drawer-title" className="v3-k m-0 text-xl">
-                    {bi(openPart.ar, openPart.en)}
-                  </h3>
-                  {!isEn && <div className="v3-en">{openPart.en}</div>}
+                  </b>
                 </div>
-                <button type="button" className="v3-bd !min-w-[44px] !px-0" onClick={() => setOpen(null)} aria-label={tr("إغلاق")}>
-                  <X size={18} />
-                </button>
+                <div className="wf-kv">
+                  <span>{tr("قسم المقترح")}</span>
+                  <b>
+                    <Link to="/proposal?section=methodology" className="text-[#FFC777]">
+                      {tr("القسم")} <span className="wf-num">7</span> · {tr("المنهجية")}
+                    </Link>
+                  </b>
+                </div>
+                <div className="wf-kv">
+                  <span>{tr("الموافقة الأخلاقية")}</span>
+                  <b>
+                    <Link to="/ethical-approval" className="text-[#FFC777]">
+                      {tr("افتحوها")}
+                    </Link>
+                  </b>
+                </div>
               </div>
+            </section>
 
-              {fields(openPart.key)}
-
-              <div className="v3-g2 flex gap-2 px-3.5 py-3 text-[13px] leading-relaxed" style={{ borderColor: "rgba(255,180,68,.25)" }}>
-                <Sparkles size={15} className="mt-1 shrink-0 text-[var(--ws-c-muted)]" aria-hidden />
-                <span>{tipFor(openPart.key, project?.researchType ?? "")}</span>
+            <section className="hg-card" style={rise(4)} aria-labelledby="m-notes-title">
+              <div className="flex items-center gap-2">
+                <h3 id="m-notes-title" className="m-0 text-[18px] font-extrabold">
+                  {tr("ملاحظات المشرف/ة")}
+                </h3>
+                {notes.length > 0 && (
+                  <span className="wf-st now">
+                    <span className="wf-num">{notes.length}</span> {tr("مفتوحة")}
+                  </span>
+                )}
               </div>
-
-              <div className="mt-auto flex gap-2">
-                <button type="button" className="v3-bd flex-1" disabled={openIdx <= 0} onClick={() => setOpen(PARTS[openIdx - 1].key)}>
-                  {tr("السابق")}
-                </button>
-                <button type="button" className="v3-bw flex-1" onClick={() => setOpen(openIdx < PARTS.length - 1 ? PARTS[openIdx + 1].key : null)}>
-                  {openIdx < PARTS.length - 1 ? tr("التالي ←") : tr("تم")}
-                </button>
-              </div>
-            </div>
-          </>
-        )}
+              {notes.length === 0 ? (
+                <p className="m-0 mt-2 text-[14px] text-[#ABA095]">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
+              ) : (
+                <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
+                  {notes.slice(0, 2).map((n) => (
+                    <li key={n.id} className="wf-tpl block text-[14px] leading-[1.7]" dir="auto">
+                      «{n.comment}»
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Link to="/feedback" className="wf-gb mt-3 w-full">
+                {tr("افتحوا الملاحظات")}
+              </Link>
+            </section>
+          </div>
+        </div>
       </div>
     </div>
   );

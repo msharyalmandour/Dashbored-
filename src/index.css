@@ -6,6 +6,7 @@
 @import "./styles/home-glass.css";
 @import "./styles/landing-v2.css";
 @import "./styles/write-fix.css";
+@import "./styles/supervisor-v2.css";
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;

@@ -4,7 +4,7 @@ import { errorText, getSupervisorEmailStatus, subscribeSupervisor, type EmailSta
 import { tr } from "../lib/i18n";
 
 /** المشرفة تشترك بنفسها بإيميل يوصلها عند كل رد جديد من الفريق (تأكيد مزدوج: ما نرسل لأي إيميل قبل ما صاحبه يؤكد). */
-export default function SupervisorEmailCard({ token, onChanged, embedded = false }: { token: string; onChanged?: () => void; /** داخل لوحة الإعداد: بدون إطار خارجي */ embedded?: boolean }) {
+export default function SupervisorEmailCard({ token, onChanged, embedded = false, glass = false }: { token: string; onChanged?: () => void; /** داخل لوحة الإعداد: بدون إطار خارجي */ embedded?: boolean; /** بصفحة المشرفة الداكنة (زجاج Obsidian × Ember) */ glass?: boolean }) {
   const [status, setStatus] = useState<EmailStatus | null>(null);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -53,7 +53,7 @@ export default function SupervisorEmailCard({ token, onChanged, embedded = false
         </p>
       ) : (
         <>
-          <p className="mt-1 text-xs text-brand-950/50">
+          <p className={glass ? "m-0 text-[13px] leading-relaxed text-[#ABA095]" : "mt-1 text-xs text-brand-950/50"}>
             {pending
               ? tr("أرسلنا رابط تأكيد إلى {0} — اضغطوه عشان تبدأ الإشعارات (شوفوا الرسائل المزعجة لو ما وصل).", status?.emailMasked || tr("إيميلكم"))
               : tr("بدل ما تفتحون الرابط كل مرة، اكتبوا إيميلكم ويوصلكم تنبيه لما الفريق يرد. نرسل لكم رابط تأكيد أول، وما نرسل شي قبله.")}
@@ -72,14 +72,15 @@ export default function SupervisorEmailCard({ token, onChanged, embedded = false
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@university.edu.sa"
               autoComplete="email"
-              className="min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-brand-300"
+              aria-label={tr("إيميلكم")}
+              className={glass ? "sv-in min-w-0 flex-1" : "min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-brand-300"}
             />
-            <button disabled={busy || !email.trim()} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50">
+            <button disabled={busy || !email.trim()} className={glass ? "sv-btn pri" : "flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"}>
               {busy && <Loader2 size={14} className="animate-spin" />}
               {pending ? tr("أعيدوا إرسال التأكيد") : tr("فعّلوا الإشعارات")}
             </button>
           </form>
-          {error && <p className="mt-2 text-xs font-semibold text-rose-600">{error}</p>}
+          {error && <p className={glass ? "sv-err" : "mt-2 text-xs font-semibold text-rose-600"}>{error}</p>}
         </>
       )}
     </div>

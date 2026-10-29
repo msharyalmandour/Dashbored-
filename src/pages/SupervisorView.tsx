@@ -1,24 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link, useParams } from "react-router-dom";
-import SupervisorBoard from "../components/supervisor/SupervisorBoard";
-import {
-  AlertTriangle,
-  BookOpenText,
-  Check,
-  CheckCircle2,
-  Circle,
-  Clock,
-  FlaskConical,
-  MessageSquareText,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
-import Logo from "../components/Logo";
-import Avatar from "../components/ui/Avatar";
+import { AlertTriangle, Check, ChevronLeft, FileText, FlaskConical, Gauge, Inbox, ListChecks, Lock, ShieldCheck, Users } from "lucide-react";
+import { useSupervisorBoard } from "../components/supervisor/useSupervisorBoard";
+import { SvAvatar, SvSetupSheet, SvSetupStrip, SvWaiting, relTime } from "../components/supervisor/SvParts";
+import { SvDocSheet, SvNoteSheet, type DocRow, type ThreadMessage } from "../components/supervisor/SvSheets";
+import { TYPE_LABEL } from "../components/v3/WriteHeader";
 import { supabase } from "../lib/supabaseClient";
-import { formatDateShort } from "../lib/date";
-import type { AccentColor } from "../lib/colors";
+import { daysUntil, formatDateFull, formatDateShort, relativeDayLabel } from "../lib/date";
+import { getSupervisorEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
 import { buildSeen, diffSince, loadApproved, loadSeen, loadTeams, rememberTeam, saveApproved, saveSeen } from "../lib/supervisorLocal";
+import type { ResearchType } from "../data/types";
 import { tr, trx } from "../lib/i18n";
 
 interface SnapshotTask {
@@ -32,6 +23,7 @@ interface SnapshotMember {
   name: string;
   initials: string;
   role: string;
+  lastActiveAt?: string | null;
 }
 
 interface SnapshotProposalSection {
@@ -56,15 +48,8 @@ type SnapshotMethodology = {
   ethicalConsiderations: string;
   studyToolType: string;
   studyToolName: string;
+  updatedAt?: string | null;
 } | null;
-
-interface ThreadMessage {
-  id: string;
-  sender: "supervisor" | "team";
-  senderName: string;
-  body: string;
-  createdAt: string;
-}
 
 interface Snapshot {
   teamName: string;
@@ -74,46 +59,47 @@ interface Snapshot {
   tasks: SnapshotTask[];
   proposalSections: SnapshotProposalSection[];
   methodology: SnapshotMethodology;
+  // حقول العرض الجديدة (get_team_snapshot v2) — اختيارية عشان الصفحة ما تنكسر لو الدالة أقدم
+  project?: { title: string; description: string; researchType: ResearchType; startDate: string | null; targetSubmissionDate: string | null; createdAt: string } | null;
+  proposalUpdatedAt?: string | null;
+  ethics?: { stepsDone: number; principles: number; attachments: number; outcome: string | null; updatedAt: string | null } | null;
 }
 
-const statusStyle: Record<SnapshotTask["status"], string> = {
-  todo: "text-sky-accent-600 bg-sky-accent-50",
-  "in-progress": "text-amber-accent-600 bg-amber-accent-50",
-  done: "text-brand-600 bg-brand-50",
-  overdue: "text-rose-600 bg-rose-50",
-};
+const filled = (v: unknown) => (Array.isArray(v) ? v.length > 0 : !!v && !!String(v).trim());
+/** نفس METHOD_READY بالتطبيق (٧ أجزاء) على شكل بيانات التقرير */
+const methodReady = (m: SnapshotMethodology) =>
+  m
+    ? [m.studyDesign, m.studySetting, m.population, filled(m.samplingInclusion) && filled(m.sampleSize) && filled(m.samplingTechnique), m.dataCollectionMethods, m.dataAnalysis, m.ethicalConsiderations].filter(filled).length
+    : 0;
 
-const memberColors: AccentColor[] = ["brand", "amber-accent", "sky-accent"];
+const isLate = (t: SnapshotTask) => t.status === "overdue" || (t.status !== "done" && !!t.dueDate && daysUntil(t.dueDate) < 0);
+const byDue = (a: SnapshotTask, b: SnapshotTask) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999");
+const studentsLabel = (n: number) => (n === 1 ? tr("طالب واحد") : n === 2 ? tr("طالبين") : n <= 10 ? tr("{0} طلاب", n) : tr("{0} طالب", n));
+const lateLabel = (n: number) => (n <= 1 ? tr("متأخرة يوم") : n === 2 ? tr("متأخرة يومين") : n <= 10 ? tr("متأخرة {0} أيام", n) : tr("متأخرة {0} يوم", n));
+const OUTCOME: Record<string, string> = { pending: tr("بانتظار اللجنة"), approved: tr("معتمدة"), rejected: tr("مرفوضة"), modifications: tr("مطلوب تعديلات") };
 
-const statusLabel: Record<SnapshotTask["status"], string> = {
-  todo: tr("لم يبدأ"),
-  "in-progress": tr("قيد التنفيذ"),
-  done: tr("مكتملة"),
-  overdue: tr("متأخرة"),
-};
+type TaskFilter = "next" | "late" | "done" | "all";
+type DocKind = "proposal" | "methodology" | "ethics";
 
-const sectionStatusStyle: Record<SnapshotProposalSection["status"], string> = {
-  "not-started": "text-brand-950/35 bg-surface-muted",
-  "in-progress": "text-amber-accent-600 bg-amber-accent-50",
-  done: "text-brand-600 bg-brand-50",
-};
-
-const sectionStatusLabel: Record<SnapshotProposalSection["status"], string> = {
-  "not-started": tr("لم يبدأ"),
-  "in-progress": tr("قيد التنفيذ"),
-  done: tr("مكتملة"),
-};
-
-function methodologyField(label: string, value: string | string[]) {
-  const text = Array.isArray(value) ? value.join(tr("، ")) : value;
+function Ring({ pct }: { pct: number }) {
+  const r = 42;
+  const c = 2 * Math.PI * r;
   return (
-    <div className="rounded-2xl border border-brand-100 bg-brand-50/50 p-3.5">
-      <p className="text-xs font-bold text-brand-950/45">{label}</p>
-      {text ? (
-        <p className="mt-1 text-sm font-semibold text-brand-950">{text}</p>
-      ) : (
-        <p className="mt-1 text-sm italic text-brand-950/30">{tr("لم يُحدد بعد")}</p>
-      )}
+    <div className="sv-ring" role="img" aria-label={tr("{0}% من المهام خلصت", pct)}>
+      <svg viewBox="0 0 96 96" aria-hidden>
+        <defs>
+          <linearGradient id="svRingG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#FFB547" />
+            <stop offset="1" stopColor="#FF6A00" />
+          </linearGradient>
+        </defs>
+        <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="9" />
+        <circle className="arc" cx="48" cy="48" r={r} fill="none" stroke="url(#svRingG)" strokeWidth="9" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)} style={{ "--sv-c": c } as CSSProperties} />
+      </svg>
+      <b>
+        {pct}
+        <small>%</small>
+      </b>
     </div>
   );
 }
@@ -123,7 +109,6 @@ export default function SupervisorView() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [noteDraft, setNoteDraft] = useState("");
   const [nameDraft, setNameDraft] = useState(() => {
     try {
       return localStorage.getItem("wesync-supervisor-name") ?? "";
@@ -131,15 +116,20 @@ export default function SupervisorView() {
       return "";
     }
   });
-  const [noteSubmitting, setNoteSubmitting] = useState(false);
-  const [noteSent, setNoteSent] = useState(false);
   const [noteError, setNoteError] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[]>([]);
   const [threadLoaded, setThreadLoaded] = useState(false);
   const [digestDismissed, setDigestDismissed] = useState(false);
   const [approved, setApproved] = useState<string[]>(() => (token ? loadApproved(token) : []));
   const [approvingKey, setApprovingKey] = useState<string | null>(null);
-  const [waitingCount, setWaitingCount] = useState(0);
+  const [email, setEmail] = useState<EmailStatus | null>(null);
+  const [sheet, setSheet] = useState<null | "setup" | "note" | DocKind>(null);
+  const [filter, setFilter] = useState<TaskFilter>("next");
+  const [showAllTasks, setShowAllTasks] = useState(false);
+  const [leaving, setLeaving] = useState<string[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
+  const [confirmAll, setConfirmAll] = useState(false);
+  const { board, busy, error: boardError, load: loadBoard, run, saveAvailability } = useSupervisorBoard(token, nameDraft);
 
   const loadThread = useCallback(async () => {
     if (!supabase || !token) return;
@@ -150,31 +140,27 @@ export default function SupervisorView() {
     }
   }, [token]);
 
+  const loadEmail = useCallback(async () => {
+    if (token) setEmail(await getSupervisorEmailStatus(token));
+  }, [token]);
+
   useEffect(() => {
     if (!supabase || !token) {
       setLoading(false);
-      setError(
-        !supabase
-          ? tr("هذي الميزة تحتاج مشروع Supabase حقيقي متصل — غير متاحة بالعرض التجريبي.")
-          : tr("رابط غير صالح."),
-      );
+      setError(!supabase ? tr("هذي الميزة تحتاج مشروع Supabase حقيقي متصل — غير متاحة بالعرض التجريبي.") : tr("رابط غير صالح."));
       return;
     }
-    supabase
-      .rpc("get_team_snapshot", { p_token: token })
-      .then(({ data, error: rpcError }) => {
-        if (rpcError || !data) {
-          setError(tr("الرابط غير صالح أو منتهي."));
-        } else {
-          setSnapshot(data as Snapshot);
-        }
-        setLoading(false);
-      });
+    supabase.rpc("get_team_snapshot", { p_token: token }).then(({ data, error: rpcError }) => {
+      if (rpcError || !data) setError(tr("الرابط غير صالح أو منتهي."));
+      else setSnapshot(data as Snapshot);
+      setLoading(false);
+    });
     loadThread();
+    loadEmail();
     // نحدّث المحادثة كل نصف دقيقة عشان ترى ردود الفريق بدون ما تعيد فتح الرابط
     const timer = setInterval(loadThread, 30_000);
     return () => clearInterval(timer);
-  }, [token, loadThread]);
+  }, [token, loadThread, loadEmail]);
 
   // نحفظ الفريق بقائمة «فرقي» على جهاز المشرف/ة
   useEffect(() => {
@@ -203,6 +189,29 @@ export default function SupervisorView() {
     return () => clearTimeout(t);
   }, [token, snapshot, threadLoaded, thread]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2600);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const sendMessage = async (body: string) => {
+    if (!supabase || !token || !body.trim()) return false;
+    setNoteError(null);
+    const { error: rpcError } = await supabase.rpc("submit_supervisor_message", { p_token: token, p_body: body, p_name: nameDraft.trim() });
+    if (rpcError) {
+      setNoteError(rpcError.message.includes("rate limit") ? tr("أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي.") : tr("ما انرسلت الرسالة — تأكدوا من الرابط وحاولوا مرة ثانية."));
+      return false;
+    }
+    try {
+      if (nameDraft.trim()) localStorage.setItem("wesync-supervisor-name", nameDraft.trim());
+    } catch {
+      // ما يهم
+    }
+    loadThread();
+    return true;
+  };
+
   const approveSection = async (key: string, label: string) => {
     if (!supabase || !token || approvingKey) return;
     setApprovingKey(key);
@@ -219,347 +228,455 @@ export default function SupervisorView() {
     const next = [...approved, key];
     setApproved(next);
     saveApproved(token, next);
+    setToast(tr("تم الاعتماد ✓"));
     loadThread();
   };
 
-  const submitNote = async () => {
-    if (!supabase || !token || noteSubmitting) return;
-    const body = noteDraft.trim();
-    if (!body) return;
-    setNoteSubmitting(true);
-    setNoteError(null);
-    const { error: rpcError } = await supabase.rpc("submit_supervisor_message", {
-      p_token: token,
-      p_body: body,
-      p_name: nameDraft.trim(),
-    });
-    setNoteSubmitting(false);
-    if (rpcError) {
-      setNoteError(
-        rpcError.message.includes("rate limit")
-          ? tr("أرسلتم رسائل كثيرة بوقت قصير — جرّبوا بعد شوي.")
-          : tr("ما انرسلت الرسالة — تأكدوا من الرابط وحاولوا مرة ثانية."),
-      );
+  /** ردّ على طلب: ينفّذ، يخفي الكرت بحركة ناعمة، وبعدها يحدّث اللوحة */
+  const respond = async (key: string, fn: string, args: Record<string, unknown>, msg: string) => {
+    const ok = await run(key, fn, args, false);
+    if (!ok) return false;
+    setLeaving((l) => [...l, key]);
+    setToast(msg);
+    setTimeout(async () => {
+      await loadBoard();
+      setLeaving((l) => l.filter((k) => k !== key));
+    }, 420);
+    return true;
+  };
+
+  const bulkCount = board ? board.waiting.minutes.length + board.waiting.bookings.length : 0;
+  const approveAll = async () => {
+    if (!board) return;
+    if (!confirmAll) {
+      setConfirmAll(true);
+      setTimeout(() => setConfirmAll(false), 4000);
       return;
     }
-    try {
-      if (nameDraft.trim()) localStorage.setItem("wesync-supervisor-name", nameDraft.trim());
-    } catch {
-      // ما يهم
+    setConfirmAll(false);
+    let n = 0;
+    for (const m of board.waiting.minutes) {
+      if (await run(m.id, "supervisor_resolve_minutes", { p_minutes_id: m.id, p_decision: "approved", p_note: "" }, false)) {
+        n++;
+        setLeaving((l) => [...l, m.id]);
+      }
     }
-    setNoteDraft("");
-    setNoteSent(true);
-    setTimeout(() => setNoteSent(false), 2500);
-    loadThread();
+    for (const b of board.waiting.bookings) {
+      if (await run(b.id, "supervisor_respond_booking", { p_id: b.id, p_decision: "confirm", p_note: "" }, false)) {
+        n++;
+        setLeaving((l) => [...l, b.id]);
+      }
+    }
+    if (n) setToast(n === 1 ? tr("تم الاعتماد ✓") : tr("تم اعتماد {0} طلبات ✓", n));
+    setTimeout(async () => {
+      await loadBoard();
+      setLeaving([]);
+    }, 420);
   };
+
+  const view = useMemo(() => {
+    if (!snapshot) return null;
+    const tasks = snapshot.tasks;
+    const done = tasks.filter((t) => t.status === "done");
+    const late = tasks.filter(isLate);
+    const pct = tasks.length ? Math.round((done.length / tasks.length) * 100) : 0;
+    const p = snapshot.project ?? null;
+    const daysLeft = p?.targetSubmissionDate ? daysUntil(p.targetSubmissionDate) : null;
+    const start = p?.startDate ?? p?.createdAt?.slice(0, 10) ?? null;
+    let expected: number | null = null;
+    if (start && p?.targetSubmissionDate) {
+      const span = daysUntil(p.targetSubmissionDate, new Date(start + "T00:00:00"));
+      const passed = -daysUntil(start);
+      if (span > 0) expected = Math.max(0, Math.min(100, Math.round((passed / span) * 100)));
+    }
+    const doneBy = new Map<string, number>();
+    for (const t of done) if (t.assigneeName) doneBy.set(t.assigneeName, (doneBy.get(t.assigneeName) ?? 0) + 1);
+    return { tasks, done, late, pct, project: p, daysLeft, expected, doneBy };
+  }, [snapshot]);
 
   if (loading) {
     return (
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-brand-50 via-paper to-paper px-4 py-10">
-        <div className="mx-auto max-w-3xl animate-pulse">
-          <div className="mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-2xl bg-brand-100" />
-              <div className="h-4 w-20 rounded bg-brand-100" />
-            </div>
-            <div className="h-7 w-24 rounded-full bg-brand-100" />
-          </div>
-          <div className="h-28 rounded-3xl bg-brand-100" />
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-2xl bg-brand-100" />
-            ))}
-          </div>
-          <div className="mt-4 h-40 rounded-3xl bg-brand-100" />
-          <div className="mt-4 h-52 rounded-3xl bg-brand-100" />
+      <div className="sv-page" dir="rtl">
+        <div className="sv-col animate-pulse pt-5">
+          <div className="h-9 w-40 rounded-full bg-white/5" />
+          <div className="mt-8 h-4 w-24 rounded bg-white/5" />
+          <div className="mt-3 h-12 w-56 rounded-2xl bg-white/5" />
+          <div className="mt-8 h-24 rounded-[26px] bg-white/5" />
+          <div className="mt-4 h-40 rounded-[26px] bg-white/5" />
+          <div className="mt-4 h-52 rounded-[26px] bg-white/5" />
         </div>
       </div>
     );
   }
 
-  if (error || !snapshot) {
+  if (error || !snapshot || !view) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gradient-to-b from-brand-50 via-paper to-paper px-6 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-500">
+      <div className="sv-page flex flex-col items-center justify-center gap-3 px-6 text-center" dir="rtl">
+        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(255,110,90,.12)] text-[#FF9A8A]">
           <AlertTriangle size={22} />
         </span>
-        <p className="max-w-sm text-sm font-semibold text-brand-950/60">{error}</p>
+        <p className="max-w-sm text-[15px] font-bold text-[#D9D0C6]">{error}</p>
       </div>
     );
   }
 
-  const done = snapshot.tasks.filter((t) => t.status === "done").length;
-  const total = snapshot.tasks.length;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const overdue = snapshot.tasks.filter((t) => t.status === "overdue").length;
+  const { tasks, done, late, pct, project, daysLeft, expected, doneBy } = view;
+  const hour = new Date().getHours();
+  const greeting = hour >= 4 && hour < 12 ? tr("صباح الخير") : tr("مساء الخير");
+  const leader = snapshot.members.find((m) => m.role === "leader") ?? snapshot.members[0];
+  const leaderFirst = leader?.name.trim().split(/\s+/)[0] ?? "";
+  const nameDone = nameDraft.trim().length > 0;
+  const emailDone = email?.state === "active";
+  const timesDone = !!board?.availability?.windows.length;
+  const setupFirst = !seenBefore && !nameDone && !emailDone && !timesDone;
+  const waitingCount = board ? board.waiting.minutes.length + board.waiting.decisions.length + board.waiting.bookings.length : 0;
+
+  // جملة الملخص من الأرقام
+  let say = tr("ماشين زين.");
+  let why = expected !== null ? tr("خلّصوا {0}% من المهام، والمتوقع لهالوقت حوالي {1}%.", pct, expected) : tr("خلّصوا {0} من {1} مهمة.", done.length, tasks.length);
+  if (tasks.length === 0) {
+    say = tr("ما بدأوا يوزّعون المهام.");
+    why = tr("أول ما يضيفون مهام تشوفون تقدّمهم هنا.");
+  } else if (late.length > 0) {
+    const oldest = [...late].sort(byDue)[0];
+    say = late.length === 1 ? tr("فيه مهمة متأخرة.") : tr("فيه {0} مهام متأخرة.", late.length);
+    why = oldest.assigneeName ? tr("أقدمها «{0}» عند {1}.", oldest.title, oldest.assigneeName.trim().split(/\s+/)[0]) : tr("أقدمها «{0}».", oldest.title);
+  } else if (expected !== null && pct < expected - 5) {
+    say = tr("بداية بطيئة.");
+  }
+
+  // المهام حسب الفلتر
+  const upcoming = tasks.filter((t) => t.status !== "done" && !isLate(t)).sort(byDue);
+  const lists: Record<TaskFilter, SnapshotTask[]> = {
+    next: upcoming,
+    late: [...late].sort(byDue),
+    done: [...done].sort((a, b) => byDue(b, a)),
+    all: [...tasks].sort(byDue),
+  };
+  const shown = showAllTasks ? lists[filter] : lists[filter].slice(0, 5);
+  const memberIndex = new Map(snapshot.members.map((m, i) => [m.name, i]));
+
+  // المستندات
+  const secDone = snapshot.proposalSections.filter((s) => s.status === "done");
+  const proposalWaiting = secDone.some((s) => !approved.includes(s.key));
+  const mReady = methodReady(snapshot.methodology);
+  const docs: { kind: DocKind; icon: typeof FileText; label: string; x: number; y: number; at: string | null | undefined; waiting?: boolean }[] = [
+    { kind: "proposal", icon: FileText, label: tr("المقترح البحثي"), x: secDone.length, y: snapshot.proposalSections.length || 7, at: snapshot.proposalUpdatedAt, waiting: proposalWaiting },
+    { kind: "methodology", icon: FlaskConical, label: tr("المنهجية"), x: mReady, y: 7, at: snapshot.methodology?.updatedAt },
+    { kind: "ethics", icon: ShieldCheck, label: tr("الموافقة الأخلاقية"), x: snapshot.ethics?.stepsDone ?? 0, y: 4, at: snapshot.ethics?.updatedAt },
+  ];
+  const m = snapshot.methodology;
+  const docRows: Record<DocKind, DocRow[]> = {
+    proposal: snapshot.proposalSections.map((s) => ({ key: s.key, label: s.labelAr, en: s.labelEn, status: s.status, content: s.content })),
+    methodology: m
+      ? [
+          [tr("تصميم الدراسة"), m.studyDesign],
+          [tr("مكان الدراسة"), m.studySetting],
+          [tr("مجتمع الدراسة"), m.population],
+          [tr("حجم العينة"), m.sampleSize],
+          [tr("أسلوب اختيار العينة"), m.samplingTechnique],
+          [tr("معايير الاشتمال"), m.samplingInclusion],
+          [tr("معايير الاستبعاد"), m.samplingExclusion],
+          [tr("طريقة جمع البيانات"), m.dataCollectionMethods],
+          [tr("إجراء جمع البيانات"), m.dataCollectionProcedure],
+          [tr("تحليل البيانات"), m.dataAnalysis],
+          [tr("الاعتبارات الأخلاقية"), m.ethicalConsiderations],
+          [tr("أداة الدراسة"), m.studyToolName],
+        ].map(([label, v], i) => ({ key: String(i), label: label as string, content: Array.isArray(v) ? v.join(tr("، ")) : ((v as string) ?? "") }))
+      : [],
+    ethics: snapshot.ethics
+      ? [
+          { key: "steps", label: tr("خطوات النموذج"), content: tr("{0} من 4 خطوات مكتملة", snapshot.ethics.stepsDone) },
+          { key: "principles", label: tr("المبادئ الأخلاقية"), content: tr("{0} من 13 بند مجاوب", snapshot.ethics.principles) },
+          { key: "attachments", label: tr("المرفقات"), content: tr("{0} من 5 مرفقات جاهزة", snapshot.ethics.attachments) },
+          { key: "outcome", label: tr("قرار اللجنة"), content: snapshot.ethics.outcome ? (OUTCOME[snapshot.ethics.outcome] ?? snapshot.ethics.outcome) : tr("ما انرفع للجنة بعد") },
+        ]
+      : [],
+  };
+  const docTitle: Record<DocKind, string> = { proposal: tr("المقترح البحثي"), methodology: tr("المنهجية"), ethics: tr("الموافقة الأخلاقية") };
+
+  const title = project?.title?.trim() ?? "";
+  const hasArabic = /[؀-ۿ]/.test(title);
+  const en = project?.description && /[A-Za-z]/.test(project.description) && !/[؀-ۿ]/.test(project.description) ? project.description : "";
+  const typeLabel = project?.researchType ? TYPE_LABEL[project.researchType as Exclude<ResearchType, "">]?.[0] : "";
+  const setupStrip = <SvSetupStrip nameDone={nameDone} emailDone={emailDone} timesDone={timesDone} onOpen={() => setSheet("setup")} />;
+  let i = 0;
+  const rise = () => ({ "--v3-i": i++ }) as CSSProperties;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-brand-50 via-paper to-paper px-4 py-10">
-      <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-amber-accent-200/30 blur-3xl" />
-      <div className="pointer-events-none absolute -left-24 top-40 h-64 w-64 rounded-full bg-brand-200/25 blur-3xl" />
-
-      <div className="relative mx-auto max-w-3xl">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="rounded-2xl bg-gradient-to-br from-amber-accent-300 to-brand-400 p-[1.5px]">
-              <div className="rounded-[0.9rem] bg-paper p-1">
-                <Logo size={28} />
-              </div>
-            </div>
-            <span className="font-display text-base font-extrabold text-brand-950">Wesync</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {loadTeams().length > 1 && (
-              <Link to="/supervisor" className="rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-700 shadow-sm shadow-brand-950/5 hover:bg-brand-50">{trx("فرقي ({0})", loadTeams().length)}</Link>
-            )}
-            <span className="flex items-center gap-1.5 rounded-full border border-brand-100 bg-paper px-3 py-1.5 text-xs font-bold text-brand-950/55 shadow-sm shadow-brand-950/5">
-              <ShieldCheck size={13} className="text-brand-500" />{tr("تقرير قراءة فقط")}</span>
-          </div>
-        </div>
-
-        <nav aria-label={tr("أقسام التقرير")} className="sticky top-2 z-20 -mx-1 mb-4 flex gap-2 overflow-x-auto rounded-full border border-brand-100/70 bg-paper/85 p-1.5 shadow-sm shadow-brand-950/5 backdrop-blur-xl">
-          {[
-            ["sv-waiting", waitingCount > 0 ? tr("تنتظركم ({0})", waitingCount) : tr("تنتظركم")],
-            ["sv-summary", tr("الملخص")],
-            ["sv-tasks", tr("المهام")],
-            ["sv-proposal", tr("المقترح")],
-            ...(snapshot.methodology ? [["sv-methodology", tr("المنهجية")]] : []),
-            ["sv-chat", tr("راسلوا الفريق")],
-          ].map(([id, label]) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold text-brand-950/60 hover:bg-brand-50 hover:text-brand-900"
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-
-        {token && <SupervisorBoard token={token} name={nameDraft} onNameChange={setNameDraft} onWaitingCount={setWaitingCount} />}
-
-        {seenBefore && !digestDismissed && digest && (
-          <div className="mb-4 rounded-3xl border border-amber-accent-200/70 bg-amber-accent-50/70 p-5">
-            <p className="text-xs font-extrabold text-amber-accent-700">{trx("منذ زيارتكم الأخيرة ({0})", formatDateShort(seenBefore.at))}</p>
-            {digest.length > 0 ? (
-              <ul className="mt-2 space-y-1">
-                {digest.slice(0, 8).map((line, i) => (
-                  <li key={i} className="text-sm font-semibold text-brand-950/80">• {line}</li>
-                ))}
-                {digest.length > 8 && <li className="text-xs text-brand-950/50">{trx("و{0} تغييرات ثانية", digest.length - 8)}</li>}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-brand-950/60">{tr("ما تغيّر شي من زيارتكم الأخيرة.")}</p>
-            )}
-            <button onClick={markSeen} className="mt-3 rounded-full bg-amber-accent-500 px-4 py-1.5 text-xs font-bold text-white hover:bg-amber-accent-600">{tr("تم الاطلاع")}</button>
-          </div>
-        )}
-
-        <div id="sv-summary" className="scroll-mt-16 rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
-          <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-paper p-6 sm:p-8">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-accent-100/60 blur-2xl" />
-            <div className="relative">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-amber-accent-50 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700">
-                <FlaskConical size={11} />{tr("تقرير متابعة فريق البحث")}</span>
-              <h1 className="mt-3 font-display text-2xl font-extrabold text-brand-950 sm:text-3xl">
-                {snapshot.teamName}
-              </h1>
-
-              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-center">
-                  <p className="font-display text-3xl font-extrabold text-brand-950">{pct}%</p>
-                  <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("نسبة إنجاز المهام")}</p>
-                </div>
-                <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-center">
-                  <p className="font-display text-3xl font-extrabold text-brand-950">
-                    {done}
-                    <span className="text-base font-medium text-brand-950/40"> / {total}</span>
-                  </p>
-                  <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("مهام مكتملة")}</p>
-                </div>
-                <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-4 text-center">
-                  <p className="font-display text-3xl font-extrabold text-brand-950">{overdue}</p>
-                  <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("مهام متأخرة")}</p>
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-                  <Users size={14} className="text-brand-500" />{trx("أعضاء الفريق ({0})", snapshot.members.length)}</p>
-                <div className="flex flex-wrap gap-2.5">
-                  {snapshot.members.map((m, i) => (
-                    <span
-                      key={m.name}
-                      className="flex items-center gap-2 rounded-full border border-brand-100 bg-paper py-1 pe-3 ps-1 text-xs font-semibold text-brand-950/75 shadow-sm shadow-brand-950/5"
-                    >
-                      <Avatar initials={m.initials} color={memberColors[i % memberColors.length]} size="sm" />
-                      {m.name}
-                      {m.role === "leader" && (
-                        <span className="text-amber-accent-600">{tr(" · قائد الفريق")}</span>
-                      )}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div id="sv-tasks" className="mt-8 scroll-mt-16">
-                <p className="mb-3 text-sm font-bold text-brand-950/80">{tr("المهام")}</p>
-                <ul className="divide-y divide-brand-50">
-                  {snapshot.tasks.map((t, i) => (
-                    <li key={i} className="flex items-center gap-3 py-3">
-                      {t.status === "done" ? (
-                        <CheckCircle2 size={16} className="shrink-0 text-brand-500" />
-                      ) : t.status === "overdue" ? (
-                        <AlertTriangle size={16} className="shrink-0 text-rose-500" />
-                      ) : t.status === "in-progress" ? (
-                        <Clock size={16} className="shrink-0 text-amber-accent-500" />
-                      ) : (
-                        <Circle size={16} className="shrink-0 text-brand-950/25" />
-                      )}
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-brand-950">
-                        {t.title}
-                      </span>
-                      <span className="whitespace-nowrap text-xs text-brand-950/40">
-                        {t.assigneeName ?? ""}
-                        {t.dueDate ? ` — ${formatDateShort(t.dueDate)}` : ""}
-                      </span>
-                      <span
-                        className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${statusStyle[t.status]}`}
-                      >
-                        {statusLabel[t.status]}
-                      </span>
-                    </li>
-                  ))}
-                  {snapshot.tasks.length === 0 && (
-                    <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه مهام مسجّلة بعد")}</p>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="sv-proposal" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
-          <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-            <BookOpenText size={14} className="text-brand-500" />{tr("المقترح البحثي")}</p>
-          <ul className="divide-y divide-brand-50">
-            {snapshot.proposalSections.map((s) => (
-              <li key={s.key} className="py-3">
-                <div className="flex items-center gap-3">
-                  <span className="min-w-0 flex-1 text-sm font-semibold text-brand-950">
-                    {s.labelAr}
-                    <span className="ms-1.5 text-xs font-normal text-brand-950/40">{s.labelEn}</span>
-                  </span>
-                  <span
-                    className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${sectionStatusStyle[s.status]}`}
-                  >
-                    {sectionStatusLabel[s.status]}
-                  </span>
-                  {s.status === "done" &&
-                    (approved.includes(s.key) ? (
-                      <span className="whitespace-nowrap rounded-full bg-brand-500 px-2.5 py-1 text-xs font-bold text-white">{tr("معتمد ✓")}</span>
-                    ) : (
-                      <button
-                        onClick={() => approveSection(s.key, s.labelAr)}
-                        disabled={approvingKey === s.key}
-                        className="whitespace-nowrap rounded-full border border-brand-300 px-2.5 py-1 text-xs font-bold text-brand-700 hover:bg-brand-50 disabled:opacity-50"
-                      >{tr("اعتماد")}</button>
-                    ))}
-                </div>
-                {s.content ? (
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-brand-950/65">{s.content}</p>
-                ) : (
-                  <p className="mt-2 text-sm italic text-brand-950/30">{tr("لم يُكتب بعد")}</p>
-                )}
-              </li>
-            ))}
-            {snapshot.proposalSections.length === 0 && (
-              <p className="py-6 text-center text-sm text-brand-950/40">{tr("ما فيه مقترح بحثي مسجّل بعد")}</p>
-            )}
-          </ul>
-        </div>
-
-        {snapshot.methodology && (
-          <div id="sv-methodology" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
-            <p className="mb-3 flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-              <FlaskConical size={14} className="text-brand-500" />{tr("المنهجية")}</p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {methodologyField(tr("تصميم الدراسة"), snapshot.methodology.studyDesign)}
-              {methodologyField(tr("مكان الدراسة"), snapshot.methodology.studySetting)}
-              {methodologyField(tr("مجتمع الدراسة"), snapshot.methodology.population)}
-              {methodologyField(tr("حجم العينة"), snapshot.methodology.sampleSize)}
-              {methodologyField(tr("أسلوب اختيار العينة"), snapshot.methodology.samplingTechnique)}
-              {methodologyField(tr("معايير الاشتمال"), snapshot.methodology.samplingInclusion)}
-              {methodologyField(tr("معايير الاستبعاد"), snapshot.methodology.samplingExclusion)}
-              {methodologyField(tr("طريقة جمع البيانات"), snapshot.methodology.dataCollectionMethods)}
-              {methodologyField(tr("إجراء جمع البيانات"), snapshot.methodology.dataCollectionProcedure)}
-              {methodologyField(tr("تحليل البيانات"), snapshot.methodology.dataAnalysis)}
-              {methodologyField(tr("الاعتبارات الأخلاقية"), snapshot.methodology.ethicalConsiderations)}
-              {methodologyField(tr("أداة الدراسة"), snapshot.methodology.studyToolName)}
-            </div>
-          </div>
-        )}
-
-        <div id="sv-chat" className="mt-4 scroll-mt-16 rounded-3xl border border-brand-100/70 bg-paper p-6 shadow-sm shadow-brand-950/5 sm:p-8">
-          <p className="flex items-center gap-1.5 text-sm font-bold text-brand-950/80">
-            <MessageSquareText size={15} className="text-brand-500" />{tr("محادثتكم مع الفريق")}</p>
-          <p className="mt-1 text-xs text-brand-950/40">{tr("رسائلكم توصل للفريق كتنبيه بلوحتهم، وردودهم تظهر هنا. كل الرسائل محفوظة — ما تنمسح برسالة جديدة.")}</p>
-
-          {thread.length > 0 && (
-            <ul className="mt-4 max-h-96 space-y-2.5 overflow-y-auto pe-1">
-              {thread.map((m) => {
-                const mine = m.sender === "supervisor";
-                return (
-                  <li key={m.id} className={`flex ${mine ? "justify-start" : "justify-end"}`}>
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
-                        mine ? "bg-brand-500/10 text-brand-950" : "border border-brand-100 bg-surface-muted text-brand-950"
-                      }`}
-                    >
-                      <p className="text-[11px] font-bold text-brand-950/45">
-                        {mine ? m.senderName || tr("أنتم") : m.senderName ? tr("الفريق — {0}", m.senderName) : tr("الفريق")}
-                        <span className="ms-2 font-medium">{formatDateShort(m.createdAt.slice(0, 10))}</span>
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{m.body}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+    <div className="sv-page pb-[120px]" dir="rtl">
+      <div className="sv-col">
+        {/* ١) الشريط العلوي */}
+        <header className="sv-top">
+          <span className="sv-orb" aria-hidden />
+          <span className="sv-brand">Wesync</span>
+          <span className="sv-lock">
+            <Lock size={13} strokeWidth={2.4} />
+            {tr("صفحة المشرفة · قراءة فقط")}
+          </span>
+          {loadTeams().length > 1 && (
+            <Link to="/supervisor" className="sv-teams">
+              {trx("فرقي ({0})", loadTeams().length)}
+            </Link>
           )}
+        </header>
 
-          <input
-            value={nameDraft}
-            onChange={(e) => setNameDraft(e.target.value)}
-            maxLength={80}
-            placeholder={tr("اسمكم (اختياري) — مثل: د. نورة")}
-            className="mt-4 w-full rounded-2xl border border-brand-100 px-3.5 py-2.5 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
-          />
-          <textarea
-            value={noteDraft}
-            onChange={(e) => setNoteDraft(e.target.value)}
-            rows={3}
-            maxLength={1500}
-            placeholder={tr("مثال: راجعوا صياغة الفجوة البحثية قبل الاجتماع الجاي، وركّزوا على ربطها بالهدف.")}
-            className="mt-2 w-full rounded-2xl border border-brand-100 px-3.5 py-3 text-sm text-brand-950 outline-none placeholder:text-brand-950/30 focus:border-brand-300"
-          />
-          {noteError && <p className="mt-2 text-xs font-semibold text-rose-600">{noteError}</p>}
-          <button
-            onClick={submitNote}
-            disabled={noteSubmitting || !noteDraft.trim()}
-            className="mt-3 flex items-center gap-2 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700 disabled:opacity-50"
-          >
-            {noteSent ? <Check size={15} /> : null}
-            {noteSubmitting ? "..." : noteSent ? tr("تم الإرسال") : tr("إرسال للفريق")}
-          </button>
-        </div>
+        {/* ٢) الترحيب */}
+        <p className="sv-hello m-0">{greeting}</p>
+        <h1 className="sv-name">{nameDone ? nameDraft.trim() : tr("أهلًا بكم")}</h1>
+        <p className="sv-sub m-0">{leaderFirst ? trx("هذا وضع فريق {0} · {1}", <b key="l">{leaderFirst}</b>, studentsLabel(snapshot.members.length)) : studentsLabel(snapshot.members.length)}</p>
 
-        <p className="mt-6 text-center text-xs text-brand-950/35">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
+        {setupFirst && <div className="mt-5">{setupStrip}</div>}
+
+        {/* ٣) موضوع البحث */}
+        {title && (
+          <section className="hg-card sv-card mt-6" style={rise()} aria-label={tr("موضوع البحث")}>
+            <h2 className="sv-topic-t" dir={hasArabic ? "rtl" : "auto"}>
+              {title}
+            </h2>
+            {en && <div className="sv-topic-en">{en}</div>}
+            {(typeLabel || daysLeft !== null) && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {typeLabel && <span className="sv-chip">{trx("بحث {0}", typeLabel)}</span>}
+                {daysLeft !== null && (
+                  <span className="sv-chip" style={{ color: daysLeft < 0 ? "#FF9A8A" : "#FFC777" }}>
+                    {daysLeft < 0 ? tr("فات موعد التسليم") : trx("التسليم بعد {0} يوم", <span key="d" className="sv-num">{daysLeft}</span>)}
+                  </span>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
+        {digest && digest.length > 0 && (
+          <section className="hg-card sv-card mt-3" style={rise()}>
+            <p className="sv-kind m-0">{trx("من زيارتكم الأخيرة ({0})", formatDateShort(seenBefore!.at))}</p>
+            <ul className="m-0 mt-2 list-none space-y-1 p-0 text-[14px] text-[#D9D0C6]">
+              {digest.slice(0, 5).map((line, k) => (
+                <li key={k}>• {line}</li>
+              ))}
+              {digest.length > 5 && <li className="text-[12px] text-[#ABA095]">{tr("و{0} تغييرات ثانية", digest.length - 5)}</li>}
+            </ul>
+            <button className="sv-more" onClick={markSeen}>
+              <Check size={14} />
+              {tr("تم الاطلاع")}
+            </button>
+          </section>
+        )}
+
+        {/* ٤) تنتظركم */}
+        <section className="sv-sec" aria-labelledby="sv-h-wait">
+          <h2 id="sv-h-wait" className="sv-h">
+            <Inbox size={19} />
+            {tr("تنتظركم")}
+            {waitingCount > 0 && <span className="sv-count">{waitingCount}</span>}
+          </h2>
+          {board ? <SvWaiting board={board} busy={busy} error={boardError} leaving={leaving} respond={respond} /> : <div className="h-12 animate-pulse rounded-2xl bg-white/5" />}
+        </section>
+
+        {/* ٥) وضع الفريق */}
+        <section className="sv-sec" aria-labelledby="sv-h-status">
+          <h2 id="sv-h-status" className="sv-h">
+            <Gauge size={19} />
+            {tr("وضع الفريق")}
+          </h2>
+          <div className="hg-card sv-card" style={rise()}>
+            <div className="flex items-center gap-4">
+              <Ring pct={pct} />
+              <div className="min-w-0">
+                <p className="sv-say">{say}</p>
+                <p className="sv-why">{why}</p>
+              </div>
+            </div>
+            <div className="sv-stats">
+              <div>
+                <span className="sv-num">
+                  {done.length}/{tasks.length}
+                </span>
+                <p>{tr("مهام خلصت")}</p>
+              </div>
+              <div>
+                <span className={`sv-num${late.length ? " red" : ""}`}>{late.length}</span>
+                <p>{tr("متأخرة")}</p>
+              </div>
+              <div>
+                <span className="sv-num">{daysLeft === null ? "—" : Math.max(0, daysLeft)}</span>
+                <p>{tr("يوم للتسليم")}</p>
+              </div>
+            </div>
+            {(board?.lastMeeting?.total || board?.upcoming.length) ? (
+              <p className="sv-foot m-0">
+                {board?.lastMeeting && board.lastMeeting.total > 0 && trx("آخر اجتماع ({0}): {1} من {2} بنود منجزة.", formatDateShort(board.lastMeeting.meetingDate), <b key="a">{board.lastMeeting.done}</b>, board.lastMeeting.total)}
+                {board?.upcoming[0] && <> {trx("الاجتماع الجاي: {0} · {1}", formatDateFull(board.upcoming[0].date), <span key="t" className="sv-num">{board.upcoming[0].time}</span>)}</>}
+              </p>
+            ) : null}
+          </div>
+        </section>
+
+        {/* ٦) الفريق */}
+        <section className="sv-sec" aria-labelledby="sv-h-team">
+          <h2 id="sv-h-team" className="sv-h">
+            <Users size={19} />
+            {tr("الفريق")}
+          </h2>
+          <div className="hg-card sv-card !py-1.5" style={rise()}>
+            {snapshot.members.map((mem, k) => {
+              const share = done.length ? Math.round(((doneBy.get(mem.name) ?? 0) / done.length) * 100) : 0;
+              const activeToday = mem.lastActiveAt ? new Date(mem.lastActiveAt).toDateString() === new Date().toDateString() : false;
+              return (
+                <div key={mem.name + k} className="sv-mem">
+                  <SvAvatar name={mem.name} initials={mem.initials} i={k} active={mem.lastActiveAt === undefined ? null : activeToday} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate">
+                      <span className="sv-mn">{mem.name.trim()}</span>
+                      {mem.role === "leader" && <span className="sv-lead">{tr("القائد")}</span>}
+                    </div>
+                    {mem.lastActiveAt !== undefined && <div className="sv-ms">{mem.lastActiveAt ? tr("آخر نشاط {0}", relTime(mem.lastActiveAt)) : tr("ما دخل للحين")}</div>}
+                    <div className="mt-2 flex items-center gap-2.5">
+                      <div className="sv-bar flex-1" role="img" aria-label={tr("مساهمته {0}% من المنجز", share)}>
+                        <span style={{ width: `${share}%` }} />
+                      </div>
+                      <span className="sv-pct">{share}%</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ٧) المستندات */}
+        <section className="sv-sec" aria-labelledby="sv-h-docs">
+          <h2 id="sv-h-docs" className="sv-h">
+            <FileText size={19} />
+            {tr("المستندات")}
+          </h2>
+          <div className="hg-card sv-card !py-1.5" style={rise()}>
+            {docs.map((d) => {
+              const Icon = d.icon;
+              return (
+                <button key={d.kind} className="sv-doc" onClick={() => setSheet(d.kind)} aria-haspopup="dialog">
+                  <span className="sv-di">
+                    <Icon size={18} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block">
+                      <span className="sv-dt">{d.label}</span>
+                      {d.waiting && <span className="sv-wait">{tr("بانتظار اعتمادك")}</span>}
+                    </span>
+                    <span className="sv-dm block">
+                      {trx("{0} من {1} أقسام", <span key="x" className="sv-num">{d.x}</span>, <span key="y" className="sv-num">{d.y}</span>)}
+                      {d.at ? ` · ${relTime(d.at)}` : ""}
+                    </span>
+                    <span className="sv-bar block">
+                      <span style={{ width: `${d.y ? Math.round((d.x / d.y) * 100) : 0}%` }} />
+                    </span>
+                  </span>
+                  <ChevronLeft size={18} className="flex-none text-[#ABA095]" />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ٨) المهام */}
+        <section className="sv-sec" aria-labelledby="sv-h-tasks">
+          <h2 id="sv-h-tasks" className="sv-h">
+            <ListChecks size={19} />
+            {tr("المهام")}
+          </h2>
+          <div className="sv-chips" role="group" aria-label={tr("فلترة المهام")}>
+            {(
+              [
+                ["next", tr("الجاية")],
+                ["late", tr("متأخرة · {0}", late.length)],
+                ["done", tr("خلصت · {0}", done.length)],
+                ["all", tr("الكل")],
+              ] as [TaskFilter, string][]
+            ).map(([k, label]) => (
+              <button key={k} aria-pressed={filter === k} onClick={() => { setFilter(k); setShowAllTasks(false); }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="hg-card sv-card !py-1.5" style={rise()}>
+            {shown.length === 0 && <p className="m-0 py-5 text-center text-[14px] text-[#ABA095]">{filter === "late" ? tr("ما فيه مهام متأخرة ✓") : filter === "done" ? tr("ما خلصت مهام للحين") : tr("ما فيه مهام جاية")}</p>}
+            {shown.map((t, k) => {
+              const lateT = isLate(t);
+              const d = t.dueDate ? daysUntil(t.dueDate) : null;
+              const soon = !lateT && t.status !== "done" && d !== null && d >= 0 && d <= 3;
+              const who = t.assigneeName?.trim();
+              return (
+                <div key={t.title + k} className="sv-task">
+                  <span className={`sv-box${t.status === "done" ? " done" : lateT ? " late" : ""}`} aria-label={t.status === "done" ? tr("خلصت") : lateT ? tr("متأخرة") : tr("ما خلصت")} role="img">
+                    {t.status === "done" && <Check size={14} strokeWidth={3} />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className={`sv-tt${t.status === "done" ? " done" : ""}`}>{t.title}</div>
+                    <div className="sv-tm">
+                      {who && (
+                        <>
+                          <SvAvatar sm name={who} i={memberIndex.get(t.assigneeName ?? "") ?? 0} />
+                          <span>{who.split(/\s+/)[0]}</span>
+                        </>
+                      )}
+                      {who && t.dueDate && <span aria-hidden>·</span>}
+                      {t.dueDate && <span>{formatDateShort(t.dueDate)}</span>}
+                    </div>
+                  </div>
+                  {lateT && d !== null && <span className="sv-badge late">{lateLabel(-d)}</span>}
+                  {soon && t.dueDate && <span className="sv-badge soon">{relativeDayLabel(t.dueDate)}</span>}
+                </div>
+              );
+            })}
+          </div>
+          {!showAllTasks && lists[filter].length > 5 && (
+            <button className="sv-all" onClick={() => setShowAllTasks(true)}>
+              {tr("شوفوا كل المهام ({0})", lists[filter].length)}
+            </button>
+          )}
+        </section>
+
+        {/* ٩) جهّزوا صفحتكم */}
+        {!setupFirst && <div className="sv-sec">{setupStrip}</div>}
+
+        <p className="mt-8 text-center text-[12px] text-[#8F857C]">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
       </div>
+
+      {/* ١٠) Dock */}
+      <nav className="sv-dock" aria-label={tr("إجراءات سريعة")}>
+        <button className="sv-btn orange" onClick={() => setSheet("note")} aria-haspopup="dialog">
+          {tr("ملاحظة للفريق")}
+        </button>
+        {bulkCount > 0 && (
+          <button className="sv-btn ghost" onClick={approveAll} disabled={!!busy}>
+            {confirmAll ? tr("متأكدين؟ اعتمدوا {0}", bulkCount) : tr("اعتمدوا الكل")}
+          </button>
+        )}
+      </nav>
+
+      {toast && (
+        <div className="sv-toast" role="status">
+          {toast}
+        </div>
+      )}
+
+      {sheet === "setup" && token && (
+        <SvSetupSheet token={token} name={nameDraft} onNameChange={setNameDraft} email={email} onEmailChanged={loadEmail} availability={board?.availability ?? null} busy={busy} error={boardError} save={saveAvailability} onClose={() => setSheet(null)} />
+      )}
+      {sheet === "note" && <SvNoteSheet thread={thread} name={nameDraft} onNameChange={setNameDraft} send={sendMessage} error={noteError} onClose={() => setSheet(null)} />}
+      {(sheet === "proposal" || sheet === "methodology" || sheet === "ethics") && (
+        <SvDocSheet
+          title={docTitle[sheet]}
+          rows={docRows[sheet]}
+          approved={approved}
+          approvingKey={approvingKey}
+          onApprove={sheet === "proposal" ? approveSection : undefined}
+          send={sendMessage}
+          error={noteError}
+          onClose={() => setSheet(null)}
+        />
+      )}
     </div>
   );
 }

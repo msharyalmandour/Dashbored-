@@ -1,4 +1,4 @@
-import type { EthicalPrinciples, Methodology } from "../data/types";
+import type { EthicalApproval, EthicalAttachments, EthicalPrinciples, Methodology } from "../data/types";
 
 /** متى نعتبر جزء المنهجية «جاهز» — نفس الحساب بخريطة المنهجية وعدّاد تبويب «أكتب» (عرض بس، ما ينحفظ) */
 export const METHOD_READY = {
@@ -33,3 +33,15 @@ export const PRINCIPLE_KEYS: (keyof EthicalPrinciples)[] = [
 ];
 
 export const principlesAnswered = (p: EthicalPrinciples) => PRINCIPLE_KEYS.filter((k) => p[k] !== null).length;
+
+const filledStr = (v: unknown) => !!v && !!String(v).trim();
+
+export const ETHICS_ATTACHMENT_KEYS: (keyof EthicalAttachments)[] = ["protocolOrProposal", "participantInfoSheet", "consentForm", "studyTools", "otherSupportiveDocs"];
+
+/** خطوات نموذج الموافقة الأخلاقية الأربع (خلصت ولا لا) — نفس الحساب بصفحة الموافقة والرئيسية */
+export const ethicsStepsDone = (ea: EthicalApproval): [boolean, boolean, boolean, boolean] => [
+  filledStr(ea.applicationDate) && filledStr(ea.expectedStartDate) && filledStr(ea.expectedEndDate),
+  (["piName", "piAffiliation", "piEmail", "supervisorNames"] as const).every((k) => filledStr(ea[k])),
+  principlesAnswered(ea.principles) === PRINCIPLE_KEYS.length,
+  ETHICS_ATTACHMENT_KEYS.every((k) => ea.attachments[k]),
+];

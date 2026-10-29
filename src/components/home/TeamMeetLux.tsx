@@ -1,6 +1,7 @@
 import { useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { CalendarClock, Flag, ListOrdered, MapPin, Sparkles } from "lucide-react";
+import { CalendarClock, Flag, ListOrdered, MapPin } from "lucide-react";
+import AgentWave from "../ui/AgentWave";
 import clsx from "clsx";
 import { num } from "../v3/WriteHeader";
 import { useAuth } from "../../context/AuthContext";
@@ -21,7 +22,7 @@ import { isEn, tr } from "../../lib/i18n";
 const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
 /** لون كل عضو (تدرج الأفاتار + هالة الضوء) — ثابت حسب ترتيبه بالفريق */
-const PALETTE = [
+export const PALETTE = [
   { from: "#FFE08A", to: "#FFB444", tint: "rgba(255,190,80,.7)" },
   { from: "#FFC27A", to: "#FF8A2A", tint: "rgba(255,130,40,.6)" },
   { from: "#FFF3E2", to: "#E7D3BC", tint: "rgba(255,225,190,.45)" },
@@ -33,8 +34,8 @@ const PALETTE = [
 /** الصفر العربي «٠» يبان نقطة، فنكتب الصفر 0 */
 const n0 = (n: number) => (n === 0 ? "0" : num(n));
 /** أول حرف من الاسم الأول للأفاتار الكبير */
-const letter = (name: string) => name.trim().charAt(0) || "؟";
-const weekdayAr = (d: Date) => `ال${arabicWeekdays[d.getDay()]}`.replace(/^الال/, "ال");
+export const letter = (name: string) => name.trim().charAt(0) || "؟";
+export const weekdayAr = (d: Date) => `ال${arabicWeekdays[d.getDay()]}`.replace(/^الال/, "ال");
 
 const isUrl = (s: string) => /^(https?:\/\/|www\.)/i.test(s.trim());
 const hhmm = (t: string) => (t || "").slice(0, 5);
@@ -338,7 +339,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
           className="v3-bd flex-1"
           onClick={() => openAgent(tr("جهّز لنا ملخص الأسبوع لاجتماع «{0}»: اللي خلّصناه، والمتأخر، والأسئلة اللي نبي نسألها المشرف/ة", next.title))}
         >
-          <Sparkles size={15} aria-hidden />
+          <AgentWave size={15} />
           {tr("جهّز الملخص")}
         </button>
       </div>

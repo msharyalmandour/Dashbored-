@@ -3,6 +3,7 @@
 @import "./styles/motion.css";
 @import "./styles/paper.css";
 @import "./styles/home-lux.css";
+@import "./styles/home-glass.css";
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;

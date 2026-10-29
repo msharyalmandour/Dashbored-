@@ -76,3 +76,44 @@ export function timeLeft(deadline: string, now: Date): { days: number; hours: nu
   const ms = Math.max(0, end.getTime() - now.getTime());
   return { days: Math.floor(ms / DAY), hours: Math.floor((ms % DAY) / 3600000) };
 }
+
+export type TodoKind = "done" | "late" | "today" | "next";
+
+/** «وش علينا اليوم؟» كـ To-do: المنجزة اليوم أول (باهتة)، ثم المتأخرة، ثم اليوم، ثم الجاية — limit بالكثير.
+    pinned: مهام انضغطت بهالجلسة تبقى بمكانها الأصلي بالقائمة (ما تقفز فوق لما تخلص).
+    done/total: عدّاد الشريط — منجزة اليوم من (منجزة اليوم + متأخرة + موعدها اليوم). */
+export function todoList<T extends CalmTask>(
+  tasks: T[],
+  today: string,
+  opts: { doneToday?: Set<string>; pinned?: Map<string, TodoKind>; limit?: number } = {},
+): { items: { task: T; kind: TodoKind }[]; done: number; total: number } {
+  const { doneToday = new Set<string>(), pinned = new Map<string, TodoKind>(), limit = 4 } = opts;
+  const kindOf = (t: T): TodoKind | null => {
+    if (t.status === "done") return doneToday.has(t.id) || t.completedAt?.slice(0, 10) === today ? "done" : null;
+    if (isLate(t, today)) return "late";
+    return t.dueDate === today ? "today" : "next";
+  };
+  const rank: Record<TodoKind, number> = { done: 0, late: 1, today: 2, next: 3 };
+  const rows = tasks.map((task) => ({ task, kind: kindOf(task) })).filter((r): r is { task: T; kind: TodoKind } => r.kind !== null);
+  const sortKind = (r: { task: T; kind: TodoKind }) => pinned.get(r.task.id) ?? r.kind;
+  rows.sort((a, b) => rank[sortKind(a)] - rank[sortKind(b)] || a.task.dueDate.localeCompare(b.task.dueDate) || a.task.id.localeCompare(b.task.id));
+  const done = rows.filter((r) => r.kind === "done").length;
+  const total = done + rows.filter((r) => r.kind === "late" || r.kind === "today").length;
+  return { items: rows.slice(0, limit), done, total };
+}
+
+/** إنجاز الفريق بالأسابيع (الأقدم أول): done = مهام خلصت بالأسبوع (تاريخ الإكمال، وإلا موعدها لو ما انحفظ التاريخ)،
+    planned = مهام موعدها بنفس الأسبوع. الأسبوع الأخير ينتهي اليوم. */
+export function weeklySeries(tasks: CalmTask[], today: string, weeks: number): { done: number; planned: number }[] {
+  const out: { done: number; planned: number }[] = [];
+  for (let i = weeks - 1; i >= 0; i--) {
+    const from = addDays(today, -7 * i - 6);
+    const to = addDays(today, -7 * i + 1);
+    const inWeek = (d: string | null | undefined) => !!d && d.slice(0, 10) >= from && d.slice(0, 10) < to;
+    out.push({
+      done: tasks.filter((t) => t.status === "done" && inWeek(t.completedAt ?? t.dueDate)).length,
+      planned: tasks.filter((t) => inWeek(t.dueDate)).length,
+    });
+  }
+  return out;
+}

@@ -1,39 +1,30 @@
 import { NavLink } from "react-router-dom";
-import { Compass, LayoutDashboard, ListChecks, Menu, Users } from "lucide-react";
+import { Check, House, PenLine, Users } from "lucide-react";
 import clsx from "clsx";
-import { useResearchStages } from "../hooks/useResearchStages";
-import { getCurrentStage } from "../lib/progress";
-import { STAGE_ACTION } from "../lib/nextSteps";
+import AgentWave from "./ui/AgentWave";
+import { openAgent } from "../lib/agentBus";
 import { tr } from "../lib/i18n";
 
-/** شريط تنقل سفلي بالجوال فقط — أهم ٤ صفحات + القائمة الكاملة. خانة «مرحلتكم» تفتح شغل المرحلة الحالية. الديسكتوب يبقى على القائمة الجانبية. */
-export default function BottomNav({ onMenu }: { onMenu: () => void }) {
-  const { stages } = useResearchStages();
-  const current = getCurrentStage(stages);
-  const stageTo = current ? STAGE_ACTION[current.stageKey]?.to : undefined;
-  const items = [
-    { to: "/", label: tr("الرئيسية"), icon: LayoutDashboard, end: true },
-    { to: "/tasks", label: tr("مهامي"), icon: ListChecks },
-    { to: stageTo ?? "/research-search", label: tr("مرحلتكم"), icon: Compass },
-    { to: "/team", label: tr("الفريق"), icon: Users },
-  ];
+/** شريط التبويبات بالجوال فقط (زجاج عائم): الرئيسية · أكتب · [الوكيل بالنص] · مهامي · الفريق.
+    زر الوكيل كرة برتقالية فوقها موجة صوت — القائمة الكاملة من زر القائمة بالشريط العلوي. الديسكتوب يبقى على القائمة الجانبية. */
+export default function BottomNav() {
+  const tab = (to: string, label: string, Icon: typeof House, end?: boolean) => (
+    <NavLink to={to} end={end} className={({ isActive }) => clsx("hg-tab", isActive && "on")}>
+      <span className="hg-ti">
+        <Icon size={21} strokeWidth={1.7} aria-hidden />
+      </span>
+      {label}
+    </NavLink>
+  );
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around border-t border-brand-100/60 bg-paper/85 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl print:hidden md:hidden">
-      {items.map((it) => (
-        <NavLink
-          key={it.to}
-          to={it.to}
-          end={it.end}
-          className={({ isActive }) =>
-            clsx("flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-bold", isActive ? "text-brand-500" : "text-brand-950/50")
-          }
-        >
-          <it.icon size={20} />
-          {it.label}
-        </NavLink>
-      ))}
-      <button onClick={onMenu} className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-bold text-brand-950/50">
-        <Menu size={20} />{tr("القائمة")}</button>
+    <nav className="hg-tabbar print:hidden md:hidden" aria-label={tr("التنقل")}>
+      {tab("/", tr("الرئيسية"), House, true)}
+      {tab("/proposal", tr("أكتب"), PenLine)}
+      <button type="button" className="hg-fab" onClick={() => openAgent()} aria-label={tr("وكيل Wesync")}>
+        <AgentWave size={26} color="#1A0802" />
+      </button>
+      {tab("/tasks", tr("مهامي"), Check)}
+      {tab("/team", tr("الفريق"), Users)}
     </nav>
   );
 }

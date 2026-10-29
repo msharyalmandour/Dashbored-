@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { AlertCircle, Check, Eye, FileDown, Paperclip, Sparkles } from "lucide-react";
+import { AlertCircle, Check, Eye, FileDown, Paperclip } from "lucide-react";
+import AgentWave from "../components/ui/AgentWave";
 import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import QuestionSuggestions from "../components/QuestionSuggestions";
 import { useAuth } from "../context/AuthContext";
@@ -495,7 +496,7 @@ export default function Proposal() {
                     <FileAttach compact onAttach={(m) => attachToSection(active.key, m)} buttonClassName="v3-bd !text-sm" />
                   )}
                   <button type="button" className="v3-bd !text-sm" onClick={draftPrompt}>
-                    <Sparkles size={15} aria-hidden />
+                    <AgentWave size={15} />
                     {showThread ? tr("اكتب لي مسودة من الفجوة") : tr("اكتب لي مسودة")}
                   </button>
                   <span className="ms-auto">

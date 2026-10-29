@@ -14,7 +14,7 @@ import { useMethodology } from "../hooks/useMethodology";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { buildEthicalApprovalDoc } from "../lib/ethicalApprovalExport";
 import { downloadWordDoc } from "../lib/wordExport";
-import { PRINCIPLE_KEYS, principlesAnswered } from "../lib/writeProgress";
+import { PRINCIPLE_KEYS, ethicsStepsDone, principlesAnswered } from "../lib/writeProgress";
 import type { EthicalAttachments, EthicalApproval, EthicalPrincipleAnswer, EthicalPrinciples, PiType } from "../data/types";
 import { isEn, tr, trx } from "../lib/i18n";
 
@@ -143,14 +143,15 @@ export default function EthicalApprovalPage() {
   const s2 = STEP2.filter((k) => filled(ea[k] as string | null)).length;
   const s3 = principlesAnswered(ea.principles);
   const s4 = attachmentItems.filter((a) => ea.attachments[a.key]).length;
+  const stepDone = useMemo(() => ethicsStepsDone(ea), [ea]);
   const steps = useMemo(
     () => [
-      { id: 1 as StepId, ar: "بيانات المشروع", en: "Project data", sub: trx("تنسحب لحالها · {0} من {1}", num(s1), num(STEP1.length)), done: filled(ea.applicationDate) && filled(ea.expectedStartDate) && filled(ea.expectedEndDate), started: s1 > 0 },
-      { id: 2 as StepId, ar: "الباحث والفريق", en: "Researcher & team", sub: trx("{0} من {1} حقول", num(s2), num(STEP2.length)), done: ["piName", "piAffiliation", "piEmail", "supervisorNames"].every((k) => filled(ea[k as keyof EthicalApproval] as string)), started: s2 > 1 },
-      { id: 3 as StepId, ar: "المبادئ الأخلاقية", en: "Ethical principles", sub: trx("{0} من {1} سؤال", num(s3), num(PRINCIPLE_KEYS.length)), done: s3 === PRINCIPLE_KEYS.length, started: s3 > 0 },
-      { id: 4 as StepId, ar: "المراجعة والتصدير", en: "Review & export", sub: tr("نموذج Word الرسمي"), done: s4 === attachmentItems.length, started: s4 > 0 },
+      { id: 1 as StepId, ar: "بيانات المشروع", en: "Project data", sub: trx("تنسحب لحالها · {0} من {1}", num(s1), num(STEP1.length)), done: stepDone[0], started: s1 > 0 },
+      { id: 2 as StepId, ar: "الباحث والفريق", en: "Researcher & team", sub: trx("{0} من {1} حقول", num(s2), num(STEP2.length)), done: stepDone[1], started: s2 > 1 },
+      { id: 3 as StepId, ar: "المبادئ الأخلاقية", en: "Ethical principles", sub: trx("{0} من {1} سؤال", num(s3), num(PRINCIPLE_KEYS.length)), done: stepDone[2], started: s3 > 0 },
+      { id: 4 as StepId, ar: "المراجعة والتصدير", en: "Review & export", sub: tr("نموذج Word الرسمي"), done: stepDone[3], started: s4 > 0 },
     ],
-    [ea, s1, s2, s3, s4],
+    [ea, s1, s2, s3, s4, stepDone],
   );
 
   // أول ما توصل البيانات: نفتح أول خطوة ما خلصت

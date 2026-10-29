@@ -12,10 +12,10 @@ import {
   Plus,
   RotateCcw,
   Search,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
+import AgentWave from "../components/ui/AgentWave";
 import clsx from "clsx";
 import Avatar from "../components/ui/Avatar";
 import Skeleton from "../components/ui/Skeleton";
@@ -819,7 +819,7 @@ export default function Tasks() {
                   )
                 }
               >
-                <Sparkles size={15} aria-hidden />
+                <AgentWave size={15} />
                 {tr("وزّعها بالتساوي")}
               </button>
             )}

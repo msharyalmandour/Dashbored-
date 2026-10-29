@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { BarChart3, ChevronLeft, ClipboardList, FileSignature, FolderOpen, Library, Mic, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { BarChart3, ChevronLeft, ClipboardList, FileSignature, FolderOpen, Library, Mic, ShieldCheck, Users } from "lucide-react";
+import AgentWave from "../components/ui/AgentWave";
 import clsx from "clsx";
 import { V3Glow, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
@@ -383,7 +384,7 @@ export default function Collect() {
                 )
               }
             >
-              <Sparkles size={15} aria-hidden />
+              <AgentWave size={15} />
               {qual ? tr("طلّع المواضيع") : tr("حلّل معي")}
             </button>
           </section>

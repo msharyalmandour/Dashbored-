@@ -111,7 +111,7 @@ export default function Layout() {
       <CommandPalette />
       <AiAssistant />
       <TourGuide />
-      <BottomNav onMenu={() => setMobileNavOpen(true)} />
+      <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <Header
@@ -121,7 +121,7 @@ export default function Layout() {
           hideTitle={titleInPageRoutes.has(location.pathname)}
           homeMode={location.pathname === "/"}
         />
-        <main className="flex-1 px-4 py-6 pb-24 sm:px-8 md:pb-6">
+        <main className="flex-1 px-4 py-6 pb-32 sm:px-8 md:pb-6">
           <div className="space-y-6">
             {showTrialBanner && (
               <AlertCard

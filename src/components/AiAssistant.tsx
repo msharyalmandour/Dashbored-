@@ -10,6 +10,7 @@ import { useAiConversations } from "../hooks/useAiConversations";
 import AiLockedCard from "./AiLockedCard";
 import ProjectAgentChat from "./ProjectAgentChat";
 import AgentOrb from "./ui/AgentOrb";
+import AgentWave from "./ui/AgentWave";
 import StreamedText from "./ui/StreamedText";
 import ThinkingLine from "./ui/ThinkingLine";
 import { OPEN_AGENT_EVENT } from "../lib/agentBus";
@@ -241,9 +242,9 @@ export default function AiAssistant() {
         onClick={() => setOpen(true)}
         aria-label={tr("وكيل Wesync")}
         title={tr("وكيل Wesync — أنتم في: {0}", place.label)}
-        className={`fixed bottom-20 start-4 z-40 rounded-full transition-transform hover:scale-105 md:bottom-6 md:start-6 print:hidden ${open ? "hidden" : ""}`}
+        className={`fixed bottom-6 start-6 z-40 hidden rounded-full transition-transform hover:scale-105 print:hidden ${open ? "" : "md:block"}`}
       >
-        <AgentOrb size={56} state={loading ? "thinking" : "idle"} />
+        <AgentOrb size={56} state={loading ? "thinking" : "idle"} symbol={<AgentWave size={24} color="#1A0802" />} />
       </button>
 
       {open && <div aria-hidden className="fixed inset-0 z-[39] bg-black/45 backdrop-blur-[2px]" onClick={() => setOpen(false)} />}

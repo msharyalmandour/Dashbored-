@@ -2869,3 +2869,9 @@ create policy "own push subscriptions insert" on public.push_subscriptions for i
 drop policy if exists "own push subscriptions delete" on public.push_subscriptions;
 create policy "own push subscriptions delete" on public.push_subscriptions for delete to authenticated using (profile_id = auth.uid());
 
+
+-- أعمدة جدول الدراسات (حسب نموذج الدكتورة): الدولة، الهدف، العينة، جمع البيانات
+alter table public.evidence_papers add column if not exists country text not null default '';
+alter table public.evidence_papers add column if not exists aim text not null default '';
+alter table public.evidence_papers add column if not exists sample text not null default '';
+alter table public.evidence_papers add column if not exists data_collection text not null default '';

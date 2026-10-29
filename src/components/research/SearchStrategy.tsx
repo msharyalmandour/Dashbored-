@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
 import Term from "../Term";
+import SplitKeywordsCard from "./SplitKeywordsCard";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
 import { tr } from "../../lib/i18n";
 
@@ -138,6 +139,8 @@ export default function SearchStrategy() {
             <ListBlock title={tr("كلمات مفتاحية (عربي)")} items={strategy.keywordsAr} />
             <ListBlock title={tr("MeSH مقترحة (تحقّقوا منها)")} items={strategy.meshTerms} />
           </Card>
+
+          <SplitKeywordsCard terms={[...(strategy.keywordsEn ?? []), ...(strategy.meshTerms ?? [])]} />
 
           <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <ListBlock title={tr("معايير القبول")} items={strategy.inclusion} />

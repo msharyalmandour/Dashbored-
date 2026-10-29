@@ -444,10 +444,11 @@ async function handleAsk(db: Db, teamId: string, userId: string, question: strin
 // ───────────────────────── read: مساعد القراءة (ورقة PDF ← ملخص منظّم) ─────────────────────────
 
 const READ_SYSTEM = `You are a careful research assistant for a Saudi nursing student team. You receive ONE scientific paper (PDF) and the team's study aim/questions. Extract a structured reading note.
-Output ONLY JSON: {"title":"...","authors":"Family F, Family F","year":2020,"studyDesign":"...","sampleAndSetting":"...","keyFinding":"...","limitations":"...","relevance":"...","theme":"...","section":"background|literature-review|gap|methodology|other","summaryAr":"..."}
+Output ONLY JSON: {"title":"...","authors":"Family F, Family F","year":2020,"country":"...","aim":"...","studyDesign":"...","sampleAndSetting":"...","dataCollection":"...","keyFinding":"...","limitations":"...","relevance":"...","theme":"...","section":"background|literature-review|gap|methodology|other","summaryAr":"..."}
 Rules:
 - Use ONLY what the paper says. Never invent numbers, authors, a year or findings. If something is not stated, write "غير مذكور في الورقة" (year: null).
 - title and authors exactly as printed (authors as "Family F" list, max 6 then "et al."). studyDesign short English or Arabic phrase (e.g. "cross-sectional survey").
+- country: country (or countries) where the study was conducted, in English as printed (e.g. "Saudi Arabia"), "" if not stated. aim: the study aim/objective in ONE English sentence starting with "To ..." exactly as the paper states it (shorten only if very long). dataCollection: how data were collected in a short English phrase (e.g. "Semi-structured interviews", "Self-administered questionnaire (CAM-ICU)"), "" if not stated.
 - keyFinding: the main result in 1-2 Arabic sentences, with the paper's own numbers if given. limitations: 1-2 Arabic sentences (the paper's own stated limits or obvious design limits). sampleAndSetting: Arabic, n and population.
 - relevance: 1-2 Arabic sentences on how it relates to the team's aim/questions (or "علاقتها بموضوعكم ضعيفة" if not related). theme: 2-4 word Arabic topic label. section: where the team would most likely use it.
 - summaryAr: plain Arabic summary for a student, max 110 words, no markdown.
@@ -483,6 +484,9 @@ async function handleRead(db: Db, teamId: string, body: Record<string, any>): Pr
       title: str(p.title, 300),
       authors: str(p.authors, 300),
       year: Number.isInteger(yr) && yr >= 1900 && yr <= new Date().getFullYear() + 1 ? yr : null,
+      country: str(p.country, 80),
+      aim: str(p.aim, 400),
+      dataCollection: str(p.dataCollection, 200),
       studyDesign: str(p.studyDesign, 120),
       sampleAndSetting: str(p.sampleAndSetting, 300),
       keyFinding: str(p.keyFinding, 500),

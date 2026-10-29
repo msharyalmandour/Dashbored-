@@ -46,7 +46,21 @@ async function call<T>(body: Record<string, unknown> | FormData, timeoutMs = TIM
   return { data: data as T };
 }
 
+/** الطريق السريع: الحالة من القاعدة مباشرة (team_drive_status) — بدون انتظار إقلاع الدالة */
+async function fetchDriveStatusFromDb(): Promise<DriveStatus | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const { data, error } = await supabase!.rpc("team_drive_status");
+    if (error || !data || typeof data !== "object") return null;
+    return data as DriveStatus;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchDriveStatus(): Promise<DriveStatus> {
+  const fast = await fetchDriveStatusFromDb();
+  if (fast) return fast;
   let r = await call<DriveStatus>({ action: "status" }, 15000);
   // أول طلب بعد خمول الدالة (إقلاع بارد) ممكن يتأخر أو يفشل: نعيد مرة وحدة قبل ما نقول «تعذّر»
   if (!r.data && (r.error === "timeout" || r.error === "failed")) r = await call<DriveStatus>({ action: "status" }, 15000);

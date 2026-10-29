@@ -1,4 +1,6 @@
-/** مفتاح «قلّل الحركة»: يتحفظ لكل مستخدم بالجهاز (بدون أي تغيير بالقاعدة)، ويشتغل حتى لو الجهاز ما فيه الإعداد.
+import { saveProfilePref } from "./profilePrefs";
+
+/** مفتاح «قلّل الحركة»: يتحفظ لكل مستخدم بالجهاز وبحسابه (profiles.reduce_motion)، ويشتغل حتى لو الجهاز ما فيه الإعداد.
     يحط data-reduce-motion على <html>، و tokens.css توقف كل حركة وانتقال لما يكون مفعّل. */
 
 const key = (userId: string | null | undefined) => `wesync.reduceMotion.${userId || "guest"}`;
@@ -22,7 +24,9 @@ export function applyReduceMotion(on: boolean) {
   else document.documentElement.removeAttribute("data-reduce-motion");
 }
 
-export function setReduceMotion(userId: string | null | undefined, on: boolean) {
+/** fromAccount = القيمة جاية من الحساب نفسه، فما نرجع نحفظها فيه */
+export function setReduceMotion(userId: string | null | undefined, on: boolean, fromAccount = false) {
+  if (!fromAccount) saveProfilePref(userId, "reduce_motion", on);
   try {
     localStorage.setItem(key(userId), on ? "1" : "0");
     localStorage.setItem(LAST, on ? "1" : "0");

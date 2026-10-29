@@ -1,4 +1,6 @@
-import { applyReduceMotion, getReduceMotion } from "../lib/motionPref";
+import { applyReduceMotion, getReduceMotion, setReduceMotion } from "../lib/motionPref";
+import { storePaperMode } from "../lib/paperMode";
+import { loadProfilePrefs } from "../lib/profilePrefs";
 import { useEffect, useState } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, CreditCard } from "lucide-react";
@@ -77,10 +79,21 @@ export default function Layout() {
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  // «قلّل الحركة» محفوظ لكل مستخدم بالجهاز
+  // «قلّل الحركة» و«وضع الورقة»: الجهاز فورًا، وبعدها الحساب يغلب لو المستخدم اختار من جهاز ثاني
+  const userId = currentUser?.id;
   useEffect(() => {
-    if (currentUser) applyReduceMotion(getReduceMotion(currentUser.id));
-  }, [currentUser]);
+    if (!userId) return;
+    applyReduceMotion(getReduceMotion(userId));
+    let alive = true;
+    loadProfilePrefs(userId).then((prefs) => {
+      if (!alive || !prefs) return;
+      if (prefs.reduceMotion !== null && prefs.reduceMotion !== getReduceMotion(userId)) setReduceMotion(userId, prefs.reduceMotion, true);
+      if (prefs.paperMode !== null) storePaperMode(userId, prefs.paperMode);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
 
   if (loading) return <AppSplash />;
 

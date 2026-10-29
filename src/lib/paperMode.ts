@@ -1,8 +1,19 @@
 import { useEffect, useState } from "react";
+import { saveProfilePref } from "./profilePrefs";
 
-/** «وضع الورقة» بمحررات الكتابة: يتحفظ لكل مستخدم بالجهاز، ويتزامن بين الصفحات المفتوحة. */
+/** «وضع الورقة» بمحررات الكتابة: يتحفظ لكل مستخدم بالجهاز وبحسابه (profiles.paper_mode)، ويتزامن بين الصفحات المفتوحة. */
 const key = (userId: string | null | undefined) => `wesync.paperMode.${userId || "guest"}`;
 const EVENT = "wesync:paper-mode";
+
+/** يكتب القيمة بالجهاز ويبلّغ الصفحات المفتوحة (من غير ما يحفظ بالحساب) */
+export function storePaperMode(userId: string | null | undefined, on: boolean) {
+  try {
+    localStorage.setItem(key(userId), on ? "1" : "0");
+  } catch {
+    // بدون تخزين: لهالصفحة بس
+  }
+  window.dispatchEvent(new Event(EVENT));
+}
 
 export function getPaperMode(userId?: string | null): boolean {
   try {
@@ -25,13 +36,9 @@ export function usePaperMode(userId?: string | null): [boolean, (on: boolean) =>
     };
   }, [userId]);
   const set = (next: boolean) => {
-    try {
-      localStorage.setItem(key(userId), next ? "1" : "0");
-    } catch {
-      // بدون تخزين: لهالصفحة بس
-    }
     setOn(next);
-    window.dispatchEvent(new Event(EVENT));
+    storePaperMode(userId, next);
+    saveProfilePref(userId, "paper_mode", next);
   };
   return [on, set];
 }

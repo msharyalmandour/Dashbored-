@@ -66,7 +66,8 @@ export function TodoCard({
   tasks,
   today,
   roster,
-  canWrite,
+  canToggle,
+  canAdd,
   sectionTag,
   taskLink,
   onToggle,
@@ -77,7 +78,9 @@ export function TodoCard({
   tasks: Task[];
   today: string;
   roster: Member[];
-  canWrite: boolean;
+  /** الصلاحيات من القاعدة: المسؤول عن المهمة أو القائد يقدر يعلّمها خلصت، والقائد بس يضيف مهام */
+  canToggle: (t: Task) => boolean;
+  canAdd: boolean;
   sectionTag: (t: Task) => string;
   taskLink: (t: Task) => string;
   onToggle: (t: Task, done: boolean) => void;
@@ -179,7 +182,7 @@ export function TodoCard({
                 className="hg-cbtn"
                 aria-pressed={isDone}
                 aria-label={isDone ? tr("رجّع «{0}» مو مخلّصة", t.title) : tr("خلّصت «{0}»", t.title)}
-                disabled={!canWrite}
+                disabled={!canToggle(t)}
                 onClick={() => toggle(t, kind)}
               >
                 <span className="hg-cb">
@@ -208,7 +211,7 @@ export function TodoCard({
           );
         })}
       </ul>
-      {canWrite && (
+      {canAdd && (
         <form className="hg-add relative z-[1] hidden lg:flex" onSubmit={submit}>
           <span className="hg-cb" aria-hidden>
             <span className="text-base leading-none">+</span>

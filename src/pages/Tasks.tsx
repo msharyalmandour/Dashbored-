@@ -6,6 +6,7 @@ import {
   FileText,
   LayoutGrid,
   List,
+  ListChecks,
   MessageCircle,
   PartyPopper as PartyPopperIcon,
   Play,
@@ -25,6 +26,8 @@ import TaskComments from "../components/TaskComments";
 import ConfettiBurst from "../components/cinematic/ConfettiBurst";
 import TasksKanban from "../components/TasksKanban";
 import ThreeDotsMenu, { type ThreeDotsMenuItem } from "../components/ui/ThreeDotsMenu";
+import Dialog from "../components/ui/Dialog";
+import { evenPlan } from "../lib/taskBalance";
 import { V3Glow, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -36,7 +39,6 @@ import type { Task, TaskPriority, TaskStatus } from "../data/types";
 import { addDaysISO, daysUntil, formatDateShort } from "../lib/date";
 import { groupByDue, type DueGroup } from "../lib/taskGroups";
 import { nextReminder, splitReminders } from "../lib/taskReminders";
-import { openAgent } from "../lib/agentBus";
 import { playChime } from "../lib/sound";
 import { isEn, tr } from "../lib/i18n";
 
@@ -112,7 +114,9 @@ const ROW_COLS = "grid-cols-[28px_minmax(0,1fr)_44px] md:grid-cols-[28px_minmax(
 export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
-  const { tasks, loading, addTask, updateStatus, deleteTask } = useTasksData();
+  const { tasks, loading, addTask, updateStatus, deleteTask, reassignTask } = useTasksData();
+  const [balanceOpen, setBalanceOpen] = useState(false);
+  const [balancing, setBalancing] = useState(false);
   const { comments, addComment } = useTaskComments();
   const { showToast } = useToast();
   const [filter, setFilter] = useState<FilterId>("all");
@@ -288,6 +292,32 @@ export default function Tasks() {
     ? [...most.open].filter((t) => !isLate(t)).sort((a, b) => b.dueDate.localeCompare(a.dueDate))[0] ?? most.open[most.open.length - 1]
     : undefined;
 
+  const balanceMoves = isLeader ? evenPlan(open, roster.map((m) => m.id), today) : [];
+  const applyBalance = async () => {
+    setBalancing(true);
+    let failed = 0;
+    for (const m of balanceMoves) {
+      const { error } = await reassignTask(m.task.id, m.to);
+      if (error) failed++;
+    }
+    setBalancing(false);
+    setBalanceOpen(false);
+    showToast(
+      failed
+        ? { title: tr("ما قدرنا ننقل {0}", taskCount(failed)), desc: tr("جرّبوا مرة ثانية"), icon: ListChecks, tone: "rose" }
+        : { title: tr("توزّعت المهام ✓"), desc: tr("انتقلت {0}", taskCount(balanceMoves.length)), icon: ListChecks, tone: "brand" },
+    );
+  };
+  const reassign = async (task: Task, to: string) => {
+    if (to === task.assigneeId) return;
+    const { error } = await reassignTask(task.id, to);
+    showToast(
+      error
+        ? { title: tr("ما قدرنا ننقل المهمة"), desc: error, icon: ListChecks, tone: "rose" }
+        : { title: tr("انتقلت المهمة لـ{0}", firstName(to)), desc: task.title, icon: ListChecks, tone: "brand" },
+    );
+  };
+
   // ── التذكيرات الجاية ──
   const upcomingReminders = linked.filter((r) => r.status !== "done" && r.dueDate >= today);
   const remindersTomorrow = upcomingReminders.filter((r) => r.dueDate === tomorrow).length;
@@ -437,6 +467,18 @@ export default function Tasks() {
                   </span>
                 ))}
               </div>
+            )}
+            {isLeader && canWrite && task.status !== "done" && (
+              <label className="flex flex-wrap items-center gap-2 text-[13px]">
+                <span className="v3-mut">{tr("المسؤول:")}</span>
+                <select value={task.assigneeId} onChange={(e) => reassign(task, e.target.value)} className="v3-select !min-h-[40px] !w-auto !py-1.5 [color-scheme:dark]" aria-label={tr("انقل المهمة لعضو ثاني")}>
+                  {roster.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
             )}
             <div className="flex flex-wrap items-center gap-3">
               {taskAttachments[task.id] ? (
@@ -808,17 +850,7 @@ export default function Tasks() {
               load.length > 1 && <p className="v3-mut m-0 text-[13px]">{tr("الحمل متقارب بينكم ✓")}</p>
             )}
             {isLeader && canWrite && load.length > 1 && (
-              <button
-                type="button"
-                className="v3-bd !text-sm"
-                onClick={() =>
-                  openAgent(
-                    handOff
-                      ? tr("وزّع المهام المفتوحة بالتساوي على الأعضاء. مثلًا «{0}» من {1} لـ{2}. اعرض عليّ الاقتراح قبل أي تغيير.", handOff.title, most.member.name, least.member.name)
-                      : tr("وزّع المهام المفتوحة بالتساوي على الأعضاء، واعرض عليّ الاقتراح قبل أي تغيير."),
-                  )
-                }
-              >
+              <button type="button" className="v3-bd !text-sm" onClick={() => setBalanceOpen(true)}>
                 <AgentWave size={15} />
                 {tr("وزّعها بالتساوي")}
               </button>
@@ -849,6 +881,30 @@ export default function Tasks() {
       </div>
 
       <ConfettiBurst active={justCompleted} />
+      <Dialog open={balanceOpen} onClose={() => setBalanceOpen(false)} title={tr("وزّعها بالتساوي")}>
+        {balanceMoves.length === 0 ? (
+          <p className="m-0 text-[15px]">{tr("الحمل متقارب بينكم، ما فيه شي يحتاج ينتقل ✓")}</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <p className="v3-mut m-0 text-sm">{tr("هذا الاقتراح، وما يتغيّر شي إلا لما توافقون. المتأخرة واللي «قيد التنفيذ» تبقى عند أصحابها.")}</p>
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
+              {balanceMoves.map((m) => (
+                <li key={m.task.id} className="v3-g2 flex flex-wrap items-center gap-2 !rounded-2xl px-3 py-2.5 text-sm">
+                  <span className="min-w-0 flex-1 font-bold" dir="auto">
+                    {m.task.title}
+                  </span>
+                  <span className="v3-mut whitespace-nowrap">
+                    {firstName(m.from)} ← {firstName(m.to)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="v3-bw" onClick={applyBalance} disabled={balancing}>
+              {balancing ? tr("جاري النقل…") : tr("وافق وانقلها ({0})", num(balanceMoves.length))}
+            </button>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 }

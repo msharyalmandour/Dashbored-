@@ -15,6 +15,8 @@ import { computeStations, cumulativeByDay, isQualitative, unitLabel, type Statio
 import { getDriveStatus, peekDriveStatus, type DriveStatus } from "../lib/driveTeam";
 import { openAgent } from "../lib/agentBus";
 import { relativeDayLabel } from "../lib/date";
+import { useInterviews } from "../hooks/useInterviews";
+import InterviewLog from "../components/collect/InterviewLog";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { isEn, tr } from "../lib/i18n";
 
@@ -59,7 +61,8 @@ const DEMO_RESPONSES: SurveyResponse[] = [18, 15, 15, 12, 9, 6, 4, 2, 1].map((da
 }));
 
 export default function Collect() {
-  const { currentUser } = useAuth();
+  const { currentUser, canWrite } = useAuth();
+  const { interviews, addInterview, updateInterview, removeInterview } = useInterviews();
   const { project } = useResearchProject();
   const { surveys: realSurveys, loading } = useSurveys();
   const realCounts = useSurveyResponseCounts(realSurveys);
@@ -83,7 +86,9 @@ export default function Collect() {
   const responses = demo ? DEMO_RESPONSES : realResponses;
 
   const summary = summarizeCollection(surveys, counts, methodology.sampling.sampleSize);
-  const collected = qual ? 0 : summary.collected;
+  // الكيفي: المقابلات اللي انعملت (مو المجدولة) من سجل المقابلات
+  const doneInterviews = interviews.filter((i) => i.status !== "planned");
+  const collected = qual ? doneInterviews.length : summary.collected;
   const target = qual ? summary.target ?? null : summary.target;
 
   const stations = computeStations({
@@ -126,7 +131,10 @@ export default function Collect() {
       checklist.consent ? tr("نموذج الموافقة جاهز") : tr("نموذج الموافقة في حقيبة الاستبيان"),
     ],
     field: qual
-      ? [target ? tr("الهدف {0} {1}", num(target), unitLabel(researchType, target)) : tr("المقابلات"), tr("الهدف حتى التشبّع")]
+      ? [
+          target ? tr("{0} من {1} {2}", collected === 0 ? "0" : num(collected), num(target), unitLabel(researchType, target)) : collected === 0 ? tr("ما انعملت مقابلة للحين") : tr("{0} {1}", num(collected), unitLabel(researchType, collected)),
+          doneInterviews.length ? tr("آخر مقابلة {0}", doneInterviews[doneInterviews.length - 1].date ? relativeDayLabel(doneInterviews[doneInterviews.length - 1].date!) : "—") : tr("الهدف حتى التشبّع"),
+        ]
       : [
           target ? tr("{0} من {1} {2}", num(collected), num(target), unitLabel(researchType, target)) : tr("{0} {1}", num(collected), unitLabel(researchType, collected)),
           lastResponse ? tr("آخر رد {0}", relativeDayLabel(lastResponse.createdAt.slice(0, 10))) : tr("ما وصل رد للحين"),
@@ -147,6 +155,14 @@ export default function Collect() {
     .slice(0, showAll ? 50 : 3);
 
   const chart = cumulativeByDay(responses.map((r) => r.createdAt));
+  // التشبّع: عدد المواضيع الجديدة بكل مقابلة (بالترتيب) — لما ينزل لصفر أو قريب منه مرتين ورا بعض، قربتوا
+  const themeBars = doneInterviews.filter((i) => i.newThemes !== null).map((i) => ({ id: i.id, code: i.code, n: i.newThemes ?? 0 }));
+  const themeMax = Math.max(1, ...themeBars.map((b) => b.n));
+  const lastTwo = themeBars.slice(-2);
+  const saturationHint =
+    lastTwo.length === 2 && lastTwo.every((b) => b.n <= 1)
+      ? tr("آخر مقابلتين ما طلع فيهم شي جديد تقريبًا — غالبًا وصلتوا للتشبّع، راجعوها مع المشرف/ة.")
+      : tr("كل عمود = مواضيع جديدة بمقابلة. لما تقل وتثبت قريب من الصفر، يعني قربتوا من التشبّع.");
   const chartMax = Math.max(target ?? 0, chart[chart.length - 1]?.total ?? 0, 1);
 
   const pct = target ? Math.min(100, Math.round((collected / target) * 100)) : 0;
@@ -269,7 +285,7 @@ export default function Collect() {
             </div>
             <div className="text-end">
               <div className="v3-k text-[40px] leading-none" dir="ltr">
-                {num(collected)}
+                {collected === 0 ? "0" : num(collected)}
                 {target !== null && <span className="text-lg opacity-60">/{num(target)}</span>}
               </div>
               <div className="v3-mut mt-1 text-xs">
@@ -305,12 +321,7 @@ export default function Collect() {
           )}
 
           {qual ? (
-            <div className="v3-g2 px-4 py-3.5 text-sm leading-relaxed">
-              <p className="m-0 font-bold">{tr("سجل المقابلات ما هو موجود بالموقع للحين")}</p>
-              <p className="v3-mut m-0 mt-1 text-[13px]">
-                {tr("ارفعوا التسجيلات والتفريغ في مجلد البيانات. عدّ المقابلات هنا يحتاج سجل خاص ما انضاف للحين.")}
-              </p>
-            </div>
+            <InterviewLog interviews={interviews} canWrite={canWrite} onAdd={addInterview} onUpdate={updateInterview} onRemove={removeInterview} />
           ) : responses.length === 0 ? (
             <div className="v3-g2 px-4 py-3.5 text-sm">
               <p className="m-0 font-bold">{loading ? tr("نجيب الردود…") : tr("ما وصل رد للحين")}</p>
@@ -397,7 +408,27 @@ export default function Collect() {
               </h2>
               {!isEn && <div className="v3-en">{qual ? "Saturation" : "Sample completion"}</div>}
             </div>
-            {qual || chart.length === 0 ? (
+            {qual && themeBars.length > 0 ? (
+              <>
+                <div className="v3-bars-y flex h-[70px] items-end gap-1.5" role="img" aria-label={tr("مواضيع جديدة بكل مقابلة")}>
+                  {themeBars.map((b, i) => (
+                    <div
+                      key={b.id}
+                      title={`${b.code}: ${num(b.n)}`}
+                      className="flex-1 rounded-[6px_6px_3px_3px]"
+                      style={{
+                        ...({ ["--v3-i" as string]: i } as CSSProperties),
+                        height: `${Math.max(6, (b.n / themeMax) * 100)}%`,
+                        background: i === themeBars.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6B00)" : "rgba(255,180,68,.4)",
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="v3-mut m-0 text-xs leading-relaxed">
+                  {saturationHint}
+                </p>
+              </>
+            ) : qual || chart.length === 0 ? (
               <>
                 <div className="flex h-[70px] items-end gap-1.5" aria-hidden>
                   {[100, 70, 55, 40, 30, 18, 12].map((h, i) => (

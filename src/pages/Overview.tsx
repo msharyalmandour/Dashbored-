@@ -319,7 +319,8 @@ export default function Overview() {
             tasks={tasks}
             today={todayIso}
             roster={roster}
-            canWrite={canWrite}
+            canToggle={(t) => canWrite && (isLeader || t.assigneeId === currentUser?.id)}
+            canAdd={canWrite && isLeader}
             sectionTag={sectionTag}
             taskLink={taskLink}
             onToggle={toggleTask}

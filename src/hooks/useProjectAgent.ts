@@ -174,6 +174,9 @@ export interface PaperReading {
   title: string;
   authors: string;
   year: number | null;
+  country: string;
+  aim: string;
+  dataCollection: string;
   studyDesign: string;
   sampleAndSetting: string;
   keyFinding: string;

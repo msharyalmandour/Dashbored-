@@ -16,6 +16,10 @@ type Save = (p: {
   keyFinding: string;
   relevance: string;
   section: EvidencePaper["section"];
+  country: string;
+  aim: string;
+  sample: string;
+  dataCollection: string;
 }) => Promise<{ error?: string }>;
 
 /** «اقرأ لي هذي الورقة»: ترفعون PDF، الوكيل يطلّع بطاقة قراءة (التصميم، العينة، النتيجة، الحدود، علاقتها ببحثكم)
@@ -51,6 +55,10 @@ export default function PaperReaderCard({ onSave }: { onSave: Save }) {
       keyFinding: paper.keyFinding,
       relevance: paper.relevance,
       section: paper.section,
+      country: paper.country,
+      aim: paper.aim,
+      sample: paper.sampleAndSetting,
+      dataCollection: paper.dataCollection,
     });
     if (e) setError(tr("ما انحفظت الدراسة — حاولوا مرة ثانية."));
     else setSaved(true);
@@ -58,7 +66,10 @@ export default function PaperReaderCard({ onSave }: { onSave: Save }) {
 
   const rows: [string, string][] = paper
     ? [
+        [tr("الدولة"), paper.country],
+        [tr("الهدف"), paper.aim],
         [tr("التصميم"), paper.studyDesign],
+        [tr("جمع البيانات"), paper.dataCollection],
         [tr("العينة والمكان"), paper.sampleAndSetting],
         [tr("أهم نتيجة"), paper.keyFinding],
         [tr("الحدود"), paper.limitations],

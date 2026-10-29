@@ -15,6 +15,8 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import type { EvidencePaper, EvidenceSection, LiteratureTheme } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { buildReferenceList, toCitation, type CitationStyle } from "../lib/citation";
+import { LITERATURE_COLUMNS, authorCell, buildLiteratureTableDoc, literatureTsv } from "../lib/literatureTable";
+import { downloadWordDoc } from "../lib/wordExport";
 import { tr, trx } from "../lib/i18n";
 
 const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
@@ -40,6 +42,10 @@ const emptyForm = {
   year: new Date().getFullYear(),
   theme: themeOptions[0],
   studyDesign: "",
+  country: "",
+  aim: "",
+  sample: "",
+  dataCollection: "",
   keyFinding: "",
   relevance: "",
   section: "other" as EvidenceSection,
@@ -82,19 +88,24 @@ export default function EvidenceLibrary() {
     }
   };
 
-  /** جدول مقارنة الدراسات كنص مفصول بـ Tab — يلصق مباشرة بـ Word أو Excel */
+  /** جدول الدراسات (أعمدة نموذج الدكتورة) كنص مفصول بـ Tab — يلصق مباشرة بـ Word أو Excel */
   const copyComparisonTable = async (list: EvidencePaper[]) => {
-    const clean = (s: string) => s.replace(/[\t\r\n]+/g, " ").trim();
-    const rows = [
-      [tr("الدراسة"), tr("المؤلفون"), tr("السنة"), tr("التصميم والعينة"), tr("أهم النتائج"), tr("الصلة ببحثنا")],
-      ...list.map((p) => [p.title, p.authors, String(p.year), p.studyDesign, p.keyFinding, p.relevance]),
-    ];
     try {
-      await navigator.clipboard.writeText(rows.map((r) => r.map(clean).join("\t")).join("\n"));
+      await navigator.clipboard.writeText(literatureTsv(list));
       setCopiedTable(true);
       setTimeout(() => setCopiedTable(false), 1800);
     } catch {
       // نسخ يدوي لو الحافظة غير متاحة
+    }
+  };
+
+  const [exportingTable, setExportingTable] = useState(false);
+  const exportTableWord = async (list: EvidencePaper[]) => {
+    setExportingTable(true);
+    try {
+      downloadWordDoc(await buildLiteratureTableDoc(list, project?.title ?? ""), `${tr("جدول الدراسات")}.docx`);
+    } finally {
+      setExportingTable(false);
     }
   };
 
@@ -201,8 +212,34 @@ export default function EvidenceLibrary() {
             <input
               value={form.studyDesign}
               onChange={(e) => setForm((f) => ({ ...f, studyDesign: e.target.value }))}
-              placeholder={tr("تصميم الدراسة")}
+              placeholder={tr("تصميم الدراسة (Methodology)")}
               className={clsx(pillField, "col-span-full")}
+            />
+            <input
+              value={form.country}
+              onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
+              placeholder={tr("الدولة (Country)")}
+              className={pillField}
+            />
+            <input
+              value={form.sample}
+              onChange={(e) => setForm((f) => ({ ...f, sample: e.target.value }))}
+              placeholder={tr("العينة (Sample)")}
+              className={pillField}
+            />
+            <textarea
+              value={form.aim}
+              onChange={(e) => setForm((f) => ({ ...f, aim: e.target.value }))}
+              placeholder={tr("هدف الدراسة (Aim)")}
+              rows={2}
+              className={clsx(fieldBox, "col-span-full")}
+            />
+            <textarea
+              value={form.dataCollection}
+              onChange={(e) => setForm((f) => ({ ...f, dataCollection: e.target.value }))}
+              placeholder={tr("جمع البيانات (Data collection)")}
+              rows={2}
+              className={clsx(fieldBox, "col-span-full")}
             />
             <textarea
               value={form.keyFinding}
@@ -251,6 +288,12 @@ export default function EvidenceLibrary() {
               {copiedTable ? tr("تم نسخ الجدول") : tr("نسخ الجدول (Word / Excel)")}
             </button>
           )}
+          {view === "table" && (
+            <button onClick={() => exportTableWord(filtered)} disabled={exportingTable} className={toolBtn}>
+              <BookMarked size={13} />
+              {tr("تصدير جدول الدراسات (Word)")}
+            </button>
+          )}
           <button onClick={() => copyReferenceList(filtered)} className={toolBtn}>
             {copiedList ? <Check size={13} /> : <Copy size={13} />}
             {copiedList ? tr("تم نسخ القائمة") : tr("نسخ كل المراجع")}
@@ -260,11 +303,11 @@ export default function EvidenceLibrary() {
 
       {view === "table" && filtered.length > 0 && (
         <div className={clsx(glassCard, "overflow-x-auto p-0")}>
-          <table className="w-full min-w-[720px] border-collapse text-start text-xs">
+          <table className="w-full min-w-[1100px] border-collapse text-start text-xs">
             <thead>
               <tr className="text-[#B8ADA2]">
-                {[tr("الدراسة"), tr("التصميم والعينة"), tr("أهم النتائج"), tr("الصلة ببحثنا")].map((h) => (
-                  <th key={h} className="px-4 py-3 text-start font-bold">
+                {LITERATURE_COLUMNS.map((h) => (
+                  <th key={h} className="px-3 py-3 text-start font-bold" dir="ltr">
                     {h}
                   </th>
                 ))}
@@ -273,15 +316,15 @@ export default function EvidenceLibrary() {
             <tbody>
               {filtered.map((paper) => (
                 <tr key={paper.id} className="border-t border-white/10 align-top">
-                  <td className="w-[28%] px-4 py-3">
-                    <p className="font-bold leading-snug">{paper.title}</p>
-                    <p className="mt-0.5 text-[11px] text-[#B8ADA2]">
-                      {paper.authors} · {paper.year}
-                    </p>
+                  <td className="w-[11%] px-3 py-3 font-bold leading-snug" dir="auto" title={paper.title}>
+                    {authorCell(paper.authors, paper.year)}
                   </td>
-                  <td className="w-[16%] px-4 py-3 text-[#B8ADA2]">{paper.studyDesign || "—"}</td>
-                  <td className="w-[28%] px-4 py-3 text-[#B8ADA2]">{paper.keyFinding || "—"}</td>
-                  <td className="px-4 py-3 text-[#B8ADA2]">{paper.relevance || "—"}</td>
+                  <td className="w-[7%] px-3 py-3 text-[#B8ADA2]" dir="auto">{paper.country || "—"}</td>
+                  <td className="w-[17%] px-3 py-3 text-[#B8ADA2]" dir="auto">{paper.aim || "—"}</td>
+                  <td className="w-[12%] px-3 py-3 text-[#B8ADA2]" dir="auto">{paper.studyDesign || "—"}</td>
+                  <td className="w-[16%] px-3 py-3 text-[#B8ADA2]" dir="auto">{paper.sample || "—"}</td>
+                  <td className="w-[16%] px-3 py-3 text-[#B8ADA2]" dir="auto">{paper.dataCollection || "—"}</td>
+                  <td className="px-3 py-3 text-[#B8ADA2]" dir="auto">{paper.keyFinding || "—"}</td>
                 </tr>
               ))}
             </tbody>

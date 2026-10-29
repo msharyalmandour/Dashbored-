@@ -208,6 +208,11 @@ export interface EvidencePaper {
   studyDesign: string;
   keyFinding: string;
   relevance: string;
+  /** أعمدة جدول الدراسات (نموذج الدكتورة) — اختيارية للدراسات القديمة */
+  country?: string;
+  aim?: string;
+  sample?: string;
+  dataCollection?: string;
   section: EvidenceSection;
   reviewStatus: "collected" | "reviewed";
   link?: string;

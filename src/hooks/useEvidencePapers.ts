@@ -15,6 +15,10 @@ interface PaperRowDb {
   section: EvidencePaper["section"];
   review_status: EvidencePaper["reviewStatus"];
   link: string | null;
+  country?: string | null;
+  aim?: string | null;
+  sample?: string | null;
+  data_collection?: string | null;
   added_by: string | null;
 }
 
@@ -31,6 +35,10 @@ function mapRow(row: PaperRowDb): EvidencePaper {
     section: row.section,
     reviewStatus: row.review_status,
     link: row.link ?? undefined,
+    country: row.country ?? "",
+    aim: row.aim ?? "",
+    sample: row.sample ?? "",
+    dataCollection: row.data_collection ?? "",
     addedById: row.added_by ?? "",
   };
 }
@@ -66,6 +74,10 @@ export function useEvidencePapers() {
     section: EvidencePaper["section"];
     addedById: string;
     link?: string;
+    country?: string;
+    aim?: string;
+    sample?: string;
+    dataCollection?: string;
   }) => {
     if (!isSupabaseConfigured) {
       const newPaper: EvidencePaper = { ...input, id: `local-${Date.now()}`, reviewStatus: "collected" };
@@ -86,6 +98,11 @@ export function useEvidencePapers() {
       section: input.section,
       link: input.link ?? null,
       added_by: input.addedById,
+      // الأعمدة الجديدة تنرسل بس لو فيها قيمة — عشان ما ينكسر الحفظ قبل تشغيل ملف SQL الجديد
+      ...(input.country ? { country: input.country } : {}),
+      ...(input.aim ? { aim: input.aim } : {}),
+      ...(input.sample ? { sample: input.sample } : {}),
+      ...(input.dataCollection ? { data_collection: input.dataCollection } : {}),
     });
     if (!error) load();
     return { error: error?.message };

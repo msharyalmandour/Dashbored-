@@ -102,16 +102,18 @@ export function FeaturesBento() {
       <SectionHead badge={tr("المزايا")} title={tr("كل اللي يحتاجه بحثكم، في مكان واحد")} desc={tr("هذي نفس الكروت اللي بتشوفونها داخل Wesync — مو صور تسويقية.")} />
       <div className="lv-bento mt-12">
         {/* لوحة الفريق + العدّاد البرتقالي طالع من تحت */}
-        <div {...fx(0)} className="ld-fx lv-glass lv-bcard lv-b-2x2 min-h-[440px] lg:min-h-0">
+        <div {...fx(0)} className="ld-fx lv-glass lv-bcard lv-b-2x2 md:min-h-[440px] lg:min-h-0">
           <div className="lv-bk">{tr("لوحة الفريق")}</div>
           <div className="lv-bt">{tr("كل شي بنظرة وحدة")}</div>
           <p className="m-0 mt-2 max-w-[38ch] text-[15px] leading-[1.7] text-[#ABA095]">{tr("وين وصلتوا، مين عليه وش، وكم باقي على التسليم — أول ما تفتحون.")}</p>
           <div className="lv-gauge hg-orange" aria-hidden>
+            {/* بالجوال الكرت البرتقالي لحاله والعنوان داخله (نفس لوحة MLanding) */}
             <div className="flex items-center gap-2.5 text-[16px] font-bold text-[#2A0E02]">
               <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-white/30">
                 <Gauge size={16} strokeWidth={1.8} />
               </span>
-              {tr("تقدّم البحث")}
+              <span className="hidden md:inline">{tr("تقدّم البحث")}</span>
+              <span className="md:hidden">{tr("لوحة الفريق · كل شي بنظرة")}</span>
             </div>
             <GaugeSvg pct={65} />
           </div>
@@ -187,7 +189,7 @@ const pains = [
 export function Problems() {
   return (
     <section className="lv-sec mx-auto max-w-[1180px] px-4 sm:px-9">
-      <SectionHead badge={tr("تعرفون هالمواقف؟")} title={tr("مشكلة بحث التخرج مو البحث.. الفوضى اللي حوله.")} />
+      <SectionHead badge={tr("تعرفون هالمواقف؟")} title={tr("مشكلة بحث التخرج مو البحث.. الفوضى اللي حوله.")} desc={tr("وهذي الحلول اللي بنيناها لكل وحدة.")} />
       <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-[18px]">
         {pains.map((p, i) => (
           <div key={p.t} {...fx(i * 110)} className="ld-fx lv-pain flex flex-col">

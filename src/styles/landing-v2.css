@@ -132,3 +132,12 @@
   /* زر الواتساب العائم يختفي لما يغطي زر باقة */
   .lv-wa-hide { opacity: 0; pointer-events: none; transform: scale(.85); }
 }
+
+/* بالجوال: لوحة الفريق = الكرت البرتقالي لحاله، بدون الكرت الداكن والفراغ اللي فوقه */
+@layer components {
+  @media (max-width: 767px) {
+    .lv-b-2x2.lv-bcard { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible; }
+    .lv-b-2x2 > .lv-bk, .lv-b-2x2 > .lv-bt, .lv-b-2x2 > p { display: none; }
+    .lv-b-2x2 .lv-gauge { position: relative; left: auto; bottom: auto; width: 100%; transform: none; padding: 18px 18px 22px; }
+  }
+}

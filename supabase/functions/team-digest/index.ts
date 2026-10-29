@@ -1,8 +1,10 @@
 // إيميلات دورية للفريق والمشرف/ة — تشتغل من pg_cron (verify_jwt=false، التوثيق بسر الجدولة في الهيدر):
-//   weekly : تقرير أسبوعي (المنجز، المتأخر، الجاي، المراحل، قرارات تنتظر) للمشرف/ة المؤكَّد/ة إيميله وقائد الفريق
+//   weekly : تقرير أسبوعي (المنجز، المتأخر، الجاي، المراحل، قرارات تنتظر) للمشرف/ة المؤكَّد/ة إيميله ولكل عضو مفعّل تذكيرات الإيميل
 //   daily  : تذكير لكل عضو بمهامه اللي موعدها خلال يومين أو متأخرة، وأي ملاحظة/رسالة جديدة من المشرف/ة
 //   preview: (عضو مسجّل دخول) يرجّع نص التقرير الأسبوعي لفريقه بدون إرسال — للمعاينة من الموقع
-// كل إرسال ينسجّل في reminder_log عشان ما يتكرر. الأعضاء يقدرون يوقفون التذكيرات (profiles.email_reminders).
+// كل إرسال ينسجّل في reminder_log عشان ما يتكرر. العضو اللي مطفي «تذكيرات الإيميل» (profiles.email_reminders = false)
+// ما يوصله لا تذكير يومي ولا تقرير أسبوعي — المفتاح ببطاقة «التنبيهات» بصفحة الفريق.
+// الروابط بالإيميل لازم تكون #/… لأن الموقع يستخدم HashRouter (/tasks بدون # = 404 على Vercel).
 // أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (وSITE_URL اختياري). سر الجدولة: تولّده القاعدة (Vault) — راجع supabase/PENDING_digest_secret_and_cron.sql
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -15,7 +17,8 @@ const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json; charset=utf-8" } });
 
 const esc = (s: string) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const site = () => (Deno.env.get("SITE_URL") ?? "https://dashbored-sigma.vercel.app").replace(/\/$/, "");
+const site = () => (Deno.env.get("SITE_URL") ?? "https://wesyncapp.com").replace(/\/$/, "");
+const STOP_HINT = "توقفون التذكيرات من صفحة الفريق ← «التنبيهات» ← «تذكيرات الإيميل».";
 
 const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 
@@ -31,21 +34,52 @@ const arDate = (d: string) => {
   }
 };
 
+/* قالب الإيميل الفخم (Obsidian × Ember): خلفية سوداء، كرت داكن، شريط برتقالي فوق، وزر برتقالي.
+   جداول + ستايل داخلي عشان يطلع صح في Gmail وOutlook وApple Mail. <!--WS_FOOTER--> مكان سطر الإيقاف. */
+const FONT = "Tajawal,'Segoe UI',Tahoma,Arial,sans-serif";
+const EMAIL_BOX = "background:#1B1310;border:1px solid #2E2019;border-radius:14px;padding:12px 16px";
+
 function layout(title: string, bodyHtml: string, ctaUrl?: string, ctaLabel?: string, footer?: string) {
-  return `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;max-width:560px;margin:auto;padding:24px;color:#111;line-height:1.8">
-<p style="font-size:12px;letter-spacing:.2em;color:#888;margin:0 0 12px">WESYNC ∞</p>
-<h2 style="margin:0 0 12px;font-size:20px">${esc(title)}</h2>
+  return `<div dir="rtl" lang="ar" style="margin:0;padding:0;background:#080808">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#080808" style="background:#080808">
+<tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#120D0A;border:1px solid #2A1C14;border-radius:24px;overflow:hidden">
+<tr><td height="4" bgcolor="#FF6A00" style="height:4px;line-height:4px;font-size:0;background:#FF6A00;background-image:linear-gradient(90deg,#FF6A00,#FF8A24,#FFB547)">&nbsp;</td></tr>
+<tr><td style="padding:26px 28px 6px;font-family:${FONT};direction:rtl;text-align:right">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+<td width="34" height="34" align="center" valign="middle" bgcolor="#FF6A00" style="width:34px;height:34px;border-radius:17px;background:#FF6A00;background-image:radial-gradient(circle at 50% 38%,#FFF0C2,#FFB547 30%,#FF6A00 65%,#C2400A);color:#1A0802;font-size:18px;font-weight:800;line-height:34px">∞</td>
+<td style="padding-right:10px;font-family:${FONT};font-size:17px;font-weight:800;color:#F7EFE6;letter-spacing:.3px">Wesync</td>
+</tr></table>
+</td></tr>
+<tr><td style="padding:14px 28px 4px;font-family:${FONT};direction:rtl;text-align:right">
+<h1 style="margin:0;font-family:${FONT};font-size:24px;line-height:1.4;font-weight:800;color:#F7EFE6">${esc(title)}</h1>
+</td></tr>
+<tr><td style="padding:10px 28px 4px;font-family:${FONT};direction:rtl;text-align:right;font-size:15px;line-height:1.85;color:#E6DBD1">
 ${bodyHtml}
-${ctaUrl ? `<p style="margin:24px 0"><a href="${esc(ctaUrl)}" style="background:#f59e0b;color:#111;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:12px;display:inline-block">${esc(ctaLabel ?? "افتحوا الرابط")}</a></p>` : ""}
-${footer ? `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p>` : ""}
+</td></tr>
+${
+  ctaUrl
+    ? `<tr><td style="padding:18px 28px 6px;direction:rtl;text-align:right">
+<a href="${esc(ctaUrl)}" style="display:inline-block;background:#FF6A00;background-image:linear-gradient(90deg,#FF6A00,#FF9A3C);color:#1A0802;font-family:${FONT};font-size:15px;font-weight:800;text-decoration:none;padding:13px 26px;border-radius:999px">${esc(ctaLabel ?? "افتحوا الرابط")} ←</a>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:22px 28px 26px;direction:rtl;text-align:right">
+<div style="border-top:1px solid #2A1C14;padding-top:14px;font-family:${FONT};font-size:12px;line-height:1.8;color:#8F857C">
+${footer ? `<p style="margin:0 0 6px">${footer}</p>` : ""}<!--WS_FOOTER--><p style="margin:0">Wesync · بحثكم يخلص بوقته، مو بآخر ليلة</p>
+</div>
+</td></tr>
+</table>
+</td></tr>
+</table>
 </div>`;
 }
 
 const section = (title: string, items: string[], empty?: string) =>
   items.length === 0 && !empty
     ? ""
-    : `<h3 style="font-size:15px;margin:18px 0 6px">${esc(title)}</h3>${
-        items.length === 0 ? `<p style="color:#888;margin:0">${esc(empty!)}</p>` : `<ul style="margin:0;padding-inline-start:20px">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`
+    : `<h3 style="font-size:15px;margin:20px 0 6px;color:#FFC777;font-weight:800">${esc(title)}</h3>${
+        items.length === 0 ? `<p style="color:#ABA095;margin:0">${esc(empty!)}</p>` : `<ul style="margin:0;padding-right:20px;padding-left:0">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`
       }`;
 
 async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
@@ -115,10 +149,10 @@ async function buildWeekly(teamId: string, audience: "supervisor" | "team"): Pro
   const totalDone = all.filter((t) => t.status === "done").length;
 
   const who = (t: T) => esc(first.get(t.assignee_id) ?? "؟");
-  const line = (t: T) => `${esc(t.title)} — ${who(t)}${t.due_date ? ` <span style="color:#888">(${esc(arDate(t.due_date))})</span>` : ""}`;
+  const line = (t: T) => `${esc(t.title)} — ${who(t)}${t.due_date ? ` <span style="color:#ABA095">(${esc(arDate(t.due_date))})</span>` : ""}`;
 
   const intro = `<p style="margin:0 0 8px">${audience === "supervisor" ? "هذا ملخص أسبوع فريق" : "ملخص أسبوعكم في"} <b>${esc(team.name ?? "الفريق")}</b>${project?.title ? ` — بحث «${esc(project.title)}»` : ""}.</p>
-<p style="margin:0;background:#f6f6f6;border-radius:12px;padding:10px 14px">
+<p style="margin:0;${EMAIL_BOX}">
 ✅ أنجزوا <b>${doneWeek.length}</b> مهمة هالأسبوع (المجموع ${totalDone} من ${all.length})
 ${overdue.length ? `<br>⚠️ <b>${overdue.length}</b> مهمة متأخرة` : "<br>👌 ما فيه مهام متأخرة"}
 ${current ? `<br>🎯 المرحلة الحالية: ${esc(current.title_ar)} (${Math.round(current.progress ?? 0)}٪)` : ""}
@@ -134,11 +168,11 @@ ${project?.target_submission_date ? `<br>🏁 موعد التسليم: ${esc(arD
       section("الأسبوع الجاي", [
         ...upcoming.slice(0, 8).map(line),
         ...((events ?? []) as { title: string; event_date: string; event_time: string; event_type: string }[]).map(
-          (e) => `📅 ${esc(e.title)} <span style="color:#888">(${esc(arDate(e.event_date))}${e.event_type !== "deadline" ? ` ${esc(e.event_time)}` : ""})</span>`,
+          (e) => `📅 ${esc(e.title)} <span style="color:#ABA095">(${esc(arDate(e.event_date))}${e.event_type !== "deadline" ? ` ${esc(e.event_time)}` : ""})</span>`,
         ),
       ]) +
       section(audience === "supervisor" ? "قرارات تنتظر رأيك" : "قرارات تنتظر المشرف/ة", ((decisions ?? []) as { question: string }[]).map((d) => esc(d.question))),
-    audience === "supervisor" ? `${site()}/supervisor/${team.share_token}` : `${site()}/`,
+    audience === "supervisor" ? `${site()}/#/supervisor/${team.share_token}` : `${site()}/#/`,
     audience === "supervisor" ? "افتح لوحة الفريق" : "افتحوا Wesync",
   );
   const text = `${team.name ?? "الفريق"}: أنجزوا ${doneWeek.length} مهمة هالأسبوع، ${overdue.length} متأخرة، ${upcoming.length} موعدها الأسبوع الجاي.`;
@@ -154,13 +188,14 @@ async function runWeekly(): Promise<{ sent: number; skipped?: string }> {
   let sent = 0;
   const { data: teams } = await admin.from("teams").select("id").limit(1000);
   for (const { id: teamId } of (teams ?? []) as { id: string }[]) {
-    const [{ data: sub }, { data: leader }] = await Promise.all([
+    const [{ data: sub }, { data: members }] = await Promise.all([
       admin.from("supervisor_email_subscriptions").select("email, confirm_token, confirmed_at, unsubscribed_at").eq("team_id", teamId).maybeSingle(),
-      admin.from("profiles").select("id, email, email_reminders").eq("team_id", teamId).eq("role", "leader").limit(1).maybeSingle(),
+      admin.from("profiles").select("id, email, email_reminders").eq("team_id", teamId),
     ]);
     const supOk = sub?.email && sub.confirmed_at && !sub.unsubscribed_at;
-    const leaderOk = leader?.email && leader.email_reminders !== false;
-    if (!supOk && !leaderOk) continue;
+    // كل عضو مفعّل التذكيرات (الافتراضي)؛ المطفي ما نرسل له شي
+    const recipients = ((members ?? []) as { id: string; email: string | null; email_reminders: boolean | null }[]).filter((m) => !!m.email && m.email_reminders !== false);
+    if (!supOk && !recipients.length) continue;
     // فريق بدون أي مهمة = ما بدأ يستخدم المنصة، ما نزعج أحد
     const { count } = await admin.from("tasks").select("id", { count: "exact", head: true }).eq("team_id", teamId);
     if (!count) continue;
@@ -169,21 +204,19 @@ async function runWeekly(): Promise<{ sent: number; skipped?: string }> {
       const w = await buildWeekly(teamId, "supervisor");
       let ok = false;
       if (w) {
-        const footer = `وصلك هذا لأنك فعّلت إشعارات Wesync لهذا الفريق. <a href="${site()}/supervisor-email/unsubscribe/${sub!.confirm_token}" style="color:#888">إيقاف الإيميلات</a>`;
-        ok = await sendEmail(sub!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text);
+        const footer = `وصلك هذا لأنك فعّلت إشعارات Wesync لهذا الفريق. <a href="${site()}/#/supervisor-email/unsubscribe/${sub!.confirm_token}" style="color:#FFC777">إيقاف الإيميلات</a>`;
+        ok = await sendEmail(sub!.email, w.subject, w.html.replace("<!--WS_FOOTER-->", `<p style="margin:0 0 6px">${footer}</p>`), w.text);
       }
       if (ok) sent++;
       else await release([{ kind: "weekly-supervisor", refId: teamId, key: `${sub!.email}|${week}` }]);
     }
-    if (leaderOk && (await claim("weekly-leader", teamId, `${leader!.id}|${week}`))) {
-      const w = await buildWeekly(teamId, "team");
-      let ok = false;
-      if (w) {
-        const footer = `توقفون التذكيرات من صفحة الفريق ← «تذكيرات بالإيميل».`;
-        ok = await sendEmail(leader!.email, w.subject, w.html.replace("</div>", `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p></div>`), w.text);
-      }
-      if (ok) sent++;
-      else await release([{ kind: "weekly-leader", refId: teamId, key: `${leader!.id}|${week}` }]);
+    // نفس نوع السجل القديم (weekly-leader) عشان القائد ما يوصله التقرير مرتين بأسبوع التحويل
+    const teamWeekly = recipients.length ? await buildWeekly(teamId, "team") : null;
+    for (const m of recipients) {
+      if (!teamWeekly || !(await claim("weekly-leader", teamId, `${m.id}|${week}`))) continue;
+      const html = teamWeekly.html.replace("<!--WS_FOOTER-->", `<p style="margin:0 0 6px">${STOP_HINT}</p>`);
+      if (await sendEmail(m.email!, teamWeekly.subject, html, teamWeekly.text)) sent++;
+      else await release([{ kind: "weekly-leader", refId: teamId, key: `${m.id}|${week}` }]);
     }
   }
   return { sent };
@@ -233,7 +266,7 @@ async function runDaily(): Promise<{ sent: number; skipped?: string }> {
       };
       for (const t of mine) {
         const isLate = t.due_date < today;
-        if (await take(isLate ? "task-late" : "task-soon", t.id)) (isLate ? late : dueSoon).push(`${esc(t.title)} <span style="color:#888">(${esc(arDate(t.due_date))})</span>`);
+        if (await take(isLate ? "task-late" : "task-soon", t.id)) (isLate ? late : dueSoon).push(`${esc(t.title)} <span style="color:#ABA095">(${esc(arDate(t.due_date))})</span>`);
       }
       const fbNew: string[] = [];
       for (const f of fb) if (await take("feedback", f.id)) fbNew.push(esc(f.comment.slice(0, 200)));
@@ -248,9 +281,9 @@ async function runDaily(): Promise<{ sent: number; skipped?: string }> {
           section("مهام متأخرة — يمديك تلحقها", late) +
           section("ملاحظات جديدة من المشرف/ة", fbNew) +
           section("رسائل جديدة من المشرف/ة", msgNew),
-        `${site()}/${dueSoon.length || late.length ? "tasks" : msgNew.length ? "" : "feedback"}`,
+        `${site()}/#/${dueSoon.length || late.length ? "tasks" : msgNew.length ? "" : "feedback"}`,
         dueSoon.length || late.length ? "افتح مهامي" : "افتح Wesync",
-        "توقفون التذكيرات من صفحة الفريق ← «تذكيرات بالإيميل».",
+        STOP_HINT,
       );
       const subject = late.length
         ? `عندك ${late.length} مهمة متأخرة`

@@ -132,5 +132,18 @@ export function useTasksData() {
     return { error: error?.message };
   };
 
-  return { tasks, loading, addTask, updateStatus, deleteTask };
+  /** نقل مهمة لعضو ثاني (القائد بس — حسب صلاحيات القاعدة). تفاؤلي ويرجع لو فشل */
+  const reassignTask = async (taskId: string, assigneeId: string) => {
+    let previous: Task[] = [];
+    setTasks((prev) => {
+      previous = prev;
+      return prev.map((t) => (t.id === taskId ? { ...t, assigneeId } : t));
+    });
+    if (!isSupabaseConfigured) return { error: undefined as string | undefined };
+    const { error } = await supabase!.from("tasks").update({ assignee_id: assigneeId }).eq("id", taskId);
+    if (error) setTasks(previous);
+    return { error: error?.message };
+  };
+
+  return { tasks, loading, addTask, updateStatus, deleteTask, reassignTask };
 }

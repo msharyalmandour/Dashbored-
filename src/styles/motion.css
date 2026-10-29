@@ -1,0 +1,174 @@
+/* ───────────── Wesync v3: زجاج هادي + حركة مريحة (أكتب · مهامي · أجمع وأحلّل · الرئيسية) ─────────────
+   القيم كلها من styles/tokens.css. القواعد:
+   - الحركة عند الدخول (مرة وحدة) وعند التفاعل بس. ولا حركة تشتغل للأبد: لا لمعات تتكرر، ولا نبض، ولا دوران، ولا خلفية تتحرك.
+     (الاستثناء الوحيد: مؤشرات «يشتغل» زي نقاط الوكيل، وتختفي أول ما يخلص.)
+   - البرتقالي للزر الأساسي والعنصر الحالي والموعد بس.
+   - «قلّل الحركة» (من الإعدادات أو الجهاز) يوقف كل شي — بـ tokens.css. */
+
+@property --v3p {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+.v3 { color: var(--ws-c-text); font-family: var(--ws-font); font-size: var(--ws-fs-body); line-height: var(--ws-lh-body); }
+.v3 .v3-k { font-family: "Tajawal", sans-serif; font-weight: 800; }
+.v3 .v3-mut { color: var(--ws-c-muted); }
+.v3 .v3-eye { font-size: var(--ws-fs-label); letter-spacing: .04em; color: var(--ws-c-muted); font-weight: 700; }
+.v3 .v3-en { font-size: var(--ws-fs-label); color: var(--ws-c-en); letter-spacing: .02em; }
+
+/* بطاقة زجاج هادية */
+.v3-g {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: 28px;
+  border: 1px solid var(--ws-c-border);
+  background: linear-gradient(180deg, var(--ws-c-surface), var(--ws-c-surface-2)), rgba(15, 11, 9, .72);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 50px rgba(0,0,0,.25);
+  transition: transform var(--ws-hover-dur) ease, border-color var(--ws-hover-dur) ease;
+}
+.v3-g.v3-hover:hover { transform: translateY(var(--ws-hover-lift)); border-color: var(--ws-c-border-hover); }
+.v3-g2 { box-sizing: border-box; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid var(--ws-c-border); }
+
+/* الأزرار: زر أساسي واحد بالشاشة (برتقالي متدرج)، والباقي زجاجي — ٤٤px لمس على الأقل */
+.v3-bw, .v3-bd {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 22px; border-radius: 999px;
+  font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none;
+  box-sizing: border-box; white-space: nowrap;
+}
+.v3-bw {
+  border: 0;
+  background: linear-gradient(90deg, var(--ws-c-accent), var(--ws-c-accent-2));
+  color: var(--ws-c-on-accent);
+  box-shadow: 0 10px 28px rgba(255,106,0,.28);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.v3-bw:hover { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(255,106,0,.34); }
+.v3-bd { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: var(--ws-c-text); transition: border-color .2s, background .2s; }
+.v3-bd:hover { border-color: var(--ws-c-border-hover); background: rgba(255,255,255,.1); }
+.v3-bw:disabled, .v3-bd:disabled { opacity: .55; cursor: default; }
+.v3-bw:focus-visible, .v3-bd:focus-visible, .v3-tap:focus-visible { outline: 2px solid var(--ws-c-accent-2); outline-offset: 2px; }
+.v3-link { display: inline-flex; align-items: center; min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; font-weight: 700; color: var(--ws-c-text); text-decoration: underline; text-decoration-color: rgba(234,227,220,.3); text-underline-offset: 4px; cursor: pointer; }
+.v3-link:hover { text-decoration-color: currentColor; }
+
+/* شارات الحالة — ثابتة (بدون نبض) */
+.v3-st { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ws-fs-label); font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.v3-st.done { background: rgba(127,224,166,.12); color: var(--ws-c-done); }
+.v3-st.doing { background: rgba(255,154,60,.12); color: var(--ws-c-accent-2); }
+.v3-st.todo { background: rgba(255,255,255,.07); color: var(--ws-c-muted); }
+.v3-st.late { background: rgba(255,138,122,.13); color: var(--ws-c-late); }
+.v3-st.doing::before, .v3-st.late::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* سطر مهمة متأخرة: إطار أحمر هادي ثابت */
+.v3-late-row { box-shadow: inset 0 0 0 1px rgba(255,138,122,.22); }
+
+/* حقول الكتابة */
+.v3-field {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  background: rgba(0,0,0,.22); border: 1px solid var(--ws-c-border); border-radius: 16px;
+  padding: 14px 16px; font: inherit; font-size: var(--ws-fs-body); line-height: 1.8; color: var(--ws-c-text); outline: none;
+  transition: border-color var(--ws-hover-dur), box-shadow var(--ws-hover-dur);
+}
+.v3-field::placeholder { color: #8A7F75; }
+.v3-field:focus { border-color: rgba(255,154,60,.5); box-shadow: 0 0 0 3px rgba(255,106,0,.12); }
+.v3-select { min-height: 44px; border-radius: 14px; background: rgba(0,0,0,.25); border: 1px solid var(--ws-c-border); color: var(--ws-c-text); padding: 0 12px; font: inherit; font-size: 15px; outline: none; }
+.v3-select option { background: #141010; color: var(--ws-c-text); }
+
+/* حلقة النسبة: تتعبّى مرة وحدة — --v3-target هي النسبة النهائية */
+.v3-ring {
+  border-radius: 50%; flex: none; position: relative;
+  background: conic-gradient(var(--ws-c-accent-2) 0 var(--v3p), rgba(255,255,255,.1) 0);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 59%);
+  mask: radial-gradient(circle, transparent 58%, #000 59%);
+  --v3p: var(--v3-target, 0%);
+  animation: v3-ring 1s var(--ws-ease) .2s both;
+}
+
+/* شريط تقدّم يتعبّى مرة وحدة (بدون لمعة متكررة) */
+.v3-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+.v3-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--ws-c-accent), var(--ws-c-accent-2)); transform-origin: right center; animation: v3-grow 1s var(--ws-ease) .3s both; transition: width .5s var(--ws-ease); }
+[dir="ltr"] .v3-bar > i { transform-origin: left center; }
+
+/* العنصر الحالي: إطار برتقالي ثابت (بدون لمعة ولا توهّج متكرر) */
+.v3-sheen { position: relative; }
+.v3-glow { box-shadow: 0 0 0 1px rgba(255,154,60,.35), 0 0 0 4px rgba(255,106,0,.08); }
+
+/* كرة الوكيل: ثابتة. نقاط «يكتب…» تطلع بس والوكيل يشتغل */
+.v3-orb { border-radius: 50%; flex: none; background: radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%, #5A1A04 100%); box-shadow: 0 0 18px rgba(255,140,30,.35); }
+.v3-typing { display: inline-flex; gap: 4px; vertical-align: middle; margin-inline-start: 6px; }
+.v3-typing i { width: 5px; height: 5px; border-radius: 50%; background: var(--ws-c-accent-2); animation: v3-dots 1.2s infinite; }
+.v3-typing i:nth-child(2) { animation-delay: .15s; }
+.v3-typing i:nth-child(3) { animation-delay: .3s; }
+
+/* الدخول: translateY 12px→0 + opacity في 0.6s، والبطاقات ورا بعض بفرق 70ms (سقف ٨ خطوات عشان ما يتأخر شي).
+   مرة وحدة: تحديث البيانات ما يعيد تركيب البطاقة، فما يعيد الدخول */
+.v3-rise { animation: v3-rise var(--ws-rise-dur) var(--ws-ease) calc(min(var(--v3-i, 0), 8) * var(--ws-stagger)) both; }
+
+/* دوائر المشاركين: تطلع مرة وحدة ورا بعض. الجاي إطاره برتقالي ثابت */
+.v3-dots > span { animation: v3-rise .45s var(--ws-ease) calc(.3s + min(var(--v3-d, 0), 24) * 30ms) both; }
+/* أعمدة الرسم تطلع لفوق مرة وحدة */
+.v3-bars-y > div { transform-origin: bottom; animation: v3-grow-y .8s var(--ws-ease) calc(.35s + var(--v3-i, 0) * 70ms) both; }
+
+/* «انحفظ ✓»: fade والصح ينرسم (مرة وحدة عند الحفظ) */
+.v3-saved { display: inline-flex; align-items: center; gap: 6px; animation: v3-fade .3s ease-out both; }
+.v3-saved path { stroke-dasharray: 30; animation: v3-draw .5s ease-out .1s both; }
+
+/* خلفية الصفحة: توهّج برتقالي ثابت وخفيف (≤ .22) */
+.v3-blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(150px); opacity: var(--ws-glow-opacity); }
+.v3-blob.alt { opacity: .14; }
+
+/* شريط أفقي ينسحب (الجوال) */
+.v3-scroll-x { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.v3-scroll-x::-webkit-scrollbar { display: none; }
+
+@keyframes v3-rise { from { opacity: 0; transform: translateY(var(--ws-rise-y)); } to { opacity: 1; transform: none; } }
+@keyframes v3-dots { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@keyframes v3-ring { from { --v3p: 0%; } }
+@keyframes v3-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes v3-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes v3-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes v3-draw { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
+
+/* تقليل الحركة: الحلقة تطلع بقيمتها النهائية مباشرة (الإيقاف العام بـ tokens.css) */
+@media (prefers-reduced-motion: reduce) {
+  .v3-ring { --v3p: var(--v3-target, 0%); }
+  .v3-g.v3-hover:hover, .v3-bw:hover { transform: none; }
+}
+html[data-reduce-motion="true"] .v3-ring { --v3p: var(--v3-target, 0%); }
+html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="true"] .v3-bw:hover { transform: none; }
+
+/* ── إشعارات الرئيسية: تنزل من فوق بنطّة خفيفة (0.6s) وتطلع لفوق وهي تختفي (0.4s) ── */
+.ws-toast {
+  background: linear-gradient(180deg, rgba(58,24,11,.97), rgba(24,10,6,.97));
+  border: 1px solid rgba(255,195,140,.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 30px 70px rgba(0,0,0,.55);
+  color: var(--ws-c-text);
+  transform-origin: 50% 0;
+  animation: ws-toast-in .6s cubic-bezier(.2,.9,.25,1.1) both;
+}
+.ws-toast.out { animation: ws-toast-out .4s ease-in both; }
+/* شريط العمر: ينقص خلال ٥ ثواني، ويوقف مع الماوس أو الضغط (animation-play-state من الواجهة) */
+.ws-life { position: absolute; inset: 0; display: block; background: linear-gradient(90deg, var(--ws-c-accent), #FFC777); transform-origin: right center; animation: ws-life 5s linear both; }
+[dir="ltr"] .ws-life { transform-origin: left center; }
+/* دوّارة متدرجة (بس وقت «جاري الربط») */
+.ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #FFB444 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
+/* ✓ خضرا تنط مرة وحدة */
+.ws-ok { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; background: rgba(127,224,166,.16); color: var(--ws-c-done); box-shadow: 0 0 18px rgba(127,224,166,.3); animation: ws-pop .5s cubic-bezier(.3,1.6,.5,1) both; }
+/* مفتاح الإيميل: ينزلق بـ spring ويتوهج لما يشتغل */
+.ws-toggle { position: relative; display: block; width: 50px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.14); transition: background .3s, box-shadow .3s; }
+.ws-toggle b { position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: inset-inline-start .45s cubic-bezier(.5,1.6,.4,1); }
+.ws-toggle.on { background: linear-gradient(90deg, var(--ws-c-accent), #FFB547); box-shadow: 0 0 16px rgba(255,138,36,.5); }
+.ws-toggle.on b { inset-inline-start: 25px; }
+
+@keyframes ws-toast-in {
+  0% { opacity: 0; transform: perspective(900px) translateY(-70px) rotateX(-70deg) scale(.92); }
+  70% { opacity: 1; transform: perspective(900px) translateY(6px) rotateX(8deg) scale(1); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ws-toast-out { to { opacity: 0; transform: perspective(900px) translateY(-40px) rotateX(30deg) scale(.94); } }
+@keyframes ws-life { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes ws-spin { to { transform: rotate(360deg); } }
+@keyframes ws-pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }

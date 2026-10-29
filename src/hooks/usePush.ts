@@ -14,23 +14,30 @@ function urlBase64ToUint8Array(b64: string): Uint8Array<ArrayBuffer> {
   return out;
 }
 
+/** حالة الإشعارات لهذا الجهاز: الدعم، الإذن، ووجود اشتراك */
+async function detectPushState(): Promise<PushState> {
+  if (!isSupabaseConfigured || !("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    return isIos() && !isStandalone() ? "ios-install" : "unsupported";
+  }
+  if (Notification.permission === "denied") return "denied";
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = await reg?.pushManager.getSubscription();
+    return sub && Notification.permission === "granted" ? "on" : "off";
+  } catch {
+    return "off";
+  }
+}
+
 /** إشعارات الجوال: تسجيل اشتراك الجهاز الحالي (Web Push). آيفون يحتاج التطبيق مثبّت على الشاشة الرئيسية أول. */
 export function usePush(userId: string | undefined) {
   const [state, setState] = useState<PushState>("busy");
+  // أول فحص للإذن والاشتراك — قبله البطاقة تعرض skeleton بدل حالة «لحظة»
+  const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (!isSupabaseConfigured || !("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-      setState(isIos() && !isStandalone() ? "ios-install" : "unsupported");
-      return;
-    }
-    if (Notification.permission === "denied") return setState("denied");
-    try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      const sub = await reg?.pushManager.getSubscription();
-      setState(sub && Notification.permission === "granted" ? "on" : "off");
-    } catch {
-      setState("off");
-    }
+    setState(await detectPushState());
+    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -83,5 +90,5 @@ export function usePush(userId: string | undefined) {
     return (data as { sent?: number } | null)?.sent ?? 0;
   };
 
-  return { state, enable, disable, sendTest };
+  return { state, ready, enable, disable, sendTest };
 }

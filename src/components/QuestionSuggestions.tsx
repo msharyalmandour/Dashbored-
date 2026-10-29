@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Loader2, Plus, Wand2 } from "lucide-react";
+import { Check, Plus, Wand2 } from "lucide-react";
+import { Typing } from "./v3/Motion";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
 import { StatusChip } from "./ui/page";
@@ -75,8 +76,9 @@ export default function QuestionSuggestions({
           disabled={busy}
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-amber-accent-400 to-brand-500 px-5 py-2.5 text-sm font-bold text-[#1a0f00] hover:brightness-110 disabled:opacity-50"
         >
-          {busy ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
+          {busy ? <span className="v3-orb h-4 w-4" aria-hidden="true" /> : <Wand2 size={15} />}
           {busy ? tre("ندوّر بالدراسات… (حوالي ٣٠ ثانية)") : result ? tre("اقتراحات جديدة") : tre("اقترحوا لنا أسئلة")}
+          {busy && <Typing />}
         </button>
       </div>
 

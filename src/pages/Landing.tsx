@@ -1,24 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, Copy, MessageCircle } from "lucide-react";
+import { ArrowLeft, Check, Copy, MessageCircle } from "lucide-react";
 import Logo from "../components/Logo";
 import HeroVideo from "../components/HeroVideo";
 import WelcomeVoice from "../components/WelcomeVoice";
 import InstallAppButton from "../components/InstallAppButton";
-import PlanComparison from "../components/PlanComparison";
+import { FaqV2, FeaturesBento, Integrations, PricingV2, Problems, useWhatsAppAvoid } from "../components/landing/LandingV2";
 import {
-  AI_ADDON_FOUNDER,
-  AI_ADDON_SOLO,
-  AI_ADDON_TEAM,
-  AI_PRICE,
   DUO_PRICE,
   MAX_TEAM_MEMBERS,
   SOLO_PRICE,
   TEAM_PRICE,
   TRIAL_DAYS,
-  aiFeatures,
-  basicHighlights,
-  memberShare,
 } from "../lib/plans";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import LangToggle from "../components/ui/LangToggle";
@@ -151,236 +144,6 @@ function useScrollFx(root: React.RefObject<HTMLDivElement | null>) {
   }, [root]);
 }
 
-/** حلقة التقدّم تتعبّى من صفر لحد القيمة أول ما تظهر */
-function AnimatedRing({ value }: { value: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setV(value);
-      return;
-    }
-    let raf = 0;
-    const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      io.disconnect();
-      const t0 = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min((now - t0) / 1600, 1);
-        setV(Math.round(value * (1 - Math.pow(1 - p, 3))));
-        if (p < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    });
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [value]);
-  return (
-    <div ref={ref} className="flex h-[170px] w-[170px] items-center justify-center self-center rounded-full shadow-[0_0_60px_rgba(255,180,68,0.35)]" style={{ background: `conic-gradient(#FFE3A3 0 ${v}%,rgba(255,255,255,.14) 0)` }}>
-      <div className="flex h-[138px] w-[138px] flex-col items-center justify-center rounded-full bg-[#1E0A03]">
-        <div className="font-display text-[38px] font-extrabold leading-[1.1]">{v}%</div>
-        <div className="text-xs text-[#CDBFB3]">{tr("من الطريق")}</div>
-      </div>
-    </div>
-  );
-}
-
-type Door = { id: string; label: string; line: string; body: React.ReactNode };
-
-const row = "flex items-center gap-2 rounded-xl bg-black/25 p-2.5 text-xs";
-const dot = <span className="h-2 w-2 shrink-0 rounded-full bg-[#FFB444]" />;
-
-/** أقسام المنصّة الفعلية (نفس أبواب القائمة) بعرض مبسّط */
-const doors: Door[] = [
-  {
-    id: "search",
-    label: tr("أبحث"),
-    line: tr("أسئلة بحثكم من دراسات حقيقية"),
-    body: (
-      <div className="space-y-2">
-        <div className="rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-xs text-[#CDBFB3]">{tr("أثر الإرهاق الوظيفي على الممرضين…")}</div>
-        {[tr("دراسة سعودية · ٢٠٢٣"), tr("مراجعة منهجية · ٢٠٢١"), tr("دراسة مقطعية · ٢٠٢٢")].map((t) => (
-          <div key={t} className={row}>{dot}<span>{t}</span><span className="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-[#F1D9C4]">PubMed</span></div>
-        ))}
-      </div>
-    ),
-  },
-  {
-    id: "write",
-    label: tr("أكتب"),
-    line: tr("مقترح ومنهجية خطوة بخطوة"),
-    body: (
-      <div className="space-y-2">
-        {[[tr("الهدف"), true], [tr("أسئلة البحث"), true], [tr("المنهجية"), false], [tr("الموافقة الأخلاقية"), false]].map(([t, d]) => (
-          <div key={String(t)} className={row}>
-            <span className={`flex h-4 w-4 items-center justify-center rounded-full border ${d ? "border-[#FFB444] bg-[#FFB444] text-[#1A0F00]" : "border-white/30"}`}>{d ? <Check size={10} /> : null}</span>
-            <span>{t}</span>
-          </div>
-        ))}
-      </div>
-    ),
-  },
-  {
-    id: "collect",
-    label: tr("أجمع وأحلل"),
-    line: tr("من الاستبيان حتى الإحصاء"),
-    body: <AnimatedRing value={72} />,
-  },
-  {
-    id: "team",
-    label: tr("الفريق"),
-    line: tr("من أنجز، ومن يحتاج مساعدة"),
-    body: (
-      <div className="space-y-2.5">
-        {[[tr("س"), 82, "#FFB444"], [tr("ل"), 91, "#FFB444"], [tr("ع"), 54, "#FF8A5C"]].map(([l, w, c]) => (
-          <div key={String(l)} className="flex items-center gap-2">
-            <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-[1.5px] text-xs" style={{ borderColor: String(c) }}>{l}</span>
-            <div className="h-1.5 flex-1 rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${w}%`, background: String(c) }} /></div>
-          </div>
-        ))}
-      </div>
-    ),
-  },
-  {
-    id: "supervisor",
-    label: tr("المشرف/ة"),
-    line: tr("ملاحظاتها تتحول لمهام"),
-    body: (
-      <div className="space-y-2">
-        <div className={row}>{dot}<span>{tr("ملاحظة: وضّحوا عيّنة الدراسة")}</span></div>
-        <div className={row}><Check size={13} className="shrink-0 text-[#FFB444]" /><span>{tr("صارت مهمة · مها · الأحد")}</span></div>
-        <div className="rounded-full bg-[#FFB444]/20 px-3 py-1.5 text-center text-[11px] text-[#FFE3A3]">{tr("رابط بدون حساب للمشرف/ة")}</div>
-      </div>
-    ),
-  },
-  {
-    id: "calendar",
-    label: tr("التقويم والملفات"),
-    line: tr("مواعيدكم على جوالكم"),
-    body: (
-      <div className="space-y-2">
-        {[[tr("الأحد ١٠:٠٠"), tr("اجتماع المشرف")], [tr("الثلاثاء ٨:٠٠"), tr("تسليم الاستبيان")], [tr("الخميس ١٢:٠٠"), tr("جمع البيانات")]].map(([t, e]) => (
-          <div key={t} className={row}><span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] text-[#F1D9C4]">{t}</span><span>{e}</span></div>
-        ))}
-      </div>
-    ),
-  },
-];
-
-/** الكاروسيل: البطاقة النشطة بالنص، والبقية بزاوية. يتقلّب تلقائيًا ويقف لما أحد يلمسه */
-function DoorsCoverflow() {
-  const [active, setActive] = useState(2);
-  const [paused, setPaused] = useState(false);
-  const [narrow, setNarrow] = useState(false);
-  const touchX = useRef(0);
-  const n = doors.length;
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const on = () => setNarrow(mq.matches);
-    on();
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
-
-  useEffect(() => {
-    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setActive((a) => (a + 1) % n), 4500);
-    return () => clearInterval(t);
-  }, [paused, n]);
-
-  const step = narrow ? 168 : 285;
-  const reach = narrow ? 1 : 2;
-  const cardW = narrow ? 232 : 300;
-  return (
-    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
-      onTouchStart={(e) => {
-        setPaused(true);
-        touchX.current = e.touches[0].clientX;
-      }}
-      onTouchEnd={(e) => {
-        const dx = e.changedTouches[0].clientX - touchX.current;
-        if (Math.abs(dx) > 40) setActive((a) => (a + (dx < 0 ? 1 : -1) + n) % n);
-        setTimeout(() => setPaused(false), 6000);
-      }}
-    >
-      <div className="relative h-[440px]" style={{ perspective: "1800px" }}>
-        {doors.map((d, i) => {
-          let off = (i - active + n) % n;
-          if (off > n / 2) off -= n;
-          const abs = Math.abs(off);
-          const shown = abs <= reach;
-          const center = off === 0;
-          return (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => setActive(i)}
-              aria-label={d.label}
-              aria-current={center}
-              tabIndex={shown ? 0 : -1}
-              className={`ld-glass absolute left-1/2 top-4 flex h-[400px] flex-col justify-between rounded-[32px] border p-6 text-start ${
-                center ? "border-[#FFDCAA]/40" : "border-white/15 bg-gradient-to-br from-white/[0.12] to-orange-400/10"
-              }`}
-              style={{
-                width: cardW,
-                transform: `translateX(-50%) translateX(${off * step}px) rotateY(${off * -24}deg) scale(${1 - abs * 0.1})`,
-                zIndex: 10 - abs,
-                opacity: shown ? (center ? 1 : abs === 1 ? (narrow ? 0.6 : 0.85) : 0.5) : 0,
-                pointerEvents: shown ? "auto" : "none",
-                transition: "transform .8s cubic-bezier(.2,.7,.2,1), opacity .8s",
-                ...(center
-                  ? {
-                      background: "linear-gradient(165deg,rgba(255,180,68,.35),rgba(255,107,0,.18) 40%,rgba(30,12,4,.75))",
-                      boxShadow: "0 50px 100px rgba(0,0,0,.55),0 0 80px rgba(255,107,0,.25),inset 0 1px 0 rgba(255,240,210,.35)",
-                    }
-                  : { boxShadow: "0 30px 70px rgba(0,0,0,.45)" }),
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] text-[#F1D9C4]">{tr("قسم في المنصّة")}</span>
-                <span className="rounded-full bg-black/30 px-2.5 py-[3px] text-xs">{i + 1} / {n}</span>
-              </div>
-              <div className="pointer-events-none flex flex-1 flex-col justify-center py-4">{d.body}</div>
-              <div>
-                <div className={`${font} text-[22px] font-extrabold`}>{d.label}</div>
-                <div className="text-sm text-[#E6DBD1]">{d.line}</div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-      <div className="relative mt-2 flex flex-wrap items-center justify-center gap-2">
-        {doors.map((d, i) => (
-          <button
-            key={d.id}
-            type="button"
-            onClick={() => setActive(i)}
-            className={`rounded-full border px-3.5 py-1.5 text-[13px] transition ${
-              i === active ? "border-[#FFB444]/60 bg-[#FFB444]/15 text-[#FFE3A3]" : "border-white/10 text-[#BDAFA3] hover:text-white"
-            }`}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/** المواقف اللي تتكرر بكل فريق بحث — نبدأ بالألم، وبعدها الحل */
-const pains = [
-  { pain: tr("٥٠٠ رسالة بالقروب، ولا وحدة مهمة."), fix: tr("المهام والملفات والقرارات بمكانها، مو ضايعة بين الستيكرز.") },
-  { pain: tr("واحد شايل البحث كله، والباقي «إن شاء الله»."), fix: tr("الكل يشوف مين سوّى وش.. بدون إحراج ولا مواجهة.") },
-  { pain: tr("المشرفة رسلت ملاحظات، ومحد يدري مين يعدّل وش."), fix: tr("كل ملاحظة تصير مهمة باسم صاحبها وموعدها.") },
-  { pain: tr("انتبهتوا للتسليم قبله بيومين."), fix: tr("مخطط الموعد يوزّع الأسابيع من يوم التسليم للخلف.") },
-];
-
 const pillars = [
   { n: tr("٠١"), k: tr("وضوح"), t: tr("لكل مهمة صاحب وموعد."), d: tr("انتهى سؤال «مين عليه هذا الجزء؟». كل بند من الاجتماع يصير مهمة باسم صاحبها.") },
   { n: tr("٠٢"), k: tr("عدالة"), t: tr("العبء موزّع، والجهد ظاهر."), d: tr("ترون من يحمل أكثر من طاقته ومن يقدر يساعد، مع تقرير مساهمة جاهز للمشرف/ة.") },
@@ -392,9 +155,11 @@ const HERO_STUDENTS_VIDEO =
 
 export default function Landing() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const waRef = useRef<HTMLAnchorElement>(null);
   useScrollFx(rootRef);
+  useWhatsAppAvoid(waRef);
   return (
-    <div ref={rootRef} className="relative min-h-screen overflow-x-clip bg-[#080808] text-[#F6F1EC]">
+    <div ref={rootRef} className="relative min-h-screen overflow-x-clip bg-[#0B0806] text-[#F7EFE6]">
       <div aria-hidden className="ld-grain absolute inset-0 z-[9]" />
 
       {/* ================= HERO ================= */}
@@ -480,32 +245,23 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ================= COVERFLOW ================= */}
-      <section id="how" className="relative scroll-mt-4 overflow-hidden px-6 pb-[110px] pt-10">
-        <div aria-hidden className="absolute start-1/2 top-10 h-[560px] w-[1000px] -translate-x-1/2 rounded-full blur-[20px]" style={{ background: "radial-gradient(ellipse,rgba(255,107,0,.28),rgba(0,0,0,0) 65%)" }} />
-        <div {...fx()} className="ld-fx relative mx-auto mb-14 max-w-[640px] text-center">
-          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("كل ما يحتاجه فريقكم")}</div>
-          <h2 className={`${font} mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>{tr("أدوات كثيرة. منصّة واحدة.")}</h2>
-        </div>
+      {/* ================= المزايا ================= */}
+      <FeaturesBento />
 
-        <DoorsCoverflow />
-        <p className="relative mt-6 text-center text-xs text-[#BDAFA3]">{tr("الأقسام نفسها اللي بالمنصّة، والبيانات أمثلة للتوضيح.")}</p>
-      </section>
+      {/* ================= المشاكل ================= */}
+      <Problems />
 
-      {/* ================= PAINS ================= */}
-      <section className="relative mx-auto max-w-[1100px] px-6 pb-24 pt-6 sm:px-9">
-        <div {...fx()} className="ld-fx mx-auto max-w-[640px] text-center">
-          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("تعرفون هالمواقف؟")}</div>
-          <h2 className={`${font} mt-2.5 text-[32px] font-extrabold leading-[1.35] md:text-[44px]`}>{tr("مشكلة بحث التخرج مو البحث.. الفوضى اللي حوله.")}</h2>
-        </div>
-        <div className="mt-12 grid gap-4 md:grid-cols-2">
-          {pains.map((p, i) => (
-            <div key={p.pain} {...fx(i * 120)} className="ld-fx ld-glass rounded-[28px] border border-white/[0.1] bg-white/[0.035] p-6">
-              <p className={`${font} text-[21px] font-bold leading-[1.5] text-[#F6F1EC]`}>{p.pain}</p>
-              <p className="mt-3 flex items-start gap-2 text-[15px] text-[#FFD9A8]">
-                <Check size={16} className="mt-1 shrink-0 text-[#FFB444]" />
-                {p.fix}
-              </p>
+      {/* ================= يشتغل مع أدواتكم ================= */}
+      <Integrations />
+
+      {/* ================= PILLARS ================= */}
+      <section className="relative mx-auto max-w-[1280px] px-6 pb-16 pt-[120px] sm:px-9">
+        <div className="flex flex-wrap gap-6">
+          {pillars.map((p, i) => (
+            <div key={p.n} {...fx(i * 160)} className="ld-fx min-w-[280px] flex-1 border-t border-[#FFB444]/40 pt-[26px]">
+              <div className={`${font} text-[15px] font-extrabold text-[#FFB444]`}>{p.n} — {p.k}</div>
+              <h3 className={`${font} mb-2 mt-3 text-[26px] font-semibold leading-[1.45]`}>{p.t}</h3>
+              <p className="text-[#BDAFA3]">{p.d}</p>
             </div>
           ))}
         </div>
@@ -523,19 +279,6 @@ export default function Landing() {
           <div className="text-sm tracking-[2px] text-[#F1D9C4]">{tr("فلسفتنا")}</div>
           <h2 className={`${font} mt-[18px] text-[40px] font-extrabold leading-[1.3] md:text-[62px]`}>{tr("Wesync لا يكتب بحثكم.")}</h2>
           <p className={`${font} mt-3 text-[22px] leading-[1.6] text-[#2A0E04] md:text-[30px]`}>{tr("يرتّب كل ما حوله،")}<br />{tr("فبحثكم يطلع من شغلكم.. وبضمير مرتاح.")}</p>
-        </div>
-      </section>
-
-      {/* ================= PILLARS ================= */}
-      <section className="relative mx-auto max-w-[1280px] px-6 pb-16 pt-[120px] sm:px-9">
-        <div className="flex flex-wrap gap-6">
-          {pillars.map((p, i) => (
-            <div key={p.n} {...fx(i * 160)} className="ld-fx min-w-[280px] flex-1 border-t border-[#FFB444]/40 pt-[26px]">
-              <div className={`${font} text-[15px] font-extrabold text-[#FFB444]`}>{p.n} — {p.k}</div>
-              <h3 className={`${font} mb-2 mt-3 text-[26px] font-semibold leading-[1.45]`}>{p.t}</h3>
-              <p className="text-[#BDAFA3]">{p.d}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -561,102 +304,11 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ================= PRICING ================= */}
-      <section id="pricing" className="relative mx-auto max-w-[1100px] scroll-mt-4 px-6 pb-24 pt-14 sm:px-9">
-        <div {...fx()} className="ld-fx mx-auto max-w-[640px] text-center">
-          <div className="text-[15px] font-semibold text-[#FF9A3C]">{tr("سعر الإطلاق")}</div>
-          <h2 className={`${font} mb-2 mt-2.5 text-[34px] font-extrabold leading-[1.35] md:text-[46px]`}>{trx("الفريق كامل بـ{0} ريال.", TEAM_PRICE)}<br />
-            <span className="font-normal text-[#FFD9A8]">{tr("نصيبك أقل من كوب قهوة.")}</span>
-          </h2>
-          <p className="text-[#BDAFA3]">{trx("اشتراك واحد للفريق كامل حتى {0} أعضاء — مو لكل شخص. لحالك {1} ريال، شخصين {2}. المشرفة مجانًا دايمًا، و{3} يوم تجربة بدون بطاقة.", MAX_TEAM_MEMBERS, SOLO_PRICE, DUO_PRICE, TRIAL_DAYS)}</p>
-        </div>
+      {/* ================= الأسعار ================= */}
+      <PricingV2 />
 
-        <div className="mt-14 grid items-stretch gap-[22px] md:grid-cols-2">
-          <div {...fx(100)} className="ld-fx ld-glass flex flex-col gap-[22px] rounded-[34px] border border-white/[0.12] bg-white/[0.04] p-[34px]">
-            <div><div className={`${font} text-[22px] font-semibold`}>{tr("اشتراك الفريق")}</div><div className="text-[15px] text-[#BDAFA3]">{tr("كل أدوات تنظيم البحث للفريق كامل")}</div></div>
-            <div>
-              <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{TEAM_PRICE}</span><span className="text-[#BDAFA3]">{tr("ريال شهريًا للفريق كامل")}</span></div>
-              <div className="mt-2 text-sm text-[#FFD9A8]">{trx("يعني {0} ريال بس لكل عضو لو كنتم {1}", memberShare(TEAM_PRICE, MAX_TEAM_MEMBERS), MAX_TEAM_MEMBERS)}</div>
-            </div>
-            <Link to="/login?signup=1" className="ld-btn rounded-full border border-white/20 bg-white/[0.08] p-3.5 text-center font-semibold">{trx("ابدأوا {0} يوم مجانًا", TRIAL_DAYS)}</Link>
-            <ul className="space-y-3 border-t border-white/10 pt-5 text-[15px] text-[#E6DBD1]">
-              {basicHighlights.map((item) => (
-                <li key={item} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFB444]" />{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div
-            {...fx(250)}
-            className="ld-fx ld-glass relative flex flex-col gap-[22px] rounded-[34px] border border-[#FFC882]/55 p-[34px]"
-            style={{
-              background: "linear-gradient(170deg,rgba(255,180,68,.3),rgba(255,107,0,.14) 35%,rgba(30,12,4,.85) 75%)",
-              boxShadow: "0 40px 100px rgba(255,107,0,.28),inset 0 1px 0 rgba(255,240,210,.35)",
-            }}
-          >
-            <span className="absolute end-[22px] top-[22px] rounded-full bg-[#F6F1EC] px-3.5 py-[5px] text-xs font-semibold text-[#1A0F00]">{trx("أول ١٥ فريق: المساعد بـ{0} بس", AI_ADDON_FOUNDER)}</span>
-            <div><div className={`${font} text-[22px] font-semibold`}>{tr("الفريق + المساعد الذكي")}</div><div className="text-[15px] text-[#E6DBD1]">{tr("مساعد يرتّب ويشرح ويقترح — مو بديل عنكم")}</div></div>
-            <div>
-              <div className="flex items-baseline gap-2"><span className={`${font} text-[60px] font-extrabold leading-none`}>{AI_PRICE}</span><span className="text-[#E6DBD1]">{tr("ريال شهريًا للفريق كامل")}</span></div>
-              <div className="mt-2 text-sm text-[#FFE3A3]">{trx("اشتراك الفريق + المساعد بـ{0} ريال (لحالك +{1})", AI_ADDON_TEAM, AI_ADDON_SOLO)}</div>
-            </div>
-            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] p-[15px] text-center font-bold text-[#1A0F00] shadow-[0_14px_40px_rgba(255,140,0,0.35)]">{tr("جرّبوا المساعد مجانًا")}</Link>
-            <ul className="space-y-3 border-t border-white/[0.18] pt-5 text-[15px] text-[#F6F1EC]">
-              <li className="text-[#F1D9C4]">{tr("كل اللي باشتراك الفريق، إضافةً إلى:")}</li>
-              {aiFeatures.map((f) => (
-                <li key={f.title} className="flex items-start gap-2.5"><Check size={15} className="mt-1 shrink-0 text-[#FFE3A3]" /><span><b className="font-semibold">{f.title}</b> — {f.desc}</span></li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <details className="ld-faq mx-auto mt-10 max-w-3xl rounded-[28px] border border-white/10 bg-white/[0.03] px-6 py-4">
-          <summary className="flex items-center justify-between gap-3 font-semibold">{tr("وش يضيف المساعد الذكي بالتفصيل؟")}<ChevronDown size={18} className="ld-faq-chev shrink-0 text-[#FFB444] transition-transform" />
-          </summary>
-          <div className="mt-5"><PlanComparison variant="dark" /></div>
-        </details>
-
-        <div className="mx-auto mt-8 max-w-md text-start text-sm text-white/50">
-          <p className="mb-3 font-bold text-white">{tr("كيف يتم الدفع؟")}</p>
-          <ol className="space-y-2.5">
-            {[tr("ادفعوا بـ Apple Pay أو STC Pay أو مدى"), tr("كل واحد يدفع نصيبه، أو القائد يدفع عن الكل"), tr("يتفعّل الاشتراك خلال ثوانٍ — بدون تجديد تلقائي")].map((step, i) => (
-              <li key={step} className="flex items-center gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFB444]/15 text-[11px] font-bold text-[#FFB444]">{i + 1}</span>
-                {step}
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <div className="mx-auto mt-10 grid max-w-3xl gap-3 sm:grid-cols-3">
-          {[
-            { k: tr("بالإجازة؟"), v: tr("الفريق يتجمّد مجانًا، وبياناتكم محفوظة لين ترجعون.") },
-            { k: tr("ادعوا فريق ثاني"), v: tr("أول ما يشتركون: شهر مجاني لكم ولهم.") },
-            { k: tr("ظروفك ما تسمح؟"), v: tr("عندنا منحة محدودة — اطلبوها واتساب بدون إحراج.") },
-          ].map((perk) => (
-            <div key={perk.k} className="rounded-[22px] border border-white/10 bg-white/[0.03] px-5 py-4 text-start">
-              <div className="text-sm font-bold text-[#FFB444]">{perk.k}</div>
-              <div className="mt-1 text-sm text-[#BDAFA3]">{perk.v}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= FAQ ================= */}
-      <section id="faq" className="relative mx-auto max-w-[820px] scroll-mt-4 px-6 pb-20 pt-10 sm:px-9">
-        <h2 {...fx()} className={`ld-fx ${font} mb-8 text-center text-[34px] font-extrabold md:text-[40px]`}>{tr("قبل ما تبدأون")}</h2>
-        <div className="flex flex-col gap-2.5">
-          {faqs.map((f, i) => (
-            <details key={f.q} open={i === 0} className="ld-faq border-b border-white/[0.12] px-1 py-5">
-              <summary className="flex items-center justify-between gap-3 text-[19px] font-semibold">
-                {f.q}
-                <ChevronDown size={18} className="ld-faq-chev shrink-0 text-[#FFB444] transition-transform" />
-              </summary>
-              <p className="mt-2.5 text-[#BDAFA3]">{f.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
+      {/* ================= الأسئلة ================= */}
+      <FaqV2 faqs={faqs} />
 
       {/* ================= FINAL CTA ================= */}
       <section className="relative overflow-hidden px-6 pb-[200px] pt-[140px] text-center sm:px-9">
@@ -686,11 +338,12 @@ export default function Landing() {
       </footer>
 
       <a
+        ref={waRef}
         href={`https://wa.me/${SUPPORT_WHATSAPP}`}
         target="_blank"
         rel="noreferrer"
         aria-label={tr("تواصلوا معنا عبر واتساب")}
-        className="ld-glass fixed bottom-7 z-20 flex h-[58px] w-[58px] items-center justify-center rounded-full bg-[#2FBF6B]/90 shadow-[0_12px_30px_rgba(47,191,107,0.4)] start-7"
+        className="ld-glass fixed bottom-7 z-20 transition-[opacity,transform] duration-200 flex h-[58px] w-[58px] items-center justify-center rounded-full bg-[#2FBF6B]/90 shadow-[0_12px_30px_rgba(47,191,107,0.4)] start-7"
       >
         <MessageCircle size={26} className="text-[#06210F]" strokeWidth={2} />
       </a>

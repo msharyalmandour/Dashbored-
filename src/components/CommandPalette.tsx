@@ -28,6 +28,7 @@ import {
   Calculator,
   BookA,
   FileDown,
+  BellRing,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -44,7 +45,13 @@ interface PaletteItem {
 }
 
 const baseItems: PaletteItem[] = [
-  { to: "/tasks?new=1", label: tr("مهمة جديدة"), icon: Plus, action: true, keywords: tr("اضافة اضف مهمة task new") },
+  { to: "/tasks?new=1", label: tr("أضف مهمة"), icon: Plus, action: true, keywords: tr("اضافة اضف مهمة جديدة task new") },
+  { to: "/feedback", label: tr("وش قالت المشرفة؟"), icon: MessageSquareText, action: true, keywords: tr("رسالة رسائل المشرف المشرفة دكتورة ملاحظات supervisor") },
+  { to: "/team", label: tr("ذكّر عضو"), icon: BellRing, action: true, keywords: tr("تذكير ذكر عضو واتساب remind") },
+  { to: "/proposal", label: tr("افتح قسم: المقترح"), icon: BookOpenText, action: true, keywords: tr("افتح قسم اكتب proposal") },
+  { to: "/methodology", label: tr("افتح قسم: المنهجية"), icon: FlaskConical, action: true, keywords: tr("افتح قسم methods") },
+  { to: "/ethical-approval", label: tr("افتح قسم: الموافقة الأخلاقية"), icon: FileCheck2, action: true, keywords: tr("افتح قسم ethics") },
+  { to: "/collect", label: tr("افتح قسم: أجمع وأحلّل"), icon: ClipboardList, action: true, keywords: tr("افتح قسم جمع تحليل collect") },
   { to: "/research-search?tab=studies", label: tr("ابحث عن دراسات لبحثكم"), icon: Search, action: true, keywords: tr("بحث دراسات ابحاث pubmed scholar") },
   { to: "/stats", label: tr("احسب حجم العينة"), icon: Calculator, action: true, keywords: tr("عينة sample size كوكران") },
   { to: "/feedback", label: tr("أضف ملاحظات المشرفة"), icon: MessageSquareText, action: true, keywords: tr("ملاحظات دكتورة مشرفة feedback") },
@@ -166,7 +173,7 @@ export default function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKeyDown}
-            placeholder={tr("اكتب أمر أو صفحة… (مثلًا: مهمة، عينة، spss، موافقة)")}
+            placeholder={tr("ابحث أو اكتب أمر…")}
             className="w-full bg-transparent text-sm text-brand-950 outline-none placeholder:text-brand-950/35"
           />
           <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[10px] font-bold text-brand-950/40">

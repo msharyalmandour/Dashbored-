@@ -17,7 +17,7 @@ export interface ThreeDotsMenuItem {
 /** قائمة نقاط ثلاث قابلة لإعادة الاستخدام — تُغلق تلقائيًا بالضغط برّا أو
     Escape. تُستخدم بكل مكان بالموقع يحتاج إجراءات إضافية (حذف غالبًا) على
     عنصر/بطاقة بدون ما نملي الواجهة بأزرار ظاهرة دايمًا. */
-export default function ThreeDotsMenu({ items }: { items: ThreeDotsMenuItem[] }) {
+export default function ThreeDotsMenu({ items, buttonClassName }: { items: ThreeDotsMenuItem[]; buttonClassName?: string }) {
   const [open, setOpen] = useState(false);
   const [confirmingIndex, setConfirmingIndex] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ export default function ThreeDotsMenu({ items }: { items: ThreeDotsMenuItem[] })
           setConfirmingIndex(null);
         }}
         aria-label={tr("خيارات إضافية")}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-950/35 transition-colors hover:bg-surface-muted hover:text-brand-950/70"
+        className={buttonClassName ?? "flex h-8 w-8 items-center justify-center rounded-lg text-brand-950/35 transition-colors hover:bg-surface-muted hover:text-brand-950/70"}
       >
         <MoreVertical size={16} />
       </button>

@@ -1,0 +1,87 @@
+/* ───────────── الرئيسية: «الفريق + الاجتماع (فخمة)» ─────────────
+   الحركة مرة وحدة بس: دخول البطاقات (v3-rise)، الحلقات تتعبّى 1.2s، الأشرطة 1s، والماوس يرفع بطاقة العضو 4px.
+   ما فيه أي حركة تتكرر. «قلّل الحركة» يوقف كل شي (tokens.css). */
+
+@property --lux-p { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+
+.lux-eye { font-size: 13px; font-weight: 700; letter-spacing: .12em; color: #E9C9A0; }
+.lux-k2 { font-family: "Tajawal", sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -.01em; line-height: 1.3; }
+.lux-num { font-family: "Tajawal", sans-serif; font-weight: 800; letter-spacing: -.01em; line-height: 1; }
+
+/* صف الفريق: كل الأعضاء بصف واحد على الكمبيوتر، وشريط ينسحب على الجوال */
+.lux-team { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(232px, 78vw); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 4px 2px 18px; }
+.lux-team::-webkit-scrollbar { display: none; }
+.lux-team > li { scroll-snap-align: start; }
+@media (min-width: 1024px) {
+  .lux-team { grid-auto-flow: row; grid-template-columns: repeat(var(--lux-n, 4), minmax(0, 1fr)); overflow: visible; padding: 4px 0 8px; }
+}
+
+.lux-mem {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.015) 55%, rgba(0,0,0,.12)), rgba(15,11,9,.6);
+  box-shadow: inset 0 1px 0 rgba(255,236,210,.18), inset 0 0 0 1px rgba(255,214,170,.12), 0 30px 60px rgba(0,0,0,.45);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.lux-mem:hover { transform: translateY(-4px); box-shadow: inset 0 1px 0 rgba(255,236,210,.25), inset 0 0 0 1px rgba(255,214,170,.28), 0 40px 80px rgba(0,0,0,.5), 0 0 60px rgba(255,130,30,.12); }
+.lux-mem.me { box-shadow: inset 0 1px 0 rgba(255,236,210,.25), inset 0 0 0 1px rgba(255,200,120,.55), 0 30px 60px rgba(0,0,0,.45), 0 0 70px rgba(255,150,50,.14); }
+.lux-aura { position: relative; height: 150px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lux-aura::before { content: ""; position: absolute; width: 220px; height: 220px; border-radius: 50%; top: -40px; left: 50%; margin-left: -110px; background: radial-gradient(circle, var(--tint) 0, transparent 65%); opacity: .55; filter: blur(6px); pointer-events: none; }
+.lux-aura::after { content: ""; position: absolute; inset-inline: 22px; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,214,170,.35), transparent); }
+.lux-you { position: absolute; top: 14px; inset-inline-start: 14px; z-index: 1; font-size: 12px; font-weight: 800; color: #1A0802; background: linear-gradient(90deg, #FFD98A, #FFB65C); border-radius: 99px; padding: 2px 10px; box-shadow: 0 4px 12px rgba(255,170,80,.35); }
+.lux-ring {
+  position: relative; border-radius: 50%; padding: 3px;
+  background: conic-gradient(var(--lux-c, #FFB65C) 0 var(--lux-p), rgba(255,255,255,.1) 0);
+  box-shadow: 0 0 0 1px rgba(255,230,200,.25), 0 14px 30px rgba(0,0,0,.45), 0 0 40px var(--lux-glow, rgba(255,140,40,.25));
+  animation: lux-ring 1.2s cubic-bezier(.2,.8,.2,1) .4s both;
+}
+.lux-ring > div { width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 26px; color: #1A0A02; box-shadow: inset 0 -10px 18px rgba(0,0,0,.22), inset 0 6px 10px rgba(255,255,255,.35), 0 0 0 4px #1a110c; }
+.lux-pres { position: absolute; bottom: 10px; inset-inline-end: 4px; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #17110E; }
+.lux-pct { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: 12px; padding: 2px 10px; border-radius: 99px; background: #120b08; border: 1px solid rgba(255,214,170,.25); color: #F2EBE3; white-space: nowrap; }
+.lux-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+.lux-name { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+.lux-now { padding: 10px 12px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid rgba(255,214,170,.12); min-height: 64px; }
+.lux-now-k { font-size: 12px; font-weight: 800; letter-spacing: .06em; }
+.lux-split { display: flex; width: 100%; height: 6px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.08); gap: 2px; }
+.lux-split i { display: block; height: 100%; transform-origin: right center; animation: lux-grow 1s cubic-bezier(.2,.8,.2,1) .6s both; }
+[dir="ltr"] .lux-split i { transform-origin: left center; }
+
+/* الاجتماع الجاي */
+.lux-meet {
+  position: relative; overflow: hidden; border-radius: 34px; padding: 22px;
+  background: radial-gradient(500px 300px at 85% 0%, rgba(255,130,30,.28), transparent 70%), linear-gradient(170deg, rgba(60,22,8,.9), rgba(20,10,6,.92));
+  box-shadow: inset 0 1px 0 rgba(255,236,210,.2), inset 0 0 0 1px rgba(255,200,140,.22), 0 40px 90px rgba(0,0,0,.5);
+}
+@media (min-width: 640px) { .lux-meet { padding: 30px; } }
+.lux-dtile { width: 120px; flex: none; border-radius: 24px; overflow: hidden; text-align: center; box-shadow: 0 0 0 1px rgba(255,220,180,.35), 0 24px 50px rgba(0,0,0,.5), 0 0 40px rgba(255,130,30,.2); transform: perspective(600px) rotateY(-8deg) rotateX(4deg); }
+.lux-dtile .t { background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-size: 13px; font-weight: 800; padding: 6px 0; }
+.lux-dtile .b { background: linear-gradient(180deg, #FBF5EC, #E9DCCB); color: #1E140E; padding: 8px 0 10px; }
+.lux-soon { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,154,60,.14); border: 1px solid rgba(255,154,60,.35); color: #FFC777; font-size: 13px; font-weight: 800; }
+.lux-soon i { width: 7px; height: 7px; border-radius: 50%; background: #FF9A3C; box-shadow: 0 0 10px #FF9A3C; }
+.lux-bigtime { font-family: "Tajawal", sans-serif; font-weight: 800; font-size: 74px; line-height: .9; letter-spacing: -.02em; background: linear-gradient(180deg, #FFF6E8, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lux-avs { display: flex; padding-inline-start: 8px; }
+.lux-avs > span { margin-inline-start: -8px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: #1A0A02; border: 2px solid #17110E; }
+.lux-join { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 16px; white-space: nowrap; border-radius: 999px; background: #F2EBE3; color: #160904; font-weight: 800; font-size: 15px; box-shadow: 0 14px 34px rgba(255,190,120,.25); text-decoration: none; transition: transform .2s ease; }
+.lux-join:hover { transform: translateY(-1px); }
+.lux-join:focus-visible { outline: 2px solid #FF9A3C; outline-offset: 2px; }
+
+/* هالأسبوع */
+.lux-week { position: relative; border-radius: 34px; padding: 22px; background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), rgba(15,11,9,.72); box-shadow: inset 0 1px 0 rgba(255,236,210,.14), inset 0 0 0 1px rgba(255,214,170,.12), 0 30px 70px rgba(0,0,0,.45); }
+@media (min-width: 640px) { .lux-week { padding: 28px; } }
+.lux-tl { position: relative; padding-inline-start: 26px; }
+.lux-tl::before { content: ""; position: absolute; top: 8px; bottom: 8px; inset-inline-start: 7px; width: 2px; background: linear-gradient(180deg, #FF9A3C, rgba(255,154,60,.15) 70%, rgba(255,138,122,.5)); }
+.lux-ev { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.lux-ev::before { content: ""; position: absolute; inset-inline-start: -23px; width: 10px; height: 10px; border-radius: 50%; background: #2A1F19; border: 2px solid rgba(255,255,255,.25); }
+.lux-ev.today::before { background: #FF9A3C; border-color: #FF9A3C; box-shadow: 0 0 0 4px rgba(255,154,60,.18); }
+.lux-ev.dl::before { background: #FF8A7A; border-color: #FF8A7A; }
+.lux-card { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 16px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); }
+.lux-ev.today .lux-card { border-color: rgba(255,154,60,.22); background: linear-gradient(90deg, rgba(255,154,60,.08), rgba(255,255,255,.02)); }
+.lux-ev.dl .lux-card { border-color: rgba(255,138,122,.3); background: linear-gradient(90deg, rgba(255,120,100,.1), rgba(255,255,255,.02)); }
+.lux-tm { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.06); white-space: nowrap; direction: ltr; }
+
+@keyframes lux-ring { from { --lux-p: 0%; } }
+@keyframes lux-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .lux-mem:hover, .lux-join:hover { transform: none; } }
+html[data-reduce-motion="true"] .lux-mem:hover, html[data-reduce-motion="true"] .lux-join:hover { transform: none; }
+/* البطاقات بنفس الطول: الشريط والأرقام تحت دايمًا */
+.lux-body { flex: 1; }
+.lux-split { margin-top: auto; }

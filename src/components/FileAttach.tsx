@@ -43,10 +43,13 @@ export default function FileAttach({
   label,
   compact = false,
   category = "general",
+  buttonClassName,
 }: {
   onAttach: (meta: AttachedFileMeta) => void;
   label?: string;
   compact?: boolean;
+  /** يستبدل شكل زر الوضع المختصر (مثلًا زر زجاجي بصفحات v3) */
+  buttonClassName?: string;
   category?: "general" | "ethical-approval";
 }) {
   const { currentUser } = useAuth();
@@ -120,7 +123,7 @@ export default function FileAttach({
           type="button"
           onClick={() => state !== "uploading" && inputRef.current?.click()}
           disabled={state === "uploading"}
-          className={clsx(
+          className={buttonClassName ?? clsx(
             "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
             state === "done"
               ? "bg-brand-500 text-white"

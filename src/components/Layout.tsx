@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { applyReduceMotion, getReduceMotion, setReduceMotion } from "../lib/motionPref";
+import { storePaperMode } from "../lib/paperMode";
+import { loadProfilePrefs } from "../lib/profilePrefs";
+import { useEffect, useState } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, CreditCard } from "lucide-react";
 import GiftMotion from "./GiftMotion";
@@ -44,6 +47,7 @@ const titles: Record<string, string> = {
   "/team": tr("الفريق"),
   "/timeline": tr("الجدول الزمني"),
   "/fieldwork": tr("الميدان"),
+  "/collect": tr("أجمع وأحلّل"),
   "/files": tr("الملفات"),
   "/calendar": tr("التقويم"),
   "/story": tr("قصة بحثك"),
@@ -63,17 +67,33 @@ const pageHeaderRoutes = new Set([
   "/surveys",
   "/tools-library",
   "/fieldwork",
+  "/collect",
   "/stats",
 ]);
 
 /** صفحات عنوانها داخل الصفحة نفسها — الشريط العلوي ما يكرره (بدون تفعيل ستايل الترويسة الموحّدة) */
-const titleInPageRoutes = new Set(["/research-search", "/evidence", "/literature-review", "/meeting-minutes", "/meeting-minutes/new"]);
+const titleInPageRoutes = new Set(["/", "/research-search", "/evidence", "/literature-review", "/meeting-minutes", "/meeting-minutes/new"]);
 
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  // «قلّل الحركة» و«وضع الورقة»: الجهاز فورًا، وبعدها الحساب يغلب لو المستخدم اختار من جهاز ثاني
+  const userId = currentUser?.id;
+  useEffect(() => {
+    if (!userId) return;
+    applyReduceMotion(getReduceMotion(userId));
+    let alive = true;
+    loadProfilePrefs(userId).then((prefs) => {
+      if (!alive || !prefs) return;
+      if (prefs.reduceMotion !== null && prefs.reduceMotion !== getReduceMotion(userId)) setReduceMotion(userId, prefs.reduceMotion, true);
+      if (prefs.paperMode !== null) storePaperMode(userId, prefs.paperMode);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
 
   if (loading) return <AppSplash />;
 
@@ -96,17 +116,15 @@ export default function Layout() {
           فقط) — عشان تأثير الزجاج (backdrop-blur) بالبطاقات يبين بأي
           سكرول موضع، مو بس أعلى الصفحة. النسب المئوية تتكيف تلقائيًا
           مع طول أي صفحة كانت */}
-      <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] rounded-full bg-brand-500/30 blur-3xl" />
-      <div className="pointer-events-none absolute -left-20 top-[22%] h-96 w-96 rounded-full bg-amber-accent-400/28 blur-3xl" />
-      <div className="pointer-events-none absolute right-1/4 top-[45%] h-[26rem] w-[26rem] rounded-full bg-sky-accent-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -left-16 top-[65%] h-80 w-80 rounded-full bg-amber-accent-500/26 blur-3xl" />
-      <div className="pointer-events-none absolute -right-20 top-[85%] h-96 w-96 rounded-full bg-brand-500/24 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] rounded-full bg-[#D9380A] opacity-[.22] blur-3xl" />
+      <div className="pointer-events-none absolute -left-20 top-[40%] h-96 w-96 rounded-full bg-[#FF8A24] opacity-[.1] blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 top-[80%] h-96 w-96 rounded-full bg-[#D9380A] opacity-[.12] blur-3xl" />
       <DriveNotice />
       <StageCelebration />
       <CommandPalette />
       <AiAssistant />
       <TourGuide />
-      <BottomNav onMenu={() => setMobileNavOpen(true)} />
+      <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <Header
@@ -114,8 +132,9 @@ export default function Layout() {
           onMenuClick={() => setMobileNavOpen(true)}
           hideTitleOnDesktop={pageHeaderRoutes.has(location.pathname)}
           hideTitle={titleInPageRoutes.has(location.pathname)}
+          homeMode={location.pathname === "/"}
         />
-        <main className="flex-1 px-4 py-6 pb-24 sm:px-8 md:pb-6">
+        <main className="flex-1 px-4 py-6 pb-32 sm:px-8 md:pb-6">
           <div className="space-y-6">
             {showTrialBanner && (
               <AlertCard

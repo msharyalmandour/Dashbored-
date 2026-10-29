@@ -46,13 +46,68 @@ async function call<T>(body: Record<string, unknown> | FormData, timeoutMs = TIM
   return { data: data as T };
 }
 
-export async function getDriveStatus(): Promise<DriveStatus> {
+/** الطريق السريع: الحالة من القاعدة مباشرة (team_drive_status) — بدون انتظار إقلاع الدالة */
+async function fetchDriveStatusFromDb(): Promise<DriveStatus | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const { data, error } = await supabase!.rpc("team_drive_status");
+    if (error || !data || typeof data !== "object") return null;
+    return data as DriveStatus;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchDriveStatus(): Promise<DriveStatus> {
+  const fast = await fetchDriveStatusFromDb();
+  if (fast) return fast;
   let r = await call<DriveStatus>({ action: "status" }, 15000);
   // أول طلب بعد خمول الدالة (إقلاع بارد) ممكن يتأخر أو يفشل: نعيد مرة وحدة قبل ما نقول «تعذّر»
   if (!r.data && (r.error === "timeout" || r.error === "failed")) r = await call<DriveStatus>({ action: "status" }, 15000);
   // فشل الفحص ≠ الميزة مطفّية: نرجّع unreachable عشان الواجهة تعرض «تعذّر الفحص + أعيدوا المحاولة» بدل ما تختفي
   if (!r.data) return r.error === "not_configured" ? OFF : { ...OFF, unreachable: true, errorCode: r.error ?? "failed" };
   return r.data;
+}
+
+/* دالة الدرايف تقلع ببطء أحيانًا (ثواني)، فبطاقة «ربط درايف الفريق» كانت تطلع متأخر:
+   - نحفظ آخر حالة ناجحة بالجهاز (لكل مستخدم) والواجهة تعرضها فورًا مع peekDriveStatus
+   - وطلب واحد مشترك بين الرئيسية وصفحة الاجتماعات بدل طلبين، ونعيد استخدام نتيجته ٦٠ ثانية */
+const SNAPSHOT_KEY = (userId: string) => `wesync.driveStatus.${userId}`;
+const REUSE_MS = 60000;
+let inflight: { at: number; promise: Promise<DriveStatus> } | null = null;
+
+async function currentUserId(): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data } = await supabase!.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+/** آخر حالة معروفة لهذا المستخدم على هذا الجهاز — للعرض الفوري قبل ما يرد الخادم */
+export function peekDriveStatus(userId: string | undefined): DriveStatus | null {
+  if (!userId) return null;
+  try {
+    const raw = localStorage.getItem(SNAPSHOT_KEY(userId));
+    return raw ? (JSON.parse(raw) as DriveStatus) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getDriveStatus(opts: { fresh?: boolean } = {}): Promise<DriveStatus> {
+  if (!opts.fresh && inflight && Date.now() - inflight.at < REUSE_MS) return inflight.promise;
+  const promise = fetchDriveStatus().then(async (s) => {
+    if (!s.unreachable) {
+      const uid = await currentUserId();
+      try {
+        if (uid) localStorage.setItem(SNAPSHOT_KEY(uid), JSON.stringify(s));
+      } catch {
+        // بدون تخزين: نعرض بعد ما يرد الخادم بس
+      }
+    } else if (inflight?.promise === promise) inflight = null;
+    return s;
+  });
+  inflight = { at: Date.now(), promise };
+  return promise;
 }
 
 /** يرجّع رابط موافقة Google؛ الواجهة تفتحه بنفس النافذة */

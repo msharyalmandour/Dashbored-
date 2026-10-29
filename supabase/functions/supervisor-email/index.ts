@@ -21,13 +21,44 @@ const json = (status: number, body: unknown) =>
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+/* قالب الإيميل الفخم (Obsidian × Ember): خلفية سوداء، كرت داكن، شريط برتقالي فوق، وزر برتقالي.
+   جداول + ستايل داخلي عشان يطلع صح في Gmail وOutlook وApple Mail. <!--WS_FOOTER--> مكان سطر الإيقاف. */
+const FONT = "Tajawal,'Segoe UI',Tahoma,Arial,sans-serif";
+const EMAIL_BOX = "background:#1B1310;border:1px solid #2E2019;border-radius:14px;padding:12px 16px";
+
 function layout(title: string, bodyHtml: string, ctaUrl?: string, ctaLabel?: string, footer?: string) {
-  return `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;max-width:520px;margin:auto;padding:24px;color:#111;line-height:1.8">
-<p style="font-size:12px;letter-spacing:.2em;color:#888;margin:0 0 12px">WESYNC ∞</p>
-<h2 style="margin:0 0 12px;font-size:20px">${esc(title)}</h2>
+  return `<div dir="rtl" lang="ar" style="margin:0;padding:0;background:#080808">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#080808" style="background:#080808">
+<tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#120D0A;border:1px solid #2A1C14;border-radius:24px;overflow:hidden">
+<tr><td height="4" bgcolor="#FF6A00" style="height:4px;line-height:4px;font-size:0;background:#FF6A00;background-image:linear-gradient(90deg,#FF6A00,#FF8A24,#FFB547)">&nbsp;</td></tr>
+<tr><td style="padding:26px 28px 6px;font-family:${FONT};direction:rtl;text-align:right">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+<td width="34" height="34" align="center" valign="middle" bgcolor="#FF6A00" style="width:34px;height:34px;border-radius:17px;background:#FF6A00;background-image:radial-gradient(circle at 50% 38%,#FFF0C2,#FFB547 30%,#FF6A00 65%,#C2400A);color:#1A0802;font-size:18px;font-weight:800;line-height:34px">∞</td>
+<td style="padding-right:10px;font-family:${FONT};font-size:17px;font-weight:800;color:#F7EFE6;letter-spacing:.3px">Wesync</td>
+</tr></table>
+</td></tr>
+<tr><td style="padding:14px 28px 4px;font-family:${FONT};direction:rtl;text-align:right">
+<h1 style="margin:0;font-family:${FONT};font-size:24px;line-height:1.4;font-weight:800;color:#F7EFE6">${esc(title)}</h1>
+</td></tr>
+<tr><td style="padding:10px 28px 4px;font-family:${FONT};direction:rtl;text-align:right;font-size:15px;line-height:1.85;color:#E6DBD1">
 ${bodyHtml}
-${ctaUrl ? `<p style="margin:24px 0"><a href="${esc(ctaUrl)}" style="background:#f59e0b;color:#111;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:12px;display:inline-block">${esc(ctaLabel ?? "افتحوا الرابط")}</a></p>` : ""}
-${footer ? `<p style="font-size:12px;color:#888;border-top:1px solid #eee;padding-top:12px;margin-top:24px">${footer}</p>` : ""}
+</td></tr>
+${
+  ctaUrl
+    ? `<tr><td style="padding:18px 28px 6px;direction:rtl;text-align:right">
+<a href="${esc(ctaUrl)}" style="display:inline-block;background:#FF6A00;background-image:linear-gradient(90deg,#FF6A00,#FF9A3C);color:#1A0802;font-family:${FONT};font-size:15px;font-weight:800;text-decoration:none;padding:13px 26px;border-radius:999px">${esc(ctaLabel ?? "افتحوا الرابط")} ←</a>
+</td></tr>`
+    : ""
+}
+<tr><td style="padding:22px 28px 26px;direction:rtl;text-align:right">
+<div style="border-top:1px solid #2A1C14;padding-top:14px;font-family:${FONT};font-size:12px;line-height:1.8;color:#8F857C">
+${footer ? `<p style="margin:0 0 6px">${footer}</p>` : ""}<!--WS_FOOTER--><p style="margin:0">Wesync · بحثكم يخلص بوقته، مو بآخر ليلة</p>
+</div>
+</td></tr>
+</table>
+</td></tr>
+</table>
 </div>`;
 }
 
@@ -156,10 +187,10 @@ Deno.serve(async (req: Request) => {
       `رد جديد من فريق «${team.name}»`,
       layout(
         `رد جديد من فريق «${team.name}»`,
-        `<p style="background:#f6f6f6;border-radius:12px;padding:14px 16px;white-space:pre-wrap">${esc(excerpt)}</p><p style="font-size:13px;color:#555">— ${esc(lastMsg.sender_name || "الفريق")}</p>`,
+        `<p style="${EMAIL_BOX};white-space:pre-wrap">${esc(excerpt)}</p><p style="font-size:13px;color:#ABA095">— ${esc(lastMsg.sender_name || "الفريق")}</p>`,
         link,
         "افتحوا المحادثة وردّوا",
-        `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}">إيقاف الإشعارات</a>`,
+        `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`,
       ),
       `رد جديد من فريق «${team.name}»:\n\n${excerpt}\n\nافتحوا المحادثة: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
     );
@@ -196,19 +227,19 @@ Deno.serve(async (req: Request) => {
       if (!m || proj?.team_id !== profile.team_id) return json(404, { error: "not_found" });
       const ex = m.discussion.length > 350 ? `${m.discussion.slice(0, 350)}…` : m.discussion;
       title = `محضر اجتماع بانتظار اعتمادكم — فريق «${team.name}»`;
-      inner = `<p>أرسل الفريق محضر اجتماع <b>${esc(String(m.meeting_date))}</b> للاعتماد.</p><p style="background:#f6f6f6;border-radius:12px;padding:14px 16px;white-space:pre-wrap">${esc(ex)}</p><p style="font-size:13px;color:#555">تعتمدونه أو تطلبون تعديلًا بضغطة، بدون تسجيل دخول. ولو ما وصل رد خلال 48 ساعة يُحسب معتمدًا.</p>`;
+      inner = `<p>أرسل الفريق محضر اجتماع <b>${esc(String(m.meeting_date))}</b> للاعتماد.</p><p style="${EMAIL_BOX};white-space:pre-wrap">${esc(ex)}</p><p style="font-size:13px;color:#ABA095">تعتمدونه أو تطلبون تعديلًا بضغطة، بدون تسجيل دخول. ولو ما وصل رد خلال 48 ساعة يُحسب معتمدًا.</p>`;
       plain = `أرسل فريق «${team.name}» محضر اجتماع ${m.meeting_date} للاعتماد:\n\n${ex}`;
     } else if (kind === "decision") {
       const { data: d } = await admin.from("decision_requests").select("question, options").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
       if (!d) return json(404, { error: "not_found" });
       title = `سؤال بانتظار قراركم — فريق «${team.name}»`;
-      inner = `<p><b>${esc(d.question)}</b></p><p style="font-size:13px;color:#555">الخيارات: ${d.options.map((o: string) => esc(o)).join(" · ")}</p><p style="font-size:13px;color:#555">تجاوبون بضغطة وحدة من رابطكم.</p>`;
+      inner = `<p><b>${esc(d.question)}</b></p><p style="font-size:13px;color:#ABA095">الخيارات: ${d.options.map((o: string) => esc(o)).join(" · ")}</p><p style="font-size:13px;color:#ABA095">تجاوبون بضغطة وحدة من رابطكم.</p>`;
       plain = `سؤال بانتظار قراركم من فريق «${team.name}»:\n${d.question}\nالخيارات: ${d.options.join(" · ")}`;
     } else {
       const { data: b } = await admin.from("meeting_bookings").select("booking_date, booking_time, note, status").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
       if (!b || b.status !== "pending") return json(200, { sent: false, reason: "not_pending" });
       title = `اقتراح موعد اجتماع — فريق «${team.name}»`;
-      inner = `<p>اقترح الفريق اجتماعًا يوم <b>${esc(String(b.booking_date))}</b> الساعة <b>${esc(b.booking_time)}</b>.</p>${b.note ? `<p style="background:#f6f6f6;border-radius:12px;padding:14px 16px;white-space:pre-wrap">${esc(b.note)}</p>` : ""}<p style="font-size:13px;color:#555">تؤكدونه أو تعتذرون بضغطة وحدة.</p>`;
+      inner = `<p>اقترح الفريق اجتماعًا يوم <b>${esc(String(b.booking_date))}</b> الساعة <b>${esc(b.booking_time)}</b>.</p>${b.note ? `<p style="${EMAIL_BOX};white-space:pre-wrap">${esc(b.note)}</p>` : ""}<p style="font-size:13px;color:#ABA095">تؤكدونه أو تعتذرون بضغطة وحدة.</p>`;
       plain = `اقترح فريق «${team.name}» اجتماعًا يوم ${b.booking_date} الساعة ${b.booking_time}.`;
     }
 
@@ -217,7 +248,7 @@ Deno.serve(async (req: Request) => {
     const sent = await sendEmail(
       sub.email,
       title,
-      layout(title, inner, link, "افتحوا وردّوا بضغطة", `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}">إيقاف الإشعارات</a>`),
+      layout(title, inner, link, "افتحوا وردّوا بضغطة", `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`),
       `${plain}\n\nافتحوا: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
     );
     if (!sent.ok) return json(200, { sent: false, reason: sent.reason });

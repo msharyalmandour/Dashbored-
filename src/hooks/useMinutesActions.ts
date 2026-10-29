@@ -8,7 +8,7 @@ import { useMeetings } from "./useMeetings";
 import { useResearchStages } from "./useResearchStages";
 import { useTasksData } from "./useTasksData";
 import { useTeamRoster } from "./useTeamRoster";
-import { driveErrorMessage, getDriveStatus, uploadMinutesToDrive, type DriveStatus } from "../lib/driveTeam";
+import { driveErrorMessage, getDriveStatus, peekDriveStatus, uploadMinutesToDrive, type DriveStatus } from "../lib/driveTeam";
 import { buildMeetingMinutesDoc } from "../lib/meetingMinutesExport";
 import { toISODate } from "../lib/date";
 import { buildReadiness, supervisorLink } from "../lib/meetings";
@@ -57,19 +57,21 @@ export function useMinutesActions() {
   const { stages } = useResearchStages();
   const location = useLocation();
 
-  const [driveStatus, setDriveStatus] = useState<DriveStatus | null>(null);
+  // آخر حالة معروفة تظهر فورًا، والطلب الحقيقي يحدّثها بالخلفية
+  const [driveStatus, setDriveStatus] = useState<DriveStatus | null>(() => peekDriveStatus(currentUser?.id));
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState<JustSaved | null>(() => (location.state as { justSaved?: JustSaved } | null)?.justSaved ?? null);
 
   const supervisorUrl = team?.shareToken ? supervisorLink(publicOrigin(), team.shareToken) : null;
   const memberName = useCallback((id: string | null | undefined) => roster.find((m) => m.id === id)?.name ?? "", [roster]);
 
+  // بعد ربط/فك/مشاركة: نطلب الحالة من جديد بدل النتيجة المشتركة
   const refreshDrive = useCallback(() => {
-    getDriveStatus().then(setDriveStatus);
+    getDriveStatus({ fresh: true }).then(setDriveStatus);
   }, []);
   useEffect(() => {
-    refreshDrive();
-  }, [refreshDrive]);
+    getDriveStatus().then(setDriveStatus);
+  }, []);
 
   const today = toISODate(new Date());
   const lastMinutes = minutes[0];

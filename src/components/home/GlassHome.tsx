@@ -49,7 +49,7 @@ export function AgentPill({ firstName }: { firstName: string }) {
     <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح وكيل Wesync")}>
       <span aria-hidden className="h-10 w-10 flex-none rounded-full" style={{ background: "radial-gradient(circle at 40% 35%,#FFF0C2,#FFB444 35%,#FF6A00 70%,#8A2A05)", boxShadow: "0 0 24px rgba(255,140,40,.6)" }} />
       <span className="min-w-0 flex-1 text-sm leading-normal">
-        <b>{tr("هلا {0}!", firstName)}</b> <span className="text-[#ABA095]">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
+        <b>{tr("هلا {0}!", `\u2068${firstName}\u2069`)}</b> <span className="text-[#ABA095]">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
       </span>
       <span className="hg-pbtn !h-[38px] !w-[38px] !rounded-xl" aria-hidden>
         <AgentWave size={18} />
@@ -353,16 +353,18 @@ export function DeadlineCard({
           </span>
         </div>
       ) : (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(255,140,40,.14)] text-[#FF9A3C]" aria-hidden>
-            <Flag size={22} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-[17px] font-extrabold">{tr("حدّدوا موعد التسليم")}</div>
-            <div className="text-[13px] text-[#ABA095]">{tr("ونحسب لكم كم يوم باقي")}</div>
+        <div className="mt-3 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-[rgba(255,140,40,.14)] text-[#FF9A3C]" aria-hidden>
+              <Flag size={22} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="text-[17px] font-extrabold">{tr("حدّدوا موعد التسليم")}</div>
+              <div className="text-[13px] text-[#ABA095]">{tr("ونحسب لكم كم يوم باقي")}</div>
+            </div>
           </div>
           {canWrite && (
-            <button type="button" className="v3-bd !min-h-[44px] !text-sm" onClick={onSetDeadline}>
+            <button type="button" className="v3-bd w-full justify-center !min-h-[44px] !text-sm" onClick={onSetDeadline}>
               {tr("اختاروا التاريخ")}
             </button>
           )}
@@ -450,7 +452,7 @@ export function MobileTiles({
         <div className="text-xs font-bold text-[#ABA095]">{tr("هالأسبوع")}</div>
         <div className="flex items-baseline gap-1.5">
           <span className="hg-num text-[46px] leading-[1.05] text-[#F2EBE3]">{weekDone}</span>
-          <b className="text-base">{weekDone === 1 ? tr("مهمة") : weekDone === 2 ? tr("مهمتين") : weekDone >= 3 && weekDone <= 10 ? tr("مهام") : tr("مهمة")}</b>
+          <b className="text-base">{weekDone === 1 ? tr("مهمة") : weekDone === 2 ? tr("مهمتين") : weekDone <= 10 ? tr("مهام") : tr("مهمة")}</b>
         </div>
         <div className="text-xs" style={{ color: weekDiff > 0 ? "#7FE0A6" : "#ABA095" }}>
           {weekDiff > 0 ? tr("+{0} عن اللي قبله", num(weekDiff)) : weekDiff < 0 ? tr("{0} أقل من اللي قبله", num(-weekDiff)) : tr("نفس الأسبوع اللي قبله")}
@@ -663,7 +665,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
         <span>┄ {tr("المخطط")}</span>
         <span>{tr("الأسابيع ←")}</span>
         <span className="ms-auto text-[#EAE3DC]">
-          {tr("هالأسبوع")} <b className="hg-num">{last?.done ?? 0}</b> {(last?.done ?? 0) === 1 ? tr("مهمة") : (last?.done ?? 0) === 2 ? tr("مهمتين") : (last?.done ?? 0) >= 3 && (last?.done ?? 0) <= 10 ? tr("مهام") : tr("مهمة")}
+          {tr("هالأسبوع")} <b className="hg-num">{last?.done ?? 0}</b> {(last?.done ?? 0) === 1 ? tr("مهمة") : (last?.done ?? 0) === 2 ? tr("مهمتين") : (last?.done ?? 0) <= 10 ? tr("مهام") : tr("مهمة")}
         </span>
       </div>
     </section>

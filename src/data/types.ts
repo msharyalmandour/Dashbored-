@@ -318,10 +318,10 @@ export interface ResearchSearchResult {
   summaryAr: string;
   relevanceReason: string;
   sourceType: "peer-reviewed" | "general" | "other";
-  /** الحقول التالية تجي من وكيل المصادر الحقيقية (PubMed/OpenAlex) — اختيارية عشان نتائج بحث الويب القديمة تبقى تشتغل */
+  /** الحقول التالية تجي من وكيل المصادر الحقيقية (PubMed/OpenAlex/Crossref) — اختيارية عشان نتائج بحث الويب القديمة تبقى تشتغل */
   journal?: string;
   doi?: string | null;
-  source?: "pubmed" | "openalex" | "web";
+  source?: "pubmed" | "openalex" | "crossref" | "semanticscholar" | "web";
   studyDesign?: string;
   sampleSize?: string;
   keyFinding?: string;
@@ -364,6 +364,8 @@ export interface ResearchSearchQuery {
   noveltyNote: string | null;
   createdById: string;
   createdAt: string;
+  /** كلمات البحث بالإنجليزي من آخر بحث (بالذاكرة بس، ما تنحفظ) — لزر Google Scholar */
+  scholarQuery?: string;
 }
 
 export interface MeetingMinutesRow {

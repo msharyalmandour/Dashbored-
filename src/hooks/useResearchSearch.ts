@@ -23,7 +23,7 @@ function mapRow(row: SearchRowDb): ResearchSearchQuery {
   };
 }
 
-/** وكيل البحث العلمي الحقيقي — يبحث بقواعد PubMed وOpenAlex عبر دالة
+/** وكيل البحث العلمي الحقيقي — يبحث بقواعد PubMed وOpenAlex وCrossref عبر دالة
     research-agent، وإذا رجّعت أقل من ٣ نتائج يكمّل ببحث الويب (ai-assist).
     ما فيه بديل تجريبي: بحث حي ما له معنى بوضع العرض التجريبي. النتائج
     تُخزَّن بجدول research_search_queries عشان الفريق يرجع لها بدون إعادة
@@ -53,17 +53,19 @@ export function useResearchSearch() {
     }
     setSearching(true);
 
-    // المصدر الأول: قواعد أبحاث حقيقية (PubMed + OpenAlex) عبر research-agent
+    // المصدر الأول: قواعد أبحاث حقيقية (PubMed + OpenAlex + Crossref) عبر research-agent
     const primary = await supabase!.functions.invoke("research-agent", {
       body: { action: "search", topic },
     });
     const p = primary.data as {
       results?: ResearchSearchResult[];
       noveltyNote?: string;
+      scholarQuery?: string;
       limitReached?: boolean;
       message?: string;
       error?: string;
     } | null;
+    const scholarQuery = typeof p?.scholarQuery === "string" ? p.scholarQuery : undefined;
     if (p?.limitReached) {
       setSearching(false);
       return { row: null as ResearchSearchQuery | null, error: undefined as string | undefined, limitMessage: p.message as string };
@@ -112,7 +114,7 @@ export function useResearchSearch() {
       .single();
     setSearching(false);
     if (!insertError && inserted) {
-      const row = mapRow(inserted as SearchRowDb);
+      const row = { ...mapRow(inserted as SearchRowDb), scholarQuery };
       setSearches((prev) => [row, ...prev]);
       return { row, error: undefined as string | undefined };
     }

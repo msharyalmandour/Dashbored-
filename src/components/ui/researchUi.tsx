@@ -80,7 +80,7 @@ export const themeLabelAr: Record<LiteratureTheme, string> = {
 };
 
 /** شعارات مصادر البحث — رسم مبسّط داخل بلاطة كريمية (مو ملفات الشعار الرسمية) */
-export type SourceName = "pubmed" | "openalex" | "scholar";
+export type SourceName = "pubmed" | "openalex" | "crossref" | "semanticscholar" | "scholar";
 
 export function SourceLogo({ name, size = 22 }: { name: SourceName; size?: number }) {
   const tile = "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-[#F4F0EC]";
@@ -95,6 +95,25 @@ export function SourceLogo({ name, size = 22 }: { name: SourceName; size?: numbe
           <circle cx="9.3" cy="17.4" r="0.9" fill="#fff" />
           <circle cx="12" cy="17.9" r="0.9" fill="#fff" />
           <circle cx="14.7" cy="17.4" r="0.9" fill="#fff" />
+        </svg>
+      </span>
+    );
+  if (name === "crossref")
+    return (
+      <span className={tile} style={{ width: size, height: size }} aria-hidden>
+        <svg viewBox="0 0 24 24" width={size * 0.82} height={size * 0.82}>
+          <path d="M4 8.5 11 4.5l7 4" fill="none" stroke="#3EB1C8" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M20 15.5 13 19.5l-7-4" fill="none" stroke="#EF3340" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M4 12.5 11 8.5l7 4" fill="none" stroke="#3EB1C8" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" opacity=".55" />
+        </svg>
+      </span>
+    );
+  if (name === "semanticscholar")
+    return (
+      <span className={tile} style={{ width: size, height: size }} aria-hidden>
+        <svg viewBox="0 0 24 24" width={size * 0.82} height={size * 0.82}>
+          <path d="M3 9.5 12 17l9-12" fill="none" stroke="#1857B6" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M7 8.5 12 13l6.5-8.5" fill="none" stroke="#F8C51C" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
     );
@@ -120,12 +139,12 @@ export function SourceLogo({ name, size = 22 }: { name: SourceName; size?: numbe
 
 /** كبسولة مصدر: شعار + اسم (مع علامة صح لو مصدر فعّال بالبحث) */
 export function sourceKey(source?: string): SourceName | null {
-  return source === "pubmed" ? "pubmed" : source === "openalex" ? "openalex" : null;
+  return source === "pubmed" || source === "openalex" || source === "crossref" || source === "semanticscholar" ? source : null;
 }
 
 /** شارة مصدر من الاسم النصي (PubMed / OpenAlex / DOI / يدوي…) مع الشعار لو متوفر */
 export function SourceTag({ label }: { label: string }) {
-  const key = label === "PubMed" ? "pubmed" : label === "OpenAlex" ? "openalex" : null;
+  const key = label === "PubMed" ? "pubmed" : label === "OpenAlex" ? "openalex" : label === "Crossref" ? "crossref" : label === "Semantic Scholar" ? "semanticscholar" : null;
   return (
     <SourceBadge>
       <span className="flex items-center gap-1.5">

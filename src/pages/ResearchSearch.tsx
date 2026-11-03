@@ -120,7 +120,7 @@ function SearchProgress() {
     return () => clearInterval(t);
   }, []);
   const stage = sec < 6 ? 0 : sec < 13 ? 1 : 2;
-  const steps = [tr("نبحث في PubMed وOpenAlex"), tr("نختار أقرب الدراسات لموضوعكم"), tr("نلخّصها لكم بالعربي")];
+  const steps = [tr("نبحث في PubMed وOpenAlex وCrossref"), tr("نختار أقرب الدراسات لموضوعكم"), tr("نلخّصها لكم بالعربي")];
   return (
     <div className="mt-4 rounded-2xl bg-white/[0.05] p-4 text-start" role="status" aria-live="polite">
       <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
@@ -190,7 +190,7 @@ function ResultCard({
   };
 
   const peer = result.sourceType === "peer-reviewed";
-  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : tr("بحث ويب");
+  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : result.source === "crossref" ? "Crossref" : result.source === "semanticscholar" ? "Semantic Scholar" : tr("بحث ويب");
 
   return (
     <div className="space-y-3 rounded-2xl bg-white/[0.04] p-5">
@@ -297,6 +297,15 @@ export default function ResearchSearch() {
   const { project } = useResearchProject();
   const { addPaper } = useEvidencePapers();
   const st = useResearchAgentState();
+  // زر Google Scholar: كلمات البحث الإنجليزية من آخر بحث لنفس الموضوع، وإلا الجزء الإنجليزي من العنوان
+  const scholarTerms = (() => {
+    const t = st.topic.trim();
+    if (!t) return "";
+    if (st.activeResult?.scholarQuery && st.activeResult.queryText.trim() === t) return st.activeResult.scholarQuery;
+    if (!/[\u0600-\u06FF]/.test(t)) return t;
+    const latin = t.replace(/[^\x20-\x7E]+/g, " ").replace(/\s+/g, " ").trim();
+    return latin.length >= 4 ? latin : t;
+  })();
   const aiOk = hasAiAccess(team);
 
   // عنوان البحث يتعبّى تلقائيًا مرة وحدة (لو الطالبة ما كتبت شي بعد)
@@ -372,7 +381,7 @@ export default function ResearchSearch() {
           <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[160px] -z-10 h-[360px] w-[560px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
           <div className="mx-auto flex max-w-[720px] flex-col items-center gap-4">
             <h1 className="font-kufi text-3xl font-extrabold leading-tight md:text-5xl">{tr("عن وش تدوّرون؟")}</h1>
-            <p className="text-base font-light text-[#B8ADA2] md:text-lg">{tr("نبحث في ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" مع بعض، ونلخّص لكم كل دراسة بالعربي.")}</p>
+            <p className="text-base font-light text-[#B8ADA2] md:text-lg">{tr("نبحث في ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr(" مع بعض، ونلخّص لكم كل دراسة بالعربي.")}</p>
 
             <form
               onSubmit={(e) => {
@@ -397,7 +406,7 @@ export default function ResearchSearch() {
 
             <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-[#B8ADA2]">
               <span>{tr("المصادر:")}</span>
-              {([["pubmed", "PubMed"], ["openalex", "OpenAlex"]] as const).map(([k, label]) => (
+              {([["pubmed", "PubMed"], ["openalex", "OpenAlex"], ["crossref", "Crossref"]] as const).map(([k, label]) => (
                 <span key={k} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 py-1 ps-3.5 pe-1.5 text-[#F4F0EC]">
                   <Check size={13} className="text-[#FFB444]" />
                   {label}
@@ -405,18 +414,20 @@ export default function ResearchSearch() {
                 </span>
               ))}
               <a
-                href={`https://scholar.google.com/scholar?q=${encodeURIComponent(st.topic.trim())}`}
+                href={`https://scholar.google.com/scholar?q=${encodeURIComponent(scholarTerms)}`}
                 target="_blank"
                 rel="noreferrer"
-                title={tr("يفتح Google Scholar بنفس العنوان بنافذة جديدة — مو داخل بحث Wesync")}
-                className="flex items-center gap-2 rounded-full border border-dashed border-white/25 py-1 ps-3.5 pe-1.5 text-[#E6DBD1] transition hover:border-[#FF8A24]/60"
+                aria-disabled={!scholarTerms}
+                onClick={(e) => !scholarTerms && e.preventDefault()}
+                title={scholarTerms ? tr("يفتح Google Scholar بكلمات البحث بالإنجليزي بنافذة جديدة: {0}", scholarTerms) : tr("اكتبوا موضوعكم أول")}
+                className={`flex items-center gap-2 rounded-full border border-dashed border-white/25 py-1 ps-3.5 pe-1.5 text-[#E6DBD1] transition hover:border-[#FF8A24]/60 ${scholarTerms ? "" : "pointer-events-none opacity-50"}`}
               >
                 <ExternalLink size={12} />
                 Google Scholar
                 <SourceLogo name="scholar" />
               </a>
             </div>
-            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بنفس عنوانكم.")}</p>
+            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
 
             {!st.topic.trim() && !st.searching && (
               <div className="flex flex-wrap items-center justify-center gap-2">

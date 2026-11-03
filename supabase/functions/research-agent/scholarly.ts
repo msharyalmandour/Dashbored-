@@ -1,8 +1,8 @@
-// مصادر أبحاث حقيقية (PubMed + OpenAlex) — بدون imports عشان تنختبر محليًا.
+// مصادر أبحاث حقيقية (PubMed + OpenAlex + Crossref، وSemantic Scholar لو فيه مفتاح) — بدون imports عشان تنختبر محليًا.
 // كل نتيجة ورابطها تجي من الـ API نفسه، وClaude ما يكتب أي رابط أو DOI:
 // يرجّع أرقام (فهارس) المرشّحين اللي اختارهم بس، ونحن نربطها بالبيانات الأصلية.
 
-export type SourceName = "pubmed" | "openalex";
+export type SourceName = "pubmed" | "openalex" | "crossref" | "semanticscholar";
 
 export interface Candidate {
   source: SourceName;
@@ -182,6 +182,69 @@ export function mergeCandidates(lists: Candidate[][], limit: number): Candidate[
   return [...withAbstract, ...without].slice(0, limit);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseCrossref(json: any): Candidate[] {
+  const items = Array.isArray(json?.message?.items) ? json.message.items : [];
+  const out: Candidate[] = [];
+  for (const w of items) {
+    const title = stripTags(String(Array.isArray(w?.title) ? w.title[0] ?? "" : w?.title ?? ""));
+    if (!title) continue;
+    const doi = typeof w.DOI === "string" ? w.DOI : null;
+    const names: string[] = Array.isArray(w.author)
+      ? w.author.map((a: { given?: string; family?: string; name?: string }) => [a?.given, a?.family].filter(Boolean).join(" ") || a?.name || "")
+      : [];
+    const parts = w?.issued?.["date-parts"]?.[0] ?? w?.published?.["date-parts"]?.[0];
+    // الملخص بصيغة JATS: عناوين الأقسام (Background، Methods…) تصير «Background: …»، ونشيل «Abstract» اللي بالبداية
+    const abstract = stripTags(String(w.abstract ?? "").replace(/<jats:title>([\s\S]*?)<\/jats:title>/g, " $1: ").replace(/<\/jats:p>/g, " "))
+      .replace(/^abstract\s*:\s*/i, "")
+      .replace(/:\s*:/g, ":");
+    out.push({
+      source: "crossref",
+      title,
+      authors: joinAuthors(names),
+      year: Array.isArray(parts) && typeof parts[0] === "number" ? parts[0] : null,
+      journal: String(Array.isArray(w["container-title"]) ? w["container-title"][0] ?? "" : ""),
+      doi,
+      pmid: null,
+      url: urlFor(doi, null, String(w.URL ?? "")),
+      abstract,
+      pubTypes: w.type ? [String(w.type)] : [],
+      isJournal: w.type === "journal-article",
+      citedBy: typeof w["is-referenced-by-count"] === "number" ? w["is-referenced-by-count"] : null,
+    });
+  }
+  return out;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseSemanticScholar(json: any): Candidate[] {
+  const data = Array.isArray(json?.data) ? json.data : [];
+  const out: Candidate[] = [];
+  for (const w of data) {
+    const title = stripTags(String(w?.title ?? ""));
+    if (!title) continue;
+    const doi = typeof w?.externalIds?.DOI === "string" ? w.externalIds.DOI : null;
+    const pmid = w?.externalIds?.PubMed ? String(w.externalIds.PubMed) : null;
+    const names: string[] = Array.isArray(w.authors) ? w.authors.map((a: { name?: string }) => a?.name ?? "") : [];
+    const types: string[] = Array.isArray(w.publicationTypes) ? w.publicationTypes.map(String) : [];
+    out.push({
+      source: "semanticscholar",
+      title,
+      authors: joinAuthors(names),
+      year: typeof w.year === "number" ? w.year : null,
+      journal: String(w?.journal?.name ?? w?.venue ?? ""),
+      doi,
+      pmid,
+      url: urlFor(doi, pmid, String(w.url ?? "")),
+      abstract: String(w.abstract ?? ""),
+      pubTypes: types,
+      isJournal: types.includes("JournalArticle") || types.includes("Review"),
+      citedBy: typeof w.citationCount === "number" ? w.citationCount : null,
+    });
+  }
+  return out;
+}
+
 const EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils";
 
 export async function searchPubmed(
@@ -221,6 +284,43 @@ export async function searchOpenAlex(
   const r = await fetchFn(url);
   if (!r.ok) throw new Error(`openalex ${r.status}`);
   return parseOpenAlex(JSON.parse(await r.text()));
+}
+
+/** Crossref: أوسع فهرس مجاني للمجلات (قريب من تغطية Google Scholar)، بدون مفتاح. ناخذ اللي لها ملخص بس */
+export async function searchCrossref(
+  query: string,
+  rows: number,
+  fetchFn: FetchFn,
+  contact?: string,
+): Promise<Candidate[]> {
+  const clean = query.replace(/[,:|"()]/g, " ").replace(/\s+/g, " ").trim().split(" ").slice(0, 8).join(" ");
+  if (!clean) return [];
+  const url =
+    `https://api.crossref.org/works?rows=${rows}&query.bibliographic=${encodeURIComponent(clean)}` +
+    `&filter=type:journal-article,from-pub-date:2010-01-01,has-abstract:true` +
+    `&select=DOI,title,abstract,author,issued,container-title,is-referenced-by-count,type,URL` +
+    (contact ? `&mailto=${encodeURIComponent(contact)}` : "");
+  const r = await fetchFn(url);
+  if (!r.ok) throw new Error(`crossref ${r.status}`);
+  return parseCrossref(JSON.parse(await r.text()));
+}
+
+/** Semantic Scholar: يشتغل بس لو فيه مفتاح (بدونه يرد 429 من سيرفرات Supabase المشتركة) */
+export async function searchSemanticScholar(
+  query: string,
+  limit: number,
+  fetchFn: (url: string, headers: Record<string, string>) => Promise<{ ok: boolean; status: number; text(): Promise<string> }>,
+  apiKey: string,
+): Promise<Candidate[]> {
+  const clean = query.replace(/[,:|"()]/g, " ").replace(/\s+/g, " ").trim().split(" ").slice(0, 8).join(" ");
+  if (!clean) return [];
+  const fields = "title,abstract,year,venue,journal,authors,externalIds,citationCount,publicationTypes,url";
+  const r = await fetchFn(
+    `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(clean)}&limit=${limit}&year=2010-&fields=${fields}`,
+    { "x-api-key": apiKey },
+  );
+  if (!r.ok) throw new Error(`semanticscholar ${r.status}`);
+  return parseSemanticScholar(JSON.parse(await r.text()));
 }
 
 /** يلقط أول JSON صالح من رد النموذج (بين ```json أو أول { لآخر }) */

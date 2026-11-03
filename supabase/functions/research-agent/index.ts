@@ -2,10 +2,11 @@
 //
 // النشر: supabase functions deploy research-agent
 // المتغيرات: ANTHROPIC_API_KEY (نفس مفتاح ai-assist)، واختياري SCHOLARLY_CONTACT
-// (إيميل تواصل يُرسل لـ PubMed وOpenAlex كآداب استخدام — بدونه يشتغل عادي).
+// (إيميل تواصل يُرسل لـ PubMed وOpenAlex وCrossref كآداب استخدام — بدونه يشتغل عادي)،
+// واختياري SEMANTIC_SCHOLAR_API_KEY (مفتاح مجاني من semanticscholar.org — بدونه المصدر ما يشتغل).
 //
 // الإجراءات:
-//   search    بحث بعنوان البحث في PubMed + OpenAlex، وClaude يرتّب ويلخّص بالعربي
+//   search    بحث بعنوان البحث في PubMed + OpenAlex + Crossref (وSemantic Scholar لو فيه مفتاح)، وClaude يرتّب ويلخّص بالعربي
 //   tools     أدوات قياس معتمدة (استبيانات) لمتغير معيّن مع ثباتها ولغاتها
 //   strategy  استراتيجية بحث PRISMA: كلمات مفتاحية وجمل بحث ومعايير قبول
 //   ask       سؤال عن دراسة (من ملخصها أو من PDF ترفعه الطالبة)
@@ -20,8 +21,10 @@ import {
   clip,
   extractJson,
   mergeCandidates,
+  searchCrossref,
   searchOpenAlex,
   searchPubmed,
+  searchSemanticScholar,
   type Candidate,
 } from "./scholarly.ts";
 
@@ -34,6 +37,7 @@ const supabaseAdmin = createClient(
 const HAIKU = "claude-haiku-4-5";
 const SONNET = "claude-sonnet-5";
 const CONTACT = Deno.env.get("SCHOLARLY_CONTACT") || undefined;
+const S2_KEY = Deno.env.get("SEMANTIC_SCHOLAR_API_KEY") || "";
 
 // حدود شهرية لكل فريق — تحكّم بالتكلفة. البحث يُحسب من جدول عمليات البحث
 // نفسه (مثل النسخة القديمة)، والباقي من agent_runs
@@ -63,6 +67,12 @@ function json(body: unknown, status = 200): Response {
 const httpGet = (url: string) =>
   fetch(url, {
     headers: { "User-Agent": "Wesync/1.0 (research assistant for nursing students)", Accept: "application/json, text/xml, */*" },
+    signal: AbortSignal.timeout(15000),
+  });
+
+const httpGetWith = (url: string, headers: Record<string, string>) =>
+  fetch(url, {
+    headers: { "User-Agent": "Wesync/1.0 (research assistant for nursing students)", Accept: "application/json", ...headers },
     signal: AbortSignal.timeout(15000),
   });
 
@@ -121,11 +131,15 @@ async function buildQueries(topic: string, mode: "papers" | "tools"): Promise<{ 
   return { pubmed: [clip(topic, 300)], openalex: clip(topic, 200) };
 }
 
-async function gatherCandidates(topic: string, mode: "papers" | "tools", limit: number): Promise<Candidate[]> {
+async function gatherCandidates(topic: string, mode: "papers" | "tools", limit: number, onQuery?: (keywords: string) => void): Promise<Candidate[]> {
   const q = await buildQueries(topic, mode);
+  onQuery?.(q.openalex);
   const jobs: Promise<Candidate[]>[] = [];
   if (q.pubmed[0]) jobs.push(searchPubmed(q.pubmed[0], 10, httpGet, CONTACT));
   if (q.openalex) jobs.push(searchOpenAlex(q.openalex, 12, httpGet, CONTACT));
+  // Crossref: أوسع تغطية للمجلات (مثل Google Scholar) — يطلّع دراسات ما توصلها PubMed/OpenAlex
+  if (q.openalex) jobs.push(searchCrossref(q.openalex, 10, httpGet, CONTACT));
+  if (q.openalex && S2_KEY) jobs.push(searchSemanticScholar(q.openalex, 10, httpGetWith, S2_KEY));
   if (q.pubmed[1]) jobs.push(searchPubmed(q.pubmed[1], 8, httpGet, CONTACT));
   const settled = await Promise.allSettled(jobs);
   const lists = settled.filter((s): s is PromiseFulfilledResult<Candidate[]> => s.status === "fulfilled").map((s) => s.value);
@@ -146,7 +160,7 @@ function candidateBlock(list: Candidate[], abstractChars: number): string {
 
 // ───────────────────────── search ─────────────────────────
 
-const RANK_SYSTEM = `You are a nursing-research librarian helping Saudi nursing students. You receive a graduation-research topic and numbered candidate papers (title, year, journal, abstract) retrieved from PubMed and OpenAlex.
+const RANK_SYSTEM = `You are a nursing-research librarian helping Saudi nursing students. You receive a graduation-research topic and numbered candidate papers (title, year, journal, abstract) retrieved from PubMed, OpenAlex and Crossref.
 Pick up to 8 candidates that are genuinely closest to the topic (topic closeness first, not recency). Skip irrelevant ones.
 Output ONLY JSON:
 {"picks":[{"i":0,"summaryAr":"...","relevanceReason":"...","studyDesign":"...","sampleSize":"...","keyFinding":"..."}],"noveltyNote":"..."}
@@ -163,12 +177,14 @@ Rules:
 // deno-lint-ignore no-explicit-any
 async function handleSearch(topic: string): Promise<any> {
   let candidates: Candidate[];
+  // كلمات البحث بالإنجليزي — نرجّعها عشان زر Google Scholar يبحث فيها بدل العنوان العربي
+  let scholarQuery = "";
   try {
-    candidates = await gatherCandidates(topic, "papers", 14);
+    candidates = await gatherCandidates(topic, "papers", 16, (k) => (scholarQuery = k));
   } catch {
-    return { results: [], noveltyNote: "", sourcesFailed: true };
+    return { results: [], noveltyNote: "", sourcesFailed: true, scholarQuery };
   }
-  if (candidates.length === 0) return { results: [], noveltyNote: "" };
+  if (candidates.length === 0) return { results: [], noveltyNote: "", scholarQuery };
 
   const raw = await askModel({
     model: SONNET,
@@ -206,13 +222,13 @@ async function handleSearch(topic: string): Promise<any> {
     });
     if (results.length >= 8) break;
   }
-  return { results, noveltyNote: typeof parsed?.noveltyNote === "string" ? clip(parsed.noveltyNote, 800) : "" };
+  return { results, noveltyNote: typeof parsed?.noveltyNote === "string" ? clip(parsed.noveltyNote, 800) : "", scholarQuery };
 }
 
 // ───────────────────────── tools ─────────────────────────
 
 const TOOLS_SYSTEM = `You help Saudi nursing students find validated measurement instruments (questionnaires/scales) for their graduation research.
-You receive the construct to measure, the target population, and numbered candidate papers (title, year, journal, abstract) from PubMed/OpenAlex.
+You receive the construct to measure, the target population, and numbered candidate papers (title, year, journal, abstract) from PubMed/OpenAlex/Crossref.
 Identify candidates whose abstract describes DEVELOPING or VALIDATING (or translating/adapting) a measurement instrument relevant to the construct.
 Output ONLY JSON:
 {"tools":[{"i":0,"toolName":"...","measures":"...","items":"...","reliability":"...","languages":"...","population":"...","notes":"..."}],"caveat":"..."}

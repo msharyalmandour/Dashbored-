@@ -61,6 +61,7 @@ export function useResearchSearch() {
       results?: ResearchSearchResult[];
       noveltyNote?: string;
       scholarQuery?: string;
+      scholarInside?: boolean;
       limitReached?: boolean;
       message?: string;
       error?: string;
@@ -114,7 +115,7 @@ export function useResearchSearch() {
       .single();
     setSearching(false);
     if (!insertError && inserted) {
-      const row = { ...mapRow(inserted as SearchRowDb), scholarQuery };
+      const row = { ...mapRow(inserted as SearchRowDb), scholarQuery, scholarInside: !!p?.scholarInside };
       setSearches((prev) => [row, ...prev]);
       return { row, error: undefined as string | undefined };
     }

@@ -111,5 +111,6 @@
  "يفتح Google Scholar بكلمات البحث بالإنجليزي بنافذة جديدة: {0}": "Opens Google Scholar in a new window with the English search terms: {0}",
  "اكتبوا موضوعكم أول": "Type your topic first",
  "يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.": "opens as an external search with your English search terms.",
- "نبحث في PubMed وOpenAlex وCrossref": "Searching PubMed, OpenAlex and Crossref"
+ "نبحث في PubMed وOpenAlex وCrossref": "Searching PubMed, OpenAlex and Crossref",
+ "مقتبسة {0} مرة · افتحوها بـ Google Scholar": "Cited {0} times · open in Google Scholar"
 }

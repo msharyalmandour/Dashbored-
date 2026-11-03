@@ -3,10 +3,11 @@
 // النشر: supabase functions deploy research-agent
 // المتغيرات: ANTHROPIC_API_KEY (نفس مفتاح ai-assist)، واختياري SCHOLARLY_CONTACT
 // (إيميل تواصل يُرسل لـ PubMed وOpenAlex وCrossref كآداب استخدام — بدونه يشتغل عادي)،
-// واختياري SEMANTIC_SCHOLAR_API_KEY (مفتاح مجاني من semanticscholar.org — بدونه المصدر ما يشتغل).
+// واختياري SEMANTIC_SCHOLAR_API_KEY (مفتاح مجاني من semanticscholar.org — بدونه المصدر ما يشتغل)،
+// واختياري SERPAPI_KEY (اشتراك SerpApi مدفوع) — يشغّل Google Scholar داخل البحث، وبدونه ينتخطى.
 //
 // الإجراءات:
-//   search    بحث بعنوان البحث في PubMed + OpenAlex + Crossref (وSemantic Scholar لو فيه مفتاح)، وClaude يرتّب ويلخّص بالعربي
+//   search    بحث بعنوان البحث في PubMed + OpenAlex + Crossref (وGoogle Scholar/Semantic Scholar لو فيه مفتاح)، وClaude يرتّب ويلخّص بالعربي
 //   tools     أدوات قياس معتمدة (استبيانات) لمتغير معيّن مع ثباتها ولغاتها
 //   strategy  استراتيجية بحث PRISMA: كلمات مفتاحية وجمل بحث ومعايير قبول
 //   ask       سؤال عن دراسة (من ملخصها أو من PDF ترفعه الطالبة)
@@ -19,9 +20,11 @@ import Anthropic from "npm:@anthropic-ai/sdk@^0.68.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import {
   clip,
+  enrichFromCrossref,
   extractJson,
   mergeCandidates,
   searchCrossref,
+  searchGoogleScholar,
   searchOpenAlex,
   searchPubmed,
   searchSemanticScholar,
@@ -38,6 +41,7 @@ const HAIKU = "claude-haiku-4-5";
 const SONNET = "claude-sonnet-5";
 const CONTACT = Deno.env.get("SCHOLARLY_CONTACT") || undefined;
 const S2_KEY = Deno.env.get("SEMANTIC_SCHOLAR_API_KEY") || "";
+const SERPAPI_KEY = Deno.env.get("SERPAPI_KEY") || "";
 
 // حدود شهرية لكل فريق — تحكّم بالتكلفة. البحث يُحسب من جدول عمليات البحث
 // نفسه (مثل النسخة القديمة)، والباقي من agent_runs
@@ -140,6 +144,12 @@ async function gatherCandidates(topic: string, mode: "papers" | "tools", limit: 
   // Crossref: أوسع تغطية للمجلات (مثل Google Scholar) — يطلّع دراسات ما توصلها PubMed/OpenAlex
   if (q.openalex) jobs.push(searchCrossref(q.openalex, 10, httpGet, CONTACT));
   if (q.openalex && S2_KEY) jobs.push(searchSemanticScholar(q.openalex, 10, httpGetWith, S2_KEY));
+  // Google Scholar أول بالترتيب عشان نتائجه تاخذ مكانها بالدمج، ونكمّل ملخصاتها من Crossref
+  if (q.openalex && SERPAPI_KEY) {
+    jobs.unshift(
+      searchGoogleScholar(q.openalex, 10, httpGet, SERPAPI_KEY).then((list) => enrichFromCrossref(list, httpGet, CONTACT)),
+    );
+  }
   if (q.pubmed[1]) jobs.push(searchPubmed(q.pubmed[1], 8, httpGet, CONTACT));
   const settled = await Promise.allSettled(jobs);
   const lists = settled.filter((s): s is PromiseFulfilledResult<Candidate[]> => s.status === "fulfilled").map((s) => s.value);
@@ -160,7 +170,7 @@ function candidateBlock(list: Candidate[], abstractChars: number): string {
 
 // ───────────────────────── search ─────────────────────────
 
-const RANK_SYSTEM = `You are a nursing-research librarian helping Saudi nursing students. You receive a graduation-research topic and numbered candidate papers (title, year, journal, abstract) retrieved from PubMed, OpenAlex and Crossref.
+const RANK_SYSTEM = `You are a nursing-research librarian helping Saudi nursing students. You receive a graduation-research topic and numbered candidate papers (title, year, journal, abstract) retrieved from PubMed, OpenAlex, Crossref and Google Scholar. Some Google Scholar candidates only have a short snippet instead of a full abstract: summarize those cautiously and only from what the snippet says.
 Pick up to 8 candidates that are genuinely closest to the topic (topic closeness first, not recency). Skip irrelevant ones.
 Output ONLY JSON:
 {"picks":[{"i":0,"summaryAr":"...","relevanceReason":"...","studyDesign":"...","sampleSize":"...","keyFinding":"..."}],"noveltyNote":"..."}
@@ -219,10 +229,11 @@ async function handleSearch(topic: string): Promise<any> {
       keyFinding: str(p.keyFinding, 400),
       abstract: clip(c.abstract, 1800),
       pubTypes: c.pubTypes.slice(0, 4),
+      citedBy: c.citedBy,
     });
     if (results.length >= 8) break;
   }
-  return { results, noveltyNote: typeof parsed?.noveltyNote === "string" ? clip(parsed.noveltyNote, 800) : "", scholarQuery };
+  return { results, noveltyNote: typeof parsed?.noveltyNote === "string" ? clip(parsed.noveltyNote, 800) : "", scholarQuery, scholarInside: !!SERPAPI_KEY };
 }
 
 // ───────────────────────── tools ─────────────────────────

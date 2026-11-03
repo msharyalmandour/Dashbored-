@@ -139,12 +139,13 @@ export function SourceLogo({ name, size = 22 }: { name: SourceName; size?: numbe
 
 /** كبسولة مصدر: شعار + اسم (مع علامة صح لو مصدر فعّال بالبحث) */
 export function sourceKey(source?: string): SourceName | null {
+  if (source === "googlescholar") return "scholar";
   return source === "pubmed" || source === "openalex" || source === "crossref" || source === "semanticscholar" ? source : null;
 }
 
 /** شارة مصدر من الاسم النصي (PubMed / OpenAlex / DOI / يدوي…) مع الشعار لو متوفر */
 export function SourceTag({ label }: { label: string }) {
-  const key = label === "PubMed" ? "pubmed" : label === "OpenAlex" ? "openalex" : label === "Crossref" ? "crossref" : label === "Semantic Scholar" ? "semanticscholar" : null;
+  const key = label === "PubMed" ? "pubmed" : label === "OpenAlex" ? "openalex" : label === "Crossref" ? "crossref" : label === "Semantic Scholar" ? "semanticscholar" : label === "Google Scholar" ? "scholar" : null;
   return (
     <SourceBadge>
       <span className="flex items-center gap-1.5">

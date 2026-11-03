@@ -190,7 +190,7 @@ function ResultCard({
   };
 
   const peer = result.sourceType === "peer-reviewed";
-  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : result.source === "crossref" ? "Crossref" : result.source === "semanticscholar" ? "Semantic Scholar" : tr("بحث ويب");
+  const sourceLabel = result.source === "pubmed" ? "PubMed" : result.source === "openalex" ? "OpenAlex" : result.source === "crossref" ? "Crossref" : result.source === "semanticscholar" ? "Semantic Scholar" : result.source === "googlescholar" ? "Google Scholar" : tr("بحث ويب");
 
   return (
     <div className="space-y-3 rounded-2xl bg-white/[0.04] p-5">
@@ -278,7 +278,9 @@ function ResultCard({
               title={tr("تشوفون كم مرة اقتُبست هالدراسة")}
               className="flex items-center gap-1.5 text-[#FFB444] hover:underline"
             >
-              <GraduationCap size={13} />{tr("شوفوا عدد الاقتباسات بـ Google Scholar")}</a>
+              <GraduationCap size={13} />
+              {typeof result.citedBy === "number" && result.citedBy > 0 ? tr("مقتبسة {0} مرة · افتحوها بـ Google Scholar", result.citedBy) : tr("شوفوا عدد الاقتباسات بـ Google Scholar")}
+            </a>
             {result.doi && (
               <span dir="ltr" className="font-mono">
                 DOI {result.doi}
@@ -406,7 +408,10 @@ export default function ResearchSearch() {
 
             <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-[#B8ADA2]">
               <span>{tr("المصادر:")}</span>
-              {([["pubmed", "PubMed"], ["openalex", "OpenAlex"], ["crossref", "Crossref"]] as const).map(([k, label]) => (
+              {(st.activeResult?.scholarInside
+                ? ([["pubmed", "PubMed"], ["openalex", "OpenAlex"], ["crossref", "Crossref"], ["scholar", "Google Scholar"]] as const)
+                : ([["pubmed", "PubMed"], ["openalex", "OpenAlex"], ["crossref", "Crossref"]] as const)
+              ).map(([k, label]) => (
                 <span key={k} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 py-1 ps-3.5 pe-1.5 text-[#F4F0EC]">
                   <Check size={13} className="text-[#FFB444]" />
                   {label}

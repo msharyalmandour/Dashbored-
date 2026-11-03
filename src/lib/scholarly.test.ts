@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeCandidates, parseCrossref, parseSemanticScholar } from "../../supabase/functions/research-agent/scholarly";
+import { enrichFromCrossref, mergeCandidates, parseCrossref, parseGoogleScholar, parseSemanticScholar, sameTitle } from "../../supabase/functions/research-agent/scholarly";
 
 const crossref = {
   message: {
@@ -54,5 +54,59 @@ describe("mergeCandidates with Crossref", () => {
     const merged = mergeCandidates([[same], [c]], 10);
     expect(merged).toHaveLength(1);
     expect(merged[0].abstract.length).toBeGreaterThan(20);
+  });
+});
+
+const scholar = {
+  organic_results: [
+    {
+      title: "Role ambiguity and nursing interns' achievement of clinical rotation goals: a correlational study",
+      link: "https://link.springer.com/article/10.1186/s12912-025-03842-y",
+      snippet: "Nursing interns frequently encounter role ambiguity due to a mismatch …",
+      publication_info: { summary: "MMA Abdelaziz, MSM Saleh, ZM Aysha - BMC Nursing, 2025 - Springer" },
+      inline_links: { cited_by: { total: 7 } },
+    },
+    { title: "[CITATION][C] Some book", link: "", publication_info: { summary: "X - 2019" } },
+    {
+      title: "Clinical judgment among nursing interns",
+      link: "https://www.sciedu.ca/journal/index.php/cns/article/view/12345",
+      snippet: "Clinical judgment (CJ) is considered a vital …",
+      publication_info: { summary: "AF Ibrahim, AA Aly - Clinical Nursing Studies, 2018 - sciedu.ca" },
+    },
+  ],
+};
+
+describe("parseGoogleScholar", () => {
+  it("maps SerpApi rows, reads the DOI from the link and skips citation-only rows", () => {
+    const list = parseGoogleScholar(scholar);
+    expect(list).toHaveLength(2);
+    expect(list[0]).toMatchObject({ source: "googlescholar", year: 2025, journal: "BMC Nursing", doi: "10.1186/s12912-025-03842-y", citedBy: 7, url: "https://doi.org/10.1186/s12912-025-03842-y" });
+    expect(list[1]).toMatchObject({ year: 2018, journal: "Clinical Nursing Studies", doi: null, citedBy: null });
+  });
+});
+
+describe("sameTitle", () => {
+  it("matches the same study despite punctuation and quotes", () => {
+    expect(sameTitle("Role ambiguity and nursing interns’ achievement of clinical rotation goals: a correlational study", "Role ambiguity and nursing interns' achievement of clinical rotation goals - a correlational study")).toBe(true);
+    expect(sameTitle("Clinical judgment among nursing interns", "Development of clinical judgment model to guide nursing interns")).toBe(false);
+  });
+});
+
+describe("enrichFromCrossref", () => {
+  it("fills the full abstract and DOI from Crossref only when the title matches", async () => {
+    const list = parseGoogleScholar(scholar);
+    const fetchFn = async (url: string) => {
+      const isJudgment = decodeURIComponent(url).includes("Clinical judgment among nursing interns");
+      const body = isJudgment
+        ? { message: { items: [{ DOI: "10.5430/cns.v6n3p19", type: "journal-article", title: ["Clinical judgment among nursing interns"], abstract: "<jats:p>" + "Long abstract text. ".repeat(12) + "</jats:p>", "container-title": ["Clinical Nursing Studies"], issued: { "date-parts": [[2018]] } }] } }
+        : { message: { items: [{ DOI: "10.9/other", type: "journal-article", title: ["Something unrelated entirely"], abstract: "<jats:p>x</jats:p>" }] } };
+      return { ok: true, status: 200, text: async () => JSON.stringify(body) };
+    };
+    const [a, b] = await enrichFromCrossref(list, fetchFn);
+    expect(a.doi).toBe("10.1186/s12912-025-03842-y");
+    expect(a.abstract.startsWith("Nursing interns frequently")).toBe(true);
+    expect(b.doi).toBe("10.5430/cns.v6n3p19");
+    expect(b.url).toBe("https://doi.org/10.5430/cns.v6n3p19");
+    expect(b.abstract.length).toBeGreaterThan(150);
   });
 });

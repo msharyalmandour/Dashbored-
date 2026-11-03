@@ -1,8 +1,8 @@
-// مصادر أبحاث حقيقية (PubMed + OpenAlex + Crossref، وSemantic Scholar لو فيه مفتاح) — بدون imports عشان تنختبر محليًا.
+// مصادر أبحاث حقيقية (PubMed + OpenAlex + Crossref، وGoogle Scholar/Semantic Scholar لو فيه مفتاح) — بدون imports عشان تنختبر محليًا.
 // كل نتيجة ورابطها تجي من الـ API نفسه، وClaude ما يكتب أي رابط أو DOI:
 // يرجّع أرقام (فهارس) المرشّحين اللي اختارهم بس، ونحن نربطها بالبيانات الأصلية.
 
-export type SourceName = "pubmed" | "openalex" | "crossref" | "semanticscholar";
+export type SourceName = "pubmed" | "openalex" | "crossref" | "semanticscholar" | "googlescholar";
 
 export interface Candidate {
   source: SourceName;
@@ -245,6 +245,41 @@ export function parseSemanticScholar(json: any): Candidate[] {
   return out;
 }
 
+/** نتائج Google Scholar عبر SerpApi: عنوان ورابط وسطرين (snippet) وعدد الاقتباسات — بدون ملخص كامل ولا DOI */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseGoogleScholar(json: any): Candidate[] {
+  const rows = Array.isArray(json?.organic_results) ? json.organic_results : [];
+  const out: Candidate[] = [];
+  for (const w of rows) {
+    const title = stripTags(String(w?.title ?? ""));
+    if (!title || /^\[(citation|citation\]|book)\]/i.test(title)) continue;
+    // publication_info.summary مثل: «A Author, B Author - BMC Nursing, 2025 - Springer»
+    const summary = String(w?.publication_info?.summary ?? "");
+    const [authorsPart = "", venuePart = ""] = summary.split(" - ");
+    const year = venuePart.match(/\b(19|20)\d{2}\b/)?.[0];
+    const journal = venuePart.replace(/,?\s*\b(19|20)\d{2}\b.*$/, "").trim();
+    const names = Array.isArray(w?.publication_info?.authors)
+      ? w.publication_info.authors.map((a: { name?: string }) => a?.name ?? "")
+      : authorsPart.split(",").map((x: string) => x.replace(/…/g, "").trim());
+    const doiInLink = String(w?.link ?? "").match(/10\.\d{4,9}\/[^\s?#]+/)?.[0]?.replace(/[.,;)]+$/, "") ?? null;
+    out.push({
+      source: "googlescholar",
+      title,
+      authors: joinAuthors(names),
+      year: year ? Number(year) : null,
+      journal,
+      doi: doiInLink,
+      pmid: null,
+      url: urlFor(doiInLink, null, String(w?.link ?? "")),
+      abstract: stripTags(String(w?.snippet ?? "")),
+      pubTypes: [],
+      isJournal: !!journal,
+      citedBy: typeof w?.inline_links?.cited_by?.total === "number" ? w.inline_links.cited_by.total : null,
+    });
+  }
+  return out;
+}
+
 const EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils";
 
 export async function searchPubmed(
@@ -303,6 +338,59 @@ export async function searchCrossref(
   const r = await fetchFn(url);
   if (!r.ok) throw new Error(`crossref ${r.status}`);
   return parseCrossref(JSON.parse(await r.text()));
+}
+
+/** Google Scholar عبر SerpApi (مدفوع، المفتاح بـ SERPAPI_KEY). بحث واحد = رصيد واحد بالخدمة */
+export async function searchGoogleScholar(query: string, num: number, fetchFn: FetchFn, apiKey: string): Promise<Candidate[]> {
+  const clean = query.replace(/\s+/g, " ").trim();
+  if (!clean) return [];
+  const r = await fetchFn(
+    `https://serpapi.com/search.json?engine=google_scholar&hl=en&as_ylo=2010&num=${num}&q=${encodeURIComponent(clean)}&api_key=${encodeURIComponent(apiKey)}`,
+  );
+  if (!r.ok) throw new Error(`googlescholar ${r.status}`);
+  return parseGoogleScholar(JSON.parse(await r.text()));
+}
+
+const wordsOf = (t: string) => new Set(normTitle(t).split(" ").filter((w) => w.length > 2));
+/** نفس الدراسة؟ نسبة الكلمات المشتركة بين العنوانين */
+export function sameTitle(a: string, b: string): boolean {
+  const A = wordsOf(a);
+  const B = wordsOf(b);
+  if (A.size === 0 || B.size === 0) return false;
+  let common = 0;
+  for (const w of A) if (B.has(w)) common++;
+  return common / Math.max(A.size, B.size) >= 0.8;
+}
+
+/** سكولار يعطي سطرين بس: ندوّر كل عنوان بـ Crossref ونجيب الـ DOI والملخص الكامل لو نفس الدراسة،
+    عشان الوكيل يلخّص من الملخص الأصلي مو من مقتطف */
+export async function enrichFromCrossref(list: Candidate[], fetchFn: FetchFn, contact?: string, max = 8): Promise<Candidate[]> {
+  const jobs = list.map(async (c, i) => {
+    if (i >= max || (c.doi && c.abstract.length >= 150)) return c;
+    try {
+      const url =
+        `https://api.crossref.org/works?rows=1&query.bibliographic=${encodeURIComponent(c.title)}` +
+        `&select=DOI,title,abstract,author,issued,container-title,is-referenced-by-count,type,URL` +
+        (contact ? `&mailto=${encodeURIComponent(contact)}` : "");
+      const r = await fetchFn(url);
+      if (!r.ok) return c;
+      const [hit] = parseCrossref(JSON.parse(await r.text()));
+      if (!hit || !sameTitle(hit.title, c.title)) return c;
+      return {
+        ...c,
+        doi: c.doi ?? hit.doi,
+        url: urlFor(c.doi ?? hit.doi, null, c.url),
+        abstract: hit.abstract.length > c.abstract.length ? hit.abstract : c.abstract,
+        journal: c.journal || hit.journal,
+        year: c.year ?? hit.year,
+        authors: hit.authors || c.authors,
+        isJournal: c.isJournal || hit.isJournal,
+      };
+    } catch {
+      return c;
+    }
+  });
+  return Promise.all(jobs);
 }
 
 /** Semantic Scholar: يشتغل بس لو فيه مفتاح (بدونه يرد 429 من سيرفرات Supabase المشتركة) */

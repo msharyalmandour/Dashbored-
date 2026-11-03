@@ -16,6 +16,7 @@ interface ActiveResult {
   queryText: string;
   /** كلمات البحث الإنجليزية (من بحث هالجلسة بس) — لزر Google Scholar */
   scholarQuery?: string;
+  scholarInside?: boolean;
 }
 
 interface ResearchAgentValue {
@@ -117,7 +118,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
       setSearchError(tr("تعذّر إتمام البحث — حاولوا مرة ثانية."));
       return;
     }
-    setActiveResult({ results: row.results, noveltyNote: row.noveltyNote, queryText: row.queryText, scholarQuery: row.scholarQuery });
+    setActiveResult({ results: row.results, noveltyNote: row.noveltyNote, queryText: row.queryText, scholarQuery: row.scholarQuery, scholarInside: row.scholarInside });
     finished("papers", tr("نتائج البحث جاهزة ✅"), tr("{0} دراسة قريبة من بحثكم — افتحوا وكيل البحث", row.results.length));
   }, [topic, currentUser, searching, runSearch, finished]);
 

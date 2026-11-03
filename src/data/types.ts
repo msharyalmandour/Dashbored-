@@ -321,7 +321,9 @@ export interface ResearchSearchResult {
   /** الحقول التالية تجي من وكيل المصادر الحقيقية (PubMed/OpenAlex/Crossref) — اختيارية عشان نتائج بحث الويب القديمة تبقى تشتغل */
   journal?: string;
   doi?: string | null;
-  source?: "pubmed" | "openalex" | "crossref" | "semanticscholar" | "web";
+  source?: "pubmed" | "openalex" | "crossref" | "semanticscholar" | "googlescholar" | "web";
+  /** عدد مرات الاقتباس (من Google Scholar أو OpenAlex أو Crossref) */
+  citedBy?: number | null;
   studyDesign?: string;
   sampleSize?: string;
   keyFinding?: string;
@@ -366,6 +368,8 @@ export interface ResearchSearchQuery {
   createdAt: string;
   /** كلمات البحث بالإنجليزي من آخر بحث (بالذاكرة بس، ما تنحفظ) — لزر Google Scholar */
   scholarQuery?: string;
+  /** Google Scholar اشتغل داخل هالبحث (فيه مفتاح SerpApi) */
+  scholarInside?: boolean;
 }
 
 export interface MeetingMinutesRow {

@@ -3,6 +3,7 @@ import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
 import Term from "../Term";
 import SplitKeywordsCard from "./SplitKeywordsCard";
+import ScholarBridgeCard from "./ScholarBridgeCard";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
 import { tr } from "../../lib/i18n";
 
@@ -67,6 +68,12 @@ export default function SearchStrategy() {
   } = useResearchAgentState();
 
   const pico = strategy?.pico;
+  // Scholar ما يفهم وسوم PubMed مثل [Title/Abstract] — ننظّف الجملة ونقترح أيضًا أول كلمات إنجليزية
+  const scholarSuggestions = [
+    strategy?.searchStrings?.pubmed?.replace(/\[[^\]]*\]/g, "").replace(/\s+/g, " ").trim() ?? "",
+    (strategy?.keywordsEn ?? []).slice(0, 3).join(" "),
+    topic,
+  ].filter(Boolean);
 
   return (
     <div className="space-y-4">
@@ -100,6 +107,8 @@ export default function SearchStrategy() {
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
         )}
       </Card>
+
+      <ScholarBridgeCard suggestions={scholarSuggestions} />
 
       {strategy && (
         <div className="space-y-4">

@@ -28,6 +28,7 @@ import { useTour } from "../context/TourContext";
 import type { Task } from "../data/types";
 import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
+import FirstWeekCard from "../components/home/FirstWeekCard";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
@@ -303,6 +304,13 @@ export default function Overview() {
           </div>
         }
       />
+
+      {/* ── أول أسبوع: يوصّل الفريق لأول نجاح (يختفي بعد ما يخلص) ── */}
+      {mode === "supabase" && (
+        <ErrorBoundary>
+          <FirstWeekCard style={rise(1)} />
+        </ErrorBoundary>
+      )}
 
       {/* ── الصف الأول: To-do · تقدّم البحث · باقي على التسليم (الجوال: التقدّم أول، بعده البلاطتين، بعده To-do والزر) ── */}
       <div className="relative mb-2.5 grid grid-cols-1 items-stretch gap-2.5 lg:mb-[18px] lg:grid-cols-3 lg:gap-[18px]">

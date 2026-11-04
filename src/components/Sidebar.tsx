@@ -7,6 +7,7 @@ import { researchStages } from "../data/mockData";
 import { getResearcherTitle } from "../lib/identity";
 import { isFemaleUser } from "../lib/gender";
 import { useResearchStages } from "../hooks/useResearchStages";
+import { useChatUnread } from "../hooks/useTeamChat";
 import { getCurrentStage } from "../lib/progress";
 import { homeSection, isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
 import Avatar from "./ui/Avatar";
@@ -31,6 +32,7 @@ export default function Sidebar({
   const { stages } = useResearchStages();
   const [moreOpen, setMoreOpen] = useState<boolean | null>(null);
   const currentStage = getCurrentStage(stages);
+  const unread = useChatUnread();
 
   const sectionState = (sec: NavSection): "done" | "current" | null => {
     if (!sec.stages || stages.length === 0) return null;
@@ -55,6 +57,11 @@ export default function Sidebar({
       >
         <sec.icon size={18} />
         <span className="flex-1">{sec.label}</span>
+        {sec.id === "chat" && unread > 0 && !active && (
+          <span className="min-w-[20px] rounded-full bg-brand-500 px-1.5 py-0.5 text-center text-xs font-extrabold text-white" dir="ltr" aria-label={tr("{0} رسائل جديدة", unread)}>
+            {unread > 99 ? "99+" : unread}
+          </span>
+        )}
         {state === "current" && (
           <span className={clsx("rounded-full px-2 py-0.5 text-xs font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>{tr("أنتم هنا")}</span>
         )}

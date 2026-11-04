@@ -6,6 +6,7 @@ import {
   NotebookPen,
   Search,
   Users,
+  MessagesSquare,
   CalendarClock,
   GraduationCap,
   FileDown,
@@ -74,6 +75,12 @@ export const journeySections: NavSection[] = [
 ];
 
 export const workSections: NavSection[] = [
+  {
+    id: "chat",
+    label: tr("المحادثة"),
+    icon: MessagesSquare,
+    pages: [{ to: "/chat", label: tr("محادثة الفريق") }],
+  },
   {
     id: "team",
     label: tr("الفريق"),

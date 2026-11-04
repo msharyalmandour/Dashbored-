@@ -24,6 +24,7 @@ import Glossary from "./pages/Glossary";
 import Tasks from "./pages/Tasks";
 import EvidenceLibrary from "./pages/EvidenceLibrary";
 import Team from "./pages/Team";
+import TeamChat from "./pages/TeamChat";
 import Timeline from "./pages/Timeline";
 import Fieldwork from "./pages/Fieldwork";
 import Collect from "./pages/Collect";
@@ -94,6 +95,7 @@ export default function App() {
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/evidence" element={<EvidenceLibrary />} />
         <Route path="/team" element={<Team />} />
+        <Route path="/chat" element={<TeamChat />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/collect" element={<Collect />} />

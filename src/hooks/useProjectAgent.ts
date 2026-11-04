@@ -197,6 +197,26 @@ const toBase64 = (file: File) =>
 
 export const MAX_PAPER_BYTES = 4 * 1024 * 1024;
 
+/** يقبل PDF وحد، أو صور صفحات دراسة (تصوير/لقطات شاشة) تتجمّع بـ PDF واحد قبل القراءة */
+export async function readPaperFiles(files: File[]): Promise<{ data?: PaperReading; message?: string }> {
+  const list = files.filter(Boolean);
+  if (list.length === 0) return { message: tr("اختاروا ملف الدراسة.") };
+  const pdfs = list.filter((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
+  const images = list.filter((f) => f.type.startsWith("image/"));
+  if (pdfs.length > 0) {
+    if (pdfs.length > 1 || images.length > 0) return { message: tr("ارفعوا دراسة وحدة كل مرة: ملف PDF واحد، أو صور صفحاتها.") };
+    return readPaperPdf(pdfs[0]);
+  }
+  if (images.length === 0) return { message: tr("الملف لازم يكون PDF أو صور (JPG أو PNG).") };
+  if (images.length > 10) return { message: tr("الحد ١٠ صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).") };
+  try {
+    const { imagesToPdf } = await import("../lib/imagesToPdf");
+    return readPaperPdf(await imagesToPdf(images, MAX_PAPER_BYTES));
+  } catch {
+    return { message: tr("ما قدرنا نجهّز الصور — جرّبوا صور أوضح أو ارفعوا PDF.") };
+  }
+}
+
 /** «مساعد القراءة»: يرفع ورقة PDF ويرجّع ملخص منظّم (الاقتراح يتحفظ بمكتبة الأدلة بعد موافقتكم) */
 export async function readPaperPdf(file: File): Promise<{ data?: PaperReading; message?: string }> {
   if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };

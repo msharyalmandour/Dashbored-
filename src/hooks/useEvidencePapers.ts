@@ -43,6 +43,47 @@ function mapRow(row: PaperRowDb): EvidencePaper {
   };
 }
 
+export interface NewEvidencePaper {
+  title: string;
+  authors: string;
+  year: number;
+  theme: EvidencePaper["theme"];
+  studyDesign: string;
+  keyFinding: string;
+  relevance: string;
+  section: EvidencePaper["section"];
+  addedById: string;
+  link?: string;
+  country?: string;
+  aim?: string;
+  sample?: string;
+  dataCollection?: string;
+}
+
+/** يحفظ دراسة بمكتبة الأدلة (وتطلع بجدول الأدبيات) — بدون ما يحمّل المكتبة كاملة، للوكيل العائم */
+export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ error?: string }> {
+  if (!isSupabaseConfigured) return { error: "demo" };
+  const { data: projectId } = await supabase!.rpc("my_research_project_id");
+  const { error } = await supabase!.from("evidence_papers").insert({
+    research_project_id: projectId,
+    title: input.title,
+    authors: input.authors,
+    year: input.year,
+    theme: input.theme,
+    study_design: input.studyDesign,
+    key_finding: input.keyFinding,
+    relevance: input.relevance,
+    section: input.section,
+    link: input.link ?? null,
+    added_by: input.addedById,
+    country: input.country ?? "",
+    aim: input.aim ?? "",
+    sample: input.sample ?? "",
+    data_collection: input.dataCollection ?? "",
+  });
+  return { error: error?.message };
+}
+
 /** مكتبة الأدلة الحقيقية — دراسات مشتركة بكل الفريق، تُخزَّن بجدول
     evidence_papers. وضع العرض التجريبي يرجع mockData.ts للعرض فقط. */
 export function useEvidencePapers() {
@@ -63,49 +104,15 @@ export function useEvidencePapers() {
     load();
   }, [load]);
 
-  const addPaper = async (input: {
-    title: string;
-    authors: string;
-    year: number;
-    theme: EvidencePaper["theme"];
-    studyDesign: string;
-    keyFinding: string;
-    relevance: string;
-    section: EvidencePaper["section"];
-    addedById: string;
-    link?: string;
-    country?: string;
-    aim?: string;
-    sample?: string;
-    dataCollection?: string;
-  }) => {
+  const addPaper = async (input: NewEvidencePaper) => {
     if (!isSupabaseConfigured) {
       const newPaper: EvidencePaper = { ...input, id: `local-${Date.now()}`, reviewStatus: "collected" };
       setPapers((prev) => [newPaper, ...prev]);
       return { error: undefined as string | undefined };
     }
-
-    const { data: projectId } = await supabase!.rpc("my_research_project_id");
-    const { error } = await supabase!.from("evidence_papers").insert({
-      research_project_id: projectId,
-      title: input.title,
-      authors: input.authors,
-      year: input.year,
-      theme: input.theme,
-      study_design: input.studyDesign,
-      key_finding: input.keyFinding,
-      relevance: input.relevance,
-      section: input.section,
-      link: input.link ?? null,
-      added_by: input.addedById,
-      // الأعمدة الجديدة تنرسل بس لو فيها قيمة — عشان ما ينكسر الحفظ قبل تشغيل ملف SQL الجديد
-      ...(input.country ? { country: input.country } : {}),
-      ...(input.aim ? { aim: input.aim } : {}),
-      ...(input.sample ? { sample: input.sample } : {}),
-      ...(input.dataCollection ? { data_collection: input.dataCollection } : {}),
-    });
+    const { error } = await insertEvidencePaper(input);
     if (!error) load();
-    return { error: error?.message };
+    return { error };
   };
 
   const updateReviewStatus = async (paperId: string, reviewStatus: EvidencePaper["reviewStatus"]) => {

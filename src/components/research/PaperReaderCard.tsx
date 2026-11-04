@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { BookOpenCheck, Check, FileUp, Loader2, X } from "lucide-react";
 import clsx from "clsx";
 import { glassCard } from "../ui/researchUi";
-import { readPaperPdf, type PaperReading } from "../../hooks/useProjectAgent";
+import { readPaperFiles, type PaperReading } from "../../hooks/useProjectAgent";
 import type { EvidencePaper } from "../../data/types";
 import { sectionLabelAr } from "./sectionLabelAr";
 import { tr } from "../../lib/i18n";
@@ -22,26 +23,37 @@ type Save = (p: {
   dataCollection: string;
 }) => Promise<{ error?: string }>;
 
-/** «اقرأ لي هذي الورقة»: ترفعون PDF، الوكيل يطلّع بطاقة قراءة (التصميم، العينة، النتيجة، الحدود، علاقتها ببحثكم)
-    وأنتم تراجعونها وتعتمدون إضافتها للمكتبة. الملخص من نص الورقة فقط — راجعوه قبل ما تعتمدونه بالبحث. */
-export default function PaperReaderCard({ onSave }: { onSave: Save }) {
+/** «اقرأ لي هذي الورقة»: ترفعون PDF أو صور صفحاتها (تصوير جوال/لقطات شاشة)، الوكيل يطلّع بطاقة قراءة
+    (الدولة، الهدف، التصميم، العينة، النتيجة، الحدود، علاقتها ببحثكم) وأنتم تراجعونها وتعتمدون إضافتها للمكتبة،
+    وتنزل بجدول الأدبيات. الملخص من نص الورقة فقط — راجعوه قبل ما تعتمدونه بالبحث.
+    compact: داخل الوكيل العائم (بدون الإطار الزجاجي). */
+export default function PaperReaderCard({ onSave, compact = false, onClose, initialFiles }: { onSave: Save; compact?: boolean; onClose?: () => void; /** ملفات اختارها الطالب من الوكيل — تنقرا أول ما يفتح الكرت */ initialFiles?: File[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [paper, setPaper] = useState<PaperReading | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
-  const pick = async (file: File | undefined) => {
-    if (!file || busy) return;
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current || !initialFiles?.length) return;
+    started.current = true;
+    void pick(initialFiles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFiles]);
+
+  const pick = async (files: FileList | File[] | null | undefined) => {
+    const list = files ? Array.from(files) : [];
+    if (list.length === 0 || busy) return;
     setBusy(true);
     setError(null);
     setPaper(null);
     setSaved(false);
-    const r = await readPaperPdf(file);
+    const r = await readPaperFiles(list);
     setBusy(false);
     if (r.data) setPaper(r.data);
     else setError(r.message ?? tr("تعذّرت قراءة الورقة."));
-    if (inputRef.current) inputRef.current.value = "";
   };
 
   const save = async () => {
@@ -78,19 +90,46 @@ export default function PaperReaderCard({ onSave }: { onSave: Save }) {
     : [];
 
   return (
-    <div className={clsx(glassCard, "space-y-3 p-5")}>
+    <div
+      className={clsx(compact ? "space-y-3 rounded-3xl border border-white/10 bg-white/[0.05] p-4" : clsx(glassCard, "space-y-3 p-5"), dragging && "ring-2 ring-[#FF8A24]/60")}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        pick(e.dataTransfer.files);
+      }}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-sm font-extrabold text-[#F4F0EC]">
             <BookOpenCheck size={16} className="text-[#FFB444]" /> {tr("اقرأ لي هذي الورقة")}
           </p>
-          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF لدراسة (حتى ٤ ميغا) ويطلع لكم ملخص منظّم تعتمدون إضافته للمكتبة.")}</p>
+          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى ١٠ صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
         </div>
+        {onClose && !busy && (
+          <button type="button" onClick={onClose} aria-label={tr("إغلاق")} className="rounded-full p-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
+            <X size={14} />
+          </button>
+        )}
         <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50">
           {busy ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />}
-          {busy ? tr("أقرأها…") : tr("ارفعوا ورقة PDF")}
+          {busy ? tr("أقرأها…") : tr("ارفعوا PDF أو صور")}
         </button>
-        <input ref={inputRef} type="file" accept="application/pdf,.pdf" hidden onChange={(e) => pick(e.target.files?.[0])} />
+        <input
+          ref={inputRef}
+          type="file"
+          accept="application/pdf,.pdf,image/*"
+          multiple
+          hidden
+          onChange={(e) => {
+            pick(e.target.files);
+            e.target.value = "";
+          }}
+        />
       </div>
 
       {error && <p className="rounded-xl bg-rose-500/10 p-3 text-xs font-semibold text-rose-300">{error}</p>}
@@ -118,9 +157,14 @@ export default function PaperReaderCard({ onSave }: { onSave: Save }) {
           <p className="text-[11px] text-[#B8ADA2]">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             {saved ? (
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fd6a0]">
-                <Check size={15} /> {tr("انضافت للمكتبة")}
-              </span>
+              <>
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fd6a0]">
+                  <Check size={15} /> {tr("انضافت للمكتبة وجدول الأدبيات")}
+                </span>
+                <Link to="/literature-review" className="text-xs font-bold text-[#FFB444] hover:underline">
+                  {tr("شوفوها بالجدول ←")}
+                </Link>
+              </>
             ) : (
               <>
                 <button type="button" onClick={save} className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00]">

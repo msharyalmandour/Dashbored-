@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, ArrowUp, Check, CheckCircle2, ClipboardCheck, Loader2, Undo2, Wrench } from "lucide-react";
+import { AlertTriangle, ArrowUp, Check, CheckCircle2, ClipboardCheck, Loader2, Paperclip, Undo2, Wrench } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
 import AgentOrb from "./ui/AgentOrb";
@@ -21,6 +21,8 @@ import { watchAll } from "../lib/agentWatch";
 import { buildStatus, isStatusQuestion, quickRepliesFor, THINKING_STEPS, type QuickReply, type StatusSnapshot } from "../lib/agentExtras";
 import AgentStatusCard from "./agent/AgentStatusCard";
 import AgentQuickReplies from "./agent/AgentQuickReplies";
+import PaperReaderCard from "./research/PaperReaderCard";
+import { insertEvidencePaper } from "../hooks/useEvidencePapers";
 import { askProjectAgent, reviewProposal, type AgentAction, type AskTurn, type ProposalReview } from "../hooks/useProjectAgent";
 import { addDaysISO, formatDateLong, toISODate } from "../lib/date";
 import { hasAiAccess } from "../lib/plans";
@@ -119,6 +121,13 @@ export default function ProjectAgentChat({
 
   // بالنسخة التجريبية (mock) نعرض الواجهة معطّلة بدل ما نخفيها
   const mock = !isSupabaseConfigured;
+  // «ارموا الدراسة للوكيل»: PDF أو صور صفحاتها ← بطاقة قراءة ← تنضاف لمكتبة الأدلة وجدول الأدبيات بعد موافقتكم
+  const studyInputRef = useRef<HTMLInputElement>(null);
+  const [study, setStudy] = useState<{ key: number; files: File[] } | null>(null);
+  const openStudy = (files: FileList | File[] | null | undefined) => {
+    const list = files ? Array.from(files) : [];
+    if (list.length) setStudy({ key: Date.now(), files: list });
+  };
   if (!mock && !hasAiAccess(team)) return <AiLockedCard feature={tr("الوكيل")} />;
 
   const allowed = (a: AgentAction) =>
@@ -510,17 +519,53 @@ export default function ProjectAgentChat({
     </ul>
   );
 
+  const studyCard = study && currentUser && (
+    <PaperReaderCard
+      key={study.key}
+      compact
+      initialFiles={study.files}
+      onClose={() => setStudy(null)}
+      onSave={(p) => insertEvidencePaper({ ...p, addedById: currentUser.id })}
+    />
+  );
+
   const form = (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         send();
       }}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        if (!mock) openStudy(e.dataTransfer.files);
+      }}
       className={clsx(
         "flex w-full items-center gap-3 rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] py-2 ps-5 pe-2",
         compact ? "mt-2" : "mt-2 py-2.5 ps-6 pe-2.5 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-[22px]",
       )}
     >
+      <input
+        ref={studyInputRef}
+        type="file"
+        accept="application/pdf,.pdf,image/*"
+        multiple
+        hidden
+        onChange={(e) => {
+          openStudy(e.target.files);
+          e.target.value = "";
+        }}
+      />
+      <button
+        type="button"
+        disabled={mock}
+        onClick={() => studyInputRef.current?.click()}
+        title={tr("ارموا دراسة للوكيل: PDF أو صور صفحاتها، ويحطها بجدول الأدبيات")}
+        aria-label={tr("أرفقوا دراسة (PDF أو صور)")}
+        className="-ms-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#B8ADA2] transition hover:bg-white/[0.06] hover:text-[#F4F0EC] disabled:opacity-50"
+      >
+        <Paperclip size={18} />
+      </button>
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -570,12 +615,25 @@ export default function ProjectAgentChat({
   if (compact)
     return (
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-5 text-[#F4F0EC]">
+        {studyCard ? (
+          // دراسة مفتوحة: البطاقة تاخذ المساحة وتنسحب، والمحادثة ترجع لما تقفلونها
+          <div className="min-h-0 flex-1 overflow-y-auto">{studyCard}</div>
+        ) : (
+          <>
         {!started && (
           <p className="text-sm leading-relaxed text-[#B8ADA2]">{trx("اسألوه عن وضعكم، أو أعطوه أمر: «احفظ سؤال البحث في المقترح»، «حط هدف الدراسة»، {0} يقترح وأنتم توافقون: ما ينفّذ شي بدون ضغطة «وافق».", isLeader ? tr("«أعطِ سارة مهمة مراجعة الأداة»، «وزّع المهام على الأعضاء».") : tr("ويقترح عليكم مهام يعتمدها القائد."))}</p>
         )}
+        {!started && (
+          <p className="flex items-start gap-1.5 text-[13px] leading-relaxed text-[#B8ADA2]">
+            <Paperclip size={14} className="mt-0.5 shrink-0 text-[#FFB444]" />
+            {tr("وارموا له دراسة (PDF أو صور صفحاتها) من زر المشبك: يقرأها، وتعتمدون إضافتها لجدول الأدبيات.")}
+          </p>
+        )}
         {watchRow}
         {chipRow}
-        {messages}
+            {messages}
+          </>
+        )}
         <div className="mt-auto">{form}</div>
       </div>
     );
@@ -593,6 +651,7 @@ export default function ProjectAgentChat({
         <h1 className={clsx("font-kufi font-extrabold leading-tight", started ? "text-2xl" : "mt-3 text-4xl md:text-5xl")}>{tr("وش نسوي اليوم؟")}</h1>
         {!started && <p className="text-base font-light text-[#B8ADA2] md:text-lg">{tr("الوكيل يعرف بحثكم ومهامكم. اطلبوا، وهو يجهّز.")}</p>}
         {messages}
+        {studyCard && <div className="w-full text-start">{studyCard}</div>}
         {form}
         {watchRow}
         {chipRow}

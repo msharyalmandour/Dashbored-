@@ -1,12 +1,13 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { CircleAlert, CircleCheck, ArrowUp, BookOpen, Check, CheckSquare, Copy, CornerUpLeft, FileText, ListPlus, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { BellRing, CircleAlert, CircleCheck, ArrowUp, BookOpen, Check, CheckSquare, Copy, CornerUpLeft, FileText, ListPlus, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import { V3Glow } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTeamPresence } from "../hooks/useTeamPresence";
+import { usePush } from "../hooks/usePush";
 import { useTasksData } from "../hooks/useTasksData";
 import { useProposal } from "../hooks/useProposal";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
@@ -54,9 +55,59 @@ const refIcon = (t: ChatRef["type"]) => (t === "task" ? CheckSquare : t === "sec
 const refLink = (r: ChatRef) => (r.type === "task" ? `/tasks?task=${r.id}` : r.type === "section" ? `/proposal?section=${r.id}` : "/evidence");
 const refKind = (t: ChatRef["type"]) => (t === "task" ? tr("مهمة") : t === "section" ? tr("قسم بالمقترح") : tr("دراسة بالمكتبة"));
 
+const PUSH_ASK_KEY = "wesync.chat.pushAsk.hiddenAt";
+
+/** شريط صغير فوق المحادثة: «فعّلوا الإشعارات عشان توصلكم رسائل الفريق» — يختفي لما تنفعّل، أو لأسبوع لو قفلوه */
+function ChatPushBanner({ userId }: { userId: string }) {
+  const { state, ready, enable } = usePush(userId);
+  const { showToast } = useToast();
+  const [hidden, setHidden] = useState(() => {
+    try {
+      return Date.now() - Number(localStorage.getItem(PUSH_ASK_KEY) || 0) < 7 * 864e5;
+    } catch {
+      return false;
+    }
+  });
+  if (!ready || hidden || state === "on" || state === "unsupported" || state === "busy") return null;
+  const hide = () => {
+    try {
+      localStorage.setItem(PUSH_ASK_KEY, String(Date.now()));
+    } catch {
+      // ما يهم
+    }
+    setHidden(true);
+  };
+  return (
+    <div className="tc-push" role="region" aria-label={tr("إشعارات المحادثة")}>
+      <BellRing size={18} className="shrink-0 text-[#FFC777]" aria-hidden />
+      <p className="m-0 min-w-0 flex-1">
+        {state === "denied"
+          ? tr("الإشعارات محظورة لهذا الموقع. فعّلوها من إعدادات المتصفح عشان توصلكم رسائل الفريق.")
+          : state === "ios-install"
+            ? tr("عشان توصلكم رسائل الفريق بالآيفون: افتحوا الموقع بسفاري ← مشاركة ← «إضافة إلى الشاشة الرئيسية»، وبعدها فعّلوا الإشعارات.")
+            : tr("فعّلوا الإشعارات عشان توصلكم رسائل الفريق على الجوال حتى لو التطبيق مقفول.")}
+      </p>
+      {state === "off" && (
+        <button
+          className="tc-act warm"
+          onClick={async () => {
+            const err = await enable();
+            if (err) showToast({ title: tr("ما انفعّلت الإشعارات — حاولوا مرة ثانية."), icon: CircleAlert });
+          }}
+        >
+          {tr("فعّلوها")}
+        </button>
+      )}
+      <button className="tc-icon !h-11 !w-11" onClick={hide} aria-label={tr("إخفاء")}>
+        <X size={16} />
+      </button>
+    </div>
+  );
+}
+
 /** محادثة الفريق: قروبكم داخل Wesync، وكل رسالة ممكن تصير مهمة أو تشير لمهمة/قسم/دراسة */
 export default function TeamChat() {
-  const { team, currentUser, isLeader, canWrite } = useAuth();
+  const { team, currentUser, isLeader, canWrite, mode } = useAuth();
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
   const online = useTeamPresence();
@@ -305,6 +356,7 @@ export default function TeamChat() {
             </div>
           </div>
         </header>
+        {mode === "supabase" && !unavailable && <ChatPushBanner userId={currentUser.id} />}
 
         {unavailable ? (
           <div className="tc-empty">

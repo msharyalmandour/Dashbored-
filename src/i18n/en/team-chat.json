@@ -60,5 +60,11 @@
  "أرسلوا الرابط للمشرف/ة": "Send the link to your supervisor",
  "القائد يرسل الرابط.": "The leader sends the link.",
  "{0} رسائل جديدة": "{0} new messages",
- "المحادثة": "Chat"
+ "المحادثة": "Chat",
+ "إشعارات المحادثة": "Chat notifications",
+ "الإشعارات محظورة لهذا الموقع. فعّلوها من إعدادات المتصفح عشان توصلكم رسائل الفريق.": "Notifications are blocked for this site. Turn them on in your browser settings to get team messages.",
+ "عشان توصلكم رسائل الفريق بالآيفون: افتحوا الموقع بسفاري ← مشاركة ← «إضافة إلى الشاشة الرئيسية»، وبعدها فعّلوا الإشعارات.": "To get team messages on iPhone: open the site in Safari → Share → “Add to Home Screen”, then turn on notifications.",
+ "فعّلوا الإشعارات عشان توصلكم رسائل الفريق على الجوال حتى لو التطبيق مقفول.": "Turn on notifications to get team messages on your phone, even when the app is closed.",
+ "ما انفعّلت الإشعارات — حاولوا مرة ثانية.": "Notifications weren't turned on — please try again.",
+ "فعّلوها": "Turn on"
 }

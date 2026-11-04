@@ -170,7 +170,11 @@ export function useTeamChat() {
         .select()
         .single();
       s.messages = s.messages.filter((m) => m.id !== tempId);
-      if (!error && data) upsert(s, mapRow(data as Row));
+      if (!error && data) {
+        upsert(s, mapRow(data as Row));
+        // إشعار الجوال لباقي الفريق (السيرفر يتأكد إني الكاتب ويرسل مرة وحدة)
+        void supabase!.functions.invoke("push-notify", { body: { action: "chat", messageId: (data as Row).id } }).catch(() => {});
+      }
       emit(s);
       return { error: error?.message };
     },

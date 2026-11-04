@@ -2,6 +2,7 @@
 //   key   : (عضو مسجّل دخول) يرجّع المفتاح العام للمتصفح عشان يسجّل الاشتراك
 //   test  : (عضو مسجّل دخول) يرسل إشعار تجريبي لأجهزته
 //   daily : (من pg_cron، بسر الجدولة) تذكير لكل عضو بمهامه القريبة والمتأخرة — مرة باليوم لكل عضو
+//   chat  : (كاتب الرسالة نفسه، بعد ما تنحفظ) إشعار لباقي الفريق برسالة المحادثة — مرة وحدة لكل رسالة
 // الاشتراكات الميتة (404/410) تنحذف تلقائيًا. بدون أي مفتاح يدخله أحد يدويًا.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
@@ -39,7 +40,7 @@ interface Sub {
   auth: string;
 }
 
-async function sendTo(subs: Sub[], payload: { title: string; body: string; url: string; tag?: string }): Promise<number> {
+async function sendTo(subs: Sub[], payload: { title: string; body: string; url: string; tag?: string; renotify?: boolean }): Promise<number> {
   if (subs.length === 0) return 0;
   const k = await getKeys();
   webpush.setVapidDetails(`mailto:${Deno.env.get("PUSH_CONTACT") ?? "support@wesync.app"}`, k.publicKey, k.privateKey);
@@ -99,6 +100,41 @@ async function runDaily(): Promise<{ sent: number }> {
   return { sent };
 }
 
+// رسالة محادثة الفريق → إشعار لكل أجهزة الأعضاء الثانيين (مو الكاتب)
+async function runChat(userId: string, messageId: string): Promise<{ sent: number; skipped?: string }> {
+  if (!/^[0-9a-f-]{36}$/i.test(messageId)) return { sent: 0, skipped: "bad_id" };
+  const { data: m } = await admin
+    .from("team_messages")
+    .select("id, team_id, author_id, body, ref_type, ref_label, created_at, deleted_at")
+    .eq("id", messageId)
+    .maybeSingle();
+  // بس كاتب الرسالة، ولرسالة جديدة (آخر ٥ دقايق) وما انحذفت
+  if (!m || m.author_id !== userId) return { sent: 0, skipped: "not_author" };
+  if (m.deleted_at || Date.now() - new Date(m.created_at).getTime() > 5 * 60000) return { sent: 0, skipped: "stale" };
+  // مرة وحدة لكل رسالة حتى لو انطلب مرتين
+  const { error: dup } = await admin.from("reminder_log").insert({ kind: "push-chat", ref_id: m.id, recipient: "team" });
+  if (dup) return { sent: 0, skipped: "duplicate" };
+
+  const { data: members } = await admin.from("profiles").select("id, name").eq("team_id", m.team_id);
+  const others = ((members ?? []) as { id: string; name: string | null }[]).filter((p) => p.id !== m.author_id).map((p) => p.id);
+  if (others.length === 0) return { sent: 0 };
+  const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").in("profile_id", others);
+  const author = ((members ?? []) as { id: string; name: string | null }[]).find((p) => p.id === m.author_id);
+  const first = (author?.name ?? "").trim().split(/\s+/)[0] || "الفريق";
+  const kind = m.ref_type === "task" ? "مهمة" : m.ref_type === "section" ? "قسم" : m.ref_type === "paper" ? "دراسة" : "";
+  const text = [m.body, kind && m.ref_label ? `📎 ${kind}: ${m.ref_label}` : ""].filter(Boolean).join("\n");
+  return {
+    sent: await sendTo((subs ?? []) as Sub[], {
+      title: `${first} · محادثة الفريق`,
+      body: text.length > 160 ? `${text.slice(0, 157)}…` : text,
+      url: `${site()}/#/chat`,
+      // رسائل الفريق تتجمع بإشعار واحد يتحدّث، ويرن مع كل رسالة جديدة
+      tag: `chat-${m.team_id}`,
+      renotify: true,
+    }),
+  };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
@@ -110,11 +146,12 @@ Deno.serve(async (req: Request) => {
   }
   const action = String(body.action ?? "");
   try {
-    if (action === "key" || action === "test") {
+    if (action === "key" || action === "test" || action === "chat") {
       const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
       const { data: u } = await admin.auth.getUser(jwt);
       if (!u?.user) return json(401, { error: "unauthorized" });
       if (action === "key") return json(200, { publicKey: (await getKeys()).publicKey });
+      if (action === "chat") return json(200, await runChat(u.user.id, String(body.messageId ?? "")));
       const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").eq("profile_id", u.user.id);
       const n = await sendTo((subs ?? []) as Sub[], { title: "Wesync", body: "الإشعارات شغّالة ✓ بتوصلك تذكيرات مهامك هنا.", url: `${site()}/#/tasks`, tag: "test" });
       return json(200, { sent: n });

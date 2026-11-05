@@ -101,6 +101,9 @@ Deno.serve(async (req: Request) => {
 
     const { data: team } = await admin.from("teams").select("id, name").eq("share_token", token).maybeSingle();
     if (!team) return json(404, { error: "invalid_token" });
+    // إيميل عضو بالفريق نفسه (غالبًا طالب يجرّب رابط المشرفة) — الإشعارات لازم تروح للمشرفة مو للفريق
+    const { data: members } = await admin.from("profiles").select("email").eq("team_id", team.id);
+    if ((members ?? []).some((m: { email: string | null }) => (m.email ?? "").trim().toLowerCase() === email)) return json(400, { error: "member_email" });
 
     const today = new Date().toISOString().slice(0, 10);
     const { data: existing } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", team.id).maybeSingle();
@@ -141,6 +144,22 @@ Deno.serve(async (req: Request) => {
       return json(sent.reason === "email_not_configured" ? 503 : 502, { error: sent.reason });
     }
     return json(200, { ok: true });
+  }
+
+  // ---------- عضو الفريق: لمين رايحة إشعارات المشرفة؟ (ينبّه لو الإيميل المسجّل حق عضو بالفريق) ----------
+  if (action === "team_status") {
+    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    const { data: userRes, error: userErr } = await admin.auth.getUser(jwt);
+    if (userErr || !userRes?.user) return json(401, { error: "unauthorized" });
+    const { data: profile } = await admin.from("profiles").select("team_id").eq("id", userRes.user.id).maybeSingle();
+    if (!profile?.team_id) return json(403, { error: "no_team" });
+    const { data: sub } = await admin.from("supervisor_email_subscriptions").select("email, confirmed_at, unsubscribed_at").eq("team_id", profile.team_id).maybeSingle();
+    if (!sub) return json(200, { state: "none", emailMasked: "", isTeamMember: false });
+    const { data: members } = await admin.from("profiles").select("email").eq("team_id", profile.team_id);
+    const isTeamMember = (members ?? []).some((m: { email: string | null }) => (m.email ?? "").trim().toLowerCase() === String(sub.email).toLowerCase());
+    const [user, domain] = String(sub.email).split("@");
+    const state = sub.unsubscribed_at ? "off" : sub.confirmed_at ? "active" : "pending";
+    return json(200, { state, emailMasked: `${user.slice(0, 2)}***@${domain ?? ""}`, isTeamMember });
   }
 
   // ---------- تأكيد / إيقاف من رابط الإيميل ----------

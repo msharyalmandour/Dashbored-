@@ -31,6 +31,7 @@ import type { Task, TeamMember } from "../data/types";
 import { g, isFemaleUser } from "../lib/gender";
 import { formatDateLong } from "../lib/date";
 import { getMyEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
+import SupervisorEmailInvite from "../components/meetings/SupervisorEmailInvite";
 import { isEn, tr, trx } from "../lib/i18n";
 import { publicBase } from "../lib/publicUrl";
 
@@ -229,12 +230,15 @@ function SupervisorContactSection() {
               <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
           <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
-            {emailStatus?.state === "active"
+            {emailStatus?.isTeamMember
+              ? null
+              : emailStatus?.state === "active"
               ? tr("إشعارات الإيميل مفعّلة للمشرفة ({0}) — يوصلها تنبيه كل ما تردّون عليها.", emailStatus.emailMasked)
               : emailStatus?.state === "pending"
                 ? tr("المشرفة طلبت إشعارات الإيميل ({0}) وما أكّدتها بعد.", emailStatus.emailMasked)
                 : tr("المشرفة تقدر تفعّل إشعارات الإيميل بنفسها من رابطها، وبعدها يوصلها تنبيه كل ما تردّون عليها.")}
           </p>
+          <SupervisorEmailInvite status={emailStatus} onSent={() => getMyEmailStatus().then(setEmailStatus)} />
           {isLeader && (
             <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">{tr("أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
                 {rotating ? tr("جاري التغيير...") : tr("غيّروا الرابط")}

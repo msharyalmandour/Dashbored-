@@ -5,6 +5,7 @@ import { Panel, ghostBtn, rowSurface } from "../ui/page";
 import { getMyEmailStatus, type EmailStatus } from "../../lib/supervisorEmail";
 import { mailtoUrl, supervisorInviteMessage, whatsappUrl } from "../../lib/meetings";
 import { tr, trx } from "../../lib/i18n";
+import SupervisorEmailInvite from "./SupervisorEmailInvite";
 
 const SENT_KEY = "wesync.supervisorInviteSent";
 
@@ -74,8 +75,9 @@ export default function SupervisorSetupCard({
     }
   };
 
-  const emailActive = email?.state === "active";
-  const emailPending = email?.state === "pending";
+  // لو الإيميل المسجّل حق عضو بالفريق فالمشرف/ة فعليًا ما فعّلت شي
+  const emailActive = email?.state === "active" && !email.isTeamMember;
+  const emailPending = email?.state === "pending" && !email.isTeamMember;
   const nameDone = supervisorName.trim().length > 0;
   // لو المشرف/ة فعّلت الإيميل أو حددت أوقاتها فهذا يعني إنها فتحت الرابط فعلًا
   const linkDone = sent || emailActive || emailPending || hasAvailability;
@@ -182,10 +184,11 @@ export default function SupervisorSetupCard({
                   </>
                 ) : emailPending ? (
                   <>{tr("أرسلنا لها رابط تأكيد على ")}<b dir="ltr">{email?.emailMasked}</b>{tr(" — بانتظار ضغطها عليه.")}</>
-                ) : (
-                  tr("ما فعّلته بعد — تفعّله من أسفل بطاقة «جهّزوا صفحتكم» بصفحتها. لو تأخرت، تظل رسائل الواتساب الجاهزة تحت كل طلب.")
+                ) : email?.isTeamMember ? null : (
+                  tr("ما فعّلته بعد. تقدرون تكتبون إيميلها هنا ونرسل لها رابط التأكيد، أو تفعّله هي من صفحتها.")
                 )}
               </p>
+              <SupervisorEmailInvite status={email} onSent={() => getMyEmailStatus().then(setEmail)} />
             </Step>
 
             <Step n={4} done={hasAvailability} title={tr("أوقاتها المتاحة")} desc={tr("هي تحدد أيامها وساعاتها مرة وحدة، وأنتم تحجزون موعد من تبويب «المواعيد» بضغطة بدل رسائل الأخذ والرد.")}>

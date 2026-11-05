@@ -130,5 +130,12 @@
  "لون البشرة": "Skin tone",
  "لون {0}": "Tone {0}",
  "احفظوا شخصيتي": "Save my character",
- "اختاروا شكلكم اللي يشوفه الفريق": "Pick the look your team sees"
+ "اختاروا شكلكم اللي يشوفه الفريق": "Pick the look your team sees",
+ "أرسلنا لها رابط تأكيد. أول ما تضغطه توصلها المحاضر والطلبات على إيميلها (قولوا لها تشوف الرسائل المزعجة لو ما لقته).": "We sent them a confirmation link. Once they tap it, minutes and requests reach their email (ask them to check spam if it's not there).",
+ "الإشعارات رايحة لإيميل عضو بالفريق ({0})، مو للمشرف/ة. عشان كذا المحاضر والطلبات ما توصلها.": "Notifications are going to a team member's email ({0}), not your supervisor's. That's why minutes and requests aren't reaching them.",
+ "اكتبوا إيميل المشرف/ة ونرسل لها رابط تأكيد. ما يوصلها شي ثاني قبل ما تضغطه.": "Enter your supervisor's email and we'll send a confirmation link. Nothing else reaches them until they tap it.",
+ "أرسلوا لها رابط التأكيد": "Send the confirmation link",
+ "القائد يكتب إيميل المشرف/ة من هنا.": "The leader enters the supervisor's email here.",
+ "ما فعّلته بعد. تقدرون تكتبون إيميلها هنا ونرسل لها رابط التأكيد، أو تفعّله هي من صفحتها.": "Not turned on yet. Enter their email here and we'll send the confirmation link, or they can turn it on from their page.",
+ "هذا إيميل عضو بالفريق. اكتبوا إيميل المشرف/ة نفسها عشان توصلها التنبيهات.": "That's a team member's email. Enter the supervisor's own email so the notifications reach them."
 }

@@ -5,9 +5,11 @@ export type EmailState = "none" | "pending" | "active" | "off";
 export interface EmailStatus {
   state: EmailState;
   emailMasked: string;
+  /** الإيميل المسجّل حق عضو بالفريق (مو المشرف/ة) — الإشعارات ما توصلها */
+  isTeamMember?: boolean;
 }
 
-export type EmailError = "email_not_configured" | "invalid_email" | "invalid_token" | "rate_limited" | "send_failed" | "network" | "unknown";
+export type EmailError = "member_email" | "email_not_configured" | "invalid_email" | "invalid_token" | "rate_limited" | "send_failed" | "network" | "unknown";
 
 async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error?: EmailError }> {
   if (!supabase) return { error: "network" };
@@ -17,7 +19,7 @@ async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error
     const res = (error as { context?: Response }).context;
     const parsed = res ? ((await res.json()) as { error?: string }) : null;
     const code = parsed?.error;
-    if (code === "email_not_configured" || code === "invalid_email" || code === "invalid_token" || code === "rate_limited" || code === "send_failed") return { error: code };
+    if (code === "member_email" || code === "email_not_configured" || code === "invalid_email" || code === "invalid_token" || code === "rate_limited" || code === "send_failed") return { error: code };
   } catch {
     // الرد مو JSON
   }
@@ -25,6 +27,7 @@ async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error
 }
 
 export const errorText: Record<EmailError, string> = {
+  member_email: tr("هذا إيميل عضو بالفريق. اكتبوا إيميل المشرف/ة نفسها عشان توصلها التنبيهات."),
   email_not_configured: tr("خدمة الإيميل لسا ما انفعّلت من إدارة الموقع — جرّبوا لاحقًا."),
   invalid_email: tr("الإيميل غير صحيح — تأكدوا من كتابته."),
   invalid_token: tr("الرابط غير صالح أو انتهى."),
@@ -50,6 +53,12 @@ export async function getSupervisorEmailStatus(token: string): Promise<EmailStat
 
 export async function getMyEmailStatus(): Promise<EmailStatus | null> {
   if (!supabase) return null;
+  // من دالة الإيميل: تقول كمان لو الإيميل المسجّل حق عضو بالفريق
+  const r = await call<EmailStatus>({ action: "team_status" });
+  if (r.data) return r.data;
   const { data } = await supabase.rpc("get_my_supervisor_email_status");
   return (data as EmailStatus | null) ?? null;
 }
+
+/** القائد يكتب إيميل المشرف/ة: يوصلها رابط تأكيد، وما يوصلها شي ثاني قبل ما تضغطه */
+export const inviteSupervisorByEmail = (shareToken: string, email: string) => subscribeSupervisor(shareToken, email);

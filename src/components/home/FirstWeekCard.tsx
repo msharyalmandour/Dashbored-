@@ -8,6 +8,7 @@ import { useResearchProject } from "../../hooks/useResearchProject";
 import { getMyEmailStatus, type EmailStatus } from "../../lib/supervisorEmail";
 import { publicBase } from "../../lib/publicUrl";
 import Avatar from "../ui/Avatar";
+import SupervisorEmailInvite from "../meetings/SupervisorEmailInvite";
 import { tr } from "../../lib/i18n";
 
 const LOCAL_DISMISS = (teamId: string) => `wesync.firstWeek.done.${teamId}`;
@@ -79,7 +80,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
     { key: "topic", n: 2, done: !!project?.title?.trim(), label: tr("اكتبوا موضوعكم"), hint: tr("سطر واحد يكفي الحين، تقدرون تعدّلونه بعدين.") },
     { key: "paper", n: 3, done: papers.length > 0, label: tr("أضيفوا أول دراسة"), hint: tr("دوّروا دراسة وحدة عن موضوعكم وحطوها بالمكتبة. وحدة وكافي.") },
     { key: "table", n: 4, done: papers.some((p) => !!(p.country || p.aim || p.sample || p.dataCollection)), label: tr("عبّوا أول صف بجدول الأدبيات"), hint: tr("من الدراسة اللي أضفتوها: الهدف، العينة، والنتيجة.") },
-    { key: "sup", n: 5, done: !!email && email.state !== "none", label: tr("ادعوا المشرف/ة"), hint: tr("رابط واحد بدون حساب: تشوف تقدّمكم وتعلّق.") },
+    { key: "sup", n: 5, done: !!email && email.state !== "none" && email.state !== "off" && !email.isTeamMember, label: tr("ادعوا المشرف/ة"), hint: tr("رابط واحد بدون حساب: تشوف تقدّمكم وتعلّق.") },
   ];
   const doneCount = steps.filter((s) => s.done).length;
   const allDone = doneCount === steps.length;
@@ -168,6 +169,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
           {copied === "sup" ? <Check size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
           {copied === "sup" ? tr("انتسخ") : tr("انسخوا الرابط")}
         </button>
+        <SupervisorEmailInvite status={email} onSent={() => getMyEmailStatus().then(setEmail)} />
         <p className="m-0 flex items-start gap-1.5 text-[13px] leading-relaxed text-[#ABA095]">
           <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#FFC777]" aria-hidden />
           {tr("تشوف بس، وتعلّق وتعتمد. ما تقدر تعدّل على شغلكم.")}

@@ -1,3 +1,4 @@
+import { getSupervisorDigest, setSupervisorDigest, type DigestMode } from "../../lib/supervisorEmail";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CalendarClock, Check, ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
 import SupervisorEmailCard from "../SupervisorEmailCard";
@@ -113,7 +114,7 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
         const hours = Math.max(0, Math.ceil((new Date(m.autoApprovesAt).getTime() - Date.now()) / 3600_000));
         const commenting = noteFor === m.id;
         return (
-          <article key={m.id} className={`sv-req${leaving.includes(m.id) ? " leaving" : ""}`}>
+          <article key={m.id} id={`sv-open-minutes-${m.id}`} className={`sv-req${leaving.includes(m.id) ? " leaving" : ""}`}>
             <p className="sv-kind m-0">
               {tr("محضر اجتماع")} <span>· {trx("يُعتمد تلقائيًا بعد {0} ساعة", hours)}</span>
             </p>
@@ -175,7 +176,7 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
       {decisions.map((d) => {
         const choice = picked[d.id];
         return (
-          <article key={d.id} className={`sv-req${leaving.includes(d.id) ? " leaving" : ""}`}>
+          <article key={d.id} id={`sv-open-decision-${d.id}`} className={`sv-req${leaving.includes(d.id) ? " leaving" : ""}`}>
             <p className="sv-kind m-0">
               {tr("قرار")}
               {d.neededBy && <span> · {trx("مطلوب قبل {0} ({1})", formatDateShort(d.neededBy), relativeDayLabel(d.neededBy))}</span>}
@@ -210,7 +211,7 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
       {bookings.map((b) => {
         const declining = noteFor === b.id;
         return (
-          <article key={b.id} className={`sv-req${leaving.includes(b.id) ? " leaving" : ""}`}>
+          <article key={b.id} id={`sv-open-booking-${b.id}`} className={`sv-req${leaving.includes(b.id) ? " leaving" : ""}`}>
             <p className="sv-kind m-0">
               {tr("طلب موعد")} <span>· {relativeDayLabel(b.date)}</span>
             </p>
@@ -275,6 +276,46 @@ interface WindowRow { key: number; weekday: number; start: string; end: string }
 let winKey = 0;
 
 /** الخطوات الثلاث (الاسم، إيميل التنبيهات، الأوقات) ومعها «أوقاتي وتفضيلاتي» كاملة — كلها داخل نفس الـ sheet */
+/** «كل شي أول بأول» أو «ملخص الأحد بس» */
+function DigestChoice({ token }: { token: string }) {
+  const [mode, setMode] = useState<DigestMode | null>(null);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    getSupervisorDigest(token).then((m) => alive && setMode(m));
+    return () => {
+      alive = false;
+    };
+  }, [token]);
+  const pick = async (m: DigestMode) => {
+    if (m === mode || saving) return;
+    const prev = mode;
+    setMode(m);
+    setSaving(true);
+    const { error } = await setSupervisorDigest(token, m);
+    setSaving(false);
+    if (error) setMode(prev);
+  };
+  return (
+    <div className="mt-3">
+      <p className="sv-sd m-0 mb-2">{tr("متى توصلكم الإيميلات؟")}</p>
+      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={tr("متى توصلكم الإيميلات؟")}>
+        {(
+          [
+            ["instant", tr("أول بأول"), tr("مع كل محضر أو سؤال أو موعد")],
+            ["weekly", tr("ملخص الأحد بس"), tr("إيميل واحد مرتب كل أسبوع")],
+          ] as const
+        ).map(([k, t, d]) => (
+          <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-[#F2EBE3] text-[#160904]" : "bg-white/[.04] text-[#F2EBE3] shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>
+            <span className="block text-[14px] font-extrabold">{t}</span>
+            <span className={`block text-[12px] ${mode === k ? "text-[#4A3A2E]" : "text-[#ABA095]"}`}>{d}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function SvSetupSheet({
   token,
   name,
@@ -327,11 +368,14 @@ export function SvSetupSheet({
             <p className="sv-sd m-0">{tr("كل ما أرسل الفريق محضر أو قرار أو طلب موعد يوصلكم إيميل برابط مباشر. ما نرسل شي قبل ما تأكدونه.")}</p>
             <div className="mt-2.5">
               {emailDone ? (
-                <p className="sv-ok m-0">
-                  <Check size={15} strokeWidth={3} />
-                  {tr("مفعّلة على ")}
-                  <b dir="ltr">{email?.emailMasked}</b>
-                </p>
+                <>
+                  <p className="sv-ok m-0">
+                    <Check size={15} strokeWidth={3} />
+                    {tr("مفعّلة على ")}
+                    <b dir="ltr">{email?.emailMasked}</b>
+                  </p>
+                  <DigestChoice token={token} />
+                </>
               ) : (
                 <SupervisorEmailCard token={token} onChanged={onEmailChanged} embedded glass />
               )}

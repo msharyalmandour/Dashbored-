@@ -229,6 +229,11 @@ function SupervisorContactSection() {
             >
               <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
+          {team.shareToken && (
+            <Link to={`/supervisor/${team.shareToken}/report`} className="mt-2.5 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-brand-700 underline underline-offset-2">
+              {tr("تقرير تقدّم الفريق (PDF) — ترسلونه للمشرف/ة أو القسم")}
+            </Link>
+          )}
           <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
             {emailStatus?.isTeamMember
               ? null

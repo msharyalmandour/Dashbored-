@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Link } from "react-router-dom";
-import { BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { AlarmClock, BarChart3, CalendarPlus, FileUp, Loader2, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import Avatar from "../components/ui/Avatar";
 import { V3Glow } from "../components/v3/WriteHeader";
@@ -13,6 +13,10 @@ import { useTasksData } from "../hooks/useTasksData";
 import { useProposal } from "../hooks/useProposal";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { markChatRead, useTeamChat, type ChatMessage, type ChatRef } from "../hooks/useTeamChat";
+import { useMeetings } from "../hooks/useMeetings";
+import { askProjectAgent } from "../hooks/useProjectAgent";
+import { notifySupervisor } from "../lib/supervisorNotify";
+import { AgentMark, BookingSheet, EventRow, PollCard, PollComposer, ReminderSheet, StudyDropSheet, SupervisorQuestionSheet, TodaySummary } from "../components/chat/ChatExtras";
 import type { TeamMember } from "../data/types";
 import { addDaysISO, formatDateShort, relativeDayLabel, toISODate } from "../lib/date";
 import { publicBase } from "../lib/publicUrl";
@@ -132,7 +136,9 @@ export default function TeamChat() {
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
   const online = useTeamPresence();
-  const { messages, loaded, unavailable, typers, reads, send, retry, edit, remove, typing, markRead } = useTeamChat();
+  const { messages, loaded, unavailable, typers, reads, votes, send, post, vote, closePoll, remind, retry, edit, remove, typing, markRead } = useTeamChat();
+  const meetings = useMeetings();
+  const navigate = useNavigate();
   const { tasks, addTask } = useTasksData();
   const { sections } = useProposal();
   const { papers } = useEvidencePapers();
@@ -149,6 +155,14 @@ export default function TeamChat() {
   const [query, setQuery] = useState("");
   const [mentionQ, setMentionQ] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
+  const [plusOpen, setPlusOpen] = useState(false);
+  const [pollOpen, setPollOpen] = useState(false);
+  const [studyOpen, setStudyOpen] = useState(false);
+  const [toBooking, setToBooking] = useState<ChatMessage | null>(null);
+  const [toSupervisor, setToSupervisor] = useState<ChatMessage | null>(null);
+  const [toRemind, setToRemind] = useState<ChatMessage | null>(null);
+  const [agentBusy, setAgentBusy] = useState(false);
+  const [minutesBusy, setMinutesBusy] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastTyping = useRef(0);
   const press = useRef<number | null>(null);
@@ -165,7 +179,7 @@ export default function TeamChat() {
   }, [unavailable]);
 
   const people = useMemo(() => new Map(roster.map((m) => [m.id, m])), [roster]);
-  const names = useMemo(() => roster.map((m) => firstName(m.name)).filter(Boolean), [roster]);
+  const names = useMemo(() => [...roster.map((m) => firstName(m.name)), tr("وكيل")].filter(Boolean), [roster]);
   const onlineIds = new Set(online.map((u) => u.id));
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
@@ -246,14 +260,54 @@ export default function TeamChat() {
       if (error) showToast({ title: tr("ما انحفظ التعديل — حاولوا مرة ثانية."), icon: CircleAlert });
       setEditing(null);
     } else {
-      void send(body, { replyTo: replyTo?.id ?? null, ref: attach, mentions: mentionedIds(body, roster, currentUser.id) });
+      const sending = send(body, { replyTo: replyTo?.id ?? null, ref: attach, mentions: mentionedIds(body, roster, currentUser.id) });
       setReplyTo(null);
       setAttach(null);
+      // «@وكيل …»: الوكيل يرد بالقروب للكل، من سياق المحادثة
+      if (/@وكيل|@الوكيل|@agent/i.test(body)) void askAgent(body, sending);
     }
     setText("");
     setMentionQ(null);
     setBusy(false);
     inputRef.current?.focus();
+  };
+
+  const askAgent = async (question: string, sending: Promise<{ error?: string }>) => {
+    setAgentBusy(true);
+    await sending;
+    const history = messages
+      .filter((m) => !m.deletedAt && m.kind !== "event")
+      .slice(-12)
+      .map((m) => ({ role: m.kind === "agent" ? ("agent" as const) : ("user" as const), text: m.kind === "agent" ? m.body : `${nameOf(m.authorId)}: ${m.body}` }));
+    const r = await askProjectAgent(question.replace(/@(وكيل|الوكيل|agent)/gi, "").trim() || question, history);
+    setAgentBusy(false);
+    const last = [...messages].reverse().find((m) => m.authorId === currentUser.id && !m.pending);
+    const out = await post("agent", r.data?.answer ?? r.message ?? tr("ما وصل الرد — حاولوا مرة ثانية."), { askedBy: currentUser.id }, last?.id ?? null);
+    if (out.error) showToast({ title: tr("رد الوكيل ما انحفظ بالمحادثة — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
+  };
+
+  // «حوّلوا المحادثة لمحضر»: الوكيل يلخّص رسائل اليوم (أو آخر ٤٠) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
+  const chatToMinutes = async () => {
+    if (minutesBusy) return;
+    const today = toISODate(new Date());
+    let pool = messages.filter((m) => !m.deletedAt && m.kind !== "event" && toISODate(new Date(m.createdAt)) === today);
+    if (pool.length < 4) pool = messages.filter((m) => !m.deletedAt && m.kind !== "event").slice(-40);
+    if (pool.length === 0) return;
+    setMinutesBusy(true);
+    const transcript = pool.map((m) => `${m.kind === "agent" ? tr("الوكيل") : nameOf(m.authorId)}: ${m.body}`).join("\n");
+    const r = await askProjectAgent(
+      // تعليمات للوكيل (مو نص يظهر للمستخدم) — العناوين ثابتة عشان نقسّم الرد
+      `لخّص محادثة الفريق هذي كمحضر اجتماع مختصر. اكتب بالضبط بهذا الشكل بدون أي مقدمة:\nالمناقشة:\n- …\nالقرارات:\n- …\n\nالمحادثة:\n${transcript}`,
+      [],
+    );
+    setMinutesBusy(false);
+    if (!r.data) {
+      showToast({ title: r.message ?? tr("الوكيل غير متاح الحين — جرّبوا بعد شوي."), icon: CircleAlert });
+      return;
+    }
+    const txt = r.data.answer;
+    const [disc, dec] = txt.split(/القرارات\s*:|Decisions\s*:/i);
+    navigate("/minutes/new", { state: { discussionSeed: disc.replace(/^\s*(المناقشة|Discussion)\s*:\s*/i, "").trim(), decisionsSeed: (dec ?? "").trim() } });
   };
 
   const onType = (v: string, caret: number) => {
@@ -267,6 +321,15 @@ export default function TeamChat() {
   };
 
   const mentionList = mentionQ === null ? [] : others.filter((m) => fold(firstName(m.name)).startsWith(fold(mentionQ))).slice(0, 5);
+  const agentMatch = mentionQ !== null && fold(tr("وكيل")).startsWith(fold(mentionQ));
+  const pickAgent = () => {
+    const el = inputRef.current;
+    const caret = el?.selectionStart ?? text.length;
+    const before = text.slice(0, caret).replace(/@(\S*)$/, `@${tr("وكيل")} `);
+    setText(before + text.slice(caret));
+    setMentionQ(null);
+    requestAnimationFrame(() => el?.focus());
+  };
   const pickMention = (m: TeamMember) => {
     const el = inputRef.current;
     const caret = el?.selectionStart ?? text.length;
@@ -313,12 +376,21 @@ export default function TeamChat() {
       );
       prevDay = day;
     }
-    const mine = m.authorId === currentUser.id;
+    // حدث بالموقع (مهمة خلصت، المشرف/ة اعتمدت…): سطر هادي بالنص مو فقاعة
+    if (m.kind === "event") {
+      rows.push(<EventRow key={m.id} m={m} nameOf={nameOf} time={time(m.createdAt)} />);
+      return;
+    }
+    const isAgent = m.kind === "agent";
+    const isPoll = m.kind === "poll";
+    // رد الوكيل ينحفظ باسم اللي سأل، بس يطلع بجهة الباقين كـ«الوكيل»
+    const mine = m.authorId === currentUser.id && !isAgent;
     const prev = shown[idx - 1];
     const next = shown[idx + 1];
     const sameDay = (x?: ChatMessage) => !!x && toISODate(new Date(x.createdAt)) === day;
-    const firstOfRun = !prev || prev.authorId !== m.authorId || !sameDay(prev);
-    const lastOfRun = !next || next.authorId !== m.authorId || !sameDay(next);
+    const sameRun = (x?: ChatMessage) => !!x && x.kind !== "event" && x.authorId === m.authorId && (x.kind === "agent") === isAgent && sameDay(x);
+    const firstOfRun = !sameRun(prev);
+    const lastOfRun = !sameRun(next);
     const quoted = m.replyTo ? byId.get(m.replyTo) : null;
     const gone = !!m.deletedAt;
     const isSel = selected === m.id;
@@ -326,12 +398,12 @@ export default function TeamChat() {
     const p = who(m.authorId);
     rows.push(
       <div key={m.id} id={`msg-${m.id}`} className={`tc-row${mine ? " me" : ""}${!firstOfRun ? " cont" : ""}${isSel ? " sel" : ""}`}>
-        {!mine && (lastOfRun ? <Avatar initials="" name={p?.name ?? "?"} avatar={p?.avatar} px={30} /> : <span className="tc-av-gap" aria-hidden />)}
+        {!mine && (lastOfRun ? isAgent ? <AgentMark /> : <Avatar initials="" name={p?.name ?? "?"} avatar={p?.avatar} px={30} /> : <span className="tc-av-gap" aria-hidden />)}
         <div
           role="group"
           tabIndex={gone || m.pending ? -1 : 0}
-          aria-label={tr("رسالة من {0}", mine ? tr("أنت") : nameOf(m.authorId))}
-          className={`tc-bubble${m.pending ? " pending" : ""}${m.failed ? " failed" : ""}${gone ? " gone" : ""}${flash === m.id ? " flash" : ""}`}
+          aria-label={tr("رسالة من {0}", mine ? tr("أنت") : isAgent ? tr("الوكيل") : nameOf(m.authorId))}
+          className={`tc-bubble${isAgent ? " agent" : ""}${m.pending ? " pending" : ""}${m.failed ? " failed" : ""}${gone ? " gone" : ""}${flash === m.id ? " flash" : ""}`}
           onPointerDown={(e) => !gone && !m.pending && !m.failed && pressStart(m.id, e)}
           onPointerUp={pressEnd}
           onPointerLeave={pressEnd}
@@ -355,14 +427,30 @@ export default function TeamChat() {
             </>
           ) : (
             <>
-              {!mine && firstOfRun && <span className="tc-name">{nameOf(m.authorId)}</span>}
+              {!mine && firstOfRun && <span className="tc-name">{isAgent ? tr("الوكيل · رد على {0}", nameOf(m.authorId)) : nameOf(m.authorId)}</span>}
               {quoted && (
                 <button type="button" className="tc-quote" onClick={() => jumpTo(quoted.id)}>
                   <b>{nameOf(quoted.authorId)}</b>
                   <span>{quoted.deletedAt ? tr("رسالة انحذفت") : quoted.body}</span>
                 </button>
               )}
-              <span className="tc-text">{richText(m.body, names)}</span>
+              {isPoll ? (
+                <PollCard
+                  m={m}
+                  votes={votes[m.id] ?? {}}
+                  roster={roster}
+                  me={currentUser.id}
+                  canClose={m.authorId === currentUser.id || isLeader}
+                  onVote={(i) => void vote(m.id, i).then((r) => r.error && showToast({ title: tr("ما انحفظ صوتكم — حاولوا مرة ثانية."), icon: CircleAlert }))}
+                  onClose={async (w) => {
+                    const opts = (m.meta?.options as string[] | undefined) ?? [];
+                    if (m.authorId === currentUser.id) await closePoll(m, w);
+                    void send(tr("✓ القرار بالتصويت: «{0}» — {1}", opts[w] ?? "", m.body), { replyTo: m.id });
+                  }}
+                />
+              ) : (
+                <span className="tc-text">{richText(m.body, names)}</span>
+              )}
               {m.ref && RefIcon && (
                 <Link to={refLink(m.ref)} className="tc-ref">
                   <span className="tc-ref-ic">
@@ -417,11 +505,33 @@ export default function TeamChat() {
               {tr("حوّلها مهمة")}
             </button>
           )}
+          {canWrite && !isPoll && (
+            <>
+              <button role="menuitem" onClick={() => { setSelected(null); setToSupervisor(m); }}>
+                <SendToBack size={19} aria-hidden />
+                {tr("سؤال للمشرف/ة")}
+              </button>
+              <button role="menuitem" onClick={() => { setSelected(null); setToBooking(m); }}>
+                <CalendarPlus size={19} aria-hidden />
+                {tr("موعد للمشرف/ة")}
+              </button>
+            </>
+          )}
+          <button role="menuitem" onClick={() => { setSelected(null); setToRemind(m); }}>
+            <AlarmClock size={19} aria-hidden />
+            {tr("ذكّروني")}
+          </button>
           <button role="menuitem" onClick={() => { void navigator.clipboard?.writeText(m.body); setSelected(null); showToast({ title: tr("انتسخت"), icon: CircleCheck }); }}>
             <Copy size={19} aria-hidden />
             {tr("نسخ")}
           </button>
-          {mine && (
+          {m.authorId === currentUser.id && (isAgent || isPoll) && (
+            <button role="menuitem" className="danger" onClick={() => { void remove(m.id); setSelected(null); }}>
+              <Trash2 size={19} aria-hidden />
+              {tr("حذف")}
+            </button>
+          )}
+          {mine && !isPoll && (
             <>
               <button role="menuitem" onClick={() => { setEditing(m); setText(m.body); setSelected(null); inputRef.current?.focus(); }}>
                 <Pencil size={19} aria-hidden />
@@ -464,6 +574,11 @@ export default function TeamChat() {
                   <Avatar key={m.id} initials="" name={m.name} avatar={m.avatar} px={30} online={m.id === currentUser.id || onlineIds.has(m.id)} />
                 ))}
               </div>
+              {messages.length > 0 && canWrite && (
+                <button type="button" className="tc-round" aria-label={tr("حوّلوا المحادثة لمحضر")} title={tr("حوّلوا المحادثة لمحضر")} onClick={chatToMinutes} disabled={minutesBusy}>
+                  {minutesBusy ? <Loader2 size={18} className="animate-spin motion-reduce:animate-none" /> : <NotebookPen size={18} />}
+                </button>
+              )}
               <button type="button" className="tc-round" aria-label={tr("بحث في المحادثة")} aria-pressed={searchOn} onClick={() => { setSearchOn(!searchOn); setQuery(""); }}>
                 <Search size={19} />
               </button>
@@ -543,7 +658,17 @@ export default function TeamChat() {
                   </div>
                 ))}
               {query.trim() && shown.length === 0 && <p className="m-0 py-8 text-center text-[14px] text-[#ABA095]">{tr("ما لقينا «{0}» بالرسائل.", query.trim())}</p>}
+              {!query.trim() && <TodaySummary messages={messages} openDecisions={meetings.decisions.filter((d) => d.status === "open").length} pendingMinutes={meetings.approvals.filter((a) => a.status === "pending").length} />}
               {rows}
+              {agentBusy && (
+                <div className="tc-row">
+                  <AgentMark />
+                  <div className="tc-bubble agent">
+                    <span className="tc-name">{tr("الوكيل")}</span>
+                    <span className="tc-text text-[#ABA095]">{tr("يقرا المحادثة ويجهّز رد…")}</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <div className="tc-spacer" aria-hidden />
@@ -558,8 +683,16 @@ export default function TeamChat() {
                   </>
                 )}
               </div>
-              {mentionList.length > 0 && (
+              {(mentionList.length > 0 || agentMatch) && (
                 <div className="tc-mentions" role="listbox" aria-label={tr("أشيروا لعضو")}>
+                  {agentMatch && (
+                    <button type="button" role="option" aria-selected={false} onMouseDown={(e) => e.preventDefault()} onClick={pickAgent}>
+                      <AgentMark />
+                      <span>
+                        {tr("الوكيل")} <small className="text-[12px] font-medium text-[#ABA095]">{tr("· يرد بالقروب للكل")}</small>
+                      </span>
+                    </button>
+                  )}
                   {mentionList.map((m) => (
                     <button key={m.id} type="button" role="option" aria-selected={false} onMouseDown={(e) => e.preventDefault()} onClick={() => pickMention(m)}>
                       <Avatar initials="" name={m.name} avatar={m.avatar} px={28} online={onlineIds.has(m.id)} ring="#22160F" />
@@ -608,7 +741,7 @@ export default function TeamChat() {
                     void submit();
                   }}
                 >
-                  <button type="button" className="tc-plus" aria-label={tr("أشيروا لمهمة أو قسم أو دراسة")} disabled={!canWrite} onClick={() => setRefOpen(true)}>
+                  <button type="button" className="tc-plus" aria-label={tr("أضيفوا للرسالة: إشارة، دراسة، تصويت")} disabled={!canWrite} onClick={() => setPlusOpen(true)}>
                     <Plus size={20} />
                   </button>
                   <textarea
@@ -684,6 +817,115 @@ export default function TeamChat() {
       </div>
 
       {selected && <div className="tc-dim" aria-hidden onClick={() => setSelected(null)} />}
+
+      <Dialog open={plusOpen} onClose={() => setPlusOpen(false)} title={tr("أضيفوا للمحادثة")}>
+        <div className="flex flex-col gap-2">
+          {(
+            [
+              [BookOpen, tr("أشيروا لشي بالبحث"), tr("مهمة، قسم بالمقترح، أو دراسة بالمكتبة"), () => setRefOpen(true)],
+              [FileUp, tr("ارموا دراسة"), tr("PDF أو صور صفحاتها، والوكيل يقرأها ويحطها بالمكتبة وجدول الأدبيات"), () => setStudyOpen(true)],
+              [BarChart3, tr("تصويت سريع"), tr("سؤال بخيارات، والنتيجة تصير قرار"), () => setPollOpen(true)],
+            ] as const
+          ).map(([Icon, title, sub, go]) => (
+            <button
+              key={title}
+              type="button"
+              className="tc-pick"
+              onClick={() => {
+                setPlusOpen(false);
+                go();
+              }}
+            >
+              <span className="tc-ref-ic">
+                <Icon size={18} aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="tc-pick-t">{title}</span>
+                <span className="tc-pick-s !whitespace-normal">{sub}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </Dialog>
+
+      <PollComposer
+        open={pollOpen}
+        onClose={() => setPollOpen(false)}
+        onCreate={async (q, options) => {
+          const r = await post("poll", q, { options });
+          if (r.error) {
+            showToast({ title: tr("التصويت ما انحفظ — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
+            return false;
+          }
+          setPollOpen(false);
+          return true;
+        }}
+      />
+
+      <StudyDropSheet
+        open={studyOpen}
+        me={currentUser.id}
+        onClose={() => setStudyOpen(false)}
+        onSaved={() => {
+          setStudyOpen(false);
+          showToast({ title: tr("انضافت للمكتبة وجدول الأدبيات ✓"), icon: CircleCheck });
+        }}
+      />
+
+      {toBooking && (
+        <BookingSheet
+          msg={toBooking}
+          onClose={() => setToBooking(null)}
+          onBook={async (date, time, note) => {
+            const r = await meetings.bookSlot(date, time, note);
+            if (r.error) {
+              showToast({ title: r.error, icon: CircleAlert });
+              return false;
+            }
+            if (r.id && r.status === "pending") void notifySupervisor("booking", r.id);
+            void send(tr("📅 اقترحنا على المشرف/ة موعد {0} الساعة {1}", formatDateShort(date), time), { replyTo: toBooking.id.startsWith("tmp-") ? null : toBooking.id });
+            setToBooking(null);
+            showToast({ title: r.status === "confirmed" ? tr("انحجز الموعد ✓") : tr("انرسل الاقتراح للمشرف/ة ✓"), icon: CircleCheck });
+            return true;
+          }}
+        />
+      )}
+
+      {toSupervisor && (
+        <SupervisorQuestionSheet
+          msg={toSupervisor}
+          onClose={() => setToSupervisor(null)}
+          onAsk={async (question, options) => {
+            const r = await meetings.askDecision({ question, options });
+            if (r.error || !r.id) {
+              showToast({ title: r.error ?? tr("ما انرسل السؤال — حاولوا مرة ثانية."), icon: CircleAlert });
+              return false;
+            }
+            void notifySupervisor("decision", r.id);
+            void send(tr("❓ أرسلنا للمشرف/ة: «{0}»", question), { replyTo: toSupervisor.id.startsWith("tmp-") ? null : toSupervisor.id });
+            setToSupervisor(null);
+            showToast({ title: tr("انرسل السؤال للمشرف/ة ✓"), icon: CircleCheck });
+            return true;
+          }}
+        />
+      )}
+
+      {toRemind && (
+        <ReminderSheet
+          msg={toRemind}
+          onClose={() => setToRemind(null)}
+          onRemind={async (at) => {
+            const r = await remind(toRemind, at);
+            if (r.error) {
+              showToast({ title: tr("التذكير ما انحفظ — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
+              return false;
+            }
+            setToRemind(null);
+            showToast({ title: tr("بنذكّركم {0} ✓", at.toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" })), icon: CircleCheck });
+            return true;
+          }}
+        />
+      )}
 
       <ReferenceSheet
         open={refOpen}

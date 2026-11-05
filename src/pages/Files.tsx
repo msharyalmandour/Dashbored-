@@ -13,6 +13,8 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import type { DriveFile } from "../data/types";
 import { formatDateShort } from "../lib/date";
 import { tr } from "../lib/i18n";
+import { useTeamChat } from "../hooks/useTeamChat";
+import { Link2 } from "lucide-react";
 
 type Kind = "pdf" | "doc" | "sheet" | "image";
 
@@ -46,6 +48,45 @@ function formatSize(bytes: number): string {
 
 function categoryLabel(f: DriveFile) {
   return f.category === "meeting-minutes" ? tr("محاضر الاجتماعات") : f.category === "ethical-approval" ? tr("الموافقة الأخلاقية") : tr("عام");
+}
+
+/** روابط انرسلت بالمحادثة — تنحفظ هنا تلقائيًا عشان ما تضيع بين الرسائل */
+function ChatLinksPanel() {
+  const { messages } = useTeamChat();
+  const { roster } = useTeamRoster();
+  const links = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { url: string; by: string; at: string }[] = [];
+    for (const m of [...messages].reverse()) {
+      if (m.deletedAt || m.kind === "event") continue;
+      for (const url of m.body.match(/https?:\/\/[^\s]+/g) ?? []) {
+        if (seen.has(url)) continue;
+        seen.add(url);
+        out.push({ url, by: roster.find((r) => r.id === m.authorId)?.name.split(" ")[0] ?? "", at: m.createdAt });
+      }
+    }
+    return out.slice(0, 30);
+  }, [messages, roster]);
+  if (links.length === 0) return null;
+  return (
+    <Panel title={tr("روابط من المحادثة")}>
+      <ul className="space-y-1.5">
+        {links.map((l) => (
+          <li key={l.url}>
+            <a href={l.url} target="_blank" rel="noreferrer" className={clsx(rowSurface, "flex min-h-[44px] items-center gap-2.5")}>
+              <Link2 size={16} className="shrink-0 text-amber-accent-400" aria-hidden />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-bold text-brand-950" dir="ltr">
+                  {l.url.replace(/^https?:\/\/(www\.)?/, "")}
+                </span>
+                <span className="block text-xs text-brand-950/60">{[l.by, formatDateShort(l.at.slice(0, 10))].filter(Boolean).join(" · ")}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  );
 }
 
 export default function Files() {
@@ -101,6 +142,7 @@ export default function Files() {
                   <FolderOpen size={16} className="mt-0.5 shrink-0 text-amber-accent-400" />{tr("مجلد الفريق بدرايف يُنشأ تلقائيًا أول ما ترفعون أول ملف — بعدها يظهر هنا رابط لفتحه كامل.")}</p>
               </Panel>
             )}
+            <ChatLinksPanel />
             <Panel title={tr("تصنيف الملفات")}>
               <ul className="space-y-1.5">
                 {["all", ...folders].map((f) => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, MessageSquarePlus } from "lucide-react";
 import { SvSheet, relTime } from "./SvParts";
 import { tr } from "../../lib/i18n";
 
@@ -81,12 +81,105 @@ export interface DocRow {
 }
 
 /** قراءة مستند (المقترح / المنهجية / الموافقة) + اعتماد أقسام المقترح + تعليق يوصل الفريق */
+export interface SectionComment {
+  id: string;
+  sectionKey: string;
+  quote: string;
+  body: string;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+/** ملاحظة المشرف/ة على جملة من القسم: تحدد جملة من النص (اختياري) وتكتب ملاحظتها، وتصير مهمة على كاتب القسم */
+function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: string; label: string; comments: SectionComment[]; onComment: (key: string, label: string, quote: string, body: string) => Promise<boolean> }) {
+  const [open, setOpen] = useState(false);
+  const [quote, setQuote] = useState("");
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const mine = comments.filter((c) => c.sectionKey === sectionKey);
+  const start = () => {
+    // الجملة اللي حدّدتها من نص هالقسم بس
+    const sel = window.getSelection();
+    const host = document.getElementById(`sv-sec-${sectionKey}`);
+    const picked = sel && host && sel.anchorNode && host.contains(sel.anchorNode) ? sel.toString().trim().slice(0, 600) : "";
+    setQuote(picked);
+    setOpen(true);
+    setDone(false);
+  };
+  return (
+    <div className="mt-2">
+      {mine.length > 0 && (
+        <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
+          {mine.map((c) => (
+            <li key={c.id} className="rounded-[14px] bg-[rgba(255,199,119,.07)] px-3 py-2 text-[13px] leading-relaxed text-[#E9D3B8]">
+              {c.quote && <span className="mb-1 block border-s-[3px] border-[#FFC777] ps-2 text-[12px] text-[#ABA095]">«{c.quote}»</span>}
+              {c.body}
+              <span className="ms-2 text-[12px] text-[#ABA095]">{c.resolvedAt ? tr("· اتعدّلت ✓") : tr("· {0}", relTime(c.createdAt))}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {!open ? (
+        <button type="button" className="sv-btn ghost !min-h-[44px] !px-3.5 !text-[13px]" onPointerDown={(e) => e.preventDefault()} onClick={start}>
+          <MessageSquarePlus size={15} aria-hidden />
+          {done ? tr("انرسلت ✓ — ملاحظة ثانية") : tr("علّقوا على جملة")}
+        </button>
+      ) : (
+        <div className="rounded-[18px] border border-[rgba(255,240,225,.12)] bg-[rgba(0,0,0,.22)] p-3">
+          {quote ? (
+            <p className="m-0 mb-2 border-s-[3px] border-[#FFC777] ps-2 text-[13px] leading-relaxed text-[#D9CFC5]">«{quote}»</p>
+          ) : (
+            <p className="m-0 mb-2 text-[12px] text-[#ABA095]">{tr("ملاحظة على القسم كامل. (لو تبون جملة محددة: حدّدوها من النص فوق ثم اضغطوا «علّقوا على جملة».)")}</p>
+          )}
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            maxLength={2000}
+            autoFocus
+            aria-label={tr("ملاحظتكم على «{0}»", label)}
+            placeholder={tr("وش يعدّلون؟")}
+            className="min-h-[80px] w-full resize-y rounded-[14px] border border-[rgba(255,240,225,.12)] bg-[rgba(255,245,235,.05)] p-3 text-[15px] leading-relaxed text-[#F2EBE3] outline-none focus:border-[rgba(255,199,119,.55)]"
+          />
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="sv-btn pri !min-h-[44px] !text-[14px]"
+              disabled={busy || !body.trim()}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await onComment(sectionKey, label, quote, body.trim());
+                setBusy(false);
+                if (ok) {
+                  setOpen(false);
+                  setBody("");
+                  setQuote("");
+                  setDone(true);
+                }
+              }}
+            >
+              {busy && <Loader2 size={14} className="animate-spin" />}
+              {tr("أرسلوا الملاحظة")}
+            </button>
+            <button type="button" className="sv-btn ghost !min-h-[44px] !text-[14px]" onClick={() => setOpen(false)}>
+              {tr("إلغاء")}
+            </button>
+          </div>
+          <p className="m-0 mt-2 text-[12px] text-[#ABA095]">{tr("تصير مهمة على اللي كتب القسم، وتوصل الفريق بالمحادثة.")}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SvDocSheet({
   title,
   rows,
   approved,
   approvingKey,
   onApprove,
+  comments = [],
+  onComment,
   send,
   error,
   onClose,
@@ -96,6 +189,8 @@ export function SvDocSheet({
   approved?: string[];
   approvingKey?: string | null;
   onApprove?: (key: string, label: string) => void;
+  comments?: SectionComment[];
+  onComment?: (key: string, label: string, quote: string, body: string) => Promise<boolean>;
   send: (body: string) => Promise<boolean>;
   error: string | null;
   onClose: () => void;
@@ -121,7 +216,14 @@ export function SvDocSheet({
                 ))}
               {r.status && r.status !== "done" && <span className="sv-badge soon !text-[#ABA095] !bg-[rgba(255,255,255,.06)]">{r.status === "in-progress" ? tr("قيد الكتابة") : tr("ما بدأ")}</span>}
             </div>
-            {r.content ? <p className="m-0 mt-1.5 whitespace-pre-wrap text-[14px] leading-[1.9] text-[#D9D0C6]">{r.content}</p> : <p className="m-0 mt-1.5 text-[13px] text-[#7A7067]">{tr("لم يُكتب بعد")}</p>}
+            {r.content ? (
+              <p id={`sv-sec-${r.key}`} className="m-0 mt-1.5 whitespace-pre-wrap text-[14px] leading-[1.9] text-[#D9D0C6]">
+                {r.content}
+              </p>
+            ) : (
+              <p className="m-0 mt-1.5 text-[13px] text-[#ABA095]">{tr("لم يُكتب بعد")}</p>
+            )}
+            {r.content && onComment && <CommentBox sectionKey={r.key} label={r.label} comments={comments} onComment={onComment} />}
           </div>
         ))}
       </div>

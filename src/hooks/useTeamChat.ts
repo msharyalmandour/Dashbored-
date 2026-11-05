@@ -8,9 +8,23 @@ export interface ChatRef {
   label: string;
 }
 
+export type ChatKind = "user" | "agent" | "event" | "poll";
+
+/** بيانات الحدث / التصويت / رد الوكيل (team_messages.meta) */
+export interface ChatMeta {
+  type?: string;
+  options?: string[];
+  closed?: boolean;
+  winner?: number;
+  [k: string]: unknown;
+}
+
 export interface ChatMessage {
   id: string;
+  /** null لأحداث الموقع (مثل «المشرف/ة اعتمدت المحضر») */
   authorId: string;
+  kind: ChatKind;
+  meta: ChatMeta | null;
   body: string;
   replyTo: string | null;
   ref: ChatRef | null;
@@ -27,7 +41,9 @@ export interface ChatMessage {
 
 interface Row {
   id: string;
-  author_id: string;
+  author_id: string | null;
+  kind?: ChatKind | null;
+  meta?: ChatMeta | null;
   body: string;
   reply_to: string | null;
   ref_type: ChatRef["type"] | null;
@@ -40,7 +56,9 @@ interface Row {
 
 const mapRow = (r: Row): ChatMessage => ({
   id: r.id,
-  authorId: r.author_id,
+  authorId: r.author_id ?? "",
+  kind: r.kind ?? "user",
+  meta: r.meta ?? null,
   body: r.body,
   replyTo: r.reply_to,
   ref: r.ref_type && r.ref_id ? { type: r.ref_type, id: r.ref_id, label: r.ref_label ?? "" } : null,
@@ -65,6 +83,8 @@ interface Store {
   typers: Typer[];
   /** آخر وقت قرا فيه كل عضو المحادثة (team_chat_reads) — لـ ✓✓ و«آخر ظهور» */
   reads: Record<string, string>;
+  /** التصويت: رسالة ← (عضو ← خيار) */
+  votes: Record<string, Record<string, number>>;
   channel: ReturnType<NonNullable<typeof supabase>["channel"]> | null;
   listeners: Set<() => void>;
 }
@@ -82,7 +102,7 @@ function open(teamId: string, userId: string): Store {
   const key = `${teamId}:${userId}`;
   if (store && store.key === key) return store;
   if (store?.channel) supabase!.removeChannel(store.channel);
-  const s: Store = { key, teamId, userId, messages: [], loaded: false, unavailable: false, typers: [], reads: {}, channel: null, listeners: new Set() };
+  const s: Store = { key, teamId, userId, messages: [], loaded: false, unavailable: false, typers: [], reads: {}, votes: {}, channel: null, listeners: new Set() };
   store = s;
 
   void (async () => {
@@ -106,6 +126,10 @@ function open(teamId: string, userId: string): Store {
     if (store !== s || reads.error) return;
     for (const r of (reads.data ?? []) as { profile_id: string; last_read_at: string }[]) s.reads[r.profile_id] = r.last_read_at;
     emit(s);
+    const votes = await supabase!.from("team_message_votes").select("message_id, profile_id, option").eq("team_id", teamId);
+    if (store !== s || votes.error) return;
+    for (const v of (votes.data ?? []) as { message_id: string; profile_id: string; option: number }[]) s.votes[v.message_id] = { ...(s.votes[v.message_id] ?? {}), [v.profile_id]: v.option };
+    emit(s);
   })();
 
   const channel = supabase!.channel(`team-chat:${teamId}`);
@@ -124,6 +148,16 @@ function open(teamId: string, userId: string): Store {
       const r = payload.new as { profile_id?: string; last_read_at?: string };
       if (store !== s || !r?.profile_id || !r.last_read_at) return;
       s.reads = { ...s.reads, [r.profile_id]: r.last_read_at };
+      emit(s);
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "team_message_votes", filter: `team_id=eq.${teamId}` }, (payload) => {
+      if (store !== s) return;
+      const v = (payload.eventType === "DELETE" ? payload.old : payload.new) as { message_id?: string; profile_id?: string; option?: number };
+      if (!v?.message_id || !v.profile_id) return;
+      const cur = { ...(s.votes[v.message_id] ?? {}) };
+      if (payload.eventType === "DELETE") delete cur[v.profile_id];
+      else cur[v.profile_id] = v.option ?? 0;
+      s.votes = { ...s.votes, [v.message_id]: cur };
       emit(s);
     })
     .on("broadcast", { event: "typing" }, ({ payload }) => {
@@ -174,7 +208,7 @@ export function useTeamChat() {
       if (!text) return { error: "empty" };
       if (opts.retryOf) s.messages = s.messages.filter((m) => m.id !== opts.retryOf);
       const tempId = `tmp-${Date.now()}`;
-      const temp: ChatMessage = { id: tempId, authorId: currentUser.id, body: text, replyTo: opts.replyTo ?? null, ref: opts.ref ?? null, createdAt: new Date().toISOString(), editedAt: null, deletedAt: null, pending: true, mentions: opts.mentions };
+      const temp: ChatMessage = { id: tempId, authorId: currentUser.id, kind: "user", meta: null, body: text, replyTo: opts.replyTo ?? null, ref: opts.ref ?? null, createdAt: new Date().toISOString(), editedAt: null, deletedAt: null, pending: true, mentions: opts.mentions };
       upsert(s, temp);
       emit(s);
       const { data, error } = await supabase!
@@ -223,6 +257,55 @@ export function useTeamChat() {
     [s],
   );
 
+  /** رد الوكيل أو تصويت: نفس الإرسال بنوع وبيانات (يحتاج ملف SQL الجديد) */
+  const post = useCallback(
+    async (kind: "agent" | "poll", body: string, meta: ChatMeta, replyTo: string | null = null) => {
+      if (!s || !currentUser) return { error: "offline" };
+      const { data, error } = await supabase!
+        .from("team_messages")
+        .insert({ body: body.trim().slice(0, 4000) || "·", kind, meta, reply_to: replyTo })
+        .select()
+        .single();
+      if (!error && data) {
+        upsert(s, mapRow(data as Row));
+        emit(s);
+        if (kind === "poll") void supabase!.functions.invoke("push-notify", { body: { action: "chat", messageId: (data as Row).id } }).catch(() => {});
+      }
+      return { error: error?.message };
+    },
+    [s, currentUser],
+  );
+
+  const vote = useCallback(
+    async (messageId: string, option: number) => {
+      if (!s || !currentUser) return { error: "offline" };
+      const mine = s.votes[messageId]?.[currentUser.id];
+      s.votes = { ...s.votes, [messageId]: { ...(s.votes[messageId] ?? {}), [currentUser.id]: option } };
+      emit(s);
+      const q = supabase!.from("team_message_votes");
+      const { error } = mine === undefined ? await q.insert({ message_id: messageId, option }) : await q.update({ option }).eq("message_id", messageId).eq("profile_id", currentUser.id);
+      return { error: error?.message };
+    },
+    [s, currentUser],
+  );
+
+  const closePoll = useCallback(
+    async (m: ChatMessage, winner: number) => {
+      const { error } = await supabase!.from("team_messages").update({ meta: { ...(m.meta ?? {}), closed: true, winner } }).eq("id", m.id);
+      return { error: error?.message };
+    },
+    [],
+  );
+
+  /** «ذكّرني»: إشعار جوال بالوقت المختار */
+  const remind = useCallback(
+    async (m: ChatMessage, at: Date) => {
+      const { error } = await supabase!.from("chat_reminders").insert({ message_id: m.id.startsWith("tmp-") ? null : m.id, body: m.body.slice(0, 300), remind_at: at.toISOString() });
+      return { error: error?.message };
+    },
+    [],
+  );
+
   const retry = useCallback(
     (m: ChatMessage) => send(m.body, { replyTo: m.replyTo, ref: m.ref, mentions: m.mentions, retryOf: m.id }),
     [send],
@@ -252,7 +335,12 @@ export function useTeamChat() {
     unavailable: s?.unavailable ?? false,
     typers: (s?.typers ?? []).filter((t) => now - t.at < 4000).map((t) => t.id),
     reads: s?.reads ?? {},
+    votes: s?.votes ?? {},
     send,
+    post,
+    vote,
+    closePoll,
+    remind,
     retry,
     markRead,
     edit,

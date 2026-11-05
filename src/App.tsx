@@ -38,6 +38,7 @@ import AdminSubscriptions from "./pages/AdminSubscriptions";
 import Pricing from "./pages/Pricing";
 import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
+import SupervisorReport from "./pages/SupervisorReport";
 import SupervisorTeams from "./pages/SupervisorTeams";
 import SupervisorEmailAction from "./pages/SupervisorEmailAction";
 import Legal from "./pages/Legal";
@@ -75,6 +76,7 @@ export default function App() {
       <Route path="/supervisor" element={<SupervisorTeams />} />
       <Route path="/supervisor-email/:action/:token" element={<SupervisorEmailAction />} />
       <Route path="/supervisor/:token" element={<SupervisorView />} />
+      <Route path="/supervisor/:token/report" element={<SupervisorReport />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Overview />} />
         <Route path="/proposal" element={<Proposal />} />

@@ -3,6 +3,8 @@
 //   test  : (عضو مسجّل دخول) يرسل إشعار تجريبي لأجهزته
 //   daily : (من pg_cron، بسر الجدولة) تذكير لكل عضو بمهامه القريبة والمتأخرة — مرة باليوم لكل عضو
 //   chat  : (كاتب الرسالة نفسه، بعد ما تنحفظ) إشعار لباقي الفريق برسالة المحادثة — مرة وحدة لكل رسالة
+//   reminders : (pg_cron كل ١٠ دقايق) «ذكّرني» من المحادثة لما يجي وقتها
+//   daily يذكّر كمان الفريق قبل اجتماعهم المؤكد مع المشرف/ة بيوم
 // الاشتراكات الميتة (404/410) تنحذف تلقائيًا. بدون أي مفتاح يدخله أحد يدويًا.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
@@ -97,6 +99,33 @@ async function runDaily(): Promise<{ sent: number }> {
     if (n === 0) await admin.from("reminder_log").delete().eq("kind", "push-daily").eq("ref_id", profileId).eq("recipient", today);
     sent += n;
   }
+
+  // بكرة اجتماع مؤكد مع المشرف/ة: «جهّزوا أسئلتكم بالمحادثة»
+  const { data: books } = await admin.from("meeting_bookings").select("id, team_id, booking_time").eq("status", "confirmed").eq("booking_date", soon).limit(500);
+  for (const b of (books ?? []) as { id: string; team_id: string; booking_time: string }[]) {
+    const { error: dup } = await admin.from("reminder_log").insert({ kind: "push-booking-eve", ref_id: b.id, recipient: soon });
+    if (dup) continue;
+    const { data: members } = await admin.from("profiles").select("id").eq("team_id", b.team_id);
+    const ids = ((members ?? []) as { id: string }[]).map((m) => m.id);
+    if (ids.length === 0) continue;
+    const { data: tsubs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").in("profile_id", ids);
+    sent += await sendTo((tsubs ?? []) as Sub[], { title: "بكرة اجتماعكم مع المشرف/ة", body: `الساعة ${b.booking_time}. اجمعوا أسئلتكم بالمحادثة الليلة عشان يطلع المحضر منها.`, url: `${site()}/#/chat`, tag: `booking-${b.id}` });
+  }
+  return { sent };
+}
+
+// «ذكّرني» من المحادثة
+async function runReminders(): Promise<{ sent: number }> {
+  const { data: due, error } = await admin.from("chat_reminders").select("id, profile_id, body").is("sent_at", null).lte("remind_at", new Date().toISOString()).limit(200);
+  if (error || !due?.length) return { sent: 0 };
+  let sent = 0;
+  for (const r of due as { id: string; profile_id: string; body: string }[]) {
+    // نعلّمها أول (ما تتكرر لو الدالة انطلبت مرتين)
+    const { data: claimed } = await admin.from("chat_reminders").update({ sent_at: new Date().toISOString() }).eq("id", r.id).is("sent_at", null).select("id").maybeSingle();
+    if (!claimed) continue;
+    const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").eq("profile_id", r.profile_id);
+    sent += await sendTo((subs ?? []) as Sub[], { title: "تذكير من المحادثة", body: r.body.slice(0, 160), url: `${site()}/#/chat`, tag: `reminder-${r.id}` });
+  }
   return { sent };
 }
 
@@ -160,6 +189,7 @@ Deno.serve(async (req: Request) => {
     }
     if (!(await secretOk(req.headers.get("x-digest-secret")))) return json(401, { error: "unauthorized" });
     if (action === "daily") return json(200, await runDaily());
+    if (action === "reminders") return json(200, await runReminders());
     return json(400, { error: "unknown_action" });
   } catch (err) {
     console.error("push-notify error:", err instanceof Error ? err.message : err);

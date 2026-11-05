@@ -2,6 +2,8 @@
 //  subscribe  : برمز رابط المشرفة (share_token) — يرسل إيميل تأكيد (تأكيد مزدوج، ما يُرسل أي شي قبله)
 //  confirm / unsubscribe : برمز التأكيد اللي بالإيميل نفسه
 //  notify     : عضو فريق مسجّل دخول (JWT) — يرسل إشعار «رد جديد» للمشرفة المؤكَّدة فقط، بحد زمني
+//  set_digest : برمز رابط المشرفة — تختار «فوري» أو «ملخص أسبوعي بس»
+//  weekly     : (من pg_cron بسر الجدولة) ملخص الأحد: وش ينتظرها بأزرار، وش خلّص الفريق، والجاي
 // الإرسال عبر Resend. أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (مثل «Wesync <noreply@نطاقكم>»)، وSITE_URL اختياري.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -183,6 +185,8 @@ Deno.serve(async (req: Request) => {
 
     const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
     if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
+    // اختارت الملخص الأسبوعي بس: الرد يطلع لها بالأحد
+    if (sub.digest === "weekly") return json(200, { sent: false, reason: "weekly_digest" });
     if (sub.last_notified_at && Date.now() - new Date(sub.last_notified_at).getTime() < NOTIFY_COOLDOWN_MINUTES * 60_000) {
       return json(200, { sent: false, reason: "cooldown" });
     }
@@ -231,6 +235,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
     if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
+    if (sub.digest === "weekly") return json(200, { sent: false, reason: "weekly_digest" });
     // دقيقتين بين إيميلات الطلبات حتى ما نغرق المشرفة (كلها تنعرض لها بصفحتها بأي حال)
     if (sub.last_notified_at && Date.now() - new Date(sub.last_notified_at).getTime() < 2 * 60_000) return json(200, { sent: false, reason: "cooldown" });
 
@@ -262,7 +267,8 @@ Deno.serve(async (req: Request) => {
       plain = `اقترح فريق «${team.name}» اجتماعًا يوم ${b.booking_date} الساعة ${b.booking_time}.`;
     }
 
-    const link = `${site}/#/supervisor/${team.share_token}`;
+    // يفتح صفحتها على الطلب نفسه، والاعتماد بضغطة وحدة هناك (ما نعتمد من رابط الإيميل مباشرة عشان فاحصات الروابط ما تعتمد بدالها)
+    const link = `${site}/#/supervisor/${team.share_token}?open=${kind}:${refId}`;
     const unsub = `${site}/#/supervisor-email/unsubscribe/${sub.confirm_token}`;
     const sent = await sendEmail(
       sub.email,
@@ -273,6 +279,83 @@ Deno.serve(async (req: Request) => {
     if (!sent.ok) return json(200, { sent: false, reason: sent.reason });
     await admin.from("supervisor_email_subscriptions").update({ last_notified_at: new Date().toISOString() }).eq("team_id", profile.team_id);
     return json(200, { sent: true });
+  }
+
+  // ---------- المشرفة تشوف اختيارها الحالي ----------
+  if (action === "digest_status") {
+    const token = String(body.token ?? "");
+    if (!UUID.test(token)) return json(400, { error: "invalid_token" });
+    const { data: team } = await admin.from("teams").select("id").eq("share_token", token).maybeSingle();
+    if (!team) return json(404, { error: "invalid_token" });
+    const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", team.id).maybeSingle();
+    return json(200, { digest: sub?.digest === "weekly" ? "weekly" : "instant" });
+  }
+
+  // ---------- المشرفة تختار: كل شي فوري، أو ملخص أسبوعي بس ----------
+  if (action === "set_digest") {
+    const token = String(body.token ?? "");
+    const mode = String(body.mode ?? "");
+    if (!UUID.test(token) || !["instant", "weekly"].includes(mode)) return json(400, { error: "bad_request" });
+    const { data: team } = await admin.from("teams").select("id").eq("share_token", token).maybeSingle();
+    if (!team) return json(404, { error: "invalid_token" });
+    const { error } = await admin.from("supervisor_email_subscriptions").update({ digest: mode }).eq("team_id", team.id);
+    if (error) return json(500, { error: "db_error" });
+    return json(200, { ok: true });
+  }
+
+  // ---------- ملخص الأحد للمشرفات (pg_cron) ----------
+  if (action === "weekly") {
+    const given = req.headers.get("x-digest-secret");
+    const { data: okSecret } = given ? await admin.rpc("verify_digest_secret", { p_secret: given }) : { data: false };
+    if (okSecret !== true) return json(401, { error: "unauthorized" });
+    const { data: subs } = await admin.from("supervisor_email_subscriptions").select("*").not("confirmed_at", "is", null).is("unsubscribed_at", null).limit(500);
+    const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
+    const today = new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
+    const nextWeek = new Date(Date.now() + 3 * 3600e3 + 7 * 864e5).toISOString().slice(0, 10);
+    let sent = 0;
+    for (const sub of subs ?? []) {
+      const { error: dup } = await admin.from("reminder_log").insert({ kind: "sup-weekly", ref_id: sub.team_id, recipient: today });
+      if (dup) continue;
+      const { data: team } = await admin.from("teams").select("name, share_token").eq("id", sub.team_id).maybeSingle();
+      if (!team) continue;
+      const base = `${site}/#/supervisor/${team.share_token}`;
+      const { data: proj } = await admin.from("research_projects").select("id").eq("team_id", sub.team_id).order("created_at").limit(1).maybeSingle();
+      const [apprs, decs, books, done, due, papers, msgs] = await Promise.all([
+        admin.from("minutes_approvals").select("minutes_id, requested_at").eq("team_id", sub.team_id).eq("status", "pending"),
+        admin.from("decision_requests").select("id, question").eq("team_id", sub.team_id).eq("status", "open"),
+        admin.from("meeting_bookings").select("id, booking_date, booking_time").eq("team_id", sub.team_id).eq("status", "pending"),
+        admin.from("tasks").select("title").eq("team_id", sub.team_id).eq("status", "done").gte("completed_at", weekAgo).limit(50),
+        admin.from("tasks").select("title, due_date").eq("team_id", sub.team_id).neq("status", "done").gte("due_date", today).lte("due_date", nextWeek).order("due_date").limit(6),
+        proj ? admin.from("evidence_papers").select("title").eq("research_project_id", proj.id).gte("created_at", weekAgo).limit(20) : Promise.resolve({ data: [] }),
+        admin.from("supervisor_messages").select("id").eq("team_id", sub.team_id).eq("sender", "team").is("read_at", null),
+      ]);
+      const waiting: string[] = [];
+      for (const a of apprs.data ?? []) waiting.push(`<li style="margin:0 0 8px">محضر اجتماع بانتظار اعتمادكم — <a href="${esc(`${base}?open=minutes:${a.minutes_id}`)}" style="color:#FFC777;font-weight:700">افتحوه واعتمدوه</a></li>`);
+      for (const d of decs.data ?? []) waiting.push(`<li style="margin:0 0 8px">${esc(d.question)} — <a href="${esc(`${base}?open=decision:${d.id}`)}" style="color:#FFC777;font-weight:700">جاوبوا بضغطة</a></li>`);
+      for (const b of books.data ?? []) waiting.push(`<li style="margin:0 0 8px">اقتراح موعد ${esc(String(b.booking_date))} الساعة ${esc(b.booking_time)} — <a href="${esc(`${base}?open=booking:${b.id}`)}" style="color:#FFC777;font-weight:700">أكّدوه أو اعتذروا</a></li>`);
+      if ((msgs.data ?? []).length > 0) waiting.push(`<li style="margin:0 0 8px">${(msgs.data ?? []).length} رسالة من الفريق ما انقرت — <a href="${esc(`${base}?open=thread:0`)}" style="color:#FFC777;font-weight:700">اقروها</a></li>`);
+      const doneN = (done.data ?? []).length;
+      const papersN = (papers.data ?? []).length;
+      // أسبوع بدون شي ينتظرها وبدون شغل: ما نزعجها
+      if (waiting.length === 0 && doneN === 0 && papersN === 0) continue;
+      const box = (h: string, inner: string) => `<p style="margin:18px 0 6px;font-size:13px;font-weight:800;color:#FFC777">${h}</p><div style="${EMAIL_BOX}">${inner}</div>`;
+      const inner = [
+        waiting.length ? box("ينتظركم", `<ul style="margin:0;padding:0 18px 0 0">${waiting.join("")}</ul>`) : `<p>ما فيه شي ينتظركم هالأسبوع ✓</p>`,
+        box("هالأسبوع", `<p style="margin:0">خلّص الفريق <b>${doneN}</b> مهمة${papersN ? ` وأضاف <b>${papersN}</b> دراسة` : ""}.</p>${doneN ? `<p style="margin:6px 0 0;font-size:13px;color:#ABA095">${(done.data ?? []).slice(0, 5).map((t: { title: string }) => esc(t.title)).join(" · ")}</p>` : ""}`),
+        (due.data ?? []).length ? box("الجاي", `<p style="margin:0;font-size:14px">${(due.data ?? []).map((t: { title: string; due_date: string }) => `${esc(t.title)} <span style="color:#ABA095">(${esc(t.due_date)})</span>`).join("<br>")}</p>`) : "",
+      ].join("");
+      const title = `ملخص الأسبوع — فريق «${team.name}»`;
+      const unsub = `${site}/#/supervisor-email/unsubscribe/${sub.confirm_token}`;
+      const r = await sendEmail(
+        sub.email,
+        title,
+        layout(title, inner, base, "افتحوا صفحة الفريق", `ملخص كل أحد. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإيميلات</a>`),
+        `${title}\n\nينتظركم: ${waiting.length}\nخلّص الفريق ${doneN} مهمة.\n\n${base}\n\nإيقاف: ${unsub}`,
+      );
+      if (r.ok) sent++;
+      else await admin.from("reminder_log").delete().eq("kind", "sup-weekly").eq("ref_id", sub.team_id).eq("recipient", today);
+    }
+    return json(200, { sent });
   }
 
   return json(400, { error: "unknown_action" });

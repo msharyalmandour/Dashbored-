@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useRef, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, Check, ChevronLeft, FileText, FlaskConical, Gauge, Inbox, ListChecks, Lock, ShieldCheck, Users } from "lucide-react";
 import { useSupervisorBoard } from "../components/supervisor/useSupervisorBoard";
 import { SvAvatar, SvSetupSheet, SvSetupStrip, SvWaiting, relTime } from "../components/supervisor/SvParts";
+import type { SectionComment } from "../components/supervisor/SvSheets";
 import { SvDocSheet, SvNoteSheet, type DocRow, type ThreadMessage } from "../components/supervisor/SvSheets";
 import { TYPE_LABEL } from "../components/v3/WriteHeader";
 import { supabase } from "../lib/supabaseClient";
@@ -106,6 +107,10 @@ function Ring({ pct }: { pct: number }) {
 
 export default function SupervisorView() {
   const { token } = useParams<{ token: string }>();
+  // من الإيميل: ?open=minutes:<id> / decision:<id> / booking:<id> / thread:0 — نفتح الطلب نفسه
+  const [search] = useSearchParams();
+  const openTarget = search.get("open") ?? "";
+  const [comments, setComments] = useState<SectionComment[]>([]);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +136,25 @@ export default function SupervisorView() {
   const [confirmAll, setConfirmAll] = useState(false);
   const { board, busy, error: boardError, load: loadBoard, run, saveAvailability } = useSupervisorBoard(token, nameDraft);
 
+  // فتح الطلب اللي جت منه من الإيميل: ننزل له ونبرزه، أو نفتح الرسائل
+  const opened = useRef(false);
+  useEffect(() => {
+    if (opened.current || !openTarget || !board) return;
+    opened.current = true;
+    const [kind, id] = openTarget.split(":");
+    if (kind === "thread") {
+      setSheet("note");
+      return;
+    }
+    const el = document.getElementById(`sv-open-${kind}-${id}`) ?? document.getElementById("sv-h-wait");
+    if (!el) return;
+    setTimeout(() => {
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      el.classList.add("sv-flash");
+      setTimeout(() => el.classList.remove("sv-flash"), 2200);
+    }, 300);
+  }, [openTarget, board]);
+
   const loadThread = useCallback(async () => {
     if (!supabase || !token) return;
     const { data } = await supabase.rpc("get_supervisor_thread", { p_token: token });
@@ -139,6 +163,28 @@ export default function SupervisorView() {
       setThreadLoaded(true);
     }
   }, [token]);
+
+  // ملاحظاتها السابقة على نص المقترح (قبل تشغيل ملف SQL الجديد ترجع فاضية)
+  const loadComments = useCallback(async () => {
+    if (!supabase || !token) return;
+    const { data, error: e } = await supabase.rpc("supervisor_section_comments", { p_token: token });
+    if (!e && Array.isArray(data)) setComments(data as SectionComment[]);
+  }, [token]);
+  useEffect(() => {
+    void loadComments();
+  }, [loadComments]);
+
+  const addComment = async (key: string, _label: string, quote: string, body: string) => {
+    if (!supabase || !token) return false;
+    const { error: e } = await supabase.rpc("supervisor_add_section_comment", { p_token: token, p_section_key: key, p_quote: quote, p_body: body, p_name: nameDraft.trim() });
+    if (e) {
+      setNoteError(tr("ما انحفظت الملاحظة — حاولوا مرة ثانية."));
+      return false;
+    }
+    setNoteError(null);
+    await loadComments();
+    return true;
+  };
 
   const loadEmail = useCallback(async () => {
     if (token) setEmail(await getSupervisorEmailStatus(token));
@@ -640,7 +686,14 @@ export default function SupervisorView() {
         {/* ٩) جهّزوا صفحتكم */}
         {!setupFirst && <div className="sv-sec">{setupStrip}</div>}
 
-        <p className="mt-8 text-center text-[12px] text-[#8F857C]">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
+        <div className="sv-sec flex justify-center">
+          <Link to={`/supervisor/${token}/report`} className="sv-btn ghost">
+            <FileText size={16} aria-hidden />
+            {tr("تقرير تقدّم الفريق (PDF)")}
+          </Link>
+        </div>
+
+        <p className="mt-8 text-center text-[12px] text-[#ABA095]">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
       </div>
 
       {/* ١٠) Dock */}
@@ -672,6 +725,8 @@ export default function SupervisorView() {
           approved={approved}
           approvingKey={approvingKey}
           onApprove={sheet === "proposal" ? approveSection : undefined}
+          comments={sheet === "proposal" ? comments : undefined}
+          onComment={sheet === "proposal" ? addComment : undefined}
           send={sendMessage}
           error={noteError}
           onClose={() => setSheet(null)}

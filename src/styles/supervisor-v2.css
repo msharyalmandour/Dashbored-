@@ -168,3 +168,55 @@
     .sv-req { transition: none; }
   }
 }
+
+/* ═══ تقرير التقدّم (A4، يتحفظ PDF من الطباعة) ═══ */
+@layer components {
+  .sv-flash { box-shadow: 0 0 0 2px rgba(255,199,119,.85), 0 18px 40px rgba(0,0,0,.45) !important; transition: box-shadow .4s; }
+  .rp-wrap { min-height: 100dvh; padding: 16px; background: #0A0807; }
+  .rp-bar { max-width: 794px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rp-back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; border-radius: 22px; color: #F2EBE3; font-weight: 700; }
+  .rp-print { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 26px; font-weight: 800; color: #1A0802; background: linear-gradient(90deg, #FF6A00, #FF9A3C); box-shadow: 0 10px 26px rgba(255,106,0,.30); }
+  .rp-page { max-width: 794px; margin: 0 auto; padding: 40px 44px; border-radius: 6px; background: #FFFCF8; color: #1C130E; font-family: Tajawal, system-ui, sans-serif; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+  .rp-head { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 3px solid #FF6A00; }
+  .rp-kicker { margin: 0; font-size: 13px; font-weight: 800; color: #C2400A; }
+  .rp-title { margin: 4px 0 0; font-size: 26px; font-weight: 800; line-height: 1.35; }
+  .rp-sub { margin: 6px 0 0; font-size: 13px; color: #5B4A3E; }
+  .rp-logo { width: 46px; height: 46px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 24px; font-weight: 800; color: #1A0802; background: radial-gradient(circle at 50% 38%, #FFF0C2, #FFB547 30%, #FF6A00 65%, #C2400A); }
+  .rp-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+  .rp-stats div { padding: 12px; border-radius: 14px; background: #FFF2E4; border: 1px solid #F6D9BC; }
+  .rp-stats b { display: block; font-size: 22px; font-weight: 800; color: #1C130E; }
+  .rp-stats span { display: block; margin-top: 2px; font-size: 12px; color: #5B4A3E; }
+  .rp-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 18px; }
+  .rp-cols h2 { margin: 0 0 8px; font-size: 15px; font-weight: 800; color: #C2400A; }
+  .rp-cols ul { margin: 0; padding: 0; list-style: none; }
+  .rp-cols li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid #F0E3D6; font-size: 13px; }
+  .rp-cols li em { flex: none; font-style: normal; font-size: 12px; color: #5B4A3E; }
+  .rp-cols li em.ok { color: #1E7A45; font-weight: 700; }
+  .rp-cols li em.mid { color: #A65A00; font-weight: 700; }
+  .rp-note { margin: 8px 0 0; font-size: 13px; color: #5B4A3E; }
+  .rp-foot { margin-top: 28px; padding-top: 12px; border-top: 1px solid #F0E3D6; font-size: 12px; color: #6B5A4E; }
+  @media (max-width: 640px) { .rp-page { padding: 24px 18px; } .rp-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rp-cols { grid-template-columns: 1fr; } }
+  @media print {
+    .rp-wrap { padding: 0; background: #fff; min-height: 0; }
+    .rp-page { max-width: none; margin: 0; padding: 0; box-shadow: none; border-radius: 0; background: #fff; }
+  }
+}
+/* «:first/:left/:right» أدق من @page العام بـ index.css (هامش 1.5cm)، فيغلبه — الهامش داخل التقرير نفسه */
+@page :first { size: A4; margin: 0; }
+@page :left { size: A4; margin: 0; }
+@page :right { size: A4; margin: 0; }
+/* صفحة التقرير بس: ورق أبيض، ويطبع التقرير لحاله (أي عنصر ثاني بالتطبيق يختفي) */
+@media print {
+  html:has(.rp-page), html:has(.rp-page) body { background: #fff !important; background-color: #fff !important; }
+  body:has(.rp-page) * { visibility: hidden !important; }
+  body:has(.rp-page) .rp-page, body:has(.rp-page) .rp-page * { visibility: visible !important; }
+  body:has(.rp-page) .rp-page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rp-title { font-size: 22px; }
+  .rp-stats { margin: 14px 0; }
+  .rp-stats div { padding: 9px 10px; }
+  .rp-stats b { font-size: 18px; }
+  .rp-cols { margin-top: 12px; gap: 18px; }
+  .rp-cols li { padding: 4px 0; }
+  .rp-foot { margin-top: 16px; }
+  body:has(.rp-page) .rp-page { position: absolute !important; inset: 0 0 auto 0 !important; width: auto !important; padding: 12mm 13mm !important; background: #FFFCF8 !important; }
+}

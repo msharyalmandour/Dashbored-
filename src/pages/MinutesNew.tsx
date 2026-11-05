@@ -54,9 +54,11 @@ export default function MinutesNew() {
   const [step, setStep] = useState(init?.step ?? 1);
   const [meetingDate, setMeetingDate] = useState(init?.meetingDate ?? today);
   const [attendeeIds, setAttendeeIds] = useState<string[]>(init?.attendeeIds ?? []);
-  const [agenda, setAgenda] = useState(init?.agenda ?? (location.state as { agendaSeed?: string } | null)?.agendaSeed ?? "");
-  const [discussion, setDiscussion] = useState(init?.discussion ?? "");
-  const [decisions, setDecisions] = useState(init?.decisions ?? "");
+  // من المحادثة («حوّلوا المحادثة لمحضر») أو من صفحة ثانية: بذرة للأجندة/المناقشة/القرارات لو ما فيه مسودة
+  const seed = (location.state as { agendaSeed?: string; discussionSeed?: string; decisionsSeed?: string } | null) ?? {};
+  const [agenda, setAgenda] = useState(init?.agenda ?? seed.agendaSeed ?? "");
+  const [discussion, setDiscussion] = useState(init?.discussion ?? seed.discussionSeed ?? "");
+  const [decisions, setDecisions] = useState(init?.decisions ?? seed.decisionsSeed ?? "");
   const [rows, setRows] = useState<ActionRow[]>(init?.rows ?? []);
   const [sendToSupervisor, setSendToSupervisor] = useState(init?.sendToSupervisor ?? true);
   const [saving, setSaving] = useState(false);

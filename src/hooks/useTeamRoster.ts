@@ -38,10 +38,13 @@ export function useTeamRoster() {
     // الفرق من لوحة الإدارة)، فبدون هذا الفلتر كان يشوف كل مستخدمي
     // المنصة كأنهم فريقه الشخصي.
     Promise.all([
-      supabase!
-        .from("profiles")
-        .select("id, name, initials, title, role, color, email, gender")
-        .eq("team_id", teamId),
+      (async () => {
+        const cols = "id, name, initials, title, role, color, email, gender";
+        // avatar عمود جديد: قبل تشغيل ملف SQL نقرأ بدونه
+        const r = await supabase!.from("profiles").select(`${cols}, avatar`).eq("team_id", teamId);
+        if (!r.error || !/avatar/.test(r.error.message)) return r;
+        return supabase!.from("profiles").select(cols).eq("team_id", teamId);
+      })(),
       supabase!.from("tasks").select("assignee_id, status").eq("team_id", teamId),
     ]).then(([profilesRes, tasksRes]) => {
       if (profilesRes.data) {

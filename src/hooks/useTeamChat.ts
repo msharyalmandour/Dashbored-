@@ -19,6 +19,10 @@ export interface ChatMessage {
   deletedAt: string | null;
   /** رسالة أرسلناها وما وصل تأكيدها من السيرفر */
   pending?: boolean;
+  /** ما انرسلت (نقدر نعيد المحاولة) */
+  failed?: boolean;
+  /** للإرسال من جديد بعد الفشل */
+  mentions?: string[];
 }
 
 interface Row {
@@ -59,6 +63,8 @@ interface Store {
   loaded: boolean;
   unavailable: boolean;
   typers: Typer[];
+  /** آخر وقت قرا فيه كل عضو المحادثة (team_chat_reads) — لـ ✓✓ و«آخر ظهور» */
+  reads: Record<string, string>;
   channel: ReturnType<NonNullable<typeof supabase>["channel"]> | null;
   listeners: Set<() => void>;
 }
@@ -76,7 +82,7 @@ function open(teamId: string, userId: string): Store {
   const key = `${teamId}:${userId}`;
   if (store && store.key === key) return store;
   if (store?.channel) supabase!.removeChannel(store.channel);
-  const s: Store = { key, teamId, userId, messages: [], loaded: false, unavailable: false, typers: [], channel: null, listeners: new Set() };
+  const s: Store = { key, teamId, userId, messages: [], loaded: false, unavailable: false, typers: [], reads: {}, channel: null, listeners: new Set() };
   store = s;
 
   void (async () => {
@@ -95,6 +101,11 @@ function open(teamId: string, userId: string): Store {
     }
     s.loaded = true;
     emit(s);
+    // ✓✓: لو جدول القراءات موجود (قبل تشغيل ملف SQL يرجع خطأ ونكمل بدونه)
+    const reads = await supabase!.from("team_chat_reads").select("profile_id, last_read_at").eq("team_id", teamId);
+    if (store !== s || reads.error) return;
+    for (const r of (reads.data ?? []) as { profile_id: string; last_read_at: string }[]) s.reads[r.profile_id] = r.last_read_at;
+    emit(s);
   })();
 
   const channel = supabase!.channel(`team-chat:${teamId}`);
@@ -107,6 +118,12 @@ function open(teamId: string, userId: string): Store {
       } else {
         upsert(s, mapRow(payload.new as Row));
       }
+      emit(s);
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "team_chat_reads", filter: `team_id=eq.${teamId}` }, (payload) => {
+      const r = payload.new as { profile_id?: string; last_read_at?: string };
+      if (store !== s || !r?.profile_id || !r.last_read_at) return;
+      s.reads = { ...s.reads, [r.profile_id]: r.last_read_at };
       emit(s);
     })
     .on("broadcast", { event: "typing" }, ({ payload }) => {
@@ -151,12 +168,14 @@ export function useTeamChat() {
   }, [s?.typers.length]);
 
   const send = useCallback(
-    async (body: string, opts: { replyTo?: string | null; ref?: ChatRef | null } = {}) => {
+    async (body: string, opts: { replyTo?: string | null; ref?: ChatRef | null; mentions?: string[]; retryOf?: string } = {}) => {
       if (!s || !currentUser) return { error: "offline" };
       const text = body.trim().slice(0, 4000);
       if (!text) return { error: "empty" };
+      if (opts.retryOf) s.messages = s.messages.filter((m) => m.id !== opts.retryOf);
       const tempId = `tmp-${Date.now()}`;
-      upsert(s, { id: tempId, authorId: currentUser.id, body: text, replyTo: opts.replyTo ?? null, ref: opts.ref ?? null, createdAt: new Date().toISOString(), editedAt: null, deletedAt: null, pending: true });
+      const temp: ChatMessage = { id: tempId, authorId: currentUser.id, body: text, replyTo: opts.replyTo ?? null, ref: opts.ref ?? null, createdAt: new Date().toISOString(), editedAt: null, deletedAt: null, pending: true, mentions: opts.mentions };
+      upsert(s, temp);
       emit(s);
       const { data, error } = await supabase!
         .from("team_messages")
@@ -172,8 +191,11 @@ export function useTeamChat() {
       s.messages = s.messages.filter((m) => m.id !== tempId);
       if (!error && data) {
         upsert(s, mapRow(data as Row));
-        // إشعار الجوال لباقي الفريق (السيرفر يتأكد إني الكاتب ويرسل مرة وحدة)
-        void supabase!.functions.invoke("push-notify", { body: { action: "chat", messageId: (data as Row).id } }).catch(() => {});
+        // إشعار الجوال لباقي الفريق (السيرفر يتأكد إني الكاتب ويرسل مرة وحدة)، واللي انشار لهم يجيهم «أشار لك»
+        void supabase!.functions.invoke("push-notify", { body: { action: "chat", messageId: (data as Row).id, mentions: opts.mentions ?? [] } }).catch(() => {});
+      } else {
+        // تبقى باهتة وتحتها «ما انرسلت · جرّب مرة ثانية»
+        upsert(s, { ...temp, pending: false, failed: true });
       }
       emit(s);
       return { error: error?.message };
@@ -201,6 +223,25 @@ export function useTeamChat() {
     [s],
   );
 
+  const retry = useCallback(
+    (m: ChatMessage) => send(m.body, { replyTo: m.replyTo, ref: m.ref, mentions: m.mentions, retryOf: m.id }),
+    [send],
+  );
+
+  // نعلّم إني قريت لين آخر رسالة (✓✓ للباقين) — مرة كل كم ثانية بالكثير
+  const markRead = useCallback(
+    (at: string) => {
+      if (!s || !currentUser) return;
+      if ((s.reads[currentUser.id] ?? "") >= at) return;
+      s.reads = { ...s.reads, [currentUser.id]: at };
+      void supabase!
+        .from("team_chat_reads")
+        .upsert({ team_id: s.teamId, profile_id: currentUser.id, last_read_at: at }, { onConflict: "team_id,profile_id" })
+        .then(() => {});
+    },
+    [s, currentUser],
+  );
+
   const typing = useCallback(() => {
     if (s?.channel && currentUser) void s.channel.send({ type: "broadcast", event: "typing", payload: { id: currentUser.id } });
   }, [s, currentUser]);
@@ -210,7 +251,10 @@ export function useTeamChat() {
     loaded: s?.loaded ?? false,
     unavailable: s?.unavailable ?? false,
     typers: (s?.typers ?? []).filter((t) => now - t.at < 4000).map((t) => t.id),
+    reads: s?.reads ?? {},
     send,
+    retry,
+    markRead,
     edit,
     remove,
     typing,

@@ -101,7 +101,7 @@ async function runDaily(): Promise<{ sent: number }> {
 }
 
 // رسالة محادثة الفريق → إشعار لكل أجهزة الأعضاء الثانيين (مو الكاتب)
-async function runChat(userId: string, messageId: string): Promise<{ sent: number; skipped?: string }> {
+async function runChat(userId: string, messageId: string, mentions: string[] = []): Promise<{ sent: number; skipped?: string }> {
   if (!/^[0-9a-f-]{36}$/i.test(messageId)) return { sent: 0, skipped: "bad_id" };
   const { data: m } = await admin
     .from("team_messages")
@@ -123,16 +123,15 @@ async function runChat(userId: string, messageId: string): Promise<{ sent: numbe
   const first = (author?.name ?? "").trim().split(/\s+/)[0] || "الفريق";
   const kind = m.ref_type === "task" ? "مهمة" : m.ref_type === "section" ? "قسم" : m.ref_type === "paper" ? "دراسة" : "";
   const text = [m.body, kind && m.ref_label ? `📎 ${kind}: ${m.ref_label}` : ""].filter(Boolean).join("\n");
-  return {
-    sent: await sendTo((subs ?? []) as Sub[], {
-      title: `${first} · محادثة الفريق`,
-      body: text.length > 160 ? `${text.slice(0, 157)}…` : text,
-      url: `${site()}/#/chat`,
-      // رسائل الفريق تتجمع بإشعار واحد يتحدّث، ويرن مع كل رسالة جديدة
-      tag: `chat-${m.team_id}`,
-      renotify: true,
-    }),
-  };
+  const body = text.length > 160 ? `${text.slice(0, 157)}…` : text;
+  // اللي انشار لهم (@الاسم) — بس من أعضاء الفريق نفسه
+  const tagged = new Set(mentions.filter((id) => others.includes(id)));
+  const all = (subs ?? []) as Sub[];
+  const base = { body, url: `${site()}/#/chat`, renotify: true };
+  const sentTagged = await sendTo(all.filter((x) => tagged.has(x.profile_id)), { ...base, title: `${first} أشار لك بالمحادثة`, tag: `chat-mention-${m.id}` });
+  // رسائل الفريق تتجمع بإشعار واحد يتحدّث، ويرن مع كل رسالة جديدة
+  const sentRest = await sendTo(all.filter((x) => !tagged.has(x.profile_id)), { ...base, title: `${first} · محادثة الفريق`, tag: `chat-${m.team_id}` });
+  return { sent: sentTagged + sentRest };
 }
 
 Deno.serve(async (req: Request) => {
@@ -151,7 +150,10 @@ Deno.serve(async (req: Request) => {
       const { data: u } = await admin.auth.getUser(jwt);
       if (!u?.user) return json(401, { error: "unauthorized" });
       if (action === "key") return json(200, { publicKey: (await getKeys()).publicKey });
-      if (action === "chat") return json(200, await runChat(u.user.id, String(body.messageId ?? "")));
+      if (action === "chat") {
+        const mentions = Array.isArray(body.mentions) ? (body.mentions as unknown[]).filter((x): x is string => typeof x === "string").slice(0, 10) : [];
+        return json(200, await runChat(u.user.id, String(body.messageId ?? ""), mentions));
+      }
       const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").eq("profile_id", u.user.id);
       const n = await sendTo((subs ?? []) as Sub[], { title: "Wesync", body: "الإشعارات شغّالة ✓ بتوصلك تذكيرات مهامك هنا.", url: `${site()}/#/tasks`, tag: "test" });
       return json(200, { sent: n });

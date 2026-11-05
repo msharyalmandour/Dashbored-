@@ -84,18 +84,19 @@ export function useTasksData() {
         status: "todo",
       };
       setTasks((prev) => [newTask, ...prev]);
-      return { error: undefined as string | undefined };
+      return { error: undefined as string | undefined, id: newTask.id as string | undefined };
     }
 
-    const { error } = await supabase!.from("tasks").insert({
+    const { data, error } = await supabase!.from("tasks").insert({
       title: input.title,
       description: input.description,
       assignee_id: input.assigneeId,
       due_date: input.dueDate,
       priority: input.priority,
       status: "todo",
-    });
-    return { error: error?.message };
+    }).select("id").single();
+    // المعرّف يرجع عشان المحادثة تحط كرت المهمة الجديدة
+    return { error: error?.message, id: (data as { id: string } | null)?.id };
   };
 
   const updateStatus = async (taskId: string, status: Task["status"]) => {

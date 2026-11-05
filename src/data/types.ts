@@ -13,6 +13,8 @@ export interface TeamMember {
   /** لا تُستخدم إلا في وضع Supabase الحقيقي */
   teamId?: string | null;
   isSuperAdmin?: boolean;
+  /** شخصية الأفاتار "piece:bg:skin" (profiles.avatar) — الفاضي يتوزع حسب الاسم */
+  avatar?: string | null;
   progress: number;
   tasksDone: number;
   tasksTotal: number;
@@ -40,6 +42,10 @@ export interface Team {
   referralCode?: string;
   /** جامعة الفريق — اختياري، تُدخل وقت التسجيل أو تُعدَّل لاحقًا من القائد */
   university?: string | null;
+  /** وقت إنشاء الفريق — لتذكير «مرّ يومين وما انضم أحد» */
+  createdAt?: string;
+  /** لو الفريق أخفى كرت «أول أسبوع» */
+  firstWeekDismissedAt?: string | null;
 }
 
 /** إحصائيات إحالة فريق المستخدم الحالي — من دالة get_my_referral_stats */

@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Check, Copy, MessageCircle, X } from "lucide-react";
+import { BellRing, BookOpen, Check, Link2, MessageCircle, PenLine, Plus, ShieldCheck, Table2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTeamRoster } from "../../hooks/useTeamRoster";
 import { useEvidencePapers } from "../../hooks/useEvidencePapers";
 import { useResearchProject } from "../../hooks/useResearchProject";
 import { getMyEmailStatus, type EmailStatus } from "../../lib/supervisorEmail";
 import { publicBase } from "../../lib/publicUrl";
+import Avatar from "../ui/Avatar";
 import { tr } from "../../lib/i18n";
 
-const DISMISS_KEY = (teamId: string) => `wesync.firstWeek.done.${teamId}`;
-const FIRST_SEEN_KEY = (teamId: string) => `wesync.firstWeek.seen.${teamId}`;
+const LOCAL_DISMISS = (teamId: string) => `wesync.firstWeek.done.${teamId}`;
 
 const read = (k: string) => {
   try {
@@ -27,36 +27,37 @@ const write = (k: string, v: string) => {
   }
 };
 
-/** «أول أسبوع»: خمس خطوات توصّل الفريق لأول نجاح حقيقي، محسوبة من بيانات الفريق نفسها (بدون جداول جديدة).
-    القائد لو لحاله: خطوة الدعوة أول وبارزة مع رابط واتساب جاهز، وبعد يومين بدون أحد يطلع تذكير لطيف. */
+type StepKey = "invite" | "topic" | "paper" | "table" | "sup";
+interface Step {
+  key: StepKey;
+  n: number;
+  done: boolean;
+  label: string;
+  hint: string;
+}
+
+/** «أول أسبوع»: خمس خطوات توصّل الفريق لأول نجاح حقيقي، كل خطوة محسوبة من بيانات الفريق نفسها (مو من ضغطة).
+    القائد لو لحاله: الدعوة هي الخطوة الحالية مع واتساب، وبعد ٤٨ ساعة من إنشاء الفريق بدون أحد يطلع تذكير لطيف. */
 export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
-  const { team, isLeader, mode } = useAuth();
-  const { roster } = useTeamRoster();
+  const { team, currentUser, isLeader, mode, dismissFirstWeek } = useAuth();
+  const { roster, loading: rosterLoading } = useTeamRoster();
   const { papers } = useEvidencePapers();
   const { project } = useResearchProject();
   const [email, setEmail] = useState<EmailStatus | null>(null);
   const [copied, setCopied] = useState<"team" | "sup" | null>(null);
-  const [hidden, setHidden] = useState(() => (team ? read(DISMISS_KEY(team.id)) === "1" : false));
+  const [localHidden, setLocalHidden] = useState(() => (team ? read(LOCAL_DISMISS(team.id)) === "1" : false));
 
   useEffect(() => {
-    if (mode === "supabase" && isLeader) getMyEmailStatus().then(setEmail);
-  }, [mode, isLeader]);
+    if (mode === "supabase") getMyEmailStatus().then(setEmail);
+  }, [mode]);
 
-  // أول مرة نشوف الفريق بهالجهاز — عشان «مرّ يومين وما انضم أحد»
-  const firstSeen = useMemo(() => {
-    if (!team) return Date.now();
-    const v = Number(read(FIRST_SEEN_KEY(team.id)));
-    if (v) return v;
-    write(FIRST_SEEN_KEY(team.id), String(Date.now()));
-    return Date.now();
-  }, [team]);
-
-  if (!team || hidden) return null;
+  if (!team || !currentUser || localHidden || team.firstWeekDismissedAt || rosterLoading) return null;
 
   const teamLink = `${publicBase()}#/login?team=${team.id}`;
   const supLink = team.shareToken ? `${publicBase()}#/supervisor/${team.shareToken}` : "";
   const solo = roster.length <= 1;
-  const waitedTwoDays = Date.now() - firstSeen > 2 * 864e5;
+  const waitedTwoDays = !!team.createdAt && Date.now() - new Date(team.createdAt).getTime() > 48 * 3600e3;
+  const nudge = solo && isLeader && waitedTwoDays;
   const copy = async (what: "team" | "sup", text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -66,102 +67,177 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
       // المتصفح رفض النسخ
     }
   };
-  const teamWa = `https://wa.me/?text=${encodeURIComponent(tr("انضموا لفريق بحثنا على Wesync عشان نشتغل على البحث مع بعض: {0}", teamLink))}`;
+  const teamWa = `https://wa.me/?text=${encodeURIComponent(
+    nudge
+      ? tr("تذكير: انضموا لفريق بحثنا على Wesync، الرابط هنا وكل اللي عليكم تفتحونه: {0}", teamLink)
+      : tr("انضموا لفريق بحثنا على Wesync عشان نشتغل على البحث مع بعض: {0}", teamLink),
+  )}`;
   const supWa = supLink ? `https://wa.me/?text=${encodeURIComponent(tr("السلام عليكم، هذا رابط متابعة بحثنا على Wesync (بدون حساب): {0}", supLink))}` : "";
 
-  const steps = [
-    { key: "invite", done: !solo, label: tr("ادعوا فريقكم"), hint: solo ? tr("البحث أسهل وأنتم مع بعض. أرسلوا الرابط بقروب الدفعة أو لكل واحد.") : tr("انضم {0} من فريقكم.", roster.length) },
-    { key: "topic", done: !!project?.title?.trim(), label: tr("اكتبوا موضوعكم"), hint: tr("العنوان يكفي، يتعدّل بعدين."), to: "/proposal" },
-    { key: "paper", done: papers.length > 0, label: tr("أضيفوا أول دراسة"), hint: tr("ارموها للوكيل من المشبك (PDF أو صور)، أو ابحثوا من «أبحث»."), to: "/evidence" },
-    { key: "table", done: papers.some((p) => !!(p.country || p.aim || p.sample || p.dataCollection)), label: tr("عبّوا أول صف بجدول الأدبيات"), hint: tr("الدولة، الهدف، العينة، وطريقة جمع البيانات."), to: "/literature-review" },
-    { key: "sup", done: !!email && email.state !== "none", label: tr("ادعوا المشرف/ة"), hint: tr("رابط واحد بدون حساب: تتابع وتعتمد وتجاوب.") },
+  const steps: Step[] = [
+    { key: "invite", n: 1, done: !solo, label: tr("ادعوا فريقكم"), hint: tr("رابط واحد، وكل من يفتحه يدخل فريقكم على طول.") },
+    { key: "topic", n: 2, done: !!project?.title?.trim(), label: tr("اكتبوا موضوعكم"), hint: tr("سطر واحد يكفي الحين، تقدرون تعدّلونه بعدين.") },
+    { key: "paper", n: 3, done: papers.length > 0, label: tr("أضيفوا أول دراسة"), hint: tr("دوّروا دراسة وحدة عن موضوعكم وحطوها بالمكتبة. وحدة وكافي.") },
+    { key: "table", n: 4, done: papers.some((p) => !!(p.country || p.aim || p.sample || p.dataCollection)), label: tr("عبّوا أول صف بجدول الأدبيات"), hint: tr("من الدراسة اللي أضفتوها: الهدف، العينة، والنتيجة.") },
+    { key: "sup", n: 5, done: !!email && email.state !== "none", label: tr("ادعوا المشرف/ة"), hint: tr("رابط واحد بدون حساب: تشوف تقدّمكم وتعلّق.") },
   ];
-  // القائد لحاله: الدعوة أول شي؛ غير كذا نرتّب: اللي ما خلص قبل
-  const ordered = solo && isLeader ? steps : [...steps.filter((s) => !s.done), ...steps.filter((s) => s.done)];
   const doneCount = steps.filter((s) => s.done).length;
-  const current = ordered.find((s) => !s.done);
   const allDone = doneCount === steps.length;
+  // القائد لحاله: الدعوة هي الحالية؛ غير كذا أول خطوة ما خلصت بالترتيب
+  const current = solo && isLeader ? steps[0] : steps.find((s) => !s.done);
+  const upcoming = steps.filter((s) => !s.done && s !== current);
+  const finished = steps.filter((s) => s.done && s !== current);
+
+  const hide = async () => {
+    const { error } = await dismissFirstWeek();
+    // قبل تشغيل ملف SQL: نخفيه بهالجهاز بس
+    if (error) {
+      write(LOCAL_DISMISS(team.id), "1");
+      setLocalHidden(true);
+    }
+  };
+
+  if (allDone) {
+    return (
+      <section className="fw-card hg-card relative mb-2.5 lg:mb-0" style={style} aria-labelledby="fw-h">
+        <div className="flex gap-2" aria-hidden>
+          {steps.map((s) => (
+            <span key={s.key} className="fw-dot done">
+              <Check size={14} strokeWidth={3} />
+            </span>
+          ))}
+        </div>
+        <h2 id="fw-h" className="m-0 mt-4 text-[26px] font-extrabold leading-snug text-[#F2EBE3]">
+          {tr("خلصتوا أول أسبوع")}
+        </h2>
+        <p className="m-0 mt-2 text-[15px] leading-relaxed text-[#E9D3B8]">{tr("الفريق كامل، والموضوع مكتوب، وأول دراسة بالجدول، والمشرف/ة معكم. من هنا يبدأ الشغل الحقيقي.")}</p>
+        <button type="button" className="tc-ghost mt-3 !px-0 text-[#ABA095]" onClick={hide}>
+          {tr("أخفوا الكرت")}
+        </button>
+      </section>
+    );
+  }
+
+  const linkBtn = (to: string, label: string, icon: ReactNode) => (
+    <Link to={to} className="tc-primary fw-orange w-full">
+      {icon}
+      {label}
+    </Link>
+  );
+
+  const action = (s: Step): ReactNode => {
+    if (s.key === "invite") {
+      if (!isLeader) return <p className="m-0 text-[13px] text-[#ABA095]">{tr("القائد يرسل رابط الفريق.")}</p>;
+      return (
+        <div className="flex flex-col gap-2">
+          {solo && (
+            <div className="flex items-center gap-3">
+              <span className="flex items-center" aria-hidden>
+                <Avatar initials="" name={currentUser.name} avatar={currentUser.avatar} px={36} />
+                {[0, 1, 2].map((i) => (
+                  <span key={i} className="tc-slot !h-9 !w-9 !-ms-1.5">
+                    <Plus size={14} />
+                  </span>
+                ))}
+              </span>
+              <span className="text-[13px] font-bold text-[#ABA095]">{tr("أنت لحالك للحين")}</span>
+            </div>
+          )}
+          <a href={teamWa} target="_blank" rel="noreferrer" className="tc-cream w-full">
+            <MessageCircle size={18} aria-hidden />
+            {nudge ? tr("ذكّروهم بواتساب") : tr("أرسلوا الدعوة بواتساب")}
+          </a>
+          <button type="button" className="tc-ghost self-center text-[#FFC777]" onClick={() => copy("team", teamLink)}>
+            {copied === "team" ? <Check size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
+            {copied === "team" ? tr("انتسخ") : tr("انسخوا الرابط")}
+          </button>
+        </div>
+      );
+    }
+    if (s.key === "topic") return linkBtn("/proposal", tr("اكتبوا الموضوع"), <PenLine size={18} aria-hidden />);
+    if (s.key === "paper") return linkBtn("/evidence", tr("أضيفوا أول دراسة"), <BookOpen size={18} aria-hidden />);
+    if (s.key === "table") return linkBtn("/literature-review", tr("افتحوا الجدول"), <Table2 size={18} aria-hidden />);
+    if (!isLeader || !supLink) return <p className="m-0 text-[13px] text-[#ABA095]">{tr("القائد يرسل الرابط للمشرف/ة.")}</p>;
+    return (
+      <div className="flex flex-col gap-2">
+        <a href={supWa} target="_blank" rel="noreferrer" className="tc-cream w-full">
+          <MessageCircle size={18} aria-hidden />
+          {tr("أرسلوا الرابط للمشرف/ة")}
+        </a>
+        <button type="button" className="tc-ghost self-center text-[#FFC777]" onClick={() => copy("sup", supLink)}>
+          {copied === "sup" ? <Check size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
+          {copied === "sup" ? tr("انتسخ") : tr("انسخوا الرابط")}
+        </button>
+        <p className="m-0 flex items-start gap-1.5 text-[13px] leading-relaxed text-[#ABA095]">
+          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#FFC777]" aria-hidden />
+          {tr("تشوف بس، وتعلّق وتعتمد. ما تقدر تعدّل على شغلكم.")}
+        </p>
+      </div>
+    );
+  };
 
   return (
-    <section className="hg-card relative mb-2.5 lg:mb-[18px]" style={style} aria-labelledby="fw-h">
-      <div className="hg-hd">
-        <span id="fw-h">{allDone ? tr("خلصتوا أول أسبوع") : tr("أول أسبوع")}</span>
-        <span className="ms-auto text-[13px] font-bold text-[#ABA095]">
-          <b className="text-[#F2EBE3]" dir="ltr">
-            {doneCount}/{steps.length}
-          </b>
+    <section className="fw-card hg-card relative mb-2.5 lg:mb-0" style={style} aria-labelledby="fw-h">
+      <div className="flex items-center justify-between">
+        <h2 id="fw-h" className="m-0 text-[20px] font-extrabold text-[#F2EBE3]">
+          {tr("أول أسبوع")}
+        </h2>
+        <span className="text-[15px] font-extrabold" dir="ltr">
+          <span className="text-[#FFC777]">{doneCount}</span>
+          <span className="text-[#ABA095]">/{steps.length}</span>
         </span>
-        {allDone && (
-          <button
-            onClick={() => {
-              write(DISMISS_KEY(team.id), "1");
-              setHidden(true);
-            }}
-            aria-label={tr("إخفاء")}
-            className="grid h-9 w-9 place-items-center rounded-full text-[#ABA095] hover:text-[#F2EBE3]"
-          >
-            <X size={16} />
-          </button>
-        )}
       </div>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden>
-        <div className="h-full rounded-full bg-gradient-to-l from-[#FFB547] to-[#FF6A00] transition-all duration-700" style={{ width: `${(doneCount / steps.length) * 100}%` }} />
+      <div
+        className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]"
+        role="progressbar"
+        aria-valuenow={doneCount}
+        aria-valuemin={0}
+        aria-valuemax={steps.length}
+        aria-label={tr("تقدّم أول أسبوع")}
+      >
+        <div className="fw-bar h-full rounded-full" style={{ width: `${(doneCount / steps.length) * 100}%` }} />
       </div>
 
-      {solo && isLeader && waitedTwoDays && (
-        <p className="m-0 mt-3 rounded-2xl bg-[rgba(255,180,68,.08)] px-3.5 py-2.5 text-[13px] leading-relaxed text-[#E9D3B8]">
+      {nudge && (
+        <p className="fw-nudge" role="status">
+          <BellRing size={17} className="mt-0.5 shrink-0 text-[#FFC777]" aria-hidden />
           {tr("مرّ يومين وما انضم أحد. ذكّروهم برسالة، وأحيانًا الرابط يضيع بالقروب.")}
         </p>
       )}
 
-      <ol className="m-0 mt-3 list-none space-y-1.5 p-0">
-        {ordered.map((s) => {
-          const isCurrent = s === current;
-          return (
-            <li key={s.key} className={`rounded-2xl px-3 py-2.5 ${isCurrent ? "bg-[rgba(255,150,50,.08)] shadow-[inset_0_0_0_1px_rgba(255,190,110,.32)]" : ""}`}>
-              <div className="flex items-start gap-3">
-                <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${s.done ? "bg-[#7FE0A6] text-[#0b2015]" : "shadow-[inset_0_0_0_1.5px_rgba(255,255,255,.25)]"}`}>
-                  {s.done && <Check size={14} strokeWidth={3} />}
-                </span>
-                <div className="min-w-0 flex-1">
-                  {s.to && !s.done ? (
-                    <Link to={s.to} className="text-[15px] font-bold text-[#F2EBE3] hover:text-[#FFE1C2]">
-                      {s.label} ←
-                    </Link>
-                  ) : (
-                    <span className={`text-[15px] font-bold ${s.done ? "text-[#8F857C] line-through decoration-white/25" : "text-[#F2EBE3]"}`}>{s.label}</span>
-                  )}
-                  {isCurrent && <p className="m-0 mt-0.5 text-[13px] leading-relaxed text-[#ABA095]">{s.hint}</p>}
-                  {isCurrent && s.key === "invite" && isLeader && (
-                    <div className="mt-2.5 flex flex-wrap gap-2">
-                      <a href={teamWa} target="_blank" rel="noreferrer" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#F2EBE3] px-4 text-[14px] font-extrabold text-[#1A0B05]">
-                        <MessageCircle size={16} />
-                        {tr("أرسلوا الدعوة بواتساب")}
-                      </a>
-                      <button onClick={() => copy("team", teamLink)} className="inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[14px] font-bold text-[#F2EBE3] shadow-[inset_0_0_0_1px_rgba(255,240,225,.18)]">
-                        {copied === "team" ? <Check size={15} /> : <Copy size={15} />}
-                        {copied === "team" ? tr("انتسخ") : tr("انسخوا الرابط")}
-                      </button>
-                    </div>
-                  )}
-                  {isCurrent && s.key === "sup" && isLeader && supLink && (
-                    <div className="mt-2.5 flex flex-wrap gap-2">
-                      <a href={supWa} target="_blank" rel="noreferrer" className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#F2EBE3] px-4 text-[14px] font-extrabold text-[#1A0B05]">
-                        <MessageCircle size={16} />
-                        {tr("أرسلوا الرابط للمشرف/ة")}
-                      </a>
-                      <button onClick={() => copy("sup", supLink)} className="inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-[14px] font-bold text-[#F2EBE3] shadow-[inset_0_0_0_1px_rgba(255,240,225,.18)]">
-                        {copied === "sup" ? <Check size={15} /> : <Copy size={15} />}
-                        {copied === "sup" ? tr("انتسخ") : tr("انسخوا الرابط")}
-                      </button>
-                    </div>
-                  )}
-                  {isCurrent && (s.key === "invite" || s.key === "sup") && !isLeader && <p className="m-0 mt-1 text-[12px] text-[#ABA095]">{tr("القائد يرسل الرابط.")}</p>}
-                </div>
-              </div>
-            </li>
-          );
-        })}
+      <ol className="m-0 mt-3 flex list-none flex-col gap-1 p-0">
+        {current && (
+          <li className="fw-current">
+            <div className="flex items-center gap-3">
+              <span className="fw-num-on" aria-hidden>
+                {current.n}
+              </span>
+              <span className="text-[18px] font-extrabold text-[#F2EBE3]">{current.label}</span>
+              {current.done && <span className="sr-only">{tr("(خلصت)")}</span>}
+            </div>
+            <p className="m-0 text-[15px] leading-[1.7] text-[#E9D3B8]">{current.hint}</p>
+            {action(current)}
+          </li>
+        )}
+        {upcoming.map((s) => (
+          <li key={s.key} className="fw-row">
+            <span className="fw-num" aria-hidden>
+              {s.n}
+            </span>
+            <span className="text-[15px] text-[#F2EBE3]">{s.label}</span>
+          </li>
+        ))}
+        {finished.map((s) => (
+          <li key={s.key} className="fw-row">
+            <span className="fw-dot done" aria-hidden>
+              <Check size={14} strokeWidth={2.6} />
+            </span>
+            <span className="text-[15px] text-[#ABA095] line-through decoration-[rgba(171,160,149,.7)]">
+              {s.label}
+              <span className="sr-only">{tr("(خلصت)")}</span>
+            </span>
+          </li>
+        ))}
       </ol>
     </section>
   );

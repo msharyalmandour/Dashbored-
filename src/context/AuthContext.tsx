@@ -48,6 +48,10 @@ interface AuthContextValue {
   updateTeamUniversity: (university: string) => Promise<AuthResult>;
   /** قائد الفريق فقط — يختار باقة Basic أو AI (السيرفر يحسب السعر ويرفض التبديل بنص الشهر) */
   setTeamPlan: (plan: "basic" | "ai") => Promise<AuthResult>;
+  /** شخصية الأفاتار (profiles.avatar) — "piece:bg:skin" */
+  setMyAvatar: (avatar: string) => Promise<AuthResult>;
+  /** يخفي كرت «أول أسبوع» للفريق كله */
+  dismissFirstWeek: () => Promise<AuthResult>;
   logout: () => void;
 }
 
@@ -110,6 +114,8 @@ function AuthProviderMock({ children }: { children: ReactNode }) {
     cancelPasswordRecovery: () => {},
     updateTeamUniversity: async () => ({ error: tr("Supabase غير مفعّل") }),
     setTeamPlan: async () => ({ error: tr("Supabase غير مفعّل") }),
+    setMyAvatar: async () => ({}),
+    dismissFirstWeek: async () => ({}),
     logout,
   };
 
@@ -159,11 +165,14 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     }
 
     setLoading(true);
-    supabase!
-      .from("profiles")
-      .select("id, team_id, name, initials, title, role, color, email, gender, is_super_admin")
-      .eq("id", userId)
-      .single()
+    const base = "id, team_id, name, initials, title, role, color, email, gender, is_super_admin";
+    // avatar عمود جديد: لو ملف SQL ما انشغّل للحين نقرأ بدونه بدل ما يطيح الدخول
+    const loadProfile = async () => {
+      const first = await supabase!.from("profiles").select(`${base}, avatar`).eq("id", userId).single();
+      if (!first.error || !/avatar/.test(first.error.message)) return first;
+      return supabase!.from("profiles").select(base).eq("id", userId).single();
+    };
+    loadProfile()
       .then(async ({ data }) => {
         if (!data) {
           setLoading(false);
@@ -184,13 +193,12 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
         } as TeamMember);
 
         if (team_id) {
-          const { data: teamRow } = await supabase!
-            .from("teams")
-            .select(
-              "id, name, subscription_end_date, monthly_price, plan, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code, university",
-            )
-            .eq("id", team_id)
-            .single();
+          const cols = "id, name, subscription_end_date, monthly_price, plan, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code, university, created_at";
+          let teamRes = await supabase!.from("teams").select(`${cols}, first_week_dismissed_at`).eq("id", team_id).single();
+          if (teamRes.error && /first_week_dismissed_at/.test(teamRes.error.message)) {
+            teamRes = (await supabase!.from("teams").select(cols).eq("id", team_id).single()) as typeof teamRes;
+          }
+          const teamRow = teamRes.data as (typeof teamRes.data & { first_week_dismissed_at?: string | null; created_at?: string }) | null;
           if (teamRow) {
             setTeam({
               id: teamRow.id,
@@ -206,6 +214,8 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               supervisorNoteAt: teamRow.supervisor_note_at,
               referralCode: teamRow.referral_code,
               university: teamRow.university,
+              createdAt: teamRow.created_at,
+              firstWeekDismissedAt: teamRow.first_week_dismissed_at ?? null,
             });
           }
         } else {
@@ -264,6 +274,21 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     return {};
   };
 
+  const setMyAvatar = async (avatar: string) => {
+    if (!currentUser) return { error: "no user" };
+    const prev = currentUser.avatar;
+    setCurrentUser((u) => (u ? { ...u, avatar } : u));
+    const { error } = await supabase!.from("profiles").update({ avatar }).eq("id", currentUser.id);
+    if (error) setCurrentUser((u) => (u ? { ...u, avatar: prev } : u));
+    return error ? { error: error.message } : {};
+  };
+
+  const dismissFirstWeek = async () => {
+    const { error } = await supabase!.rpc("dismiss_first_week");
+    if (!error) setTeam((t) => (t ? { ...t, firstWeekDismissedAt: new Date().toISOString() } : t));
+    return error ? { error: error.message } : {};
+  };
+
   const logout = () => {
     supabase!.auth.signOut();
   };
@@ -306,6 +331,8 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     cancelPasswordRecovery,
     updateTeamUniversity,
     setTeamPlan,
+    setMyAvatar,
+    dismissFirstWeek,
     logout,
   };
 

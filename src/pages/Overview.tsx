@@ -305,7 +305,8 @@ export default function Overview() {
         }
       />
 
-      {/* ── أول أسبوع: يوصّل الفريق لأول نجاح (يختفي بعد ما يخلص) ── */}
+      {/* ── أول أسبوع (أول شي تحت الترحيب): بالديسكتوب عمود 1.15fr جنب باقي الكروت، ويختفي بعد ما يخلص ── */}
+      <div className="group/fw relative mb-2.5 grid grid-cols-1 items-start gap-2.5 lg:mb-[18px] lg:gap-[18px] lg:has-[.fw-card]:grid-cols-[1.15fr_1fr]">
       {mode === "supabase" && (
         <ErrorBoundary>
           <FirstWeekCard style={rise(1)} />
@@ -313,7 +314,7 @@ export default function Overview() {
       )}
 
       {/* ── الصف الأول: To-do · تقدّم البحث · باقي على التسليم (الجوال: التقدّم أول، بعده البلاطتين، بعده To-do والزر) ── */}
-      <div className="relative mb-2.5 grid grid-cols-1 items-stretch gap-2.5 lg:mb-[18px] lg:grid-cols-3 lg:gap-[18px]">
+      <div className="relative grid grid-cols-1 items-stretch gap-2.5 lg:grid-cols-3 lg:gap-[18px] lg:group-has-[.fw-card]/fw:grid-cols-1">
         <ErrorBoundary>
           <ProgressCard className="order-1 lg:order-2" style={rise(1)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
         </ErrorBoundary>
@@ -336,13 +337,14 @@ export default function Overview() {
           />
         </ErrorBoundary>
         {primary && (
-          <Link to={primary.to} className="hg-primary order-4 lg:hidden">
+          <Link to={primary.to} className="hg-primary order-4 group-has-[.fw-orange]/fw:hidden lg:hidden">
             <span dir="auto">{primary.label}</span>
           </Link>
         )}
         <ErrorBoundary>
           <DeadlineCard className="hidden lg:order-3 lg:flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
         </ErrorBoundary>
+      </div>
       </div>
 
       {/* ── رحلة البحث + إنجاز الفريق ── */}

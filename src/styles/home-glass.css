@@ -136,14 +136,17 @@
   background: rgba(26,16,11,.82); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px);
   box-shadow: inset 0 1px 0 rgba(255,236,210,.14), inset 0 0 0 1px rgba(255,214,170,.12), 0 20px 40px rgba(0,0,0,.5);
 }
-.hg-tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; color: #8F857C; min-width: 54px; min-height: 52px; justify-content: center; }
-.hg-tab.on { color: #FFB65C; }
+.hg-tab { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; font-weight: 500; color: #ABA095; min-width: 54px; min-height: 52px; justify-content: center; }
+.hg-tab.on { color: #F2EBE3; font-weight: 800; }
+.hg-tab.on .hg-ti { color: #FFB65C; }
 .hg-tab .hg-ti { width: 40px; height: 30px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: background .2s; }
 .hg-tab.on .hg-ti { background: rgba(255,154,60,.14); }
 .hg-fab {
-  width: 58px; height: 58px; border-radius: 50%; margin-top: -34px; flex: none; display: flex; align-items: center; justify-content: center; color: #1A0802;
-  background: radial-gradient(circle at 50% 62%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 85%);
-  box-shadow: 0 0 0 5px #0F0B09, 0 10px 30px rgba(255,120,20,.55); transition: transform .2s;
+  /* كرة داكنة بإطار برتقالي خفيف وموجة صوت برتقالية — البرتقالي الصلب للزر الأساسي بس */
+  width: 58px; height: 58px; border-radius: 50%; margin-top: -26px; flex: none; display: flex; align-items: center; justify-content: center; color: #FF9A3C;
+  background: radial-gradient(circle at 50% 40%, #2A1A12, #120C09);
+  border: 1px solid rgba(255,170,90,.45);
+  box-shadow: 0 0 0 5px #0A0807, 0 0 24px rgba(255,120,20,.35); transition: transform .2s;
 }
 .hg-fab:active { transform: scale(.95); }
 .hg-fab:focus-visible, .hg-tab:focus-visible { outline: 2px solid #FF9A3C; outline-offset: 2px; }

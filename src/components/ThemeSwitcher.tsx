@@ -6,11 +6,14 @@ import { themes, useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { isFemaleUser } from "../lib/gender";
 import { tr } from "../lib/i18n";
+import Avatar from "./ui/Avatar";
+import AvatarPicker from "./AvatarPicker";
 
 export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const { currentUser } = useAuth();
   const [open, setOpen] = useState(false);
+  const [picker, setPicker] = useState(false);
   const [calm, setCalm] = useState(() => getReduceMotion(currentUser?.id));
   const toggleCalm = () => {
     const next = !calm;
@@ -34,6 +37,25 @@ export default function ThemeSwitcher() {
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute start-0 top-12 z-20 w-64 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
+            {currentUser && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setPicker(true);
+                  }}
+                  className="flex min-h-[48px] w-full items-center gap-3 rounded-xl px-2 py-1.5 text-start hover:bg-surface-muted"
+                >
+                  <Avatar initials={currentUser.initials} name={currentUser.name} avatar={currentUser.avatar} px={36} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-bold text-brand-950">{tr("شخصيتك")}</span>
+                    <span className="block text-xs text-brand-950/60">{tr("اختاروا شكلكم اللي يشوفه الفريق")}</span>
+                  </span>
+                </button>
+                <div className="my-1.5 h-px bg-brand-100/40" />
+              </>
+            )}
             <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">{tr("لون الثيم")}</p>
             {themes.map((t) => (
               <button
@@ -81,6 +103,7 @@ export default function ThemeSwitcher() {
           </div>
         </>
       )}
+      <AvatarPicker open={picker} onClose={() => setPicker(false)} />
     </div>
   );
 }

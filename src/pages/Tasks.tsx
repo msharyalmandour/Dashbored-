@@ -387,6 +387,7 @@ export default function Tasks() {
             type="button"
             onClick={() => toggleDone(task)}
             disabled={!canToggle}
+            data-learn="task-done"
             aria-label={task.status === "done" ? tr("إلغاء الإكمال") : tr("تعليم كمكتملة")}
             aria-pressed={task.status === "done"}
             className={clsx("v3-tap -m-2 grid h-11 w-11 place-items-center rounded-full", canToggle ? "cursor-pointer" : "cursor-default opacity-60")}

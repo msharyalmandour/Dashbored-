@@ -333,7 +333,7 @@ export default function AlertsCard() {
   const emailAddr = currentUser?.email || (live ? "" : "name@stu.kau.edu.sa");
 
   return (
-    <section className="wsa-card" aria-labelledby="wsa-title">
+    <section className="wsa-card" aria-labelledby="wsa-title" data-learn="push">
       {preview && (
         <div className="pointer-events-none absolute inset-x-3 top-3 z-10">
           <div className="wsa-drop flex items-start gap-2 rounded-2xl px-3 py-2.5 shadow-2xl" style={{ background: "rgba(40,36,34,.96)", backdropFilter: "blur(12px)" }} aria-hidden="true">

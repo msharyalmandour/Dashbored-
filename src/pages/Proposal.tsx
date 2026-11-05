@@ -482,7 +482,7 @@ export default function Proposal() {
               </section>
 
               {/* معلومات البحث */}
-              <section className="hg-card flex flex-col" style={rise(5)} aria-labelledby="info-title">
+              <section className="hg-card flex flex-col" style={rise(5)} aria-labelledby="info-title" data-learn="topic">
                 <div className="flex items-center">
                   <h3 id="info-title" className="m-0 text-[18px] font-extrabold">
                     {tr("معلومات البحث")}
@@ -495,6 +495,18 @@ export default function Proposal() {
                 </div>
                 {!editInfo ? (
                   <div className="mt-2">
+                    <div className="wf-kv">
+                      <span>{tr("العنوان")}</span>
+                      {project?.title?.trim() ? (
+                        <b dir="auto">{project.title}</b>
+                      ) : canWrite ? (
+                        <button type="button" className="min-h-[44px] text-[13px] font-bold text-[#FFC777]" onClick={() => setEditInfo(true)}>
+                          {tr("اكتبوا عنوان البحث")}
+                        </button>
+                      ) : (
+                        <b>—</b>
+                      )}
+                    </div>
                     <div className="wf-kv">
                       <span>{tr("المشرف/ة")}</span>
                       <b dir="auto">{supervisor || "—"}</b>
@@ -532,6 +544,22 @@ export default function Proposal() {
                   </div>
                 ) : (
                   <div className="mt-2 flex flex-col gap-1">
+                    <label className="wf-fld !mt-2">
+                      <span className="wf-lbl">
+                        {tr("عنوان البحث")} {!isEn && "· Title"}
+                      </span>
+                      <input
+                        defaultValue={project?.title ?? ""}
+                        dir="auto"
+                        maxLength={300}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v && v !== (project?.title ?? "")) saved(updateProject({ title: v }));
+                        }}
+                        placeholder={tr("سطر واحد يكفي الحين")}
+                        className="wf-fin"
+                      />
+                    </label>
                     <label className="wf-fld !mt-2">
                       <span className="wf-lbl">
                         {tr("اسم المشرف/ة")} {!isEn && "· Supervisor"}

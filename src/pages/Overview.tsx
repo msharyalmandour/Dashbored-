@@ -29,6 +29,7 @@ import type { Task } from "../data/types";
 import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
+import LearnStrip from "../components/home/LearnStrip";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
@@ -304,6 +305,12 @@ export default function Overview() {
           </div>
         }
       />
+
+      {mode === "supabase" && (
+        <ErrorBoundary>
+          <LearnStrip style={rise(1)} />
+        </ErrorBoundary>
+      )}
 
       {/* ── أول أسبوع (أول شي تحت الترحيب): بالديسكتوب عمود 1.15fr جنب باقي الكروت، ويختفي بعد ما يخلص ── */}
       <div className="group/fw relative mb-2.5 grid grid-cols-1 items-start gap-2.5 lg:mb-[18px] lg:gap-[18px] lg:has-[.fw-card]:grid-cols-[1.15fr_1fr]">

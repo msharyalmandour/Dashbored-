@@ -16,6 +16,7 @@ import CommandPalette from "./CommandPalette";
 import AiAssistant from "./AiAssistant";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
+import AcademyCoach from "./AcademyCoach";
 import BottomNav from "./BottomNav";
 import AppSplash from "./ui/AppSplash";
 import DriveNotice from "./ui/DriveNotice";
@@ -52,6 +53,7 @@ const titles: Record<string, string> = {
   "/calendar": tr("التقويم"),
   "/story": tr("قصة بحثك"),
   "/guide": tr("دليل الطالب"),
+  "/learn": tr("تعلّموا Wesync"),
   "/pricing": tr("الباقات والاشتراك"),
   "/admin/subscriptions": tr("إدارة الاشتراكات"),
 };
@@ -72,7 +74,7 @@ const pageHeaderRoutes = new Set([
 ]);
 
 /** صفحات عنوانها داخل الصفحة نفسها — الشريط العلوي ما يكرره (بدون تفعيل ستايل الترويسة الموحّدة) */
-const titleInPageRoutes = new Set(["/", "/research-search", "/evidence", "/literature-review", "/meeting-minutes", "/meeting-minutes/new"]);
+const titleInPageRoutes = new Set(["/", "/learn", "/research-search", "/evidence", "/literature-review", "/meeting-minutes", "/meeting-minutes/new"]);
 
 export default function Layout() {
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
@@ -124,6 +126,7 @@ export default function Layout() {
       <CommandPalette />
       <AiAssistant />
       <TourGuide />
+      <AcademyCoach />
       <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">

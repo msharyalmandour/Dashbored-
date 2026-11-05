@@ -28,6 +28,7 @@ export default function ThemeSwitcher() {
         onClick={() => setOpen((o) => !o)}
         title={tr("الإعدادات")}
         aria-label={tr("الإعدادات")}
+        data-learn="settings"
         className="grid h-11 w-11 place-items-center rounded-full border border-brand-100/60 bg-paper/40 text-brand-950/60 hover:bg-surface-muted"
       >
         <Palette size={18} />

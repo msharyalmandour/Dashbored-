@@ -147,7 +147,7 @@ export default function MeetingMinutes() {
                 <AgentOrb size={56} />
                 <h2 className="font-kufi text-2xl font-extrabold md:text-3xl">{tr("خلصتوا اجتماع؟")}</h2>
                 <p className="text-sm text-[#B8ADA2]">{tr("سجّلوا المحضر وبنوده تتحول لمهام بمسؤول وموعد، ويوصل للمشرف/ة.")}</p>
-                <Link to="/meeting-minutes/new" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>{tr("+ محضر جديد")}</Link>
+                <Link data-learn="new-minutes" to="/meeting-minutes/new" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>{tr("+ محضر جديد")}</Link>
               </div>
             </section>
           )}

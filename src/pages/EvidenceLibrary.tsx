@@ -146,7 +146,7 @@ export default function EvidenceLibrary() {
             : tr("{0} دراسات حفظتوها، مرتبة حسب محاور بحثكم. {1} منها تمت مراجعتها.", papers.length, reviewedCount)
         }
         action={
-          <button onClick={() => setShowForm((v) => !v)} className={gradientPill}>
+          <button data-learn="add-paper" onClick={() => setShowForm((v) => !v)} className={gradientPill}>
             {showForm ? <X size={16} /> : <Plus size={16} />}
             {showForm ? tr("إلغاء") : g(isFemale, tr("أضف دراسة"), tr("أضف دراسة"))}
           </button>

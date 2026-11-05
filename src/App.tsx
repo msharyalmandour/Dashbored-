@@ -32,6 +32,7 @@ import Files from "./pages/Files";
 import MeetingMinutes from "./pages/MeetingMinutes";
 import CalendarPage from "./pages/CalendarPage";
 import Guide from "./pages/Guide";
+import Learn from "./pages/Learn";
 import Story from "./pages/Story";
 import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
@@ -107,6 +108,7 @@ export default function App() {
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/story" element={<Story />} />
         <Route path="/guide" element={<Guide />} />
+        <Route path="/learn" element={<Learn />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
         <Route path="*" element={<NotFound />} />

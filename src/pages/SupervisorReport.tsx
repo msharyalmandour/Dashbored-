@@ -4,6 +4,8 @@ import { ChevronRight, Printer } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { daysUntil, formatDateFull, formatDateShort } from "../lib/date";
 import { tr } from "../lib/i18n";
+import { useAuth } from "../context/AuthContext";
+import { markLearn } from "../hooks/useAcademy";
 
 interface RTask {
   title: string;
@@ -28,6 +30,11 @@ export default function SupervisorReport() {
   const { token } = useParams<{ token: string }>();
   const [snap, setSnap] = useState<RSnapshot | null>(null);
   const [error, setError] = useState(false);
+  const { currentUser } = useAuth();
+  // درس «افتحوا تقرير التقدّم» بأكاديمية Wesync: يكتمل لما عضو بالفريق يفتح التقرير
+  useEffect(() => {
+    if (snap) markLearn(currentUser?.id, "report");
+  }, [snap, currentUser?.id]);
 
   useEffect(() => {
     if (!supabase || !token) {

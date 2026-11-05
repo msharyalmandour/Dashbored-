@@ -26,7 +26,7 @@ export default function BottomNav() {
     <nav className="hg-tabbar print:hidden md:hidden" aria-label={tr("التنقل")}>
       {tab("/", tr("الرئيسية"), House, true)}
       {tab("/proposal", tr("أكتب"), PenLine)}
-      <button type="button" className="hg-fab" onClick={() => openAgent()} aria-label={tr("وكيل Wesync")}>
+      <button type="button" className="hg-fab" data-learn="agent" onClick={() => openAgent()} aria-label={tr("وكيل Wesync")}>
         {/* موجة ثابتة (بدون حلقة حركة) */}
         <svg aria-hidden width="24" height="24" viewBox="0 0 26 26">
           <g fill="#FF9A3C">

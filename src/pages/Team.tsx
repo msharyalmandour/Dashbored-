@@ -66,7 +66,7 @@ function InviteCard() {
   };
 
   return (
-    <div className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <div data-learn="invite" className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
       <Card
         tone="cream"
         className="relative flex h-full flex-col overflow-hidden !rounded-[calc(1.75rem-1.5px)] !shadow-none"
@@ -180,7 +180,7 @@ function SupervisorContactSection() {
   };
 
   return (
-    <div className="mb-4 rounded-[1.75rem] bg-gradient-to-br from-sky-accent-300 via-brand-300 to-sky-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <div data-learn="sup-link" className="mb-4 rounded-[1.75rem] bg-gradient-to-br from-sky-accent-300 via-brand-300 to-sky-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
       <Card
         tone="paper"
         className="card-terra relative grid grid-cols-1 gap-6 overflow-hidden !rounded-[calc(1.75rem-1.5px)] md:grid-cols-2"
@@ -230,7 +230,7 @@ function SupervisorContactSection() {
               <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
           {team.shareToken && (
-            <Link to={`/supervisor/${team.shareToken}/report`} className="mt-2.5 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-brand-700 underline underline-offset-2">
+            <Link data-learn="report" to={`/supervisor/${team.shareToken}/report`} className="mt-2.5 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-brand-700 underline underline-offset-2">
               {tr("تقرير تقدّم الفريق (PDF) — ترسلونه للمشرف/ة أو القسم")}
             </Link>
           )}
@@ -292,7 +292,7 @@ function ReferralCard() {
   };
 
   return (
-    <div className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <div data-learn="invite" className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
       <Card
         tone="amber"
         className="relative flex h-full flex-col overflow-hidden !rounded-[calc(1.75rem-1.5px)] !shadow-none"

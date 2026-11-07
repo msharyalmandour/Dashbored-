@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Bell,
   Check,
+  MapPin,
+  ShieldAlert,
   FileText,
   LayoutGrid,
   List,
@@ -34,7 +36,10 @@ import { useToast } from "../context/ToastContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useTaskComments } from "../hooks/useTaskComments";
-import { proposalSections } from "../data/mockData";
+import { useEvidencePapers } from "../hooks/useEvidencePapers";
+import { useProposal } from "../hooks/useProposal";
+import { useResearchProject } from "../hooks/useResearchProject";
+import { PLACES, inferPlace, placeByKey, placeOf, proofFor, strictReview, type PlaceKey, type Proof } from "../lib/taskLinks";
 import type { Task, TaskPriority, TaskStatus } from "../data/types";
 import { addDaysISO, daysUntil, formatDateShort } from "../lib/date";
 import { groupByDue, type DueGroup } from "../lib/taskGroups";
@@ -60,9 +65,6 @@ const celebrations = [
   tr("أنت قدها وقدود!"),
 ];
 
-const sectionLabel: Record<string, string> = Object.fromEntries(
-  proposalSections.map((s) => [s.key, isEn ? s.labelEn : s.labelAr]),
-);
 
 const statusClass: Record<TaskStatus, string> = { todo: "todo", "in-progress": "doing", done: "done", overdue: "late" };
 const statusLabel: Record<TaskStatus, string> = {
@@ -115,6 +117,13 @@ export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
   const { tasks, loading, addTask, updateStatus, deleteTask, reassignTask } = useTasksData();
+  // ربط المهام بالشغل: الدراسات وأقسام المقترح هي «الدليل» إن المهمة خلصت فعلًا
+  const { papers } = useEvidencePapers();
+  const { sections } = useProposal();
+  const { project } = useResearchProject();
+  const navigate = useNavigate();
+  const [strict, setStrict] = useState<{ task: Task; proof: Proof } | null>(null);
+  const [reviewOpen, setReviewOpen] = useState(true);
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [balancing, setBalancing] = useState(false);
   const { comments, addComment } = useTaskComments();
@@ -180,15 +189,18 @@ export default function Tasks() {
 
   const isLate = (t: Task) => t.status !== "done" && (t.status === "overdue" || t.dueDate < today);
 
-  const assignableMembers = roster.filter((m) => m.id !== currentUser?.id);
+  // القائد يقدر يعطي نفسه مهمة كمان (أنا آخر القائمة)
+  const assignableMembers = [...roster.filter((m) => m.id !== currentUser?.id), ...roster.filter((m) => m.id === currentUser?.id)];
 
   const [form, setForm] = useState({
     title: "",
     description: "",
     assigneeId: "",
-    dueDate: "2026-08-30",
+    dueDate: addDaysISO(riyadhToday(), 7),
     priority: "medium" as TaskPriority,
+    place: "" as PlaceKey | "",
   });
+  const suggestedPlace = form.place ? null : placeByKey(inferPlace(form.title, form.description));
 
   const matches = (t: Task, f: FilterId) =>
     f === "all" ? true : f === "mine" ? t.assigneeId === currentUser?.id : f === "late" ? isLate(t) : t.status === f;
@@ -240,12 +252,13 @@ export default function Tasks() {
       assigneeId,
       dueDate: form.dueDate,
       priority: form.priority,
+      sectionKey: form.place || null,
     });
     if (error) {
       setFormError(error);
       return;
     }
-    setForm({ ...form, title: "", description: "" });
+    setForm({ ...form, title: "", description: "", place: "" });
     setFormError(null);
     setShowForm(false);
   };
@@ -263,7 +276,22 @@ export default function Tasks() {
     }
   };
 
-  const toggleDone = (task: Task) => changeStatus(task, task.status === "done" ? "todo" : "done");
+  const proofOf = (task: Task) => proofFor(task, { papers, sections });
+  // الطالب الصارم: لو المهمة لها رقم (٥ دراسات) والموجود أقل، نسأل قبل ما تنحسب خلصت
+  const toggleDone = (task: Task) => {
+    if (task.status !== "done") {
+      const proof = proofOf(task);
+      if (proof && !proof.met) {
+        setStrict({ task, proof });
+        return;
+      }
+    }
+    return changeStatus(task, task.status === "done" ? "todo" : "done");
+  };
+  const review = useMemo(
+    () => strictReview({ tasks: visible, papers, sections, deadline: project?.targetSubmissionDate, today, nameOf: (id) => roster.find((m) => m.id === id)?.name.split(" ")[0] ?? "" }),
+    [visible, papers, sections, project?.targetSubmissionDate, today, roster],
+  );
 
   const openTask = (id: string) => {
     setExpandedTaskId(id);
@@ -352,7 +380,9 @@ export default function Tasks() {
     const taskComments = comments.filter((c) => c.taskId === task.id);
     const isExpanded = expandedTaskId === task.id;
     const reminders = (byTask.get(task.id) ?? []).slice().sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-    const sub = [task.sectionKey ? sectionLabel[task.sectionKey] : "", task.description].filter(Boolean).join(" — ");
+    const place = placeOf(task);
+    const proof = proofOf(task);
+    const sub = task.description;
     const menu: ThreeDotsMenuItem[] = [
       {
         label: isExpanded ? tr("اقفل التفاصيل") : taskComments.length ? tr("التعليقات ({0}) والمرفق", num(taskComments.length)) : tr("التعليقات والمرفق"),
@@ -395,11 +425,11 @@ export default function Tasks() {
             <span
               className={clsx("grid h-[22px] w-[22px] place-items-center rounded-full border-[1.8px] transition-colors")}
               style={{
-                borderColor: task.status === "done" ? "#7FE0A6" : late ? "#FF8A7A" : "rgba(255,255,255,.3)",
-                background: task.status === "done" ? "rgba(127,224,166,.18)" : undefined,
+                borderColor: task.status === "done" ? "#FFC777" : late ? "#FF8A7A" : "rgba(255,255,255,.3)",
+                background: task.status === "done" ? "rgba(255,199,119,.18)" : undefined,
               }}
             >
-              {task.status === "done" && <Check size={13} strokeWidth={3} className="text-[#7FE0A6]" />}
+              {task.status === "done" && <Check size={13} strokeWidth={3} className="text-[#FFC777]" />}
             </span>
           </button>
 
@@ -423,8 +453,23 @@ export default function Tasks() {
                 </span>
               )}
             </button>
+            {(place || proof) && (
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                {place && (
+                  <Link to={place.route} className="tk-place" aria-label={tr("افتحوا مكان الشغل: {0}", place.label)}>
+                    <MapPin size={13} aria-hidden />
+                    {place.label}
+                  </Link>
+                )}
+                {proof && (
+                  <span className={clsx("tk-proof", proof.met ? "met" : task.status === "done" ? "warn" : "")}>
+                    {task.status === "done" && !proof.met ? tr("خلصت بدون دليل · {0}", proof.label) : proof.label}
+                  </span>
+                )}
+              </div>
+            )}
             {sub && (
-              <div className="v3-mut truncate text-[13px]" dir="auto">
+              <div className="v3-mut mt-0.5 truncate text-[13px]" dir="auto">
                 {sub}
               </div>
             )}
@@ -559,7 +604,7 @@ export default function Tasks() {
               >
                 {assignableMembers.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name}
+                    {m.id === currentUser?.id ? tr("{0} (أنا)", m.name) : m.name}
                   </option>
                 ))}
               </select>
@@ -598,6 +643,17 @@ export default function Tasks() {
                 <option value="high">{tr("عالية")}</option>
               </select>
             </label>
+            <label className="block text-sm md:col-span-2">
+              <span className="mb-1.5 block font-bold">{tr("وين الشغل؟")}</span>
+              <select value={form.place} onChange={(e) => setForm({ ...form, place: e.target.value as PlaceKey | "" })} className="v3-select w-full">
+                <option value="">{suggestedPlace ? tr("تلقائي: {0}", suggestedPlace.label) : tr("اختاروا المكان (يساعد الفريق يوصل للشغل بضغطة)")}</option>
+                {PLACES.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           {formError && (
             <p className="mt-3 rounded-2xl bg-[rgba(255,138,122,.13)] px-3 py-2 text-sm font-bold text-[#FF8A7A]" role="alert">
@@ -607,6 +663,41 @@ export default function Tasks() {
           <button type="button" onClick={handleAssign} className="v3-bw mt-4">
             {tr("إسناد المهمة")}
           </button>
+        </section>
+      )}
+
+      {/* ── مراجعة صارمة: مشاكل حقيقية من بياناتكم، كل وحدة معها تصليح ── */}
+      {!loading && review.length > 0 && (
+        <section className="tk-review v3-rise mb-4" style={rise(1)} aria-labelledby="tk-rv-h">
+          <button type="button" className="tk-review-head" onClick={() => setReviewOpen((o) => !o)} aria-expanded={reviewOpen}>
+            <span className="tk-review-ic" aria-hidden>
+              <ShieldAlert size={18} />
+            </span>
+            <span className="min-w-0 flex-1 text-start">
+              <span id="tk-rv-h" className="block text-[16px] font-extrabold text-[#F2EBE3]">
+                {tr("مراجعة صارمة")} <span className="tk-badge">{num(review.length)}</span>
+              </span>
+              <span className="block text-[13px] text-[#ABA095]">{tr("أشياء تضعّف شغلكم قدام المشرف/ة، وكل وحدة لها حل.")}</span>
+            </span>
+            <span className="text-[13px] font-bold text-[#FFC777]">{reviewOpen ? tr("إخفاء") : tr("عرض")}</span>
+          </button>
+          {reviewOpen && (
+            <ol className="m-0 mt-3 list-none space-y-2 p-0">
+              {review.map((it, i) => (
+                <li key={it.id} className="tk-review-row">
+                  <span className="tk-review-n" dir="ltr">
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 basis-[calc(100%-40px)] text-[14px] leading-relaxed text-[#E9D3B8] sm:basis-0" dir="auto">
+                    {it.text}
+                  </span>
+                  <Link to={it.to} className="tk-review-fix">
+                    {it.fix}
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
         </section>
       )}
 
@@ -628,7 +719,7 @@ export default function Tasks() {
                 <div className="text-sm text-[#F3D9C4]">
                   {[
                     isLate(focus) ? lateLabel(focus.dueDate) : focus.dueDate === today ? tr("موعدها اليوم") : tr("موعدها {0}", formatDateShort(focus.dueDate)),
-                    focus.sectionKey ? sectionLabel[focus.sectionKey] : "",
+                    placeOf(focus)?.label ?? "",
                     focus.assigneeId !== currentUser?.id ? firstName(focus.assigneeId) : "",
                   ]
                     .filter(Boolean)
@@ -882,6 +973,40 @@ export default function Tasks() {
       </div>
 
       <ConfettiBurst active={justCompleted} />
+      <Dialog open={!!strict} onClose={() => setStrict(null)} title={tr("متأكدين إنها خلصت؟")}>
+        {strict && (
+          <div className="space-y-3">
+            <p className="m-0 text-[15px] leading-relaxed" dir="auto">
+              {tr("مهمة «{0}» تطلب {1}، والموجود فعلًا {2}.", strict.task.title, num(strict.proof.need), strict.proof.label)}
+            </p>
+            <p className="m-0 text-[13px] text-[#ABA095]">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                type="button"
+                className="v3-bw"
+                onClick={() => {
+                  const to = placeOf(strict.task)?.route;
+                  setStrict(null);
+                  if (to) navigate(to);
+                }}
+              >
+                {tr("أضيفوها الحين")}
+              </button>
+              <button
+                type="button"
+                className="v3-bd"
+                onClick={() => {
+                  const t = strict.task;
+                  setStrict(null);
+                  void changeStatus(t, "done");
+                }}
+              >
+                {tr("خلصت على مسؤوليتي")}
+              </button>
+            </div>
+          </div>
+        )}
+      </Dialog>
       <Dialog open={balanceOpen} onClose={() => setBalanceOpen(false)} title={tr("وزّعها بالتساوي")}>
         {balanceMoves.length === 0 ? (
           <p className="m-0 text-[15px]">{tr("الحمل متقارب بينكم، ما فيه شي يحتاج ينتقل ✓")}</p>

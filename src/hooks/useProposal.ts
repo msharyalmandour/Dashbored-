@@ -96,6 +96,15 @@ export function useProposal() {
     return { error: error?.message };
   };
 
+  /** مين مسؤول عن القسم (owner_id الموجود) — القسم اللي ما له اسم ما أحد يكتبه */
+  const setSectionOwner = async (key: string, ownerId: string | null) => {
+    setSections((prev) => prev.map((s) => (s.key === key ? { ...s, ownerId: ownerId ?? "" } : s)));
+    if (!isSupabaseConfigured) return { error: undefined as string | undefined };
+    const { error } = await supabase!.from("proposal_sections").update({ owner_id: ownerId, updated_at: new Date().toISOString() }).eq("section_key", key);
+    if (error) load();
+    return { error: error?.message };
+  };
+
   const updateGap = async (updates: Partial<ResearchGap>) => {
     if (!isSupabaseConfigured) {
       setGap((prev) => ({ ...prev, ...updates }));
@@ -147,7 +156,7 @@ export function useProposal() {
     return { error: error?.message };
   };
 
-  return { sections, gap, aim, questions, loading, updateSection, updateGap, updateAimStatement, setResearchQuestions };
+  return { sections, gap, aim, questions, loading, updateSection, setSectionOwner, updateGap, updateAimStatement, setResearchQuestions };
 }
 
 async function currentProjectId() {

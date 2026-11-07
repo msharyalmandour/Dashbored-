@@ -30,6 +30,7 @@ import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } f
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
 import LearnStrip from "../components/home/LearnStrip";
+import { placeOf } from "../lib/taskLinks";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
@@ -120,10 +121,11 @@ export default function Overview() {
   const litStageDone = stages.some((s) => s.stageKey === "literature-review" && s.status === "done");
   const methStageDone = stages.some((s) => s.stageKey === "methodology" && s.status === "done");
   const sectionOf = (t: Task) => sections.find((s) => s.key === t.sectionKey);
-  const taskLink = (t: Task) => (t.sectionKey && sectionOf(t) ? `/proposal?section=${t.sectionKey}` : `/tasks?task=${t.id}`);
+  // المهمة توديك لمكان شغلها (قسم المقترح، مكتبة الأدلة، الأخلاقيات…) — المكان المحفوظ أو المستنتج من العنوان
+  const taskLink = (t: Task) => placeOf(t)?.route ?? `/tasks?task=${t.id}`;
   const sectionTag = (t: Task) => {
     const sec = sectionOf(t);
-    return sec ? tr("المقترح · القسم {0}", num(sec.order)) : "";
+    return sec ? tr("المقترح · القسم {0}", num(sec.order)) : placeOf(t)?.label ?? "";
   };
 
   // ── تقدّم البحث ──

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { tasks as mockTasks } from "../data/mockData";
 import type { Task } from "../data/types";
+import { inferPlace } from "../lib/taskLinks";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 
 let channelIdCounter = 0;
@@ -72,7 +73,11 @@ export function useTasksData() {
     assigneeId: string;
     dueDate: string;
     priority: Task["priority"];
+    /** وين الشغل: قسم من المقترح أو مكان بالموقع (lib/taskLinks) */
+    sectionKey?: string | null;
   }) => {
+    // كل مهمة تنربط بمكان شغلها: اللي اختاره المستخدم، وإلا نستنتجه من العنوان (من المحادثة والوكيل والرئيسية كمان)
+    const sectionKey = input.sectionKey ?? inferPlace(input.title, input.description) ?? null;
     if (!isSupabaseConfigured) {
       const newTask: Task = {
         id: `t${mockIdCounter++}`,
@@ -82,6 +87,7 @@ export function useTasksData() {
         dueDate: input.dueDate,
         priority: input.priority,
         status: "todo",
+        sectionKey: (sectionKey ?? undefined) as Task["sectionKey"],
       };
       setTasks((prev) => [newTask, ...prev]);
       return { error: undefined as string | undefined, id: newTask.id as string | undefined };
@@ -94,6 +100,7 @@ export function useTasksData() {
       due_date: input.dueDate,
       priority: input.priority,
       status: "todo",
+      section_key: sectionKey,
     }).select("id").single();
     // المعرّف يرجع عشان المحادثة تحط كرت المهمة الجديدة
     return { error: error?.message, id: (data as { id: string } | null)?.id };

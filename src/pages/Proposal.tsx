@@ -6,6 +6,7 @@ import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import QuestionSuggestions from "../components/QuestionSuggestions";
 import { useAuth } from "../context/AuthContext";
 import { useProposal } from "../hooks/useProposal";
+import SectionTasks from "../components/write/SectionTasks";
 import { useResearchProject } from "../hooks/useResearchProject";
 import type { ProposalSectionKey, ResearchProjectStatus, ResearchType } from "../data/types";
 import { formatDateLongEn } from "../lib/date";
@@ -118,7 +119,7 @@ function AutoSaveTextarea({
 
 
 export default function Proposal() {
-  const { sections, gap, aim, questions, updateSection, updateGap, updateAimStatement, setResearchQuestions } = useProposal();
+  const { sections, gap, aim, questions, updateSection, setSectionOwner, updateGap, updateAimStatement, setResearchQuestions } = useProposal();
   const { project, updateProject } = useResearchProject();
   const { canWrite, currentUser } = useAuth();
   const [paper, setPaper] = usePaperMode(currentUser?.id);
@@ -315,6 +316,9 @@ export default function Proposal() {
                     {threadCard(tr("هدفنا"), "Aim", active.key === "questions" ? aim.statement : "", "aim", active.key === "questions" ? tr("اكتبوا الهدف أول") : tr("هنا تكتبونه ← مربوط بالفجوة"))}
                   </div>
                 )}
+
+                {/* مسؤول القسم + مهامه المربوطة */}
+                <SectionTasks sectionKey={active.key} ownerId={active.ownerId} onOwner={(id) => saved(setSectionOwner(active.key, id))} />
 
                 {/* المحرر حسب القسم — نفس الحقول السابقة */}
                 <div key={active.key} className="flex flex-col gap-3">

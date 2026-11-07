@@ -149,7 +149,8 @@ export interface Task {
   dueDate: string;
   status: TaskStatus;
   priority: TaskPriority;
-  sectionKey?: ProposalSectionKey;
+  /** وين الشغل: قسم من المقترح أو مكان بالموقع (PlaceKey بـ lib/taskLinks) */
+  sectionKey?: string;
   /** وقت الإكمال (من القاعدة) — لقياس المساهمة والتقرير الأسبوعي */
   completedAt?: string | null;
 }

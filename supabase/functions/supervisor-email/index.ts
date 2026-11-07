@@ -1,5 +1,6 @@
 // إيميلات المشرفة من الموقع. verify_jwt=false لأن المشرفة بدون حساب — كل إجراء يوثّق نفسه:
 //  subscribe  : برمز رابط المشرفة (share_token) — يرسل إيميل تأكيد (تأكيد مزدوج، ما يُرسل أي شي قبله)
+//  invite     : القائد (JWT) يكتب إيميل المشرف/ة — يتفعّل على طول ويوصلها ترحيب فيه وش ينتظرها + رابط إيقاف
 //  confirm / unsubscribe : برمز التأكيد اللي بالإيميل نفسه
 //  notify     : عضو فريق مسجّل دخول (JWT) — يرسل إشعار «رد جديد» للمشرفة المؤكَّدة فقط، بحد زمني
 //  set_digest : برمز رابط المشرفة — تختار «فوري» أو «ملخص أسبوعي بس»
@@ -148,6 +149,84 @@ Deno.serve(async (req: Request) => {
     return json(200, { ok: true });
   }
 
+  // ---------- القائد يدعو المشرف/ة بالإيميل: يتفعّل على طول (بدون خطوة تأكيد) ----------
+  // أول إيميل ترحيب فيه وش ينتظرها الحين، وكل إيميل فيه «إيقاف الإيميلات» بضغطة. محمي بحد يومي + القائد بس.
+  if (action === "invite") {
+    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    const { data: userRes, error: userErr } = await admin.auth.getUser(jwt);
+    if (userErr || !userRes?.user) return json(401, { error: "unauthorized" });
+    const { data: me } = await admin.from("profiles").select("team_id, role, name").eq("id", userRes.user.id).maybeSingle();
+    if (!me?.team_id) return json(403, { error: "no_team" });
+    if (me.role !== "leader") return json(403, { error: "not_leader" });
+    const email = String(body.email ?? "").trim().toLowerCase();
+    if (!EMAIL.test(email) || email.length > 254) return json(400, { error: "invalid_email" });
+
+    const { data: team } = await admin.from("teams").select("id, name, share_token").eq("id", me.team_id).maybeSingle();
+    if (!team?.share_token) return json(404, { error: "invalid_token" });
+    const { data: members } = await admin.from("profiles").select("email").eq("team_id", team.id);
+    if ((members ?? []).some((m: { email: string | null }) => (m.email ?? "").trim().toLowerCase() === email)) return json(400, { error: "member_email" });
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: existing } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", team.id).maybeSingle();
+    if (existing) {
+      const sameDay = existing.requests_day === today;
+      if (sameDay && existing.requests_today >= MAX_REQUESTS_PER_DAY) return json(429, { error: "rate_limited" });
+      if (Date.now() - new Date(existing.requested_at).getTime() < MIN_SECONDS_BETWEEN_REQUESTS * 1000) return json(429, { error: "rate_limited" });
+    }
+    const sameEmail = existing && String(existing.email).toLowerCase() === email;
+    const now = new Date().toISOString();
+    const row = {
+      team_id: team.id,
+      email,
+      // نفس الإيميل: نحافظ على رابط الإيقاف القديم؛ إيميل جديد: رابط جديد
+      confirm_token: sameEmail ? existing.confirm_token : crypto.randomUUID(),
+      confirmed_at: now,
+      unsubscribed_at: null,
+      requested_at: now,
+      requests_day: today,
+      requests_today: existing && existing.requests_day === today ? existing.requests_today + 1 : 1,
+    };
+    const { error: upErr } = await admin.from("supervisor_email_subscriptions").upsert(row, { onConflict: "team_id" });
+    if (upErr) return json(500, { error: "db_error" });
+
+    // وش ينتظرها الحين (عشان أول إيميل يكون مفيد مو مجرد ترحيب)
+    const { data: proj } = await admin.from("research_projects").select("title").eq("team_id", team.id).order("created_at").limit(1).maybeSingle();
+    // المحاضر اللي عدّت ٤٨ ساعة تنحسب معتمدة تلقائيًا، فما نعدّها
+    const { count: pendingMinutes } = await admin.from("minutes_approvals").select("minutes_id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "pending").gte("requested_at", new Date(Date.now() - 48 * 3600e3).toISOString());
+    const { count: openDecisions } = await admin.from("decision_requests").select("id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "open");
+    const { count: pendingBookings } = await admin.from("meeting_bookings").select("id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "pending");
+    const waiting = [
+      pendingMinutes ? `${pendingMinutes} محضر اجتماع بانتظار اعتمادكم` : "",
+      openDecisions ? `${openDecisions} سؤال بانتظار قراركم` : "",
+      pendingBookings ? `${pendingBookings} اقتراح موعد` : "",
+    ].filter(Boolean);
+
+    const link = `${site}/#/supervisor/${team.share_token}`;
+    const unsub = `${site}/#/supervisor-email/unsubscribe/${row.confirm_token}`;
+    const leader = String(me.name ?? "").trim() || "قائد الفريق";
+    const topic = String(proj?.title ?? "").trim();
+    const title = `فريق «${team.name}» يتابع بحثه معكم على Wesync`;
+    const inner =
+      `<p>أضافكم ${esc(leader)} كمشرف/ة للفريق${topic ? ` على بحث <b>${esc(topic)}</b>` : ""}.</p>` +
+      `<p>من الحين توصلكم هنا: محاضر الاجتماعات للاعتماد، أسئلة الفريق، واقتراحات المواعيد. وكل شي تردّون عليه بضغطة من رابطكم، بدون حساب ولا كلمة مرور.</p>` +
+      (waiting.length ? `<p style="${EMAIL_BOX}"><b>ينتظركم الحين:</b><br>${waiting.map(esc).join("<br>")}</p>` : "") +
+      `<p style="font-size:13px;color:#ABA095">تقدرون من صفحتكم تختارون «ملخص الأحد بس» بدل الإيميلات أول بأول.</p>`;
+    const sent = await sendEmail(
+      email,
+      title,
+      layout(title, inner, link, "افتحوا صفحة المتابعة", `وصلكم هذا الإيميل لأن قائد الفريق أضافكم كمشرف/ة. ما تبونه؟ <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإيميلات</a>`),
+      `${title}\n\nأضافكم ${leader} كمشرف/ة للفريق. توصلكم المحاضر والأسئلة والمواعيد، وتردّون بضغطة من رابطكم:\n${link}${waiting.length ? `\n\nينتظركم الحين:\n${waiting.join("\n")}` : ""}\n\nإيقاف الإيميلات: ${unsub}`,
+    );
+    if (!sent.ok) {
+      // ما وصلها شي: نرجّع الوضع زي ما كان
+      if (existing) await admin.from("supervisor_email_subscriptions").upsert(existing, { onConflict: "team_id" });
+      else await admin.from("supervisor_email_subscriptions").delete().eq("team_id", team.id);
+      return json(sent.reason === "email_not_configured" ? 503 : 502, { error: sent.reason });
+    }
+    await admin.from("supervisor_email_subscriptions").update({ last_notified_at: now }).eq("team_id", team.id);
+    return json(200, { ok: true, active: true });
+  }
+
   // ---------- عضو الفريق: لمين رايحة إشعارات المشرفة؟ (ينبّه لو الإيميل المسجّل حق عضو بالفريق) ----------
   if (action === "team_status") {
     const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
@@ -213,7 +292,7 @@ Deno.serve(async (req: Request) => {
         `<p style="${EMAIL_BOX};white-space:pre-wrap">${esc(excerpt)}</p><p style="font-size:13px;color:#ABA095">— ${esc(lastMsg.sender_name || "الفريق")}</p>`,
         link,
         "افتحوا المحادثة وردّوا",
-        `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`,
+        `وصلتكم لأنكم مشرف/ة الفريق على Wesync. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`,
       ),
       `رد جديد من فريق «${team.name}»:\n\n${excerpt}\n\nافتحوا المحادثة: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
     );
@@ -273,7 +352,7 @@ Deno.serve(async (req: Request) => {
     const sent = await sendEmail(
       sub.email,
       title,
-      layout(title, inner, link, "افتحوا وردّوا بضغطة", `وصلتكم هذي الرسالة لأنكم فعّلتم الإشعارات. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`),
+      layout(title, inner, link, "افتحوا وردّوا بضغطة", `وصلتكم لأنكم مشرف/ة الفريق على Wesync. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`),
       `${plain}\n\nافتحوا: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
     );
     if (!sent.ok) return json(200, { sent: false, reason: sent.reason });

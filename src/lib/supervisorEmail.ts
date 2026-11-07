@@ -9,7 +9,7 @@ export interface EmailStatus {
   isTeamMember?: boolean;
 }
 
-export type EmailError = "member_email" | "email_not_configured" | "invalid_email" | "invalid_token" | "rate_limited" | "send_failed" | "network" | "unknown";
+export type EmailError = "not_leader" | "member_email" | "email_not_configured" | "invalid_email" | "invalid_token" | "rate_limited" | "send_failed" | "network" | "unknown";
 
 async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error?: EmailError }> {
   if (!supabase) return { error: "network" };
@@ -19,7 +19,7 @@ async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error
     const res = (error as { context?: Response }).context;
     const parsed = res ? ((await res.json()) as { error?: string }) : null;
     const code = parsed?.error;
-    if (code === "member_email" || code === "email_not_configured" || code === "invalid_email" || code === "invalid_token" || code === "rate_limited" || code === "send_failed") return { error: code };
+    if (code === "not_leader" || code === "member_email" || code === "email_not_configured" || code === "invalid_email" || code === "invalid_token" || code === "rate_limited" || code === "send_failed") return { error: code };
   } catch {
     // الرد مو JSON
   }
@@ -27,6 +27,7 @@ async function call<T>(body: Record<string, unknown>): Promise<{ data?: T; error
 }
 
 export const errorText: Record<EmailError, string> = {
+  not_leader: tr("قائد الفريق بس يقدر يضيف إيميل المشرف/ة."),
   member_email: tr("هذا إيميل عضو بالفريق. اكتبوا إيميل المشرف/ة نفسها عشان توصلها التنبيهات."),
   email_not_configured: tr("خدمة الإيميل لسا ما انفعّلت من إدارة الموقع — جرّبوا لاحقًا."),
   invalid_email: tr("الإيميل غير صحيح — تأكدوا من كتابته."),
@@ -61,7 +62,8 @@ export async function getMyEmailStatus(): Promise<EmailStatus | null> {
 }
 
 /** القائد يكتب إيميل المشرف/ة: يوصلها رابط تأكيد، وما يوصلها شي ثاني قبل ما تضغطه */
-export const inviteSupervisorByEmail = (shareToken: string, email: string) => subscribeSupervisor(shareToken, email);
+/** القائد يضيف إيميل المشرف/ة: يتفعّل على طول ويوصلها إيميل ترحيب فيه وش ينتظرها (ورابط إيقاف بكل إيميل) */
+export const inviteSupervisorByEmail = (_shareToken: string, email: string) => call<{ ok: true; active: true }>({ action: "invite", email });
 
 export type DigestMode = "instant" | "weekly";
 /** المشرف/ة تختار: كل طلب يوصلها أول بأول، أو ملخص الأحد بس */

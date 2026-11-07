@@ -57,6 +57,7 @@ interface Batch {
   status: "sorting" | "ready" | "saving" | "saved" | "failed";
   summary: string;
   rows: Row[];
+  notes?: string[];
   error?: string;
 }
 
@@ -74,6 +75,7 @@ const SECTION_LABEL: Record<string, string> = {
 
 const KIND: Record<Kind, { icon: ReactNode; label: string }> = {
   paper: { icon: <BookOpen size={18} />, label: tr("دراسة علمية") },
+  paper_info: { icon: <BookOpen size={18} />, label: tr("دراسة من رابط") },
   task: { icon: <ListChecks size={18} />, label: tr("مهمة") },
   minutes: { icon: <NotebookPen size={18} />, label: tr("محضر اجتماع") },
   supervisor_note: { icon: <MessageSquareQuote size={18} />, label: tr("ملاحظة من المشرف/ة") },
@@ -109,7 +111,7 @@ export default function Drop() {
     setBatches((prev) => [{ id, name: input.name, input, status: "sorting", summary: "", rows: [] }, ...prev]);
     const r = await sortDrop(input);
     if (!r.data) patch(id, { status: "failed", error: r.message });
-    else patch(id, { status: "ready", summary: r.data.summary, rows: r.data.items.map((it) => ({ ...it, on: it.kind !== "other" })) });
+    else patch(id, { status: "ready", summary: r.data.summary, notes: r.data.notes, rows: r.data.items.map((it) => ({ ...it, on: it.kind !== "other" })) });
   };
 
   const takeFiles = async (list: FileList | File[] | null | undefined) => {
@@ -145,6 +147,7 @@ export default function Drop() {
   const destination = (r: Row): string => {
     switch (r.kind) {
       case "paper":
+      case "paper_info":
         return tr("مكتبة الأدلة + جدول الأدبيات");
       case "task":
         return placeByKey(r.place)?.label ? tr("مهامي · {0}", placeByKey(r.place)!.label) : tr("مهامي");
@@ -167,6 +170,20 @@ export default function Drop() {
     switch (r.kind) {
       case "paper":
         return tr("نقراها بالتفصيل ونعبّي الجدول لما تحطونها.");
+      case "paper_info":
+        return (
+          <>
+            <b dir="auto">{r.title}</b>
+            <span className="dp-meta" dir="auto">
+              {[r.authors, r.year].filter(Boolean).join(" · ")}
+            </span>
+            {r.summaryAr && (
+              <span className="dp-meta dp-sum" dir="auto">
+                {r.summaryAr}
+              </span>
+            )}
+          </>
+        );
       case "task":
         return (
           <>
@@ -202,6 +219,11 @@ export default function Drop() {
         return (
           <>
             <b dir="auto">{r.label || r.url}</b>
+            {r.summary && (
+              <span className="dp-meta dp-sum" dir="auto">
+                {r.summary}
+              </span>
+            )}
             <span className="dp-meta" dir="ltr">
               {r.url}
             </span>
@@ -229,6 +251,10 @@ export default function Drop() {
             const { error } = await addPaper({ title: p.title, authors: p.authors, year: p.year ?? new Date().getFullYear(), theme: p.theme as EvidencePaper["theme"], studyDesign: p.studyDesign, keyFinding: p.keyFinding, relevance: p.relevance, section: p.section, country: p.country, aim: p.aim, sample: p.sampleAndSetting, dataCollection: p.dataCollection, addedById: currentUser.id });
             res = error ? { ok: false, msg: error } : { ok: true, to: "/evidence" };
           }
+        } else if (r.kind === "paper_info") {
+          const ok = (v: string) => (/غير مذكور/.test(v) ? "" : v);
+          const { error } = await addPaper({ title: r.title, authors: ok(r.authors), year: r.year ?? new Date().getFullYear(), theme: "عام" as EvidencePaper["theme"], studyDesign: ok(r.studyDesign), keyFinding: ok(r.keyFinding), relevance: ok(r.relevance), section: r.section, link: r.url || undefined, country: ok(r.country), aim: ok(r.aim), sample: ok(r.sampleAndSetting), dataCollection: ok(r.dataCollection), addedById: currentUser.id });
+          res = error ? { ok: false, msg: error } : { ok: true, to: "/evidence" };
         } else if (r.kind === "task") {
           const { error, id } = await addTask({ title: r.title, description: tr("من «ارموا أي شي»: {0}", b.name), assigneeId: r.assigneeId ?? currentUser.id, dueDate: r.due || addDaysISO(new Date().toISOString().slice(0, 10), 7), priority: "medium", sectionKey: r.place || null });
           res = error ? { ok: false, msg: isLeader ? error : tr("المهام يضيفها القائد") } : { ok: true, to: id ? `/tasks?task=${id}` : "/tasks" };
@@ -249,7 +275,7 @@ export default function Drop() {
           const { error } = await addEvent({ title: r.title, date: r.date, time: r.time, type, location: "" });
           res = error ? { ok: false, msg: error } : { ok: true, to: "/calendar" };
         } else if (r.kind === "link") {
-          const { error } = await send(`${r.label ? `${r.label}\n` : ""}${r.url}`);
+          const { error } = await send([r.label, r.summary ? tr("الملخص: {0}", r.summary) : "", r.url].filter(Boolean).join("\n"));
           res = error ? { ok: false, msg: error } : { ok: true, to: "/files" };
         }
       } catch {
@@ -275,7 +301,7 @@ export default function Drop() {
       <section className="dp-hero hg-card">
         <AgentOrb size={72} state={batches.some((b) => b.status === "sorting") ? "thinking" : "idle"} />
         <h1 className="m-0 mt-3 text-[28px] font-extrabold text-[#F2EBE3]">{tr("ارموا أي شي")}</h1>
-        <p className="m-0 mt-1.5 max-w-md text-[15px] leading-relaxed text-[#E9D3B8]">{tr("دراسة، صورة سبورة، سكرين شوت من الدكتورة، ملاحظات اجتماع، رابط… الوكيل يفهمها ويقترح وين ينحط كل شي، وأنتم توافقون.")}</p>
+        <p className="m-0 mt-1.5 max-w-md text-[15px] leading-relaxed text-[#E9D3B8]">{tr("دراسة، رابط دراسة أو صفحة (نفتحه ونلخصه)، صورة سبورة، سكرين شوت من الدكتورة، ملاحظات اجتماع… الوكيل يفهمها ويقترح وين ينحط كل شي، وأنتم توافقون.")}</p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <button type="button" className="tc-cream !min-h-[48px]" onClick={() => fileRef.current?.click()} disabled={!canWrite}>
             <FileUp size={18} aria-hidden />
@@ -289,7 +315,7 @@ export default function Drop() {
         <input ref={fileRef} type="file" multiple hidden accept="application/pdf,.pdf,image/*,.txt,.md,.csv,text/plain" onChange={(e) => (takeFiles(e.target.files), (e.target.value = ""))} />
         <input ref={camRef} type="file" hidden accept="image/*" capture="environment" onChange={(e) => (takeFiles(e.target.files), (e.target.value = ""))} />
         <div className="dp-paste">
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} placeholder={tr("أو الصقوا نص أو رابط هنا… (ملاحظات اجتماع، كلام الدكتورة، قائمة مهام)")} aria-label={tr("الصقوا نص أو رابط")} className="dp-text outline-none" disabled={!canWrite} />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} placeholder={tr("أو الصقوا نص أو رابط هنا… (رابط PubMed أو DOI أو أي صفحة، ملاحظات اجتماع، كلام الدكتورة)")} aria-label={tr("الصقوا نص أو رابط")} className="dp-text outline-none" disabled={!canWrite} />
           <button type="button" className="tc-chip shrink-0" onClick={takeText} disabled={text.trim().length < 3}>
             {tr("افرزوها")}
           </button>
@@ -320,6 +346,11 @@ export default function Drop() {
               </button>
             )}
           </div>
+          {b.notes?.map((n) => (
+            <p key={n} className="m-0 mt-2 text-[13px] text-[#FFC777]" role="status">
+              {n}
+            </p>
+          ))}
           {b.status === "failed" && (
             <p className="m-0 mt-2 text-[14px] text-[#FF8A7A]" role="alert">
               {b.error}

@@ -11,12 +11,30 @@ export type SortItem =
   | { kind: "supervisor_note"; comment: string; section: string }
   | { kind: "section_text"; section: string; text: string }
   | { kind: "event"; title: string; date: string; time: string }
-  | { kind: "link"; url: string; label: string }
+  | { kind: "link"; url: string; label: string; summary?: string }
+  | {
+      kind: "paper_info";
+      url: string;
+      title: string;
+      authors: string;
+      year: number | null;
+      country: string;
+      aim: string;
+      studyDesign: string;
+      sampleAndSetting: string;
+      dataCollection: string;
+      keyFinding: string;
+      relevance: string;
+      section: "background" | "literature-review" | "gap" | "methodology" | "other";
+      summaryAr: string;
+    }
   | { kind: "other"; why: string };
 
 export interface SortResult {
   summary: string;
   items: SortItem[];
+  /** روابط ما قدرنا نفتحها */
+  notes: string[];
 }
 
 export interface DropInput {
@@ -71,9 +89,9 @@ export async function sortDrop(input: DropInput): Promise<{ data?: SortResult; m
   if (input.pdf) body.pdfBase64 = await toBase64(input.pdf);
   if (input.text) body.text = input.text;
   const { data, error } = await supabase!.functions.invoke("drop-sort", { body });
-  const reply = data as (SortResult & { error?: string; limitReached?: boolean; message?: string }) | null;
+  const reply = data as (Partial<SortResult> & { error?: string; limitReached?: boolean; message?: string }) | null;
   if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد الشهري.") };
   if (reply?.error) return { message: reply.error };
-  if (reply?.items) return { data: { summary: reply.summary ?? "", items: reply.items } };
+  if (reply?.items) return { data: { summary: reply.summary ?? "", items: reply.items, notes: reply.notes ?? [] } };
   return { message: error ? tr("الفرز مو متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — جرّبوا مرة ثانية.") };
 }

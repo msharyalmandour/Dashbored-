@@ -35,5 +35,9 @@
   "هذي الميزة تشتغل بحساب فريقكم الحقيقي.": "This works with your real team account.",
   "وصلتوا للحد الشهري.": "You've reached the monthly limit.",
   "الفرز مو متاح الحين — جرّبوا بعد شوي.": "Sorting isn't available right now. Try again shortly.",
-  "ما وصل الرد — جرّبوا مرة ثانية.": "No reply came back. Try again."
+  "ما وصل الرد — جرّبوا مرة ثانية.": "No reply came back. Try again.",
+  "دراسة من رابط": "Study from a link",
+  "الملخص: {0}": "Summary: {0}",
+  "دراسة، رابط دراسة أو صفحة (نفتحه ونلخصه)، صورة سبورة، سكرين شوت من الدكتورة، ملاحظات اجتماع… الوكيل يفهمها ويقترح وين ينحط كل شي، وأنتم توافقون.": "A study, a link to a study or page (we open and summarize it), a whiteboard photo, a screenshot from your supervisor, meeting notes… the agent understands it and suggests where each part goes, and you approve.",
+  "أو الصقوا نص أو رابط هنا… (رابط PubMed أو DOI أو أي صفحة، ملاحظات اجتماع، كلام الدكتورة)": "Or paste text or a link here… (a PubMed or DOI link or any page, meeting notes, your supervisor's message)"
 }

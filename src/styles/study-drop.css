@@ -90,3 +90,6 @@
   @media (prefers-reduced-motion: reduce) { .dp-batch { animation: none; } }
   html[data-reduce-motion="true"] .dp-batch { animation: none; }
 }
+@layer components {
+  .dp-sum { margin-top: 4px; padding: 8px 10px; border-radius: 12px; color: #E9D3B8; background: rgba(10,8,7,.35); }
+}

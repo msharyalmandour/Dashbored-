@@ -61,10 +61,10 @@ export interface NewEvidencePaper {
 }
 
 /** يحفظ دراسة بمكتبة الأدلة (وتطلع بجدول الأدبيات) — بدون ما يحمّل المكتبة كاملة، للوكيل العائم */
-export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ error?: string }> {
+export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ error?: string; id?: string }> {
   if (!isSupabaseConfigured) return { error: "demo" };
   const { data: projectId } = await supabase!.rpc("my_research_project_id");
-  const { error } = await supabase!.from("evidence_papers").insert({
+  const { data, error } = await supabase!.from("evidence_papers").insert({
     research_project_id: projectId,
     title: input.title,
     authors: input.authors,
@@ -80,8 +80,8 @@ export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ er
     aim: input.aim ?? "",
     sample: input.sample ?? "",
     data_collection: input.dataCollection ?? "",
-  });
-  return { error: error?.message };
+  }).select("id").single();
+  return { error: error?.message, id: (data as { id: string } | null)?.id };
 }
 
 /** مكتبة الأدلة الحقيقية — دراسات مشتركة بكل الفريق، تُخزَّن بجدول
@@ -108,11 +108,11 @@ export function useEvidencePapers() {
     if (!isSupabaseConfigured) {
       const newPaper: EvidencePaper = { ...input, id: `local-${Date.now()}`, reviewStatus: "collected" };
       setPapers((prev) => [newPaper, ...prev]);
-      return { error: undefined as string | undefined };
+      return { error: undefined as string | undefined, id: newPaper.id };
     }
-    const { error } = await insertEvidencePaper(input);
+    const { error, id } = await insertEvidencePaper(input);
     if (!error) load();
-    return { error };
+    return { error, id };
   };
 
   const updateReviewStatus = async (paperId: string, reviewStatus: EvidencePaper["reviewStatus"]) => {

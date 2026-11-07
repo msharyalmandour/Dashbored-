@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Plus, Quote, Table2, Trash2, X } from "lucide-react";
 import PaperQA from "../components/research/PaperQA";
-import PaperReaderCard from "../components/research/PaperReaderCard";
+import { PageDropOverlay, StudyDropCard, usePageDrop, useStudyQueue } from "../components/research/StudyDrop";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { hasAiAccess } from "../lib/plans";
 import clsx from "clsx";
@@ -67,6 +67,13 @@ export default function EvidenceLibrary() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const memberById = (id: string) => roster.find((m) => m.id === id);
+  // «ارموا الدراسة»: الوكيل يقراها وتنضاف للمكتبة والجدول بكل خاناتها
+  const pickRef = useRef<(() => void) | null>(null);
+  const dropOn = canAsk && !!currentUser;
+  const drops = useStudyQueue({ add: addPaper, remove: deletePaper, existingTitles: papers.map((p) => p.title), addedById: currentUser?.id ?? "" });
+  const { addFiles } = drops;
+  const onPageFiles = useCallback((f: FileList) => addFiles(f), [addFiles]);
+  const dragging = usePageDrop(onPageFiles, dropOn);
 
   const copyCitation = async (paper: EvidencePaper) => {
     try {
@@ -146,14 +153,19 @@ export default function EvidenceLibrary() {
             : tr("{0} دراسات حفظتوها، مرتبة حسب محاور بحثكم. {1} منها تمت مراجعتها.", papers.length, reviewedCount)
         }
         action={
-          <button data-learn="add-paper" onClick={() => setShowForm((v) => !v)} className={gradientPill}>
+          <button data-learn="add-paper" onClick={() => (showForm || !dropOn || !pickRef.current ? setShowForm((v) => !v) : pickRef.current())} className={gradientPill}>
             {showForm ? <X size={16} /> : <Plus size={16} />}
             {showForm ? tr("إلغاء") : g(isFemale, tr("أضف دراسة"), tr("أضف دراسة"))}
           </button>
         }
       />
 
-      {canAsk && currentUser && <PaperReaderCard onSave={(p) => addPaper({ ...p, addedById: currentUser.id })} />}
+      {dropOn && (
+        <>
+          <PageDropOverlay show={dragging} />
+          <StudyDropCard items={drops.items} onFiles={addFiles} onUndo={drops.undo} onDismiss={drops.dismiss} onManual={() => setShowForm((v) => !v)} pickRef={pickRef} />
+        </>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {sectionFilters.map((f) => (

@@ -1,0 +1,39 @@
+/* ═══ «ارموا الدراسة» بمكتبة الأدلة · Obsidian × Ember ═══ */
+@keyframes sdIn { from { opacity: 0; transform: translateY(8px); } }
+@keyframes sdFade { from { opacity: 0; } }
+
+@layer components {
+  .sd-card { position: relative; border-radius: 26px; padding: 14px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.35); }
+  .sd-zone { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 18px; border-radius: 20px; border: 1.5px dashed rgba(255,199,119,.38); background: rgba(255,199,119,.04); transition: background .2s ease, border-color .2s ease; }
+  .sd-zone.hot { border-style: solid; border-color: #FFC777; background: rgba(255,199,119,.1); }
+  .sd-ic { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 999px; background: rgba(255,199,119,.14); color: #FFC777; }
+  .sd-pick { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: 22px; font-size: 14px; font-weight: 800; color: #160904; background: #F2EBE3; }
+  .sd-pick:hover { background: #fff; }
+  .sd-manual { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 700; color: #ABA095; }
+  .sd-manual:hover { color: #F2EBE3; background: rgba(255,245,235,.06); }
+  @media (max-width: 639px) { .sd-zone > div:last-of-type { width: 100%; } .sd-pick { flex: 1; } }
+
+  .sd-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 18px; background: rgba(255,245,235,.04); border: 1px solid rgba(255,240,225,.08); animation: sdIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .sd-dot { flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin-top: 2px; border-radius: 999px; color: #FFC777; background: rgba(255,199,119,.12); }
+  .sd-item.added .sd-dot { color: #1A0802; background: linear-gradient(135deg, #FF9A3C, #FFC777); }
+  .sd-item.failed .sd-dot { color: #FF8A7A; background: rgba(255,138,122,.12); }
+  .sd-item.duplicate .sd-dot, .sd-item.removed .sd-dot { color: #ABA095; background: rgba(255,245,235,.06); }
+  .sd-item { flex-wrap: wrap; }
+  .sd-item > div:nth-child(2) { flex: 1 1 0; min-width: 0; }
+  .sd-title { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.5; color: #F2EBE3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sd-acts { display: flex; flex: none; align-items: center; gap: 4px; margin: -6px 0 -6px; }
+  @media (max-width: 639px) { .sd-acts { width: 100%; justify-content: flex-end; margin: 0; padding-inline-start: 44px; } .sd-acts:empty { display: none; } }
+  .sd-sub { margin: 3px 0 0; font-size: 13px; line-height: 1.6; color: #ABA095; }
+  .sd-chip { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #FFC777; background: rgba(255,199,119,.12); }
+  .sd-chip.empty { color: #ABA095; background: transparent; box-shadow: inset 0 0 0 1px rgba(255,240,225,.18); }
+  .sd-act { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; border-radius: 22px; font-size: 14px; font-weight: 800; color: #FFC777; }
+  .sd-act:hover { background: rgba(255,199,119,.08); }
+  .sd-x { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: #ABA095; }
+  .sd-x:hover { color: #F2EBE3; background: rgba(255,245,235,.06); }
+
+  .sd-overlay { position: fixed; inset: 0; z-index: 115; display: grid; place-items: center; padding: 24px; background: rgba(8,6,5,.74); backdrop-filter: blur(6px); pointer-events: none; animation: sdFade .3s ease both; }
+  .sd-overlay-box { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 48px 56px; border-radius: 32px; border: 2px dashed #FFC777; background: rgba(30,18,10,.92); color: #FFC777; text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) { .sd-item, .sd-overlay { animation: none; } .sd-zone { transition: none; } }
+  html[data-reduce-motion="true"] .sd-item, html[data-reduce-motion="true"] .sd-overlay { animation: none; }
+}

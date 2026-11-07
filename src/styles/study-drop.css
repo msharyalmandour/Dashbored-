@@ -69,3 +69,24 @@
   .st-add { min-height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 800; color: #160904; background: #F2EBE3; }
   .st-add:disabled { opacity: .5; }
 }
+
+/* ═══ «ارموا أي شي» ═══ */
+@layer components {
+  .dp-hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 18px 22px; }
+  .dp-paste { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; width: 100%; max-width: 560px; margin-top: 16px; }
+  .dp-text { flex: 1 1 260px; min-width: 0; min-height: 84px; padding: 12px 14px; border-radius: 16px; font-size: 15px; line-height: 1.6; color: #F2EBE3; background: rgba(255,245,235,.05); border: 1px solid rgba(255,240,225,.14); resize: vertical; }
+  .dp-text:focus { border-color: rgba(255,199,119,.55); }
+  .dp-batch { margin-top: 14px; animation: sdIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .dp-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 18px; background: rgba(255,245,235,.04); box-shadow: inset 0 0 0 1px rgba(255,240,225,.08); transition: opacity .2s ease; }
+  .dp-row.off { opacity: .5; }
+  .dp-row.ok .dp-ic { color: #1A0802; background: linear-gradient(135deg, #FF9A3C, #FFC777); }
+  .dp-ic { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 999px; color: #FFC777; background: rgba(255,199,119,.12); }
+  .dp-body { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; font-size: 15px; color: #F2EBE3; }
+  .dp-body b { font-weight: 700; }
+  .dp-meta { font-size: 13px; line-height: 1.6; color: #ABA095; word-break: break-word; }
+  .dp-clip { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .dp-check { flex: none; display: grid; place-items: center; width: 44px; height: 44px; cursor: pointer; }
+  .dp-check input { width: 20px; height: 20px; accent-color: #FFC777; cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { .dp-batch { animation: none; } }
+  html[data-reduce-motion="true"] .dp-batch { animation: none; }
+}

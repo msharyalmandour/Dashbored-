@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, ChevronDown, Compass, GraduationCap, LogOut, ShieldCheck } from "lucide-react";
+import { Check, ChevronDown, Compass, GraduationCap, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { researchStages } from "../data/mockData";
@@ -141,6 +141,20 @@ export default function Sidebar({
             ))}
 
           <div aria-hidden className="gold-groove mx-3 !my-3" />
+
+          <NavLink
+            to="/drop"
+            onClick={onClose}
+            className={({ isActive }) =>
+              clsx(
+                "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
+                isActive
+                  ? "bg-amber-accent-400 text-white shadow-sm shadow-amber-accent-400/30"
+                  : "text-amber-accent-600 hover:bg-amber-accent-50",
+              )
+            }
+          >
+            <Sparkles size={18} />{tr("ارموا أي شي")}</NavLink>
 
           <NavLink
             to="/learn"

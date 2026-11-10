@@ -127,6 +127,15 @@ export default function AiAssistant() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, loading, open, view]);
 
+  // «الكوتش · القسم المفتوح»: الصفحة ترسله، وينمسح مع تغيّر الصفحة
+  const [ctxLabel, setCtxLabel] = useState<string | null>(null);
+  useEffect(() => {
+    const on = (e: Event) => setCtxLabel((e as CustomEvent<{ label: string | null }>).detail?.label ?? null);
+    window.addEventListener(AGENT_CONTEXT_EVENT, on);
+    return () => window.removeEventListener(AGENT_CONTEXT_EVENT, on);
+  }, []);
+  useEffect(() => setCtxLabel(null), [location.pathname]);
+
   if (!canChat || !currentUser) return null;
 
   const setActive = (id: string | null) => {
@@ -232,14 +241,6 @@ export default function AiAssistant() {
   };
 
   const place = placeFor(location.pathname);
-  // «الكوتش · القسم المفتوح»: الصفحة ترسله، وينمسح مع تغيّر الصفحة
-  const [ctxLabel, setCtxLabel] = useState<string | null>(null);
-  useEffect(() => {
-    const on = (e: Event) => setCtxLabel((e as CustomEvent<{ label: string | null }>).detail?.label ?? null);
-    window.addEventListener(AGENT_CONTEXT_EVENT, on);
-    return () => window.removeEventListener(AGENT_CONTEXT_EVENT, on);
-  }, []);
-  useEffect(() => setCtxLabel(null), [location.pathname]);
   const prompts = (place.sectionId && sectionPrompts[place.sectionId]) || coachPrompts.slice(0, 3);
   const circleBtn = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-[#B8ADA2] transition hover:border-[#FF8A24]/60 hover:text-[#F4F0EC]";
 

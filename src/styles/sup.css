@@ -1,0 +1,58 @@
+/* الدكتورة: كلامها يصير التزامات — القيم منقولة من design-reference/supervisor (SupRequest/SupReceipt/SupMotion) */
+.sup-glass { position: relative; border-radius: 26px; padding: 16px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); color: #EAE3DC; }
+.sup-req { box-shadow: inset 0 1px 0 rgba(255,240,225,.2), inset 0 0 0 1px rgba(255,199,119,.30), 0 30px 80px rgba(0,0,0,.5), 0 0 60px rgba(255,150,40,.10); }
+.sup-ic { width: 32px; height: 32px; flex: none; border-radius: 10px; background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; }
+.sup-ic.gold { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,199,119,.14); color: #FFC777; }
+.sup-star { width: 44px; height: 44px; border-radius: 14px; border: 0; background: rgba(255,255,255,.07); color: #ABA095; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.sup-star[aria-pressed="true"] { background: rgba(255,199,119,.14); color: #FFC777; }
+.sup-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.07); color: #E6DDD3; white-space: nowrap; }
+.sup-chip.gold { background: rgba(255,199,119,.12); color: #FFC777; }
+.sup-lbl { font-size: 13px; font-weight: 700; color: #ABA095; margin-top: 8px; }
+.sup-who { min-height: 44px; padding: 0 10px 0 6px; border-radius: 999px; border: 0; font-family: inherit; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; cursor: pointer; background: rgba(255,255,255,.05); color: #ABA095; }
+.sup-who[aria-pressed="true"] { background: rgba(255,199,119,.14); box-shadow: inset 0 0 0 1.5px #FFC777; color: #EAE3DC; }
+.sup-when { display: flex; align-items: center; gap: 8px; margin-top: 4px; min-height: 44px; padding: 0 12px; border-radius: 14px; background: rgba(255,255,255,.05); font-size: 14px; color: #EAE3DC; width: 100%; border: 0; font-family: inherit; text-align: start; }
+.sup-when input { flex: 1; min-width: 0; background: transparent; border: 0; color: inherit; font: inherit; color-scheme: dark; outline: none; }
+.sup-btn-primary { flex: 1.3; height: 50px; border-radius: 16px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-weight: 800; box-shadow: 0 12px 30px rgba(255,106,0,.3); border: 0; font-size: 15px; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.sup-btn-cream { flex: 1; min-height: 50px; border-radius: 16px; background: #F2EBE3; color: #160904; font-weight: 800; border: 0; font-size: 14px; font-family: inherit; cursor: pointer; }
+.sup-btn-ghost { min-height: 50px; padding: 0 14px; border-radius: 16px; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); color: #EAE3DC; font-weight: 700; border: 0; font-size: 13px; font-family: inherit; cursor: pointer; }
+:is(.sup-btn-primary, .sup-btn-cream, .sup-btn-ghost):disabled { opacity: .55; cursor: default; }
+:is(.sup-btn-primary, .sup-btn-cream, .sup-btn-ghost, .sup-who, .sup-star):focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+.sup-av { width: 28px; height: 28px; flex: none; border-radius: 50%; color: #1A0A02; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; box-shadow: 0 0 0 2px #1A120E; }
+.sup-av.doc { background: #F2EBE3; color: #160904; box-shadow: 0 0 0 2px #1A120E, 0 0 0 3.5px #FFC777; }
+.sup-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,.06); }
+.sup-sec { font-size: 12px; font-weight: 700; color: #FFB444; margin: 12px 0 2px; }
+
+/* رسالة الدكتورة بالمحادثة: خلفية ذهبية .10→.03 · حلقة صورة ذهبية 1.5px · شارة «الدكتورة» */
+.sup-docmsg { position: relative; padding: 12px 14px; border-radius: 20px 20px 20px 6px; background: linear-gradient(180deg, rgba(255,199,119,.10), rgba(255,199,119,.03)); box-shadow: inset 0 0 0 1px rgba(255,199,119,.35); }
+
+/* الحركة (SupMotion): الخيط .7s/.15s · الكرت يتبلور .6s/.5s · لمعة مرة وحدة 1.1s/1.1s · الختم .6s/.3s */
+@keyframes supThread { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+@keyframes supCrystal { 0% { opacity: 0; transform: perspective(1000px) translateY(18px) rotateX(-24deg) translateZ(-40px); } 100% { opacity: 1; transform: perspective(1000px) rotateX(0) translateZ(0); } }
+@keyframes supSheen { from { background-position: -150% 0; } to { background-position: 250% 0; } }
+@keyframes supSeal { 0% { opacity: 0; transform: scale(1.5) rotate(-24deg); } 65% { opacity: 1; transform: scale(.94) rotate(4deg); } 100% { transform: none; } }
+.sup-thread { stroke-dasharray: var(--len); animation: supThread .7s cubic-bezier(.2,.8,.2,1) .15s both; }
+.sup-crystal { animation: supCrystal .6s cubic-bezier(.2,.8,.2,1) .5s both; }
+.sup-sheen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background-image: linear-gradient(105deg, transparent 40%, rgba(255,240,225,.14) 50%, transparent 60%); background-size: 200% 100%; background-repeat: no-repeat; animation: supSheen 1.1s ease-out 1.1s 1 both; }
+.sup-seal { animation: supSeal .6s cubic-bezier(.3,1.4,.5,1) .3s both; }
+.sup-obj { position: relative; isolation: isolate; }
+.sup-obj img { display: block; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; border-radius: 50%; -webkit-mask-image: radial-gradient(closest-side, #000 80%, transparent 100%); mask-image: radial-gradient(closest-side, #000 80%, transparent 100%); }
+@media (prefers-reduced-motion: reduce) {
+  .sup-thread { animation: none; stroke-dasharray: none; }
+  .sup-crystal { animation: supFadeOnly .2s ease-out both; }
+  .sup-sheen::after, .sup-seal { animation: none; }
+}
+html[data-reduce-motion="true"] .sup-thread { animation: none; stroke-dasharray: none; }
+html[data-reduce-motion="true"] .sup-crystal { animation: supFadeOnly .2s ease-out both; }
+html[data-reduce-motion="true"] .sup-sheen::after,
+html[data-reduce-motion="true"] .sup-seal { animation: none; }
+@keyframes supFadeOnly { from { opacity: 0; } to { opacity: 1; } }
+
+/* أثر ملاحظتك: المحذوف خط وخلفية خطأ خفيفة · المضاف تظليل ذهبي */
+.sup-del { background: rgba(255,138,122,.16); color: #FFB2A6; text-decoration: line-through; text-decoration-color: rgba(255,178,166,.6); }
+.sup-add { background: rgba(255,199,119,.18); color: #FFE2B0; border-radius: 4px; padding: 0 2px; }
+
+/* الحالات: فاضي · تحميل · خطأ (يخفت، ما يحمّر) */
+.sup-state-k { font-size: 12px; font-weight: 700; color: #FFB444; }
+.sup-skel { height: 12px; border-radius: 8px; background: rgba(255,255,255,.06); animation: supSkel 1s ease-in-out 3; }
+@keyframes supSkel { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
+.sup-dim { opacity: .7; }

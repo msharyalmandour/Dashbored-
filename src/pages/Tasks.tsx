@@ -18,8 +18,10 @@ import {
   Trash2,
   X,
   Download,
+  MessageSquareQuote,
 } from "lucide-react";
 import AgentWave from "../components/ui/AgentWave";
+import ReceiptProof from "../components/sup/ReceiptProof";
 import clsx from "clsx";
 import Avatar from "../components/ui/Avatar";
 import Skeleton from "../components/ui/Skeleton";
@@ -454,7 +456,7 @@ export default function Tasks() {
                 </span>
               )}
             </button>
-            {(place || proof || task.dropId) && (
+            {(place || proof || task.dropId || task.source === "supervisor") && (
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 {place && (
                   <Link to={place.route} className="tk-place" aria-label={tr("افتحوا مكان الشغل: {0}", place.label)}>
@@ -465,6 +467,12 @@ export default function Tasks() {
                 {proof && (
                   <span className={clsx("tk-proof", proof.met ? "met" : task.status === "done" ? "warn" : "")}>
                     {task.status === "done" && !proof.met ? tr("خلصت بدون دليل · {0}", proof.label) : proof.label}
+                  </span>
+                )}
+                {task.source === "supervisor" && (
+                  <span className="tk-place tk-doc">
+                    <MessageSquareQuote size={13} aria-hidden />
+                    {tr("من الدكتورة")}
                   </span>
                 )}
                 {task.dropId && (
@@ -505,6 +513,7 @@ export default function Tasks() {
 
         {isExpanded && (
           <div className="mt-3 flex flex-col gap-3 border-t border-white/[0.07] pt-3 md:ms-10">
+            {task.commitmentId && <ReceiptProof task={task} />}
             {task.description && (
               <p className="m-0 whitespace-pre-wrap text-sm leading-7 text-[var(--ws-c-text)]" dir="auto">
                 {task.description}

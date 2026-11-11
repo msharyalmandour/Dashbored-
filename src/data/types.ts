@@ -157,6 +157,10 @@ export interface Task {
   targetCount?: number | null;
   /** «من رمية»: الرمية اللي طلعت منها المهمة */
   dropId?: string | null;
+  /** مصدرها: supervisor = «من الدكتورة» */
+  source?: "supervisor" | "drop" | "meeting" | null;
+  /** طلب الدكتورة اللي طلعت منه (للإيصال) */
+  commitmentId?: string | null;
 }
 
 export interface TaskComment {

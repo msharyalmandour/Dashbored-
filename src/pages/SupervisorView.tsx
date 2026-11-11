@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import SvCommitments from "../components/sup/SvCommitments";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, Check, ChevronLeft, FileText, FlaskConical, Gauge, Inbox, ListChecks, Lock, ShieldCheck, Users } from "lucide-react";
 import { useSupervisorBoard } from "../components/supervisor/useSupervisorBoard";
@@ -134,6 +135,8 @@ export default function SupervisorView() {
   const [leaving, setLeaving] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
+  // إيصال ينتظر «تمام»: هو البرتقالي الوحيد بالشاشة، والشريط السفلي يصير كريمي
+  const [receiptPending, setReceiptPending] = useState(false);
   const { board, busy, error: boardError, load: loadBoard, run, saveAvailability } = useSupervisorBoard(token, nameDraft);
 
   // فتح الطلب اللي جت منه من الإيميل: ننزل له ونبرزه، أو نفتح الرسائل
@@ -474,6 +477,9 @@ export default function SupervisorView() {
 
         {setupFirst && <div className="mt-5">{setupStrip}</div>}
 
+        {/* إيصالات طلباتها + أثر ملاحظاتها + سجل الوعود */}
+        {token && <SvCommitments token={token} name={nameDraft.trim()} teamName={snapshot.teamName} openTarget={openTarget} onToast={setToast} onPending={setReceiptPending} />}
+
         {/* ٣) موضوع البحث */}
         {title && (
           <section className="hg-card sv-card mt-6" style={rise()} aria-label={tr("موضوع البحث")}>
@@ -698,7 +704,7 @@ export default function SupervisorView() {
 
       {/* ١٠) Dock */}
       <nav className="sv-dock" aria-label={tr("إجراءات سريعة")}>
-        <button className="sv-btn orange" onClick={() => setSheet("note")} aria-haspopup="dialog">
+        <button className={`sv-btn ${receiptPending ? "pri" : "orange"}`} onClick={() => setSheet("note")} aria-haspopup="dialog">
           {tr("ملاحظة للفريق")}
         </button>
         {bulkCount > 0 && (

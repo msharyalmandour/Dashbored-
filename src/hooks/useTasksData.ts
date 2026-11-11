@@ -18,6 +18,8 @@ interface TaskRow {
   completed_at?: string | null;
   target_count?: number | null;
   drop_id?: string | null;
+  source?: Task["source"];
+  commitment_id?: string | null;
 }
 
 function mapRow(row: TaskRow): Task {
@@ -33,6 +35,8 @@ function mapRow(row: TaskRow): Task {
     completedAt: row.completed_at ?? null,
     targetCount: row.target_count ?? null,
     dropId: row.drop_id ?? null,
+    source: row.source ?? null,
+    commitmentId: row.commitment_id ?? null,
   };
 }
 

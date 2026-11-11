@@ -16,6 +16,9 @@ import { markChatRead, useTeamChat, type ChatMessage, type ChatRef } from "../ho
 import { useMeetings } from "../hooks/useMeetings";
 import { askProjectAgent } from "../hooks/useProjectAgent";
 import { notifySupervisor } from "../lib/supervisorNotify";
+import { DocBubble, Ledger, RequestCard, SideThread, SupState, Thread, ThreadExplainer, type LedgerRow } from "../components/sup/SupParts";
+import { useCommitments } from "../hooks/useCommitments";
+import { approveCommitment, dismissCommitment, setCommitmentImportant, type Commitment } from "../lib/commitments";
 import { ACCEPT } from "../lib/drops";
 import { queueDrop } from "../lib/dropQueue";
 import { AgentMark, BookingSheet, EventRow, PollCard, PollComposer, ReminderSheet, StudyDropSheet, SupervisorQuestionSheet, TodaySummary } from "../components/chat/ChatExtras";
@@ -221,9 +224,50 @@ export default function TeamChat() {
     return () => document.removeEventListener("keydown", onKey);
   }, [selected]);
 
+  // طلبات الدكتورة ووعودها (تطلع تحت رسالتها + سجل الوعود)
+  const { items: commitments, patchLocal: patchCommit } = useCommitments();
+  const [commitBusy, setCommitBusy] = useState<string | null>(null);
+  const byMessage = useMemo(() => {
+    const map = new Map<string, Commitment[]>();
+    for (const c of commitments) if (c.source_message_id) map.set(c.source_message_id, [...(map.get(c.source_message_id) ?? []), c]);
+    return map;
+  }, [commitments]);
+  const docName = useMemo(() => {
+    const ev = [...messages].reverse().find((x) => x.kind === "event" && x.meta?.type === "supervisor_message" && x.meta.by);
+    return String(ev?.meta?.by ?? "").trim() || tr("المشرف/ة");
+  }, [messages]);
+
   if (!team || !currentUser) return null;
 
   const who = (id: string) => people.get(id);
+  const ledgerRows: LedgerRow[] = commitments.map((c) => {
+    const o = c.assignee_id ? roster.find((r) => r.id === c.assignee_id) : null;
+    return { ...c, owner: o ? { name: o.name, avatar: (o as { avatar?: string | null }).avatar ?? null } : null };
+  });
+  const approveReq = async (id: string, p: { title: string; assignee: string | null; due: string | null }) => {
+    setCommitBusy(id);
+    const r = await approveCommitment(id, p);
+    setCommitBusy(null);
+    if (r.error) return showToast({ title: r.error, icon: CircleAlert });
+    patchCommit(id, { status: "approved", created_task_id: r.taskId ?? null, title: p.title, assignee_id: p.assignee ?? currentUser.id });
+    const to = roster.find((x) => x.id === (p.assignee ?? currentUser.id));
+    showToast({ title: tr("صارت مهمة لـ {0} · مكتوب عليها «من الدكتورة»", firstName(to?.name ?? currentUser.name)), icon: CircleCheck });
+  };
+  const dismissReq = async (id: string) => {
+    setCommitBusy(id);
+    const r = await dismissCommitment(id);
+    setCommitBusy(null);
+    if (r.error) return showToast({ title: r.error, icon: CircleAlert });
+    patchCommit(id, { status: "dismissed" });
+  };
+  const starReq = async (id: string, v: boolean) => {
+    patchCommit(id, { important: v });
+    const r = await setCommitmentImportant(id, v);
+    if (r.error) {
+      patchCommit(id, { important: !v });
+      showToast({ title: r.error, icon: CircleAlert });
+    }
+  };
   const nameOf = (id: string) => firstName(who(id)?.name ?? (id === currentUser.id ? currentUser.name : tr("عضو")));
   const solo = roster.length <= 1;
   const teamLink = `${publicBase()}#/login?team=${team.id}`;
@@ -381,6 +425,37 @@ export default function TeamChat() {
     }
     // حدث بالموقع (مهمة خلصت، المشرف/ة اعتمدت…): سطر هادي بالنص مو فقاعة
     if (m.kind === "event") {
+      // رسالة الدكتورة: فقاعة باسمها، وتحتها اللي طلع منها (طلب ← مهمة، أو وعد) بخيط ذهبي
+      if (m.meta?.type === "supervisor_message") {
+        const msgId = String(m.meta.message_id ?? "");
+        const docName = String(m.meta.by ?? "").trim() || tr("المشرف/ة");
+        const mine = msgId ? byMessage.get(msgId) ?? [] : [];
+        const fresh = msgId && !mine.length && Date.now() - Date.parse(m.createdAt) < 45_000;
+        rows.push(
+          <div key={m.id} className="flex flex-col">
+            <DocBubble name={docName} body={String(m.meta.body ?? m.meta.excerpt ?? m.body)} time={time(m.createdAt)} />
+            {(mine.length > 0 || fresh) && <Thread />}
+            <div className="relative flex flex-col gap-2.5 md:mt-6 md:max-w-[560px]">
+              {(mine.length > 0 || fresh) && <SideThread />}
+              {fresh && <SupState kind="loading" />}
+              {mine.map((c) => (
+                <RequestCard
+                  key={c.id}
+                  c={c}
+                  members={roster}
+                  isLeader={isLeader}
+                  canWrite={canWrite}
+                  busy={commitBusy === c.id}
+                  onApprove={(p) => void approveReq(c.id, p)}
+                  onDismiss={() => void dismissReq(c.id)}
+                  onStar={(v) => void starReq(c.id, v)}
+                />
+              ))}
+            </div>
+          </div>,
+        );
+        return;
+      }
       rows.push(<EventRow key={m.id} m={m} nameOf={nameOf} time={time(m.createdAt)} />);
       return;
     }
@@ -783,6 +858,8 @@ export default function TeamChat() {
         </div>
 
         <aside className="tc-panel" aria-label={tr("الفريق والإشارات")}>
+          {commitments.length > 0 && <Ledger rows={ledgerRows} docName={docName} />}
+          {commitments.length > 0 && <ThreadExplainer />}
           <section className="hg-card !p-4">
             <h2>{tr("الفريق")}</h2>
             {roster.map((m) => {

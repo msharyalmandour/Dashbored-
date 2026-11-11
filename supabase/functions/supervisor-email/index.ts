@@ -5,6 +5,8 @@
 //  notify     : عضو فريق مسجّل دخول (JWT) — يرسل إشعار «رد جديد» للمشرفة المؤكَّدة فقط، بحد زمني
 //  set_digest : برمز رابط المشرفة — تختار «فوري» أو «ملخص أسبوعي بس»
 //  weekly     : (من pg_cron بسر الجدولة) ملخص الأحد: وش ينتظرها بأزرار، وش خلّص الفريق، والجاي
+//  receipt    : (من القاعدة بسر الجدولة لما يخلص طلبها) إيصال إنجاز «طلبك خلص ✓» — مرة وحدة لكل طلب
+//  receipt_file : برمز رابطها — رابط مؤقت لملف الإثبات
 // الإرسال عبر Resend. أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (مثل «Wesync <noreply@نطاقكم>»)، وSITE_URL اختياري.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -358,6 +360,74 @@ Deno.serve(async (req: Request) => {
     if (!sent.ok) return json(200, { sent: false, reason: sent.reason });
     await admin.from("supervisor_email_subscriptions").update({ last_notified_at: new Date().toISOString() }).eq("team_id", profile.team_id);
     return json(200, { sent: true });
+  }
+
+  // ---------- إيصال إنجاز: طلب الدكتورة خلص (من القاعدة نفسها، بسر الجدولة) ----------
+  if (action === "receipt") {
+    const given = req.headers.get("x-digest-secret");
+    const { data: okSecret } = given ? await admin.rpc("verify_digest_secret", { p_secret: given }) : { data: false };
+    if (okSecret !== true) return json(401, { error: "unauthorized" });
+    const id = String(body.commitmentId ?? "");
+    if (!UUID.test(id)) return json(400, { error: "bad_request" });
+    const { data: c } = await admin
+      .from("commitments")
+      .select("id, team_id, title, quote, status, done_at, assignee_id, created_task_id, proof_name, receipt_sent_at, direction")
+      .eq("id", id)
+      .maybeSingle();
+    if (!c || c.direction !== "from_supervisor" || c.status !== "done") return json(200, { sent: false, reason: "not_done" });
+    // مرة وحدة لكل طلب — والكرت يطلع بصفحتها حتى لو ما فيه إيميل
+    const { data: claimed } = await admin.from("commitments").update({ receipt_sent_at: new Date().toISOString() }).eq("id", id).is("receipt_sent_at", null).select("id");
+    if (!claimed?.length) return json(200, { sent: false, reason: "already" });
+
+    const [{ data: team }, { data: who }, { data: task }, { data: sub }] = await Promise.all([
+      admin.from("teams").select("name, share_token").eq("id", c.team_id).maybeSingle(),
+      c.assignee_id ? admin.from("profiles").select("name").eq("id", c.assignee_id).maybeSingle() : Promise.resolve({ data: null }),
+      c.created_task_id ? admin.from("tasks").select("due_date, completed_at").eq("id", c.created_task_id).maybeSingle() : Promise.resolve({ data: null }),
+      admin.from("supervisor_email_subscriptions").select("*").eq("team_id", c.team_id).maybeSingle(),
+    ]);
+    if (!team) return json(200, { sent: false, reason: "no_team" });
+    if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
+    if (sub.digest === "weekly") return json(200, { sent: false, reason: "weekly_digest" });
+
+    const first = String(who?.name ?? "").trim().split(/\s+/)[0] || "الفريق";
+    const doneAt = new Date(c.done_at ?? Date.now());
+    let timing = "";
+    if (task?.due_date) {
+      const dueEnd = Date.parse(`${task.due_date}T23:59:00+03:00`);
+      const h = Math.round((dueEnd - doneAt.getTime()) / 3600e3);
+      timing = h >= 1 ? ` · قبل الموعد بـ ${h >= 48 ? `${Math.round(h / 24)} أيام` : `${h} ساعة`}` : h <= -1 ? ` · بعد الموعد بـ ${-h >= 48 ? `${Math.round(-h / 24)} أيام` : `${-h} ساعة`}` : "";
+    }
+    const when = doneAt.toLocaleDateString("ar-SA-u-nu-latn", { weekday: "long", day: "numeric", month: "short", timeZone: "Asia/Riyadh" });
+    const link = `${site}/#/supervisor/${team.share_token}?open=receipt:${c.id}`;
+    const title = "طلبك خلص ✓";
+    const inner = `<div style="text-align:center"><img src="${site}/sup/seal.jpg" width="140" height="140" alt="ختم ذهبي" style="display:inline-block;width:140px;height:140px;border-radius:70px"></div>
+<p style="text-align:center;margin:6px 0 2px;font-size:12px;font-weight:700;color:#FFB444">إيصال إنجاز · ${esc(team.name)}</p>
+<p style="text-align:center;margin:8px 0 2px;font-size:16px;color:#EAE3DC">«${esc(c.quote || c.title)}»</p>
+<p style="text-align:center;margin:0 0 12px;font-size:13px;color:#ABA095">خلّصه ${esc(first)} · ${esc(when)}${esc(timing)}</p>
+${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</b><br><span style="font-size:13px;color:#ABA095">الملف نفسه بصفحتكم</span></div>` : ""}
+<p style="font-size:13px;color:#ABA095">ضغطة «تمام» وحدة بصفحتكم تكفي، أو «عندي ملاحظة» لو تبون تعديل.</p>`;
+    const unsub = `${site}/#/supervisor-email/unsubscribe/${sub.confirm_token}`;
+    const sent = await sendEmail(
+      sub.email,
+      `${title} — «${c.title}»`,
+      layout(title, inner, link, "افتحوه وقولوا تمام", `وصلتكم لأنكم مشرف/ة الفريق على Wesync. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإشعارات</a>`),
+      `${title}\n«${c.quote || c.title}»\nخلّصه ${first} · ${when}${timing}\n\nافتحوه: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
+    );
+    return json(200, { sent: sent.ok, reason: sent.reason });
+  }
+
+  // ---------- الدكتورة تفتح ملف الإثبات (برمز رابطها) ----------
+  if (action === "receipt_file") {
+    const token = String(body.token ?? "");
+    const id = String(body.commitmentId ?? "");
+    if (!UUID.test(token) || !UUID.test(id)) return json(400, { error: "bad_request" });
+    const { data: team } = await admin.from("teams").select("id").eq("share_token", token).maybeSingle();
+    if (!team) return json(404, { error: "invalid_token" });
+    const { data: c } = await admin.from("commitments").select("proof_path").eq("id", id).eq("team_id", team.id).maybeSingle();
+    if (!c?.proof_path || !String(c.proof_path).startsWith(`${team.id}/`)) return json(404, { error: "no_file" });
+    const { data: signed } = await admin.storage.from("drops").createSignedUrl(c.proof_path, 3600);
+    if (!signed?.signedUrl) return json(500, { error: "sign_failed" });
+    return json(200, { url: signed.signedUrl });
   }
 
   // ---------- المشرفة تشوف اختيارها الحالي ----------

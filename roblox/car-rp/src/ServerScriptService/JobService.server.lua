@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CarConfig = require(ReplicatedStorage:WaitForChild("CarConfig"))
 local PlayerData = require(script.Parent:WaitForChild("PlayerData"))
 local Remotes = require(script.Parent:WaitForChild("Remotes"))
+local CarUtil = require(script.Parent:WaitForChild("CarUtil"))
 
 local cfg = CarConfig.Delivery
 local jobs = {} -- [player] = { Point = Part, StartPos = Vector3, StartTime = number }
@@ -23,17 +24,7 @@ end
 
 -- هل اللاعب راكب سيارته هو؟
 local function isDrivingOwnCar(player)
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	local seat = humanoid and humanoid.SeatPart
-	if not seat or not seat:IsA("VehicleSeat") then
-		return false
-	end
-	local car = seat:FindFirstAncestorOfClass("Model")
-	while car and car:GetAttribute("OwnerUserId") == nil do
-		car = car:FindFirstAncestorOfClass("Model")
-	end
-	return car ~= nil and car:GetAttribute("OwnerUserId") == player.UserId
+	return CarUtil.getDrivenCar(player) ~= nil
 end
 
 -------------------------------------------------- الراتب

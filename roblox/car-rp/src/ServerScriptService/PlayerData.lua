@@ -32,6 +32,7 @@ local function load(player)
 
 	data.Cash = data.Cash or CarConfig.StartingCash
 	data.Cars = data.Cars or {}
+	data.Mods = data.Mods or {} -- [carId] = { Paint, Tint, Rim, Plate = { Letters, Numbers } }
 	for _, car in CarConfig.Cars do
 		if car.Price == 0 then
 			data.Cars[car.Id] = true
@@ -58,7 +59,7 @@ local function save(player)
 		return
 	end
 	local ok, err = pcall(function()
-		store:SetAsync(key(player), { Cash = data.Cash, Cars = data.Cars })
+		store:SetAsync(key(player), { Cash = data.Cash, Cars = data.Cars, Mods = data.Mods })
 	end)
 	if not ok then
 		warn("[PlayerData] فشل الحفظ", player.Name, err)
@@ -96,6 +97,16 @@ function PlayerData.giveCar(player, carId)
 	if data then
 		data.Cars[carId] = true
 	end
+end
+
+-- تعديلات سيارة معيّنة (ينشئ جدول فاضي إذا ما فيه)
+function PlayerData.getMods(player, carId)
+	local data = PlayerData.get(player)
+	if not data then
+		return nil
+	end
+	data.Mods[carId] = data.Mods[carId] or {}
+	return data.Mods[carId]
 end
 
 Players.PlayerAdded:Connect(load)

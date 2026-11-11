@@ -8,6 +8,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local CarConfig = require(ReplicatedStorage:WaitForChild("CarConfig"))
 local PlayerData = require(script.Parent:WaitForChild("PlayerData"))
 local Remotes = require(script.Parent:WaitForChild("Remotes"))
+local CarMods = require(script.Parent:WaitForChild("CarMods"))
 
 local carModels = ServerStorage:WaitForChild("Cars")
 
@@ -121,6 +122,8 @@ Remotes.SpawnCar.OnServerInvoke = function(player, carId)
 	local model = template:Clone()
 	model.Name = player.Name .. "_" .. car.Id
 	model:SetAttribute("OwnerUserId", player.UserId)
+	model:SetAttribute("CarId", car.Id)
+	CarMods.apply(model, PlayerData.getMods(player, car.Id))
 	-- نطلعها جنب اللاعب وموجهة لنفس اتجاهه
 	model:PivotTo(root.CFrame * CFrame.new(10, 3, 0))
 	model.Parent = spawnedFolder

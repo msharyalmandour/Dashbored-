@@ -87,16 +87,27 @@ const TAU = 0.12; // ≈ .45s للوصول
 
 /** لهب ناعم يطلع من الوعاء (ملصق مضاف) — شدته من glow */
 function plumeTexture(): CanvasTexture {
+  // بيضاوي يخفت لصفر قبل الحواف (بدون حواف مقصوصة تبين كمربع)
+  const W = 64;
+  const H = 128;
   const c = document.createElement("canvas");
-  c.width = 64;
-  c.height = 128;
+  c.width = W;
+  c.height = H;
   const g = c.getContext("2d")!;
-  const grad = g.createRadialGradient(32, 112, 2, 32, 96, 92);
-  grad.addColorStop(0, "rgba(255,231,176,1)");
-  grad.addColorStop(0.25, "rgba(255,150,40,0.55)");
-  grad.addColorStop(1, "rgba(255,90,0,0)");
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 64, 128);
+  const img = g.createImageData(W, H);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const dx = (x + 0.5 - W / 2) / (W / 2);
+      const dy = (y + 0.5 - H * 0.8) / (y < H * 0.8 ? H * 0.8 : H * 0.2);
+      const d = Math.min(1, Math.hypot(dx, dy));
+      const a = Math.pow(1 - d, 2.2);
+      const i = (y * W + x) * 4;
+      img.data[i] = 255;
+      img.data[i + 1] = Math.round(150 + 85 * a);
+      img.data[i + 2] = Math.round(40 + 140 * a * a);
+      img.data[i + 3] = Math.round(255 * a);
+    }
+  g.putImageData(img, 0, 0);
   return new CanvasTexture(c);
 }
 
@@ -111,7 +122,7 @@ function contactShadow(): Mesh {
   g.fillStyle = grad;
   g.fillRect(0, 0, 128, 128);
   const tex = new CanvasTexture(c);
-  const m = new Mesh(new PlaneGeometry(0.42, 0.42), new MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
+  const m = new Mesh(new PlaneGeometry(0.3, 0.22), new MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
   m.rotation.x = -Math.PI / 2;
   m.position.y = 0.001;
   return m;

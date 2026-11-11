@@ -41,7 +41,7 @@ export default function DropShare() {
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-3 pt-1">
+    <div className="dr-page mx-auto flex max-w-md flex-col gap-3 pt-1">
       <div className="flex items-center gap-2.5">
         <span aria-hidden className="h-[34px] w-[34px] rounded-full" style={{ background: "radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%)" }} />
         <b className="text-[17px]">Wesync</b>

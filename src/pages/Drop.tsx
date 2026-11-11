@@ -8,9 +8,10 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useDrop } from "../hooks/useDrop";
 import { supabase } from "../lib/supabaseClient";
-import { ACCEPT, countOf, DEST_LABEL, DEST_PLACE, DESTS, deepLink, detectPaste, fileDrop, listRecent, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource, type RecentDrop } from "../lib/drops";
+import { ACCEPT, countOf, DEST_LABEL, DEST_NOUN, DEST_PLACE, DESTS, deepLink, detectPaste, fileDrop, listRecent, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource, type RecentDrop } from "../lib/drops";
 import { tr } from "../lib/i18n";
 import { track } from "../lib/analytics";
+import { formatDateShort } from "../lib/date";
 import { hasPending, PENDING_EVENT, takePending } from "../lib/dropQueue";
 
 /* ═══ «ارموا أي شي» (/drop) ═══
@@ -219,7 +220,7 @@ export default function Drop() {
 
   if (!live)
     return (
-      <div className="mx-auto max-w-md py-10 text-center">
+      <div className="dr-page mx-auto max-w-md py-10 text-center">
         <Vessel size={220} className="mx-auto" />
         <h1 className="dr-title text-[30px]">{tr("ارموا أي شي")}</h1>
         <p className="mt-2 text-[15px] text-[#E9D3B8]">{tr("هذي الميزة تشتغل بحساب فريقكم الحقيقي.")}</p>
@@ -234,7 +235,7 @@ export default function Drop() {
       unsupported: { icon: <FileSearch size={18} />, title: tr("هذا النوع ما نقراه للحين"), body: ext ? tr("ملف {0} · صدّروه PDF أو Word وارموه.", ext) : tr("صدّروه PDF أو Word وارموه."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
       nothing_found: { icon: <Folder size={18} />, title: tr("ما لقينا شي نرتبه"), body: tr("شكله ملف عادي. نحطه بالملفات؟"), action: tr("حطوه بالملفات"), run: () => void toFiles() },
       offline: { icon: <WifiOff size={18} />, title: tr("النت مفصول"), body: tr("حفظناه عندكم، وأول ما يرجع النت نقراه لحاله."), action: tr("تمام"), run: again },
-      ai_limit: { icon: <Lock size={18} />, title: tr("خلصت قراءات هالشهر"), body: limitInfo ? tr("باقتكم فيها {0} رمية بالشهر. ترجع أول الشهر الجاي، أو كبّروا الباقة.", limitInfo) : tr("ترجع أول الشهر الجاي، أو كبّروا الباقة."), action: tr("شوفوا الباقات"), run: () => navigate("/pricing") },
+      ai_limit: { icon: <Lock size={18} />, title: tr("خلصت قراءات هالشهر"), body: tr("باقتكم فيها {0} رمية بالشهر. ترجع {1}، أو كبّروا الباقة.", limitInfo ?? (team?.plan === "ai" ? 150 : 20), formatDateShort(nextMonthIso())), action: tr("شوفوا الباقات"), run: () => navigate("/pricing") },
       too_large: { icon: <FileSearch size={18} />, title: tr("الرمية كبيرة"), body: tr("الحد ١٠ ملفات و٢٥ ميغا للملف. قسّموها وارموها مرة ثانية."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
       failed: {
         icon: <Sparkles size={18} />,
@@ -249,7 +250,7 @@ export default function Drop() {
     };
     const e = E[errCode] ?? E.failed;
     return (
-      <div className="mx-auto max-w-sm pt-4" role="alert">
+      <div className="dr-page mx-auto max-w-sm pt-4" role="alert">
         {inputs}
         <section className="dr-card dr-in flex flex-col items-center rounded-[26px] p-[18px] text-center">
           <div className="relative">
@@ -276,7 +277,7 @@ export default function Drop() {
     const mime = starting?.mime ?? items[0]?.mime;
     const step = starting ? 1 : status === "reading" ? (shown.length ? 3 : 2) : 1;
     return (
-      <div className="mx-auto max-w-md">
+      <div className="dr-page mx-auto max-w-md">
         <div role="status" aria-live="polite" className="relative flex flex-col items-center gap-1.5 px-4 pt-2.5 text-center">
           {first && (
             // الكرت يبدأ فوق يمين ويطير بقوس لفتحة الوعاء (فوق مركزه بشوي)
@@ -332,9 +333,9 @@ export default function Drop() {
               <b className="block truncate text-[15px]" dir="auto">
                 {r.title}
               </b>
-              <span className="text-[12px] text-[#ABA095]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
+              <span className="text-[12px] text-[#ABA095] lg:text-[13px]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
             </span>
-            <span className="hidden text-[13px] font-bold lg:inline">{tr("افتحوها")}</span>
+            <span className="hidden text-[13px] lg:inline">{tr("افتحوها")}</span>
             <ChevronLeft size={18} className="text-[#ABA095] ltr:rotate-180" aria-hidden />
           </Link>
         ))}
@@ -366,7 +367,7 @@ export default function Drop() {
       </div>
     );
     return (
-      <div role="status">
+      <div className="dr-page" role="status">
         <div className="mb-4 hidden lg:block">
           <div className="text-[18px] text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
           <h1 className="dr-title text-[52px] leading-[1.1]">{tr("انحطّت {0} أشياء", n)}</h1>
@@ -380,7 +381,7 @@ export default function Drop() {
               <Check size={24} strokeWidth={3} />
             </div>
             <h1 className="dr-title text-[30px] lg:hidden">{tr("انحطّت {0} أشياء", n)}</h1>
-            <p className="m-0 mt-1 text-[15px] text-[#E9D3B8]">{tr("كل شي بمكانه، والفريق يشوفه الحين.")}</p>
+            <p className="m-0 mt-1 text-[15px] text-[#E9D3B8] lg:text-[16px]">{tr("كل شي بمكانه، والفريق يشوفه الحين.")}</p>
           </section>
           <section className="flex flex-col gap-3 lg:order-2 lg:rounded-[28px] lg:p-[18px] dr-card-lg">
             {rows}
@@ -394,9 +395,11 @@ export default function Drop() {
 
   // ── تأكدوا قبل لا نحطها ──
   if (dropId && status === "ready") {
+    const fileCount = items.filter((x) => x.kind === "file").length;
     const perItem = (id: string) => {
       const rs = shown.filter((r) => r.item_id === id);
-      return rs.map((r) => (countOf(r) > 1 ? `${countOf(r)} ${DEST_LABEL[r.destination]}` : DEST_LABEL[r.destination])).join(" + ");
+      if (rs.length === 1) return `${countOf(rs[0])} ${DEST_NOUN[rs[0].destination]}`;
+      return rs.map((r) => (countOf(r) > 1 ? `${countOf(r)} ${DEST_NOUN[r.destination]}` : DEST_NOUN[r.destination])).join(" + ");
     };
     const footer = (
       <div className="flex flex-col gap-1.5">
@@ -413,9 +416,18 @@ export default function Drop() {
         </div>
       </div>
     );
+    // عمودين متوازنين (البطاقة تروح للعمود الأقصر) — زي التصميم
+    const est = (r: DropResult) => (r.destination === "library" ? 330 : r.destination === "minutes" ? 230 : r.destination === "tasks" ? 120 + 38 * countOf(r) : 170);
+    const masonry: number[][] = [[], []];
+    const colH = [0, 0];
+    shown.forEach((r, i) => {
+      const c = colH[0] <= colH[1] ? 0 : 1;
+      masonry[c].push(i);
+      colH[c] += est(r);
+    });
     const cards = shown.map((r, i) => <ResultCard key={r.id} r={r} index={i} roster={roster} selected={selected?.id === r.id} onSelect={() => setSel(r.id)} onToggle={(v) => toggle(r, v)} onMove={() => setMoveFor(r)} isLeader={isLeader} />);
     return (
-      <div>
+      <div className="dr-page">
         {inputs}
         {/* الجوال */}
         <div className="mx-auto flex max-w-md flex-col gap-2.5 lg:hidden">
@@ -442,7 +454,7 @@ export default function Drop() {
             <section className="dr-card dr-in sticky top-4 flex flex-col items-center rounded-[28px] p-[18px] text-center">
               <Vessel size={260} state="hover" scene={isDesk} />
               <h2 className="dr-title -mt-3.5 mb-0.5 text-[28px]">{tr("لقينا {0} أشياء", nAll)}</h2>
-              <p className="m-0 mb-3 text-[14px] text-[#E9D3B8]">{drop?.summary || (items.length > 1 ? tr("من {0} عناصر رميتوها", items.length) : tr("من اللي رميتوه"))}</p>
+              <p className="m-0 mb-3 text-[14px] text-[#E9D3B8]">{fileCount === 2 ? tr("من ملفين رميتوهم") : fileCount > 2 ? tr("من {0} ملفات رميتوها", fileCount) : drop?.summary || tr("من اللي رميتوه")}</p>
               <div className="flex w-full flex-col gap-1.5">
                 {items.map((it) => (
                   <div key={it.id} className="flex items-center gap-2.5 rounded-[14px] bg-white/[.035] px-2.5 py-2 text-start">
@@ -456,7 +468,13 @@ export default function Drop() {
               </div>
               <div className="mt-auto w-full pt-3.5">{footer}</div>
             </section>
-            <div className="grid grid-cols-2 items-start gap-3.5">{cards}</div>
+            <div className="grid grid-cols-2 items-start gap-3.5">
+              {masonry.map((col, c) => (
+                <div key={c} className="flex flex-col gap-3.5">
+                  {col.map((i) => cards[i])}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         {sheets}
@@ -469,7 +487,7 @@ export default function Drop() {
   if (view === "paste") {
     const d = detectPaste(text);
     return (
-      <div className="mx-auto flex max-w-md flex-col gap-3">
+      <div className="dr-page mx-auto flex max-w-md flex-col gap-3">
         <div className="flex items-center gap-3.5">
           <Vessel size={110} state="hover" scene />
           <div>
@@ -525,7 +543,7 @@ export default function Drop() {
                   {name}
                 </div>
                 <div className="truncate text-[12px] text-[#ABA095]">
-                  <span className="text-[#FFC777]">‹</span> {where} · {new Date(d.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                  <span className="text-[#FFC777]">‹</span> {where} · {formatDateShort(localDay(d.created_at))}
                 </div>
               </div>
               {d.status === "ready" ? (
@@ -574,7 +592,7 @@ export default function Drop() {
     onDrop: () => setZoneOver(false),
   };
   return (
-    <div>
+    <div className="dr-page">
       {inputs}
       {/* الجوال */}
       <div className="mx-auto flex max-w-md flex-col gap-3.5 lg:hidden">
@@ -583,7 +601,7 @@ export default function Drop() {
             <Vessel size={250} scene={!isDesk} />
           </div>
           <h1 className="dr-title text-[34px] leading-[1.2]">{tr("ارموا أي شي")}</h1>
-          <p className="mx-3 mb-4 mt-1.5 text-[15px] leading-[1.7] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
+          <p className="mx-3 mb-4 mt-1.5 text-[15px] font-medium leading-[1.7] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
           {pickBtns(false)}
         </section>
         {recentCard}
@@ -595,7 +613,7 @@ export default function Drop() {
           <h1 className="dr-title text-[52px] leading-[1.1]">{tr("ارموا أي شي")}</h1>
         </div>
         <div className="grid grid-cols-[1.35fr_1fr] items-start gap-[18px]">
-          <section className="dr-card dr-glow dr-in flex min-h-[600px] flex-col items-center rounded-[28px] p-6 text-center" {...onZone}>
+          <section className="dr-card dr-glow dr-in flex min-h-[max(600px,calc(100vh-226px))] flex-col items-center rounded-[28px] p-6 text-center" {...onZone}>
             <div className={`dr-zone${zoneOver ? " over" : ""}`}>
               <Vessel size={360} state={zoneOver ? "hover" : "idle"} scene={isDesk} />
               <div className="-mt-6 text-[22px] font-extrabold">{tr("اسحبوا الملفات هنا")}</div>
@@ -608,7 +626,7 @@ export default function Drop() {
             <section className="dr-card dr-in dr-d4 rounded-[26px] px-[18px] py-4">
               <div className="mb-2 text-[16px] font-bold">{tr("وش نقدر نرتب؟")}</div>
               <div className="flex flex-wrap gap-1.5">
-                {DESTS.map((d) => {
+                {DESTS.filter((d) => d !== "supervisor_question").map((d) => {
                   const Icon = DEST_ICON[d];
                   return (
                     <span key={d} className="dr-chip">
@@ -625,4 +643,17 @@ export default function Drop() {
       {toastEl}
     </div>
   );
+}
+
+/** أول الشهر الجاي (YYYY-MM-DD) — متى ترجع القراءات */
+function nextMonthIso(): string {
+  const d = new Date();
+  const n = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-01`;
+}
+
+/** وقت من القاعدة → تاريخ اليوم بتوقيت الجهاز (YYYY-MM-DD) */
+function localDay(ts: string): string {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }

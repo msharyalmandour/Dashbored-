@@ -214,6 +214,21 @@ export const DEST_LABEL: Record<Destination, string> = {
   files: tr("الملفات"),
 };
 /** «انحطّت في …» */
+/** اسم قصير للعدّ («١ دراسة»، «ملاحظة + ٢ مهام») */
+export const DEST_NOUN: Record<Destination, string> = {
+  library: tr("دراسة"),
+  tasks: tr("مهام"),
+  minutes: tr("محضر"),
+  supervisor_note: tr("ملاحظة"),
+  supervisor_question: tr("سؤال"),
+  proposal: tr("مسودة"),
+  dataset: tr("بيانات"),
+  tools: tr("أداة"),
+  ethics: tr("موافقة"),
+  calendar: tr("موعد"),
+  files: tr("ملف"),
+};
+
 export const DEST_PLACE: Record<Destination, string> = {
   library: tr("مكتبة الأدلة"),
   tasks: tr("مهامي"),

@@ -139,5 +139,17 @@
   "افتحوا الرمية اللي طلعت منها المهمة": "Open the drop this task came from",
   "من رمية": "From a drop",
   "ارموها: رتّبوها بمكانها": "Drop it: file it in its place",
-  "أي ملف أو صورة أو سكرين شوت، ونوريكم وين ينحط قبل لا نحطه": "Any file, photo or screenshot. We show you where it goes before we put it there"
+  "أي ملف أو صورة أو سكرين شوت، ونوريكم وين ينحط قبل لا نحطه": "Any file, photo or screenshot. We show you where it goes before we put it there",
+  "ملف PDF": "PDF file",
+  "ملف Word": "Word file",
+  "جدول بيانات": "Spreadsheet",
+  "من ملفين رميتوهم": "From the 2 files you dropped",
+  "من {0} ملفات رميتوها": "From the {0} files you dropped",
+  "محضر": "minutes",
+  "سؤال": "question",
+  "بيانات": "dataset",
+  "أداة": "tool",
+  "موافقة": "approval",
+  "ملفين · نقراها ونوريكم وين تنحط قبل لا نحطها": "2 files · we read them and show you where they go before we put them there",
+  "باقتكم فيها {0} رمية بالشهر. ترجع {1}، أو كبّروا الباقة.": "Your plan has {0} drops a month. They come back on {1}, or upgrade your plan."
 }

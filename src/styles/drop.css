@@ -103,6 +103,9 @@
 /* الرمي من أي صفحة */
 .dr-global { position: fixed; inset: 0; z-index: 130; pointer-events: none; animation: drFade .3s ease-out both; }
 .dr-global-dim { position: absolute; inset: 0; background: rgba(8,6,5,.74); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.dr-gcard { position: absolute; z-index: 6; width: 150px; padding: 12px; border-radius: 16px; background: linear-gradient(180deg, #F6EFE7, #E4D8CB); color: #2A1404; box-shadow: 0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.4) inset; display: flex; gap: 10px; align-items: center; text-align: start; }
+.dr-gcard-ic { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+@media (max-width: 767px) { .dr-gcard { display: none; } }
 .dr-global-frame { position: absolute; inset: 24px; border-radius: 32px; border: 2px dashed rgba(255,199,119,.55); box-shadow: inset 0 0 120px rgba(255,120,20,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; }
 
 /* قائمة الكرة + الأوراق السفلية */
@@ -123,3 +126,6 @@
 }
 html[data-reduce-motion="true"] :is(.dr-in, .dr-fan, .dr-pop, .dr-sh, .dr-warm, .dr-pulse3, .dr-fly, .dr-global, .dr-scrim, .dr-sheet) { animation: none; }
 html[data-reduce-motion="true"] .dr-fly > .dr-flycard { animation: drFadeOut .45s ease-out .2s both; transform: translateY(var(--sy)); }
+
+/* وزن النص الأساسي بالتصميم = 500 (العناوين والأزرار لها أوزانها) */
+.dr-page { font-weight: 500; }

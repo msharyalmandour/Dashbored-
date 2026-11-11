@@ -55,6 +55,7 @@ Deno.test("detectKind: نوع غير مدعوم", () => {
   assertEquals(detectKind("p.heic", "image/heic"), { kind: "unsupported", reason: "heic" });
   assertEquals(detectKind("a.zip", "application/zip"), { kind: "unsupported", reason: "type" });
   assertEquals(detectKind("old.xls", ""), { kind: "unsupported", reason: "excel_old" });
+  assertEquals(detectKind("المقترح.pages", "application/x-iwork-pages-sffpages"), { kind: "unsupported", reason: "type" });
 });
 
 Deno.test("نوع غير مدعوم يروح للملفات بدل ما يضيع", () => {

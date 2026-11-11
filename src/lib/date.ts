@@ -17,6 +17,7 @@ const arabicMonths = [
 const arabicWeekdays = [tr("أحد"), tr("اثنين"), tr("ثلاثاء"), tr("أربعاء"), tr("خميس"), tr("جمعة"), tr("سبت")];
 const arabicWeekdaysShort = [tr("أحد"), tr("اثنين"), tr("ثلاثاء"), tr("أربعاء"), tr("خميس"), tr("جمعة"), tr("سبت")];
 
+// الأسماء تمر على tr() وقت الاستدعاء كمان: قاموس الإنجليزي ينحمّل بعد تحميل هالملف
 export function parseDate(value: string): Date {
   const [y, m, d] = value.split("-").map(Number);
   return new Date(y, m - 1, d);
@@ -24,24 +25,24 @@ export function parseDate(value: string): Date {
 
 export function formatDateLong(value: string): string {
   const date = parseDate(value);
-  return `${date.getDate()} ${arabicMonths[date.getMonth()]} ${date.getFullYear()}`;
+  return `${date.getDate()} ${tr(arabicMonths[date.getMonth()])} ${date.getFullYear()}`;
 }
 
 /** وقت كامل من القاعدة (2026-10-23T13:10:00Z) → «٢٣ أكتوبر ٢٠٢٦» بتوقيت الجهاز؛ قيمة غير صالحة ترجع نص فاضي */
 export function formatTimestampLong(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return `${date.getDate()} ${arabicMonths[date.getMonth()]} ${date.getFullYear()}`;
+  return `${date.getDate()} ${tr(arabicMonths[date.getMonth()])} ${date.getFullYear()}`;
 }
 
 export function formatDateShort(value: string): string {
   const date = parseDate(value);
-  return `${date.getDate()} ${arabicMonths[date.getMonth()]}`;
+  return `${date.getDate()} ${tr(arabicMonths[date.getMonth()])}`;
 }
 
 export function formatWeekday(value: string): string {
   const date = parseDate(value);
-  return arabicWeekdays[date.getDay()];
+  return tr(arabicWeekdays[date.getDay()]);
 }
 
 export function daysUntil(value: string, from: Date = new Date()): number {
@@ -92,7 +93,7 @@ export function formatHijri(value: string): string {
 export function formatMonthYear(value: string): string {
   if (!isValidISODate(value)) return "";
   const d = parseDate(value);
-  return `${arabicMonths[d.getMonth()]} ${d.getFullYear()}`;
+  return `${tr(arabicMonths[d.getMonth()])} ${d.getFullYear()}`;
 }
 
 /** إزاحة تاريخ بعدد أيام (سالب = للخلف) وترجيعه بصيغة ISO */

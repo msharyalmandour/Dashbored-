@@ -77,7 +77,7 @@ export default function GlobalDrop() {
     <div className="dr-global" role="status" aria-live="polite">
       <div className="dr-global-dim" aria-hidden />
       <div className="dr-global-frame">
-        <Vessel size={typeof window !== "undefined" && window.innerWidth < 768 ? 260 : 420} state="hover" />
+        <Vessel size={typeof window !== "undefined" && window.innerWidth < 768 ? 260 : 420} state="hover" scene />
         <div className="dr-title -mt-[30px] text-[32px] md:text-[40px]">{tr("ارموها هنا")}</div>
         <p className="m-0 mt-1.5 text-[16px] text-[#E9D3B8]">{count > 1 ? tr("{0} ملفات · نقراها ونوريكم وين تنحط قبل لا نحطها", count) : tr("ملف · نقراه ونوريكم وين ينحط قبل لا نحطه")}</p>
       </div>

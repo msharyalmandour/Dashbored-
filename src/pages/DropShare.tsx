@@ -51,7 +51,7 @@ export default function DropShare() {
         </button>
       </div>
       <div className="flex items-center gap-3">
-        <Vessel size={96} state="hover" />
+        <Vessel size={96} state="hover" scene />
         <div>
           <div className="text-[13px] font-bold text-[#FFB444]">{fromWa ? tr("جاية من واتساب") : tr("جاية من تطبيق ثاني")}</div>
           <h1 className="dr-title text-[24px] leading-[1.3]">{tr("ارموها لـ Wesync")}</h1>

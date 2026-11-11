@@ -7,7 +7,7 @@ import { tr } from "../../lib/i18n";
 export default function DropEntry({ style }: { style?: React.CSSProperties }) {
   return (
     <Link to="/drop" className="dr-card dr-in dr-d1 mb-2.5 flex min-h-[84px] items-center gap-3 overflow-hidden rounded-[24px] py-1 pe-3.5 ps-1.5 text-[#EAE3DC] no-underline lg:mb-[18px]" style={style} data-learn="drop-entry">
-      <Vessel size={88} className="-my-2" />
+      <Vessel size={88} className="-my-2" scene />
       <span className="min-w-0 flex-1 leading-[1.4]">
         <b className="block text-[17px]">{tr("ارموا أي شي")}</b>
         <span className="text-[13px] text-[#E9D3B8]">{tr("ملف، صورة، رسالة المشرف/ة… ونرتبها")}</span>

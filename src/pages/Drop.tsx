@@ -16,6 +16,19 @@ import { hasPending, PENDING_EVENT, takePending } from "../lib/dropQueue";
    ارموا → نقرا (الوعاء يبلع الملف) → «تأكدوا قبل لا نحطها» (كروت لكل مكان) → «حطوها بمكانها» (عملية وحدة) → «انحطّت».
    كل شي يتسجل برمية (drops)، والتراجع يشيل اللي انخلق بس لو ما أحد عدّله. */
 
+/** نفس حد lg بالتصميم: الجوال والديسكتوب لهم وعاء مختلف، والمشهد الـ 3D يروح للظاهر بس */
+function useIsDesktop() {
+  const q = "(min-width: 1024px)";
+  const [m, setM] = useState(() => typeof window !== "undefined" && window.matchMedia(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(q);
+    const on = () => setM(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return m;
+}
+
 const kindWord = (n: number, mime?: string | null, name = "") => {
   if (n > 1) return tr("{0} عناصر", n);
   if (/^image\//.test(mime ?? "")) return tr("صورة");
@@ -49,6 +62,7 @@ export default function Drop() {
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const live = !!team && !!currentUser && !!supabase;
+  const isDesk = useIsDesktop();
 
   const refreshRecent = useCallback(() => {
     if (live) void listRecent().then(setRecent);
@@ -223,7 +237,7 @@ export default function Drop() {
         {inputs}
         <section className="dr-card dr-in flex flex-col items-center rounded-[26px] p-[18px] text-center">
           <div className="relative">
-            <Vessel size={190} state="dim" />
+            <Vessel size={190} state="dim" scene />
             <span className="absolute bottom-[18px] left-1/2 -translate-x-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-[#1C130E] text-[#FFC777] shadow-[inset_0_0_0_1px_rgba(255,199,119,0.35)]" aria-hidden>
               {e.icon}
             </span>
@@ -249,8 +263,9 @@ export default function Drop() {
       <div className="mx-auto max-w-md">
         <div role="status" aria-live="polite" className="relative flex flex-col items-center gap-1.5 px-4 pt-2.5 text-center">
           {first && (
-            <div className="dr-fly" style={{ insetInlineStart: "58%", top: -10, ["--sx" as string]: "0px", ["--sy" as string]: "0px" }} aria-hidden>
-              <div className="dr-flycard" style={{ transform: "perspective(700px) rotateY(-18deg) rotate(-10deg) scale(.8)" }}>
+            // الكرت يبدأ فوق يمين ويطير بقوس لفتحة الوعاء (فوق مركزه بشوي)
+            <div className="dr-fly" style={{ left: "calc(50% - 75px)", top: 196, ["--sx" as string]: "96px", ["--sy" as string]: "-190px" }} aria-hidden>
+              <div className="dr-flycard">
                 <span className="dr-ft" dir="ltr">
                   {/^image/.test(mime ?? "") ? "IMG" : /pdf/.test(mime ?? "") || /\.pdf$/i.test(first) ? "PDF" : /^https?:/.test(first) ? "URL" : "TXT"}
                 </span>
@@ -261,7 +276,7 @@ export default function Drop() {
             </div>
           )}
           <div className="mt-[70px]">
-            <Vessel size={300} state="reading" />
+            <Vessel size={300} state="reading" scene />
           </div>
           <div className="text-[13px] font-bold tracking-[.04em] text-[#FFB444]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("١ من ١ · {0}", kindWord(1, mime, first))}</div>
           <h1 className="dr-title text-[28px]">{starting ? tr("نرفعها…") : tr("نقرا الملف…")}</h1>
@@ -343,7 +358,7 @@ export default function Drop() {
         <div className="mx-auto flex max-w-md flex-col gap-3 lg:grid lg:max-w-none lg:grid-cols-[1fr_1.2fr] lg:items-start lg:gap-[18px]">
           <section className="dr-card dr-in rounded-[28px] px-4 pb-[18px] pt-1.5 text-center lg:order-1">
             <div className="-mb-4 flex justify-center">
-              <Vessel size={190} state="done" className="lg:!h-[300px] lg:!w-[300px]" />
+              <Vessel size={190} state="done" className="lg:!h-[300px] lg:!w-[300px]" scene />
             </div>
             <div className="dr-stamp dr-pop mx-auto mb-2 h-[52px] w-[52px] shadow-[0_0_0_8px_rgba(255,199,119,0.1)]" aria-hidden>
               <Check size={24} strokeWidth={3} />
@@ -389,7 +404,7 @@ export default function Drop() {
         {/* الجوال */}
         <div className="mx-auto flex max-w-md flex-col gap-2.5 lg:hidden">
           <div className="flex items-center gap-3">
-            <Vessel size={84} state="hover" />
+            <Vessel size={84} state="hover" scene={!isDesk} />
             <div className="min-w-0 flex-1">
               <div className="truncate text-[13px] font-bold text-[#FFB444]" dir="auto">
                 {items.length > 1 ? tr("{0} عناصر رميتوها", items.length) : items[0]?.name}
@@ -409,7 +424,7 @@ export default function Drop() {
           </div>
           <div className="grid grid-cols-[380px_1fr] items-start gap-[18px]">
             <section className="dr-card dr-in sticky top-4 flex flex-col items-center rounded-[28px] p-[18px] text-center">
-              <Vessel size={260} state="hover" />
+              <Vessel size={260} state="hover" scene={isDesk} />
               <h2 className="dr-title -mt-3.5 mb-0.5 text-[28px]">{tr("لقينا {0} أشياء", nAll)}</h2>
               <p className="m-0 mb-3 text-[14px] text-[#E9D3B8]">{drop?.summary || (items.length > 1 ? tr("من {0} عناصر رميتوها", items.length) : tr("من اللي رميتوه"))}</p>
               <div className="flex w-full flex-col gap-1.5">
@@ -440,7 +455,7 @@ export default function Drop() {
     return (
       <div className="mx-auto flex max-w-md flex-col gap-3">
         <div className="flex items-center gap-3.5">
-          <Vessel size={110} state="hover" />
+          <Vessel size={110} state="hover" scene />
           <div>
             <h1 className="dr-title text-[26px]">{tr("الصقوا هنا")}</h1>
             <p className="m-0 mt-0.5 text-[14px] text-[#E9D3B8]">{tr("نص، ملاحظات، أو رابط DOI أو PubMed")}</p>
@@ -549,7 +564,7 @@ export default function Drop() {
       <div className="mx-auto flex max-w-md flex-col gap-3.5 lg:hidden">
         <section className="dr-card dr-in overflow-hidden rounded-[28px] px-4 pb-5 pt-2 text-center">
           <div className="-mb-[18px] -mt-1.5 flex justify-center">
-            <Vessel size={250} />
+            <Vessel size={250} scene={!isDesk} />
           </div>
           <h1 className="dr-title text-[34px] leading-[1.2]">{tr("ارموا أي شي")}</h1>
           <p className="mx-3 mb-4 mt-1.5 text-[15px] leading-[1.7] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
@@ -566,7 +581,7 @@ export default function Drop() {
         <div className="grid grid-cols-[1.35fr_1fr] items-start gap-[18px]">
           <section className="dr-card dr-glow dr-in flex min-h-[600px] flex-col items-center rounded-[28px] p-6 text-center" {...onZone}>
             <div className={`dr-zone${zoneOver ? " over" : ""}`}>
-              <Vessel size={360} state={zoneOver ? "hover" : "idle"} />
+              <Vessel size={360} state={zoneOver ? "hover" : "idle"} scene={isDesk} />
               <div className="-mt-6 text-[22px] font-extrabold">{tr("اسحبوا الملفات هنا")}</div>
               <p className="m-0 mb-[18px] mt-1 text-[15px] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
               <div className="flex items-center gap-2.5">{pickBtns(true)}</div>

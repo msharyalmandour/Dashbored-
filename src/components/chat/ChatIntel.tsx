@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Avatar from "../ui/Avatar";
 import { tr } from "../../lib/i18n";
 import { boldParts, type LiveSummary } from "../../lib/chatIntel";
@@ -150,7 +151,7 @@ export function CatchupSheet({ away, lines, onClose, onJump }: { away: string; l
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
-  return (
+  return createPortal(
     <>
       <div aria-hidden className="ci-scrim" onClick={onClose} />
       <section role="dialog" aria-modal="true" aria-labelledby="ci-catch-h" className="ci-catch">
@@ -184,7 +185,8 @@ export function CatchupSheet({ away, lines, onClose, onJump }: { away: string; l
           {tr("ودّوني لأول رسالة ما قريتها")}
         </button>
       </section>
-    </>
+    </>,
+    document.body,
   );
 }
 

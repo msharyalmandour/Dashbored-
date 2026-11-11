@@ -27,7 +27,7 @@ export function orphanQuestions(messages: ChatMessage[], now = Date.now(), dismi
   const repliedTo = new Set(messages.filter((m) => m.replyTo && !m.deletedAt).map((m) => m.replyTo as string));
   const out: Orphan[] = [];
   messages.forEach((m, i) => {
-    if (m.kind !== "user" || m.deletedAt || m.pending || m.failed || !m.authorId || dismissed.has(m.id)) return;
+    if (m.kind !== "user" || m.meta?.type === "voice" || m.deletedAt || m.pending || m.failed || !m.authorId || dismissed.has(m.id)) return;
     if (!isQuestion(m.body)) return;
     const age = now - Date.parse(m.createdAt);
     if (age < 24 * 3600e3 || age > 14 * 24 * 3600e3) return;

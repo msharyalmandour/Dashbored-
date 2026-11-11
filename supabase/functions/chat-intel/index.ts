@@ -52,7 +52,7 @@ async function chatLines(teamId: string, names: Map<string, string>, since?: str
     const meta = r.meta ?? {};
     if (r.kind === "event" && meta.type === "supervisor_message") return { who: `${String(meta.by ?? "الدكتورة")} (المشرف/ة)`, at: hhmm(r.created_at), text: String(meta.body ?? meta.excerpt ?? r.body) };
     if (r.kind === "event") return { who: "حدث", at: hhmm(r.created_at), text: r.body };
-    if (r.kind === "voice") return { who: names.get(r.author_id ?? "") ?? "عضو", at: hhmm(r.created_at), text: `(فويس) ${String(meta.transcript ?? meta.gist ?? "")}` };
+    if (meta.type === "voice") return { who: names.get(r.author_id ?? "") ?? "عضو", at: hhmm(r.created_at), text: `(فويس) ${String(meta.transcript ?? meta.gist ?? "")}` };
     if (r.kind === "agent") return { who: "الوكيل", at: hhmm(r.created_at), text: r.body };
     return { who: names.get(r.author_id ?? "") ?? "عضو", at: hhmm(r.created_at), text: r.body };
   });

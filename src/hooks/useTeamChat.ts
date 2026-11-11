@@ -290,6 +290,25 @@ export function useTeamChat() {
     [s, currentUser],
   );
 
+  /** فويس: رسالة عادية فيها meta.type="voice" (الملف بحاوية drops) — ما تحتاج تغيير بالقاعدة */
+  const sendVoice = useCallback(
+    async (body: string, meta: ChatMeta) => {
+      if (!s || !currentUser) return { error: "offline" };
+      const { data, error } = await supabase!
+        .from("team_messages")
+        .insert({ body: body.trim().slice(0, 4000) || "🎙️", meta })
+        .select()
+        .single();
+      if (!error && data) {
+        upsert(s, mapRow(data as Row));
+        emit(s);
+        void supabase!.functions.invoke("push-notify", { body: { action: "chat", messageId: (data as Row).id } }).catch(() => {});
+      }
+      return { error: error?.message };
+    },
+    [s, currentUser],
+  );
+
   const vote = useCallback(
     async (messageId: string, option: number) => {
       if (!s || !currentUser) return { error: "offline" };
@@ -358,6 +377,7 @@ export function useTeamChat() {
     votes: s?.votes ?? {},
     send,
     post,
+    sendVoice,
     vote,
     closePoll,
     remind,

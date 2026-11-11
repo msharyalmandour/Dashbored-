@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Loader2, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
+import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Loader2, Mic, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import Avatar from "../components/ui/Avatar";
 import { V3Glow } from "../components/v3/WriteHeader";
@@ -17,10 +17,14 @@ import { useMeetings } from "../hooks/useMeetings";
 import { askProjectAgent } from "../hooks/useProjectAgent";
 import { notifySupervisor } from "../lib/supervisorNotify";
 import { DocBubble, Ledger, RequestCard, SideThread, SupState, Thread, ThreadExplainer, type LedgerRow } from "../components/sup/SupParts";
+import { createPortal } from "react-dom";
 import { useCommitments } from "../hooks/useCommitments";
 import { useChatIntel } from "../hooks/useChatIntel";
 import { CatchupSheet, FocusDone, FocusPanel, FocusPill, LiveSummaryCard, OrphanStrip } from "../components/chat/ChatIntel";
 import { guessKnower } from "../lib/chatIntel";
+import VoiceMode, { type VoiceResult } from "../components/chat/VoiceMode";
+import VoiceBubble from "../components/chat/VoiceBubble";
+import { dropQueued, extractVoice, queueVoice, takeQueued, transcribeServer, uploadVoice, type VoiceMeta } from "../lib/voice";
 import { approveCommitment, dismissCommitment, setCommitmentImportant, type Commitment } from "../lib/commitments";
 import { ACCEPT } from "../lib/drops";
 import { queueDrop } from "../lib/dropQueue";
@@ -150,7 +154,7 @@ export default function TeamChat() {
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
   const online = useTeamPresence();
-  const { messages, loaded, unavailable, typers, reads, myPrevRead, votes, send, post, vote, closePoll, remind, retry, edit, remove, typing, markRead } = useTeamChat();
+  const { messages, loaded, unavailable, typers, reads, myPrevRead, votes, send, post, sendVoice, vote, closePoll, remind, retry, edit, remove, typing, markRead } = useTeamChat();
   const meetings = useMeetings();
   const navigate = useNavigate();
   const dropPick = useRef<HTMLInputElement>(null);
@@ -196,6 +200,32 @@ export default function TeamChat() {
   // آخر قراءة لي قبل ما نعلّم المحادثة مقروءة (لـ «اللي فاتك ويخصك»)
   const intel = useChatIntel(messages, loaded, myPrevRead);
   const [focusSheet, setFocusSheet] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(false);
+  // فويس انحفظ بدون نت: يرتفع وينرسل لحاله لما يرجع النت (والنص يطلع بعدين)
+  useEffect(() => {
+    if (!team?.id || mode !== "supabase") return;
+    const tid = team.id;
+    let busyFlush = false;
+    const flush = async () => {
+      if (busyFlush || navigator.onLine === false) return;
+      busyFlush = true;
+      for (const q of await takeQueued(tid)) {
+        const path = await uploadVoice(tid, q.blob);
+        if (!path) break;
+        let transcript = q.meta.transcript;
+        if (!transcript) transcript = (await transcribeServer(path)) ?? "";
+        const ex = transcript ? await extractVoice(transcript) : null;
+        const meta = { ...q.meta, path, transcript, gist: ex?.gist ?? "" };
+        const r = await sendVoice(meta.gist ? tr("🎙️ {0}", meta.gist) : q.body, meta as unknown as Record<string, unknown>);
+        if (r.error) break;
+        await dropQueued(q.id);
+      }
+      busyFlush = false;
+    };
+    void flush();
+    window.addEventListener("online", flush);
+    return () => window.removeEventListener("online", flush);
+  }, [team?.id, mode, sendVoice]);
   const orphanOf = useMemo(() => new Map(intel.orphans.map((o) => [o.message.id, o])), [intel.orphans]);
   const knowSources = useMemo(
     () => [...tasks.map((t) => ({ text: t.title, ownerId: t.assigneeId })), ...sections.map((x) => ({ text: x.labelAr, ownerId: x.ownerId }))],
@@ -287,6 +317,37 @@ export default function TeamChat() {
     }
   };
   const nameOf = (id: string) => firstName(who(id)?.name ?? (id === currentUser.id ? currentUser.name : tr("عضو")));
+  /** يرسل الفويس كرسالة + المهام اللي انختارت تصير مهام فعلية */
+  const sendVoiceNote = async (r: VoiceResult, withItems: boolean): Promise<boolean> => {
+    const path = r.path ?? (await uploadVoice(team.id, r.blob));
+    if (!path) {
+      showToast({ title: tr("ما قدرنا نرفع الفويس — جرّبوا مرة ثانية."), icon: CircleAlert });
+      return false;
+    }
+    const items = withItems ? r.items : [];
+    const meta: VoiceMeta = {
+      type: "voice",
+      path,
+      duration: r.duration,
+      transcript: r.transcript.slice(0, 6000),
+      gist: r.gist.slice(0, 300),
+      peaks: r.peaks,
+      items: items.map((it) => ({ kind: it.kind, title: it.title, sub: it.sub, who: it.kind === "task" && it.assignee_id ? nameOf(it.assignee_id) : undefined })),
+    };
+    const res = await sendVoice(r.gist ? tr("🎙️ {0}", r.gist) : tr("🎙️ فويس"), meta as unknown as Record<string, unknown>);
+    if (res.error) {
+      showToast({ title: tr("ما انرسل الفويس — جرّبوا مرة ثانية."), icon: CircleAlert });
+      return false;
+    }
+    const tasksToMake = items.filter((it) => it.kind === "task");
+    for (const it of tasksToMake) {
+      const due = it.due ?? toISODate(new Date(Date.now() + 3 * 864e5));
+      await addTask({ title: it.title.slice(0, 200), description: tr("من فويس {0}", nameOf(currentUser.id)), assigneeId: it.assignee_id ?? currentUser.id, dueDate: due, priority: "medium" });
+    }
+    if (tasksToMake.length) showToast({ title: tr("انرسل الفويس ✓ وصارت {0} مهام", tasksToMake.length), icon: CircleCheck });
+    return true;
+  };
+
   const solo = roster.length <= 1;
   const teamLink = `${publicBase()}#/login?team=${team.id}`;
   const inviteWa = `https://wa.me/?text=${encodeURIComponent(tr("انضموا لفريق بحثنا على Wesync عشان نشتغل على البحث مع بعض: {0}", teamLink))}`;
@@ -544,6 +605,8 @@ export default function TeamChat() {
                     void send(tr("✓ القرار بالتصويت: «{0}» — {1}", opts[w] ?? "", m.body), { replyTo: m.id });
                   }}
                 />
+              ) : m.meta?.type === "voice" ? (
+                <VoiceBubble meta={m.meta as unknown as VoiceMeta} />
               ) : (
                 <span className="tc-text">{richText(m.body, names)}</span>
               )}
@@ -883,13 +946,19 @@ export default function TeamChat() {
                     }}
                     maxLength={4000}
                     disabled={!canWrite}
-                    placeholder={canWrite ? tr("اكتبوا للفريق…") : tr("المحادثة للقراءة بس لين يتجدد الاشتراك")}
+                    placeholder={canWrite ? (mode === "supabase" ? tr("اكتبوا… أو اضغطوا المايك") : tr("اكتبوا للفريق…")) : tr("المحادثة للقراءة بس لين يتجدد الاشتراك")}
                     aria-label={tr("رسالتكم للفريق")}
                     className="tc-input outline-none"
                   />
+                  {!text.trim() && !editing && canWrite && mode === "supabase" ? (
+                    <button type="button" className="tc-send" aria-label={tr("سجّلوا فويس")} onClick={() => setVoiceOn(true)}>
+                      <Mic size={19} strokeWidth={2.2} />
+                    </button>
+                  ) : (
                   <button type="submit" className="tc-send" disabled={busy || !text.trim() || !canWrite} aria-label={editing ? tr("حفظ التعديل") : tr("أرسل")}>
                     {editing ? <Check size={19} strokeWidth={2.4} /> : <SendHorizontal size={19} strokeWidth={2.2} className="ltr:rotate-0 rtl:rotate-180" />}
                   </button>
+                  )}
                 </form>
               </div>
             </div>
@@ -1034,6 +1103,21 @@ export default function TeamChat() {
         />
       )}
 
+      {voiceOn && (
+        <VoiceMode
+          teamId={team.id}
+          roster={roster}
+          onClose={() => setVoiceOn(false)}
+          onTypeInstead={() => setTimeout(() => inputRef.current?.focus(), 50)}
+          onSend={sendVoiceNote}
+          onOffline={(r) => {
+            void queueVoice({ id: `v-${Date.now()}`, teamId: team.id, blob: r.blob, body: tr("🎙️ فويس"), meta: { type: "voice", duration: r.duration, transcript: r.transcript, gist: "", items: [], peaks: r.peaks } })
+              .then(() => showToast({ title: tr("انحفظ الفويس بجهازكم ويوصل لحاله أول ما يرجع النت"), icon: CircleCheck }))
+              .catch(() => showToast({ title: tr("ما قدرنا نحفظ الفويس — جرّبوا بعد ما يرجع النت."), icon: CircleAlert }));
+            setVoiceOn(false);
+          }}
+        />
+      )}
       {intel.catchup && (
         <CatchupSheet
           away={awayLabel(intel.catchup.since)}
@@ -1042,13 +1126,14 @@ export default function TeamChat() {
           onJump={() => { const id = intel.firstUnread; intel.closeCatchup(); if (id) setTimeout(() => jumpTo(id), 50); }}
         />
       )}
-      {focusSheet && (
+      {focusSheet && createPortal(
         <>
           <div aria-hidden className="ci-scrim" onClick={() => setFocusSheet(false)} />
           <div role="dialog" aria-modal="true" aria-label={tr("وقت تركيز")} className="ci-catch !top-auto bottom-[110px]" onKeyDown={(e) => e.key === "Escape" && setFocusSheet(false)}>
             <FocusPanel active={intel.focus ? (intel.focusChoice ?? "2h") : null} onPick={(c) => { void intel.pickFocus(c); setFocusSheet(false); }} onEnd={() => { void intel.endFocus(); setFocusSheet(false); }} />
           </div>
-        </>
+        </>,
+        document.body,
       )}
       {toSupervisor && (
         <SupervisorQuestionSheet

@@ -6,6 +6,7 @@ import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import QuestionSuggestions from "../components/QuestionSuggestions";
 import { useAuth } from "../context/AuthContext";
 import { useProposal } from "../hooks/useProposal";
+import SectionDrafts from "../components/write/SectionDrafts";
 import SectionTasks from "../components/write/SectionTasks";
 import { useResearchProject } from "../hooks/useResearchProject";
 import type { ProposalSectionKey, ResearchProjectStatus, ResearchType } from "../data/types";
@@ -319,6 +320,7 @@ export default function Proposal() {
 
                 {/* مسؤول القسم + مهامه المربوطة */}
                 <SectionTasks sectionKey={active.key} ownerId={active.ownerId} onOwner={(id) => saved(setSectionOwner(active.key, id))} />
+                <SectionDrafts sectionKey={active.key} content={active.content ?? ""} onApply={(content) => saved(updateSection(active.key, { content }))} />
 
                 {/* المحرر حسب القسم — نفس الحقول السابقة */}
                 <div key={active.key} className="flex flex-col gap-3">

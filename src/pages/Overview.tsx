@@ -30,6 +30,7 @@ import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } f
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
 import LearnStrip from "../components/home/LearnStrip";
+import DropEntry from "../components/drop/DropEntry";
 import { placeOf } from "../lib/taskLinks";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
@@ -307,6 +308,12 @@ export default function Overview() {
           </div>
         }
       />
+
+      {mode === "supabase" && (
+        <ErrorBoundary>
+          <DropEntry style={rise(1)} />
+        </ErrorBoundary>
+      )}
 
       {mode === "supabase" && (
         <ErrorBoundary>

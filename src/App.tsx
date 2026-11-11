@@ -34,6 +34,7 @@ import CalendarPage from "./pages/CalendarPage";
 import Guide from "./pages/Guide";
 import Learn from "./pages/Learn";
 import Drop from "./pages/Drop";
+import DropShare from "./pages/DropShare";
 import Story from "./pages/Story";
 import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
@@ -111,6 +112,7 @@ export default function App() {
         <Route path="/guide" element={<Guide />} />
         <Route path="/learn" element={<Learn />} />
         <Route path="/drop" element={<Drop />} />
+        <Route path="/drop/share" element={<DropShare />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
         <Route path="*" element={<NotFound />} />

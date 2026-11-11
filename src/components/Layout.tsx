@@ -17,7 +17,7 @@ import AiAssistant from "./AiAssistant";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import AcademyCoach from "./AcademyCoach";
-import { GlobalDrop } from "../pages/Drop";
+import GlobalDrop from "./drop/GlobalDrop";
 import BottomNav from "./BottomNav";
 import AppSplash from "./ui/AppSplash";
 import DriveNotice from "./ui/DriveNotice";

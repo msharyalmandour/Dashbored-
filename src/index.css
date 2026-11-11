@@ -10,6 +10,7 @@
 @import "./styles/team-chat.css";
 @import "./styles/academy.css";
 @import "./styles/study-drop.css";
+@import "./styles/drop.css";
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;

@@ -79,7 +79,6 @@ interface DbItem {
 }
 
 type Block = Anthropic.ContentBlockParam;
-const SELFTEST_HASH = "f0261ad8c502f8dd99c80f7cf2ba7390d9999729326e8cf2ae364475aecfab41";
 type Classified = { rows: ResultRow[]; summary: string };
 
 async function classify(model: string, content: Block[], ctx: Ctx, usage: { in: number; out: number }): Promise<Classified | null> {
@@ -121,21 +120,6 @@ async function classifyWithEscalation(content: Block[], ctx: Ctx, forceStrong = 
   return { out, used, inTok: usage.in, outTok: usage.out };
 }
 
-/** اختبار حي: نصوص → التصنيف والنتايج (ما يكتب بالقاعدة) */
-async function selftest(body: { texts?: string[]; strong?: boolean; today?: string }) {
-  const today = body.today ?? riyadhToday();
-  const roster: Member[] = [
-    { id: "u-sara", name: "سارة الغامدي" },
-    { id: "u-noura", name: "نورة العتيبي" },
-    { id: "u-reem", name: "ريم القحطاني" },
-  ];
-  const items: ItemCtx[] = (body.texts ?? []).slice(0, 5).map((t, i) => ({ index: i + 1, id: `i${i + 1}`, kind: "text", name: "", mime: "", size: t.length, storagePath: null, fileKind: "text", text: clip(t, 20000) }));
-  const text = `TODAY: ${today} (Asia/Riyadh)\nTEAM TOPIC: الاحتراق الوظيفي لدى ممرضات العناية المركزة\nROSTER: ${roster.map((m) => m.name).join(" | ")}\nPROPOSAL SECTIONS: background, problem, gap, aim, questions, literature-review, methodology\n\n${items.map((i) => itemBlock(i, false, null)).join("\n\n")}`;
-  const t0 = Date.now();
-  const r = await classifyWithEscalation([{ type: "text", text }], { today, roster, items }, !!body.strong);
-  return json({ ms: Date.now() - t0, model: r.used, inTok: r.inTok, outTok: r.outTok, summary: r.out?.summary, mean: r.out ? meanConfidence(r.out.rows) : null, rows: r.out?.rows ?? null });
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   let dropId = "";
@@ -144,9 +128,6 @@ Deno.serve(async (req: Request) => {
     return json({ status: "failed", error_code: code, message: MESSAGES[code], ...extra });
   };
   try {
-    // اختبار المخطط مع النموذج الحقيقي بدون قاعدة: يشتغل بس بمفتاح اختبار (نحفظ بصمته بس). ينشال بعد المرحلة ٢.
-    const probe = req.headers.get("x-drop-selftest");
-    if (probe && (await sha256Hex(probe)) === SELFTEST_HASH) return await selftest(await req.json());
     const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } });
     const {
       data: { user },

@@ -1,406 +1,597 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, CalendarDays, Camera, Check, FileQuestion, FileUp, Link2, ListChecks, Loader2, MessageSquareQuote, NotebookPen, PenLine, X } from "lucide-react";
-import clsx from "clsx";
-import AgentOrb from "../components/ui/AgentOrb";
-import { PageDropOverlay, usePageDrop } from "../components/research/StudyDrop";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Camera, Check, ChevronLeft, ClipboardPaste, Download, FileSearch, Folder, Lock, Sparkles, Undo2, WifiOff } from "lucide-react";
+import Vessel from "../components/drop/Vessel";
+import { DEST_ICON, DestinationSheet, EditSheet, FileIcon, ResultCard } from "../components/drop/DropParts";
 import { useAuth } from "../context/AuthContext";
-import { useTasksData } from "../hooks/useTasksData";
-import { useEvidencePapers } from "../hooks/useEvidencePapers";
-import { useMeetingMinutes } from "../hooks/useMeetingMinutes";
-import { useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
-import { useProposal } from "../hooks/useProposal";
-import { useCalendarEvents } from "../hooks/useCalendarEvents";
-import { useTeamChat } from "../hooks/useTeamChat";
-import { useResearchProject } from "../hooks/useResearchProject";
 import { useTeamRoster } from "../hooks/useTeamRoster";
-import { readPaperFiles } from "../hooks/useProjectAgent";
-import { sortDrop, toInputs, type DropInput, type SortItem } from "../lib/dropSort";
-import { placeByKey } from "../lib/taskLinks";
-import { addDaysISO, formatDateShort } from "../lib/date";
+import { useResearchProject } from "../hooks/useResearchProject";
+import { useDrop } from "../hooks/useDrop";
+import { supabase } from "../lib/supabaseClient";
+import { ACCEPT, countOf, DEST_LABEL, DEST_PLACE, DESTS, deepLink, detectPaste, fileDrop, listRecent, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource, type RecentDrop } from "../lib/drops";
 import { tr } from "../lib/i18n";
-import type { EvidencePaper } from "../data/types";
+import { hasPending, PENDING_EVENT, takePending } from "../lib/dropQueue";
 
-/* ═══ «ارموا أي شي» ═══
-   ترمون ملف/صور/نص/رابط → الوكيل يفهمه ويقسمه لأشياء (دراسة، مهام، محضر، ملاحظات المشرف/ة، نص قسم، موعد، رابط)
-   → تشوفونها وتشيلون اللي ما تبونه → «حطوها بمكانها» تحفظ كل وحدة بصفحتها (بصلاحياتكم). */
+/* ═══ «ارموا أي شي» (/drop) ═══
+   ارموا → نقرا (الوعاء يبلع الملف) → «تأكدوا قبل لا نحطها» (كروت لكل مكان) → «حطوها بمكانها» (عملية وحدة) → «انحطّت».
+   كل شي يتسجل برمية (drops)، والتراجع يشيل اللي انخلق بس لو ما أحد عدّله. */
 
-// ملفات رُميت بأي صفحة ثانية — تنتقل هنا وتنفرز
-let pending: File[] = [];
-export function queueDropFiles(files: File[]) {
-  pending = files;
-}
-
-/** الرمي من أي صفحة بالموقع (إلا مكتبة الأدلة اللي لها رمي الدراسات، والمحادثة) يودّي هنا */
-export function GlobalDrop() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const { team, mode } = useAuth();
-  const enabled = mode === "supabase" && !!team && !["/evidence", "/drop", "/chat"].includes(pathname);
-  const onFiles = useCallback(
-    (f: FileList) => {
-      queueDropFiles(Array.from(f));
-      navigate("/drop");
-    },
-    [navigate],
-  );
-  const over = usePageDrop(onFiles, enabled);
-  return <PageDropOverlay show={over} />;
-}
-
-type Kind = SortItem["kind"];
-type Row = SortItem & { on: boolean; done?: { ok: boolean; to?: string; msg?: string } };
-interface Batch {
-  id: string;
-  name: string;
-  input: DropInput;
-  status: "sorting" | "ready" | "saving" | "saved" | "failed";
-  summary: string;
-  rows: Row[];
-  notes?: string[];
-  error?: string;
-}
-
-const SECTION_LABEL: Record<string, string> = {
-  background: tr("خلفية البحث"),
-  "literature-review": tr("مراجعة الأدبيات"),
-  problem: tr("مشكلة البحث"),
-  gap: tr("الفجوة المعرفية"),
-  aim: tr("هدف الدراسة"),
-  questions: tr("أسئلة البحث"),
-  methodology: tr("المنهجية"),
-  ethics: tr("الأخلاقيات"),
-  other: tr("عام"),
-};
-
-const KIND: Record<Kind, { icon: ReactNode; label: string }> = {
-  paper: { icon: <BookOpen size={18} />, label: tr("دراسة علمية") },
-  paper_info: { icon: <BookOpen size={18} />, label: tr("دراسة من رابط") },
-  task: { icon: <ListChecks size={18} />, label: tr("مهمة") },
-  minutes: { icon: <NotebookPen size={18} />, label: tr("محضر اجتماع") },
-  supervisor_note: { icon: <MessageSquareQuote size={18} />, label: tr("ملاحظة من المشرف/ة") },
-  section_text: { icon: <PenLine size={18} />, label: tr("نص لقسم بالمقترح") },
-  event: { icon: <CalendarDays size={18} />, label: tr("موعد") },
-  link: { icon: <Link2 size={18} />, label: tr("رابط") },
-  other: { icon: <FileQuestion size={18} />, label: tr("ما له مكان تلقائي") },
+const kindWord = (n: number, mime?: string | null, name = "") => {
+  if (n > 1) return tr("{0} عناصر", n);
+  if (/^image\//.test(mime ?? "")) return tr("صورة");
+  if (/pdf/.test(mime ?? "") || /\.pdf$/i.test(name)) return "PDF";
+  if (/^https?:/i.test(name)) return tr("رابط");
+  if (!mime) return tr("نص");
+  return tr("ملف");
 };
 
 export default function Drop() {
-  const { currentUser, isLeader, canWrite } = useAuth();
-  const { addTask } = useTasksData();
-  const { addPaper } = useEvidencePapers();
-  const { addMinutes } = useMeetingMinutes();
-  const { addItems } = useSupervisorFeedback();
-  const { sections, updateSection } = useProposal();
-  const { addEvent } = useCalendarEvents();
-  const { send } = useTeamChat();
-  const { project } = useResearchProject();
+  const { team, currentUser, isLeader, canWrite } = useAuth();
   const { roster } = useTeamRoster();
-  const [batches, setBatches] = useState<Batch[]>([]);
+  const { project } = useResearchProject();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const dropId = params.get("d");
+  const { drop, items, results, reload, patchLocal } = useDrop(dropId);
+
+  const [view, setView] = useState<"idle" | "paste">(params.get("paste") ? "paste" : "idle");
   const [text, setText] = useState("");
-  const [notes, setNotes] = useState<string[]>([]);
+  const [starting, setStarting] = useState<{ names: string[]; mime?: string } | null>(null);
+  const [localErr, setLocalErr] = useState<{ code: DropError; message: string; ext?: string } | null>(null);
+  const [limitInfo, setLimitInfo] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(null);
+  const [moveFor, setMoveFor] = useState<DropResult | null>(null);
+  const [editFor, setEditFor] = useState<DropResult | null>(null);
+  const [recent, setRecent] = useState<RecentDrop[]>([]);
+  const [zoneOver, setZoneOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
+  const live = !!team && !!currentUser && !!supabase;
 
-  const patch = (id: string, p: Partial<Batch>) => setBatches((prev) => prev.map((b) => (b.id === id ? { ...b, ...p } : b)));
-  const patchRow = (id: string, i: number, p: Partial<Row>) =>
-    setBatches((prev) => prev.map((b) => (b.id === id ? { ...b, rows: b.rows.map((r, j) => (j === i ? ({ ...r, ...p } as Row) : r)) } : b)));
+  const refreshRecent = useCallback(() => {
+    if (live) void listRecent().then(setRecent);
+  }, [live]);
+  useEffect(refreshRecent, [refreshRecent, dropId]);
 
-  const sortOne = async (input: DropInput) => {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setBatches((prev) => [{ id, name: input.name, input, status: "sorting", summary: "", rows: [] }, ...prev]);
-    const r = await sortDrop(input);
-    if (!r.data) patch(id, { status: "failed", error: r.message });
-    else patch(id, { status: "ready", summary: r.data.summary, notes: r.data.notes, rows: r.data.items.map((it) => ({ ...it, on: it.kind !== "other" })) });
+  const say = (m: string) => {
+    setToast(m);
+    window.setTimeout(() => setToast((t) => (t === m ? null : t)), 6000);
   };
 
-  const takeFiles = async (list: FileList | File[] | null | undefined) => {
+  // ── الرمي ──
+  const begin = useCallback(
+    async (files: File[], txt: string, source: DropSource) => {
+      if (!team || !currentUser) return;
+      setLocalErr(null);
+      setStarting({ names: files.length ? files.map((f) => f.name) : [txt.split("\n")[0].slice(0, 60)], mime: files[0]?.type });
+      const r = await startDrop(team.id, currentUser.id, { files, text: txt, source });
+      setStarting(null);
+      if (!("id" in r)) {
+        if (r.error === "empty" || r.error === "no_team" || r.error === "not_allowed") return say(r.message);
+        setLocalErr({ code: r.error, message: r.message });
+        return;
+      }
+      setText("");
+      setView("idle");
+      setParams({ d: r.id });
+      const res = await readDrop(r.id);
+      if (res.error_code === "ai_limit") setLimitInfo((res as { limit?: number }).limit ?? null);
+      void reload();
+    },
+    [team, currentUser, setParams, reload],
+  );
+  const takeFiles = (list: FileList | File[] | null | undefined, source: DropSource = "page") => {
     const files = list ? Array.from(list) : [];
-    if (!files.length) return;
-    const { inputs, rejected } = await toInputs(files);
-    setNotes(rejected);
-    for (const inp of inputs) void sortOne(inp);
-  };
-  const takeText = () => {
-    const t = text.trim();
-    if (t.length < 3) return;
-    setText("");
-    void sortOne({ name: t.length > 40 ? `${t.slice(0, 40)}…` : t, text: t });
+    if (files.length && canWrite) void begin(files, "", source);
   };
 
-  // ملفات انرمت من صفحة ثانية
   useEffect(() => {
-    if (pending.length) {
-      const f = pending;
-      pending = [];
-      void takeFiles(f);
+    const take = () => {
+      if (!hasPending() || !live) return;
+      const p = takePending()!;
+      void begin(p.files, p.text ?? "", p.source);
+    };
+    take();
+    window.addEventListener(PENDING_EVENT, take);
+    return () => window.removeEventListener(PENDING_EVENT, take);
+  }, [begin, live]);
+
+  // ── النتايج ──
+  const shown = useMemo(() => results.filter((r) => !r.undone_at), [results]);
+  const included = shown.filter((r) => r.included);
+  const nIncluded = included.reduce((s, r) => s + countOf(r), 0);
+  const nAll = shown.reduce((s, r) => s + countOf(r), 0);
+  const selected = shown.find((r) => r.id === sel) ?? shown[0] ?? null;
+
+  const toggle = (r: DropResult, v: boolean) => {
+    patchLocal(r.id, { included: v });
+    void updateResult(r.id, { included: v }).then((x) => x.error && (patchLocal(r.id, { included: !v }), say(x.error)));
+  };
+  const move = (to: Destination) => {
+    const r = moveFor;
+    setMoveFor(null);
+    if (!r || to === r.destination) return;
+    const payload = retarget(r, to);
+    if (!payload) return;
+    patchLocal(r.id, { destination: to, payload, confidence: 1 });
+    void updateResult(r.id, { destination: to, payload, confidence: 1 }).then((x) => x.error && say(x.error));
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const saveEdit = (title: string, payload: Record<string, any>) => {
+    const r = editFor;
+    setEditFor(null);
+    if (!r) return;
+    patchLocal(r.id, { title, payload, confidence: 1 });
+    void updateResult(r.id, { title, payload, confidence: 1 }).then((x) => x.error && say(x.error));
+  };
+  const file = async () => {
+    if (!dropId || busy) return;
+    setBusy(true);
+    const r = await fileDrop(dropId);
+    setBusy(false);
+    if (r.error) return say(r.error);
+    await reload();
+    refreshRecent();
+  };
+  const ignore = async () => {
+    if (dropId) await supabase!.from("drops").update({ status: "undone" }).eq("id", dropId).eq("status", "ready");
+    setParams({});
+    refreshRecent();
+  };
+  const undo = async (id: string) => {
+    const r = await undoDrop(id);
+    if (r.error) return say(r.error);
+    say(undoMessage(r));
+    if (id === dropId) setParams({});
+    refreshRecent();
+  };
+  const again = () => {
+    setLocalErr(null);
+    setParams({});
+    setView("idle");
+  };
+  // ما لقينا شي: الملفات نفسها تنحط بالملفات
+  const toFiles = async () => {
+    if (!dropId || !project || !currentUser) return;
+    const { data } = await supabase!.from("drop_items").select("name, mime, size, storage_path").eq("drop_id", dropId).eq("kind", "file");
+    const rows = (data ?? []).map((i) => ({ research_project_id: project.id, name: i.name, mime_type: i.mime ?? "application/octet-stream", size_bytes: i.size ?? 0, category: "general", uploaded_by: currentUser.id, storage_path: i.storage_path }));
+    if (rows.length) {
+      const { error } = await supabase!.from("files").insert(rows);
+      if (error) return say(tr("ما انحفظت — جرّبوا مرة ثانية."));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const over = usePageDrop(
-    useCallback((f: FileList) => void takeFiles(f), []), // eslint-disable-line react-hooks/exhaustive-deps
-    true,
+    navigate("/files");
+  };
+
+  // ── أي شاشة؟ ──
+  const status = drop?.status;
+  const reading = !!starting || (!!dropId && (!drop || status === "uploading" || status === "reading"));
+  const errCode: DropError | null = localErr?.code ?? (status === "failed" ? drop?.error_code ?? "failed" : null);
+
+  const inputs = (
+    <>
+      <input ref={fileRef} type="file" multiple hidden accept={ACCEPT} onChange={(e) => (takeFiles(e.target.files), (e.target.value = ""))} />
+      <input ref={camRef} type="file" hidden accept="image/*" capture="environment" onChange={(e) => (takeFiles(e.target.files), (e.target.value = ""))} />
+    </>
+  );
+  const toastEl = toast && (
+    <div role="status" className="dr-card dr-in fixed inset-x-4 bottom-24 z-[60] mx-auto max-w-md rounded-2xl px-4 py-3 text-[14px] text-[#EAE3DC] md:bottom-8">
+      {toast}
+    </div>
+  );
+  const sheets = (
+    <>
+      <DestinationSheet r={moveFor} onClose={() => setMoveFor(null)} onPick={move} />
+      <EditSheet r={editFor} roster={roster} onClose={() => setEditFor(null)} onSave={saveEdit} />
+    </>
   );
 
-  const firstName = (id: string | null) => (id ? roster.find((m) => m.id === id)?.name.split(" ")[0] ?? "" : "");
+  if (!live)
+    return (
+      <div className="mx-auto max-w-md py-10 text-center">
+        <Vessel size={220} className="mx-auto" />
+        <h1 className="dr-title text-[30px]">{tr("ارموا أي شي")}</h1>
+        <p className="mt-2 text-[15px] text-[#E9D3B8]">{tr("هذي الميزة تشتغل بحساب فريقكم الحقيقي.")}</p>
+      </div>
+    );
 
-  const destination = (r: Row): string => {
-    switch (r.kind) {
-      case "paper":
-      case "paper_info":
-        return tr("مكتبة الأدلة + جدول الأدبيات");
-      case "task":
-        return placeByKey(r.place)?.label ? tr("مهامي · {0}", placeByKey(r.place)!.label) : tr("مهامي");
-      case "minutes":
-        return tr("الاجتماعات");
-      case "supervisor_note":
-        return tr("ملاحظات المشرف/ة · {0}", SECTION_LABEL[r.section] ?? "");
-      case "section_text":
-        return tr("المقترح · {0}", SECTION_LABEL[r.section] ?? "");
-      case "event":
-        return tr("التقويم");
-      case "link":
-        return tr("المحادثة والملفات");
-      default:
-        return tr("الملفات");
-    }
-  };
-
-  const body = (r: Row): ReactNode => {
-    switch (r.kind) {
-      case "paper":
-        return tr("نقراها بالتفصيل ونعبّي الجدول لما تحطونها.");
-      case "paper_info":
-        return (
-          <>
-            <b dir="auto">{r.title}</b>
-            <span className="dp-meta" dir="auto">
-              {[r.authors, r.year].filter(Boolean).join(" · ")}
+  // ── خطأ ──
+  if (errCode) {
+    const ext = items.find((i) => i.kind === "file")?.name.match(/\.[a-z0-9]+$/i)?.[0];
+    const E: Record<DropError, { icon: ReactNode; title: string; body: string; action: string; run: () => void }> = {
+      unreadable: { icon: <Sparkles size={18} />, title: tr("الصورة مو واضحة"), body: tr("صوّروها أقرب ومع إضاءة أحسن، ونقراها على طول."), action: tr("صوّروها مرة ثانية"), run: () => (again(), camRef.current?.click()) },
+      unsupported: { icon: <FileSearch size={18} />, title: tr("هذا النوع ما نقراه للحين"), body: ext ? tr("ملف {0} · صدّروه PDF أو Word وارموه.", ext) : tr("صدّروه PDF أو Word وارموه."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
+      nothing_found: { icon: <Folder size={18} />, title: tr("ما لقينا شي نرتبه"), body: tr("شكله ملف عادي. نحطه بالملفات؟"), action: tr("حطوه بالملفات"), run: () => void toFiles() },
+      offline: { icon: <WifiOff size={18} />, title: tr("النت مفصول"), body: tr("حفظناه عندكم، وأول ما يرجع النت نقراه لحاله."), action: tr("تمام"), run: again },
+      ai_limit: { icon: <Lock size={18} />, title: tr("خلصت قراءات هالشهر"), body: limitInfo ? tr("باقتكم فيها {0} رمية بالشهر. ترجع أول الشهر الجاي، أو كبّروا الباقة.", limitInfo) : tr("ترجع أول الشهر الجاي، أو كبّروا الباقة."), action: tr("شوفوا الباقات"), run: () => navigate("/pricing") },
+      too_large: { icon: <FileSearch size={18} />, title: tr("الرمية كبيرة"), body: tr("الحد ١٠ ملفات و٢٥ ميغا للملف. قسّموها وارموها مرة ثانية."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
+      failed: {
+        icon: <Sparkles size={18} />,
+        title: tr("ما زبطت هالمرة"),
+        body: tr("صار شي من عندنا. جرّبوا مرة ثانية."),
+        action: tr("جرّبوا مرة ثانية"),
+        run: () => {
+          if (!dropId || localErr) return again();
+          void readDrop(dropId).then(() => reload());
+        },
+      },
+    };
+    const e = E[errCode] ?? E.failed;
+    return (
+      <div className="mx-auto max-w-sm pt-4" role="alert">
+        {inputs}
+        <section className="dr-card dr-in flex flex-col items-center rounded-[26px] p-[18px] text-center">
+          <div className="relative">
+            <Vessel size={190} state="dim" />
+            <span className="absolute bottom-[18px] left-1/2 -translate-x-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-[#1C130E] text-[#FFC777] shadow-[inset_0_0_0_1px_rgba(255,199,119,0.35)]" aria-hidden>
+              {e.icon}
             </span>
-            {r.summaryAr && (
-              <span className="dp-meta dp-sum" dir="auto">
-                {r.summaryAr}
-              </span>
-            )}
-          </>
-        );
-      case "task":
-        return (
-          <>
-            <b dir="auto">{r.title}</b>
-            <span className="dp-meta">{[firstName(r.assigneeId) || tr("بدون مسؤول (يروح لكم)"), r.due ? formatDateShort(r.due) : tr("بعد أسبوع")].join(" · ")}</span>
-          </>
-        );
-      case "minutes":
-        return (
-          <>
-            <b>{tr("اجتماع {0}", formatDateShort(r.meetingDate))}</b>
-            <span className="dp-meta dp-clip" dir="auto">
-              {r.decisions || r.discussion}
-            </span>
-          </>
-        );
-      case "supervisor_note":
-        return <b dir="auto">{r.comment}</b>;
-      case "section_text":
-        return (
-          <span className="dp-meta dp-clip" dir="auto">
-            {r.text}
-          </span>
-        );
-      case "event":
-        return (
-          <>
-            <b dir="auto">{r.title}</b>
-            <span className="dp-meta">{[formatDateShort(r.date), r.time].filter(Boolean).join(" · ")}</span>
-          </>
-        );
-      case "link":
-        return (
-          <>
-            <b dir="auto">{r.label || r.url}</b>
-            {r.summary && (
-              <span className="dp-meta dp-sum" dir="auto">
-                {r.summary}
-              </span>
-            )}
-            <span className="dp-meta" dir="ltr">
-              {r.url}
-            </span>
-          </>
-        );
-      default:
-        return <span className="dp-meta">{r.why}</span>;
-    }
-  };
-
-  const save = async (b: Batch) => {
-    if (!currentUser) return;
-    patch(b.id, { status: "saving" });
-    const notesToAdd: { i: number; comment: string; sectionKey: string }[] = [];
-    for (let i = 0; i < b.rows.length; i++) {
-      const r = b.rows[i];
-      if (!r.on || r.done?.ok) continue;
-      let res: { ok: boolean; to?: string; msg?: string } = { ok: false };
-      try {
-        if (r.kind === "paper") {
-          const read = await readPaperFiles(b.input.files ?? []);
-          if (!read.data) res = { ok: false, msg: read.message };
-          else {
-            const p = read.data;
-            const { error } = await addPaper({ title: p.title, authors: p.authors, year: p.year ?? new Date().getFullYear(), theme: p.theme as EvidencePaper["theme"], studyDesign: p.studyDesign, keyFinding: p.keyFinding, relevance: p.relevance, section: p.section, country: p.country, aim: p.aim, sample: p.sampleAndSetting, dataCollection: p.dataCollection, addedById: currentUser.id });
-            res = error ? { ok: false, msg: error } : { ok: true, to: "/evidence" };
-          }
-        } else if (r.kind === "paper_info") {
-          const ok = (v: string) => (/غير مذكور/.test(v) ? "" : v);
-          const { error } = await addPaper({ title: r.title, authors: ok(r.authors), year: r.year ?? new Date().getFullYear(), theme: "عام" as EvidencePaper["theme"], studyDesign: ok(r.studyDesign), keyFinding: ok(r.keyFinding), relevance: ok(r.relevance), section: r.section, link: r.url || undefined, country: ok(r.country), aim: ok(r.aim), sample: ok(r.sampleAndSetting), dataCollection: ok(r.dataCollection), addedById: currentUser.id });
-          res = error ? { ok: false, msg: error } : { ok: true, to: "/evidence" };
-        } else if (r.kind === "task") {
-          const { error, id } = await addTask({ title: r.title, description: tr("من «ارموا أي شي»: {0}", b.name), assigneeId: r.assigneeId ?? currentUser.id, dueDate: r.due || addDaysISO(new Date().toISOString().slice(0, 10), 7), priority: "medium", sectionKey: r.place || null });
-          res = error ? { ok: false, msg: isLeader ? error : tr("المهام يضيفها القائد") } : { ok: true, to: id ? `/tasks?task=${id}` : "/tasks" };
-        } else if (r.kind === "minutes") {
-          const tasks = b.rows.filter((x): x is Row & { kind: "task" } => x.kind === "task" && x.on).map((x) => `- ${x.title}`).join("\n");
-          const { error } = await addMinutes({ meetingDate: r.meetingDate, agenda: r.agenda, attendees: [], discussion: r.discussion, decisions: r.decisions, actionItems: tasks, createdById: currentUser.id });
-          res = error ? { ok: false, msg: error } : { ok: true, to: "/meeting-minutes" };
-        } else if (r.kind === "supervisor_note") {
-          notesToAdd.push({ i, comment: r.comment, sectionKey: r.section });
-          continue;
-        } else if (r.kind === "section_text") {
-          const sec = sections.find((s) => s.key === r.section);
-          const content = sec?.content?.trim() ? `${sec.content.trim()}\n\n${r.text}` : r.text;
-          const { error } = await updateSection(r.section, { content });
-          res = error ? { ok: false, msg: error } : { ok: true, to: r.section === "methodology" ? "/methodology" : `/proposal?section=${r.section}` };
-        } else if (r.kind === "event") {
-          const type = /تسليم|اختبار|deadline|exam/i.test(r.title) ? "deadline" : "meeting";
-          const { error } = await addEvent({ title: r.title, date: r.date, time: r.time, type, location: "" });
-          res = error ? { ok: false, msg: error } : { ok: true, to: "/calendar" };
-        } else if (r.kind === "link") {
-          const { error } = await send([r.label, r.summary ? tr("الملخص: {0}", r.summary) : "", r.url].filter(Boolean).join("\n"));
-          res = error ? { ok: false, msg: error } : { ok: true, to: "/files" };
-        }
-      } catch {
-        res = { ok: false, msg: tr("ما انحفظت — جرّبوا مرة ثانية.") };
-      }
-      // رسائل الخطأ التقنية (إنجليزي) نخليها جملة واضحة
-      if (!res.ok && (!res.msg || !/[\u0600-\u06FF]/.test(res.msg))) res = { ...res, msg: tr("ما انحفظت — جرّبوا مرة ثانية.") };
-      patchRow(b.id, i, { done: res });
-    }
-    if (notesToAdd.length) {
-      const { error } = await addItems(notesToAdd.map((n) => ({ comment: n.comment, sectionKey: n.sectionKey })), currentUser.id, project?.id ?? null);
-      for (const n of notesToAdd) patchRow(b.id, n.i, { done: error ? { ok: false, msg: tr("ما انحفظت — جرّبوا مرة ثانية.") } : { ok: true, to: "/feedback" } });
-    }
-    // اللي فشل يقدرون يعيدونه (المحفوظ ما يتكرر)
-    setBatches((prev) => prev.map((x) => (x.id === b.id ? { ...x, status: x.rows.some((r) => r.on && r.kind !== "other" && !r.done?.ok) ? "ready" : "saved" } : x)));
-  };
-
-  const firstReady = batches.find((b) => b.status === "ready")?.id;
-
-  return (
-    <div className="mx-auto max-w-3xl">
-      <PageDropOverlay show={over} />
-      <section className="dp-hero hg-card">
-        <AgentOrb size={72} state={batches.some((b) => b.status === "sorting") ? "thinking" : "idle"} />
-        <h1 className="m-0 mt-3 text-[28px] font-extrabold text-[#F2EBE3]">{tr("ارموا أي شي")}</h1>
-        <p className="m-0 mt-1.5 max-w-md text-[15px] leading-relaxed text-[#E9D3B8]">{tr("دراسة، رابط دراسة أو صفحة (نفتحه ونلخصه)، صورة سبورة، سكرين شوت من الدكتورة، ملاحظات اجتماع… الوكيل يفهمها ويقترح وين ينحط كل شي، وأنتم توافقون.")}</p>
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          <button type="button" className="tc-cream !min-h-[48px]" onClick={() => fileRef.current?.click()} disabled={!canWrite}>
-            <FileUp size={18} aria-hidden />
-            {tr("اختاروا ملف")}
-          </button>
-          <button type="button" className="tc-chip !min-h-[48px]" onClick={() => camRef.current?.click()} disabled={!canWrite}>
-            <Camera size={18} aria-hidden />
-            {tr("صوّروا")}
-          </button>
-        </div>
-        <input ref={fileRef} type="file" multiple hidden accept="application/pdf,.pdf,image/*,.txt,.md,.csv,text/plain" onChange={(e) => (takeFiles(e.target.files), (e.target.value = ""))} />
-        <input ref={camRef} type="file" hidden accept="image/*" capture="environment" onChange={(e) => (takeFiles(e.target.files), (e.target.value = ""))} />
-        <div className="dp-paste">
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} placeholder={tr("أو الصقوا نص أو رابط هنا… (رابط PubMed أو DOI أو أي صفحة، ملاحظات اجتماع، كلام الدكتورة)")} aria-label={tr("الصقوا نص أو رابط")} className="dp-text outline-none" disabled={!canWrite} />
-          <button type="button" className="tc-chip shrink-0" onClick={takeText} disabled={text.trim().length < 3}>
-            {tr("افرزوها")}
-          </button>
-        </div>
-        <p className="m-0 mt-2 text-[12px] text-[#ABA095]">{tr("PDF، صور (حتى ١٠)، أو نص. وتقدرون ترمونها بأي صفحة بالموقع.")}</p>
-        {notes.map((n) => (
-          <p key={n} className="m-0 mt-1 text-[13px] text-[#FF8A7A]" role="alert">
-            {n}
-          </p>
-        ))}
-      </section>
-
-      {batches.map((b) => (
-        <section key={b.id} className="dp-batch hg-card" aria-busy={b.status === "sorting" || b.status === "saving"}>
-          <div className="flex items-center gap-2">
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-extrabold text-[#F2EBE3]" dir="auto">
-                {b.name}
-              </span>
-              <span className="block text-[13px] text-[#ABA095]">
-                {b.status === "sorting" ? tr("الوكيل يقرا ويفرز…") : b.status === "failed" ? "" : b.summary || tr("هذا اللي لقيناه")}
-              </span>
-            </span>
-            {b.status === "sorting" && <Loader2 size={20} className="animate-spin text-[#FFC777]" aria-hidden />}
-            {(b.status === "failed" || b.status === "saved") && (
-              <button type="button" className="sd-x" aria-label={tr("إخفاء")} onClick={() => setBatches((prev) => prev.filter((x) => x.id !== b.id))}>
-                <X size={16} />
-              </button>
-            )}
           </div>
-          {b.notes?.map((n) => (
-            <p key={n} className="m-0 mt-2 text-[13px] text-[#FFC777]" role="status">
-              {n}
-            </p>
-          ))}
-          {b.status === "failed" && (
-            <p className="m-0 mt-2 text-[14px] text-[#FF8A7A]" role="alert">
-              {b.error}
-            </p>
-          )}
-          {b.rows.length > 0 && (
-            <ul className="m-0 mt-3 list-none space-y-2 p-0">
-              {b.rows.map((r, i) => (
-                <li key={i} className={clsx("dp-row", !r.on && "off", r.done?.ok && "ok")}>
-                  <span className="dp-ic" aria-hidden>
-                    {r.done?.ok ? <Check size={18} strokeWidth={3} /> : KIND[r.kind].icon}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="m-0 text-[12px] font-bold text-[#FFC777]">
-                      {KIND[r.kind].label} ← {destination(r)}
-                    </p>
-                    <div className="dp-body">{body(r)}</div>
-                    {r.done && !r.done.ok && (
-                      <p className="m-0 mt-1 text-[13px] text-[#FF8A7A]" role="alert">
-                        {r.done.msg || tr("ما انحفظت")}
-                      </p>
-                    )}
-                  </div>
-                  {r.done?.ok && r.done.to ? (
-                    <Link to={r.done.to} className="sd-act">
-                      {tr("افتحوا")}
-                    </Link>
-                  ) : r.kind !== "other" && b.status === "ready" && !r.done ? (
-                    <label className="dp-check">
-                      <input type="checkbox" checked={r.on} onChange={(e) => patchRow(b.id, i, { on: e.target.checked })} />
-                      <span className="sr-only">{tr("ضمّنوها")}</span>
-                    </label>
-                  ) : r.kind === "other" ? (
-                    <Link to="/files" className="sd-act">
-                      {tr("الملفات")}
-                    </Link>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
-          {(b.status === "ready" || b.status === "saving") && b.rows.some((r) => r.on && r.kind !== "other" && !r.done?.ok) && (
-            <button type="button" className={clsx(b.id === firstReady ? "tc-primary" : "tc-cream", "mt-3 w-full sm:w-auto")} onClick={() => save(b)} disabled={b.status === "saving" || !canWrite}>
-              {b.status === "saving" ? <Loader2 size={18} className="animate-spin" aria-hidden /> : <Check size={18} aria-hidden />}
-              {b.status === "saving" ? tr("نحطها…") : tr("حطوها بمكانها ({0})", b.rows.filter((r) => r.on && r.kind !== "other" && !r.done?.ok).length)}
-            </button>
-          )}
-          {b.status === "saved" && <p className="m-0 mt-3 text-[13px] text-[#ABA095]">{tr("خلصنا. افتحوا أي وحدة تتأكدون منها.")}</p>}
+          <b className="mt-2 text-[18px] text-[#EAE3DC]">{e.title}</b>
+          <p className="m-0 mb-3.5 mt-1.5 text-[14px] leading-[1.7] text-[#E9D3B8]">{localErr?.code === "offline" ? localErr.message : e.body}</p>
+          <button type="button" className="dr-cream w-full !flex-none" onClick={e.run}>
+            {e.action}
+          </button>
         </section>
-      ))}
+        {toastEl}
+      </div>
+    );
+  }
+
+  // ── نقرا ──
+  if (reading) {
+    const names = starting?.names ?? items.map((i) => i.name);
+    const first = names[0] ?? "";
+    const mime = starting?.mime ?? items[0]?.mime;
+    const step = starting ? 1 : status === "reading" ? (shown.length ? 3 : 2) : 1;
+    return (
+      <div className="mx-auto max-w-md">
+        <div role="status" aria-live="polite" className="relative flex flex-col items-center gap-1.5 px-4 pt-2.5 text-center">
+          {first && (
+            <div className="dr-fly" style={{ insetInlineStart: "58%", top: -10, ["--sx" as string]: "0px", ["--sy" as string]: "0px" }} aria-hidden>
+              <div className="dr-flycard" style={{ transform: "perspective(700px) rotateY(-18deg) rotate(-10deg) scale(.8)" }}>
+                <span className="dr-ft" dir="ltr">
+                  {/^image/.test(mime ?? "") ? "IMG" : /pdf/.test(mime ?? "") || /\.pdf$/i.test(first) ? "PDF" : /^https?:/.test(first) ? "URL" : "TXT"}
+                </span>
+                <span className="text-[12px] font-bold leading-[1.3]" dir="auto">
+                  {first.length > 40 ? `${first.slice(0, 40)}…` : first}
+                </span>
+              </div>
+            </div>
+          )}
+          <div className="mt-[70px]">
+            <Vessel size={300} state="reading" />
+          </div>
+          <div className="text-[13px] font-bold tracking-[.04em] text-[#FFB444]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("١ من ١ · {0}", kindWord(1, mime, first))}</div>
+          <h1 className="dr-title text-[28px]">{starting ? tr("نرفعها…") : tr("نقرا الملف…")}</h1>
+          <p className="m-0 text-[15px] text-[#E9D3B8]">{tr("نطلّع النقاط، المهام، ومين مسؤول عن وش.")}</p>
+          <div className="mt-2.5 flex gap-1.5" aria-hidden>
+            {[1, 2, 3, 4].map((i) => (
+              <i key={i} className={`dr-dot${i <= step ? " on" : ""}`} />
+            ))}
+          </div>
+          <section className="dr-card dr-in dr-d3 mt-[18px] flex w-full items-center gap-2.5 rounded-[22px] px-3.5 py-3 text-start">
+            <span className="dr-stamp h-8 w-8" aria-hidden>
+              <Sparkles size={15} />
+            </span>
+            <span className="flex-1 text-[14px] text-[#EAE3DC]">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("الوكيل يقرا ويفرز…"))}</span>
+          </section>
+          <button type="button" className="dr-text dim mt-1" onClick={again}>
+            {tr("إلغاء")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── انحطّت ──
+  if (dropId && status === "filed") {
+    const placed = shown.filter((r) => r.included && r.created_entities.length > 0);
+    const waiting = shown.filter((r) => r.included && r.filed_note);
+    const n = placed.reduce((s, r) => s + r.created_entities.length, 0);
+    const rows = (
+      <div className="flex flex-col gap-2.5">
+        {placed.map((r, i) => (
+          <Link key={r.id} to={deepLink(r)} className={`dr-row dr-fan`} style={{ animationDelay: `${0.08 * (i + 1)}s` }}>
+            <span className="dr-stamp h-[30px] w-[30px]" aria-hidden>
+              <Check size={15} strokeWidth={3} />
+            </span>
+            <span className="min-w-0 flex-1 leading-[1.35]">
+              <b className="block truncate text-[15px]" dir="auto">
+                {r.title}
+              </b>
+              <span className="text-[12px] text-[#ABA095]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
+            </span>
+            <span className="hidden text-[13px] font-bold lg:inline">{tr("افتحوها")}</span>
+            <ChevronLeft size={18} className="text-[#ABA095] ltr:rotate-180" aria-hidden />
+          </Link>
+        ))}
+        {waiting.map((r) => (
+          <div key={r.id} className="dr-row">
+            <span className="dr-ic" aria-hidden>
+              <Sparkles size={15} className="text-[#FFC777]" />
+            </span>
+            <span className="min-w-0 flex-1 leading-[1.35]">
+              <b className="block truncate text-[15px]" dir="auto">
+                {r.title}
+              </b>
+              <span className="text-[12px] text-[#FFC777]">{r.filed_note === "needs_leader" ? tr("تنتظر القائد — هو اللي يضيف المهام") : tr("ما لقينا نموذج الموافقة — افتحوا صفحة الأخلاقيات أول")}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+    const buttons = (
+      <div className="flex gap-2">
+        <button type="button" className="dr-cream !min-h-[48px] !text-[15px]" onClick={again}>
+          {tr("ارموا شي ثاني")}
+        </button>
+        <button type="button" className="dr-ghost !min-h-[48px] !flex-none" onClick={() => undo(dropId)}>
+          <Undo2 size={16} aria-hidden />
+          <span className="lg:hidden">{tr("تراجع")}</span>
+          <span className="hidden lg:inline">{tr("تراجع عن الكل")}</span>
+        </button>
+      </div>
+    );
+    return (
+      <div role="status">
+        <div className="mb-4 hidden lg:block">
+          <div className="text-[18px] text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
+          <h1 className="dr-title text-[52px] leading-[1.1]">{tr("انحطّت {0} أشياء", n)}</h1>
+        </div>
+        <div className="mx-auto flex max-w-md flex-col gap-3 lg:grid lg:max-w-none lg:grid-cols-[1fr_1.2fr] lg:items-start lg:gap-[18px]">
+          <section className="dr-card dr-in rounded-[28px] px-4 pb-[18px] pt-1.5 text-center lg:order-1">
+            <div className="-mb-4 flex justify-center">
+              <Vessel size={190} state="done" className="lg:!h-[300px] lg:!w-[300px]" />
+            </div>
+            <div className="dr-stamp dr-pop mx-auto mb-2 h-[52px] w-[52px] shadow-[0_0_0_8px_rgba(255,199,119,0.1)]" aria-hidden>
+              <Check size={24} strokeWidth={3} />
+            </div>
+            <h1 className="dr-title text-[30px] lg:hidden">{tr("انحطّت {0} أشياء", n)}</h1>
+            <p className="m-0 mt-1 text-[15px] text-[#E9D3B8]">{tr("كل شي بمكانه، والفريق يشوفه الحين.")}</p>
+          </section>
+          <section className="flex flex-col gap-3 lg:order-2 lg:rounded-[28px] lg:p-[18px] dr-card-lg">
+            {rows}
+            {buttons}
+          </section>
+        </div>
+        {toastEl}
+      </div>
+    );
+  }
+
+  // ── تأكدوا قبل لا نحطها ──
+  if (dropId && status === "ready") {
+    const perItem = (id: string) => {
+      const rs = shown.filter((r) => r.item_id === id);
+      return rs.map((r) => (countOf(r) > 1 ? `${countOf(r)} ${DEST_LABEL[r.destination]}` : DEST_LABEL[r.destination])).join(" + ");
+    };
+    const footer = (
+      <div className="flex flex-col gap-1.5">
+        <button type="button" className="dr-primary" onClick={file} disabled={!nIncluded || busy || !canWrite}>
+          {busy ? tr("نحطها…") : tr("حطوها بمكانها")} <span dir="ltr">({nIncluded})</span>
+        </button>
+        <div className="flex gap-2">
+          <button type="button" className="dr-cream" onClick={() => selected && setEditFor(selected)} disabled={!selected}>
+            {tr("عدّلوا")}
+          </button>
+          <button type="button" className="dr-ghost" onClick={ignore}>
+            {tr("تجاهل")}
+          </button>
+        </div>
+      </div>
+    );
+    const cards = shown.map((r, i) => <ResultCard key={r.id} r={r} index={i} roster={roster} selected={selected?.id === r.id} onSelect={() => setSel(r.id)} onToggle={(v) => toggle(r, v)} onMove={() => setMoveFor(r)} isLeader={isLeader} />);
+    return (
+      <div>
+        {inputs}
+        {/* الجوال */}
+        <div className="mx-auto flex max-w-md flex-col gap-2.5 lg:hidden">
+          <div className="flex items-center gap-3">
+            <Vessel size={84} state="hover" />
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[13px] font-bold text-[#FFB444]" dir="auto">
+                {items.length > 1 ? tr("{0} عناصر رميتوها", items.length) : items[0]?.name}
+              </div>
+              <h1 className="dr-title text-[24px] leading-[1.3]">{tr("لقينا {0} أشياء", nAll)}</h1>
+              {drop?.summary && <div className="text-[13px] text-[#ABA095]">{drop.summary}</div>}
+            </div>
+          </div>
+          {cards}
+          {footer}
+        </div>
+        {/* الديسكتوب */}
+        <div className="hidden lg:block">
+          <div className="mb-4">
+            <div className="text-[18px] text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
+            <h1 className="dr-title text-[52px] leading-[1.1]">{tr("تأكدوا قبل لا نحطها")}</h1>
+          </div>
+          <div className="grid grid-cols-[380px_1fr] items-start gap-[18px]">
+            <section className="dr-card dr-in sticky top-4 flex flex-col items-center rounded-[28px] p-[18px] text-center">
+              <Vessel size={260} state="hover" />
+              <h2 className="dr-title -mt-3.5 mb-0.5 text-[28px]">{tr("لقينا {0} أشياء", nAll)}</h2>
+              <p className="m-0 mb-3 text-[14px] text-[#E9D3B8]">{drop?.summary || (items.length > 1 ? tr("من {0} عناصر رميتوها", items.length) : tr("من اللي رميتوه"))}</p>
+              <div className="flex w-full flex-col gap-1.5">
+                {items.map((it) => (
+                  <div key={it.id} className="flex items-center gap-2.5 rounded-[14px] bg-white/[.035] px-2.5 py-2 text-start">
+                    <FileIcon name={it.name} mime={it.mime} small />
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-bold" dir="auto">
+                      {it.name}
+                    </span>
+                    <span className="max-w-[45%] truncate text-[12px] text-[#FFC777]">{perItem(it.id)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-auto w-full pt-3.5">{footer}</div>
+            </section>
+            <div className="grid grid-cols-2 items-start gap-3.5">{cards}</div>
+          </div>
+        </div>
+        {sheets}
+        {toastEl}
+      </div>
+    );
+  }
+
+  // ── الصقوا هنا ──
+  if (view === "paste") {
+    const d = detectPaste(text);
+    return (
+      <div className="mx-auto flex max-w-md flex-col gap-3">
+        <div className="flex items-center gap-3.5">
+          <Vessel size={110} state="hover" />
+          <div>
+            <h1 className="dr-title text-[26px]">{tr("الصقوا هنا")}</h1>
+            <p className="m-0 mt-0.5 text-[14px] text-[#E9D3B8]">{tr("نص، ملاحظات، أو رابط DOI أو PubMed")}</p>
+          </div>
+        </div>
+        <section className="dr-card dr-in rounded-[26px] p-3.5">
+          <textarea className="dr-paste" value={text} onChange={(e) => setText(e.target.value)} autoFocus aria-label={tr("الصقوا نص أو رابط")} placeholder={tr("مثال: ملاحظات اجتماع، كلام الدكتورة، قائمة مهام، أو رابط دراسة…")} dir="auto" />
+          <div className="mt-2.5 flex flex-wrap gap-1.5" aria-live="polite">
+            {d.hint && (
+              <span className="dr-chip gold">
+                <Sparkles size={12} aria-hidden />
+                {d.hint}
+              </span>
+            )}
+            {d.lines > 0 && <span className="dr-chip">{tr("{0} أسطر", d.lines)}</span>}
+          </div>
+        </section>
+        <button type="button" className="dr-primary" disabled={text.trim().length < 2 || !canWrite} onClick={() => begin([], text, "paste")}>
+          {tr("ارموها")}
+        </button>
+        <button type="button" className="dr-text" onClick={() => setView("idle")}>
+          {tr("إلغاء")}
+        </button>
+        {toastEl}
+      </div>
+    );
+  }
+
+  // ── البداية ──
+  const recentCard = (
+    <section className="dr-card dr-in dr-d3 rounded-[26px] px-3.5 pb-1.5 pt-3.5">
+      <div className="flex items-center gap-2.5 px-1 pb-1 text-[16px] font-bold">
+        <span className="dr-ic" aria-hidden>
+          <Folder size={16} />
+        </span>
+        {tr("آخر اللي رميتوه")}
+      </div>
+      {recent.length === 0 ? (
+        <p className="m-0 px-1 pb-3 pt-1 text-[13px] text-[#ABA095]">{tr("لسا ما رميتوا شي. أول رمية بتطلع هنا مع المكان اللي راحت له.")}</p>
+      ) : (
+        recent.map((d) => {
+          const it = d.items[0];
+          const name = d.items.length > 1 ? tr("{0} عناصر", d.items.length) : it?.name ?? d.summary;
+          const placed = d.results.filter((r) => r.created > 0 && !r.undone);
+          const where = d.status === "ready" ? tr("تنتظر مراجعتكم") : [...new Set(placed.map((r) => (r.destination === "tasks" ? tr("مهامي · {0} مهام", r.tasks) : DEST_PLACE[r.destination])))].join(" + ") || tr("ما انحط شي");
+          return (
+            <div key={d.id} className="dr-recent-row">
+              <FileIcon name={it?.name ?? ""} mime={it?.mime} />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[14px] font-bold" dir="auto">
+                  {name}
+                </div>
+                <div className="truncate text-[12px] text-[#ABA095]">
+                  <span className="text-[#FFC777]">‹</span> {where} · {new Date(d.created_at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+                </div>
+              </div>
+              {d.status === "ready" ? (
+                <button type="button" className="dr-text !text-[13px]" onClick={() => setParams({ d: d.id })}>
+                  {tr("راجعوها")}
+                </button>
+              ) : placed.length ? (
+                <button type="button" className="dr-text !text-[13px]" onClick={() => undo(d.id)}>
+                  <Undo2 size={15} aria-hidden />
+                  {tr("تراجع")}
+                </button>
+              ) : null}
+            </div>
+          );
+        })
+      )}
+    </section>
+  );
+  const pickBtns = (desk: boolean) => (
+    <>
+      <button type="button" className={desk ? "dr-primary !w-auto !px-[26px]" : "dr-primary"} onClick={() => fileRef.current?.click()} disabled={!canWrite}>
+        <Download size={18} aria-hidden />
+        {tr("اختاروا ملف")}
+      </button>
+      <div className={desk ? "flex flex-wrap justify-center gap-2" : "mt-2 flex gap-2"}>
+        <button type="button" className={desk ? "dr-ghost !flex-none !px-[18px]" : "dr-ghost"} onClick={() => camRef.current?.click()} disabled={!canWrite}>
+          <Camera size={16} aria-hidden />
+          {tr("صوّروا")}
+        </button>
+        <button type="button" className={desk ? "dr-ghost !flex-none !px-[18px]" : "dr-ghost"} onClick={() => setView("paste")} disabled={!canWrite}>
+          <ClipboardPaste size={16} aria-hidden />
+          {tr("الصقوا نص أو رابط")}
+        </button>
+      </div>
+    </>
+  );
+  const onZone = {
+    onDragOver: (e: React.DragEvent) => {
+      if (Array.from(e.dataTransfer.types).includes("Files")) {
+        e.preventDefault();
+        setZoneOver(true);
+      }
+    },
+    onDragLeave: () => setZoneOver(false),
+    // الإفلات نفسه يستلمه GlobalDrop (نفس الطريق لكل الصفحات)
+    onDrop: () => setZoneOver(false),
+  };
+  return (
+    <div>
+      {inputs}
+      {/* الجوال */}
+      <div className="mx-auto flex max-w-md flex-col gap-3.5 lg:hidden">
+        <section className="dr-card dr-in overflow-hidden rounded-[28px] px-4 pb-5 pt-2 text-center">
+          <div className="-mb-[18px] -mt-1.5 flex justify-center">
+            <Vessel size={250} />
+          </div>
+          <h1 className="dr-title text-[34px] leading-[1.2]">{tr("ارموا أي شي")}</h1>
+          <p className="mx-3 mb-4 mt-1.5 text-[15px] leading-[1.7] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
+          {pickBtns(false)}
+        </section>
+        {recentCard}
+      </div>
+      {/* الديسكتوب */}
+      <div className="hidden lg:flex lg:flex-col lg:gap-[18px]">
+        <div>
+          <div className="text-[18px] text-[#E9C9A0]">{tr("ملف، صورة، رسالة، رابط")}</div>
+          <h1 className="dr-title text-[52px] leading-[1.1]">{tr("ارموا أي شي")}</h1>
+        </div>
+        <div className="grid grid-cols-[1.35fr_1fr] items-start gap-[18px]">
+          <section className="dr-card dr-glow dr-in flex min-h-[600px] flex-col items-center rounded-[28px] p-6 text-center" {...onZone}>
+            <div className={`dr-zone${zoneOver ? " over" : ""}`}>
+              <Vessel size={360} state={zoneOver ? "hover" : "idle"} />
+              <div className="-mt-6 text-[22px] font-extrabold">{tr("اسحبوا الملفات هنا")}</div>
+              <p className="m-0 mb-[18px] mt-1 text-[15px] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
+              <div className="flex items-center gap-2.5">{pickBtns(true)}</div>
+            </div>
+          </section>
+          <div className="flex flex-col gap-[18px]">
+            {recentCard}
+            <section className="dr-card dr-in dr-d4 rounded-[26px] px-[18px] py-4">
+              <div className="mb-2 text-[16px] font-bold">{tr("وش نقدر نرتب؟")}</div>
+              <div className="flex flex-wrap gap-1.5">
+                {DESTS.map((d) => {
+                  const Icon = DEST_ICON[d];
+                  return (
+                    <span key={d} className="dr-chip">
+                      <Icon size={12} aria-hidden />
+                      {DEST_LABEL[d]}
+                    </span>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      {toastEl}
     </div>
   );
 }

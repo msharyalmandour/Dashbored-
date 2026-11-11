@@ -210,6 +210,19 @@ export default function Files() {
                         >
                           <ExternalLink size={12} />{tr("فتح بدرايف")}</a>
                       )}
+                      {!file.driveViewLink && file.storagePath && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const { data } = await supabase!.storage.from("drops").createSignedUrl(file.storagePath!, 300);
+                            if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
+                          }}
+                          className="flex min-h-[36px] shrink-0 items-center gap-1 rounded-full border border-brand-500/30 px-3 py-1.5 text-xs font-semibold text-amber-accent-400 transition-colors hover:bg-brand-500/10"
+                        >
+                          <ExternalLink size={12} />
+                          {tr("افتحوه")}
+                        </button>
+                      )}
                       {uploader && (
                         <div className="hidden items-center gap-1.5 text-xs text-brand-950/45 sm:flex">
                           <Avatar initials={uploader.initials} color={uploader.color} size="sm" />

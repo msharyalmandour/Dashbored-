@@ -311,6 +311,8 @@ export interface DriveFile {
   category: "general" | "meeting-minutes" | "ethical-approval";
   driveFileId: string;
   driveViewLink: string;
+  /** ملف جاي من «ارموا أي شي» بحاوية drops (مو بدرايف) */
+  storagePath?: string | null;
   uploadedById: string;
   createdAt: string;
 }

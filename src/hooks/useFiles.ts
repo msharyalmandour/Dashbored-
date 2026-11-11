@@ -32,6 +32,7 @@ interface FileRowDb {
   category: DriveFile["category"];
   drive_file_id: string;
   drive_view_link: string;
+  storage_path?: string | null;
   uploaded_by: string | null;
   created_at: string;
 }
@@ -45,6 +46,7 @@ function mapRow(row: FileRowDb): DriveFile {
     category: row.category,
     driveFileId: row.drive_file_id,
     driveViewLink: row.drive_view_link,
+    storagePath: row.storage_path ?? null,
     uploadedById: row.uploaded_by ?? "",
     createdAt: row.created_at,
   };

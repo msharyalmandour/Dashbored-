@@ -80,6 +80,9 @@ interface Store {
   messages: ChatMessage[];
   loaded: boolean;
   unavailable: boolean;
+  /** آخر قراءة لي بالسيرفر وقت ما فتحت المحادثة (قبل ما نعلّمها مقروءة) — undefined لين توصل */
+  myRead?: string | null;
+  pendingRead?: string;
   typers: Typer[];
   /** آخر وقت قرا فيه كل عضو المحادثة (team_chat_reads) — لـ ✓✓ و«آخر ظهور» */
   reads: Record<string, string>;
@@ -123,8 +126,19 @@ function open(teamId: string, userId: string): Store {
     emit(s);
     // ✓✓: لو جدول القراءات موجود (قبل تشغيل ملف SQL يرجع خطأ ونكمل بدونه)
     const reads = await supabase!.from("team_chat_reads").select("profile_id, last_read_at").eq("team_id", teamId);
-    if (store !== s || reads.error) return;
+    if (store !== s) return;
+    if (reads.error) {
+      s.myRead = null;
+      emit(s);
+      return;
+    }
+    s.myRead = ((reads.data ?? []) as { profile_id: string; last_read_at: string }[]).find((r) => r.profile_id === userId)?.last_read_at ?? null;
     for (const r of (reads.data ?? []) as { profile_id: string; last_read_at: string }[]) s.reads[r.profile_id] = r.last_read_at;
+    if (s.pendingRead) {
+      s.reads[userId] = s.pendingRead > (s.reads[userId] ?? "") ? s.pendingRead : s.reads[userId];
+      void supabase!.from("team_chat_reads").upsert({ team_id: teamId, profile_id: userId, last_read_at: s.reads[userId] }, { onConflict: "team_id,profile_id" }).then(() => {});
+      s.pendingRead = undefined;
+    }
     emit(s);
     const votes = await supabase!.from("team_message_votes").select("message_id, profile_id, option").eq("team_id", teamId);
     if (store !== s || votes.error) return;
@@ -317,6 +331,11 @@ export function useTeamChat() {
       if (!s || !currentUser) return;
       if ((s.reads[currentUser.id] ?? "") >= at) return;
       s.reads = { ...s.reads, [currentUser.id]: at };
+      // ننتظر قراءتي القديمة من السيرفر أول (لـ «اللي فاتك»)، وبعدها نحفظ
+      if (s.myRead === undefined) {
+        s.pendingRead = at;
+        return;
+      }
       void supabase!
         .from("team_chat_reads")
         .upsert({ team_id: s.teamId, profile_id: currentUser.id, last_read_at: at }, { onConflict: "team_id,profile_id" })
@@ -335,6 +354,7 @@ export function useTeamChat() {
     unavailable: s?.unavailable ?? false,
     typers: (s?.typers ?? []).filter((t) => now - t.at < 4000).map((t) => t.id),
     reads: s?.reads ?? {},
+    myPrevRead: s?.myRead,
     votes: s?.votes ?? {},
     send,
     post,

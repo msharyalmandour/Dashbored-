@@ -156,11 +156,14 @@ async function runChat(userId: string, messageId: string, mentions: string[] = [
   const body = text.length > 160 ? `${text.slice(0, 157)}…` : text;
   // اللي انشار لهم (@الاسم) — بس من أعضاء الفريق نفسه
   const tagged = new Set(mentions.filter((id) => others.includes(id)));
+  // وقت التركيز: اللي مفعّله ما يجيه إلا الإشارة (@اسمه). نقراه لحاله عشان لو العمود مو موجود ما يوقف الإشعارات
+  const { data: focusRows, error: focusErr } = await admin.from("profiles").select("id, focus_until").in("id", others);
+  const focused = new Set(focusErr ? [] : ((focusRows ?? []) as { id: string; focus_until: string | null }[]).filter((r) => r.focus_until && Date.parse(r.focus_until) > Date.now()).map((r) => r.id));
   const all = (subs ?? []) as Sub[];
   const base = { body, url: `${site()}/#/chat`, renotify: true };
   const sentTagged = await sendTo(all.filter((x) => tagged.has(x.profile_id)), { ...base, title: `${first} أشار لك بالمحادثة`, tag: `chat-mention-${m.id}` });
   // رسائل الفريق تتجمع بإشعار واحد يتحدّث، ويرن مع كل رسالة جديدة
-  const sentRest = await sendTo(all.filter((x) => !tagged.has(x.profile_id)), { ...base, title: `${first} · محادثة الفريق`, tag: `chat-${m.team_id}` });
+  const sentRest = await sendTo(all.filter((x) => !tagged.has(x.profile_id) && !focused.has(x.profile_id)), { ...base, title: `${first} · محادثة الفريق`, tag: `chat-${m.team_id}` });
   return { sent: sentTagged + sentRest };
 }
 

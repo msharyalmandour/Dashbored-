@@ -56,3 +56,21 @@ html[data-reduce-motion="true"] .sup-seal { animation: none; }
 .sup-skel { height: 12px; border-radius: 8px; background: rgba(255,255,255,.06); animation: supSkel 1s ease-in-out 3; }
 @keyframes supSkel { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
 .sup-dim { opacity: .7; }
+
+/* ذكاء المحادثة (SupChatM/D، SupCatchupM) */
+.ci-sum { border-radius: 22px; padding: 12px 14px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 0 0 1px rgba(255,199,119,.22); color: #EAE3DC; animation: ciRise .5s cubic-bezier(.2,.8,.2,1) both; }
+.ci-sum-line { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 12px; border-radius: 18px; border: 0; font: inherit; font-size: 13px; color: #EAE3DC; cursor: pointer; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08); }
+.ci-orphan { border-radius: 18px; padding: 10px 12px; background: linear-gradient(90deg, rgba(255,199,119,.12), rgba(255,199,119,.04)); box-shadow: inset 0 0 0 1px rgba(255,199,119,.3); color: #EAE3DC; animation: ciRise .5s cubic-bezier(.2,.8,.2,1) both; }
+.ci-cream { min-height: 44px; border-radius: 14px; background: #F2EBE3; color: #160904; font-weight: 800; border: 0; font-size: 13px; font-family: inherit; cursor: pointer; padding: 0 14px; }
+.ci-ghost { min-height: 44px; padding: 0 14px; border-radius: 14px; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); color: #EAE3DC; font-weight: 700; border: 0; font-size: 13px; font-family: inherit; cursor: pointer; }
+.ci-text { min-height: 44px; padding: 0 12px; border-radius: 14px; border: 0; background: transparent; color: #ABA095; font-size: 13px; font-family: inherit; cursor: pointer; }
+.ci-seg { min-height: 44px; border-radius: 14px; border: 0; font-family: inherit; font-size: 13px; font-weight: 700; background: rgba(255,255,255,.06); color: #EAE3DC; cursor: pointer; }
+.ci-seg[aria-pressed="true"] { background: #F2EBE3; color: #160904; }
+.ci-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 999px; border: 0; font-family: inherit; background: rgba(255,199,119,.12); box-shadow: inset 0 0 0 1px rgba(255,199,119,.3); font-size: 12px; font-weight: 700; color: #FFC777; cursor: pointer; white-space: nowrap; }
+.ci-scrim { position: fixed; inset: 0; background: rgba(8,6,5,.55); z-index: 1000; }
+.ci-catch { position: fixed; left: 12px; right: 12px; top: 150px; z-index: 1001; max-width: 440px; margin-inline: auto; border-radius: 28px; padding: 18px; color: #EAE3DC; background: linear-gradient(180deg, #2A1A12, #160E0A); box-shadow: inset 0 1px 0 rgba(255,236,210,.18), inset 0 0 0 1px rgba(255,214,170,.10), 0 -10px 60px rgba(0,0,0,.6); animation: ciSheet .45s cubic-bezier(.2,.9,.25,1) both; }
+:is(.ci-cream, .ci-ghost, .ci-text, .ci-seg, .ci-pill, .ci-sum-line):focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+@keyframes ciRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes ciSheet { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ci-sum, .ci-orphan, .ci-catch { animation: none; } }
+html[data-reduce-motion="true"] :is(.ci-sum, .ci-orphan, .ci-catch) { animation: none; }

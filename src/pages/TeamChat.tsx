@@ -18,6 +18,9 @@ import { askProjectAgent } from "../hooks/useProjectAgent";
 import { notifySupervisor } from "../lib/supervisorNotify";
 import { DocBubble, Ledger, RequestCard, SideThread, SupState, Thread, ThreadExplainer, type LedgerRow } from "../components/sup/SupParts";
 import { useCommitments } from "../hooks/useCommitments";
+import { useChatIntel } from "../hooks/useChatIntel";
+import { CatchupSheet, FocusDone, FocusPanel, FocusPill, LiveSummaryCard, OrphanStrip } from "../components/chat/ChatIntel";
+import { guessKnower } from "../lib/chatIntel";
 import { approveCommitment, dismissCommitment, setCommitmentImportant, type Commitment } from "../lib/commitments";
 import { ACCEPT } from "../lib/drops";
 import { queueDrop } from "../lib/dropQueue";
@@ -38,6 +41,12 @@ function dayLabel(iso: string) {
   const d = toISODate(new Date(iso));
   const rel = relativeDayLabel(d);
   return rel === tr("اليوم") || rel === tr("أمس") ? rel : formatDateShort(d);
+}
+
+/** «غبت يومين» */
+function awayLabel(since: string) {
+  const d = Math.max(2, Math.round((Date.now() - Date.parse(since)) / 864e5));
+  return d === 2 ? tr("غبت يومين") : tr("غبت {0} أيام", d);
 }
 
 /** «آخر ظهور قبل ساعة» */
@@ -141,7 +150,7 @@ export default function TeamChat() {
   const { showToast } = useToast();
   const { roster } = useTeamRoster();
   const online = useTeamPresence();
-  const { messages, loaded, unavailable, typers, reads, votes, send, post, vote, closePoll, remind, retry, edit, remove, typing, markRead } = useTeamChat();
+  const { messages, loaded, unavailable, typers, reads, myPrevRead, votes, send, post, vote, closePoll, remind, retry, edit, remove, typing, markRead } = useTeamChat();
   const meetings = useMeetings();
   const navigate = useNavigate();
   const dropPick = useRef<HTMLInputElement>(null);
@@ -183,6 +192,15 @@ export default function TeamChat() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [unavailable]);
+
+  // آخر قراءة لي قبل ما نعلّم المحادثة مقروءة (لـ «اللي فاتك ويخصك»)
+  const intel = useChatIntel(messages, loaded, myPrevRead);
+  const [focusSheet, setFocusSheet] = useState(false);
+  const orphanOf = useMemo(() => new Map(intel.orphans.map((o) => [o.message.id, o])), [intel.orphans]);
+  const knowSources = useMemo(
+    () => [...tasks.map((t) => ({ text: t.title, ownerId: t.assigneeId })), ...sections.map((x) => ({ text: x.labelAr, ownerId: x.ownerId }))],
+    [tasks, sections],
+  );
 
   const people = useMemo(() => new Map(roster.map((m) => [m.id, m])), [roster]);
   const names = useMemo(() => [...roster.map((m) => firstName(m.name)), tr("وكيل")].filter(Boolean), [roster]);
@@ -630,6 +648,24 @@ export default function TeamChat() {
         </div>,
       );
     }
+    const orphan = orphanOf.get(m.id);
+    if (orphan && !query.trim()) {
+      const asker = who(m.authorId);
+      const k = guessKnower(m.body, m.authorId, knowSources);
+      rows.push(
+        <OrphanStrip
+          key={`o-${m.id}`}
+          body={m.body}
+          hours={orphan.hours}
+          asker={{ name: asker?.name ?? "?", avatar: asker?.avatar }}
+          knower={k ? nameOf(k) : null}
+          canAskDoc={canWrite}
+          onAnswer={() => { setReplyTo(m); inputRef.current?.focus(); }}
+          onAskDoc={() => setToSupervisor(m)}
+          onDismiss={() => intel.dismissOrphan(m.id)}
+        />,
+      );
+    }
   });
 
   const typingPeople = typers.map((id) => who(id)).filter((x): x is TeamMember => !!x);
@@ -653,7 +689,7 @@ export default function TeamChat() {
                   {solo ? tr("أنت لحالك للحين") : onlineCount <= 1 ? tr("محد متصل غيرك الحين · {0} أعضاء", roster.length) : tr("{0} متصلين الحين · {1} أعضاء", onlineCount, roster.length)}
                 </p>
               </div>
-              <div className="tc-faces" aria-label={tr("أعضاء الفريق")}>
+              <div className="tc-faces max-[440px]:!hidden" aria-label={tr("أعضاء الفريق")}>
                 {roster.slice(0, 5).map((m) => (
                   <Avatar key={m.id} initials="" name={m.name} avatar={m.avatar} px={30} online={m.id === currentUser.id || onlineIds.has(m.id)} />
                 ))}
@@ -663,6 +699,7 @@ export default function TeamChat() {
                   {minutesBusy ? <Loader2 size={18} className="animate-spin motion-reduce:animate-none" /> : <NotebookPen size={18} />}
                 </button>
               )}
+              <FocusPill until={intel.focus?.until ?? null} onClick={() => setFocusSheet(true)} />
               <button type="button" className="tc-round" aria-label={tr("بحث في المحادثة")} aria-pressed={searchOn} onClick={() => { setSearchOn(!searchOn); setQuery(""); }}>
                 <Search size={19} />
               </button>
@@ -695,6 +732,8 @@ export default function TeamChat() {
             </div>
           ) : (
             <div className="tc-list" aria-live="polite">
+              {intel.focusDone && <FocusDone {...intel.focusDone} onClose={intel.closeFocusDone} />}
+              {intel.summary?.summary && !query.trim() && <LiveSummaryCard s={intel.summary.summary} updatedAt={intel.summary.updatedAt} collapsed={intel.collapsed} onToggle={intel.toggleSummary} />}
               {messages.length === 0 &&
                 (solo ? (
                   <div className="tc-empty">
@@ -858,6 +897,7 @@ export default function TeamChat() {
         </div>
 
         <aside className="tc-panel" aria-label={tr("الفريق والإشارات")}>
+          <FocusPanel active={intel.focus ? (intel.focusChoice ?? "2h") : null} onPick={(c) => void intel.pickFocus(c)} onEnd={() => void intel.endFocus()} />
           {commitments.length > 0 && <Ledger rows={ledgerRows} docName={docName} />}
           {commitments.length > 0 && <ThreadExplainer />}
           <section className="hg-card !p-4">
@@ -994,6 +1034,22 @@ export default function TeamChat() {
         />
       )}
 
+      {intel.catchup && (
+        <CatchupSheet
+          away={awayLabel(intel.catchup.since)}
+          lines={intel.catchup.lines}
+          onClose={intel.closeCatchup}
+          onJump={() => { const id = intel.firstUnread; intel.closeCatchup(); if (id) setTimeout(() => jumpTo(id), 50); }}
+        />
+      )}
+      {focusSheet && (
+        <>
+          <div aria-hidden className="ci-scrim" onClick={() => setFocusSheet(false)} />
+          <div role="dialog" aria-modal="true" aria-label={tr("وقت تركيز")} className="ci-catch !top-auto bottom-[110px]" onKeyDown={(e) => e.key === "Escape" && setFocusSheet(false)}>
+            <FocusPanel active={intel.focus ? (intel.focusChoice ?? "2h") : null} onPick={(c) => { void intel.pickFocus(c); setFocusSheet(false); }} onEnd={() => { void intel.endFocus(); setFocusSheet(false); }} />
+          </div>
+        </>
+      )}
       {toSupervisor && (
         <SupervisorQuestionSheet
           msg={toSupervisor}

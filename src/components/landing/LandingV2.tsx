@@ -505,7 +505,7 @@ export function FaqV2({ faqs }: { faqs: { q: string; a: string }[] }) {
         <h2 className="lv-faq-word m-0">{tr("أسئلة")}</h2>
         <p className="m-0 hidden max-w-[34ch] pb-3 text-[17px] leading-[1.7] text-[#ABA095] md:block">
           {tr("اللي يسألونه كل الفرق قبل ما يبدون. ما لقيت سؤالك؟")}{" "}
-          <a href={`https://wa.me/${SUPPORT_WHATSAPP}`} target="_blank" rel="noreferrer" className="font-bold text-[#FFC777] underline underline-offset-4">
+          <a href={`https://wa.me/${SUPPORT_WHATSAPP}`} target="_blank" rel="noreferrer" className="inline-block px-1 py-2 font-bold text-[#FFC777] underline underline-offset-4">
             {tr("كلّمنا")}
           </a>
         </p>
@@ -530,7 +530,7 @@ export function FaqV2({ faqs }: { faqs: { q: string; a: string }[] }) {
       </div>
       <p className="mt-6 text-center text-[15px] text-[#ABA095] md:hidden">
         {tr("ما لقيت سؤالك؟")}{" "}
-        <a href={`https://wa.me/${SUPPORT_WHATSAPP}`} target="_blank" rel="noreferrer" className="font-bold text-[#FFC777] underline underline-offset-4">
+        <a href={`https://wa.me/${SUPPORT_WHATSAPP}`} target="_blank" rel="noreferrer" className="inline-block px-1 py-2 font-bold text-[#FFC777] underline underline-offset-4">
           {tr("كلّمنا")}
         </a>
       </p>

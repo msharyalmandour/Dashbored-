@@ -268,6 +268,7 @@ export default function Login() {
                         <input
                           required
                           type="email"
+                          autoComplete="email"
                           value={resetEmail}
                           onChange={(e) => {
                             clearValidity(e);
@@ -355,6 +356,7 @@ export default function Login() {
                       <input
                         required
                         type="email"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => {
                           clearValidity(e);
@@ -374,6 +376,7 @@ export default function Login() {
                       <input
                         required
                         type="password"
+                        autoComplete={isSignUp ? "new-password" : "current-password"}
                         minLength={6}
                         value={password}
                         onChange={(e) => {

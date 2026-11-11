@@ -10,6 +10,7 @@ import { useDrop } from "../hooks/useDrop";
 import { supabase } from "../lib/supabaseClient";
 import { ACCEPT, countOf, DEST_LABEL, DEST_PLACE, DESTS, deepLink, detectPaste, fileDrop, listRecent, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource, type RecentDrop } from "../lib/drops";
 import { tr } from "../lib/i18n";
+import { track } from "../lib/analytics";
 import { hasPending, PENDING_EVENT, takePending } from "../lib/dropQueue";
 
 /* ═══ «ارموا أي شي» (/drop) ═══
@@ -146,6 +147,11 @@ export default function Drop() {
     const r = await fileDrop(dropId);
     setBusy(false);
     if (r.error) return say(r.error);
+    const dest: Record<string, number> = {};
+    for (const x of results.filter((x) => x.included)) dest[x.destination] = (dest[x.destination] ?? 0) + countOf(x);
+    track("drop_filed", { created: r.created ?? 0, ...dest });
+    // إشعار لباقي الفريق (للي مفعّلين الإشعارات)
+    if ((r.created ?? 0) > 0) void supabase!.functions.invoke("push-notify", { body: { action: "drop", dropId } }).catch(() => {});
     await reload();
     refreshRecent();
   };
@@ -157,6 +163,7 @@ export default function Drop() {
   const undo = async (id: string) => {
     const r = await undoDrop(id);
     if (r.error) return say(r.error);
+    track("drop_undo", { removed: r.removed ?? 0, kept: r.kept?.length ?? 0 });
     say(undoMessage(r));
     if (id === dropId) setParams({});
     refreshRecent();
@@ -182,6 +189,15 @@ export default function Drop() {
   const status = drop?.status;
   const reading = !!starting || (!!dropId && (!drop || status === "uploading" || status === "reading"));
   const errCode: DropError | null = localErr?.code ?? (status === "failed" ? drop?.error_code ?? "failed" : null);
+  // مرة وحدة لكل رمية: النتايج انعرضت / الخطأ
+  const seen = useRef("");
+  const seenKey = errCode ? `e:${dropId ?? ""}:${errCode}` : dropId && status === "ready" ? `r:${dropId}` : "";
+  useEffect(() => {
+    if (!seenKey || seen.current === seenKey) return;
+    seen.current = seenKey;
+    if (errCode) track("drop_error", { code: errCode });
+    else track("drop_results_shown", { results: results.length });
+  }, [seenKey, errCode, results.length]);
 
   const inputs = (
     <>

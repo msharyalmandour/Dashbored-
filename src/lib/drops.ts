@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
+import { track } from "./analytics";
 import { tr } from "./i18n";
 
 /* «ارموا أي شي» — طبقة البيانات: رمية (drops) فيها عناصر (ملفات بحاوية drops، نصوص، روابط)،
@@ -115,6 +116,7 @@ export async function startDrop(teamId: string, userId: string, input: DropInput
   }
   const ins = await db().from("drop_items").insert(rows);
   if (ins.error) return { error: "failed", message: tr("ما قدرنا نبدأ الرمية — جرّبوا مرة ثانية.") };
+  track("drop_started", { source: input.source, files: files.length, text: text.length > 0 });
   return { id: dropId };
 }
 
@@ -122,7 +124,9 @@ export async function startDrop(teamId: string, userId: string, input: DropInput
 export async function readDrop(dropId: string): Promise<{ status?: string; error_code?: DropError; message?: string; notes?: string[] }> {
   const { data, error } = await db().functions.invoke("drop-read", { body: { dropId } });
   if (error && !data) return { status: "failed", error_code: "failed", message: tr("القراءة مو متاحة الحين — جرّبوا بعد شوي.") };
-  return (data ?? {}) as { status?: string; error_code?: DropError; message?: string; notes?: string[] };
+  const out = (data ?? {}) as { status?: string; error_code?: DropError; message?: string; notes?: string[] };
+  if (!out.error_code) track("drop_read", { status: out.status ?? "" });
+  return out;
 }
 
 export async function fetchDrop(dropId: string) {

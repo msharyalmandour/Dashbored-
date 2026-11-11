@@ -8,12 +8,12 @@ import { tr } from "../../lib/i18n";
 
 /** سحب ملفات فوق أي صفحة → تغميق كامل + إطار متقطع + الوعاء مفتوح + «ارموها هنا» + عدد الملفات.
     الإفلات يبدأ رمية (source=global) ويفتح شاشة القراءة. السحب من داخل الموقع نفسه نتجاهله.
-    مكتبة الأدلة لها رمي الدراسات، والمحادثة لها مرفقاتها. */
+    مكتبة الأدلة لها رمي الدراسات. بالمحادثة الرمية تنحسب «من المحادثة». */
 export default function GlobalDrop() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { team, currentUser, mode, canWrite } = useAuth();
-  const enabled = mode === "supabase" && !!team && canWrite && !["/evidence", "/chat"].includes(pathname);
+  const enabled = mode === "supabase" && !!team && canWrite && pathname !== "/evidence";
   const [count, setCount] = useState(0);
   const inside = useRef(false);
 
@@ -53,7 +53,7 @@ export default function GlobalDrop() {
       setCount(0);
       const files = Array.from(e.dataTransfer?.files ?? []);
       if (!files.length) return;
-      queueDrop(files, pathname === "/drop" ? "page" : "global");
+      queueDrop(files, pathname === "/drop" ? "page" : pathname === "/chat" ? "chat" : "global");
       if (pathname !== "/drop") navigate("/drop");
     };
     window.addEventListener("dragstart", start);

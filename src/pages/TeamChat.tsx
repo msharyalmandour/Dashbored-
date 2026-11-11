@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AlarmClock, BarChart3, CalendarPlus, FileUp, Loader2, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
+import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Loader2, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import Avatar from "../components/ui/Avatar";
 import { V3Glow } from "../components/v3/WriteHeader";
@@ -16,6 +16,8 @@ import { markChatRead, useTeamChat, type ChatMessage, type ChatRef } from "../ho
 import { useMeetings } from "../hooks/useMeetings";
 import { askProjectAgent } from "../hooks/useProjectAgent";
 import { notifySupervisor } from "../lib/supervisorNotify";
+import { ACCEPT } from "../lib/drops";
+import { queueDrop } from "../lib/dropQueue";
 import { AgentMark, BookingSheet, EventRow, PollCard, PollComposer, ReminderSheet, StudyDropSheet, SupervisorQuestionSheet, TodaySummary } from "../components/chat/ChatExtras";
 import type { TeamMember } from "../data/types";
 import { addDaysISO, formatDateShort, relativeDayLabel, toISODate } from "../lib/date";
@@ -139,6 +141,7 @@ export default function TeamChat() {
   const { messages, loaded, unavailable, typers, reads, votes, send, post, vote, closePoll, remind, retry, edit, remove, typing, markRead } = useTeamChat();
   const meetings = useMeetings();
   const navigate = useNavigate();
+  const dropPick = useRef<HTMLInputElement>(null);
   const { tasks, addTask } = useTasksData();
   const { sections } = useProposal();
   const { papers } = useEvidencePapers();
@@ -517,6 +520,12 @@ export default function TeamChat() {
               </button>
             </>
           )}
+          {canWrite && !isPoll && m.body.trim().length >= 12 && (
+            <button role="menuitem" onClick={() => { setSelected(null); queueDrop([], "chat", m.body); navigate("/drop"); }}>
+              <Download size={19} aria-hidden />
+              {tr("ارموها: رتّبوها بمكانها")}
+            </button>
+          )}
           <button role="menuitem" onClick={() => { setSelected(null); setToRemind(m); }}>
             <AlarmClock size={19} aria-hidden />
             {tr("ذكّروني")}
@@ -818,11 +827,28 @@ export default function TeamChat() {
 
       {selected && <div className="tc-dim" aria-hidden onClick={() => setSelected(null)} />}
 
+      <input
+        ref={dropPick}
+        type="file"
+        multiple
+        accept={ACCEPT}
+        hidden
+        aria-hidden
+        tabIndex={-1}
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          e.target.value = "";
+          if (!files.length) return;
+          queueDrop(files, "chat");
+          navigate("/drop");
+        }}
+      />
       <Dialog open={plusOpen} onClose={() => setPlusOpen(false)} title={tr("أضيفوا للمحادثة")}>
         <div className="flex flex-col gap-2">
           {(
             [
               [BookOpen, tr("أشيروا لشي بالبحث"), tr("مهمة، قسم بالمقترح، أو دراسة بالمكتبة"), () => setRefOpen(true)],
+              [Download, tr("ارموها: رتّبوها بمكانها"), tr("أي ملف أو صورة أو سكرين شوت، ونوريكم وين ينحط قبل لا نحطه"), () => dropPick.current?.click()],
               [FileUp, tr("ارموا دراسة"), tr("PDF أو صور صفحاتها، والوكيل يقرأها ويحطها بالمكتبة وجدول الأدبيات"), () => setStudyOpen(true)],
               [BarChart3, tr("تصويت سريع"), tr("سؤال بخيارات، والنتيجة تصير قرار"), () => setPollOpen(true)],
             ] as const

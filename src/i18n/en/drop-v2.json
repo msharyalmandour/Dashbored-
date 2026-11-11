@@ -135,5 +135,9 @@
   "مسودة لهالقسم من رمية · {0}": "Draft for this section from a drop · {0}",
   "أضيفوها تحت نصكم": "Add it below your text",
   "حطوها بالقسم": "Put it in the section",
-  "اقروها كاملة": "Read it all"
+  "اقروها كاملة": "Read it all",
+  "افتحوا الرمية اللي طلعت منها المهمة": "Open the drop this task came from",
+  "من رمية": "From a drop",
+  "ارموها: رتّبوها بمكانها": "Drop it: file it in its place",
+  "أي ملف أو صورة أو سكرين شوت، ونوريكم وين ينحط قبل لا نحطه": "Any file, photo or screenshot. We show you where it goes before we put it there"
 }

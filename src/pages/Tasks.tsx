@@ -17,6 +17,7 @@ import {
   Search,
   Trash2,
   X,
+  Download,
 } from "lucide-react";
 import AgentWave from "../components/ui/AgentWave";
 import clsx from "clsx";
@@ -453,7 +454,7 @@ export default function Tasks() {
                 </span>
               )}
             </button>
-            {(place || proof) && (
+            {(place || proof || task.dropId) && (
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 {place && (
                   <Link to={place.route} className="tk-place" aria-label={tr("افتحوا مكان الشغل: {0}", place.label)}>
@@ -465,6 +466,12 @@ export default function Tasks() {
                   <span className={clsx("tk-proof", proof.met ? "met" : task.status === "done" ? "warn" : "")}>
                     {task.status === "done" && !proof.met ? tr("خلصت بدون دليل · {0}", proof.label) : proof.label}
                   </span>
+                )}
+                {task.dropId && (
+                  <Link to={`/drop?d=${task.dropId}`} className="tk-place tk-drop" aria-label={tr("افتحوا الرمية اللي طلعت منها المهمة")}>
+                    <Download size={13} aria-hidden />
+                    {tr("من رمية")}
+                  </Link>
                 )}
               </div>
             )}

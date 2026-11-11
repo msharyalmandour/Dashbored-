@@ -153,6 +153,10 @@ export interface Task {
   sectionKey?: string;
   /** وقت الإكمال (من القاعدة) — لقياس المساهمة والتقرير الأسبوعي */
   completedAt?: string | null;
+  /** العدد المطلوب للإثبات (مثل ٥ دراسات) — من القاعدة، وإلا يُستنتج من العنوان */
+  targetCount?: number | null;
+  /** «من رمية»: الرمية اللي طلعت منها المهمة */
+  dropId?: string | null;
 }
 
 export interface TaskComment {

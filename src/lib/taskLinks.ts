@@ -114,19 +114,19 @@ export interface Proof {
 
 /** دليل الإنجاز من البيانات الحقيقية. null = ما نقدر نقيسها (تنعلّم يدوي عادي) */
 export function proofFor(
-  task: Pick<Task, "title" | "description" | "sectionKey" | "assigneeId">,
+  task: Pick<Task, "title" | "description" | "sectionKey" | "assigneeId"> & { targetCount?: number | null },
   ctx: { papers: Pick<EvidencePaper, "addedById" | "country" | "aim" | "sample" | "dataCollection">[]; sections: Pick<ProposalSectionRow, "key" | "content">[] },
 ): Proof | null {
   const place = placeOf(task);
   if (!place) return null;
   const mine = ctx.papers.filter((p) => !task.assigneeId || p.addedById === task.assigneeId);
   if (place.key === "evidence") {
-    const need = targetCount(task.title) ?? 1;
+    const need = task.targetCount ?? targetCount(task.title) ?? 1;
     const have = mine.length;
     return { have: Math.min(have, need), need, met: have >= need, label: tr("{0} من {1} دراسات", Math.min(have, need), need) };
   }
   if (place.key === "literature") {
-    const need = targetCount(task.title) ?? 1;
+    const need = task.targetCount ?? targetCount(task.title) ?? 1;
     const have = mine.filter((p) => !!(p.country?.trim() || p.aim?.trim() || p.sample?.trim() || p.dataCollection?.trim())).length;
     return { have: Math.min(have, need), need, met: have >= need, label: tr("{0} من {1} صفوف بالجدول", Math.min(have, need), need) };
   }

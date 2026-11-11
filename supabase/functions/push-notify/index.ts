@@ -4,6 +4,7 @@
 //   daily : (من pg_cron، بسر الجدولة) تذكير لكل عضو بمهامه القريبة والمتأخرة — مرة باليوم لكل عضو
 //   chat  : (كاتب الرسالة نفسه، بعد ما تنحفظ) إشعار لباقي الفريق برسالة المحادثة — مرة وحدة لكل رسالة
 //   reminders : (pg_cron كل ١٠ دقايق) «ذكّرني» من المحادثة لما يجي وقتها
+//   drop  : (اللي رمى، بعد ما تنحفظ رميته) «مشاري رمى ملف وانحطّ في مكتبة الأدلة» لباقي الفريق — مرة وحدة لكل رمية
 //   daily يذكّر كمان الفريق قبل اجتماعهم المؤكد مع المشرف/ة بيوم
 // الاشتراكات الميتة (404/410) تنحذف تلقائيًا. بدون أي مفتاح يدخله أحد يدويًا.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -163,6 +164,51 @@ async function runChat(userId: string, messageId: string, mentions: string[] = [
   return { sent: sentTagged + sentRest };
 }
 
+const DROP_PLACE: Record<string, string> = {
+  library: "مكتبة الأدلة",
+  tasks: "المهام",
+  minutes: "الاجتماعات",
+  supervisor_note: "ملاحظات المشرف/ة",
+  supervisor_question: "صفحة المشرف/ة",
+  proposal: "المقترح",
+  dataset: "التحليل",
+  tools: "مكتبة أدوات القياس",
+  ethics: "الموافقة الأخلاقية",
+  calendar: "التقويم",
+  files: "الملفات",
+};
+
+// رمية انحفظت → إشعار لأجهزة باقي الفريق (اللي فعّلوا الإشعارات بس — الاشتراك نفسه هو الإعداد)
+async function runDrop(userId: string, dropId: string): Promise<{ sent: number; skipped?: string }> {
+  if (!/^[0-9a-f-]{36}$/i.test(dropId)) return { sent: 0, skipped: "bad_id" };
+  const { data: d } = await admin.from("drops").select("id, team_id, user_id, status, filed_at").eq("id", dropId).maybeSingle();
+  if (!d || d.user_id !== userId) return { sent: 0, skipped: "not_owner" };
+  if (d.status !== "filed" || !d.filed_at || Date.now() - new Date(d.filed_at).getTime() > 5 * 60000) return { sent: 0, skipped: "stale" };
+  const { error: dup } = await admin.from("reminder_log").insert({ kind: "push-drop", ref_id: d.id, recipient: "team" });
+  if (dup) return { sent: 0, skipped: "duplicate" };
+
+  const [{ data: results }, { data: items }, { data: members }] = await Promise.all([
+    admin.from("drop_results").select("destination, created_entities").eq("drop_id", d.id).eq("included", true).is("undone_at", null),
+    admin.from("drop_items").select("kind").eq("drop_id", d.id),
+    admin.from("profiles").select("id, name, gender").eq("team_id", d.team_id),
+  ]);
+  const placed = ((results ?? []) as { destination: string; created_entities: unknown[] | null }[]).filter((r) => (r.created_entities?.length ?? 0) > 0);
+  if (!placed.length) return { sent: 0, skipped: "nothing_placed" };
+  const places = [...new Set(placed.map((r) => DROP_PLACE[r.destination] ?? ""))].filter(Boolean);
+  const where = places.length > 2 ? `${places.slice(0, 2).join(" و")} و${places.length - 2} أماكن ثانية` : places.join(" و");
+  const files = ((items ?? []) as { kind: string }[]).filter((i) => i.kind === "file").length;
+  const what = files > 1 ? `${files} ملفات وانحطّت` : files === 1 ? "ملف وانحطّ" : "نص وانحطّ";
+  const ppl = (members ?? []) as { id: string; name: string | null; gender: string | null }[];
+  const me = ppl.find((p) => p.id === userId);
+  const first = (me?.name ?? "").trim().split(/\s+/)[0] || "أحد الفريق";
+  const verb = me?.gender === "female" ? "رمت" : "رمى";
+  const others = ppl.filter((p) => p.id !== userId).map((p) => p.id);
+  if (!others.length) return { sent: 0 };
+  const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").in("profile_id", others);
+  const n = await sendTo((subs ?? []) as Sub[], { title: "Wesync", body: `${first} ${verb} ${what} في ${where}`, url: `${site()}/#/drop?d=${d.id}`, tag: `drop-${d.id}` });
+  return { sent: n };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return json(405, { error: "method_not_allowed" });
@@ -174,11 +220,12 @@ Deno.serve(async (req: Request) => {
   }
   const action = String(body.action ?? "");
   try {
-    if (action === "key" || action === "test" || action === "chat") {
+    if (action === "key" || action === "test" || action === "chat" || action === "drop") {
       const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
       const { data: u } = await admin.auth.getUser(jwt);
       if (!u?.user) return json(401, { error: "unauthorized" });
       if (action === "key") return json(200, { publicKey: (await getKeys()).publicKey });
+      if (action === "drop") return json(200, await runDrop(u.user.id, String(body.dropId ?? "")));
       if (action === "chat") {
         const mentions = Array.isArray(body.mentions) ? (body.mentions as unknown[]).filter((x): x is string => typeof x === "string").slice(0, 10) : [];
         return json(200, await runChat(u.user.id, String(body.messageId ?? ""), mentions));

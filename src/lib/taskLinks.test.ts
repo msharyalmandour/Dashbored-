@@ -29,6 +29,11 @@ describe("taskLinks", () => {
     const p = proofFor(task({ title: "ابحث عن 5 دراسات" }), { papers, sections: [] })!;
     expect(p).toMatchObject({ have: 1, need: 5, met: false });
   });
+  it("uses the stored target count from a drop over the title", () => {
+    const papers = [{ addedById: "a", country: "", aim: "", sample: "", dataCollection: "" }];
+    const p = proofFor({ ...task({ title: "جيبوا دراسات عن الاحتراق", sectionKey: "evidence" }), targetCount: 3 }, { papers, sections: [] })!;
+    expect(p).toMatchObject({ have: 1, need: 3, met: false });
+  });
   it("flags done-without-proof, duplicates, missing owners and deadline", () => {
     const t = (i: number, status: Task["status"]) => task({ id: `t${i}`, title: "ابحث عن 5 دراسات سابقة متعلقة بالبحث", status, assigneeId: `m${i}` });
     const issues = strictReview({

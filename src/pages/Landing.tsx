@@ -327,10 +327,10 @@ export default function Landing() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className={`${font} flex items-center gap-2.5 font-semibold text-[#F6F1EC]`}><Logo size={26} /> Wesync</div>
           <nav className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link to="/legal/terms" className="hover:text-[#FFB444]">{tr("شروط الاستخدام")}</Link>
-            <Link to="/legal/privacy" className="hover:text-[#FFB444]">{tr("سياسة الخصوصية")}</Link>
-            <Link to="/legal/refund" className="hover:text-[#FFB444]">{tr("الإلغاء والاسترداد")}</Link>
-            <Link to="/legal/contact" className="hover:text-[#FFB444]">{tr("تواصل معنا")}</Link>
+            <Link to="/legal/terms" className="inline-block py-2 hover:text-[#FFB444]">{tr("شروط الاستخدام")}</Link>
+            <Link to="/legal/privacy" className="inline-block py-2 hover:text-[#FFB444]">{tr("سياسة الخصوصية")}</Link>
+            <Link to="/legal/refund" className="inline-block py-2 hover:text-[#FFB444]">{tr("الإلغاء والاسترداد")}</Link>
+            <Link to="/legal/contact" className="inline-block py-2 hover:text-[#FFB444]">{tr("تواصل معنا")}</Link>
           </nav>
           <div>© {new Date().getFullYear()} Wesync</div>
         </div>

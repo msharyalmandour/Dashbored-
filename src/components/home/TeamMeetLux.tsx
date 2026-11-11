@@ -112,7 +112,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     >
                       <div style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}>{letter(m.name)}</div>
                     </div>
-                    <span className="lux-pres" style={{ background: on ? "#7FE0A6" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
+                    <span className="lux-pres" role="img" style={{ background: on ? "#7FE0A6" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
                     <span className="lux-pct">{n0(pct)}٪</span>
                   </div>
                 </div>

@@ -151,6 +151,9 @@ export class VesselScene {
   private ro: ResizeObserver;
   private disposed = false;
   private onReady?: () => void;
+  /** الجهاز بطيء على الـ 3D (< 20 إطار بالثانية): نرجع للبوستر */
+  onSlow?: () => void;
+  private slowSamples: number[] = [];
 
   private canvas: HTMLCanvasElement;
 
@@ -289,7 +292,19 @@ export class VesselScene {
 
   private frame = (now: number) => {
     if (this.disposed) return;
-    const dt = Math.min(0.05, (now - this.last) / 1000);
+    const raw = now - this.last;
+    const dt = Math.min(0.05, raw / 1000);
+    // نقيس أول ٣٠ إطار وهو يرسم بشكل متواصل؛ لو المتوسط فوق ٥٠ms نوقف الـ 3D
+    if (this.onSlow && raw > 0 && raw < 1000) {
+      this.slowSamples.push(raw);
+      if (this.slowSamples.length === 30) {
+        const avg = this.slowSamples.slice(5).reduce((x, y) => x + y, 0) / 25;
+        if (avg > 50) {
+          this.onSlow();
+          this.onSlow = undefined;
+        }
+      }
+    }
     this.last = now;
     // يقرا: ٣ نبضات .6 ↔ 1 (٠٫٨ث لكل نبضة) وبعدها يثبت على .8
     let target = this.target;

@@ -3,7 +3,7 @@ import { VesselScene, type SceneState } from "./vesselScene";
 
 /** لوحة WebGL للوعاء (تنحمّل كقطعة لحالها lazy). كل مشهد له canvas جديد يننشئ وينشال معه
     (سياق WebGL اللي انقفل ما ينرجع له). أول ما يجهز أول رسم نخفي البوستر اللي تحتها */
-export default function VesselCanvas({ state, onReady }: { state: SceneState; onReady: () => void }) {
+export default function VesselCanvas({ state, onReady, onSlow }: { state: SceneState; onReady: () => void; onSlow?: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   const scene = useRef<VesselScene | null>(null);
   const stateRef = useRef(state);
@@ -19,6 +19,7 @@ export default function VesselCanvas({ state, onReady }: { state: SceneState; on
     let s: VesselScene | null = null;
     try {
       s = new VesselScene(canvas, onReady);
+      s.onSlow = onSlow;
       s.setState(stateRef.current);
       scene.current = s;
     } catch (e) {

@@ -21,10 +21,19 @@ class SceneGuard extends Component<{ children: ReactNode }, { failed: boolean }>
 
 /** الـ 3D بس لو: الحركة مو مقلّلة (النظام أو «تقليل الحركة» بالتطبيق)، والجهاز يدعم WebGL2، والذاكرة أكثر من ٤ جيجا */
 let webgl2: boolean | null = null;
+// لو الـ 3D طلع بطيء مرة، نكمل الزيارة كلها بالبوستر
+let slowDevice = (() => {
+  try {
+    return sessionStorage.getItem("wesync-vessel-slow") === "1";
+  } catch {
+    return false;
+  }
+})();
 function can3D(): boolean {
   if (typeof window === "undefined") return false;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
   if (document.documentElement.dataset.reduceMotion === "true") return false;
+  if (slowDevice) return false;
   const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   if (mem !== undefined && mem <= 4) return false;
   if (webgl2 === null) {
@@ -82,7 +91,20 @@ export default function Vessel({ size, state = "idle", className = "", style, sc
       {live && (
         <SceneGuard>
           <Suspense fallback={null}>
-            <VesselCanvas state={state} onReady={() => setReady(true)} />
+            <VesselCanvas
+              state={state}
+              onReady={() => setReady(true)}
+              onSlow={() => {
+                slowDevice = true;
+                try {
+                  sessionStorage.setItem("wesync-vessel-slow", "1");
+                } catch {
+                  // بدون تخزين: يكفي لهالصفحة
+                }
+                setReady(false);
+                setLive(false);
+              }}
+            />
           </Suspense>
         </SceneGuard>
       )}

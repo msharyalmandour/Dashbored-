@@ -53,7 +53,7 @@ export default function Sidebar({
         key={sec.id}
         to={active ? pathname : sec.pages[0].to}
         onClick={onClose}
-        className={clsx(linkBase, active ? linkOn : linkOff)}
+        className={clsx(linkBase, active ? linkOn : linkOff, !active && state === null && !!sec.stages && stages.length > 0 && "opacity-60")}
       >
         <sec.icon size={18} />
         <span className="flex-1">{sec.label}</span>
@@ -134,7 +134,7 @@ export default function Sidebar({
             <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />
           </button>
           {moreExpanded &&
-            morePages.map((item) => (
+            morePages.filter((item) => !item.hideInNav).map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

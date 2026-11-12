@@ -114,12 +114,12 @@ export const workSections: NavSection[] = [
 export const homeSection = { to: "/", label: tr("الرئيسية"), icon: LayoutDashboard };
 
 /** الصفحات اللي نادرًا تنفتح — مطوية تحت «المزيد» */
-export const morePages: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: "/planner", label: tr("مخطط الموعد"), icon: CalendarClock },
+export const morePages: { to: string; label: string; icon: LucideIcon; /** مخفي من القائمة الجانبية؛ الرابط يبقى شغال من السياق */ hideInNav?: boolean }[] = [
+  { hideInNav: true, to: "/planner", label: tr("مخطط الموعد"), icon: CalendarClock },
   { to: "/viva", label: tr("تدريب المناقشة"), icon: GraduationCap },
-  { to: "/proposal/export", label: tr("تصدير المقترح"), icon: FileDown },
-  { to: "/glossary", label: tr("قاموس المصطلحات"), icon: BookA },
-  { to: "/story", label: tr("قصة بحثك"), icon: Flag },
+  { hideInNav: true, to: "/proposal/export", label: tr("تصدير المقترح"), icon: FileDown },
+  { hideInNav: true, to: "/glossary", label: tr("قاموس المصطلحات"), icon: BookA },
+  { hideInNav: true, to: "/story", label: tr("قصة بحثك"), icon: Flag },
   { to: "/pricing", label: tr("الباقات والاشتراك"), icon: CreditCard },
 ];
 

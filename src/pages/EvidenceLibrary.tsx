@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Plus, Quote, Table2, Trash2, X } from "lucide-react";
+import ReferencesToolsCard from "../components/research/ReferencesToolsCard";
 import PaperQA from "../components/research/PaperQA";
 import { PageDropOverlay, StudyDropCard, usePageDrop, useStudyQueue } from "../components/research/StudyDrop";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -166,6 +167,7 @@ export default function EvidenceLibrary() {
           <StudyDropCard items={drops.items} onFiles={addFiles} onUndo={drops.undo} onDismiss={drops.dismiss} onManual={() => setShowForm((v) => !v)} pickRef={pickRef} />
         </>
       )}
+      {currentUser && <ReferencesToolsCard papers={papers} addPaper={addPaper as never} />}
 
       <div className="flex flex-wrap gap-2">
         {sectionFilters.map((f) => (

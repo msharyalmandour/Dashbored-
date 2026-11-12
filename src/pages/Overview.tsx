@@ -33,7 +33,8 @@ import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
 import LearnStrip from "../components/home/LearnStrip";
 import DropEntry from "../components/drop/DropEntry";
-import { placeOf } from "../lib/taskLinks";
+import { placeOf, strictReview } from "../lib/taskLinks";
+import { ReviewCard } from "../components/lux/Lux";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
@@ -110,6 +111,11 @@ export default function Overview() {
   const firstName = (currentUser?.name ?? "").split(" ")[0];
 
   const deadline = project?.targetSubmissionDate ?? null;
+  // «قبل لا تشوفها الدكتورة» — نفس المراجعة الصارمة بصفحة المهام
+  const review = useMemo(
+    () => strictReview({ tasks, papers, sections, deadline: deadline ?? undefined, today: todayIso, nameOf: (id) => roster.find((m) => m.id === id)?.name.split(" ")[0] ?? "" }),
+    [tasks, papers, sections, deadline, roster],
+  );
   const daysLeft = deadline ? daysUntil(deadline, now) : null;
   const supervisor = project?.supervisorName?.trim();
 
@@ -329,25 +335,24 @@ export default function Overview() {
         </ErrorBoundary>
       )}
 
-      {/* ── أول أسبوع (أول شي تحت الترحيب): بالديسكتوب عمود 1.15fr جنب باقي الكروت، ويختفي بعد ما يخلص ── */}
-      <div className="group/fw relative mb-2.5 grid grid-cols-1 items-start gap-2.5 lg:mb-[18px] lg:gap-[18px] lg:has-[.fw-card]:grid-cols-[1.15fr_1fr]">
-      {mode === "supabase" && (
-        <ErrorBoundary>
-          <FirstWeekCard style={rise(1)} />
-        </ErrorBoundary>
-      )}
-
-      {/* ── الصف الأول: To-do · تقدّم البحث · باقي على التسليم (الجوال: التقدّم أول، بعده البلاطتين، بعده To-do والزر) ── */}
-      <div className="relative grid grid-cols-1 items-stretch gap-2.5 lg:grid-cols-3 lg:gap-[18px] lg:group-has-[.fw-card]/fw:grid-cols-1">
-        <ErrorBoundary>
-          <ProgressCard className="order-1 lg:order-2" style={rise(1)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
-        </ErrorBoundary>
+      {/* ── HomeLux: «وش علينا اليوم؟» (يسار) + «أول أسبوع» (يمين) ── */}
+      <div className="group/fw relative mb-2.5 grid grid-cols-1 items-start gap-2.5 lg:mb-[18px] lg:gap-[18px] lg:has-[.fw-card]:grid-cols-[1.08fr_1fr]">
+        {mode === "supabase" && (
+          <ErrorBoundary>
+            <FirstWeekCard style={rise(1)} />
+          </ErrorBoundary>
+        )}
+        <div className="order-1 lg:hidden">
+          <ErrorBoundary>
+            <ProgressCard style={rise(1)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
+          </ErrorBoundary>
+        </div>
         <div className="order-2 lg:hidden">
           <MobileTiles deadline={deadline} daysLeft={daysLeft} weekDone={thisWeek?.done ?? 0} weekDiff={weekDiff} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
         </div>
         <ErrorBoundary>
           <TodoCard
-            className="order-3 lg:order-1"
+            className="order-3"
             style={rise(2)}
             tasks={tasks}
             today={todayIso}
@@ -365,10 +370,24 @@ export default function Overview() {
             <span dir="auto">{primary.label}</span>
           </Link>
         )}
+      </div>
+
+      {/* ── HomeLux: قبل لا تشوفها الدكتورة · تقدّم البحث · باقي على التسليم ── */}
+      <div className="relative mb-3 hidden grid-cols-[1.25fr_1fr_1fr] items-stretch gap-[18px] lg:mb-[18px] lg:grid">
         <ErrorBoundary>
-          <DeadlineCard className="hidden lg:order-3 lg:flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
+          <ReviewCard items={review} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <DeadlineCard className="flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
         </ErrorBoundary>
       </div>
+      <div className="mb-3 lg:hidden">
+        <ErrorBoundary>
+          <ReviewCard items={review} />
+        </ErrorBoundary>
       </div>
 
       {/* ── رحلة البحث + إنجاز الفريق ── */}

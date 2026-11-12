@@ -115,7 +115,7 @@ export default function Layout() {
 
   return (
     <ResearchAgentProvider>
-    <div className="relative flex min-h-screen overflow-hidden bg-surface">
+    <div className="relative flex min-h-screen overflow-x-clip bg-surface">
       {/* فقاعات ضوء موزّعة على طول الصفحة كاملة (absolute على الحاوية
           الخارجية اللي طولها = طول المحتوى الفعلي، مو fixed على الشاشة
           فقط) — عشان تأثير الزجاج (backdrop-blur) بالبطاقات يبين بأي
@@ -141,7 +141,7 @@ export default function Layout() {
           hideTitle={titleInPageRoutes.has(location.pathname)}
           homeMode={location.pathname === "/"}
         />
-        <main className="flex-1 px-4 py-6 pb-32 sm:px-8 md:pb-6">
+        <main className="flex-1 px-4 py-6 pb-32 sm:px-8 md:px-6 md:pb-6">
           <div className="space-y-6">
             {showTrialBanner && (
               <AlertCard

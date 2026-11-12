@@ -1,234 +1,216 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, ChevronDown, Compass, GraduationCap, LogOut, ShieldCheck, Download } from "lucide-react";
+import { Check, CheckSquare, Compass, CreditCard, GraduationCap, House, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
-import { researchStages } from "../data/mockData";
-import { getResearcherTitle } from "../lib/identity";
-import { isFemaleUser } from "../lib/gender";
 import { useResearchStages } from "../hooks/useResearchStages";
 import { useChatUnread } from "../hooks/useTeamChat";
-import { getCurrentStage } from "../lib/progress";
+import { useAcademy } from "../hooks/useAcademy";
 import { useLandedBadges } from "../lib/landed";
-import { homeSection, isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
+import { isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
+import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 import Avatar from "./ui/Avatar";
-import Logo from "./Logo";
 import IdeaButton from "./IdeaButton";
 import InstallAppButton from "./InstallAppButton";
+import NotificationsBell from "./NotificationsBell";
+import ThemeSwitcher from "./ThemeSwitcher";
+import LangToggle from "./ui/LangToggle";
 import { tr } from "../lib/i18n";
 
-const linkBase = "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors";
-const linkOn = "bg-brand-500 text-white shadow-sm shadow-brand-500/30";
-const linkOff = "text-brand-950/55 hover:bg-surface-muted hover:text-brand-900";
+/* القائمة الجانبية (HomeLux / TasksLux / MeetLux): لوحة زجاجية عائمة، الصفحة الحالية حبة كريمية + «أنتم هنا»،
+   «مهامي» بند لحاله تحت شغل الفريق، وتحت: «تعلّموا Wesync n/16» + بطاقة الشخص (الجرس والإعدادات واللغة والصوت والمزيد).
+   على الديسكتوب ما فيه شريط علوي — أدواته انتقلت لبطاقة الشخص. */
 
-export default function Sidebar({
-  open = false,
-  onClose,
-}: {
-  open?: boolean;
-  onClose?: () => void;
-}) {
-  const { currentUser, isSuperAdmin, logout } = useAuth();
+type Item = { id: string; to: string; label: string; icon: NavSection["icon"]; match: string[]; stages?: NavSection["stages"] };
+
+/** «الفريق» بالقائمة ينقسم: مهامي (/tasks) بند لحاله، والفريق (/team + الجدول الزمني) */
+function itemsOf(secs: NavSection[]): Item[] {
+  const out: Item[] = [];
+  for (const s of secs) {
+    if (s.id === "team") {
+      out.push({ id: "tasks", to: "/tasks", label: tr("مهامي"), icon: CheckSquare, match: ["/tasks"] });
+      const rest = s.pages.filter((p) => p.to !== "/tasks");
+      out.push({ id: "team", to: rest[0]?.to ?? "/team", label: s.label, icon: s.icon, match: rest.map((p) => p.to) });
+    } else out.push({ id: s.id, to: s.pages[0].to, label: s.label, icon: s.icon, match: s.pages.map((p) => p.to), stages: s.stages });
+  }
+  return out;
+}
+
+export default function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: () => void }) {
+  const { currentUser, isSuperAdmin, logout, isLeader } = useAuth();
   const { pathname } = useLocation();
   const { stages } = useResearchStages();
-  const [moreOpen, setMoreOpen] = useState<boolean | null>(null);
-  const currentStage = getCurrentStage(stages);
   const unread = useChatUnread();
+  const landed = useLandedBadges();
+  const { done, total, loaded, refresh } = useAcademy();
+  const [menu, setMenu] = useState(false);
+  const [soundOn, setSoundOn] = useState(isSoundEnabled);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const sectionState = (sec: NavSection): "done" | "current" | null => {
-    if (!sec.stages || stages.length === 0) return null;
-    const mine = stages.filter((st) => sec.stages!.includes(st.stageKey));
-    if (mine.length > 0 && mine.every((st) => st.status === "done")) return "done";
-    if (currentStage && sec.stages.includes(currentStage.stageKey)) return "current";
-    return null;
+  useEffect(() => {
+    if (!loaded) void refresh();
+  }, [loaded, refresh]);
+  useEffect(() => {
+    if (!menu) return;
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    const click = (e: MouseEvent) => menuRef.current && !menuRef.current.contains(e.target as Node) && setMenu(false);
+    window.addEventListener("keydown", key);
+    window.addEventListener("mousedown", click);
+    return () => {
+      window.removeEventListener("keydown", key);
+      window.removeEventListener("mousedown", click);
+    };
+  }, [menu]);
+
+  const stageDone = (it: Item) => {
+    if (!it.stages || stages.length === 0) return false;
+    const mine = stages.filter((st) => it.stages!.includes(st.stageKey));
+    return mine.length > 0 && mine.every((st) => st.status === "done");
   };
 
-  const moreHere = morePages.some((m) => isPathIn(pathname, m.to));
-  const moreExpanded = moreOpen ?? moreHere;
-  // FixList 11: «المزيد» تختفي إذا فاضية
-  const navMore = morePages.filter((item) => !item.hideInNav);
-  // هيرو «ارموا»: +N جنب الأماكن اللي انحطت فيها الأشياء
-  const landed = useLandedBadges();
-
-  const renderSection = (sec: NavSection) => {
-    const active = sec.pages.some((pg) => isPathIn(pathname, pg.to));
-    const state = sectionState(sec);
+  const link = (it: Item) => {
+    const active = it.match.some((m) => isPathIn(pathname, m));
+    const badge = landed[it.id] ?? 0;
     return (
-      <NavLink
-        key={sec.id}
-        data-nav-id={sec.id}
-        to={active ? pathname : sec.pages[0].to}
-        onClick={onClose}
-        className={clsx(linkBase, active ? linkOn : linkOff, !active && state === null && !!sec.stages && stages.length > 0 && "opacity-60")}
-      >
-        <sec.icon size={18} />
-        <span className="flex-1">{sec.label}</span>
-        {!!landed[sec.id] && (
-          <span className="hd-badge" dir="ltr" aria-label={tr("{0} أشياء جديدة", landed[sec.id])}>
-            +{landed[sec.id]}
+      <NavLink key={it.id} data-nav-id={it.id} to={active ? pathname : it.to} onClick={onClose} aria-current={active ? "page" : undefined} className={clsx("lx-link", active && "on")}>
+        <it.icon size={18} strokeWidth={1.8} aria-hidden />
+        <span className="min-w-0 flex-1 truncate">{it.label}</span>
+        {!!badge && (
+          <span className="hd-badge" dir="ltr" aria-label={tr("{0} أشياء جديدة", badge)}>
+            +{badge}
           </span>
         )}
-        {sec.id === "chat" && unread > 0 && !active && (
-          <span className="min-w-[20px] rounded-full bg-brand-500 px-1.5 py-0.5 text-center text-xs font-extrabold text-white" dir="ltr" aria-label={tr("{0} رسائل جديدة", unread)}>
+        {it.id === "chat" && unread > 0 && !active && (
+          <span className="lx-count" dir="ltr" aria-label={tr("{0} رسائل جديدة", unread)}>
             {unread > 99 ? "99+" : unread}
           </span>
         )}
-        {state === "current" && (
-          <span className={clsx("rounded-full px-2 py-0.5 text-xs font-extrabold", active ? "bg-black/25 text-white" : "bg-brand-500 text-white")}>{tr("أنتم هنا")}</span>
-        )}
-        {state === "done" && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500/15 text-brand-600" title={tr("خلصتوا هالجزء")}>
-            <Check size={11} />
-          </span>
+        {active ? (
+          <span className="lx-here">{tr("أنتم هنا")}</span>
+        ) : (
+          stageDone(it) && (
+            <span className="lx-done" title={tr("خلصتوا هالجزء")}>
+              <Check size={11} strokeWidth={3} />
+            </span>
+          )
         )}
       </NavLink>
     );
   };
 
+  const home: Item = { id: "home", to: "/", label: tr("الرئيسية"), icon: House, match: [] };
+  const homeActive = pathname === "/";
+  const work = itemsOf(workSections);
+  const extra = morePages.filter((p) => !p.hideInNav);
+
   return (
     <>
-      {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/40 md:hidden"
-          onClick={onClose}
-        />
-      )}
-      <aside
-        className={clsx(
-          "fixed inset-y-0 start-0 z-40 flex h-screen w-72 shrink-0 flex-col border-e border-brand-100/50 bg-paper/55 backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 print:hidden md:static md:z-auto md:w-64 md:translate-x-0",
-          open ? "translate-x-0" : "translate-x-full ltr:-translate-x-full md:ltr:translate-x-0",
-        )}
-      >
-        <div className="flex items-center gap-2.5 px-6 py-6">
-          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center">
-            <span className="absolute inset-[-6px] rounded-full bg-amber-accent-400/20 blur-md" />
-            <span className="absolute inset-[-2px] rounded-full ring-1 ring-amber-accent-400/40" />
-            <Logo size={40} />
-          </div>
-          <span className="font-display text-lg font-extrabold tracking-tight text-brand-950">
+      {open && <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={onClose} />}
+      <aside className={clsx("lx-side print:hidden", open ? "translate-x-0" : "translate-x-full ltr:-translate-x-full md:translate-x-0 md:ltr:translate-x-0")}>
+        <div className="flex items-center gap-2.5 px-3 pb-[18px] pt-1.5">
+          <span aria-hidden className="lx-orb" />
+          <b className="text-[21px] font-extrabold text-[#F2EBE3]" dir="ltr">
             Wesync
-          </span>
+          </b>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          <NavLink
-            to={homeSection.to}
-            end
-            onClick={onClose}
-            className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}
-          >
-            <homeSection.icon size={18} />
-            {homeSection.label}
+        <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto" aria-label={tr("التنقل")}>
+          <NavLink to="/" end onClick={onClose} aria-current={homeActive ? "page" : undefined} className={clsx("lx-link", homeActive && "on")} data-nav-id="home">
+            <home.icon size={18} strokeWidth={1.8} aria-hidden />
+            <span className="flex-1">{home.label}</span>
+            {homeActive && <span className="lx-here">{tr("أنتم هنا")}</span>}
+          </NavLink>
+          <NavLink to="/drop" onClick={onClose} data-learn="drop" className={({ isActive }) => clsx("lx-link", isActive && "on")}>
+            {({ isActive }) => (
+              <>
+                <Download size={18} strokeWidth={1.8} aria-hidden />
+                <span className="flex-1">{tr("ارموا أي شي")}</span>
+                {isActive && <span className="lx-here">{tr("أنتم هنا")}</span>}
+              </>
+            )}
           </NavLink>
 
-          {/* «ارموا أي شي» تحت الرئيسية مباشرة (DropDesk) */}
-          <NavLink to="/drop" onClick={onClose} data-learn="drop" className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}>
-            <Download size={18} />
-            {tr("ارموا أي شي")}
-          </NavLink>
+          <div className="lx-group">{tr("رحلة البحث")}</div>
+          {itemsOf(journeySections).map(link)}
 
-          <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <p className="px-4 pb-1 text-xs font-bold tracking-wide text-amber-accent-400/70">{tr("رحلة البحث")}</p>
-          {journeySections.map(renderSection)}
-
-          <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <p className="px-4 pb-1 text-xs font-bold tracking-wide text-amber-accent-400/70">{tr("شغل الفريق")}</p>
-          {workSections.map(renderSection)}
-
-          {navMore.length > 0 && (<>
-          <div aria-hidden className="gold-groove mx-3 !my-3" />
-          <button
-            onClick={() => setMoreOpen(!moreExpanded)}
-            aria-expanded={moreExpanded}
-            className="flex w-full items-center gap-2 rounded-full px-4 py-1.5 text-start text-xs font-bold tracking-wide text-amber-accent-400/70 hover:bg-surface-muted/70"
-          >
-            <span className="flex-1">{tr("المزيد")}</span>
-            <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />
-          </button>
-          {moreExpanded &&
-            navMore.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={onClose}
-                className={({ isActive }) => clsx(linkBase, isActive ? linkOn : linkOff)}
-              >
-                <item.icon size={18} />
-                {item.label}
-              </NavLink>
-            ))}
-          </>)}
-          <div aria-hidden className="mx-3 !my-2" />
-
-          <NavLink
-            to="/learn"
-            onClick={onClose}
-            className={({ isActive }) =>
-              clsx(
-                "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
-                isActive
-                  ? "bg-amber-accent-400 text-white shadow-sm shadow-amber-accent-400/30"
-                  : "text-amber-accent-600 hover:bg-amber-accent-50",
-              )
-            }
-          >
-            <GraduationCap size={18} />{tr("تعلّموا Wesync")}</NavLink>
-
-          <NavLink
-            to="/guide"
-            onClick={onClose}
-            className={({ isActive }) =>
-              clsx(
-                "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
-                isActive
-                  ? "bg-amber-accent-400 text-white shadow-sm shadow-amber-accent-400/30"
-                  : "text-amber-accent-600 hover:bg-amber-accent-50",
-              )
-            }
-          >
-            <Compass size={18} />{tr("دليل الطالب")}</NavLink>
+          <div className="lx-group">{tr("شغل الفريق")}</div>
+          {work.map(link)}
 
           {isSuperAdmin && (
-            <NavLink
-              to="/admin/subscriptions"
-              onClick={onClose}
-              className={({ isActive }) =>
-                clsx(
-                  "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors",
-                  isActive
-                    ? "bg-brand-700 text-white shadow-sm shadow-brand-700/30"
-                    : "text-brand-700 hover:bg-brand-50",
-                )
-              }
-            >
-              <ShieldCheck size={18} />{tr("إدارة الاشتراكات")}</NavLink>
+            <NavLink to="/admin/subscriptions" onClick={onClose} className={({ isActive }) => clsx("lx-link mt-2", isActive && "on")}>
+              <ShieldCheck size={18} strokeWidth={1.8} aria-hidden />
+              <span className="flex-1">{tr("إدارة الاشتراكات")}</span>
+            </NavLink>
           )}
         </nav>
 
+        <NavLink to="/learn" onClick={onClose} className="lx-learn mt-3" data-nav-id="learn">
+          <GraduationCap size={18} className="text-[#FFC777]" aria-hidden />
+          <span className="flex-1">{tr("تعلّموا Wesync")}</span>
+          {loaded && total > 0 && (
+            <span className="text-[12px] font-extrabold text-[#FFC777]" dir="ltr">
+              {done}/{total}
+            </span>
+          )}
+        </NavLink>
+
         {currentUser && (
-          <div className="p-4 pt-0"><div aria-hidden className="gold-groove mb-4" />
-            <div className="glass-panel flex items-center gap-3 rounded-full border border-brand-100/50 bg-surface-muted/60 p-2 pe-3">
-              <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-brand-950">
-                  {currentUser.name}
-                </p>
-                <p className="truncate text-xs text-brand-950/50">{currentUser.title}</p>
-              </div>
-              <button
-                onClick={logout}
-                title={tr("تسجيل الخروج")}
-                className="rounded-full p-2 text-brand-950/40 hover:bg-paper hover:text-brand-700"
-              >
-                <LogOut size={16} />
+          <div className="lx-me" ref={menuRef}>
+            <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
+            <div className="min-w-0 flex-1 leading-[1.35]">
+              <div className="truncate text-[14px] font-bold text-[#F2EBE3]">{currentUser.name}</div>
+              <div className="truncate text-[12px] text-[#ABA095]">{isLeader ? tr("قائد الفريق") : tr("عضو الفريق")}</div>
+            </div>
+            <div className="lx-tools">
+              <NotificationsBell up />
+              <button type="button" className="lx-tool" aria-label={tr("المزيد")} aria-expanded={menu} aria-haspopup="menu" onClick={() => setMenu((m) => !m)}>
+                <MoreHorizontal size={18} />
               </button>
             </div>
-            <IdeaButton />
-            <InstallAppButton variant="light" className="mt-2 w-full" />
-            <p className="mt-2 flex items-center gap-1.5 px-1 text-xs font-semibold text-brand-600">
-              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-              {getResearcherTitle(researchStages, isFemaleUser(currentUser)).ar}
-            </p>
+            {menu && (
+              <div className="lx-menu" role="menu" aria-label={tr("المزيد")}>
+                <div className="flex items-center gap-2 px-1 pb-2">
+                  <ThemeSwitcher up />
+                  <LangToggle className="!h-11 !min-w-11" />
+                  <button
+                    type="button"
+                    className="lx-tool !border !border-white/10"
+                    onClick={() => {
+                      const next = !soundOn;
+                      setSoundEnabled(next);
+                      setSoundOn(next);
+                    }}
+                    aria-label={soundOn ? tr("إيقاف أصوات التفاعل") : tr("تشغيل أصوات التفاعل")}
+                    title={soundOn ? tr("إيقاف أصوات التفاعل") : tr("تشغيل أصوات التفاعل")}
+                  >
+                    {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                  </button>
+                </div>
+                <button type="button" role="menuitem" className="lx-mi" onClick={() => (setMenu(false), window.dispatchEvent(new Event("nursync:open-command-palette")))}>
+                  <Search size={16} aria-hidden />
+                  <span className="flex-1">{tr("ابحث أو انتقل بسرعة...")}</span>
+                  <kbd dir="ltr">Ctrl K</kbd>
+                </button>
+                <NavLink role="menuitem" to="/guide" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
+                  <Compass size={16} aria-hidden />
+                  {tr("دليل الطالب")}
+                </NavLink>
+                {extra.map((p) => (
+                  <NavLink key={p.to} role="menuitem" to={p.to} className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
+                    {p.to === "/pricing" ? <CreditCard size={16} aria-hidden /> : <p.icon size={16} aria-hidden />}
+                    {p.label}
+                  </NavLink>
+                ))}
+                <div className="lx-mi-wrap">
+                  <IdeaButton />
+                </div>
+                <InstallAppButton variant="light" className="my-1 w-full" />
+                <button type="button" role="menuitem" className="lx-mi" onClick={logout}>
+                  <LogOut size={16} aria-hidden />
+                  {tr("تسجيل الخروج")}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </aside>

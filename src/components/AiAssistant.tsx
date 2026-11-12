@@ -252,7 +252,7 @@ export default function AiAssistant() {
         aria-label={ctxLabel ? tr("الكوتش · {0}", ctxLabel) : tr("وكيل Wesync")}
         title={tr("وكيل Wesync — أنتم في: {0}", ctxLabel ?? place.label)}
         data-learn="agent"
-        className={`fixed bottom-6 start-6 md:start-[280px] z-40 hidden items-center gap-2.5 rounded-full transition-transform hover:scale-[1.03] print:hidden ${open ? "" : "md:flex"}`}
+        className={`fixed bottom-6 start-6 md:start-[320px] z-40 hidden items-center gap-2.5 rounded-full transition-transform hover:scale-[1.03] print:hidden ${open ? "" : "md:flex"}`}
       >
         <AgentOrb size={56} state={loading ? "thinking" : "idle"} symbol={<AgentWave size={24} color="#1A0802" />} />
         {ctxLabel && (

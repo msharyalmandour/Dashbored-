@@ -59,31 +59,45 @@ export default function MinutesList(props: MinutesListProps) {
 
   return (
     <>
-      <ul className="space-y-2.5">
+      <ul className="m-0 flex list-none flex-col gap-1 p-0">
         {minutes.map((x, i) => {
           const st = effectiveApproval(approvals.find((a) => a.minutesId === x.id));
           const items = actions.filter((a) => a.minutesId === x.id).length || lines(x.actionItems);
           const decisionCount = lines(x.decisions);
+          const title = x.agenda.split("\n").map((l) => l.replace(/^[-•\d.)\s]+/, "").trim()).find(Boolean) || tr("اجتماع الفريق");
+          const n = minutes.length - i;
           return (
             <li key={x.id}>
               <button
                 type="button"
                 onClick={() => setOpenId(x.id)}
-                className={clsx(
-                  glassCard,
-                  "flex w-full items-center gap-4 p-4 text-start transition hover:border-[#FF8A24]/60",
-                  props.highlightId === x.id && "!border-[#FFB444] shadow-[0_0_0_2px_rgba(255,180,68,.35)]",
-                )}
+                className={clsx("mt-row", (i === 0 || props.highlightId === x.id) && "first")}
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#FF8A24]/60 text-sm font-bold text-[#FFB444]">{arDigit(minutes.length - i)}</span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-bold">{formatDateFull(x.meetingDate)}</span>
-                  <span className="block text-xs text-[#B8ADA2]">
-                    {decisionCount > 0 ? `${arDigit(decisionCount)} ${decisionCount === 1 ? tr("قرار") : tr("قرارات")}` : tr("بدون قرارات")} · {items > 0 ? `${arDigit(items)} ${items === 1 ? tr("بند") : tr("بنود")}` : tr("بدون بنود")}
+                <span className="mt-num" dir="ltr" aria-hidden>
+                  {String(n).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 flex-[1.4] leading-[1.4]">
+                  <b className="block truncate text-[16px] text-[#F2EBE3]" dir="auto">
+                    {title}
+                  </b>
+                  <span className="flex items-center gap-2 text-[13px] text-[#ABA095]">
+                    {formatDateShort(x.meetingDate)}
+                    {x.attendees.length > 0 && (
+                      <span className="mt-avs" aria-label={tr("{0} حضروا", x.attendees.length)}>
+                        {x.attendees.slice(0, 4).map((a, k) => (
+                          <i key={k} style={{ background: ["#FFC85A", "#FF9A5A", "#FFE3C2", "#FFB2A6"][k % 4] }} title={a}>
+                            {a.trim().charAt(0)}
+                          </i>
+                        ))}
+                      </span>
+                    )}
                   </span>
                 </span>
+                <span className="hidden flex-1 text-[13px] text-[#E9D3B8] sm:block">
+                  {decisionCount > 0 ? `${arDigit(decisionCount)} ${decisionCount === 1 ? tr("قرار") : tr("قرارات")}` : tr("بدون قرارات")} · {items > 0 ? `${arDigit(items)} ${items === 1 ? tr("مهمة") : tr("مهام")}` : tr("بدون بنود")}
+                </span>
                 <ApprovalBadge status={st} />
-                <ChevronLeft size={16} className="shrink-0 text-[#B8ADA2]" aria-hidden />
+                <ChevronLeft size={16} className="shrink-0 text-[#ABA095] ltr:rotate-180" aria-hidden />
               </button>
             </li>
           );

@@ -9,7 +9,7 @@ import { tr } from "../lib/i18n";
 import Avatar from "./ui/Avatar";
 import AvatarPicker from "./AvatarPicker";
 
-export default function ThemeSwitcher() {
+export default function ThemeSwitcher({ up = false }: { up?: boolean } = {}) {
   const { theme, setTheme } = useTheme();
   const { currentUser } = useAuth();
   const [open, setOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function ThemeSwitcher() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute start-0 top-12 z-20 w-64 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
+          <div className={`absolute start-0 ${up ? "bottom-12" : "top-12"} z-20 w-64 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150`}>
             {currentUser && (
               <>
                 <button

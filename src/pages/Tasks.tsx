@@ -1,13 +1,10 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Bell,
   Check,
   MapPin,
-  ShieldAlert,
   FileText,
-  LayoutGrid,
-  List,
   ListChecks,
   MessageCircle,
   PartyPopper as PartyPopperIcon,
@@ -31,11 +28,12 @@ import FileAttach, { type AttachedFileMeta } from "../components/FileAttach";
 import ImproveWritingButton from "../components/ImproveWritingButton";
 import TaskComments from "../components/TaskComments";
 import ConfettiBurst from "../components/cinematic/ConfettiBurst";
-import TasksKanban from "../components/TasksKanban";
 import ThreeDotsMenu, { type ThreeDotsMenuItem } from "../components/ui/ThreeDotsMenu";
 import Dialog from "../components/ui/Dialog";
 import { evenPlan } from "../lib/taskBalance";
 import { V3Glow, num } from "../components/v3/WriteHeader";
+import { LuxHead, ReviewCard, Segmented } from "../components/lux/Lux";
+import { SectionSwitch } from "../components/SectionTabs";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
@@ -47,7 +45,7 @@ import { useResearchProject } from "../hooks/useResearchProject";
 import { PLACES, inferPlace, placeByKey, placeOf, proofFor, strictReview, type PlaceKey, type Proof } from "../lib/taskLinks";
 import type { Task, TaskPriority, TaskStatus } from "../data/types";
 import { addDaysISO, daysUntil, formatDateShort } from "../lib/date";
-import { groupByDue, type DueGroup } from "../lib/taskGroups";
+import { groupByDue } from "../lib/taskGroups";
 import { nextReminder, splitReminders } from "../lib/taskReminders";
 import { playChime } from "../lib/sound";
 import { tr } from "../lib/i18n";
@@ -79,27 +77,19 @@ const statusLabel: Record<TaskStatus, string> = {
   overdue: tr("متأخرة"),
 };
 
-type FilterId = "all" | "mine" | "late" | "in-progress" | "done";
+type FilterId = "all" | "mine" | "late" | "proof" | "done";
 const filters: { id: FilterId; label: string }[] = [
   { id: "all", label: tr("الكل") },
-  { id: "mine", label: tr("مهامي") },
+  { id: "mine", label: tr("لي") },
   { id: "late", label: tr("متأخرة") },
-  { id: "in-progress", label: tr("نشتغل عليها") },
+  { id: "proof", label: tr("بدون دليل") },
   { id: "done", label: tr("خلصت") },
 ];
 
-const GROUP_DOT: Record<DueGroup<Task>["key"], string> = {
-  overdue: "#FF8A7A",
-  soon: "#FFB444",
-  week: "#F6F1EC",
-  later: "rgba(255,255,255,.3)",
-  done: "#FFC777",
-};
 
 /** تاريخ اليوم بتوقيت الرياض (YYYY-MM-DD) */
 const riyadhToday = () => new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
 
-const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
 /** «متأخرة يوم/يومين/3 أيام» */
 function lateLabel(dueDate: string) {
@@ -116,7 +106,7 @@ function taskCount(n: number) {
   return n <= 10 ? tr("{0} مهام", num(n)) : tr("{0} مهمة", num(n));
 }
 
-const ROW_COLS = "grid-cols-[28px_minmax(0,1fr)_44px] md:grid-cols-[28px_minmax(320px,1fr)_120px_110px_130px_44px]";
+const ROW_COLS = "grid-cols-[32px_minmax(0,1fr)_44px] md:grid-cols-[44px_minmax(280px,1fr)_150px_130px_130px_40px] xl:grid-cols-[44px_minmax(320px,1fr)_170px_150px_140px_40px]";
 
 export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
@@ -131,14 +121,12 @@ export default function Tasks() {
   // طلب تمديد رسمي من المشرف/ة (SupExtM)
   const [extFor, setExtFor] = useState<Task | null>(null);
   const teamTime = useTeamTime();
-  const [reviewOpen, setReviewOpen] = useState(true);
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [balancing, setBalancing] = useState(false);
   const { comments, addComment } = useTaskComments();
   const { showToast } = useToast();
   const [filter, setFilter] = useState<FilterId>("all");
   const [query, setQuery] = useState("");
-  const [view, setView] = useState<"list" | "board">("list");
   const [showForm, setShowForm] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [searchParams, setSearchParams] = useSearchParams();
@@ -161,7 +149,7 @@ export default function Tasks() {
   const tomorrow = addDaysISO(today, 1);
 
   // التذكيرات («تذكير: …») تنشال من القائمة وتصير جرس على مهمتها الأصلية — البيانات نفسها ما تتغير
-  const { visible, byTask, linked } = useMemo(() => splitReminders(tasks), [tasks]);
+  const { visible, byTask } = useMemo(() => splitReminders(tasks), [tasks]);
   const taskOf = (id: string) => {
     if (visible.some((t) => t.id === id)) return id;
     for (const [orig, rs] of byTask) if (rs.some((r) => r.id === id)) return orig;
@@ -211,7 +199,7 @@ export default function Tasks() {
   const suggestedPlace = form.place ? null : placeByKey(inferPlace(form.title, form.description));
 
   const matches = (t: Task, f: FilterId) =>
-    f === "all" ? true : f === "mine" ? t.assigneeId === currentUser?.id : f === "late" ? isLate(t) : t.status === f;
+    f === "all" ? true : f === "mine" ? t.assigneeId === currentUser?.id : f === "late" ? isLate(t) : f === "proof" ? t.status === "done" && proofOf(t)?.met === false : t.status === f;
 
   const counts = useMemo(
     () => Object.fromEntries(filters.map((f) => [f.id, visible.filter((t) => matches(t, f.id)).length])) as Record<FilterId, number>,
@@ -301,16 +289,9 @@ export default function Tasks() {
     [visible, papers, sections, project?.targetSubmissionDate, today, roster],
   );
 
-  const openTask = (id: string) => {
-    setExpandedTaskId(id);
-    setScrollToTaskId(id);
-  };
 
   // ── «ركّز على هذي اليوم»: أقرب مهمة متأخرة أو موعدها اليوم (مهامك أول) ──
   const open = visible.filter((t) => t.status !== "done").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
-  const urgent = open.filter((t) => isLate(t) || t.dueDate === today);
-  const focus =
-    urgent.find((t) => t.assigneeId === currentUser?.id) ?? urgent[0] ?? open.find((t) => t.assigneeId === currentUser?.id) ?? open[0];
   const doneCount = visible.filter((t) => t.status === "done").length;
   const unprovenCount = visible.filter((t) => t.status === "done" && proofOf(t)?.met === false).length;
   const pct = visible.length ? Math.round((doneCount / visible.length) * 100) : 0;
@@ -356,9 +337,6 @@ export default function Tasks() {
   };
 
   // ── التذكيرات الجاية ──
-  const upcomingReminders = linked.filter((r) => r.status !== "done" && r.dueDate >= today);
-  const remindersTomorrow = upcomingReminders.filter((r) => r.dueDate === tomorrow).length;
-  const remindersToday = upcomingReminders.filter((r) => r.dueDate === today).length;
 
   const reminderBadge = (task: Task) => {
     const r = nextReminder(byTask.get(task.id), today);
@@ -418,8 +396,8 @@ export default function Tasks() {
         id={`task-${task.id}`}
         role="listitem"
         className={clsx(
-          "scroll-mt-24 rounded-2xl px-3 py-2.5 transition-colors sm:px-3.5",
-          late ? "v3-late-row bg-[rgba(255,120,100,.06)]" : "hover:bg-white/[0.03]",
+          "scroll-mt-24 flex min-h-[64px] flex-col justify-center rounded-[18px] px-3 py-1.5 transition-colors sm:px-3.5",
+          late || (task.status === "done" && proof?.met === false) ? "bg-[rgba(255,199,119,.035)] shadow-[inset_0_0_0_1px_rgba(255,199,119,.14)]" : "hover:bg-white/[0.03]",
           isExpanded && !late && "bg-white/[0.04]",
         )}
       >
@@ -434,13 +412,19 @@ export default function Tasks() {
             className={clsx("v3-tap -m-2 grid h-11 w-11 place-items-center rounded-full", canToggle ? "cursor-pointer" : "cursor-default opacity-60")}
           >
             <span
-              className={clsx("grid h-[22px] w-[22px] place-items-center rounded-full border-[1.8px] transition-colors")}
-              style={{
-                borderColor: task.status === "done" ? "#FFC777" : late ? "#FF8A7A" : "rgba(255,255,255,.3)",
-                background: task.status === "done" ? "rgba(255,199,119,.18)" : undefined,
-              }}
+              className="grid h-[26px] w-[26px] place-items-center rounded-[9px] transition-colors"
+              style={
+                task.status === "done"
+                  ? proof?.met === false
+                    ? { boxShadow: "0 0 0 2px #FFC777, 0 0 0 5px rgba(255,199,119,.14)", background: "rgba(255,199,119,.08)", color: "#FFC777" }
+                    : { background: "#FFC777", color: "#2A1404" }
+                  : task.status === "in-progress"
+                    ? { boxShadow: "inset 0 0 0 1.6px #FF9A3C" }
+                    : { boxShadow: `inset 0 0 0 1.6px ${late ? "#FF8A7A" : "rgba(255,255,255,.3)"}` }
+              }
             >
-              {task.status === "done" && <Check size={13} strokeWidth={3} className="text-[#FFC777]" />}
+              {task.status === "done" && <Check size={14} strokeWidth={3} />}
+              {task.status === "in-progress" && <i className="block h-2.5 w-2.5 rounded-[3px] bg-[#FF9A3C]" />}
             </span>
           </button>
 
@@ -572,27 +556,21 @@ export default function Tasks() {
     );
   };
 
-  const collapsedText = (g: DueGroup<Task>) =>
-    g.key === "later" ? tr("{0} بعد الأسبوع الجاي", taskCount(g.items.length)) : tr("{0} خلصت", taskCount(g.items.length));
 
   return (
     <div className="v3 relative">
       <V3Glow />
 
-      {/* ── الترويسة ── */}
-      <header className="v3-rise relative mb-5 flex flex-wrap items-end gap-4" style={rise(0)}>
-        <div className="min-w-0 flex-[1_1_280px]">
-          <div className="v3-eye">{tr("شغل الفريق")}</div>
-          <h1 className="v3-k m-0 text-[30px] leading-snug sm:text-[38px]">{tr("مهامي")}</h1>
-          <p className="v3-mut m-0 mt-1 text-[15px] sm:text-base">{tr("كل اللي عليك وعلى الفريق، مرتبة بالأقرب موعد.")}</p>
-        </div>
+      {/* ── الترويسة (TasksLux): العنوان + تبويبات القسم + «مهمة جديدة» الزر البرتقالي الوحيد ── */}
+      <LuxHead kicker={tr("شغل الفريق")} title={tr("مهامي")} sub={tr("كل اللي عليكم وعلى الفريق، مرتبة بالأقرب موعد")}>
+        <SectionSwitch />
         {isLeader && canWrite && (
-          <button type="button" onClick={() => setShowForm((s) => !s)} className="v3-bw" aria-expanded={showForm}>
+          <button type="button" onClick={() => setShowForm((s) => !s)} className="lx-go" aria-expanded={showForm}>
             <Plus size={18} aria-hidden />
             {tr("مهمة جديدة")}
           </button>
         )}
-      </header>
+      </LuxHead>
 
       {/* ── إسناد مهمة جديدة (نفس الحقول ونفس الحفظ) ── */}
       {showForm && isLeader && canWrite && (
@@ -689,181 +667,64 @@ export default function Tasks() {
         </section>
       )}
 
-      {/* ── مراجعة صارمة: مشاكل حقيقية من بياناتكم، كل وحدة معها تصليح ── */}
-      {!loading && review.length > 0 && (
-        <section className="tk-review v3-rise mb-4" style={rise(1)} aria-labelledby="tk-rv-h">
-          <button type="button" className="tk-review-head" onClick={() => setReviewOpen((o) => !o)} aria-expanded={reviewOpen}>
-            <span className="tk-review-ic" aria-hidden>
-              <ShieldAlert size={18} />
-            </span>
-            <span className="min-w-0 flex-1 text-start">
-              <span id="tk-rv-h" className="block text-[16px] font-extrabold text-[#F2EBE3]">
-                {tr("مراجعة صارمة")} <span className="tk-badge">{num(review.length)}</span>
-              </span>
-              <span className="block text-[13px] text-[#ABA095]">{tr("أشياء تضعّف شغلكم قدام المشرف/ة، وكل وحدة لها حل.")}</span>
-            </span>
-            <span className="text-[13px] font-bold text-[#FFC777]">{reviewOpen ? tr("إخفاء") : tr("عرض")}</span>
-          </button>
-          {reviewOpen && (
-            <ol className="m-0 mt-3 list-none space-y-2 p-0">
-              {review.map((it, i) => (
-                <li key={it.id} className="tk-review-row">
-                  <span className="tk-review-n" dir="ltr">
-                    {i + 1}
-                  </span>
-                  <span className="min-w-0 flex-1 basis-[calc(100%-40px)] text-[14px] leading-relaxed text-[#E9D3B8] sm:basis-0" dir="auto">
-                    {it.text}
-                  </span>
-                  <Link to={it.to} className="tk-review-fix">
-                    {it.fix}
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          )}
-        </section>
-      )}
-
-      {/* ── ركّز على هذي اليوم + حلقة الإنجاز ── */}
-      <div className="relative mb-4 flex flex-col gap-4 lg:flex-row lg:gap-[18px]">
-        <section
-          className={clsx("v3-g v3-rise flex flex-[1.3] items-center gap-5 p-5 sm:px-6 sm:py-[22px]", focus && "v3-sheen")}
-          style={{ ...rise(1), background: "linear-gradient(160deg,rgba(170,48,6,.75),rgba(50,12,3,.6))" }}
-          aria-labelledby="focus-title"
-        >
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] text-[#F3D9C4]">{tr("ركّز على هذي اليوم")}</div>
-            {focus ? (
-              <>
-                <h2 id="focus-title" className="v3-k m-0 my-1 text-[22px] leading-snug sm:text-[26px]" dir="auto">
-                  {focus.title}
-                </h2>
-                <div className="text-sm text-[#F3D9C4]">
-                  {[
-                    isLate(focus) ? lateLabel(focus.dueDate) : focus.dueDate === today ? tr("موعدها اليوم") : tr("موعدها {0}", formatDateShort(focus.dueDate)),
-                    placeOf(focus)?.label ?? "",
-                    focus.assigneeId !== currentUser?.id ? firstName(focus.assigneeId) : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </div>
-              </>
-            ) : (
-              <h2 id="focus-title" className="v3-k m-0 my-1 text-[22px] sm:text-[26px]">
-                {tr("ما عندكم مهام مفتوحة")} 🎉
-              </h2>
-            )}
-          </div>
-          {focus && (
-            <button type="button" className="v3-bc shrink-0" onClick={() => openTask(focus.id)}>
-              {tr("افتح ←")}
-            </button>
-          )}
-        </section>
-
-        <section className="v3-g v3-hover v3-rise flex flex-1 items-center gap-5 p-5 sm:px-6" style={rise(2)} aria-label={tr("إنجاز المهام")}>
-          <div className="relative h-[84px] w-[84px] shrink-0">
-            <div className="v3-ring h-[84px] w-[84px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0} من {1} خلصت", num(doneCount), num(visible.length))} />
-            <span className="v3-k absolute inset-0 grid place-items-center text-xl" aria-hidden dir="ltr">
-              {num(doneCount)}/{num(visible.length)}
-            </span>
-          </div>
-          <div className="min-w-0">
-            {/* نقول الحقيقة: الإنجاز بدون دليل ما ينحسب كأنه تمام */}
-            <div className="v3-k text-[17px]">
-              <span dir="ltr">
+      {/* ── الملخص: الحلقة + تحتاج دليل + متأخرة + موعد التسليم ── */}
+      <section className="lx-card gold lx-in mb-[18px] grid grid-cols-3 items-start gap-y-4 px-4 py-[18px] lg:flex lg:items-center lg:px-[22px]" aria-label={tr("إنجاز المهام")}>
+        <div className="col-span-3 flex items-center gap-4 lg:pe-[22px]">
+          <div className="relative h-[92px] w-[92px] flex-none">
+            <div className="v3-ring h-[92px] w-[92px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0} من {1} خلصت", num(doneCount), num(visible.length))} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center leading-[1.1]" aria-hidden>
+              <b className="text-[23px] font-extrabold text-[#EAE3DC]" dir="ltr">
                 {num(doneCount)}/{num(visible.length)}
-              </span>{" "}
-              {tr("خلصت")}
-              {unprovenCount > 0 && <span className="text-[#FFC777]"> · {tr("{0} منها بدون دليل", num(unprovenCount))}</span>}
-            </div>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {lateCount > 0 && <span className="v3-st late">{tr("{0} متأخرة", num(lateCount))}</span>}
-              {tomorrowCount > 0 && <span className="v3-st doing">{tr("{0} بكرة", num(tomorrowCount))}</span>}
-              {lateCount === 0 && tomorrowCount === 0 && <span className="v3-st done">{tr("ولا شي متأخر")}</span>}
+              </b>
+              <span className="mt-1 text-[12px] text-[#ABA095]">{tr("خلصت")}</span>
             </div>
           </div>
-        </section>
-      </div>
-
-      {/* ── الفلاتر + البحث + قائمة/شبكة ── */}
-      <div className="relative mb-4 flex flex-wrap items-center gap-3">
-        <div className="v3-g v3-rise v3-scroll-x flex max-w-full gap-1 !rounded-full p-1.5" style={rise(3)} role="tablist" aria-label={tr("فلترة المهام")}>
-          {filters.map((f) => {
-            const on = filter === f.id;
-            return (
-              <button
-                key={f.id}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => setFilter(f.id)}
-                className={clsx(
-                  "v3-tap flex min-h-[44px] shrink-0 items-center gap-2 rounded-full px-4 text-[15px] transition-all",
-                  on ? "bg-[#F6F1EC] font-bold text-[#160904] shadow-[0_0_22px_rgba(255,200,140,.35)]" : "text-[var(--ws-c-text)] hover:text-[var(--ws-c-text)]",
-                )}
-              >
-                {f.label}
-                <span className={clsx("rounded-full px-[7px] text-xs font-bold", on ? "bg-[#160904] text-[#FFB444]" : "bg-white/10")}>{num(counts[f.id])}</span>
-              </button>
-            );
-          })}
+          <div className="leading-[1.4]">
+            <b className="text-[18px]">{visible.length && doneCount === visible.length ? tr("خلصتوا كل المهام") : tr("{0} باقية", num(visible.length - doneCount))}</b>
+            <div className="text-[13px] font-bold text-[#FFC777]">
+              {unprovenCount > 0 ? tr("بس {0} منها بدون دليل", num(unprovenCount)) : doneCount ? tr("كلها بدليل ✓") : tr("ابدأوا بأقرب موعد")}
+            </div>
+          </div>
         </div>
-        <label className="v3-g v3-rise flex min-h-[48px] min-w-[200px] flex-1 items-center gap-2 !rounded-full px-4" style={rise(4)}>
-          <Search size={17} className="shrink-0 text-[var(--ws-c-muted)]" aria-hidden />
-          <span className="sr-only">{tr("ابحث في المهام")}</span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={tr("ابحث في المهام…")}
-            className="min-w-0 flex-1 bg-transparent text-sm text-[var(--ws-c-text)] outline-none placeholder:text-[var(--ws-c-muted)]"
-            type="search"
-          />
-        </label>
-        <div className="v3-g v3-rise flex gap-1 !rounded-full p-1" style={rise(5)} role="group" aria-label={tr("طريقة العرض")}>
-          {(
-            [
-              ["list", List, tr("عرض قائمة")],
-              ["board", LayoutGrid, tr("عرض شبكة")],
-            ] as const
-          ).map(([id, Icon, label]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setView(id)}
-              aria-pressed={view === id}
-              aria-label={label}
-              title={label}
-              className={clsx(
-                "v3-tap grid h-11 w-11 place-items-center rounded-full transition-colors",
-                view === id ? "bg-[#F6F1EC] text-[#160904]" : "text-[var(--ws-c-text)] hover:text-[var(--ws-c-text)]",
-              )}
-            >
-              <Icon size={17} />
-            </button>
-          ))}
+        <div className="lx-stat">
+          <b dir="ltr" className="text-[#FFC777]">
+            {num(unprovenCount)}
+          </b>
+          <div>{tr("تحتاج دليل")}</div>
+          <small>{tr("الدكتورة تشوفها «بدون دليل»")}</small>
         </div>
-      </div>
+        <div className="lx-stat">
+          <b dir="ltr" className={lateCount ? "text-[#FF8A7A]" : "text-[#EAE3DC]"}>
+            {num(lateCount)}
+          </b>
+          <div>{tr("متأخرة")}</div>
+          <small>{lateCount ? (tomorrowCount ? tr("و{0} بكرة", num(tomorrowCount)) : tr("خلّصوها أول")) : tr("ممتاز، كملوا كذا")}</small>
+        </div>
+        <div className="lx-stat">
+          <b dir="ltr" className={project?.targetSubmissionDate ? "text-[#EAE3DC]" : "text-[#ABA095]"}>
+            {project?.targetSubmissionDate ? num(Math.max(0, daysUntil(project.targetSubmissionDate))) : "—"}
+          </b>
+          <div>{tr("موعد التسليم")}</div>
+          <small>{project?.targetSubmissionDate ? tr("يوم · {0}", formatDateShort(project.targetSubmissionDate)) : tr("ما تحدد للحين")}</small>
+        </div>
+      </section>
 
-      {/* ── القائمة + الجنب ── */}
-      <div className="relative grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-[18px]">
-        <section className="v3-g v3-rise min-w-0 px-2 py-4 sm:px-2.5" style={rise(6)} aria-label={tr("كل المهام")}>
+      {/* ── الجدول: الفلاتر + البحث + المهام ── */}
+      <section className="lx-card lx-in mb-[18px] px-2.5 pb-2.5 pt-4" aria-label={tr("كل المهام")}>
+        <div className="flex flex-wrap items-center gap-3 px-2 pb-3.5">
+          <Segmented label={tr("فلترة المهام")} value={filter} onChange={setFilter} items={filters.map((f) => ({ id: f.id, label: f.label, count: counts[f.id] }))} />
+          <span className="flex-1" />
+          <label className="lx-search">
+            <Search size={16} className="shrink-0" aria-hidden />
+            <span className="sr-only">{tr("ابحث في المهام")}</span>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("ابحثوا في المهام…")} type="search" />
+          </label>
+        </div>
           {loading ? (
             <div className="flex flex-col gap-3 px-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-14" />
               ))}
-            </div>
-          ) : view === "board" ? (
-            <div className="px-1.5">
-              <TasksKanban
-                tasks={filtered}
-                memberById={memberById}
-                canToggleTask={canToggleTask}
-                onChangeStatus={changeStatus}
-                isLeader={isLeader}
-                onDelete={deleteTask}
-              />
             </div>
           ) : filtered.length === 0 ? (
             <div className="px-4 py-10 text-center">
@@ -882,7 +743,7 @@ export default function Tasks() {
             </div>
           ) : (
             <>
-              <div className={clsx("v3-mut hidden gap-x-3 px-3.5 pb-1 text-xs md:grid", ROW_COLS)} aria-hidden>
+              <div className={clsx("lx-th hidden gap-x-3.5 px-3.5 pb-2 md:grid", ROW_COLS)} aria-hidden>
                 <span />
                 <span>{tr("المهمة")}</span>
                 <span>{tr("مين")}</span>
@@ -890,46 +751,19 @@ export default function Tasks() {
                 <span>{tr("الحالة")}</span>
                 <span />
               </div>
-              <div role="list" className="flex flex-col">
-                {groups.map((g, gi) => {
-                  const collapsible = g.key === "later" || g.key === "done";
-                  const expanded = !collapsible || openGroups[g.key] || g.items.some((t) => t.id === expandedTaskId) || !!query.trim();
-                  return (
-                    <div key={g.key} role="group" aria-labelledby={`grp-${g.key}`} className="flex flex-col gap-0.5">
-                      {gi > 0 && <div className="mx-1 my-1.5 h-px bg-white/[0.07]" />}
-                      <div className="flex items-center gap-2.5 px-3.5 pb-1.5 pt-1">
-                        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: GROUP_DOT[g.key] }} />
-                        <span id={`grp-${g.key}`} className="v3-k text-base">
-                          {g.label}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 text-xs">{num(g.items.length)}</span>
-                        {collapsible && expanded && !query.trim() && (
-                          <button type="button" className="v3-link ms-auto !min-h-[36px]" onClick={() => setOpenGroups((s) => ({ ...s, [g.key]: false }))}>
-                            {tr("اخفها")}
-                          </button>
-                        )}
-                      </div>
-                      {expanded ? (
-                        g.items.map((t) => renderRow(t, g.key === "overdue"))
-                      ) : (
-                        <div className="v3-mut flex flex-wrap items-center gap-x-1.5 px-3.5 pb-1 text-sm md:ps-[52px]">
-                          {collapsedText(g)} ·
-                          <button type="button" className="v3-link" onClick={() => setOpenGroups((s) => ({ ...s, [g.key]: true }))}>
-                            {tr("اعرضها")}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+              <div role="list" className="flex flex-col gap-1">
+                {groups.flatMap((g) => g.items.map((t) => renderRow(t, g.key === "overdue")))}
               </div>
             </>
           )}
-        </section>
+      </section>
 
-        <aside className="flex min-w-0 flex-col gap-4">
+      {/* ── تحت: حمل الفريق + قبل لا تشوفها الدكتورة ── */}
+      <div className="grid grid-cols-1 items-start gap-[18px] lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+        {!loading && <ReviewCard items={review} className="lg:order-1" />}
+        <div className="lg:order-2">
           {/* حمل الفريق */}
-          <section className="v3-g v3-hover v3-rise flex flex-col gap-3 p-[18px]" style={rise(7)} aria-labelledby="load-title">
+          <section className="lx-card lx-in flex flex-col gap-3 p-[18px]" aria-labelledby="load-title">
             <div>
               <h2 id="load-title" className="v3-k m-0 text-base">
                 {tr("حمل الفريق")}
@@ -977,26 +811,7 @@ export default function Tasks() {
             )}
           </section>
 
-          {/* التذكيرات */}
-          <section className="v3-g v3-hover v3-rise flex flex-col gap-2 p-[18px]" style={rise(8)} aria-labelledby="rem-title">
-            <div>
-              <h2 id="rem-title" className="v3-k m-0 text-base">
-                {tr("التذكيرات")}
-              </h2>
-            </div>
-            <p className="v3-mut m-0 text-[13px] leading-relaxed">{tr("صارت جرس صغير على المهمة نفسها بدل ما تطلع كمهمة ثانية مكررة.")}</p>
-            <div className="flex items-center gap-2 text-sm">
-              <Bell size={16} className="shrink-0 text-[#FFB444]" aria-hidden />
-              {remindersTomorrow > 0
-                ? tr("{0} تذكير بكرة الصبح 8:05", num(remindersTomorrow))
-                : remindersToday > 0
-                  ? tr("{0} تذكير اليوم", num(remindersToday))
-                  : upcomingReminders.length > 0
-                    ? tr("{0} تذكير جاي", num(upcomingReminders.length))
-                    : tr("ما فيه تذكيرات جاية")}
-            </div>
-          </section>
-        </aside>
+        </div>
       </div>
 
       <ConfettiBurst active={justCompleted} />

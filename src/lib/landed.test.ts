@@ -6,7 +6,7 @@ describe("hero landed → sidebar section", () => {
   it("maps each destination's deep link to its sidebar section", () => {
     const at = (destination: string, payload: Record<string, unknown> = {}) => sectionOf(deepLink({ destination, payload, created_entities: [] } as never));
     expect(at("library")).toBe("search");
-    expect(at("tasks")).toBe("team");
+    expect(at("tasks")).toBe("tasks");
     expect(at("supervisor_note")).toBe("supervisor");
     expect(at("minutes")).toBe("supervisor");
     expect(at("calendar")).toBe("calendar");

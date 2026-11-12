@@ -9,6 +9,8 @@ const SHOW_MS = 9000;
 /** المسار (بدون ?…) → القسم بالقائمة */
 export function sectionOf(route: string): string | null {
   const path = route.split("?")[0];
+  // «مهامي» بند لحاله بالقائمة
+  if (isPathIn(path, "/tasks")) return "tasks";
   for (const s of [...journeySections, ...workSections]) if (s.pages.some((p) => isPathIn(path, p.to.split("?")[0]))) return s.id;
   return null;
 }

@@ -92,8 +92,8 @@ export default function GlobalDrop() {
     if (!demo) return;
     if (demo === "drag") setDrag({ count: 2, names: [{ name: "", mime: "application/pdf" }, { name: "", mime: "image/png" }] });
     else if (demo === "landed") {
-      setLanded({ id: "demo", n: 4, places: ["مكتبة الأدلة", "مهامي", "ملاحظات المشرف/ة", "التقويم"], flights: [{ d: "search", len: 0 }, { d: "team", len: 0 }, { d: "supervisor", len: 0 }, { d: "calendar", len: 0 }] });
-      window.setTimeout(() => announceLanded({ search: 1, team: 2, supervisor: 1, calendar: 1 }), 50);
+      setLanded({ id: "demo", n: 4, places: ["مكتبة الأدلة", "مهامي", "ملاحظات المشرف/ة", "التقويم"], flights: [{ d: "search", len: 0 }, { d: "tasks", len: 0 }, { d: "supervisor", len: 0 }, { d: "calendar", len: 0 }] });
+      window.setTimeout(() => announceLanded({ search: 1, tasks: 2, supervisor: 1, calendar: 1 }), 50);
     } else {
       setOpen(true);
       setDropId("demo");
@@ -208,6 +208,24 @@ export default function GlobalDrop() {
       window.removeEventListener("drop", drop);
     };
   }, [enabled, onDropPage, pathname, begin]);
+
+  // ── Ctrl V بأي صفحة (برا خانات الكتابة): الملفات أو النص الملصوق يروح لـ«ارموا» ──
+  useEffect(() => {
+    if (!enabled) return;
+    const paste = (e: ClipboardEvent) => {
+      const el = (e.target as HTMLElement | null) ?? document.activeElement;
+      if (el && (el.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']") || (el as HTMLElement).isContentEditable)) return;
+      if (open || document.querySelector("[role='dialog'][aria-modal='true']")) return;
+      const files = Array.from(e.clipboardData?.files ?? []);
+      const text = (e.clipboardData?.getData("text/plain") ?? "").trim();
+      if (!files.length && text.length < 2) return;
+      e.preventDefault();
+      if (onDropPage) queueDrop(files, "paste", files.length ? undefined : text);
+      else void begin(files, files.length ? "" : text, "paste");
+    };
+    window.addEventListener("paste", paste);
+    return () => window.removeEventListener("paste", paste);
+  }, [enabled, onDropPage, begin, open]);
 
   // ── النتايج ──
   const shown = useMemo(() => results.filter((r) => !r.undone_at), [results]);

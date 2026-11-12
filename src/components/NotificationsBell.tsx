@@ -18,7 +18,8 @@ function dueLabel(days: number): string {
   return tr("مستحقة بعد {0} أيام", days);
 }
 
-export default function NotificationsBell() {
+/** up: القائمة تطلع فوق الزر (لما يكون الجرس تحت بالقائمة الجانبية) */
+export default function NotificationsBell({ up = false }: { up?: boolean } = {}) {
   const [open, setOpen] = useState(false);
   const { currentUser, mode } = useAuth();
   const { tasks } = useTasksData();
@@ -59,7 +60,7 @@ export default function NotificationsBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute end-0 top-12 z-20 w-80 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
+          <div className={`absolute end-0 ${up ? "bottom-12" : "top-12"} z-20 max-h-[70vh] w-80 overflow-y-auto glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150`}>
             {attention > 0 && (
               <>
                 <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">{tr("يحتاج انتباهك")}</p>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, CheckSquare, Compass, CreditCard, Flag, GraduationCap, House, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
+import { Check, CheckSquare, CircleHelp, Compass, CreditCard, Flag, GraduationCap, House, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
@@ -144,7 +144,11 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
           )}
         </nav>
 
-        <NavLink to="/learn" onClick={onClose} className="lx-learn mt-3" data-nav-id="learn">
+        <NavLink to="/explain" onClick={onClose} className={({ isActive }) => clsx("lx-link mt-2 !min-h-[40px] !text-[14px]", isActive && "on")}>
+          <CircleHelp size={17} strokeWidth={1.8} aria-hidden />
+          <span className="flex-1">{tr("وش هذا المكان؟")}</span>
+        </NavLink>
+        <NavLink to="/learn" onClick={onClose} className="lx-learn mt-2" data-nav-id="learn">
           <GraduationCap size={18} className="text-[#FFC777]" aria-hidden />
           <span className="flex-1">{tr("تعلّموا Wesync")}</span>
           {loaded && total > 0 && (

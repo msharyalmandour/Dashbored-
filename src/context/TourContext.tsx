@@ -11,6 +11,8 @@ interface TourContextValue {
   completedIds: Set<string>;
   finished: boolean;
   startTour: () => void;
+  /** يبدأ الجولة من خطوة صفحة معينة (زر «؟»). false = ما لها خطوة */
+  startAt: (route: string) => boolean;
   next: () => void;
   prev: () => void;
   close: () => void;
@@ -47,6 +49,12 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, [activeIndex]);
 
   const startTour = () => setActiveIndex(0);
+  const startAt = (route: string) => {
+    const i = tourSteps.findIndex((st) => st.route === route);
+    if (i < 0) return false;
+    setActiveIndex(i);
+    return true;
+  };
 
   const next = () => {
     if (activeIndex === null) return;
@@ -68,7 +76,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
   return (
     <TourContext.Provider
-      value={{ steps: tourSteps, activeIndex, completedIds, finished, startTour, next, prev, close }}
+      value={{ steps: tourSteps, activeIndex, completedIds, finished, startTour, startAt, next, prev, close }}
     >
       {children}
     </TourContext.Provider>

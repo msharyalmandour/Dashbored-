@@ -9,6 +9,7 @@ import NotificationsBell from "./NotificationsBell";
 import SubscriptionBadge from "./SubscriptionBadge";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
 import LangToggle from "./ui/LangToggle";
+import { PageHelpButton } from "./help/PageHelp";
 import { tr } from "../lib/i18n";
 
 export default function Header({
@@ -75,6 +76,7 @@ export default function Header({
 
         <ThemeSwitcher />
 
+        <PageHelpButton />
         <div className={clsx(homeMode && "md:hidden")}>
           <NotificationsBell />
         </div>

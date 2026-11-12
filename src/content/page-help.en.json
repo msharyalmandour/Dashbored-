@@ -1,0 +1,86 @@
+{
+  "/": { "name": "Home", "lead": "Your whole day at a glance. **What's due today, how far you are, and what weakens your work.**", "symbols": [
+    { "title": "“Drop anything” = fastest start", "sub": "Drag any file onto the site and we put it in place" },
+    { "title": "Orange = research progress", "sub": "Share of stages done with proof" },
+    { "title": "“Before your supervisor sees it”", "sub": "The most important fixes, ranked" } ] },
+  "/drop": { "name": "Drop anything", "lead": "A file, photo, message or link. **We read it and show you where it goes before saving.**", "symbols": [
+    { "title": "The vessel = we're reading", "sub": "Three steps show how far we are" },
+    { "title": "“Sure” or “Check it”", "sub": "Each card says how confident we are" },
+    { "title": "“Undo” = puts it all back", "sub": "As long as nobody edited it" } ] },
+  "/research-search": { "name": "Search", "lead": "Find studies here. **The agent searches; you choose what goes into the library.**", "symbols": [
+    { "title": "The agent = searches and summarises", "sub": "Describe your topic in your own words" },
+    { "title": "“Save” = goes to the library", "sub": "And counts as proof for research tasks" },
+    { "title": "The star = strong match", "sub": "The study is close to your topic" } ] },
+  "/evidence": { "name": "Evidence library", "lead": "Every study you found in one place. **Each study here proves the work happened.**", "symbols": [
+    { "title": "Gold badge = reviewed", "sub": "Its details are in the literature table" },
+    { "title": "“No summary” = incomplete", "sub": "Fill its row so it counts" },
+    { "title": "Drop a PDF here", "sub": "We fill in its details" } ] },
+  "/literature-review": { "name": "Literature review", "lead": "Your studies table: country, design, sample, finding. **Your research gap comes from it.**", "symbols": [
+    { "title": "Each row = a study", "sub": "e.g. 312 nurses, cross-sectional" },
+    { "title": "Empty cell = missing", "sub": "Fill it from the study file" },
+    { "title": "“Gap” = what nobody studied", "sub": "It comes from comparing rows" } ] },
+  "/proposal": { "name": "Proposal", "lead": "Write the proposal section by section. **Each section has an owner, and your supervisor comments on the text itself.**", "symbols": [
+    { "title": "Name next to a section = its owner", "sub": "A section with no name gets no writer" },
+    { "title": "Gold = done", "sub": "Grey = not started" },
+    { "title": "Supervisor comment", "sub": "Appears next to the line it refers to" } ] },
+  "/methodology": { "name": "Methodology", "lead": "Design, sample, tool and analysis. **Every decision here shapes what you collect later.**", "symbols": [
+    { "title": "The map = methodology steps", "sub": "Tap any step to open it" },
+    { "title": "Gold = ready", "sub": "The rest needs filling" },
+    { "title": "“Measurement tool”", "sub": "Link it from the tools library" } ] },
+  "/ethical-approval": { "name": "Ethical approval", "lead": "The approval steps until it's granted. **The approval number proves it's done.**", "symbols": [
+    { "title": "Steps in order", "sub": "Each finished step turns gold" },
+    { "title": "Approval number", "sub": "You can't start collecting without it" },
+    { "title": "Forms", "sub": "Ready to fill and print" } ] },
+  "/collect": { "name": "Collect & analyse", "lead": "Survey, data and results. **Every response that arrives is counted automatically.**", "symbols": [
+    { "title": "Stations = collection stages", "sub": "From survey to analysis" },
+    { "title": "Counter = responses received", "sub": "e.g. 120 responses from 3 hospitals" },
+    { "title": "Statistics", "sub": "Come straight from the data" } ] },
+  "/chat": { "name": "Chat", "lead": "Your team chat instead of WhatsApp. **Any message can become a task or a meeting in one tap.**", "symbols": [
+    { "title": "@ = mention someone", "sub": "They get notified" },
+    { "title": "Long press = options", "sub": "Task, reminder, question for the supervisor" },
+    { "title": "Summary on top", "sub": "Catches you up on what you missed" } ] },
+  "/tasks": { "name": "My tasks", "lead": "Everything on the team. **Every task is linked to a place**, and when you finish it we see the proof ourselves.", "symbols": [
+    { "title": "Gold box = done with proof", "sub": "e.g. 5 studies are in the library" },
+    { "title": "Gold outline = no proof", "sub": "Tap “Add proof” to fix it" },
+    { "title": "“Before your supervisor sees it”", "sub": "The most important fixes, ranked" } ] },
+  "/team": { "name": "Team", "lead": "Team members and supervisor. **Who's with you, and who's working now.**", "symbols": [
+    { "title": "Dot next to a name = online", "sub": "Working on the site now" },
+    { "title": "Load = how many tasks", "sub": "Rebalance if someone has more" },
+    { "title": "Invite your supervisor", "sub": "They see everything without an account" } ] },
+  "/timeline": { "name": "Timeline", "lead": "Your research stages over time. **See if you're behind before you are.**", "symbols": [
+    { "title": "A bar = a stage", "sub": "From its start to its due date" },
+    { "title": "Gold = done", "sub": "Orange = now" },
+    { "title": "The line = today", "sub": "Everything before it should be done" } ] },
+  "/meeting-minutes": { "name": "Meetings & supervisor", "lead": "Minutes, decisions and appointments. **Your supervisor's words become tasks, and minutes are approved in one tap.**", "symbols": [
+    { "title": "“Start new minutes”", "sub": "The mic writes, decisions collect themselves" },
+    { "title": "“Approved” = supervisor agreed", "sub": "And it's saved as a PDF in Drive" },
+    { "title": "Decisions for the supervisor", "sub": "A question with options, answered in one tap" } ] },
+  "/meet": { "name": "Video meeting", "lead": "Team meetings inside the site. **What's said is transcribed, and decisions go to the minutes.**", "symbols": [
+    { "title": "Gold outline = connected", "sub": "Who's in the meeting now" },
+    { "title": "The hand = wants to speak", "sub": "Everyone sees it" },
+    { "title": "Screen sharing", "sub": "Show a file to everyone" } ] },
+  "/feedback": { "name": "Supervisor notes", "lead": "Everything your supervisor said in one place. **Any note can become a task.**", "symbols": [
+    { "title": "Each card = a note", "sub": "With the section it refers to" },
+    { "title": "“Make it a task”", "sub": "Goes to tasks with its owner" },
+    { "title": "Gold = resolved", "sub": "And your supervisor sees it" } ] },
+  "/calendar": { "name": "Calendar", "lead": "Team, supervisor and submission dates. **Everything on its date.**", "symbols": [
+    { "title": "Orange = deadline", "sub": "Don't miss it" },
+    { "title": "Gold = meeting", "sub": "With the supervisor or the team" },
+    { "title": "Add it to your phone", "sub": "Get a reminder before it" } ] },
+  "/files": { "name": "Files", "lead": "Team files and Drive. **One file instead of ten copies on WhatsApp.**", "symbols": [
+    { "title": "Drive = team folder", "sub": "Every approved minutes file is saved there" },
+    { "title": "“From a drop” = came from Drop", "sub": "With the place it went to" },
+    { "title": "Latest on top", "sub": "Sorted newest first" } ] },
+  "/learn": { "name": "Learn Wesync", "lead": "Short lessons that complete themselves when you do them. **Each lesson is a real step in your research.**", "symbols": [
+    { "title": "Gold = done", "sub": "Counted automatically from your work" },
+    { "title": "Counter = lessons done", "sub": "e.g. 10 of 16" },
+    { "title": "“Show me”", "sub": "Points to the button on the page itself" } ] },
+  "/start": { "name": "Started already?", "lead": "If you started before Wesync. **Bring your work and your steps count as done with proof.**", "symbols": [
+    { "title": "Where you are", "sub": "Picks your first screen" },
+    { "title": "Bring what you've done", "sub": "Proposal, studies, WhatsApp, Drive" },
+    { "title": "The file = the proof", "sub": "Every step you bring counts as done" } ] },
+  "/explain": { "name": "What is this place?", "lead": "Wesync in a minute. **6 places, in the order you'll use them.**", "symbols": [
+    { "title": "Numbers = the order", "sub": "From searching to collecting data" },
+    { "title": "“e.g.” = a real example", "sub": "From nursing teams like yours" },
+    { "title": "The only rule", "sub": "Everything with proof" } ] }
+}

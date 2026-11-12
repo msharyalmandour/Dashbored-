@@ -9,6 +9,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Landing from "../pages/Landing";
 import SectionTabs from "./SectionTabs";
+import { PageHelpButton } from "./help/PageHelp";
 import PaymentProofUpload from "./PaymentProofUpload";
 import CheckoutModal from "./CheckoutModal";
 import { AlertCard } from "./ui/cards";
@@ -134,6 +135,8 @@ export default function Layout() {
       <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        {/* «؟» وش هذي الصفحة — بالديسكتوب فوق زاوية المحتوى (بالجوال بالشريط العلوي) */}
+        <PageHelpButton className="absolute end-6 top-6 z-20 !hidden md:!inline-flex print:!hidden" />
         <Header
           title={title}
           onMenuClick={() => setMobileNavOpen(true)}

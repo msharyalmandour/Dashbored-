@@ -37,6 +37,7 @@ import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
 import { useNavigate } from "react-router-dom";
 import { startSeen } from "./Start";
+import { explainSeen } from "./Explain";
 import { useTeamStage } from "../lib/teamStage";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
@@ -118,11 +119,15 @@ export default function Overview() {
   const deadline = project?.targetSubmissionDate ?? null;
   // «بدأتوا قبل؟»: فريق جديد (أسبوعين) ما حدد وين وصل ومكتبته ومقترحه فاضيين → نفتحها له مرة وحدة
   useEffect(() => {
-    if (mode !== "supabase" || !team || !stageLoaded || papersLoading || !sections.length || teamStage || startSeen(team.id)) return;
-    const fresh = team.createdAt ? Date.now() - new Date(team.createdAt).getTime() < 14 * 86400000 : false;
+    if (mode !== "supabase" || !team || !currentUser) return;
+    // «وش هذا المكان؟» أول زيارة (للفرق اللي عمرها أقل من شهر)
+    const age = team.createdAt ? Date.now() - new Date(team.createdAt).getTime() : Infinity;
+    if (!explainSeen(currentUser.id) && age < 30 * 86400000) return void navigate("/explain", { replace: true });
+    if (!stageLoaded || papersLoading || !sections.length || teamStage || startSeen(team.id)) return;
+    const fresh = age < 14 * 86400000;
     const empty = papers.length === 0 && sections.every((x) => !x.content.trim());
     if (fresh && empty) navigate("/start", { replace: true });
-  }, [mode, team, stageLoaded, papersLoading, teamStage, papers.length, sections, navigate]);
+  }, [mode, team, currentUser, stageLoaded, papersLoading, teamStage, papers.length, sections, navigate]);
   // «قبل لا تشوفها الدكتورة» — نفس المراجعة الصارمة بصفحة المهام
   const review = useMemo(
     () => strictReview({ tasks, papers, sections, deadline: deadline ?? undefined, today: todayIso, nameOf: (id) => roster.find((m) => m.id === id)?.name.split(" ")[0] ?? "" }),

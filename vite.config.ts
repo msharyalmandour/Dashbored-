@@ -16,7 +16,21 @@ export default defineConfig(({ mode }) => ({
       ? [
           VitePWA({
             registerType: 'autoUpdate',
-            workbox: { importScripts: ['push-sw.js'] },
+            workbox: {
+              importScripts: ['push-sw.js'],
+              // الصفحة نفسها من النت أول (وإذا ما فيه نت من المخزّن): أي تحديث جديد يطلع من أول ريفرش،
+              // بدل ما يعلق الناس على نسخة قديمة لين تتحدث خدمة العامل
+              navigateFallback: null,
+              runtimeCaching: [
+                {
+                  urlPattern: ({ request }) => request.mode === 'navigate',
+                  handler: 'NetworkFirst',
+                  options: { cacheName: 'wesync-pages', networkTimeoutSeconds: 4 },
+                },
+              ],
+              // مكتبة الاجتماعات كبيرة وما يحتاجها إلا اللي يدخل اجتماع: ما نخزّنها مسبقًا
+              globIgnores: ['**/livekit-client*.js'],
+            },
             manifest: {
               name: 'Wesync — منصة إدارة أبحاث التخرج',
               short_name: 'Wesync',

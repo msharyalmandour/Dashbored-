@@ -387,3 +387,8 @@ begin
   );
 end $$;
 grant execute on function public.supervisor_dash(uuid) to anon, authenticated;
+
+-- ── إصلاح الفويس: مخزن «drops» كان يرفض ملفات الصوت، فما انرسل ولا فويس ──
+update storage.buckets
+set allowed_mime_types = array(select distinct unnest(coalesce(allowed_mime_types, '{}') || array['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/mpeg', 'audio/aac', 'audio/x-m4a']))
+where id = 'drops';

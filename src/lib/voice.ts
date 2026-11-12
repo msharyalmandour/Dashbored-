@@ -264,17 +264,27 @@ export async function uploadVoice(teamId: string, blob: Blob): Promise<string | 
   if (!isSupabaseConfigured) return null;
   const ext = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
   const path = `${teamId}/voice/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase!.storage.from("drops").upload(path, blob, { contentType: blob.type || "audio/webm", upsert: false });
-  return error ? null : path;
+  const store = supabase!.storage.from("drops");
+  const { error } = await store.upload(path, blob, { contentType: blob.type || "audio/webm", upsert: false });
+  if (!error) return path;
+  // المخزن كان يرفض ملفات الصوت (audio/*): نرفعه كملف عام، والتشغيل يرجّع له نوعه من الامتداد
+  const retry = await store.upload(path, blob, { contentType: "application/octet-stream", upsert: false });
+  return retry.error ? null : path;
 }
+const MIME_BY_EXT: Record<string, string> = { m4a: "audio/mp4", ogg: "audio/ogg", webm: "audio/webm" };
+/** نوع الصوت من امتداد المسار (للملفات اللي انرفعت كملف عام) */
+export const voiceMime = (path: string) => MIME_BY_EXT[path.split(".").pop() ?? ""] ?? "audio/webm";
 const urlCache = new Map<string, { url: string; at: number }>();
 export async function voiceUrl(path: string): Promise<string | null> {
   const c = urlCache.get(path);
-  if (c && Date.now() - c.at < 50 * 60_000) return c.url;
+  if (c) return c.url;
   if (!isSupabaseConfigured) return null;
-  const { data } = await supabase!.storage.from("drops").createSignedUrl(path, 3600);
-  if (data?.signedUrl) urlCache.set(path, { url: data.signedUrl, at: Date.now() });
-  return data?.signedUrl ?? null;
+  // نحمّله كـ blob بنوعه الصحيح: Safari ما يشغّل الصوت لو انخدم كـ octet-stream
+  const { data } = await supabase!.storage.from("drops").download(path);
+  if (!data) return null;
+  const url = URL.createObjectURL(new Blob([data], { type: voiceMime(path) }));
+  urlCache.set(path, { url, at: Date.now() });
+  return url;
 }
 
 // ── بدون نت: نحفظ الفويس بالجهاز وينرسل لحاله ──

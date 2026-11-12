@@ -329,3 +329,46 @@ const KIND_AR: Record<VoiceKind, string> = { task: "مهمة", decision: "قرا
 const KIND_EN: Record<VoiceKind, string> = { task: "Task", decision: "Decision", question: "Question", date: "Date", note: "Note" };
 /** اسم النوع (الكلمة العربية نفسها مستخدمة بمعاني ثانية بالترجمة، فنترجمها هنا) */
 export const kindLabel = (k: VoiceKind) => (isEn ? KIND_EN[k] : KIND_AR[k]);
+
+/** كتابة مباشرة بس (بدون تسجيل ملف) — لوضع الاجتماع اللي يطول أكثر من ٥ دقايق */
+export function listen(onFinal: (text: string) => void, onInterim: (text: string) => void): (() => void) | null {
+  const C = SRClass();
+  if (!C) return null;
+  const sr = new C();
+  let on = true;
+  sr.lang = "ar-SA";
+  sr.continuous = true;
+  sr.interimResults = true;
+  sr.onresult = (e) => {
+    let interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const r = e.results[i];
+      if (r.isFinal) onFinal(r[0].transcript.trim());
+      else interim += r[0].transcript;
+    }
+    onInterim(interim.trim());
+  };
+  sr.onerror = () => {};
+  sr.onend = () => {
+    if (on) {
+      try {
+        sr.start();
+      } catch {
+        /* شغّال */
+      }
+    }
+  };
+  try {
+    sr.start();
+  } catch {
+    return null;
+  }
+  return () => {
+    on = false;
+    try {
+      sr.stop();
+    } catch {
+      /* ما يهم */
+    }
+  };
+}

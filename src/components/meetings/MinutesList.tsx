@@ -1,5 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 import { ChevronLeft, CheckCircle2, CloudUpload, Download, ExternalLink, Loader2, MessageCircle, NotebookPen, Pencil, Send, Trash2, Circle } from "lucide-react";
 import Dialog from "../ui/Dialog";
 import EmptyState from "../ui/EmptyState";
@@ -184,6 +185,10 @@ export default function MinutesList(props: MinutesListProps) {
             )}
 
             <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
+              <Link to={`/meeting-minutes/${m.id}`} className={toolBtn}>
+                <NotebookPen size={12} />
+                {tr("افتحوا المحضر")}
+              </Link>
               <button onClick={() => props.onDownload(m, "dark")} className={toolBtn}>
                 <Download size={12} />
                 Word

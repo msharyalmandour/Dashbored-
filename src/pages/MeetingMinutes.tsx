@@ -21,6 +21,7 @@ import { driveReturnMessage } from "../lib/driveTeam";
 import { formatDateFull, formatDateShort } from "../lib/date";
 import { approvalRequestMessage, whatsappUrl } from "../lib/meetings";
 import { tr, trx } from "../lib/i18n";
+import { loadDraft } from "../lib/minutesLive";
 
 type Tab = "minutes" | "decisions" | "appointments";
 type Dlg = "meeting" | "supervisor" | "drive" | null;
@@ -51,11 +52,12 @@ function MiniCard({ dot, title, value, link, onOpen }: { dot: string; title: str
 }
 
 export default function MeetingMinutes() {
-  const { currentUser, isLeader, canWrite } = useAuth();
+  const { currentUser, isLeader, canWrite, team } = useAuth();
   const { project, updateProject } = useResearchProject();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const a = useMinutesActions();
+  const liveOn = !!(team && loadDraft(team.id)?.startedAt);
   const { meetings, driveStatus, refreshDrive, supervisorUrl, today, nextBooking, justSaved, setJustSaved } = a;
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -145,9 +147,10 @@ export default function MeetingMinutes() {
               <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[150px] -z-10 h-[300px] w-[520px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
               <div className="mx-auto flex max-w-md flex-col items-center gap-3">
                 <AgentOrb size={56} />
-                <h2 className="font-kufi text-2xl font-extrabold md:text-3xl">{tr("خلصتوا اجتماع؟")}</h2>
-                <p className="text-sm text-[#B8ADA2]">{tr("سجّلوا المحضر وبنوده تتحول لمهام بمسؤول وموعد، ويوصل للمشرف/ة.")}</p>
-                <Link data-learn="new-minutes" to="/meeting-minutes/new" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>{tr("+ محضر جديد")}</Link>
+                <h2 className="font-kufi text-2xl font-extrabold md:text-3xl">{liveOn ? tr("عندكم اجتماع شغّال") : tr("عندكم اجتماع؟")}</h2>
+                <p className="text-sm text-[#B8ADA2]">{tr("شغّلوا وضع الاجتماع: المايك يكتب، وكل قرار ومهمة تنجمع لحالها، والمحضر يطلع جاهز للدكتورة.")}</p>
+                <Link to="/meeting-minutes/live" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>{liveOn ? tr("كمّلوا الاجتماع") : tr("ابدؤوا وضع الاجتماع")}</Link>
+                <Link data-learn="new-minutes" to="/meeting-minutes/new" className="text-sm font-semibold text-[#FFC777] hover:underline">{tr("أو اكتبوا محضر اجتماع خلص")}</Link>
               </div>
             </section>
           )}

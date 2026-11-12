@@ -680,7 +680,7 @@ export default function TeamChat() {
             </>
           )}
           {canWrite && !isPoll && m.body.trim().length >= 12 && (
-            <button role="menuitem" onClick={() => { setSelected(null); queueDrop([], "chat", m.body); navigate("/drop"); }}>
+            <button role="menuitem" onClick={() => { setSelected(null); queueDrop([], "chat", m.body); }}>
               <Download size={19} aria-hidden />
               {tr("ارموها: رتّبوها بمكانها")}
             </button>
@@ -1031,7 +1031,7 @@ export default function TeamChat() {
           e.target.value = "";
           if (!files.length) return;
           queueDrop(files, "chat");
-          navigate("/drop");
+          // هيرو «ارموا» يقراها فوق الصفحة نفسها
         }}
       />
       <Dialog open={plusOpen} onClose={() => setPlusOpen(false)} title={tr("أضيفوا للمحادثة")}>

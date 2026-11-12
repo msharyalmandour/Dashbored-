@@ -100,7 +100,7 @@ export default function BottomNav() {
           e.target.value = "";
           if (!files.length) return;
           queueDrop(files, "orb");
-          navigate("/drop");
+          // هيرو «ارموا» يقراها فوق الصفحة نفسها
         }}
       />
       {menu &&

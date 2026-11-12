@@ -1,0 +1,125 @@
+/* ═══ هيرو «ارموا» — منقول من HeroDrag / HeroAbsorb / HeroReveal / HeroLanded / HeroAbsorbM / HeroRevealM ═══
+   كل الحركات مرة وحدة، وما فيه شي يدور أو ينبض للأبد. زر برتقالي واحد: «حطوها بأماكنها». */
+
+@keyframes hdIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes hdV { from { opacity: 0; transform: scale(.82) translateY(40px) } to { opacity: 1; transform: none } }
+@keyframes hdT { from { opacity: 0; transform: translateY(18px); filter: blur(6px) } to { opacity: 1; transform: none; filter: none } }
+@keyframes hdOrb { from { transform: rotate(-40deg); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes hdC { from { opacity: 0; transform: scale(.7) } to { opacity: 1; transform: none } }
+@keyframes hdEmb { 0% { transform: translateY(0) scale(.6); opacity: 0 } 25% { opacity: 1 } 100% { transform: translateY(-150px) scale(1); opacity: 0 } }
+@keyframes hdSink { from { transform: translate(160px, -150px) rotate(-14deg) scale(1); opacity: 1 } to { transform: rotate(var(--r, -4deg)) scale(var(--s, .45)); opacity: .95 } }
+@keyframes hdRv { from { opacity: 0; transform: perspective(1000px) translateY(60px) rotateX(24deg) scale(.92) } to { opacity: 1; transform: none } }
+@keyframes hdPing { 0% { box-shadow: 0 0 0 0 rgba(255,199,119,.55) } 100% { box-shadow: 0 0 0 14px rgba(255,199,119,0) } }
+@keyframes hdToast { from { opacity: 0; transform: translate(-50%, 24px) } to { opacity: 1; transform: translate(-50%, 0) } }
+@keyframes hdDraw { from { stroke-dashoffset: var(--len, 600) } to { stroke-dashoffset: 0 } }
+@keyframes hdPulse3 { 0%, 100% { opacity: .35 } 50% { opacity: 1 } }
+@keyframes hdWarm { from { filter: brightness(.8) saturate(.9) } to { filter: brightness(1.12) saturate(1.1) } }
+@keyframes hdSheet { from { transform: translateY(100%) } to { transform: none } }
+@keyframes hdFade { to { opacity: 0 } }
+
+.hd-root { position: fixed; inset: 0; z-index: 120; color: #EAE3DC; font-family: inherit; }
+.hd-root * { box-sizing: border-box; }
+.hd-dim { position: absolute; inset: 0; background: rgba(7,4,3,.84); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2); animation: hdIn .12s ease-out both; }
+.hd-dim.deep { background: rgba(7,4,3,.9); }
+.hd-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 55% at 50% 48%, rgba(255,110,20,.30), rgba(255,80,10,.06) 55%, transparent 75%); animation: hdIn .28s ease-out both; }
+.hd-frame { position: absolute; inset: 14px; border-radius: 34px; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,199,119,.22), inset 0 0 160px rgba(255,120,20,.16); }
+.hd-stage { position: absolute; inset: 0; }
+
+/* الوعاء + الحلقات */
+.hd-orb { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; animation: hdOrb 1.2s cubic-bezier(.2,.8,.2,1) both; transform-origin: 50% 48%; }
+.hd-vin { animation: hdV .7s cubic-bezier(.2,.9,.2,1) .04s both; }
+.hd-warm { animation: hdWarm .45s cubic-bezier(.2,.8,.2,1) both; }
+.hd-tin { animation: hdT .6s cubic-bezier(.2,.8,.2,1) .2s both; }
+.hd-cin { animation: hdC .5s cubic-bezier(.3,1.4,.5,1) both; }
+.hd-emb { position: absolute; border-radius: 50%; background: radial-gradient(circle, #FFF1C9, #FFB444 50%, rgba(255,120,20,0) 75%); box-shadow: 0 0 10px rgba(255,170,60,.9); animation: hdEmb 1.6s ease-out both; pointer-events: none; }
+.hd-pulse3 { position: absolute; left: 30%; right: 30%; top: 38%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,231,176,.75), rgba(255,160,40,0)); mix-blend-mode: screen; animation: hdPulse3 .8s ease-in-out 3 both; }
+
+/* الأماكن الستة (تطلع بتتابع 150ms) */
+.hd-place { position: absolute; width: 200px; height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 800; background: rgba(255,240,225,.05); box-shadow: inset 0 0 0 1px rgba(255,240,225,.12); color: #E9D3B8; transform: translate(-50%, -50%); }
+.hd-place.hd-cin { animation-name: hdPlace; }
+@keyframes hdPlace { from { opacity: 0; transform: translate(-50%, -50%) scale(.7) } to { opacity: 1; transform: translate(-50%, -50%) } }
+
+/* كروت الملفات (الكريمي) */
+.hd-file { position: absolute; z-index: 6; width: 200px; padding: 14px; border-radius: 18px; background: linear-gradient(180deg, #F8F1E8, #E6DACC); color: #2A1404; box-shadow: 0 30px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.5) inset, 0 0 40px rgba(255,150,40,.18); display: flex; gap: 12px; align-items: center; transform-origin: 50% 50%; }
+.hd-file > span:first-child { width: 36px; height: 44px; flex: none; border-radius: 8px; background: #2A1404; color: #FFC777; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.hd-file > span:last-child { font-size: 13px; font-weight: 800; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; }
+.hd-sink { animation: hdSink .9s cubic-bezier(.6,0,.4,1) both; }
+.hd-count { position: absolute; z-index: 7; min-width: 34px; height: 34px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #FFE7B0, #FFC777 55%, #E09A3A); color: #2A1404; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(7,4,3,.8); }
+
+/* العناوين */
+.hd-h1 { margin: 0; font-weight: 800; line-height: 1.1; padding-top: .2em; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: 0 !important; }
+.hd-kick { font-size: 13px; font-weight: 800; color: #FFB444; }
+.hd-sub { color: #E9D3B8; }
+.hd-foot { position: absolute; left: 0; right: 0; bottom: 40px; display: flex; justify-content: center; gap: 18px; font-size: 13px; color: #ABA095; }
+.hd-foot kbd { font-family: inherit; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,.08); color: #EAE3DC; }
+
+/* الخطوات الثلاث */
+.hd-steps { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.hd-step { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: #ABA095; }
+.hd-step.on { color: #EAE3DC; font-weight: 800; }
+.hd-step.done { color: #EAE3DC; }
+.hd-dot { width: 26px; height: 26px; flex: none; border-radius: 50%; border: 1.6px solid rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; }
+.hd-step.done .hd-dot { border: 0; background: radial-gradient(circle at 35% 30%, #FFE7B0, #FFC777 55%, #E09A3A); color: #2A1404; }
+.hd-step.on .hd-dot { border: 2px solid #FF9A3C; animation: hdPing .9s ease-out 2 both; }
+.hd-step.on .hd-dot i { width: 9px; height: 9px; border-radius: 50%; background: #FF9A3C; }
+.hd-link { width: 60px; height: 1.5px; background: rgba(255,255,255,.14); flex: none; }
+.hd-link.on { background: linear-gradient(90deg, #FFC777, #FF9A3C); }
+.hd-bar { width: 420px; max-width: 80vw; height: 3px; margin: 24px auto 0; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+.hd-bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(270deg, #FFC777, #FF7A1A); transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+
+/* الأزرار */
+.hd-glass { min-height: 44px; padding: 0 20px; border-radius: 14px; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); color: #EAE3DC; font-weight: 700; border: 0; font-family: inherit; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+.hd-go { height: 52px; padding: 0 28px; border-radius: 18px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-weight: 800; box-shadow: 0 12px 30px rgba(255,106,0,.3); border: 0; font-size: 16px; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+.hd-go:disabled { opacity: .5; box-shadow: none; cursor: default; }
+.hd-glass:focus-visible, .hd-go:focus-visible, .hd-x:focus-visible, .hd-move:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+.hd-x { position: absolute; z-index: 5; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); color: #EAE3DC; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* كروت النتائج */
+.hd-rv { animation: hdRv .65s cubic-bezier(.2,.9,.2,1) both; transform-origin: 50% 0; }
+.hd-card { border-radius: 26px; padding: 16px 16px 14px; display: flex; flex-direction: column; min-height: 300px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); transition: opacity .3s; }
+.hd-card.off { opacity: .55; }
+.hd-card-ic { width: 36px; height: 36px; flex: none; border-radius: 12px; background: rgba(255,199,119,.12); color: #FFC777; display: flex; align-items: center; justify-content: center; }
+.hd-card-k { font-size: 12px; font-weight: 700; color: #FFB444; display: flex; gap: 6px; align-items: center; }
+.hd-card-t { font-size: 16px; font-weight: 800; color: #EAE3DC; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.hd-cell { padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.04); min-width: 0; }
+.hd-cell > div:first-child { font-size: 12px; color: #ABA095; }
+.hd-cell > div:last-child { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hd-quote { font-size: 14px; color: #E9D3B8; line-height: 1.75; padding-inline-start: 12px; border-inline-start: 2px solid rgba(255,199,119,.4); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; }
+.hd-task { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+.hd-task > i { width: 20px; height: 20px; border-radius: 7px; border: 1.6px solid rgba(255,255,255,.3); flex: none; }
+.hd-task > b { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hd-task > small { font-size: 12px; font-weight: 700; color: #ABA095; white-space: nowrap; }
+.hd-av { width: 26px; height: 26px; flex: none; border-radius: 50%; color: #160904; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A120E; }
+.hd-day { width: 62px; height: 66px; flex: none; border-radius: 16px; background: #F2EBE3; color: #160904; text-align: center; line-height: 1.1; padding-top: 8px; }
+.hd-day > div { font-size: 12px; font-weight: 800; color: #B5470A; }
+.hd-day > b { font-size: 28px; }
+.hd-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,199,119,.12); color: #FFC777; white-space: nowrap; }
+.hd-pill.warn { background: rgba(255,138,122,.12); color: #FF8A7A; }
+.hd-move { min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: #ABA095; font-family: inherit; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+
+/* شريط الأسفل */
+.hd-dock { display: flex; align-items: center; gap: 14px; min-height: 76px; border-radius: 26px; padding: 0 12px 0 22px; background: linear-gradient(180deg, #2A1A12, #160E0A); box-shadow: inset 0 1px 0 rgba(255,236,210,.18), inset 0 0 0 1px rgba(255,214,170,.10), 0 -10px 60px rgba(0,0,0,.6); }
+html[dir="ltr"] .hd-dock { padding: 0 22px 0 12px; }
+.hd-gold { width: 34px; height: 34px; flex: none; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFE7B0, #FFC777 55%, #E09A3A); color: #2A1404; display: flex; align-items: center; justify-content: center; }
+
+/* انحطت بأماكنها */
+.hd-toast { position: fixed; left: 50%; bottom: 34px; z-index: 115; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; min-height: 64px; max-width: calc(100vw - 32px); padding: 0 10px 0 20px; border-radius: 22px; background: linear-gradient(180deg, #2A1A12, #160E0A); box-shadow: inset 0 0 0 1px rgba(255,199,119,.3), 0 30px 70px rgba(0,0,0,.6); color: #EAE3DC; animation: hdToast .5s cubic-bezier(.2,.9,.2,1) .3s both; }
+html[dir="ltr"] .hd-toast { padding: 0 20px 0 10px; }
+.hd-toast .hd-places { font-size: 13px; color: #ABA095; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+@media (max-width: 767px) { .hd-toast { bottom: calc(96px + env(safe-area-inset-bottom)); gap: 10px; padding: 8px 8px 8px 14px; } .hd-toast .hd-places { display: none; } }
+.hd-flight { position: fixed; inset: 0; z-index: 114; pointer-events: none; animation: hdFade .5s ease-in 1.3s both; }
+.hd-flight path { stroke-dasharray: var(--len, 900); animation: hdDraw .8s cubic-bezier(.3,.7,.2,1) both; }
+.hd-badge { margin-inline-start: auto; min-width: 30px; height: 24px; padding: 0 8px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #FFE7B0, #FFC777 55%, #E09A3A); color: #2A1404; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; animation: hdPing .9s ease-out 2 both; }
+
+/* الجوال (HeroAbsorbM / HeroRevealM) */
+.hd-m { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; animation: hdSheet .45s cubic-bezier(.2,.9,.25,1) both; }
+.hd-m-top { flex: none; position: relative; height: 64px; display: flex; align-items: center; justify-content: center; }
+.hd-m-body { flex: 1; overflow-y: auto; padding: 0 16px 16px; -webkit-overflow-scrolling: touch; }
+.hd-m-dock { flex: none; display: flex; gap: 8px; margin: 0 12px calc(12px + env(safe-area-inset-bottom)); padding: 8px; border-radius: 24px; background: linear-gradient(180deg, #2A1A12, #160E0A); box-shadow: inset 0 1px 0 rgba(255,236,210,.18), inset 0 0 0 1px rgba(255,214,170,.10), 0 -10px 60px rgba(0,0,0,.6); }
+.hd-m-steps { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; width: max-content; margin: 22px auto 0; }
+.hd-m .hd-card { min-height: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hd-root *, .hd-toast, .hd-flight, .hd-flight path, .hd-badge { animation: none !important; transition: opacity .2s !important; }
+}
+html[data-reduce-motion="true"] .hd-root *, html[data-reduce-motion="true"] .hd-toast, html[data-reduce-motion="true"] .hd-flight, html[data-reduce-motion="true"] .hd-flight path, html[data-reduce-motion="true"] .hd-badge { animation: none !important; transition: opacity .2s !important; }

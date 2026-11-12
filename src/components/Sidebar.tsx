@@ -9,6 +9,7 @@ import { isFemaleUser } from "../lib/gender";
 import { useResearchStages } from "../hooks/useResearchStages";
 import { useChatUnread } from "../hooks/useTeamChat";
 import { getCurrentStage } from "../lib/progress";
+import { useLandedBadges } from "../lib/landed";
 import { homeSection, isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
 import Avatar from "./ui/Avatar";
 import Logo from "./Logo";
@@ -46,6 +47,8 @@ export default function Sidebar({
   const moreExpanded = moreOpen ?? moreHere;
   // FixList 11: «المزيد» تختفي إذا فاضية
   const navMore = morePages.filter((item) => !item.hideInNav);
+  // هيرو «ارموا»: +N جنب الأماكن اللي انحطت فيها الأشياء
+  const landed = useLandedBadges();
 
   const renderSection = (sec: NavSection) => {
     const active = sec.pages.some((pg) => isPathIn(pathname, pg.to));
@@ -53,12 +56,18 @@ export default function Sidebar({
     return (
       <NavLink
         key={sec.id}
+        data-nav-id={sec.id}
         to={active ? pathname : sec.pages[0].to}
         onClick={onClose}
         className={clsx(linkBase, active ? linkOn : linkOff, !active && state === null && !!sec.stages && stages.length > 0 && "opacity-60")}
       >
         <sec.icon size={18} />
         <span className="flex-1">{sec.label}</span>
+        {!!landed[sec.id] && (
+          <span className="hd-badge" dir="ltr" aria-label={tr("{0} أشياء جديدة", landed[sec.id])}>
+            +{landed[sec.id]}
+          </span>
+        )}
         {sec.id === "chat" && unread > 0 && !active && (
           <span className="min-w-[20px] rounded-full bg-brand-500 px-1.5 py-0.5 text-center text-xs font-extrabold text-white" dir="ltr" aria-label={tr("{0} رسائل جديدة", unread)}>
             {unread > 99 ? "99+" : unread}

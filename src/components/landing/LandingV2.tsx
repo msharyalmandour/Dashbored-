@@ -50,19 +50,19 @@ function boldLead(text: string) {
   );
 }
 
-// ───────────────────────────── ١) المزايا (Bento) ─────────────────────────────
+// ───────────────────────────── 1) المزايا (Bento) ─────────────────────────────
 
 const demoJourney: JourneyStep[] = [
   { key: "topic", label: tr("الموضوع"), state: "done", long: tr("خلص ✓"), short: "✓", to: "/" },
-  { key: "proposal", label: tr("المقترح"), state: "now", long: tr("٥ من ٧ أقسام"), short: tr("٥ من ٧"), to: "/" },
-  { key: "lit", label: tr("الأدبيات"), state: "todo", long: tr("٢ من ١٢ دراسة"), short: tr("٢ من ١٢"), to: "/" },
+  { key: "proposal", label: tr("المقترح"), state: "now", long: tr("5 من 7 أقسام"), short: tr("5 من 7"), to: "/" },
+  { key: "lit", label: tr("الأدبيات"), state: "todo", long: tr("2 من 12 دراسة"), short: tr("2 من 12"), to: "/" },
   { key: "method", label: tr("المنهجية"), state: "todo", long: tr("ما بدأت"), short: "—", to: "/" },
-  { key: "deliver", label: tr("التسليم"), state: "deliver", long: tr("٢١ نوفمبر"), short: tr("٢١ نوف"), to: "/" },
+  { key: "deliver", label: tr("التسليم"), state: "deliver", long: tr("21 نوفمبر"), short: tr("21 نوف"), to: "/" },
 ];
 
 function DemoTodo() {
   const rows = [
-    { t: tr("أسئلة البحث"), kind: "done", due: tr("خلصت ✓"), c: "#7FE0A6", av: tr("م"), bg: "linear-gradient(160deg,#FFE08A,#FFB444)" },
+    { t: tr("أسئلة البحث"), kind: "done", due: tr("خلصت ✓"), c: "#FFC777", av: tr("م"), bg: "linear-gradient(160deg,#FFE08A,#FFB444)" },
     { t: tr("صياغة هدف الدراسة"), kind: "late", due: tr("متأخرة يومين"), c: "#FF8A7A", av: tr("أ"), bg: "linear-gradient(160deg,#FFC27A,#FF8A2A)" },
     { t: tr("كتابة خلفية البحث"), kind: "today", due: tr("اليوم"), c: "#FFC777", av: tr("س"), bg: "linear-gradient(160deg,#FFF3E2,#E7D3BC)" },
   ];
@@ -136,7 +136,7 @@ export function FeaturesBento() {
                 <span className="lv-num text-[64px] text-[#F7EFE6] lg:text-[84px]">24</span>
                 <span className="text-[20px] font-extrabold">{tr("يوم")}</span>
               </div>
-              <div className="mt-1 text-[13px] font-bold text-[#FF9A3C]">{tr("الأحد ٢١ نوفمبر")}</div>
+              <div className="mt-1 text-[13px] font-bold text-[#FF9A3C]">{tr("الأحد 21 نوفمبر")}</div>
             </div>
           </div>
 
@@ -177,7 +177,7 @@ export function FeaturesBento() {
   );
 }
 
-// ───────────────────────────── ٢) المشاكل ─────────────────────────────
+// ───────────────────────────── 2) المشاكل ─────────────────────────────
 
 const pains = [
   { n: "500", t: tr("رسالة بالقروب، ولا وحدة مهمة."), fix: tr("المهام والملفات والقرارات بمكانها، مو ضايعة بين الستيكرز.") },
@@ -206,7 +206,7 @@ export function Problems() {
   );
 }
 
-// ───────────────────────────── ٣) يشتغل مع أدواتكم ─────────────────────────────
+// ───────────────────────────── 3) يشتغل مع أدواتكم ─────────────────────────────
 
 type Integration = { key: string; name: string; line: string; logo: ReactNode; ready: boolean };
 
@@ -235,7 +235,7 @@ function IntCard({ it, style, className }: { it: Integration; style?: CSSPropert
 }
 
 export function Integrations() {
-  // مواقع البطاقات بالكمبيوتر (من ١١٠٠×٥٦٠): ٣ يمين و٣ يسار، والخطوط من الكرة لحافة كل بطاقة
+  // مواقع البطاقات بالكمبيوتر (من 1100×560): 3 يمين و3 يسار، والخطوط من الكرة لحافة كل بطاقة
   const ys = [92, 280, 468];
   const W = 1100;
   const H = 560;
@@ -279,7 +279,7 @@ export function Integrations() {
   );
 }
 
-// ───────────────────────────── ٤) الأسعار ─────────────────────────────
+// ───────────────────────────── 4) الأسعار ─────────────────────────────
 
 /** رقم يتغير بحركة عدّ قصيرة (يحترم تقليل الحركة) */
 function useCountTo(target: number, ms = 380) {
@@ -339,7 +339,7 @@ export function PricingV2() {
   const sizes: { k: Size; label: string; price: number }[] = [
     { k: 1, label: tr("لحالك"), price: SOLO_PRICE },
     { k: 2, label: tr("شخصين"), price: DUO_PRICE },
-    { k: 5, label: tr("الفريق ٣–٥"), price: TEAM_PRICE },
+    { k: 5, label: tr("الفريق 3–5"), price: TEAM_PRICE },
   ];
   const seatsFull = seats !== null && seats >= FOUNDER_SEATS;
 
@@ -446,11 +446,11 @@ export function PricingV2() {
       </div>
 
       <div {...fx(80)} className="ld-fx lv-free-strip mt-6">
-        <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-[rgba(127,224,166,.14)] text-[#7FE0A6]" aria-hidden>
+        <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-[rgba(255,199,119,.14)] text-[#FFC777]" aria-hidden>
           <ShieldCheck size={20} />
         </span>
         <div className="min-w-0 flex-1">
-          <b className="block text-[17px] text-[#BFF3D3]">{tr("المشرفة مجانًا، دايمًا")}</b>
+          <b className="block text-[17px] text-[#FFE2B0]">{tr("المشرفة مجانًا، دايمًا")}</b>
           <span className="text-[14px] text-[#ABA095]">{tr("رابط واحد تشوف فيه تقدّمكم وتعتمد وتعلّق، بدون حساب ولا اشتراك.")}</span>
         </div>
       </div>
@@ -463,7 +463,7 @@ export function PricingV2() {
           { icon: UserPlus, t: tr("تضيفون وتشيلون أعضاء بأي وقت") },
         ].map(({ icon: Icon, t }, i) => (
           <li key={i} className="flex items-center gap-1.5">
-            <Icon size={15} className="text-[#7FE0A6]" aria-hidden />
+            <Icon size={15} className="text-[#FFC777]" aria-hidden />
             {t}
           </li>
         ))}
@@ -495,7 +495,7 @@ export function PricingV2() {
   );
 }
 
-// ───────────────────────────── ٥) الأسئلة ─────────────────────────────
+// ───────────────────────────── 5) الأسئلة ─────────────────────────────
 
 export function FaqV2({ faqs }: { faqs: { q: string; a: string }[] }) {
   const [open, setOpen] = useState<number | null>(0);

@@ -7,7 +7,7 @@
  "الحدود": "Limitations",
  "علاقتها ببحثكم": "Relevance to your study",
  "اقرأ لي هذي الورقة": "Read this paper for me",
- "ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى ١٠ صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.": "Upload the study PDF, photograph its pages (up to 10 photos), or drag them here. You get a structured summary and approve adding it to the literature table.",
+ "ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى 10 صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.": "Upload the study PDF, photograph its pages (up to 10 photos), or drag them here. You get a structured summary and approve adding it to the literature table.",
  "أقرأها…": "Reading…",
  "ارفعوا PDF أو صور": "Upload PDF or photos",
  "تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.": "It will be saved under “{0}” — you can change it later.",
@@ -31,8 +31,8 @@
  "اختاروا ملف الدراسة.": "Choose the study file.",
  "ارفعوا دراسة وحدة كل مرة: ملف PDF واحد، أو صور صفحاتها.": "Upload one study at a time: a single PDF, or photos of its pages.",
  "الملف لازم يكون PDF أو صور (JPG أو PNG).": "The file must be a PDF or images (JPG or PNG).",
- "الحد ١٠ صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).": "Up to 10 photos per study — pick the key pages (title, abstract, methods and results).",
+ "الحد 10 صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).": "Up to 10 photos per study — pick the key pages (title, abstract, methods and results).",
  "ما قدرنا نجهّز الصور — جرّبوا صور أوضح أو ارفعوا PDF.": "Couldn't prepare the photos — try clearer photos or upload a PDF.",
- "الملف كبير (الحد ٤ ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.": "The file is too large (4 MB limit). Try a smaller file or add the study manually.",
+ "الملف كبير (الحد 4 ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.": "The file is too large (4 MB limit). Try a smaller file or add the study manually.",
  "قراءة الورقة غير متاحة الحين — جرّبوا بعد شوي.": "Paper reading isn't available right now — try again shortly."
 }

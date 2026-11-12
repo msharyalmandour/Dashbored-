@@ -207,7 +207,7 @@ export function sampleSizeCorrelation(opts: { r: number; alpha?: number; power?:
 
 // ───────────────────────── وصفي وتنظيف بيانات ─────────────────────────
 
-const ARABIC_DIGITS: Record<string, string> = { "٠": "0", "١": "1", "٢": "2", "٣": "3", "٤": "4", "٥": "5", "٦": "6", "٧": "7", "٨": "8", "٩": "9", "٫": ".", "٬": "" };
+const ARABIC_DIGITS: Record<string, string> = { "0": "0", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "٫": ".", "٬": "" };
 
 export function toNumber(raw: string): number | null {
   const t = raw
@@ -345,7 +345,7 @@ export interface TTestResult {
 }
 
 /** Welch's t-test (لا يفترض تساوي التباين — الأأمن كافتراضي) */
-export function tTestIndependent(a: number[], b: number[], labels: [string, string] = [tre("المجموعة ١"), tre("المجموعة ٢")]): TTestResult {
+export function tTestIndependent(a: number[], b: number[], labels: [string, string] = [tre("المجموعة 1"), tre("المجموعة 2")]): TTestResult {
   const [n1, n2] = [a.length, b.length];
   const [m1, m2] = [mean(a), mean(b)];
   const [v1, v2] = [variance(a), variance(b)];
@@ -369,7 +369,7 @@ export function tTestIndependent(a: number[], b: number[], labels: [string, stri
   };
 }
 
-export function tTestPaired(a: number[], b: number[], labels: [string, string] = [tre("القياس ١"), tre("القياس ٢")]): TTestResult {
+export function tTestPaired(a: number[], b: number[], labels: [string, string] = [tre("القياس 1"), tre("القياس 2")]): TTestResult {
   const d = a.map((v, i) => v - b[i]);
   const n = d.length;
   const md = mean(d);
@@ -627,5 +627,5 @@ export function chooseTest(i: ChooserInput): TestAdvice {
         : { test: tre("اختبار t للعينات المستقلة (Welch)"), inApp: true, why: tre("مقارنة متوسط مجموعتين مستقلتين (مثل ذكور/إناث)."), assumptions: tre("توزيع طبيعي تقريبًا أو عينة ≥ 30 لكل مجموعة.") };
   return i.normal === false
     ? { test: tre("كروسكال-واليس (Kruskal-Wallis)"), inApp: false, why: tre("ثلاث مجموعات فأكثر وبيانات غير طبيعية."), assumptions: tre("شكل توزيع متشابه."), alternative: tre("ANOVA لو العينة كبيرة") }
-    : { test: tre("تحليل التباين الأحادي (One-way ANOVA)"), inApp: true, why: tre("مقارنة متوسطات ٣ مجموعات فأكثر (مثل مستويات الخبرة)."), assumptions: tre("توزيع طبيعي تقريبًا وتباين متقارب بين المجموعات."), alternative: tre("بعده اختبار لاحق (Tukey) لتحديد أي مجموعتين تختلفان") };
+    : { test: tre("تحليل التباين الأحادي (One-way ANOVA)"), inApp: true, why: tre("مقارنة متوسطات 3 مجموعات فأكثر (مثل مستويات الخبرة)."), assumptions: tre("توزيع طبيعي تقريبًا وتباين متقارب بين المجموعات."), alternative: tre("بعده اختبار لاحق (Tukey) لتحديد أي مجموعتين تختلفان") };
 }

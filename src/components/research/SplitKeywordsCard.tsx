@@ -60,7 +60,7 @@ export default function SplitKeywordsCard({ terms }: { terms: string[] }) {
         ))}
       </ul>
       {done !== null ? (
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
           <Check size={15} /> {tr("انفتحت {0} مهام بصفحة مهامي.", done)}
           {error && <span className="text-xs text-rose-600">{tr(" (بعضها ما انحفظ — جرّبوا مرة ثانية)")}</span>}
         </p>

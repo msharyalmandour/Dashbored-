@@ -33,7 +33,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
   const connectedRef = useRef(status.connected);
   connectedRef.current = status.connected;
 
-  // بعد ما نفتح نافذة قوقل: نتابع الحالة كل ٣ ثواني (لين ٥ دقايق) ونكمل لحالنا لما يتم الربط
+  // بعد ما نفتح نافذة قوقل: نتابع الحالة كل 3 ثواني (لين 5 دقايق) ونكمل لحالنا لما يتم الربط
   useEffect(() => {
     if (!waiting) return;
     if (status.connected) {

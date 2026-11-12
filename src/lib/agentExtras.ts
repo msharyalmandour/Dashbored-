@@ -47,7 +47,7 @@ export interface QuickReply {
   ask: string;
 }
 
-/** ٢–٣ ردود سريعة منطقية بعد رد الوكيل، حسب نوع الإجراءات وسؤال المستخدم */
+/** 2–3 ردود سريعة منطقية بعد رد الوكيل، حسب نوع الإجراءات وسؤال المستخدم */
 export function quickRepliesFor(input: { question: string; actionTypes: string[]; isLeader: boolean; status?: StatusSnapshot }): QuickReply[] {
   const out: QuickReply[] = [];
   const has = (t: string) => input.actionTypes.includes(t);

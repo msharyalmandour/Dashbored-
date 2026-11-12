@@ -77,7 +77,7 @@ const norm = (s: string) =>
   s.replace(/[إأآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[ً-ْـ]/g, "").replace(/[؟?!.,،:«»"'()·]/g, " ").toLowerCase();
 const words = (s: string) => norm(s).split(/\s+/).map((w) => w.replace(/^(ال|وال|بال|لل)/, "")).filter((w) => w.length >= 3);
 
-/** طلب الدكتورة «انذكر بالمحضر» لو نص ٦٠٪ من كلماته المهمة موجود */
+/** طلب الدكتورة «انذكر بالمحضر» لو نص 60% من كلماته المهمة موجود */
 export function mentioned(title: string, minutesText: string): boolean {
   const t = words(title);
   if (!t.length) return false;
@@ -97,12 +97,12 @@ export function tagFromKind(kind: string): Tag {
   return kind === "decision" ? "decision" : kind === "task" ? "task" : kind === "question" ? "question" : "point";
 }
 
-/** «حضر ٤ من ٥ · ٢٢ دقيقة» */
+/** «حضر 4 من 5 · 22 دقيقة» */
 export function attendanceSummary(att: Attendee[], startedAt: string | null, endedAt: string | null) {
   const came = att.filter((a) => a.joinedAt).length;
   const minutes = startedAt && endedAt ? Math.max(1, Math.round((Date.parse(endedAt) - Date.parse(startedAt)) / 60000)) : null;
   return { came, total: att.length, minutes };
 }
 
-/** «٠٧» */
+/** «07» */
 export const two = (n: number) => String(n).padStart(2, "0");

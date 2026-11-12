@@ -13,7 +13,7 @@ interface ReadinessCardProps {
 }
 
 /** «جاهزية الاجتماع»: جدول أعمال جاهز من بياناتنا (بنود سابقة + متأخر + قرارات معلقة + أسئلة المرحلة)،
-    حتى يكفي اجتماع ١٠ دقايق ويدخل الجميع وهم عارفين وش بيقولون. */
+    حتى يكفي اجتماع 10 دقايق ويدخل الجميع وهم عارفين وش بيقولون. */
 export default function ReadinessCard({ readiness, nextBooking, onUseAgenda }: ReadinessCardProps) {
   const [copied, setCopied] = useState(false);
   const { openActions, overdueTasks, openDecisions, questions, doneCount, totalCount } = readiness;

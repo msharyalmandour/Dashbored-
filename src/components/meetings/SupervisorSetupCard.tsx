@@ -24,7 +24,7 @@ function Step({ n, done, title, desc, children }: { n: number; done: boolean; ti
   );
 }
 
-/** «جهّزوا المشرف/ة»: ٤ خطوات واضحة (اسمها، إرسال رابطها، تفعيلها للإيميل، تحديدها لأوقاتها) مع حالة كل خطوة.
+/** «جهّزوا المشرف/ة»: 4 خطوات واضحة (اسمها، إرسال رابطها، تفعيلها للإيميل، تحديدها لأوقاتها) مع حالة كل خطوة.
     تنطوي لسطر صغير لما تكتمل. المشرف/ة ما تحتاج حساب — كل شي من رابط واحد. */
 export default function SupervisorSetupCard({
   supervisorName,
@@ -109,7 +109,7 @@ export default function SupervisorSetupCard({
       <button onClick={() => setOpen(!expanded)} aria-expanded={expanded} className="flex w-full items-center justify-between gap-3 text-start">
         <span className="flex flex-wrap items-center gap-2 font-display text-lg font-bold text-brand-950">
           {allDone ? tr("المشرف/ة جاهزة") : tr("جهّزوا المشرف/ة عشان تشتغل الأمور")}
-          <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-xs font-bold text-amber-accent-400">{trx("{0} من ٤", done)}</span>
+          <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-xs font-bold text-amber-accent-400">{trx("{0} من 4", done)}</span>
         </span>
         <ChevronDown size={16} className={clsx("text-brand-950/40 transition-transform", expanded && "rotate-180")} />
       </button>

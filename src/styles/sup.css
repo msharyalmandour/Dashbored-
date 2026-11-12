@@ -175,7 +175,7 @@ html[data-reduce-motion="true"] .vm-fi { animation: none; }
 html[data-reduce-motion="true"] :is(.ml-line, .ml-built, .ml-sheet) { animation: none; }
 html[data-reduce-motion="true"] .ml-ring { transition: none; }
 
-/* المحضر النهائي (MinDocD/M · MinSpec): الأقسام ٠١–٠٤ تطلع بتتابع 90ms، والأرقام 56/800 ذهبية جدولية */
+/* المحضر النهائي (MinDocD/M · MinSpec): الأقسام 01–04 تطلع بتتابع 90ms، والأرقام 56/800 ذهبية جدولية */
 .md-hero { position: relative; overflow: hidden; border-radius: 28px; min-height: 300px; display: flex; align-items: flex-end; box-shadow: inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); }
 .md-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .md-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(270deg, rgba(10,6,4,.92) 0%, rgba(10,6,4,.55) 45%, rgba(10,6,4,.2) 100%), linear-gradient(0deg, rgba(10,6,4,.85), rgba(10,6,4,0) 60%); }

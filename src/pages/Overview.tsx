@@ -52,7 +52,7 @@ import { METHOD_READY, ethicsStepsDone, methodologyReadyCount } from "../lib/wri
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { isEn, tr } from "../lib/i18n";
 
-// بالعرض التجريبي البيانات مثبّتة على أغسطس ٢٠٢٦، فنثبّت «اليوم» عليه عشان الحسابات تطلع منطقية
+// بالعرض التجريبي البيانات مثبّتة على أغسطس 2026، فنثبّت «اليوم» عليه عشان الحسابات تطلع منطقية
 const now = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22, 6);
 const todayIso = toISODate(now);
 

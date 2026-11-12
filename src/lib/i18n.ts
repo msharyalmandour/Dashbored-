@@ -21,7 +21,7 @@ function initialLang(): Lang {
 export const lang: Lang = initialLang();
 export const isEn = lang === "en";
 /** للتواريخ والأرقام */
-export const locale = isEn ? "en-GB" : "ar-SA";
+export const locale = isEn ? "en-GB" : "ar-SA-u-ca-gregory-nu-latn";
 
 if (typeof document !== "undefined") {
   document.documentElement.lang = lang;

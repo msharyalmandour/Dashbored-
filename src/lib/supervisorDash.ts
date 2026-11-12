@@ -80,7 +80,7 @@ export interface TeamData {
   token: string;
   name: string;
   state: "loading" | "ok" | "error";
-  /** null = ملف SQL المرحلة ٤ ما انطبق بعد */
+  /** null = ملف SQL المرحلة 4 ما انطبق بعد */
   dash: Dash | null;
   board: Board | null;
   items: SupItem[];
@@ -122,7 +122,7 @@ export function proofProgress(dash: Pick<Dash, "tasks" | "papers" | "sections">)
   return { pct: Math.round((credited / total) * 100), credited, total };
 }
 
-/** السرعة: وسيط عدد المهام المنجزة بآخر ٣ أسابيع (لكل أسبوع) */
+/** السرعة: وسيط عدد المهام المنجزة بآخر 3 أسابيع (لكل أسبوع) */
 export function weeklyVelocity(tasks: Pick<DashTask, "status" | "completedAt">[], today: string): number {
   const end = ms(today) + DAY / 2;
   const weeks = [0, 1, 2].map((w) => tasks.filter((t) => t.status === "done" && t.completedAt && ms(t.completedAt) <= end - w * 7 * DAY && ms(t.completedAt) > end - (w + 1) * 7 * DAY).length);

@@ -11,7 +11,7 @@ export const WELCOME_AUDIO = `${BASE}/welcome-desmond.mp3`;
 function shouldSkipVideo(allowMobile: boolean): boolean {
   if (typeof window === "undefined") return true;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return true;
-  // الجوال: صورة ثابتة فقط (يوفّر بطارية وبيانات ~٣ ميجا)
+  // الجوال: صورة ثابتة فقط (يوفّر بطارية وبيانات ~3 ميجا)
   if (!allowMobile && window.innerWidth < 768) return true;
   const c = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
   return Boolean(c?.saveData || c?.effectiveType === "slow-2g" || c?.effectiveType === "2g");

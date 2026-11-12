@@ -721,7 +721,7 @@ button:not(:disabled):active {
 
 /* ===================================================================
    التصميم الموحّد للصفحات الداخلية (كلها ما عدا الرئيسية): أي Card داخل
-   صفحة معلّمة data-redesign ياخذ زجاج داكن بحدّ برتقالي خفيف وزوايا ٢٨.
+   صفحة معلّمة data-redesign ياخذ زجاج داكن بحدّ برتقالي خفيف وزوايا 28.
    مكتوبة خارج الطبقات عشان تغلب ألوان tone القديمة (سماوي/كهرماني/بنفسجي).
    =================================================================== */
 :root[data-theme="black"] [data-redesign] .glass-panel.rounded-3xl {
@@ -830,7 +830,7 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
   .ld-par { transform: none; }
 }
 
-/* ========== مكونات مشتركة (المرحلة ١): الكرة، شريط التحميل، اللمعان، الشاشة الأولى ========== */
+/* ========== مكونات مشتركة (المرحلة 1): الكرة، شريط التحميل، اللمعان، الشاشة الأولى ========== */
 .agent-orb { position: relative; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .agent-orb__body {
   position: absolute; inset: 0; border-radius: 50%;
@@ -983,7 +983,7 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
 .wsa-ic.mail { background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.3); transition: filter .3s, opacity .3s; }
 .wsa-ic.mail.dim { filter: grayscale(1); opacity: .45; }
 .wsa-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; transition: background .3s, color .3s; }
-.wsa-chip.on { background: rgba(127,224,166,.12); color: #7FE0A6; }
+.wsa-chip.on { background: rgba(255,199,119,.12); color: #FFC777; }
 .wsa-chip.off { background: rgba(255,255,255,.07); color: var(--ws-c-muted); }
 .wsa-chip.bad { background: rgba(255,138,122,.12); color: #FF8A7A; }
 .wsa-chip.step { padding: 6px 10px; }
@@ -999,11 +999,11 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
 .wsa-lnk:disabled { opacity: .6; cursor: default; }
 .wsa-sep { height: 1px; background: rgba(255,255,255,.08); margin: 14px 0; }
 .wsa-msg { font-size: 13px; border-radius: 12px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; margin-top: 10px; animation: wsa-fade .25s ease-out; }
-.wsa-msg.ok { background: rgba(127,224,166,.1); color: #7FE0A6; }
+.wsa-msg.ok { background: rgba(255,199,119,.1); color: #FFC777; }
 .wsa-msg.err { background: rgba(255,138,122,.1); color: #FF8A7A; }
 .wsa-msg.ok .wsa-pop { display: inline-flex; animation: wsa-pop .4s cubic-bezier(.3,1.5,.5,1) both; }
 .wsa-msg.ok path { stroke-dasharray: 30; animation: wsa-draw .6s ease-out .1s both; }
-/* مفتاح الإيميل ٥٦×٣٢: الكرة تنزلق بـ spring، والبرتقالي يتوهج وهو شغّال */
+/* مفتاح الإيميل 56×32: الكرة تنزلق بـ spring، والبرتقالي يتوهج وهو شغّال */
 .wsa-sw-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex: none; min-width: 56px; min-height: 44px; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
 .wsa-sw-btn:disabled { cursor: default; }
 .wsa-sw { position: relative; width: 56px; height: 32px; border-radius: 999px; box-sizing: border-box; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.14); transition: background .3s, box-shadow .3s, border-color .3s; }
@@ -1051,4 +1051,18 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
   .wsa-sw i, .wsa-btn { transition: background .3s !important; }
   .wsa-ring::before, .wsa-btn:disabled::after { display: none; }
   .wsa-skel { background: rgba(255,255,255,.07); }
+}
+
+/* ───────── قواعد الهوية (FixList 1 و 2) ───────── */
+/* 1) العناوين المتدرّجة (background-clip: text): الهمزة كانت تنقص من فوق فتطلع «آي» بدل «أي» */
+[style*="background-clip: text"],
+[style*="background-clip:text"],
+.bg-clip-text,
+.dr-title, .hg-name, .lux-bigtime, .lv-gold-num, .md-num, .md-title, .sd-name, .sd-ttl, .sv-name {
+  padding-top: .2em;
+  margin-top: -.08em;
+}
+/* 2) التباعد بين الحروف يقطّع العربي («مها مي»): صفر لأي نص بالواجهة العربية، إلا اللي معلّم إنجليزي */
+html[dir="rtl"] body *:not([dir="ltr"], [dir="ltr"] *, .keep-track) {
+  letter-spacing: 0 !important;
 }

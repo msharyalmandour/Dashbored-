@@ -6,11 +6,11 @@ import { tr } from "../../lib/i18n";
 const LINES = [
   tr("يقرأ دراساتكم… أسرع منكم بشوي"),
   tr("يدوّر على الفجوة البحثية… لا تخافون، ما ضاعت"),
-  tr("يرتّب أفكاركم أحسن من ملف نهائي_نهائي_٣"),
+  tr("يرتّب أفكاركم أحسن من ملف نهائي_نهائي_3"),
   tr("يكتب بهدوء… عكس آخر ليلة قبل التسليم"),
 ];
 
-/** «الوكيل يفكّر»: كرة بحالة thinking + جملة خفيفة تتبدل كل ٣ ثواني */
+/** «الوكيل يفكّر»: كرة بحالة thinking + جملة خفيفة تتبدل كل 3 ثواني */
 export default function ThinkingLine({ className, steps }: { className?: string; steps?: string[] }) {
   const lines = steps && steps.length > 0 ? steps : LINES;
   const [i, setI] = useState(0);

@@ -82,9 +82,9 @@ export default function Planner() {
         <label className="block">
           <span className="mb-1 block text-xs font-bold text-brand-950/70">{tr("هامش الأمان")}</span>
           <select value={bufferPct} onChange={(e) => setBufferPct(Number(e.target.value))} className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300">
-            <option value={8}>{tr("٨٪ (مشدود)")}</option>
-            <option value={12}>{tr("١٢٪ (موصى به)")}</option>
-            <option value={20}>{tr("٢٠٪ (مريح)")}</option>
+            <option value={8}>{tr("8% (مشدود)")}</option>
+            <option value={12}>{tr("12% (موصى به)")}</option>
+            <option value={20}>{tr("20% (مريح)")}</option>
           </select>
         </label>
       </Card>

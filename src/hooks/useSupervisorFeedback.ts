@@ -39,7 +39,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 const mockItems: FeedbackItem[] = [
   { id: "m1", comment: tr("وضّحوا معايير الاشتمال والاستبعاد بشكل أدق"), sectionKey: "methodology", status: "open", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: null },
-  { id: "m2", comment: tr("أضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات"), sectionKey: "literature-review", status: "done", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: today() },
+  { id: "m2", comment: tr("أضيفوا 3 دراسات سعودية حديثة لمراجعة الأدبيات"), sectionKey: "literature-review", status: "done", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: today() },
 ];
 
 /** ملاحظات المشرف كقائمة مهام صغيرة يتتبعها الفريق. وضع العرض التجريبي: بيانات محلية بالذاكرة. */

@@ -59,7 +59,7 @@
   .sv-in::placeholder { color: #7A7067; }
   .sv-in:focus { box-shadow: inset 0 0 0 1.5px rgba(255,170,90,.5); }
   textarea.sv-in { resize: vertical; line-height: 1.8; }
-  .sv-ok { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #7FE0A6; }
+  .sv-ok { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #FFC777; }
   .sv-err { margin-top: 8px; font-size: 13px; font-weight: 700; color: #FF9A8A; }
 
   /* وضع الفريق */
@@ -111,7 +111,7 @@
   .sv-task { display: flex; gap: 12px; padding: 12px 0; align-items: flex-start; }
   .sv-task + .sv-task { border-top: 1px solid rgba(255,255,255,.06); }
   .sv-box { width: 22px; height: 22px; border-radius: 7px; flex: none; margin-top: 2px; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); }
-  .sv-box.done { background: #7FE0A6; box-shadow: none; color: #0B2015; }
+  .sv-box.done { background: #FFC777; box-shadow: none; color: #0B2015; }
   .sv-box.late { box-shadow: inset 0 0 0 1.5px rgba(255,138,122,.7); }
   .sv-tt { font-size: 15px; font-weight: 700; line-height: 1.5; color: #EAE3DC; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .sv-tt.done { color: #8F857C; text-decoration: line-through; text-decoration-color: rgba(255,255,255,.25); }
@@ -125,14 +125,14 @@
   .sv-setup { display: flex; width: 100%; align-items: center; gap: 12px; min-height: 64px; padding: 14px 16px; border-radius: 20px; text-align: start; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,214,170,.14); }
   .sv-setup .t { font-size: 15px; font-weight: 800; color: #F2EBE3; }
   .sv-setup .s { font-size: 12px; color: #ABA095; margin-top: 2px; }
-  .sv-setup .s b { color: #7FE0A6; font-weight: 700; }
+  .sv-setup .s b { color: #FFC777; font-weight: 700; }
   .sv-dots { display: flex; gap: 5px; margin-inline-start: auto; flex: none; }
   .sv-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.18); }
   .sv-dots i.on { background: #FF9A3C; }
   .sv-step { display: flex; gap: 12px; }
   .sv-step + .sv-step { margin-top: 20px; }
   .sv-sn { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 13px; font-weight: 800; box-shadow: inset 0 0 0 1.5px rgba(255,170,90,.5); color: #FFC777; }
-  .sv-sn.done { background: rgba(127,224,166,.16); box-shadow: none; color: #7FE0A6; }
+  .sv-sn.done { background: rgba(255,199,119,.16); box-shadow: none; color: #FFC777; }
   .sv-st { font-size: 15px; font-weight: 800; color: #F2EBE3; }
   .sv-sd { font-size: 13px; line-height: 1.7; color: #ABA095; margin-top: 2px; }
 
@@ -152,7 +152,7 @@
   .sv-msg small { display: block; font-size: 12px; font-weight: 700; color: #ABA095; margin-bottom: 2px; }
   .sv-ds { padding: 12px 0; }
   .sv-ds + .sv-ds { border-top: 1px solid rgba(255,255,255,.06); }
-  .sv-toast { position: fixed; z-index: 70; left: 50%; bottom: 96px; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(24,30,22,.96); color: #A7F0C2; font-size: 14px; font-weight: 800; box-shadow: inset 0 0 0 1px rgba(127,224,166,.35), 0 14px 40px rgba(0,0,0,.6); animation: svToast .3s ease both; white-space: nowrap; }
+  .sv-toast { position: fixed; z-index: 70; left: 50%; bottom: 96px; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(24,30,22,.96); color: #A7F0C2; font-size: 14px; font-weight: 800; box-shadow: inset 0 0 0 1px rgba(255,199,119,.35), 0 14px 40px rgba(0,0,0,.6); animation: svToast .3s ease both; white-space: nowrap; }
 
   @media (min-width: 768px) {
     .sv-name { font-size: 52px; }

@@ -132,7 +132,7 @@ export default function MinutesLive() {
     setText("");
   };
 
-  // ١–٤ للوسوم (لما ما نكتب بالمربع)
+  // 1–4 للوسوم (لما ما نكتب بالمربع)
   useEffect(() => {
     if (!d.startedAt) return;
     const onKey = (e: KeyboardEvent) => {
@@ -237,7 +237,7 @@ export default function MinutesLive() {
           <label className="sup-lbl block" htmlFor="ml-room">
             {tr("المكان")}
           </label>
-          <input id="ml-room" className="sup-when" value={d.room} onChange={(e) => setD({ ...d, room: e.target.value })} placeholder={tr("قاعة ٣ · مبنى التمريض")} maxLength={120} />
+          <input id="ml-room" className="sup-when" value={d.room} onChange={(e) => setD({ ...d, room: e.target.value })} placeholder={tr("قاعة 3 · مبنى التمريض")} maxLength={120} />
           <div className="sup-lbl">{tr("المدة")}</div>
           <div className="mt-1 grid grid-cols-4 gap-1.5" role="group" aria-label={tr("المدة")}>
             {[15, 30, 45, 60].map((m) => (

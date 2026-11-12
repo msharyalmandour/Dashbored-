@@ -43,12 +43,12 @@ export default function Surveys() {
         side={
           <Panel title={tr("رحلة الاستبيان")}>
             <ol className="space-y-2 text-sm text-brand-950/70">
-              <li className={rowSurface}><b className="text-brand-950">{tr("١. الهدف")}</b>{tr(" — وش تبغون تعرفون؟")}</li>
-              <li className={rowSurface}><b className="text-brand-950">{tr("٢. الأسئلة")}</b>{tr(" — مع مراجعة تلقائية لصياغتها")}</li>
-              <li className={rowSurface}><b className="text-brand-950">{tr("٣. الموافقة")}</b> — <Term id="consent">{tr("الموافقة المستنيرة")}</Term></li>
-              <li className={rowSurface}><b className="text-brand-950">{tr("٤. جرّبوا")}</b> — <Term id="pilot">{tr("دراسة استطلاعية")}</Term>{tr(" قبل النشر")}</li>
-              <li className={rowSurface}><b className="text-brand-950">{tr("٥. انشروا")}</b>{tr(" — رابط بدون حساب وحجم العينة")}</li>
-              <li className={rowSurface}><b className="text-brand-950">{tr("٦. النتائج")}</b>{tr(" — جداول وثبات وتصدير")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("1. الهدف")}</b>{tr(" — وش تبغون تعرفون؟")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("2. الأسئلة")}</b>{tr(" — مع مراجعة تلقائية لصياغتها")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("3. الموافقة")}</b> — <Term id="consent">{tr("الموافقة المستنيرة")}</Term></li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("4. جرّبوا")}</b> — <Term id="pilot">{tr("دراسة استطلاعية")}</Term>{tr(" قبل النشر")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("5. انشروا")}</b>{tr(" — رابط بدون حساب وحجم العينة")}</li>
+              <li className={rowSurface}><b className="text-brand-950">{tr("6. النتائج")}</b>{tr(" — جداول وثبات وتصدير")}</li>
             </ol>
           </Panel>
         }

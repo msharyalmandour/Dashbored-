@@ -81,7 +81,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
           </div>
 
           {days.length === 0 ? (
-            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm text-[#B8ADA2]">{tr("ما فيه أوقات متاحة خلال ٣ أسابيع. أرسلوا لها واتساب تفتح أوقاتًا جديدة.")}</p>
+            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm text-[#B8ADA2]">{tr("ما فيه أوقات متاحة خلال 3 أسابيع. أرسلوا لها واتساب تفتح أوقاتًا جديدة.")}</p>
           ) : (
             <>
               <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label={tr("الأيام المتاحة")}>

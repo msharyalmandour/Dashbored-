@@ -207,7 +207,7 @@ export function SvDocSheet({
               </span>
               {r.status === "done" && onApprove &&
                 (approved?.includes(r.key) ? (
-                  <span className="sv-badge soon !text-[#7FE0A6] !bg-[rgba(127,224,166,.12)]">{tr("معتمد ✓")}</span>
+                  <span className="sv-badge soon !text-[#FFC777] !bg-[rgba(255,199,119,.12)]">{tr("معتمد ✓")}</span>
                 ) : (
                   <button className="sv-btn ghost !min-h-[38px] !px-3.5 !text-[13px]" disabled={approvingKey === r.key} onClick={() => onApprove(r.key, r.label)}>
                     {approvingKey === r.key && <Loader2 size={13} className="animate-spin" />}

@@ -16,7 +16,8 @@ export const TYPE_LABEL: Record<Exclude<ResearchType, "">, [string, string]> = {
 };
 
 /** أرقام عربية بالواجهة العربية */
-export const num = (n: number) => n.toLocaleString(isEn ? "en" : "ar-EG");
+/** أرقام غربية 0–9 بكل مكان (قاعدة الهوية) */
+export const num = (n: number) => n.toLocaleString("en");
 
 /** تبويبات «أكتب» الثلاث مع عدّاد كل وحدة (بدل تبويبات القسم العامة بهالقسم بس) */
 type Live = { proposal?: number; methodology?: number; ethics?: number };

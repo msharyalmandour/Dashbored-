@@ -22,7 +22,7 @@ export interface Orphan {
   hours: number;
 }
 
-/** أسئلة من الفريق عدّى عليها ٢٤ ساعة ومحد رد عليها (لا رد مباشر، ولا رسالة من غيره خلال ساعتين بعدها) */
+/** أسئلة من الفريق عدّى عليها 24 ساعة ومحد رد عليها (لا رد مباشر، ولا رسالة من غيره خلال ساعتين بعدها) */
 export function orphanQuestions(messages: ChatMessage[], now = Date.now(), dismissed: Set<string> = new Set()): Orphan[] {
   const repliedTo = new Set(messages.filter((m) => m.replyTo && !m.deletedAt).map((m) => m.replyTo as string));
   const out: Orphan[] = [];
@@ -118,7 +118,7 @@ export function readFocus(): FocusState | null {
 export function focusUntil(choice: "1h" | "2h" | "tomorrow", now = new Date()): Date {
   if (choice === "1h") return new Date(now.getTime() + 3600e3);
   if (choice === "2h") return new Date(now.getTime() + 2 * 3600e3);
-  // لين بكرة: الساعة ٨ الصبح بتوقيت الجهاز
+  // لين بكرة: الساعة 8 الصبح بتوقيت الجهاز
   const t = new Date(now);
   t.setDate(t.getDate() + 1);
   t.setHours(8, 0, 0, 0);

@@ -3,7 +3,7 @@ import { Check, Pause, Play } from "lucide-react";
 import { tr } from "../../lib/i18n";
 import { fmtDur, kindLabel, voiceUrl, type VoiceMeta } from "../../lib/voice";
 
-/** فقاعة الفويس بالمحادثة (VoiceBubbleM): تشغيل، موجة، المدة، ١٫٥×، «الزبدة»، النص كامل، وشرائح اللي طلع منه */
+/** فقاعة الفويس بالمحادثة (VoiceBubbleM): تشغيل، موجة، المدة، 1٫5×، «الزبدة»، النص كامل، وشرائح اللي طلع منه */
 export default function VoiceBubble({ meta }: { meta: VoiceMeta }) {
   const audio = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);

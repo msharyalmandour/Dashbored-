@@ -86,14 +86,14 @@ export default function Viva() {
 
       {aiOk && (
         <Card tone="cream" className="space-y-3">
-          <p className="text-sm text-brand-950/70">{tr("الأفضل تكتبون مقترحكم ومنهجيتكم أولًا (كل ما كانوا أوضح كانت الأسئلة أدق). المتاح ٣ جلسات بالشهر لكل فريق.")}</p>
+          <p className="text-sm text-brand-950/70">{tr("الأفضل تكتبون مقترحكم ومنهجيتكم أولًا (كل ما كانوا أوضح كانت الأسئلة أدق). المتاح 3 جلسات بالشهر لكل فريق.")}</p>
           <button
             onClick={generate}
             disabled={busy}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-            {busy ? tr("اللجنة تقرأ مقترحكم... (حوالي ٣٠ ثانية)") : result ? tr("جلسة جديدة") : tr("ابدأوا التدريب")}
+            {busy ? tr("اللجنة تقرأ مقترحكم... (حوالي 30 ثانية)") : result ? tr("جلسة جديدة") : tr("ابدأوا التدريب")}
           </button>
           {message && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{message}</p>}
         </Card>

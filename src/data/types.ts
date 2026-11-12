@@ -153,7 +153,7 @@ export interface Task {
   sectionKey?: string;
   /** وقت الإكمال (من القاعدة) — لقياس المساهمة والتقرير الأسبوعي */
   completedAt?: string | null;
-  /** العدد المطلوب للإثبات (مثل ٥ دراسات) — من القاعدة، وإلا يُستنتج من العنوان */
+  /** العدد المطلوب للإثبات (مثل 5 دراسات) — من القاعدة، وإلا يُستنتج من العنوان */
   targetCount?: number | null;
   /** «من رمية»: الرمية اللي طلعت منها المهمة */
   dropId?: string | null;
@@ -270,7 +270,7 @@ export interface ResearchProject {
   targetSubmissionDate: string | null;
   createdAt: string;
   updatedAt: string;
-  /** ملخص المقترح (١٥٠-٢٥٠ كلمة تغطي الخلفية والهدف والمنهج والخلاصة) — Abstract */
+  /** ملخص المقترح (150-250 كلمة تغطي الخلفية والهدف والمنهج والخلاصة) — Abstract */
   abstract: string;
   /** اسم المشرف الأكاديمي — يظهر بصفحة عنوان المقترح المُصدَّرة */
   supervisorName: string;

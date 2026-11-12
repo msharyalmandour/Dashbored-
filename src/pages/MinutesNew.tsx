@@ -42,7 +42,7 @@ function loadDraft(): Draft | null {
   }
 }
 
-/** صفحة «محضر جديد»: ٣ خطوات، كل خطوة شاشة، والمسودة تنحفظ بمتصفحكم أول بأول (ما تروح لو سكّرتوا الصفحة) */
+/** صفحة «محضر جديد»: 3 خطوات، كل خطوة شاشة، والمسودة تنحفظ بمتصفحكم أول بأول (ما تروح لو سكّرتوا الصفحة) */
 export default function MinutesNew() {
   const { currentUser, canWrite } = useAuth();
   const navigate = useNavigate();
@@ -291,7 +291,7 @@ export default function MinutesNew() {
               <input type="checkbox" checked={sendToSupervisor} onChange={(e) => setSendToSupervisor(e.target.checked)} className="mt-1 h-4 w-4 accent-[#FF6B00]" />
               <span>
                 <span className="block font-bold">{tr("أرسلوه للمشرف/ة للاعتماد")}</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-[#B8ADA2]">{tr("تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال ٤٨ ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.")}</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-[#B8ADA2]">{tr("تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال 48 ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.")}</span>
               </span>
             </label>
             {error && (

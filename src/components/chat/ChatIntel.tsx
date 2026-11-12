@@ -93,7 +93,7 @@ export function LiveSummaryCard({ s, updatedAt, collapsed, onToggle }: { s: Live
   );
 }
 
-/** «ينتظر جواب من ٢٦ ساعة · يعرفه خالد؟» */
+/** «ينتظر جواب من 26 ساعة · يعرفه خالد؟» */
 export function OrphanStrip({
   body,
   hours,
@@ -142,7 +142,7 @@ export function OrphanStrip({
   );
 }
 
-/** «اللي فاتك ويخصك» بعد غياب ٤٨ ساعة: ٣ أسطر + «وصلت» */
+/** «اللي فاتك ويخصك» بعد غياب 48 ساعة: 3 أسطر + «وصلت» */
 export function CatchupSheet({ away, lines, onClose, onJump }: { away: string; lines: string[]; onClose: () => void; onJump: () => void }) {
   const ok = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -226,7 +226,7 @@ export function FocusPanel({ active, onPick, onEnd }: { active: FocusChoice | nu
   );
 }
 
-/** حبة الهيدر: «وقت تركيز · لين ٤:٠٠» */
+/** حبة الهيدر: «وقت تركيز · لين 4:00» */
 export function FocusPill({ until, onClick }: { until: string | null; onClick: () => void }) {
   if (!until) {
     return (

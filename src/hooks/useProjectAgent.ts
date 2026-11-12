@@ -208,7 +208,7 @@ export async function readPaperFiles(files: File[]): Promise<{ data?: PaperReadi
     return readPaperPdf(pdfs[0]);
   }
   if (images.length === 0) return { message: tr("الملف لازم يكون PDF أو صور (JPG أو PNG).") };
-  if (images.length > 10) return { message: tr("الحد ١٠ صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).") };
+  if (images.length > 10) return { message: tr("الحد 10 صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).") };
   try {
     const { imagesToPdf } = await import("../lib/imagesToPdf");
     return readPaperPdf(await imagesToPdf(images, MAX_PAPER_BYTES));
@@ -221,7 +221,7 @@ export async function readPaperFiles(files: File[]): Promise<{ data?: PaperReadi
 export async function readPaperPdf(file: File): Promise<{ data?: PaperReading; message?: string }> {
   if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
   if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) return { message: tr("الملف لازم يكون PDF.") };
-  if (file.size > MAX_PAPER_BYTES) return { message: tr("الملف كبير (الحد ٤ ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.") };
+  if (file.size > MAX_PAPER_BYTES) return { message: tr("الملف كبير (الحد 4 ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.") };
   const pdfBase64 = await toBase64(file);
   const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "read", fileName: file.name, pdfBase64 } });
   const reply = data as { paper?: PaperReading; error?: string; limitReached?: boolean; message?: string } | null;

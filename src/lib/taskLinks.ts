@@ -1,7 +1,7 @@
 import { tr } from "./i18n";
 import type { EvidencePaper, ProposalSectionRow, Task } from "../data/types";
 
-/* ربط المهمة بمكان شغلها: كل مهمة تعرف «وين» تنسوّى، و«كم» لو فيها رقم (٥ دراسات)،
+/* ربط المهمة بمكان شغلها: كل مهمة تعرف «وين» تنسوّى، و«كم» لو فيها رقم (5 دراسات)،
    والموقع يتأكد من البيانات قبل ما تنحسب خلصت. المكان ينحفظ بخانة section_key الموجودة
    (أقسام المقترح + أماكن الموقع)، ولو المهمة قديمة بدون مكان نستنتجه من عنوانها. */
 
@@ -107,7 +107,7 @@ export const placeOf = (task: Pick<Task, "title" | "description" | "sectionKey">
 export interface Proof {
   have: number;
   need: number;
-  /** «٢ من ٥ دراسات» */
+  /** «2 من 5 دراسات» */
   label: string;
   met: boolean;
 }

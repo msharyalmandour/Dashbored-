@@ -35,7 +35,8 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const SENT_KEY = "wesync.supervisorInviteSent";
-const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tr("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
+/** أرقام غربية 0–9 بكل مكان */
+const arDigit = (n: number) => String(n);
 
 /** بطاقة صغيرة بالشريط: نقطة لون + عنوان + قيمة + رابط واحد يفتح التفاصيل بنافذة */
 function MiniCard({ dot, title, value, link, onOpen }: { dot: string; title: string; value: string; link: string; onOpen: () => void }) {
@@ -140,7 +141,7 @@ export default function MeetingMinutes() {
               link={nextBooking ? tr("التفاصيل وجاهزية الاجتماع") : tr("جاهزية الاجتماع")}
               onOpen={() => setDlg("meeting")}
             />
-            <MiniCard dot="#FFB444" title={tr("تجهيز المشرف/ة")} value={tr("{0} من ٤", arDigit(setupDone))} link={setupDone === 4 ? tr("جاهزة — التفاصيل") : tr("كمّلوا التجهيز")} onOpen={() => setDlg("supervisor")} />
+            <MiniCard dot="#FFB444" title={tr("تجهيز المشرف/ة")} value={tr("{0} من 4", arDigit(setupDone))} link={setupDone === 4 ? tr("جاهزة — التفاصيل") : tr("كمّلوا التجهيز")} onOpen={() => setDlg("supervisor")} />
             <MiniCard dot={driveDot} title={tr("درايف الفريق")} value={driveValue} link={tr("التفاصيل")} onOpen={() => setDlg("drive")} />
           </div>
 

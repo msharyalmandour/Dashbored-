@@ -31,7 +31,7 @@ export const PALETTE = [
   { from: "#FFD3A0", to: "#E07A2E", tint: "rgba(255,160,80,.55)" },
 ];
 
-/** الصفر العربي «٠» يبان نقطة، فنكتب الصفر 0 */
+/** الصفر العربي «0» يبان نقطة، فنكتب الصفر 0 */
 const n0 = (n: number) => (n === 0 ? "0" : num(n));
 /** أول حرف من الاسم الأول للأفاتار الكبير */
 export const letter = (name: string) => name.trim().charAt(0) || "؟";
@@ -40,7 +40,7 @@ export const weekdayAr = (d: Date) => `ال${arabicWeekdays[d.getDay()]}`.replac
 const isUrl = (s: string) => /^(https?:\/\/|www\.)/i.test(s.trim());
 const hhmm = (t: string) => (t || "").slice(0, 5);
 
-// ───────────────────────────── ١) الفريق مع بعض ─────────────────────────────
+// ───────────────────────────── 1) الفريق مع بعض ─────────────────────────────
 
 export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string; style?: CSSProperties }) {
   const { currentUser } = useAuth();
@@ -106,13 +106,13 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                   <div className="relative">
                     <div
                       className="lux-ring"
-                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#7FE0A6" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
+                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#FFC777" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
                       role="img"
                       aria-label={tr("{0}٪ من المهام خلصت", num(pct))}
                     >
                       <div style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}>{letter(m.name)}</div>
                     </div>
-                    <span className="lux-pres" role="img" style={{ background: on ? "#7FE0A6" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
+                    <span className="lux-pres" role="img" style={{ background: on ? "#FFC777" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
                     <span className="lux-pct">{n0(pct)}٪</span>
                   </div>
                 </div>
@@ -121,13 +121,13 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     <div className="lux-name">{m.name.split(" ")[0]}</div>
                     <div className="v3-mut mt-0.5 text-xs">
                       {m.role === "leader" ? tr("قائد/ة الفريق") : tr("عضو")} ·{" "}
-                      <span style={{ color: on ? "#7FE0A6" : "var(--ws-c-muted)" }}>{on ? tr("أونلاين الحين") : tr("مو أونلاين")}</span>
+                      <span style={{ color: on ? "#FFC777" : "var(--ws-c-muted)" }}>{on ? tr("أونلاين الحين") : tr("مو أونلاين")}</span>
                     </div>
                   </div>
                   <div className="lux-now">
                     {now ? (
                       <>
-                        <div className="lux-now-k" style={{ color: isCurrent ? "#7FE0A6" : "#E9C9A0" }}>
+                        <div className="lux-now-k" style={{ color: isCurrent ? "#FFC777" : "#E9C9A0" }}>
                           {isCurrent ? tr("الحين") : tr("الجاي")}
                         </div>
                         <Link to={`/tasks?task=${now.id}`} className="mt-0.5 line-clamp-2 block text-sm font-bold leading-[1.5] hover:underline" dir="auto">
@@ -139,11 +139,11 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     )}
                   </div>
                   <div className="lux-split" aria-hidden>
-                    {done > 0 && <i style={{ width: `${pct}%`, background: "linear-gradient(90deg,#9BF0BE,#5FD493)" }} />}
+                    {done > 0 && <i style={{ width: `${pct}%`, background: "linear-gradient(90deg,#FFE2B0,#FFC777)" }} />}
                     {open > 0 && <i style={{ flex: 1, background: "rgba(255,182,92,.35)" }} />}
                   </div>
                   <div className="flex w-full justify-between text-xs">
-                    <span className="font-extrabold text-[#9BF0BE]">{tr("خلّص {0}", n0(done))}</span>
+                    <span className="font-extrabold text-[#FFE2B0]">{tr("خلّص {0}", n0(done))}</span>
                     <span className="v3-mut">{tr("باقي {0}", n0(open))}</span>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
   );
 }
 
-// ───────────────────────────── ٢) الاجتماع الجاي ─────────────────────────────
+// ───────────────────────────── 2) الاجتماع الجاي ─────────────────────────────
 
 interface NextMeeting {
   id: string;
@@ -347,7 +347,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
   );
 }
 
-// ───────────────────────────── ٣) هالأسبوع ─────────────────────────────
+// ───────────────────────────── 3) هالأسبوع ─────────────────────────────
 
 const TYPE_LABEL: Record<CalendarEventType, string> = {
   meeting: tr("اجتماع"),

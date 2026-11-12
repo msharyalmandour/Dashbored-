@@ -236,7 +236,7 @@ export default function Drop() {
       nothing_found: { icon: <Folder size={18} />, title: tr("ما لقينا شي نرتبه"), body: tr("شكله ملف عادي. نحطه بالملفات؟"), action: tr("حطوه بالملفات"), run: () => void toFiles() },
       offline: { icon: <WifiOff size={18} />, title: tr("النت مفصول"), body: tr("حفظناه عندكم، وأول ما يرجع النت نقراه لحاله."), action: tr("تمام"), run: again },
       ai_limit: { icon: <Lock size={18} />, title: tr("خلصت قراءات هالشهر"), body: tr("باقتكم فيها {0} رمية بالشهر. ترجع {1}، أو كبّروا الباقة.", limitInfo ?? (team?.plan === "ai" ? 150 : 20), formatDateShort(nextMonthIso())), action: tr("شوفوا الباقات"), run: () => navigate("/pricing") },
-      too_large: { icon: <FileSearch size={18} />, title: tr("الرمية كبيرة"), body: tr("الحد ١٠ ملفات و٢٥ ميغا للملف. قسّموها وارموها مرة ثانية."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
+      too_large: { icon: <FileSearch size={18} />, title: tr("الرمية كبيرة"), body: tr("الحد 10 ملفات و25 ميغا للملف. قسّموها وارموها مرة ثانية."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
       failed: {
         icon: <Sparkles size={18} />,
         title: tr("ما زبطت هالمرة"),
@@ -295,7 +295,7 @@ export default function Drop() {
           <div className="mt-[70px]">
             <Vessel size={300} state="reading" scene />
           </div>
-          <div className="text-[13px] font-bold tracking-[.04em] text-[#FFB444]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("١ من ١ · {0}", kindWord(1, mime, first))}</div>
+          <div className="text-[13px] font-bold tracking-[.04em] text-[#FFB444]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("1 من 1 · {0}", kindWord(1, mime, first))}</div>
           <h1 className="dr-title text-[28px]">{starting ? tr("نرفعها…") : tr("نقرا الملف…")}</h1>
           <p className="m-0 text-[15px] text-[#E9D3B8]">{tr("نطلّع النقاط، المهام، ومين مسؤول عن وش.")}</p>
           <div className="mt-2.5 flex gap-1.5" aria-hidden>

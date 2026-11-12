@@ -101,7 +101,7 @@ export default function SearchStrategy() {
         </div>
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />{tr("نجهّز لكم الخطة — ياخذ حوالي ١٠ ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
+            <Loader2 size={13} className="animate-spin" />{tr("نجهّز لكم الخطة — ياخذ حوالي 10 ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>

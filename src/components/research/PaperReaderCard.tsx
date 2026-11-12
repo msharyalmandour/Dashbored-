@@ -108,7 +108,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
           <p className="flex items-center gap-2 text-sm font-extrabold text-[#F4F0EC]">
             <BookOpenCheck size={16} className="text-[#FFB444]" /> {tr("اقرأ لي هذي الورقة")}
           </p>
-          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى ١٠ صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
+          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى 10 صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
         </div>
         {onClose && !busy && (
           <button type="button" onClick={onClose} aria-label={tr("إغلاق")} className="rounded-full p-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">

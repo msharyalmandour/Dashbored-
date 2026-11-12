@@ -2,7 +2,7 @@ import { isSupabaseConfigured, supabase } from "./supabaseClient";
 import { isEn } from "./i18n";
 
 /* الفويس: تسجيل (MediaRecorder) + مستوى الصوت الحقيقي (AnalyserNode) + كتابة مباشرة من المتصفح (SpeechRecognition)
-   + رفع الملف لحاوية drops تحت مجلد الفريق. الحد ٥ دقايق. بدون نت: الفويس ينحفظ بالجهاز وينرسل لحاله. */
+   + رفع الملف لحاوية drops تحت مجلد الفريق. الحد 5 دقايق. بدون نت: الفويس ينحفظ بالجهاز وينرسل لحاله. */
 
 export const MAX_MS = 5 * 60_000;
 export type VoiceKind = "task" | "decision" | "question" | "date" | "note";
@@ -340,7 +340,7 @@ const KIND_EN: Record<VoiceKind, string> = { task: "Task", decision: "Decision",
 /** اسم النوع (الكلمة العربية نفسها مستخدمة بمعاني ثانية بالترجمة، فنترجمها هنا) */
 export const kindLabel = (k: VoiceKind) => (isEn ? KIND_EN[k] : KIND_AR[k]);
 
-/** كتابة مباشرة بس (بدون تسجيل ملف) — لوضع الاجتماع اللي يطول أكثر من ٥ دقايق */
+/** كتابة مباشرة بس (بدون تسجيل ملف) — لوضع الاجتماع اللي يطول أكثر من 5 دقايق */
 export function listen(onFinal: (text: string) => void, onInterim: (text: string) => void): (() => void) | null {
   const C = SRClass();
   if (!C) return null;

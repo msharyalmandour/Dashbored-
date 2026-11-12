@@ -3,10 +3,10 @@ import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 
 const RECENT_WINDOW_DAYS = 30;
 
-/** أعضاء دفعوا حصتهم خلال آخر ٣٠ يوم — عشان قائمة "مين دفع" بصفحة الأسعار.
+/** أعضاء دفعوا حصتهم خلال آخر 30 يوم — عشان قائمة "مين دفع" بصفحة الأسعار.
     مبني على جدول payments (سجل حقيقي من موقع Moyasar عبر الـ webhook)، فما
     له معنى بوضع العرض التجريبي — نفس منطق useResearchSearch.ts. الاشتراك
-    نفسه تراكمي بالأيام مو شهر تقويمي ثابت، فـ "آخر ٣٠ يوم" تقريب معقول
+    نفسه تراكمي بالأيام مو شهر تقويمي ثابت، فـ "آخر 30 يوم" تقريب معقول
     لعرض "دفعتوا هالفترة" بدون تعقيد حساب فترة فوترة دقيقة. */
 export function useTeamPayments() {
   const [paidProfileIds, setPaidProfileIds] = useState<Set<string>>(new Set());

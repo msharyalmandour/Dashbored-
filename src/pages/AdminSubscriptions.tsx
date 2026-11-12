@@ -110,7 +110,7 @@ export default function AdminSubscriptions() {
         </span>
         <div>
           <h1 className="font-display text-xl font-extrabold text-brand-950">{tr("إدارة الاشتراكات")}</h1>
-          <p className="text-sm text-brand-950/55">{tr("سعر الإطلاق للفريق كامل: ١٩ لحاله، ٣٩ لشخصين، ٤٩ من ٣–٥، والمساعد +٣٩ (+١٩ للمؤسسين ولحاله). فعّلي اشتراك أي فريق بعد ما تتأكدين من التحويل.")}</p>
+          <p className="text-sm text-brand-950/55">{tr("سعر الإطلاق للفريق كامل: 19 لحاله، 39 لشخصين، 49 من 3–5، والمساعد +39 (+19 للمؤسسين ولحاله). فعّلي اشتراك أي فريق بعد ما تتأكدين من التحويل.")}</p>
         </div>
       </Card>
 

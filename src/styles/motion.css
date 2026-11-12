@@ -32,8 +32,8 @@
 .v3-g.v3-hover:hover { transform: translateY(var(--ws-hover-lift)); border-color: var(--ws-c-border-hover); }
 .v3-g2 { box-sizing: border-box; border-radius: 20px; background: rgba(255,255,255,.05); border: 1px solid var(--ws-c-border); }
 
-/* الأزرار: زر أساسي واحد بالشاشة (برتقالي متدرج)، والباقي زجاجي — ٤٤px لمس على الأقل */
-.v3-bw, .v3-bd {
+/* الأزرار: زر أساسي واحد بالشاشة (برتقالي متدرج)، والباقي زجاجي — 44px لمس على الأقل */
+.v3-bw, .v3-bd, .v3-bc {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; padding: 0 22px; border-radius: 999px;
   font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none;
@@ -47,6 +47,9 @@
   transition: transform .2s ease, box-shadow .2s ease;
 }
 .v3-bw:hover { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(255,106,0,.34); }
+/* FixList 06: زر ثانوي كريمي — البرتقالي لزر واحد بالصفحة */
+.v3-bc { border: 0; background: #F2EBE3; color: #160904; transition: background .2s; }
+.v3-bc:hover { background: #fff; }
 .v3-bd { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: var(--ws-c-text); transition: border-color .2s, background .2s; }
 .v3-bd:hover { border-color: var(--ws-c-border-hover); background: rgba(255,255,255,.1); }
 .v3-bw:disabled, .v3-bd:disabled { opacity: .55; cursor: default; }
@@ -56,7 +59,7 @@
 
 /* شارات الحالة — ثابتة (بدون نبض) */
 .v3-st { display: inline-flex; align-items: center; gap: 6px; font-size: var(--ws-fs-label); font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
-.v3-st.done { background: rgba(127,224,166,.12); color: var(--ws-c-done); }
+.v3-st.done { background: rgba(255,199,119,.12); color: var(--ws-c-done); }
 .v3-st.doing { background: rgba(255,154,60,.12); color: var(--ws-c-accent-2); }
 .v3-st.todo { background: rgba(255,255,255,.07); color: var(--ws-c-muted); }
 .v3-st.late { background: rgba(255,138,122,.13); color: var(--ws-c-late); }
@@ -103,7 +106,7 @@
 .v3-typing i:nth-child(2) { animation-delay: .15s; }
 .v3-typing i:nth-child(3) { animation-delay: .3s; }
 
-/* الدخول: translateY 12px→0 + opacity في 0.6s، والبطاقات ورا بعض بفرق 70ms (سقف ٨ خطوات عشان ما يتأخر شي).
+/* الدخول: translateY 12px→0 + opacity في 0.6s، والبطاقات ورا بعض بفرق 70ms (سقف 8 خطوات عشان ما يتأخر شي).
    مرة وحدة: تحديث البيانات ما يعيد تركيب البطاقة، فما يعيد الدخول */
 .v3-rise { animation: v3-rise var(--ws-rise-dur) var(--ws-ease) calc(min(var(--v3-i, 0), 8) * var(--ws-stagger)) both; }
 
@@ -150,13 +153,13 @@ html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="t
   animation: ws-toast-in .6s cubic-bezier(.2,.9,.25,1.1) both;
 }
 .ws-toast.out { animation: ws-toast-out .4s ease-in both; }
-/* شريط العمر: ينقص خلال ٥ ثواني، ويوقف مع الماوس أو الضغط (animation-play-state من الواجهة) */
+/* شريط العمر: ينقص خلال 5 ثواني، ويوقف مع الماوس أو الضغط (animation-play-state من الواجهة) */
 .ws-life { position: absolute; inset: 0; display: block; background: linear-gradient(90deg, var(--ws-c-accent), #FFC777); transform-origin: right center; animation: ws-life 5s linear both; }
 [dir="ltr"] .ws-life { transform-origin: left center; }
 /* دوّارة متدرجة (بس وقت «جاري الربط») */
 .ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #FFB444 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
 /* ✓ خضرا تنط مرة وحدة */
-.ws-ok { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; background: rgba(127,224,166,.16); color: var(--ws-c-done); box-shadow: 0 0 18px rgba(127,224,166,.3); animation: ws-pop .5s cubic-bezier(.3,1.6,.5,1) both; }
+.ws-ok { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; background: rgba(255,199,119,.16); color: var(--ws-c-done); box-shadow: 0 0 18px rgba(255,199,119,.3); animation: ws-pop .5s cubic-bezier(.3,1.6,.5,1) both; }
 /* مفتاح الإيميل: ينزلق بـ spring ويتوهج لما يشتغل */
 .ws-toggle { position: relative; display: block; width: 50px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.14); transition: background .3s, box-shadow .3s; }
 .ws-toggle b { position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: inset-inline-start .45s cubic-bezier(.5,1.6,.4,1); }

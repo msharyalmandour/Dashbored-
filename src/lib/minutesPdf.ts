@@ -24,8 +24,8 @@ export interface PdfData {
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const AR = "٠١٢٣٤٥٦٧٨٩";
-export const arNum = (n: number | string) => String(n).replace(/\d/g, (d) => AR[Number(d)]);
+/** أرقام غربية 0–9 بكل مكان (قاعدة الهوية) */
+export const arNum = (n: number | string) => String(n);
 
 export function minutesPdfHtml(d: PdfData, opts: { pageFooter?: boolean } = {}): string {
   const h3 = (t: string) => `<h3>${esc(t)}</h3>`;

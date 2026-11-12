@@ -139,18 +139,18 @@ export default function FullDocumentExport() {
         <Narrative text={project?.abstract ?? ""} />
       </Card>
 
-      {/* ١. الخلفية ومراجعة الأدبيات */}
+      {/* 1. الخلفية ومراجعة الأدبيات */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("١. الخلفية ومراجعة الأدبيات")} />
+        <CardHeader title={tre("1. الخلفية ومراجعة الأدبيات")} />
         <div className="space-y-3">
           <Narrative text={sectionContent(sections, "background")} />
           <Narrative text={sectionContent(sections, "literature-review")} />
         </div>
       </Card>
 
-      {/* ٢. مشكلة البحث */}
+      {/* 2. مشكلة البحث */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("٢. مشكلة البحث")} />
+        <CardHeader title={tre("2. مشكلة البحث")} />
         <Narrative text={sectionContent(sections, "problem")} />
         {gap.gapStatement.trim() && (
           <div className="mt-3 rounded-2xl bg-amber-accent-50 p-4">
@@ -160,15 +160,15 @@ export default function FullDocumentExport() {
         )}
       </Card>
 
-      {/* ٣. هدف الدراسة */}
+      {/* 3. هدف الدراسة */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("٣. هدف الدراسة")} />
+        <CardHeader title={tre("3. هدف الدراسة")} />
         <Narrative text={aim.statement} />
       </Card>
 
-      {/* ٤. سؤال البحث */}
+      {/* 4. سؤال البحث */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("٤. سؤال البحث")} />
+        <CardHeader title={tre("4. سؤال البحث")} />
         {questions.length > 0 ? (
           <ol className="space-y-1.5">
             {questions.map((q) => (
@@ -183,10 +183,10 @@ export default function FullDocumentExport() {
         )}
       </Card>
 
-      {/* ٥. المنهجية */}
+      {/* 5. المنهجية */}
       <div className="space-y-5 print:break-before-page">
         <Card className="print:break-inside-avoid">
-          <CardHeader title={tre("٥. المنهجية")} />
+          <CardHeader title={tre("5. المنهجية")} />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <Field label={tre("أ. تصميم الدراسة — Design")} value={methodology.studyDesign} />
             <Field label={tre("ب. مكان الدراسة — Setting")} value={methodology.studySetting} />

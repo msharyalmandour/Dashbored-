@@ -44,6 +44,8 @@ export default function Sidebar({
 
   const moreHere = morePages.some((m) => isPathIn(pathname, m.to));
   const moreExpanded = moreOpen ?? moreHere;
+  // FixList 11: «المزيد» تختفي إذا فاضية
+  const navMore = morePages.filter((item) => !item.hideInNav);
 
   const renderSection = (sec: NavSection) => {
     const active = sec.pages.some((pg) => isPathIn(pathname, pg.to));
@@ -124,6 +126,7 @@ export default function Sidebar({
           <p className="px-4 pb-1 text-xs font-bold tracking-wide text-amber-accent-400/70">{tr("شغل الفريق")}</p>
           {workSections.map(renderSection)}
 
+          {navMore.length > 0 && (<>
           <div aria-hidden className="gold-groove mx-3 !my-3" />
           <button
             onClick={() => setMoreOpen(!moreExpanded)}
@@ -134,7 +137,7 @@ export default function Sidebar({
             <ChevronDown size={13} className={clsx("transition-transform", moreExpanded && "rotate-180")} />
           </button>
           {moreExpanded &&
-            morePages.filter((item) => !item.hideInNav).map((item) => (
+            navMore.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -145,8 +148,8 @@ export default function Sidebar({
                 {item.label}
               </NavLink>
             ))}
-
-          <div aria-hidden className="gold-groove mx-3 !my-3" />
+          </>)}
+          <div aria-hidden className="mx-3 !my-2" />
 
           <NavLink
             to="/learn"

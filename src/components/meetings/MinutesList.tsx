@@ -30,7 +30,8 @@ interface MinutesListProps {
   highlightId?: string | null;
 }
 
-const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tr("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
+/** أرقام غربية 0–9 بكل مكان */
+const arDigit = (n: number) => String(n);
 const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean).length;
 const toolBtn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-[#B8ADA2] transition hover:border-[#FF8A24]/50 hover:text-[#F4F0EC] disabled:opacity-50";
 

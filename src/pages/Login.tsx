@@ -244,7 +244,7 @@ export default function Login() {
                     )}
                   </h1>
                   {signUpView && !isForgotPassword && (
-                    <p className="mt-2 font-light text-[#B8ADA2]">{tr("١٤ يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
+                    <p className="mt-2 font-light text-[#B8ADA2]">{tr("14 يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
                   )}
                   {inviteTeamId && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
@@ -252,7 +252,7 @@ export default function Login() {
                   )}
                   {!inviteTeamId && referralCode && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
-                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة ١٤ يوم مجانية، وتاخذون شهر هدية أنتم وهم أول ما تشتركون 🎉")}</span>
+                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة 14 يوم مجانية، وتاخذون شهر هدية أنتم وهم أول ما تشتركون 🎉")}</span>
                   )}
                 </div>
               </div>
@@ -385,7 +385,7 @@ export default function Login() {
                         }}
                         onInvalid={arabicInvalidHandler(
                           tr("كلمة المرور مطلوبة"),
-                          tr("كلمة المرور لازم تكون ٦ أحرف على الأقل"),
+                          tr("كلمة المرور لازم تكون 6 أحرف على الأقل"),
                         )}
                         className={inputClass}
                         placeholder="••••••••"

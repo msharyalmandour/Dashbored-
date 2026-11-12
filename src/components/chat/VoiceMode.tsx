@@ -26,7 +26,7 @@ interface Member {
 
 const BARS = 28;
 const KIND_ICON: Record<VoiceKind, typeof Check> = { task: Check, decision: FileText, question: CircleHelp, date: CalendarDays, note: PenLine };
-// أماكن الكروت الطايرة (٪ من الشاشة) — الجوال والديسكتوب، والبعيدة (٣ و٤) مغبّشة 1.2px
+// أماكن الكروت الطايرة (٪ من الشاشة) — الجوال والديسكتوب، والبعيدة (3 و4) مغبّشة 1.2px
 const SLOTS_M = [
   { x: 62, y: 18, r: -9, ry: 0 },
   { x: 2, y: 10, r: 7, ry: 10 },
@@ -100,7 +100,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
     setPhase("starting");
     const r = new VoiceRecorder({
       onLevel: (lv) => {
-        // نحدّث الأعمدة ~١٢ مرة بالثانية من مستوى الصوت الحقيقي
+        // نحدّث الأعمدة ~12 مرة بالثانية من مستوى الصوت الحقيقي
         const now = performance.now();
         if (now - lastLevel.current < 80) return;
         lastLevel.current = now;
@@ -134,7 +134,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // العدّاد + استخراج المهام كل ~٥ ثواني على النص المتراكم
+  // العدّاد + استخراج المهام كل ~5 ثواني على النص المتراكم
   useEffect(() => {
     if (phase !== "listening" && phase !== "paused") return;
     const t = setInterval(() => {

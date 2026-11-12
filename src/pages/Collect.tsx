@@ -142,7 +142,7 @@ export default function Collect() {
     analysis: qual ? [tr("تحليل موضوعي"), tr("يبدأ بعد التشبّع")] : [tr("وصفي واستدلالي"), tr("يبدأ لما تكتمل العينة")],
   };
 
-  // النقاط: نقطة لكل مشارك لين ٦٠، وبعدها كل نقطة تمثّل مجموعة
+  // النقاط: نقطة لكل مشارك لين 60، وبعدها كل نقطة تمثّل مجموعة
   const dotTotal = target ? Math.min(target, 60) : 0;
   const perDot = target && target > 60 ? Math.ceil(target / 60) : 1;
   const filledDots = Math.min(dotTotal, Math.floor(collected / perDot));
@@ -186,7 +186,7 @@ export default function Collect() {
           <h1 className="v3-k m-0 text-[30px] leading-snug sm:text-[38px]">{tr("أجمع وأحلّل")}</h1>
           {!isEn && <div className="v3-en -mt-1">Collect & Analyze</div>}
           <p className="v3-mut m-0 mt-1 text-[15px] sm:text-base">
-            {tr("من الأداة للنتيجة في ٤ محطات. أنتم الحين في {0}.", stationName(current.key))}
+            {tr("من الأداة للنتيجة في 4 محطات. أنتم الحين في {0}.", stationName(current.key))}
           </p>
         </div>
         <div className="flex flex-wrap gap-2.5">
@@ -242,7 +242,7 @@ export default function Collect() {
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="v3-k v3-mut text-sm">{num(i + 1).padStart(2, isEn ? "0" : "٠")}</span>
+                  <span className="v3-k v3-mut text-sm">{num(i + 1).padStart(2, isEn ? "0" : "0")}</span>
                   <span className={clsx("v3-st", STATE_CLASS[s.state])}>{STATE_LABEL[s.state]}</span>
                 </div>
                 <span
@@ -358,7 +358,7 @@ export default function Collect() {
               </ul>
               {responses.length > 3 && (
                 <button type="button" className="v3-link mt-1" onClick={() => setShowAll((v) => !v)}>
-                  {showAll ? tr("اعرض آخر ٣ بس") : tr("كل الردود ({0}) ←", num(responses.length))}
+                  {showAll ? tr("اعرض آخر 3 بس") : tr("كل الردود ({0}) ←", num(responses.length))}
                 </button>
               )}
             </>

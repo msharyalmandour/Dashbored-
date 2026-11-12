@@ -95,7 +95,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-brand-950/70">{tr("١) جملة البحث")}</p>
+        <p className="text-xs font-bold text-brand-950/70">{tr("1) جملة البحث")}</p>
         {chips.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {chips.map((c) => (
@@ -113,12 +113,12 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           aria-disabled={!query.trim()}
           className="inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-4 py-2 text-xs font-bold text-white aria-disabled:pointer-events-none aria-disabled:opacity-40"
         >
-          <ExternalLink size={13} /> {tr("افتحوه بقوقل سكولار (من ٢٠١٥)")}
+          <ExternalLink size={13} /> {tr("افتحوه بقوقل سكولار (من 2015)")}
         </a>
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-brand-950/70">{tr("٢) سجّلوا بحثكم")}</p>
+        <p className="text-xs font-bold text-brand-950/70">{tr("2) سجّلوا بحثكم")}</p>
         <div className="grid grid-cols-3 gap-2">
           <select value={db} onChange={(e) => setDb(e.target.value)} className={field} aria-label={tr("القاعدة")}>
             {SEARCH_DATABASES.map((d) => (
@@ -146,9 +146,9 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-brand-950/70">{tr("٣) ألصقوا الدراسات اللي اخترتوها")}</p>
+        <p className="text-xs font-bold text-brand-950/70">{tr("3) ألصقوا الدراسات اللي اخترتوها")}</p>
         <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={4} dir="ltr" className={field} placeholder={"https://doi.org/10.1016/j.ijnurstu.2019.103456\nKnowledge and practice of nurses toward early delirium detection"} />
-        <p className="text-[11px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى ١٠).")}</p>
+        <p className="text-[11px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
         <button type="button" onClick={convert} disabled={busy || pasted.trim().length < 10} className="inline-flex items-center gap-1.5 rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
           {busy && <Loader2 size={13} className="animate-spin" />}
           {tr("تعرّف عليها")}
@@ -175,7 +175,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           </div>
         )}
         {saved !== null && (
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
             <Check size={15} /> {tr("انضافت {0} دراسة لمكتبتكم. كمّلوا بياناتها (العينة، الهدف…) برفع الورقة أو يدويًا.", saved)}
           </p>
         )}

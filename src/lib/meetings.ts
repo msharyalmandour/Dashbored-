@@ -43,7 +43,7 @@ export function isActionDone(action: MinutesActionRow, tasks: Pick<Task, "id" | 
 export const supervisorLink = (origin: string, token: string) => `${origin.replace(/\/$/, "")}/#/supervisor/${token}`;
 export const whatsappUrl = (text: string) => `https://wa.me/?text=${encodeURIComponent(text)}`;
 
-/** ٣ أسئلة مناسبة لكل مرحلة — حتى يكفي اجتماع ١٠ دقايق */
+/** 3 أسئلة مناسبة لكل مرحلة — حتى يكفي اجتماع 10 دقايق */
 const STAGE_QUESTIONS: Record<string, string[]> = {
   topic: [tr("هل عنوان بحثنا واضح ومناسب لحجم المشروع؟"), tr("هل الفئة والمتغيرات محددة بشكل كافٍ؟"), tr("هل توافقون على المضي بهذا الموضوع؟")],
   proposal: [tr("أي قسم بالمقترح تفضّلون نركّز عليه أول؟"), tr("هل مشكلة البحث مبررة بشكل كافٍ؟"), tr("هل صياغة الأهداف والأسئلة مناسبة؟")],

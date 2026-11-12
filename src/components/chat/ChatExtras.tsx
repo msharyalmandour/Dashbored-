@@ -349,8 +349,8 @@ export function ReminderSheet({ msg, onClose, onRemind }: { msg: ChatMessage; on
   };
   const opts = [
     ["hour", tr("بعد ساعة")],
-    ["tonight", tr("الليلة ٩")],
-    ["tomorrow", tr("بكرا ٩ الصبح")],
+    ["tonight", tr("الليلة 9")],
+    ["tomorrow", tr("بكرا 9 الصبح")],
     ["week", tr("بعد أسبوع")],
   ] as const;
   return (

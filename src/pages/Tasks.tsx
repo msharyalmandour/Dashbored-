@@ -50,7 +50,7 @@ import { addDaysISO, daysUntil, formatDateShort } from "../lib/date";
 import { groupByDue, type DueGroup } from "../lib/taskGroups";
 import { nextReminder, splitReminders } from "../lib/taskReminders";
 import { playChime } from "../lib/sound";
-import { isEn, tr } from "../lib/i18n";
+import { tr } from "../lib/i18n";
 
 const TASK_ATTACHMENTS_KEY = "nursync.taskAttachments";
 
@@ -93,7 +93,7 @@ const GROUP_DOT: Record<DueGroup<Task>["key"], string> = {
   soon: "#FFB444",
   week: "#F6F1EC",
   later: "rgba(255,255,255,.3)",
-  done: "#7FE0A6",
+  done: "#FFC777",
 };
 
 /** تاريخ اليوم بتوقيت الرياض (YYYY-MM-DD) */
@@ -101,7 +101,7 @@ const riyadhToday = () => new Date(Date.now() + 3 * 3600000).toISOString().slice
 
 const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
-/** «متأخرة يوم/يومين/٣ أيام» */
+/** «متأخرة يوم/يومين/3 أيام» */
 function lateLabel(dueDate: string) {
   const n = -daysUntil(dueDate);
   if (n <= 0) return tr("متأخرة");
@@ -116,7 +116,7 @@ function taskCount(n: number) {
   return n <= 10 ? tr("{0} مهام", num(n)) : tr("{0} مهمة", num(n));
 }
 
-const ROW_COLS = "grid-cols-[28px_minmax(0,1fr)_44px] md:grid-cols-[28px_minmax(0,1fr)_120px_110px_130px_44px]";
+const ROW_COLS = "grid-cols-[28px_minmax(0,1fr)_44px] md:grid-cols-[28px_minmax(320px,1fr)_120px_110px_130px_44px]";
 
 export default function Tasks() {
   const { currentUser, isLeader, canWrite } = useAuth();
@@ -285,7 +285,7 @@ export default function Tasks() {
   };
 
   const proofOf = (task: Task) => proofFor(task, { papers, sections });
-  // الطالب الصارم: لو المهمة لها رقم (٥ دراسات) والموجود أقل، نسأل قبل ما تنحسب خلصت
+  // الطالب الصارم: لو المهمة لها رقم (5 دراسات) والموجود أقل، نسأل قبل ما تنحسب خلصت
   const toggleDone = (task: Task) => {
     if (task.status !== "done") {
       const proof = proofOf(task);
@@ -312,6 +312,7 @@ export default function Tasks() {
   const focus =
     urgent.find((t) => t.assigneeId === currentUser?.id) ?? urgent[0] ?? open.find((t) => t.assigneeId === currentUser?.id) ?? open[0];
   const doneCount = visible.filter((t) => t.status === "done").length;
+  const unprovenCount = visible.filter((t) => t.status === "done" && proofOf(t)?.met === false).length;
   const pct = visible.length ? Math.round((doneCount / visible.length) * 100) : 0;
   const lateCount = open.filter(isLate).length;
   const tomorrowCount = open.filter((t) => !isLate(t) && t.dueDate === tomorrow).length;
@@ -450,7 +451,7 @@ export default function Tasks() {
               aria-expanded={isExpanded}
               className="flex min-h-[28px] w-full flex-wrap items-center gap-x-2 gap-y-1 text-start"
             >
-              <span className={clsx("text-[15px] font-bold", task.status === "done" && "text-[var(--ws-c-muted)] line-through decoration-white/30")} dir="auto">
+              <span className={clsx("min-w-0 max-w-full truncate text-[15px] font-bold", task.status === "done" && "text-[var(--ws-c-muted)] line-through decoration-white/30")} dir="auto" title={task.title}>
                 {task.title}
               </span>
               {task.priority === "high" && task.status !== "done" && <span className="v3-st late text-xs">{tr("أولوية عالية")}</span>}
@@ -583,11 +584,10 @@ export default function Tasks() {
         <div className="min-w-0 flex-[1_1_280px]">
           <div className="v3-eye">{tr("شغل الفريق")}</div>
           <h1 className="v3-k m-0 text-[30px] leading-snug sm:text-[38px]">{tr("مهامي")}</h1>
-          {!isEn && <div className="v3-en -mt-1">My Tasks</div>}
           <p className="v3-mut m-0 mt-1 text-[15px] sm:text-base">{tr("كل اللي عليك وعلى الفريق، مرتبة بالأقرب موعد.")}</p>
         </div>
         {isLeader && canWrite && (
-          <button type="button" onClick={() => setShowForm((s) => !s)} className="v3-bd" aria-expanded={showForm}>
+          <button type="button" onClick={() => setShowForm((s) => !s)} className="v3-bw" aria-expanded={showForm}>
             <Plus size={18} aria-hidden />
             {tr("مهمة جديدة")}
           </button>
@@ -733,7 +733,6 @@ export default function Tasks() {
         >
           <div className="min-w-0 flex-1">
             <div className="text-[13px] text-[#F3D9C4]">{tr("ركّز على هذي اليوم")}</div>
-            {!isEn && <div className="v3-en text-[#D8B9A2]">Today's focus</div>}
             {focus ? (
               <>
                 <h2 id="focus-title" className="v3-k m-0 my-1 text-[22px] leading-snug sm:text-[26px]" dir="auto">
@@ -756,7 +755,7 @@ export default function Tasks() {
             )}
           </div>
           {focus && (
-            <button type="button" className={clsx(showForm ? "v3-bd" : "v3-bw", "shrink-0")} onClick={() => openTask(focus.id)}>
+            <button type="button" className="v3-bc shrink-0" onClick={() => openTask(focus.id)}>
               {tr("افتح ←")}
             </button>
           )}
@@ -764,13 +763,20 @@ export default function Tasks() {
 
         <section className="v3-g v3-hover v3-rise flex flex-1 items-center gap-5 p-5 sm:px-6" style={rise(2)} aria-label={tr("إنجاز المهام")}>
           <div className="relative h-[84px] w-[84px] shrink-0">
-            <div className="v3-ring h-[84px] w-[84px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0}٪ مكتمل", num(pct))} />
-            <span className="v3-k absolute inset-0 grid place-items-center text-xl" aria-hidden>
-              {num(pct)}٪
+            <div className="v3-ring h-[84px] w-[84px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0} من {1} خلصت", num(doneCount), num(visible.length))} />
+            <span className="v3-k absolute inset-0 grid place-items-center text-xl" aria-hidden dir="ltr">
+              {num(doneCount)}/{num(visible.length)}
             </span>
           </div>
           <div className="min-w-0">
-            <div className="v3-k text-[17px]">{tr("خلصتوا {0} من {1} مهمة", num(doneCount), num(visible.length))}</div>
+            {/* نقول الحقيقة: الإنجاز بدون دليل ما ينحسب كأنه تمام */}
+            <div className="v3-k text-[17px]">
+              <span dir="ltr">
+                {num(doneCount)}/{num(visible.length)}
+              </span>{" "}
+              {tr("خلصت")}
+              {unprovenCount > 0 && <span className="text-[#FFC777]"> · {tr("{0} منها بدون دليل", num(unprovenCount))}</span>}
+            </div>
             <div className="mt-2 flex flex-wrap gap-2">
               {lateCount > 0 && <span className="v3-st late">{tr("{0} متأخرة", num(lateCount))}</span>}
               {tomorrowCount > 0 && <span className="v3-st doing">{tr("{0} بكرة", num(tomorrowCount))}</span>}
@@ -928,7 +934,6 @@ export default function Tasks() {
               <h2 id="load-title" className="v3-k m-0 text-base">
                 {tr("حمل الفريق")}
               </h2>
-              {!isEn && <div className="v3-en">Team workload</div>}
             </div>
             {load.length === 0 ? (
               <p className="v3-mut m-0 text-sm">{tr("أول ما ينضم أعضاء، يطلع حمل كل واحد هنا.")}</p>
@@ -978,13 +983,12 @@ export default function Tasks() {
               <h2 id="rem-title" className="v3-k m-0 text-base">
                 {tr("التذكيرات")}
               </h2>
-              {!isEn && <div className="v3-en">Reminders</div>}
             </div>
             <p className="v3-mut m-0 text-[13px] leading-relaxed">{tr("صارت جرس صغير على المهمة نفسها بدل ما تطلع كمهمة ثانية مكررة.")}</p>
             <div className="flex items-center gap-2 text-sm">
               <Bell size={16} className="shrink-0 text-[#FFB444]" aria-hidden />
               {remindersTomorrow > 0
-                ? tr("{0} تذكير بكرة الصبح ٨:٠٥", num(remindersTomorrow))
+                ? tr("{0} تذكير بكرة الصبح 8:05", num(remindersTomorrow))
                 : remindersToday > 0
                   ? tr("{0} تذكير اليوم", num(remindersToday))
                   : upcomingReminders.length > 0

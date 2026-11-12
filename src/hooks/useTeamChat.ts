@@ -208,7 +208,7 @@ export function useTeamChat() {
   const { currentUser } = useAuth();
   const [now, setNow] = useState(() => Date.now());
 
-  // «يكتب الحين…» يختفي بعد ٤ ثواني بدون إشارة جديدة
+  // «يكتب الحين…» يختفي بعد 4 ثواني بدون إشارة جديدة
   useEffect(() => {
     if (!s?.typers.length) return;
     const t = setInterval(() => setNow(Date.now()), 1500);

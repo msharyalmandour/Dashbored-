@@ -19,7 +19,7 @@ import { openAgent, setAgentContext } from "../lib/agentBus";
 import { daysUntil } from "../lib/date";
 import { isEn, tr } from "../lib/i18n";
 
-/* المقترح البحثي — ترتيب v3 (لوحة «أكتب — المقترح البحثي»): ٣ أعمدة، قسم واحد مفتوح بالمحرر.
+/* المقترح البحثي — ترتيب v3 (لوحة «أكتب — المقترح البحثي»): 3 أعمدة، قسم واحد مفتوح بالمحرر.
    ترتيب واجهة بس: نفس الحقول ونفس طريقة الحفظ (عند الخروج من الحقل) ونفس الجداول. */
 
 const PROPOSAL_ATTACHMENTS_KEY = "nursync.proposalAttachments";
@@ -267,7 +267,7 @@ export default function Proposal() {
         <WriteHeader fallbackTitle={tr("المقترح البحثي")} style={rise(0)} live={{ proposal: doneCount }} />
 
         <div className="relative grid grid-cols-1 items-start gap-[18px] lg:grid-cols-[340px_minmax(0,1fr)]">
-          {/* ١) قائمة الأقسام */}
+          {/* 1) قائمة الأقسام */}
           <SectionRail
             title={tr("أقسام المقترح")}
             items={ordered.map((s) => ({ key: s.key, label: bi(s.labelAr, s.labelEn), en: s.labelEn, done: s.status === "done" }))}
@@ -288,7 +288,7 @@ export default function Proposal() {
             }
           />
 
-          {/* ٢) المحرر + الملخص ومعلومات البحث */}
+          {/* 2) المحرر + الملخص ومعلومات البحث */}
           <div className="flex min-w-0 flex-col gap-[18px]">
             {active && (
               <EditorCard
@@ -302,7 +302,7 @@ export default function Proposal() {
                 style={rise(2)}
                 titleId="v3-sec-title"
               >
-                {/* خيط الفجوة: ٤ بطاقات تتعبّى من قسم الفجوة */}
+                {/* خيط الفجوة: 4 بطاقات تتعبّى من قسم الفجوة */}
                 {gapRelated && (
                   <div className="ws-paper-only flex-wrap gap-2">
                     {gap.gapStatement.trim() && <span className="ws-paper-chip" dir="auto">{tr("الفجوة: {0}", gap.gapStatement.trim().length > 90 ? `${gap.gapStatement.trim().slice(0, 90)}…` : gap.gapStatement.trim())}</span>}
@@ -417,7 +417,7 @@ export default function Proposal() {
                       typing.names.length > 0 ? (
                         <> · {typing.names.length === 1 ? tr("{0} يكتب الحين", typing.names[0]) : tr("{0} يكتبون الحين", typing.names.join(tr(" و")))}</>
                       ) : savedAt ? (
-                        <span className="text-[#7FE0A6]"> ✓</span>
+                        <span className="text-[#FFC777]"> ✓</span>
                       ) : null
                     }
                   />
@@ -466,7 +466,7 @@ export default function Proposal() {
                     {tr("الملخص")}
                   </h3>
                   {!isEn && <span className="text-xs text-[#ABA095]" dir="ltr">Abstract</span>}
-                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#7FE0A6" : "#ABA095" }}>
+                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#FFC777" : "#ABA095" }}>
                     {abstractWords > 0 && (
                       <>
                         <span className="wf-num">{abstractWords}</span> /{" "}

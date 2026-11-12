@@ -93,7 +93,7 @@ export default function ToolsFinder() {
         )}
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />{tr("نبحث عن دراسات تطوير وتحقق للمقاييس ونستخرج بيانات كل أداة — ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لقسم ثاني وننبّهكم لما يجهز.")}</p>
+            <Loader2 size={13} className="animate-spin" />{tr("نبحث عن دراسات تطوير وتحقق للمقاييس ونستخرج بيانات كل أداة — ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لقسم ثاني وننبّهكم لما يجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
@@ -109,7 +109,7 @@ export default function ToolsFinder() {
             </p>
           )}
           <p className="rounded-2xl bg-surface-muted px-4 py-3 text-xs leading-relaxed text-brand-950/60">
-            <b className="text-brand-950/80">{tr("كيف تقرأون البطاقة؟ ")}</b>{tr("«الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً ٠٫٧ فأكثر (Cronbach's α). وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.")}</p>
+            <b className="text-brand-950/80">{tr("كيف تقرأون البطاقة؟ ")}</b>{tr("«الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً 0٫7 فأكثر (Cronbach's α). وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.")}</p>
           <p className="text-xs text-brand-950/50">{tr("الأدوات اللي تحفظونها تنضاف لـ ")}<Link to="/tools-library" className="font-bold text-brand-600 hover:underline">{tr("مكتبة أدوات القياس")}</Link>{tr(" المشتركة.")}</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {tools.map((t, i) => (

@@ -19,7 +19,7 @@ export const Typing = () => (
   </span>
 );
 
-/** «انحفظ ✓» صغيرة تطلع لحظة الحفظ وتختفي بعد ٤ ثواني. at = وقت آخر حفظ (أو null) */
+/** «انحفظ ✓» صغيرة تطلع لحظة الحفظ وتختفي بعد 4 ثواني. at = وقت آخر حفظ (أو null) */
 export function SavedTick({ at }: { at: number | null }) {
   const [hiddenAt, setHiddenAt] = useState<number | null>(null);
   useEffect(() => {
@@ -29,7 +29,7 @@ export function SavedTick({ at }: { at: number | null }) {
   }, [at]);
   if (!at || hiddenAt === at) return null;
   return (
-    <span key={at} className="v3-saved text-xs font-bold text-[#7FE0A6]" role="status">
+    <span key={at} className="v3-saved text-xs font-bold text-[#FFC777]" role="status">
       {tr("انحفظ")}
       <CheckSvg size={12} />
     </span>

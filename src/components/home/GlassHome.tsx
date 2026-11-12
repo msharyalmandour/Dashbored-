@@ -16,7 +16,7 @@ import { isEn, tr } from "../../lib/i18n";
 
 const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
-/** عدد + المعدود: ١ قسم، ٢ قسمين، ٣–١٠ أقسام، ١١+ قسم */
+/** عدد + المعدود: 1 قسم، 2 قسمين، 3–10 أقسام، 11+ قسم */
 export const countAr = (n: number, one: string, two: string, few: string, many: string) =>
   n === 1 ? one : n === 2 ? two : n >= 3 && n <= 10 ? tr(few, num(n)) : tr(many, num(n));
 const daysWord = (n: number) => (n === 1 ? tr("يوم") : n === 2 ? tr("يومين") : n >= 3 && n <= 10 ? tr("أيام") : tr("يوم"));
@@ -119,7 +119,7 @@ export function TodoCard({
   };
 
   const dueLabel = (t: Task, kind: TodoKind) => {
-    if (kind === "done") return { text: tr("خلصت ✓"), color: "#7FE0A6" };
+    if (kind === "done") return { text: tr("خلصت ✓"), color: "#FFC777" };
     if (kind === "late") {
       const n = -daysUntil(t.dueDate, new Date(`${today}T12:00:00`));
       return { text: n <= 1 ? tr("متأخرة يوم") : n === 2 ? tr("متأخرة يومين") : n <= 10 ? tr("متأخرة {0} أيام", num(n)) : tr("متأخرة {0} يوم", num(n)), color: "#FF8A7A" };
@@ -457,7 +457,7 @@ export function MobileTiles({
           <span className="hg-num text-[46px] leading-[1.05] text-[#F2EBE3]">{weekDone}</span>
           <b className="text-base">{weekDone === 1 ? tr("مهمة") : weekDone === 2 ? tr("مهمتين") : weekDone <= 10 ? tr("مهام") : tr("مهمة")}</b>
         </div>
-        <div className="text-xs" style={{ color: weekDiff > 0 ? "#7FE0A6" : "#ABA095" }}>
+        <div className="text-xs" style={{ color: weekDiff > 0 ? "#FFC777" : "#ABA095" }}>
           {weekDiff > 0 ? tr("+{0} عن اللي قبله", num(weekDiff)) : weekDiff < 0 ? tr("{0} أقل من اللي قبله", num(-weekDiff)) : tr("نفس الأسبوع اللي قبله")}
         </div>
       </Link>
@@ -469,7 +469,7 @@ export function MobileTiles({
 
 export type JourneyStep = { key: string; label: string; state: "done" | "now" | "todo" | "deliver"; long: string; short: string; to: string };
 
-const STATE_COLOR = { done: "#7FE0A6", now: "#FFC777", todo: "#ABA095", deliver: "#FF9A3C" } as const;
+const STATE_COLOR = { done: "#FFC777", now: "#FFC777", todo: "#ABA095", deliver: "#FF9A3C" } as const;
 const XS = [750, 570, 390, 210, 30];
 
 export function JourneyCard({ steps, headerNote, style, className }: { steps: JourneyStep[]; headerNote: string; style?: CSSProperties; className?: string }) {
@@ -598,7 +598,7 @@ export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; lon
             </>
           ) : (
             <>
-              <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#7FE0A6" : s.state === "deliver" ? "#FF9A3C" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
+              <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#FFC777" : s.state === "deliver" ? "#FF9A3C" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
                 {s.short}
               </div>
               <div className="text-xs" style={{ color: s.state === "now" ? "#FF9A3C" : "#ABA095", fontWeight: s.state === "now" ? 800 : 500 }}>
@@ -651,7 +651,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
           {(
             [
               ["month", tr("شهر")],
-              ["8w", tr("٨ أسابيع")],
+              ["8w", tr("8 أسابيع")],
               ["all", tr("الكل")],
             ] as const
           ).map(([k, l]) => (
@@ -725,7 +725,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
   const side = isEn ? "left" : "right";
   return (
     <section className="hg-ai mb-5" style={style} aria-labelledby="hg-ai-title">
-      {/* البطاقات الطايرة: كمبيوتر ٤، جوال ٣ */}
+      {/* البطاقات الطايرة: كمبيوتر 4، جوال 3 */}
       {cards.slice(0, 4).map((c, i) => (
         <div key={`d${i}`} className="hg-fc hidden lg:block" aria-hidden style={{ [side]: desk[i].r, top: desk[i].top, ["--r" as string]: desk[i].rot, animationDelay: `${0.5 + i * 0.12}s` }}>
           <b>{c.title}</b>
@@ -753,7 +753,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
         <p className="m-0 mt-2 hidden text-[15px] leading-[1.8] text-[rgba(255,235,220,.75)] lg:block">{tr("الأقسام، الملفات، الدراسات، وملاحظات المشرف/ة. اكتبوا سؤالكم وهو يجاوب.")}</p>
       </div>
       <form className="hg-prompt" onSubmit={send}>
-        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر ٣ دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل وكيل Wesync")} />
+        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر 3 دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل وكيل Wesync")} />
         <div className="-mx-4 mt-2.5 flex gap-1.5 overflow-x-auto px-4 pb-0.5 lg:mx-0 lg:mt-3 lg:flex-wrap lg:gap-2 lg:overflow-visible lg:px-0">
           {suggestions.map((s) => (
             <button key={s} type="button" className="hg-sug" onClick={() => openAgent(s)}>

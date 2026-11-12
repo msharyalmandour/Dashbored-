@@ -40,7 +40,7 @@ export default function Header({
         >
           <Menu size={18} />
         </button>
-        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden", hideTitle && "hidden")}>{title}</p>
+        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden", (hideTitle || !title) && "hidden")}>{title}</p>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">

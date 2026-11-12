@@ -38,7 +38,7 @@ const DEFAULT_IMAGE_PROMPT = tr("اشرح لي هذي الصورة");
 
 // أسئلة "الكوتش" — تعتمد على لقطة وضع الفريق اللي يقرأها المساعد من القاعدة
 const coachPrompts = [
-  tr("وش أهم ٣ أشياء نسويها هالأسبوع؟"),
+  tr("وش أهم 3 أشياء نسويها هالأسبوع؟"),
   tr("قيّمي وضعنا: وين متأخرين وين ماشيين تمام؟"),
   tr("مين عنده مهام متأخرة، وكيف نعيد التوازن؟"),
   tr("جهّزيني لاجتماع الفريق الجاي"),
@@ -252,7 +252,7 @@ export default function AiAssistant() {
         aria-label={ctxLabel ? tr("الكوتش · {0}", ctxLabel) : tr("وكيل Wesync")}
         title={tr("وكيل Wesync — أنتم في: {0}", ctxLabel ?? place.label)}
         data-learn="agent"
-        className={`fixed bottom-6 start-6 z-40 hidden items-center gap-2.5 rounded-full transition-transform hover:scale-[1.03] print:hidden ${open ? "" : "md:flex"}`}
+        className={`fixed bottom-6 start-6 md:start-[280px] z-40 hidden items-center gap-2.5 rounded-full transition-transform hover:scale-[1.03] print:hidden ${open ? "" : "md:flex"}`}
       >
         <AgentOrb size={56} state={loading ? "thinking" : "idle"} symbol={<AgentWave size={24} color="#1A0802" />} />
         {ctxLabel && (

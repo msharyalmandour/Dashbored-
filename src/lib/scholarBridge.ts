@@ -17,7 +17,7 @@ export function extractDois(text: string): string[] {
   return [...new Set(clean)];
 }
 
-/** أسطر نصية تبدو عناوين دراسات (بدون DOI) — سطر ≥ ٣٠ حرف */
+/** أسطر نصية تبدو عناوين دراسات (بدون DOI) — سطر ≥ 30 حرف */
 export function extractTitleLines(text: string): string[] {
   return text
     .split(/\r?\n/)
@@ -45,7 +45,7 @@ interface CrossrefWork {
 
 const strip = (s: string) => s.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 
-/** «Family G» لكل مؤلف (أول ٦ ثم et al.) */
+/** «Family G» لكل مؤلف (أول 6 ثم et al.) */
 export function crossrefToPaper(w: CrossrefWork): ResolvedPaper | null {
   const title = strip(w.title?.[0] ?? "");
   if (!title) return null;

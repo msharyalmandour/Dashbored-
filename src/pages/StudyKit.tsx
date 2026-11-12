@@ -73,7 +73,7 @@ export default function StudyKit() {
   const [template, setTemplate] = useState<TemplateId>("consent-ar");
   const [university, setUniversity] = useState(tr("جامعة الملك عبدالعزيز — كلية التمريض"));
   const [toolName, setToolName] = useState("");
-  const [duration, setDuration] = useState(tr("١٠–١٥ دقيقة"));
+  const [duration, setDuration] = useState(tr("10–15 دقيقة"));
   const [contactEmail, setContactEmail] = useState("");
   const [text, setText] = useState("");
   const [copied, setCopied] = useState(false);

@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 
 /** «فلان يكتب الحين» بمحرر الكتابة: إشارة لحظية عبر Supabase Realtime (broadcast) — ما تنحفظ بأي مكان.
-    ping() تنادى مع الكتابة (بحد أقصى مرة كل ٢ ثانية)، والاسم يختفي بعد ٤ ثواني من آخر إشارة. */
+    ping() تنادى مع الكتابة (بحد أقصى مرة كل 2 ثانية)، والاسم يختفي بعد 4 ثواني من آخر إشارة. */
 export function useTypingPresence(spot: string) {
   const { team, currentUser, mode } = useAuth();
   const [typers, setTypers] = useState<Record<string, { name: string; at: number }>>({});

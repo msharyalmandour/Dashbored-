@@ -20,8 +20,8 @@ import { PRINCIPLE_KEYS, ethicsStepsDone, principlesAnswered } from "../lib/writ
 import type { EthicalAttachments, EthicalApproval, EthicalPrincipleAnswer, EthicalPrinciples, PiType } from "../data/types";
 import { isEn, tr, trx } from "../lib/i18n";
 
-/* الموافقة الأخلاقية — ترتيب v3 (لوحة «أكتب — الموافقة الأخلاقية»): بطاقة الطلب، شريط ٤ خطوات، قسم واحد بكل مرة،
-   والمبادئ الـ١٣ بمجموعات. ترتيب واجهة بس: نفس الحقول ونفس الحفظ ونفس تصدير Word. */
+/* الموافقة الأخلاقية — ترتيب v3 (لوحة «أكتب — الموافقة الأخلاقية»): بطاقة الطلب، شريط 4 خطوات، قسم واحد بكل مرة،
+   والمبادئ الـ13 بمجموعات. ترتيب واجهة بس: نفس الحقول ونفس الحفظ ونفس تصدير Word. */
 
 /** حقل يُحفظ عند الخروج منه فقط — نفس السلوك السابق */
 function Field({
@@ -83,13 +83,13 @@ const QUESTION: Record<keyof EthicalPrinciples, string> = {
   harmInformed: "هل سيُخبَر المشاركون بأي ضرر محتمل من المشاركة؟",
   confidentialityGuaranteed: "هل ستُضمَن سرية بيانات المشاركين؟",
   anonymityGuaranteed: "هل ستُضمَن إخفاء هوية المشاركين؟",
-  vulnerableGroupsInformed: "لو شمل البحث فئات مستضعفة (أطفال دون ١٨، كبار السن، ...) — هل سيُخبَرون أنهم يقدرون يتجاوزون أي سؤال ما يرغبون بالإجابة عليه؟",
+  vulnerableGroupsInformed: "لو شمل البحث فئات مستضعفة (أطفال دون 18، كبار السن، ...) — هل سيُخبَرون أنهم يقدرون يتجاوزون أي سؤال ما يرغبون بالإجابة عليه؟",
   interviewNoExplanationNeeded: "لو تضمّن البحث مقابلات — هل سيُخبَر المشاركون أنهم غير مُلزَمين بالإجابة على أي سؤال بدون تفسير؟",
   safeDataStorage: "هل تم تأمين تخزين آمن للبيانات؟",
   willPublish: "هل سينشر الباحث/ون نتائج البحث؟",
 };
 
-/** المجموعات بنفس ترتيب النموذج الرسمي (الترقيم ١–١٣ يبقى ثابت) */
+/** المجموعات بنفس ترتيب النموذج الرسمي (الترقيم 1–13 يبقى ثابت) */
 const GROUPS: { id: string; ar: string; en: string; keys: (keyof EthicalPrinciples)[] }[] = [
   { id: "consent", ar: "الموافقة المستنيرة", en: "Informed consent", keys: PRINCIPLE_KEYS.slice(0, 7) },
   { id: "privacy", ar: "الخصوصية", en: "Privacy", keys: PRINCIPLE_KEYS.slice(7, 9) },
@@ -98,7 +98,7 @@ const GROUPS: { id: string; ar: string; en: string; keys: (keyof EthicalPrincipl
 ];
 
 const ANSWERS: { v: Exclude<EthicalPrincipleAnswer, null>; label: string; on: CSSProperties }[] = [
-  { v: "yes", label: "نعم", on: { background: "#7FE0A6", color: "#160904" } },
+  { v: "yes", label: "نعم", on: { background: "#FFC777", color: "#160904" } },
   { v: "no", label: "لا", on: { background: "#FF8A7A", color: "#160904" } },
   { v: "na", label: "لا ينطبق", on: { background: "rgba(255,255,255,.22)", color: "#F6F1EC" } },
 ];
@@ -119,7 +119,7 @@ const outcomeLabel: Record<string, string> = {
 };
 
 type StepId = 1 | 2 | 3 | 4;
-/** تسلسل التنقل: الخطوة ٣ تمشي على مجموعات المبادئ وحدة وحدة */
+/** تسلسل التنقل: الخطوة 3 تمشي على مجموعات المبادئ وحدة وحدة */
 type Stop = { step: StepId; group?: number };
 const STOPS: Stop[] = [{ step: 1 }, { step: 2 }, ...GROUPS.map((_, g) => ({ step: 3 as StepId, group: g })), { step: 4 }];
 
@@ -487,7 +487,7 @@ export default function EthicalApprovalPage() {
                 </div>
                 <div className="wf-kv">
                   <span>{tr("النتيجة")}</span>
-                  <b style={{ color: ea.outcome === "granted" ? "#7FE0A6" : ea.outcome === "rejected" ? "#FF8A7A" : "#ABA095" }}>{tr(outcomeLabel[ea.outcome] ?? outcomeLabel.pending)}</b>
+                  <b style={{ color: ea.outcome === "granted" ? "#FFC777" : ea.outcome === "rejected" ? "#FF8A7A" : "#ABA095" }}>{tr(outcomeLabel[ea.outcome] ?? outcomeLabel.pending)}</b>
                 </div>
               </div>
             </section>

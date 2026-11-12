@@ -41,7 +41,7 @@ export default function AcademyCoach() {
     setOpen(true);
   }, [active, location.pathname]);
 
-  // نفحص الشغل: على تغيّر الصفحة، وكل ٦ ثواني طول ما الدرس شغّال
+  // نفحص الشغل: على تغيّر الصفحة، وكل 6 ثواني طول ما الدرس شغّال
   useEffect(() => {
     if (!active) return;
     refresh(true);

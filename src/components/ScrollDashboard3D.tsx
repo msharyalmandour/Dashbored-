@@ -57,7 +57,7 @@ function Frame({ src, alt, chip }: { src: string; alt: string; chip?: string }) 
         <div className="flex items-center gap-1.5 border-b border-white/10 bg-neutral-800/80 px-3.5 py-2">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FFC777]" />
         </div>
         <img src={src} alt={alt} decoding="async" className="block w-full" draggable={false} />
       </div>
@@ -110,7 +110,7 @@ function PlanCards() {
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[11px] font-bold text-amber-300">{trx("أول ١٥ فريق: المساعد بـ{0} ريال بس", AI_ADDON_FOUNDER)}</p>
+        <p className="mt-2 text-[11px] font-bold text-amber-300">{trx("أول 15 فريق: المساعد بـ{0} ريال بس", AI_ADDON_FOUNDER)}</p>
       </div>
     </div>
   );
@@ -262,7 +262,7 @@ export default function ScrollDashboard3D() {
                 <Link
                   to="/login"
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-extrabold text-neutral-950 shadow-[0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-transform hover:scale-[1.04]"
-                >{tr("ابدأوا مجانًا ١٤ يوم")}<ArrowLeft size={15} />
+                >{tr("ابدأوا مجانًا 14 يوم")}<ArrowLeft size={15} />
                 </Link>
                 <a href="#pricing" className="text-xs font-bold text-white/60 underline underline-offset-4 hover:text-amber-300">{tr("قارنوا كل التفاصيل")}</a>
               </div>

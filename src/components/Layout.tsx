@@ -106,7 +106,8 @@ export default function Layout() {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  const title = titles[location.pathname] ?? "Wesync";
+  // FixList 12: الشعار بالقائمة بس — الصفحات بدون عنوان ما تكرر «Wesync» بالشريط العلوي
+  const title = titles[location.pathname] ?? "";
   const showReadOnlyBanner = mode === "supabase" && !canWrite;
   const showTrialBanner =
     mode === "supabase" && canWrite && team?.isOnTrial && subscriptionState === "expiring-soon";

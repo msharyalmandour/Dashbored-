@@ -4,7 +4,7 @@ import { GoogleDriveLogo } from "./BrandLogos";
 import { driveNotice, useDriveNotice } from "../../lib/driveNotice";
 import { tr } from "../../lib/i18n";
 
-/** إشعار الرفع لدرايف: ينزل من فوق ← شريط تقدّم ← أيقونة الملف تطير لشعار درايف ← ✓ خضراء ← النتيجة، ويختفي بعد ٤ ثواني */
+/** إشعار الرفع لدرايف: ينزل من فوق ← شريط تقدّم ← أيقونة الملف تطير لشعار درايف ← ✓ خضراء ← النتيجة، ويختفي بعد 4 ثواني */
 export default function DriveNotice() {
   const n = useDriveNotice();
   const [flown, setFlown] = useState(false);

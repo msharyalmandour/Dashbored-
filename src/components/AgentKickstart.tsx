@@ -188,10 +188,10 @@ export default function AgentKickstart() {
         <div className="mt-6 space-y-6">
           {result.noveltyNote && <p className="rounded-2xl bg-black/25 px-4 py-3 text-sm text-brand-950/70">💡 {result.noveltyNote}</p>}
 
-          {/* ١. الدراسات */}
+          {/* 1. الدراسات */}
           <section>
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="font-display text-base font-bold text-brand-950">{trx("١. دراسات قريبة من موضوعكم ({0})", result.papers.length)}</h3>
+              <h3 className="font-display text-base font-bold text-brand-950">{trx("1. دراسات قريبة من موضوعكم ({0})", result.papers.length)}</h3>
               <Approve section="papers" onClick={savePapers} label={tr("احفظوا المختارة بمكتبتكم")} disabled={result.papers.every((_, i) => skipPaper[i])} />
             </div>
             <ul className="space-y-2">
@@ -212,11 +212,11 @@ export default function AgentKickstart() {
             </ul>
           </section>
 
-          {/* ٢. الفجوة */}
+          {/* 2. الفجوة */}
           {result.gap && (result.gap.whatWeKnow.length > 0 || result.gap.whatWeDontKnow.length > 0 || result.gap.gapStatement) && (
             <section>
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-display text-base font-bold text-brand-950">{tr("٢. مسودة الفجوة البحثية")}</h3>
+                <h3 className="font-display text-base font-bold text-brand-950">{tr("2. مسودة الفجوة البحثية")}</h3>
                 <Approve section="gap" onClick={saveGap} label={tr("أضيفوها لقسم الفجوة")} />
               </div>
               <div className="grid gap-3 md:grid-cols-2">
@@ -248,10 +248,10 @@ export default function AgentKickstart() {
             </section>
           )}
 
-          {/* ٣. الأسئلة */}
+          {/* 3. الأسئلة */}
           <section>
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="font-display text-base font-bold text-brand-950">{trx("٣. أسئلة بحث مبنية على الدراسات ({0})", result.questions.length)}</h3>
+              <h3 className="font-display text-base font-bold text-brand-950">{trx("3. أسئلة بحث مبنية على الدراسات ({0})", result.questions.length)}</h3>
               <Approve section="questions" onClick={saveQuestions} label={tr("أضيفوا المختارة لأسئلة البحث")} disabled={result.questions.every((_, i) => skipQuestion[i])} />
             </div>
             <ul className="space-y-2">
@@ -269,11 +269,11 @@ export default function AgentKickstart() {
             </ul>
           </section>
 
-          {/* ٤. المهام */}
+          {/* 4. المهام */}
           {result.tasks && result.tasks.length > 0 && (
             <section>
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-display text-base font-bold text-brand-950">{trx("٤. خطواتكم الجاية ({0})", result.tasks.length)}</h3>
+                <h3 className="font-display text-base font-bold text-brand-950">{trx("4. خطواتكم الجاية ({0})", result.tasks.length)}</h3>
                 {isLeader ? (
                   <Approve section="tasks" onClick={saveTasks} label={tr("حوّلوها لمهام")} disabled={result.tasks.every((_, i) => skipTask[i])} />
                 ) : (

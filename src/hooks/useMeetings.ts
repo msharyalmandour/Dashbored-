@@ -30,8 +30,8 @@ export function meetingErrorMessage(raw: string | undefined): string {
   const m = raw ?? "";
   if (m.includes("already booked")) return tr("هذا الموعد محجوز عندكم مسبقًا.");
   if (m.includes("outside availability")) return tr("هذا الوقت خارج أوقات المشرف/ة المتاحة. اختاروا وقتًا من القائمة.");
-  if (m.includes("too many bookings")) return tr("عندكم ٥ مواعيد معلّقة أو مؤكدة، ألغوا واحدًا أول.");
-  if (m.includes("bad date")) return tr("التاريخ لازم يكون من اليوم إلى ٦٠ يومًا قادمة.");
+  if (m.includes("too many bookings")) return tr("عندكم 5 مواعيد معلّقة أو مؤكدة، ألغوا واحدًا أول.");
+  if (m.includes("bad date")) return tr("التاريخ لازم يكون من اليوم إلى 60 يومًا قادمة.");
   if (m.includes("not allowed")) return tr("اشتراك الفريق منتهي أو ما عندكم صلاحية الكتابة.");
   return tr("صار خطأ — حاولوا مرة ثانية.");
 }

@@ -24,8 +24,8 @@ function sectionContent(sections: ProposalSectionRow[], key: ProposalSectionRow[
 
 /** يبني وثيقة Word حقيقية (.docx) من بيانات المقترح البحثي كاملة، بنفس
     ترتيب وعناوين نموذج المقترح الرسمي لكلية التمريض بالضبط (غلاف → ملخص →
-    ١.الخلفية ومراجعة الأدبيات → ٢.مشكلة البحث → ٣.هدف الدراسة → ٤.سؤال
-    البحث → ٥.المنهجية → قائمة المراجع) — ملف قابل للتعديل الكامل بوورد
+    1.الخلفية ومراجعة الأدبيات → 2.مشكلة البحث → 3.هدف الدراسة → 4.سؤال
+    البحث → 5.المنهجية → قائمة المراجع) — ملف قابل للتعديل الكامل بوورد
     (خلاف تصدير PDF اللي مجرد طباعة ثابتة)، عشان المشرفة تقدر تعلّق وتعدّل
     وتتبّع التغييرات مباشرة.
     مكتبة docx ثقيلة (~350 كيلوبايت) ونادر إنها تُستخدم أصلاً، فنحمّلها
@@ -165,30 +165,30 @@ async function buildProposalOfficial(input: WordExportInput): Promise<Blob> {
           arHeading(tre("الملخص — Abstract"), HeadingLevel.HEADING_1),
           narrative(input.abstract),
 
-          // ١. الخلفية ومراجعة الأدبيات
-          arHeading(tre("١. الخلفية ومراجعة الأدبيات — Background and Literature Review"), HeadingLevel.HEADING_1),
+          // 1. الخلفية ومراجعة الأدبيات
+          arHeading(tre("1. الخلفية ومراجعة الأدبيات — Background and Literature Review"), HeadingLevel.HEADING_1),
           narrative(sectionContent(input.sections, "background")),
           narrative(sectionContent(input.sections, "literature-review")),
 
-          // ٢. مشكلة البحث (مع الفجوة البحثية)
-          arHeading(tre("٢. مشكلة البحث — Statement of Problem"), HeadingLevel.HEADING_1),
+          // 2. مشكلة البحث (مع الفجوة البحثية)
+          arHeading(tre("2. مشكلة البحث — Statement of Problem"), HeadingLevel.HEADING_1),
           narrative(sectionContent(input.sections, "problem")),
           ...(input.researchGap.gapStatement.trim()
             ? [ar(tre("الفجوة البحثية:"), { bold: true, size: 22 }), narrative(input.researchGap.gapStatement)]
             : []),
 
-          // ٣. هدف الدراسة
-          arHeading(tre("٣. هدف الدراسة — Purpose of the Study"), HeadingLevel.HEADING_1),
+          // 3. هدف الدراسة
+          arHeading(tre("3. هدف الدراسة — Purpose of the Study"), HeadingLevel.HEADING_1),
           narrative(input.studyAim.statement),
 
-          // ٤. سؤال البحث
-          arHeading(tre("٤. سؤال البحث — Research Question"), HeadingLevel.HEADING_1),
+          // 4. سؤال البحث
+          arHeading(tre("4. سؤال البحث — Research Question"), HeadingLevel.HEADING_1),
           ...(input.researchQuestions.length > 0
             ? input.researchQuestions.map((q) => ar(`${q.order}. ${q.text}`))
             : [ar(tre("لم تتم صياغتها بعد."), { color: "999999" })]),
 
-          // ٥. المنهجية
-          arHeading(tre("٥. المنهجية — Methods"), HeadingLevel.HEADING_1),
+          // 5. المنهجية
+          arHeading(tre("5. المنهجية — Methods"), HeadingLevel.HEADING_1),
           ...fieldBlock(tre("أ. تصميم الدراسة — Design"), input.methodology.studyDesign),
           ...fieldBlock(tre("ب. مكان الدراسة — Setting"), input.methodology.studySetting),
           ...fieldBlock(tre("مجتمع الدراسة — Population"), input.methodology.population),
@@ -237,23 +237,23 @@ async function buildProposalDark(input: WordExportInput): Promise<Blob> {
     k.heading(tre("الملخص — Abstract")),
     ...k.narrative(input.abstract),
 
-    k.heading(tre("الخلفية ومراجعة الأدبيات — Background and Literature Review"), tre("١")),
+    k.heading(tre("الخلفية ومراجعة الأدبيات — Background and Literature Review"), tre("1")),
     ...k.narrative(sectionContent(input.sections, "background")),
     ...k.narrative(sectionContent(input.sections, "literature-review")),
 
-    k.heading(tre("مشكلة البحث — Statement of Problem"), tre("٢")),
+    k.heading(tre("مشكلة البحث — Statement of Problem"), tre("2")),
     ...k.narrative(sectionContent(input.sections, "problem")),
     ...(gap ? [k.para([k.run("")], { after: 60 }), k.callout(tre("الفجوة البحثية — Research Gap"), gap)] : []),
 
-    k.heading(tre("هدف الدراسة — Purpose of the Study"), tre("٣")),
+    k.heading(tre("هدف الدراسة — Purpose of the Study"), tre("3")),
     ...k.narrative(input.studyAim.statement),
 
-    k.heading(tre("سؤال البحث — Research Question"), tre("٤")),
+    k.heading(tre("سؤال البحث — Research Question"), tre("4")),
     ...(input.researchQuestions.length > 0
       ? input.researchQuestions.map((q) => k.para([k.run(`${q.order}.  `, { bold: true, color: C.ember }), k.run(q.text)]))
       : k.empty(tre("لم تتم صياغتها بعد."))),
 
-    k.heading(tre("المنهجية — Methods"), tre("٥")),
+    k.heading(tre("المنهجية — Methods"), tre("5")),
     k.label(tre("أ. تصميم الدراسة — Design")),
     ...k.narrative(input.methodology.studyDesign),
     k.label(tre("ب. مكان الدراسة — Setting")),

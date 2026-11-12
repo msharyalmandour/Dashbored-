@@ -171,7 +171,7 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
         ys.push(y);
       }
     }
-    if (xs.length < 5) return { error: tr("الردود المكتملة للمتغيرين أقل من ٥ — اجمعوا ردود أكثر.") };
+    if (xs.length < 5) return { error: tr("الردود المكتملة للمتغيرين أقل من 5 — اجمعوا ردود أكثر.") };
     if (new Set(xs).size < 2 || new Set(ys).size < 2) return { error: tr("أحد المتغيرين كل إجاباته متطابقة، فما يمدي نحسب ارتباط.") };
     const method = a.ordinal || b.ordinal ? "spearman" : "pearson";
     const r = correlation(xs, ys, method);
@@ -199,7 +199,7 @@ export function runPlan(plan: AskPlan, cols: AskColumn[], qs: Question[], respon
         bv.push(y);
       }
     }
-    if (av.length < 10) return { error: tr("الردود المكتملة أقل من ١٠ — اجمعوا ردود أكثر لاختبار العلاقة.") };
+    if (av.length < 10) return { error: tr("الردود المكتملة أقل من 10 — اجمعوا ردود أكثر لاختبار العلاقة.") };
     const r = chiSquare(av, bv);
     if (!Number.isFinite(r.chi2)) return { error: tr("الجدول ما يسمح بحساب مربع كاي (فئة وحدة فقط بأحد السؤالين؟).") };
     const i = interpretChi(r, a.label, b.label);

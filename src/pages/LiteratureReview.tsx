@@ -16,7 +16,8 @@ const themeOrder: LiteratureTheme[] = [
   "Patient Outcomes",
 ];
 
-const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tre("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
+/** أرقام غربية 0–9 بكل مكان */
+const arDigit = (n: number) => String(n);
 
 export default function LiteratureReview() {
   const { papers } = useEvidencePapers();

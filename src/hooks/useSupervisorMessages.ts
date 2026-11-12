@@ -35,7 +35,7 @@ const mockMessages: SupervisorMessage[] = [
     id: "mock-1",
     sender: "supervisor",
     senderName: tr("د. المشرفة"),
-    body: tr("راجعوا صياغة الفجوة البحثية، وأضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات. وضّحوا معايير الاشتمال والاستبعاد قبل الاجتماع الجاي."),
+    body: tr("راجعوا صياغة الفجوة البحثية، وأضيفوا 3 دراسات سعودية حديثة لمراجعة الأدبيات. وضّحوا معايير الاشتمال والاستبعاد قبل الاجتماع الجاي."),
     createdAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
     readAt: null,
   },
@@ -84,7 +84,7 @@ export function useSupervisorMessages() {
   const reply = async (body: string): Promise<{ error?: string }> => {
     const text = body.trim();
     if (!text) return {};
-    if (text.length > 1500) return { error: tr("الرسالة طويلة — الحد ١٥٠٠ حرف.") };
+    if (text.length > 1500) return { error: tr("الرسالة طويلة — الحد 1500 حرف.") };
     if (!isSupabaseConfigured || !teamId || !currentUser) {
       setMessages((prev) => [
         ...prev,

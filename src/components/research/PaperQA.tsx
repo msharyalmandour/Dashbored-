@@ -79,7 +79,7 @@ export default function PaperQA({
       return;
     }
     if (file.size > MAX_PDF_BYTES) {
-      setError(tr("الـ PDF أكبر من ٥ ميجا — جربوا ملف أصغر."));
+      setError(tr("الـ PDF أكبر من 5 ميجا — جربوا ملف أصغر."));
       return;
     }
     setError(null);
@@ -140,7 +140,7 @@ export default function PaperQA({
             <input ref={fileRef} type="file" accept="application/pdf" onChange={onPick} className="hidden" />
             <button
               onClick={() => fileRef.current?.click()}
-              title={tr("ارفعوا PDF للدراسة (حتى ٥ ميجا)")}
+              title={tr("ارفعوا PDF للدراسة (حتى 5 ميجا)")}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-brand-100 bg-paper text-brand-950/50 hover:bg-brand-50"
             >
               <FileUp size={15} />

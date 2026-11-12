@@ -71,7 +71,7 @@ interface Snapshot {
 }
 
 const filled = (v: unknown) => (Array.isArray(v) ? v.length > 0 : !!v && !!String(v).trim());
-/** نفس METHOD_READY بالتطبيق (٧ أجزاء) على شكل بيانات التقرير */
+/** نفس METHOD_READY بالتطبيق (7 أجزاء) على شكل بيانات التقرير */
 const methodReady = (m: SnapshotMethodology) =>
   m
     ? [m.studyDesign, m.studySetting, m.population, filled(m.samplingInclusion) && filled(m.sampleSize) && filled(m.samplingTechnique), m.dataCollectionMethods, m.dataAnalysis, m.ethicalConsiderations].filter(filled).length
@@ -234,7 +234,7 @@ export default function SupervisorView() {
     if (token && snapshot && threadLoaded && !seenBefore) saveSeen(token, buildSeen(snapshot, thread.filter((m) => m.sender === "team").length));
   }, [token, snapshot, threadLoaded, seenBefore, thread]);
 
-  // لو ظلت الصفحة مفتوحة ٥ دقايق نعتبرها «مقروءة» حتى لو ما ضغطت الزر
+  // لو ظلت الصفحة مفتوحة 5 دقايق نعتبرها «مقروءة» حتى لو ما ضغطت الزر
   useEffect(() => {
     if (!token || !snapshot || !threadLoaded) return;
     const t = setTimeout(() => saveSeen(token, buildSeen(snapshot, thread.filter((m) => m.sender === "team").length)), 5 * 60_000);
@@ -458,7 +458,7 @@ export default function SupervisorView() {
   return (
     <div className="sv-page pb-[120px]">
       <div className="sv-col">
-        {/* ١) الشريط العلوي */}
+        {/* 1) الشريط العلوي */}
         <header className="sv-top">
           <span className="sv-orb" aria-hidden />
           <span className="sv-brand">Wesync</span>
@@ -474,7 +474,7 @@ export default function SupervisorView() {
           </Link>
         </header>
 
-        {/* ٢) الترحيب */}
+        {/* 2) الترحيب */}
         <p className="sv-hello m-0">{greeting}</p>
         <h1 className="sv-name">{nameDone ? nameDraft.trim() : tr("أهلًا بكم")}</h1>
         <p className="sv-sub m-0">{leaderFirst ? trx("هذا وضع فريق {0} · {1}", <b key="l">{leaderFirst}</b>, studentsLabel(snapshot.members.length)) : studentsLabel(snapshot.members.length)}</p>
@@ -484,7 +484,7 @@ export default function SupervisorView() {
         {/* إيصالات طلباتها + أثر ملاحظاتها + سجل الوعود */}
         {token && <SvCommitments token={token} name={nameDraft.trim()} teamName={snapshot.teamName} openTarget={openTarget} onToast={setToast} onPending={setReceiptPending} />}
 
-        {/* ٣) موضوع البحث */}
+        {/* 3) موضوع البحث */}
         {title && (
           <section className="hg-card sv-card mt-6" style={rise()} aria-label={tr("موضوع البحث")}>
             <h2 className="sv-topic-t" dir={hasArabic ? "rtl" : "auto"}>
@@ -520,7 +520,7 @@ export default function SupervisorView() {
           </section>
         )}
 
-        {/* ٤) تنتظركم */}
+        {/* 4) تنتظركم */}
         <section className="sv-sec" aria-labelledby="sv-h-wait">
           <h2 id="sv-h-wait" className="sv-h">
             <Inbox size={19} />
@@ -534,7 +534,7 @@ export default function SupervisorView() {
 
         {token && <SvTimePanel token={token} name={nameDraft.trim()} openTarget={openTarget} primary={!receiptPending && waitingCount === 0} onToast={setToast} />}
 
-        {/* ٥) وضع الفريق */}
+        {/* 5) وضع الفريق */}
         <section className="sv-sec" aria-labelledby="sv-h-status">
           <h2 id="sv-h-status" className="sv-h">
             <Gauge size={19} />
@@ -573,7 +573,7 @@ export default function SupervisorView() {
           </div>
         </section>
 
-        {/* ٦) الفريق */}
+        {/* 6) الفريق */}
         <section className="sv-sec" aria-labelledby="sv-h-team">
           <h2 id="sv-h-team" className="sv-h">
             <Users size={19} />
@@ -605,7 +605,7 @@ export default function SupervisorView() {
           </div>
         </section>
 
-        {/* ٧) المستندات */}
+        {/* 7) المستندات */}
         <section className="sv-sec" aria-labelledby="sv-h-docs">
           <h2 id="sv-h-docs" className="sv-h">
             <FileText size={19} />
@@ -639,7 +639,7 @@ export default function SupervisorView() {
           </div>
         </section>
 
-        {/* ٨) المهام */}
+        {/* 8) المهام */}
         <section className="sv-sec" aria-labelledby="sv-h-tasks">
           <h2 id="sv-h-tasks" className="sv-h">
             <ListChecks size={19} />
@@ -697,7 +697,7 @@ export default function SupervisorView() {
           )}
         </section>
 
-        {/* ٩) جهّزوا صفحتكم */}
+        {/* 9) جهّزوا صفحتكم */}
         {!setupFirst && <div className="sv-sec">{setupStrip}</div>}
 
         <div className="sv-sec flex justify-center">
@@ -710,7 +710,7 @@ export default function SupervisorView() {
         <p className="mt-8 text-center text-[12px] text-[#ABA095]">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
       </div>
 
-      {/* ١٠) Dock */}
+      {/* 10) Dock */}
       <nav className="sv-dock" aria-label={tr("إجراءات سريعة")}>
         <button className={`sv-btn ${receiptPending ? "pri" : "orange"}`} onClick={() => setSheet("note")} aria-haspopup="dialog">
           {tr("ملاحظة للفريق")}

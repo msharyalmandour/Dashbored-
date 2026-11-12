@@ -71,7 +71,7 @@ function Spinner({ light = false }: { light?: boolean }) {
   return <span className={`wsa-spin${light ? " light" : ""}`} aria-hidden="true" />;
 }
 
-/** كرة Wesync تتنفس + ٣ نقاط تنط — لما التفعيل ياخذ أكثر من ثانية */
+/** كرة Wesync تتنفس + 3 نقاط تنط — لما التفعيل ياخذ أكثر من ثانية */
 function Preparing() {
   return (
     <div className="mt-2.5 flex items-center gap-2.5 ps-12 text-[13px]" role="status">
@@ -121,7 +121,7 @@ function SkeletonRows() {
   );
 }
 
-/** نافذة «وريني الخطوات بالصور» — ٣ لقطات آيفون من التصميم */
+/** نافذة «وريني الخطوات بالصور» — 3 لقطات آيفون من التصميم */
 function IosStepsModal({ onClose }: { onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -160,7 +160,7 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 sm:justify-center">
-          <Phone caption={tr("١ اضغطوا زر المشاركة")}>
+          <Phone caption={tr("1 اضغطوا زر المشاركة")}>
             <div className="wsa-s absolute inset-x-4 top-14 text-center" dir="ltr">
               wesyncapp.com
             </div>
@@ -172,7 +172,7 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
               <span className="h-4 w-4 rounded-[3px] border-2" style={{ borderColor: "#8F857C" }} />
             </div>
           </Phone>
-          <Phone caption={tr("٢ «إضافة إلى الشاشة الرئيسية»")}>
+          <Phone caption={tr("2 «إضافة إلى الشاشة الرئيسية»")}>
             <div className="absolute inset-x-0 bottom-0 rounded-t-[18px] p-3" style={{ background: "rgba(36,34,34,.97)" }}>
               <div className="border-b px-1.5 py-2 text-xs" style={{ borderColor: "rgba(255,255,255,.08)", color: "#ccc" }}>
                 {tr("نسخ")}
@@ -186,7 +186,7 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           </Phone>
-          <Phone caption={tr("٣ افتحوه من الأيقونة وفعّلوا")}>
+          <Phone caption={tr("3 افتحوه من الأيقونة وفعّلوا")}>
             <div className="absolute inset-x-0 top-14 grid grid-cols-4 gap-x-1 gap-y-2.5 px-2">
               {Array.from({ length: 6 }, (_, i) => (
                 <div key={i} className="mx-auto h-8 w-8 rounded-[9px]" style={{ background: "rgba(255,255,255,.1)" }} />
@@ -273,7 +273,7 @@ export default function AlertsCard() {
     return () => clearTimeout(t);
   }, [loading]);
 
-  // رسالة إطفاء الإيميل تختفي بعد ٣ ثواني
+  // رسالة إطفاء الإيميل تختفي بعد 3 ثواني
   useEffect(() => {
     if (emailMsg?.kind !== "ok") return;
     const t = setTimeout(() => setEmailMsg(null), 3000);
@@ -408,12 +408,12 @@ export default function AlertsCard() {
                 {state === "ios-install" && (
                   <>
                     <div className="mt-3 flex flex-wrap gap-2 ps-12">
-                      <span className="wsa-chip off step">{tr("١ افتحوه بسفاري")}</span>
+                      <span className="wsa-chip off step">{tr("1 افتحوه بسفاري")}</span>
                       <span className="wsa-chip off step">
-                        {tr("٢")} <ShareIcon /> {tr("مشاركة")}
+                        {tr("2")} <ShareIcon /> {tr("مشاركة")}
                       </span>
                       <span className="wsa-chip off step">
-                        {tr("٣")} <AddHomeIcon /> {tr("الشاشة الرئيسية")}
+                        {tr("3")} <AddHomeIcon /> {tr("الشاشة الرئيسية")}
                       </span>
                     </div>
                     <div className="ps-12">

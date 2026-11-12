@@ -54,7 +54,7 @@ export async function setCommitmentImportant(id: string, important: boolean) {
 
 /** ملف الإثبات للإيصال: يرتفع لحاوية drops الخاصة تحت مجلد الفريق */
 export async function attachProof(teamId: string, id: string, file: File) {
-  if (file.size > 25 * 1024 * 1024) return { error: tr("الحد ٢٥ ميغا للملف.") };
+  if (file.size > 25 * 1024 * 1024) return { error: tr("الحد 25 ميغا للملف.") };
   const ext = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "bin";
   const path = `${teamId}/receipts/${id}/${Date.now().toString(36)}.${ext}`;
   const up = await db().storage.from("drops").upload(path, file, { contentType: file.type || "application/octet-stream", upsert: false });
@@ -130,7 +130,7 @@ export function statusLabel(c: Pick<Commitment, "status" | "receipt_sent_at" | "
   return { text: "", tone: "muted" };
 }
 
-/** «قبل الموعد بـ ١٩ ساعة» / «بعد الموعد بـ يومين» — الموعد نهاية يوم الاستحقاق بتوقيت الرياض */
+/** «قبل الموعد بـ 19 ساعة» / «بعد الموعد بـ يومين» — الموعد نهاية يوم الاستحقاق بتوقيت الرياض */
 export function timingLabel(doneAt: string | null, dueDate: string | null): string {
   if (!doneAt || !dueDate) return "";
   const end = Date.parse(`${dueDate.slice(0, 10)}T23:59:00+03:00`);
@@ -189,7 +189,7 @@ export function wordDiff(before: string, after: string): { before: DiffPart[]; a
   return { before: trimSame(bo), after: trimSame(ao) };
 }
 
-/** الأجزاء المتشابهة الطويلة تنقص لـ «…» مع ٦ كلمات حول التغيير */
+/** الأجزاء المتشابهة الطويلة تنقص لـ «…» مع 6 كلمات حول التغيير */
 function trimSame(parts: DiffPart[]): DiffPart[] {
   return parts.map((p, k) => {
     if (p.kind !== "same") return p;

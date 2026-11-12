@@ -71,7 +71,7 @@ async function fetchDriveStatus(): Promise<DriveStatus> {
 
 /* دالة الدرايف تقلع ببطء أحيانًا (ثواني)، فبطاقة «ربط درايف الفريق» كانت تطلع متأخر:
    - نحفظ آخر حالة ناجحة بالجهاز (لكل مستخدم) والواجهة تعرضها فورًا مع peekDriveStatus
-   - وطلب واحد مشترك بين الرئيسية وصفحة الاجتماعات بدل طلبين، ونعيد استخدام نتيجته ٦٠ ثانية */
+   - وطلب واحد مشترك بين الرئيسية وصفحة الاجتماعات بدل طلبين، ونعيد استخدام نتيجته 60 ثانية */
 const SNAPSHOT_KEY = (userId: string) => `wesync.driveStatus.${userId}`;
 const REUSE_MS = 60000;
 let inflight: { at: number; promise: Promise<DriveStatus> } | null = null;
@@ -140,7 +140,7 @@ export function driveReturnMessage(reason: string | null): string {
     case "not_leader":
       return tr("الربط لقائد الفريق فقط، وبنفس الحساب اللي مسجّل فيه الدخول لـ Wesync.");
     case "bad_state":
-      return tr("انتهت صلاحية خطوة الربط (١٠ دقايق). ابدأوا من جديد من زر الربط.");
+      return tr("انتهت صلاحية خطوة الربط (10 دقايق). ابدأوا من جديد من زر الربط.");
     case "no_refresh":
       return tr("قوقل ما أعطتنا إذن دائم. افتحوا myaccount.google.com/permissions وأزيلوا Wesync، ثم اربطوا من جديد.");
     case "folder":

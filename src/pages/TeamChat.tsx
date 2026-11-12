@@ -260,7 +260,7 @@ export default function TeamChat() {
     if (el.scrollHeight - (window.scrollY + window.innerHeight) < 240) window.scrollTo({ top: el.scrollHeight });
   }, [composerH]);
 
-  // يكبر مع الكتابة لين ٥ أسطر
+  // يكبر مع الكتابة لين 5 أسطر
   useEffect(() => {
     const el = inputRef.current;
     if (!el) return;
@@ -415,7 +415,7 @@ export default function TeamChat() {
     if (out.error) showToast({ title: tr("رد الوكيل ما انحفظ بالمحادثة — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
   };
 
-  // «حوّلوا المحادثة لمحضر»: الوكيل يلخّص رسائل اليوم (أو آخر ٤٠) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
+  // «حوّلوا المحادثة لمحضر»: الوكيل يلخّص رسائل اليوم (أو آخر 40) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
   const chatToMinutes = async () => {
     if (minutesBusy) return;
     const today = toISODate(new Date());
@@ -1217,7 +1217,7 @@ export default function TeamChat() {
 
 type PickItem = ChatRef & { sub: string };
 
-/** «أشيروا لشي بالبحث»: ٣ تبويبات بعدادها، بحث، والمختار يتحط كرت بالرسالة */
+/** «أشيروا لشي بالبحث»: 3 تبويبات بعدادها، بحث، والمختار يتحط كرت بالرسالة */
 function ReferenceSheet({ open, onClose, onPick, tasks, sections, papers }: { open: boolean; onClose: () => void; onPick: (r: ChatRef) => void; tasks: PickItem[]; sections: PickItem[]; papers: PickItem[] }) {
   const [tab, setTab] = useState<ChatRef["type"]>("task");
   const [q, setQ] = useState("");

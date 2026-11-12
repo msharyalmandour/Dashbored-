@@ -184,15 +184,15 @@ function SampleSizeTab() {
           {(kind === "prop" || kind === "mean") && (
             <NumberField
               label={tre("حجم المجتمع (اختياري)")}
-              hint={tre("إجمالي عدد الممرضات/الطلبة اللي تختارون منهم. اتركوه ٠ لو ما تعرفونه.")}
+              hint={tre("إجمالي عدد الممرضات/الطلبة اللي تختارون منهم. اتركوه 0 لو ما تعرفونه.")}
               value={population}
               onChange={setPopulation}
             />
           )}
           {kind === "prop" && (
             <>
-              <NumberField label={tre("النسبة المتوقعة %")} hint={tre("لو ما تعرفون اتركوها ٥٠ — أحفظ خيار يعطي أكبر عينة.")} value={p} onChange={setP} suffix="%" />
-              <NumberField label={<Term id="margin">{tre("هامش الخطأ المقبول %")}</Term>} hint={tre("عادةً ٥٪.")} value={margin} onChange={setMargin} suffix="%" />
+              <NumberField label={tre("النسبة المتوقعة %")} hint={tre("لو ما تعرفون اتركوها 50 — أحفظ خيار يعطي أكبر عينة.")} value={p} onChange={setP} suffix="%" />
+              <NumberField label={<Term id="margin">{tre("هامش الخطأ المقبول %")}</Term>} hint={tre("عادةً 5%.")} value={margin} onChange={setMargin} suffix="%" />
             </>
           )}
           {kind === "mean" && (
@@ -202,26 +202,26 @@ function SampleSizeTab() {
             </>
           )}
           {(kind === "prop" || kind === "mean") && (
-            <NumberField label={<Term id="confidence">{tre("مستوى الثقة %")}</Term>} hint={tre("عادةً ٩٥٪.")} value={confidence} onChange={setConfidence} suffix="%" />
+            <NumberField label={<Term id="confidence">{tre("مستوى الثقة %")}</Term>} hint={tre("عادةً 95%.")} value={confidence} onChange={setConfidence} suffix="%" />
           )}
           {kind === "two" && (
             <NumberField
               label={<Term id="effect-size">{tre("حجم الأثر المتوقع (d)")}</Term>}
-              hint={tre("٠٫٢ صغير، ٠٫٥ متوسط (الأشهر)، ٠٫٨ كبير. الأفضل تأخذونه من دراسة مشابهة.")}
+              hint={tre("0٫2 صغير، 0٫5 متوسط (الأشهر)، 0٫8 كبير. الأفضل تأخذونه من دراسة مشابهة.")}
               value={d}
               onChange={setD}
               step={0.1}
             />
           )}
           {kind === "corr" && (
-            <NumberField label={tre("قوة الارتباط المتوقعة (r)")} hint={tre("٠٫١ ضعيف، ٠٫٣ متوسط، ٠٫٥ قوي.")} value={r} onChange={setR} step={0.05} />
+            <NumberField label={tre("قوة الارتباط المتوقعة (r)")} hint={tre("0٫1 ضعيف، 0٫3 متوسط، 0٫5 قوي.")} value={r} onChange={setR} step={0.05} />
           )}
           {(kind === "two" || kind === "corr") && (
-            <NumberField label={<Term id="power">{tre("قوة الاختبار (Power) %")}</Term>} hint={tre("عادةً ٨٠٪.")} value={power} onChange={setPower} suffix="%" />
+            <NumberField label={<Term id="power">{tre("قوة الاختبار (Power) %")}</Term>} hint={tre("عادةً 80%.")} value={power} onChange={setPower} suffix="%" />
           )}
           <NumberField
             label={tre("نسبة الانسحاب أو الاستبيانات الناقصة %")}
-            hint={tre("عادةً ١٠–٢٠٪. نزيدها على العينة عشان تضمنون الحجم المطلوب.")}
+            hint={tre("عادةً 10–20%. نزيدها على العينة عشان تضمنون الحجم المطلوب.")}
             value={loss}
             onChange={setLoss}
             suffix="%"
@@ -307,7 +307,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-bold text-brand-950">{tre("١. وش تبون تسوون؟")}</p>
+          <p className="mb-2 text-sm font-bold text-brand-950">{tre("1. وش تبون تسوون؟")}</p>
           <div className="flex flex-wrap gap-2">
             <Opt v={"describe" as const} cur={goal} set={(v) => { setGoal(v); reset(); }}>{tre("أوصف عينتي (متوسط، نسب)")}</Opt>
             <Opt v={"difference" as const} cur={goal} set={(v) => { setGoal(v); reset(); }}>{tre("أقارن بين مجموعات")}</Opt>
@@ -317,7 +317,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
 
         {needOutcome && (
           <div>
-            <p className="mb-2 text-sm font-bold text-brand-950">{trxe("٢. {0}", goal === "relation" ? tre("نوع المتغير الأول؟") : tre("نوع الشي اللي تقيسونه (النتيجة)؟"))}</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{trxe("2. {0}", goal === "relation" ? tre("نوع المتغير الأول؟") : tre("نوع الشي اللي تقيسونه (النتيجة)؟"))}</p>
             <div className="flex flex-wrap gap-2">
               <Opt v={"numeric" as const} cur={outcome} set={setOutcome}>{tre("رقمي (درجة، عمر، سنوات خبرة)")}</Opt>
               <Opt v={"categorical" as const} cur={outcome} set={setOutcome}>{tre("فئوي (نعم/لا، جنس، مستوى)")}</Opt>
@@ -327,7 +327,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
 
         {needOther && (
           <div>
-            <p className="mb-2 text-sm font-bold text-brand-950">{tre("٣. نوع المتغير الثاني؟")}</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{tre("3. نوع المتغير الثاني؟")}</p>
             <div className="flex flex-wrap gap-2">
               <Opt v={"numeric" as const} cur={other} set={setOther}>{tre("رقمي")}</Opt>
               <Opt v={"categorical" as const} cur={other} set={setOther}>{tre("فئوي")}</Opt>
@@ -337,7 +337,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
 
         {needGroups && (
           <div>
-            <p className="mb-2 text-sm font-bold text-brand-950">{tre("٣. كم مجموعة؟")}</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{tre("3. كم مجموعة؟")}</p>
             <div className="flex flex-wrap gap-2">
               <Opt v={2 as const} cur={groups} set={setGroups}>{tre("مجموعتان")}</Opt>
               <Opt v={3 as const} cur={groups} set={setGroups}>{tre("ثلاث أو أكثر")}</Opt>
@@ -347,7 +347,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
 
         {needPaired && (
           <div>
-            <p className="mb-2 text-sm font-bold text-brand-950">{tre("٤. نفس الأشخاص قيستوا مرتين (قبل وبعد)؟")}</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{tre("4. نفس الأشخاص قيستوا مرتين (قبل وبعد)؟")}</p>
             <div className="flex flex-wrap gap-2">
               <Opt v={true} cur={paired} set={setPaired}>{tre("إيه، نفس الأشخاص")}</Opt>
               <Opt v={false} cur={paired} set={setPaired}>{tre("لا، مجموعات مختلفة")}</Opt>
@@ -357,7 +357,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
 
         {needNormal && (
           <div>
-            <p className="mb-2 text-sm font-bold text-brand-950">{tre("هل بياناتكم ")}<Term id="normal">{tre("موزعة طبيعيًا")}</Term>{tre(" تقريبًا (أو العينة ٣٠ فأكثر بكل مجموعة)؟")}</p>
+            <p className="mb-2 text-sm font-bold text-brand-950">{tre("هل بياناتكم ")}<Term id="normal">{tre("موزعة طبيعيًا")}</Term>{tre(" تقريبًا (أو العينة 30 فأكثر بكل مجموعة)؟")}</p>
             <div className="flex flex-wrap gap-2">
               <Opt v={true} cur={normal} set={setNormal}>{tre("إيه / ما أدري")}</Opt>
               <Opt v={false} cur={normal} set={setNormal}>{tre("لا (ملتوية أو رتبية أو عينة صغيرة)")}</Opt>
@@ -699,9 +699,9 @@ function AnalyzeTab({ data, setData }: { data: Dataset; setData: (d: Dataset) =>
               <div className="space-y-3">
                 <ResultTable head={[tre("عدد الفقرات"), tre("عدد المشاركين المكتملين"), tre("ألفا كرونباخ")]} rows={[[r.k, r.n, f2(r.alpha)]]} />
                 <Interpretation
-                  plain={tre("ألفا = {0} → ثبات {1}. القيمة ٠٫٧ فأكثر تُعتبر مقبولة عادةً. لو الفقرات معكوسة الصياغة اعكسوا درجاتها قبل الحساب.", f2(r.alpha), alphaLabel(r.alpha))}
+                  plain={tre("ألفا = {0} → ثبات {1}. القيمة 0٫7 فأكثر تُعتبر مقبولة عادةً. لو الفقرات معكوسة الصياغة اعكسوا درجاتها قبل الحساب.", f2(r.alpha), alphaLabel(r.alpha))}
                   apa={tre("بلغ معامل الثبات ألفا كرونباخ لمقياس ({0} فقرة) {1} مما يدل على ثبات {2} (N = {3}).", picked.length, f2(r.alpha), alphaLabel(r.alpha), r.n)}
-                  warnings={r.n < 30 ? [tre("الثبات بعينة أقل من ٣٠ غير مستقر — الأفضل تجربة استطلاعية (Pilot) بـ٣٠ مشارك فأكثر.")] : []}
+                  warnings={r.n < 30 ? [tre("الثبات بعينة أقل من 30 غير مستقر — الأفضل تجربة استطلاعية (Pilot) بـ30 مشارك فأكثر.")] : []}
                 />
               </div>
             );
@@ -717,7 +717,7 @@ function AnalyzeTab({ data, setData }: { data: Dataset; setData: (d: Dataset) =>
     <div className="space-y-4">
       <Card tone="cream" className="space-y-3">
         <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-          <TableProperties size={18} className="text-brand-500" />{tre("١. ضعوا بياناتكم")}</h3>
+          <TableProperties size={18} className="text-brand-500" />{tre("1. ضعوا بياناتكم")}</h3>
         <p className="text-xs leading-relaxed text-brand-950/55">{tre("انسخوا الجدول من Excel أو Google Sheets (أول سطر = أسماء الأعمدة) والصقوه هنا، أو ارفعوا ملف CSV. البيانات تتحلل بمتصفحكم ولا تنرفع لأي سيرفر. لا تحطون أسماء المشاركين.")}</p>
         <textarea
           value={raw}
@@ -745,7 +745,7 @@ function AnalyzeTab({ data, setData }: { data: Dataset; setData: (d: Dataset) =>
         <>
           <Card className="space-y-3">
             <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-              <FlaskConical size={18} className="text-brand-500" />{tre("٢. وش تبون تحللون؟")}</h3>
+              <FlaskConical size={18} className="text-brand-500" />{tre("2. وش تبون تحللون؟")}</h3>
             <div className="flex flex-wrap gap-2">
               {analyses.map(([id, label]) => (
                 <button
@@ -782,7 +782,7 @@ function AnalyzeTab({ data, setData }: { data: Dataset; setData: (d: Dataset) =>
           </Card>
           <Card className="space-y-3">
             <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-              <BarChart3 size={18} className="text-brand-500" />{tre("٣. النتيجة")}</h3>
+              <BarChart3 size={18} className="text-brand-500" />{tre("3. النتيجة")}</h3>
             {output}
           </Card>
         </>

@@ -28,7 +28,7 @@ export function formatDateLong(value: string): string {
   return `${date.getDate()} ${tr(arabicMonths[date.getMonth()])} ${date.getFullYear()}`;
 }
 
-/** وقت كامل من القاعدة (2026-10-23T13:10:00Z) → «٢٣ أكتوبر ٢٠٢٦» بتوقيت الجهاز؛ قيمة غير صالحة ترجع نص فاضي */
+/** وقت كامل من القاعدة (2026-10-23T13:10:00Z) → «23 أكتوبر 2026» بتوقيت الجهاز؛ قيمة غير صالحة ترجع نص فاضي */
 export function formatTimestampLong(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";

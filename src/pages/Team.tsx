@@ -283,7 +283,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${publicBase()}#/login?ref=${team.referralCode}`;
-  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ١٤ يوم مجانية، وأول ما تشتركون ناخذ شهر هدية أنا وأنتم 🎁\n{0}", referralLink);
+  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة 14 يوم مجانية، وأول ما تشتركون ناخذ شهر هدية أنا وأنتم 🎁\n{0}", referralLink);
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -302,8 +302,8 @@ function ReferralCard() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
             <Gift size={19} />
           </span>
-          <p className="mt-3 font-bold text-brand-950">{tr("ادعوا فريق ثاني واربحوا ١٥ يوم مجاني")}</p>
-          <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون ١٥ يوم إضافي تلقائيًا.")}</p>
+          <p className="mt-3 font-bold text-brand-950">{tr("ادعوا فريق ثاني واربحوا 15 يوم مجاني")}</p>
+          <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون 15 يوم إضافي تلقائيًا.")}</p>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}

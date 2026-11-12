@@ -9,7 +9,7 @@ import { tr } from "../lib/i18n";
 type Scope = "mine" | "team";
 
 /** ربط التقويم: زرّان بشعاري قوقل وآبل. بعد الربط، أي موعد أو مهمة تنضاف بـWesync تنزل لتقويم جوالكم لحالها.
-    (اشتراك ICS خاص بكل مستخدم — آبل تحدّثه كل ١٥ دقيقة تقريبًا، وقوقل حسب جدوله هو، عادة كل كم ساعة.) */
+    (اشتراك ICS خاص بكل مستخدم — آبل تحدّثه كل 15 دقيقة تقريبًا، وقوقل حسب جدوله هو، عادة كل كم ساعة.) */
 export default function PhoneCalendarCard() {
   const { currentUser } = useAuth();
   const [token, setToken] = useState<string | null>(null);
@@ -97,7 +97,7 @@ export default function PhoneCalendarCard() {
             ))}
           </div>
 
-          <p className="text-[11px] leading-relaxed text-brand-950/45">{tr("آبل تحدّثه كل ١٥ دقيقة تقريبًا. قوقل يحدّث التقويمات المشترك فيها بجدوله هو، وممكن يتأخر كم ساعة.")}</p>
+          <p className="text-[11px] leading-relaxed text-brand-950/45">{tr("آبل تحدّثه كل 15 دقيقة تقريبًا. قوقل يحدّث التقويمات المشترك فيها بجدوله هو، وممكن يتأخر كم ساعة.")}</p>
 
           <details className="text-[11px] text-brand-950/50">
             <summary className="cursor-pointer font-semibold text-brand-950/60">{tr("خيارات أخرى")}</summary>

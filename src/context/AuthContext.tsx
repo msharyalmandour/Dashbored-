@@ -254,9 +254,9 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
         },
       },
     });
-    // handle_new_user يرفض الانضمام لفريق فيه ٥ أعضاء (team_full)، وSupabase يرجّعها كـ "Database error saving new user"
+    // handle_new_user يرفض الانضمام لفريق فيه 5 أعضاء (team_full)، وSupabase يرجّعها كـ "Database error saving new user"
     if (error && teamId && /team_full|database error saving new user/i.test(error.message)) {
-      return { error: tr("تعذّر الانضمام للفريق — غالبًا الفريق مكتمل (٥ أعضاء كحد أقصى) أو رابط الدعوة قديم. تواصلوا مع قائد الفريق.") };
+      return { error: tr("تعذّر الانضمام للفريق — غالبًا الفريق مكتمل (5 أعضاء كحد أقصى) أو رابط الدعوة قديم. تواصلوا مع قائد الفريق.") };
     }
     return error ? { error: error.message } : {};
   };

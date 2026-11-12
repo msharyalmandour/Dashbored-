@@ -93,7 +93,7 @@ export function consistencyIssues(aim: string, questions: string[]): Nudge[] {
   return out;
 }
 
-const trCount = (n: number) => tr("عندكم {0} أسئلة بحث — أغلب المشاريع الجامعية تكفيها ٢–٤ أسئلة واضحة.", n);
+const trCount = (n: number) => tr("عندكم {0} أسئلة بحث — أغلب المشاريع الجامعية تكفيها 2–4 أسئلة واضحة.", n);
 
 /** تنبيهات استباقية من حالة المشروع */
 export function proactiveNudges(i: WatchInput): Nudge[] {
@@ -141,7 +141,7 @@ export function proactiveNudges(i: WatchInput): Nudge[] {
         id: "submission-soon",
         level: left <= 14 ? "warn" : "info",
         text: tr("باقي {0} يوم على موعد التسليم.", left),
-        ask: tr("باقي على التسليم {0} يوم، وش أولوياتنا؟ ورتّب لي أهم ٥ أشياء", left),
+        ask: tr("باقي على التسليم {0} يوم، وش أولوياتنا؟ ورتّب لي أهم 5 أشياء", left),
       });
   }
 

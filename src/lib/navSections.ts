@@ -97,6 +97,7 @@ export const workSections: NavSection[] = [
     icon: NotebookPen,
     pages: [
       { to: "/meeting-minutes", label: tr("الاجتماعات والقرارات") },
+      { to: "/meet", label: tr("اجتماع فيديو") },
       { to: "/feedback", label: tr("ملاحظات المشرف/ة") },
     ],
   },

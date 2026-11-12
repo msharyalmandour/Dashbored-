@@ -21,6 +21,7 @@ import { createPortal } from "react-dom";
 import { useCommitments } from "../hooks/useCommitments";
 import { useChatIntel } from "../hooks/useChatIntel";
 import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
+import { MeetLiveStrip } from "../components/meet/MeetLive";
 import { CatchupSheet, FocusDone, FocusPanel, FocusPill, LiveSummaryCard, OrphanStrip } from "../components/chat/ChatIntel";
 import { guessKnower } from "../lib/chatIntel";
 import VoiceMode, { type VoiceResult } from "../components/chat/VoiceMode";
@@ -798,6 +799,7 @@ export default function TeamChat() {
           ) : (
             <div className="tc-list" aria-live="polite">
               {intel.focusDone && <FocusDone {...intel.focusDone} onClose={intel.closeFocusDone} />}
+              {!query.trim() && <MeetLiveStrip />}
               {teamTime.away && !query.trim() && <AwayStrip away={teamTime.away} pending={teamTime.extensions.filter((e) => e.status === "pending").length} />}
               {intel.summary?.summary && !query.trim() && <LiveSummaryCard s={intel.summary.summary} updatedAt={intel.summary.updatedAt} collapsed={intel.collapsed} onToggle={intel.toggleSummary} />}
               {messages.length === 0 &&

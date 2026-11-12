@@ -1,6 +1,7 @@
 import { useRef, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import SvCommitments from "../components/sup/SvCommitments";
 import { SvTimePanel } from "../components/sup/SvTime";
+import { useMeetLive } from "../components/meet/MeetLive";
 import { isEn, setLang } from "../lib/i18n";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, Check, ChevronLeft, FileText, FlaskConical, Gauge, Inbox, ListChecks, Lock, ShieldCheck, Users } from "lucide-react";
@@ -529,6 +530,8 @@ export default function SupervisorView() {
           {board ? <SvWaiting board={board} busy={busy} error={boardError} leaving={leaving} respond={respond} /> : <div className="h-12 animate-pulse rounded-2xl bg-white/5" />}
         </section>
 
+        {token && <SvMeetCard token={token} />}
+
         {token && <SvTimePanel token={token} name={nameDraft.trim()} openTarget={openTarget} primary={!receiptPending && waitingCount === 0} onToast={setToast} />}
 
         {/* ٥) وضع الفريق */}
@@ -744,5 +747,23 @@ export default function SupervisorView() {
         />
       )}
     </div>
+  );
+}
+
+/** اجتماع فيديو مع الفريق: يدخل برابطه بدون حساب. لو الفريق داخل يقول له */
+function SvMeetCard({ token }: { token: string }) {
+  const s = useMeetLive(token);
+  if (s && !s.configured) return null;
+  const live = !!s?.live;
+  return (
+    <section className={live ? "mt-strip-live" : "sd-glass"} style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 12, borderRadius: 22 }}>
+      <div style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>
+        <b style={{ display: "block", fontSize: 15 }}>{live ? tr("الفريق في اجتماع الحين") : tr("اجتماع فيديو مع الفريق")}</b>
+        <span style={{ fontSize: 12, color: "#E9D3B8" }}>{live ? tr("{0} داخلين", s!.names.filter(Boolean).slice(0, 3).join(tr("، ")) || s!.count) : tr("تدخلون برابطكم بدون حساب، وما ينسجل فيديو.")}</span>
+      </div>
+      <Link to={`/supervisor/${token}/meet`} className="sup-btn-cream" style={{ display: "flex", alignItems: "center", padding: "0 16px", minHeight: 44, flex: "none" }}>
+        {tr("ادخلوا")}
+      </Link>
+    </section>
   );
 }

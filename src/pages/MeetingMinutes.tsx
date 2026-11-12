@@ -1,3 +1,5 @@
+import { MeetLiveStrip } from "../components/meet/MeetLive";
+import { Video } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import clsx from "clsx";
@@ -142,6 +144,8 @@ export default function MeetingMinutes() {
             <MiniCard dot={driveDot} title={tr("درايف الفريق")} value={driveValue} link={tr("التفاصيل")} onOpen={() => setDlg("drive")} />
           </div>
 
+          <MeetLiveStrip />
+
           {canWrite && (
             <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_60%,#0A0605_100%)] px-6 py-10 text-center text-[#F4F0EC]">
               <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[150px] -z-10 h-[300px] w-[520px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
@@ -150,6 +154,10 @@ export default function MeetingMinutes() {
                 <h2 className="font-kufi text-2xl font-extrabold md:text-3xl">{liveOn ? tr("عندكم اجتماع شغّال") : tr("عندكم اجتماع؟")}</h2>
                 <p className="text-sm text-[#B8ADA2]">{tr("شغّلوا وضع الاجتماع: المايك يكتب، وكل قرار ومهمة تنجمع لحالها، والمحضر يطلع جاهز للدكتورة.")}</p>
                 <Link to="/meeting-minutes/live" className={clsx(gradientPill, "mt-1 !px-7 !py-3")}>{liveOn ? tr("كمّلوا الاجتماع") : tr("ابدؤوا وضع الاجتماع")}</Link>
+                <Link to="/meet" className="sup-btn-cream inline-flex items-center gap-2 !px-6">
+                  <Video size={18} aria-hidden />
+                  {tr("اجتماع فيديو للفريق")}
+                </Link>
                 <Link data-learn="new-minutes" to="/meeting-minutes/new" className="text-sm font-semibold text-[#FFC777] hover:underline">{tr("أو اكتبوا محضر اجتماع خلص")}</Link>
               </div>
             </section>

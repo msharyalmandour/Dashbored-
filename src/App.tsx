@@ -45,6 +45,8 @@ import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
 import SupervisorReport from "./pages/SupervisorReport";
 import SupervisorDash from "./pages/SupervisorDash";
+import Meet from "./pages/Meet";
+import SupervisorMeet from "./pages/SupervisorMeet";
 import SupervisorEmailAction from "./pages/SupervisorEmailAction";
 import Legal from "./pages/Legal";
 import Survey from "./pages/Survey";
@@ -82,6 +84,7 @@ export default function App() {
       <Route path="/supervisor-email/:action/:token" element={<SupervisorEmailAction />} />
       <Route path="/supervisor/:token" element={<SupervisorView />} />
       <Route path="/supervisor/:token/report" element={<SupervisorReport />} />
+      <Route path="/supervisor/:token/meet" element={<SupervisorMeet />} />
       <Route element={<Layout />}>
         <Route path="/" element={<Overview />} />
         <Route path="/proposal" element={<Proposal />} />
@@ -107,6 +110,7 @@ export default function App() {
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/collect" element={<Collect />} />
         <Route path="/files" element={<Files />} />
+        <Route path="/meet" element={<Meet />} />
         <Route path="/meeting-minutes" element={<MeetingMinutes />} />
         <Route path="/meeting-minutes/new" element={<MinutesNew />} />
         <Route path="/meeting-minutes/live" element={<MinutesLive />} />

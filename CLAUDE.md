@@ -10,3 +10,6 @@
 - Don't push to `main` directly; PRs only when the owner asks.
 - Long-term goals (Wesync Meet vs Zoom/Teams, wow features, 10 usability ideas) live
   in `docs/ROADMAP.md` — owner asked to keep them (2026-10-01). Proposals only; not built.
+- Roblox car roleplay game lives in `roblox/car-rp/`. **Strict rules in `roblox/car-rp/RULES.md`**
+  (owner set 2026-11-12): mesh-only realism from day one, Jeddah-only identity, no weapons,
+  cosmetic-only Robux, Arabic+English, ask before any new feature, show an image before code, be blunt.

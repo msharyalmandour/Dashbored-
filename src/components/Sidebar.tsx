@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, CheckSquare, Compass, CreditCard, GraduationCap, House, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
+import { Check, CheckSquare, Compass, CreditCard, Flag, GraduationCap, House, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
@@ -191,6 +191,10 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                   <span className="flex-1">{tr("ابحث أو انتقل بسرعة...")}</span>
                   <kbd dir="ltr">Ctrl K</kbd>
                 </button>
+                <NavLink role="menuitem" to="/start" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
+                  <Flag size={16} aria-hidden />
+                  {tr("بدأتوا قبل؟ جيبوا شغلكم")}
+                </NavLink>
                 <NavLink role="menuitem" to="/guide" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Compass size={16} aria-hidden />
                   {tr("دليل الطالب")}

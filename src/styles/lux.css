@@ -95,3 +95,40 @@ html[dir="ltr"] .lx-drop { padding: 0 28px 0 22px; background: linear-gradient(2
 .lx-drop-glow { position: absolute; inset-inline-start: -40px; top: -60px; width: 360px; height: 260px; border-radius: 50%; background: #FF6A00; filter: blur(90px); opacity: .22; pointer-events: none; }
 .lx-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 12px; font-weight: 700; color: #E9D3B8; }
 @media (max-width: 1023px) { .lx-stat { padding: 0 10px; } .lx-stat:nth-child(2) { border-inline-start: 0; padding-inline-start: 0; } .lx-stat > b { font-size: 26px; } .lx-stat > div { font-size: 13px; } .lx-stat > small { font-size: 12px; } }
+
+/* ── «بدأتوا قبل؟» (StartChoice / StartBring / StartResult / StartM) ── */
+.st-page { position: relative; color: #EAE3DC; }
+.st-glow { position: absolute; top: -40px; inset-inline-start: 50%; width: 140px; height: 140px; border-radius: 50%; background: #FF6A00; filter: blur(60px); opacity: .45; pointer-events: none; transform: translateX(50%); }
+.st-choice { text-align: start; border: 0; color: #EAE3DC; cursor: pointer; border-radius: 26px; padding: 20px; min-height: 170px; display: flex; flex-direction: column; gap: 10px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); transition: background .25s, box-shadow .25s; }
+.st-choice.on { background: linear-gradient(180deg, rgba(255,154,60,.14), rgba(255,154,60,.04)); box-shadow: inset 0 0 0 1.5px rgba(255,154,60,.55), 0 30px 70px rgba(0,0,0,.45); }
+.st-choice.compact { min-height: 0; border-radius: 22px; padding: 16px 18px; }
+.st-choice:focus-visible, .st-zone:focus-visible { outline: 2px solid #FFC777; outline-offset: 3px; }
+.st-seg { width: 22px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.12); }
+.st-seg.on { background: linear-gradient(90deg, #FFC777, #FF7A1A); }
+.st-tick { width: 26px; height: 26px; flex: none; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFE7B0, #FFC777 55%, #E09A3A); color: #2A1404; display: inline-flex; align-items: center; justify-content: center; }
+.st-go { height: 56px; padding: 0 30px; border-radius: 20px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-weight: 800; box-shadow: 0 12px 30px rgba(255,106,0,.3); border: 0; font-size: 17px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+.st-go:disabled { opacity: .5; box-shadow: none; cursor: default; }
+.st-go:focus-visible, .st-btn:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+.st-row { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-radius: 22px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.st-row.hot { background: rgba(255,154,60,.06); box-shadow: inset 0 0 0 1px rgba(255,154,60,.3); }
+@media (max-width: 639px) { .st-row { flex-wrap: wrap; gap: 12px; padding: 14px; } .st-row > div:nth-child(2) { flex-basis: calc(100% - 64px); } .st-row > :last-child { margin-inline-start: 60px; } }
+.st-ic { width: 48px; height: 48px; flex: none; border-radius: 16px; background: rgba(255,199,119,.10); color: #FFC777; display: flex; align-items: center; justify-content: center; }
+.st-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; background: rgba(255,199,119,.12); color: #FFC777; max-width: 100%; }
+.st-btn { min-height: 46px; padding: 0 18px; border-radius: 16px; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.10); color: #EAE3DC; font-weight: 700; border: 0; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.st-btn:disabled { opacity: .5; }
+.stp-bar { height: 6px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+.stp-bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(270deg, #FFC777, #FF7A1A); }
+.st-zone { border-radius: 30px; padding: 22px; min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #EAE3DC; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), 0 30px 70px rgba(0,0,0,.45); border: 1.5px dashed rgba(255,199,119,.32); cursor: pointer; }
+@media (max-width: 1023px) { .st-zone { min-height: 0; } }
+.st-pct { flex: none; min-width: 124px; padding: 10px 22px; border-radius: 24px; text-align: center; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08); }
+.st-pct b { display: block; font-size: 38px; font-weight: 800; color: #F2EBE3; line-height: 1.2; }
+.st-pct span { font-size: 13px; color: #E9D3B8; }
+.st-from { font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.06); color: #E9D3B8; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-sec { display: flex; align-items: center; gap: 14px; min-height: 64px; border-top: 1px solid rgba(255,255,255,.07); }
+.st-sec:first-child { border-top: 0; }
+.st-av { width: 26px; height: 26px; flex: none; border-radius: 50%; background: #FFC85A; color: #160904; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.st-next { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 6px 0; border-top: 1px solid rgba(255,255,255,.07); }
+.st-next:first-child { border-top: 0; }
+.st-n { width: 26px; height: 26px; flex: none; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: rgba(255,255,255,.08); color: #EAE3DC; }
+.st-n.first { background: #F2EBE3; color: #160904; }
+@media (max-width: 639px) { .st-sec { flex-wrap: wrap; gap: 4px 12px; padding: 10px 0; } .st-sec > b { flex-basis: 100%; } .st-sec > span:last-child { width: auto; margin-inline-start: auto; } }

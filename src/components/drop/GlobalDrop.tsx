@@ -10,7 +10,7 @@ import { useDrop } from "../../hooks/useDrop";
 import { supabase } from "../../lib/supabaseClient";
 import { CONFIDENT_AT, countOf, DEST_LABEL, DEST_PLACE, deepLink, fileDrop, fileTag, flushOfflineQueue, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource } from "../../lib/drops";
 import { hasPending, PENDING_EVENT, queueDrop, takePending } from "../../lib/dropQueue";
-import { announceLanded, sectionOf } from "../../lib/landed";
+import { announceFiled, announceLanded, sectionOf } from "../../lib/landed";
 import { track } from "../../lib/analytics";
 import { tr } from "../../lib/i18n";
 import { parseDate } from "../../lib/date";
@@ -300,6 +300,7 @@ export default function GlobalDrop() {
       if (sec) bySection[sec] = (bySection[sec] ?? 0) + countOf(x);
     }
     track("drop_filed", { created: r.created ?? 0, hero: 1, ...dest });
+    announceFiled({ dropId, names: items.map((i) => i.name), files: items.filter((i) => i.kind === "file").length, created: r.created ?? 0, dests: dest });
     if ((r.created ?? 0) > 0) void supabase!.functions.invoke("push-notify", { body: { action: "drop", dropId } }).catch(() => {});
     const places = [...new Set(filed.map((x) => DEST_PLACE[x.destination]))];
     const id = dropId;

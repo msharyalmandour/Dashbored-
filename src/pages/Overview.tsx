@@ -35,6 +35,9 @@ import LearnStrip from "../components/home/LearnStrip";
 import DropEntry from "../components/drop/DropEntry";
 import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
+import { useNavigate } from "react-router-dom";
+import { startSeen } from "./Start";
+import { useTeamStage } from "../lib/teamStage";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
@@ -64,11 +67,13 @@ const METHOD_TOTAL = Object.keys(METHOD_READY).length;
 const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
 export default function Overview() {
-  const { currentUser, mode, isLeader, canWrite } = useAuth();
+  const { currentUser, mode, isLeader, canWrite, team } = useAuth();
+  const navigate = useNavigate();
+  const { stage: teamStage, loaded: stageLoaded } = useTeamStage(team?.id);
   const { startTour, finished: tourFinished } = useTour();
   const { showToast } = useToast();
   const { stages } = useResearchStages();
-  const { papers } = useEvidencePapers();
+  const { papers, loading: papersLoading } = useEvidencePapers();
   const { sections, gap, questions } = useProposal();
   const { methodology } = useMethodology();
   const { ethicalApproval } = useEthicalApproval();
@@ -111,6 +116,13 @@ export default function Overview() {
   const firstName = (currentUser?.name ?? "").split(" ")[0];
 
   const deadline = project?.targetSubmissionDate ?? null;
+  // «بدأتوا قبل؟»: فريق جديد (أسبوعين) ما حدد وين وصل ومكتبته ومقترحه فاضيين → نفتحها له مرة وحدة
+  useEffect(() => {
+    if (mode !== "supabase" || !team || !stageLoaded || papersLoading || !sections.length || teamStage || startSeen(team.id)) return;
+    const fresh = team.createdAt ? Date.now() - new Date(team.createdAt).getTime() < 14 * 86400000 : false;
+    const empty = papers.length === 0 && sections.every((x) => !x.content.trim());
+    if (fresh && empty) navigate("/start", { replace: true });
+  }, [mode, team, stageLoaded, papersLoading, teamStage, papers.length, sections, navigate]);
   // «قبل لا تشوفها الدكتورة» — نفس المراجعة الصارمة بصفحة المهام
   const review = useMemo(
     () => strictReview({ tasks, papers, sections, deadline: deadline ?? undefined, today: todayIso, nameOf: (id) => roster.find((m) => m.id === id)?.name.split(" ")[0] ?? "" }),

@@ -13,6 +13,7 @@ import { tr } from "../lib/i18n";
 import { track } from "../lib/analytics";
 import { formatDateShort } from "../lib/date";
 import { hasPending, PENDING_EVENT, takePending } from "../lib/dropQueue";
+import { announceFiled } from "../lib/landed";
 
 /* ═══ «ارموا أي شي» (/drop) ═══
    ارموا → نقرا (الوعاء يبلع الملف) → «تأكدوا قبل لا نحطها» (كروت لكل مكان) → «حطوها بمكانها» (عملية وحدة) → «انحطّت».
@@ -151,6 +152,7 @@ export default function Drop() {
     const dest: Record<string, number> = {};
     for (const x of results.filter((x) => x.included)) dest[x.destination] = (dest[x.destination] ?? 0) + countOf(x);
     track("drop_filed", { created: r.created ?? 0, ...dest });
+    announceFiled({ dropId, names: items.map((i) => i.name), files: items.filter((i) => i.kind === "file").length, created: r.created ?? 0, dests: dest });
     // إشعار لباقي الفريق (للي مفعّلين الإشعارات)
     if ((r.created ?? 0) > 0) void supabase!.functions.invoke("push-notify", { body: { action: "drop", dropId } }).catch(() => {});
     await reload();

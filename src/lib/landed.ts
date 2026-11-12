@@ -37,3 +37,17 @@ export function useLandedBadges(): Record<string, number> {
   }, []);
   return badges;
 }
+
+/** رمية انحطت بأماكنها (من الهيرو أو صفحة «ارموا») — «بدأتوا قبل؟» يسمعها عشان يعرف وش انجاب */
+export const FILED_EVENT = "wesync:drop-filed";
+export interface FiledInfo {
+  dropId: string;
+  names: string[];
+  files: number;
+  created: number;
+  /** المكان ← كم شي انحط فيه */
+  dests: Record<string, number>;
+}
+export function announceFiled(info: FiledInfo) {
+  window.dispatchEvent(new CustomEvent(FILED_EVENT, { detail: info }));
+}

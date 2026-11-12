@@ -27,7 +27,7 @@ const WAIT_ICON: Record<WaitKind, ReactNode> = {
 
 function docName(raw: string): string {
   const n = raw.trim();
-  if (!n) return tr("د.");
+  if (!n) return "";
   return /^(د\.|د |dr\.?\s)/i.test(n) ? n : `${tr("د.")} ${n}`;
 }
 
@@ -402,7 +402,7 @@ export default function SupervisorDash() {
     </section>
   );
 
-  const ledgerBlock = <Ledger rows={ledger} docName={dn} />;
+  const ledgerBlock = <Ledger rows={ledger} docName={dn || tr("المشرف/ة")} />;
 
   const others = waits.filter((w) => w.kind !== "extension");
   const requestsView = (
@@ -440,7 +440,7 @@ export default function SupervisorDash() {
             </section>
           )}
           {pendingExt.map(({ e, t }, i) => (
-            <ExtCard key={e.id} ext={e} team={t.name} token={t.token} name={dn} primary={i === 0} onDone={done} />
+            <ExtCard key={e.id} ext={e} team={t.name} token={t.token} name={dn || tr("المشرف/ة")} primary={i === 0} onDone={done} />
           ))}
         </div>
         <TimeLog log={log} showTeam limit={12} />
@@ -569,11 +569,11 @@ export default function SupervisorDash() {
           </button>
           <div className="sd-me">
             <span className="sd-docav" aria-hidden>
-              {dn.replace(/^(د\.|Dr\.?)\s*/i, "").charAt(0) || "د"}
+              {dn.replace(/^(د\.|Dr\.?)\s*/i, "").charAt(0) || "؟"}
             </span>
             <div style={{ lineHeight: 1.35 }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>{dn}</div>
-              <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("{0} فرق", ok.length)}</div>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>{dn || tr("المشرف/ة")}</div>
+              <div style={{ fontSize: 12, color: "#ABA095" }}>{ok.length === 1 ? tr("فريق واحد") : tr("{0} فرق", ok.length)}</div>
             </div>
           </div>
         </aside>
@@ -583,8 +583,13 @@ export default function SupervisorDash() {
             <div style={{ flex: 1, minWidth: 220 }}>
               <div className="sd-hi">{hour < 12 ? tr("صباح الخير يا") : tr("مساء الخير يا")}</div>
               <h1 className="sd-name" style={{ margin: 0 }}>
-                {dn}
+                {dn || tr("أهلًا بكم")}
               </h1>
+              {!dn && (
+                <button type="button" onClick={() => go("settings")} style={{ background: "none", border: 0, padding: "4px 0", minHeight: 44, color: "#FFC777", font: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                  {tr("أضيفوا اسمكم عشان يظهر للطلاب")}
+                </button>
+              )}
               <div className="sd-sub">
                 {dateFmt.format(new Date())} · {waits.length ? tr("{0} أشياء تنتظرك، والباقي ماشي", waits.length) : tr("كل شي ماشي")}
               </div>
@@ -635,14 +640,14 @@ export default function SupervisorDash() {
       {sheet === "away" && (
         <AwaySheet
           teams={ok.map((t) => ({ token: t.token, dash: t.dash, pendingCount: waits.filter((w) => w.token === t.token && w.kind !== "radar").length }))}
-          name={dn}
+          name={dn || tr("المشرف/ة")}
           today={today}
           current={away}
           onClose={() => setSheet(null)}
           onSaved={done}
         />
       )}
-      {deadlineTeam?.dash && <DeadlinesSheet token={deadlineTeam.token} team={deadlineTeam.name} dash={deadlineTeam.dash} name={dn} onClose={() => setSheet(null)} onSaved={(m) => (setToast(m), void reload())} />}
+      {deadlineTeam?.dash && <DeadlinesSheet token={deadlineTeam.token} team={deadlineTeam.name} dash={deadlineTeam.dash} name={dn || tr("المشرف/ة")} onClose={() => setSheet(null)} onSaved={(m) => (setToast(m), void reload())} />}
       {toast && (
         <div className="sd-toast" role="status">
           {toast}

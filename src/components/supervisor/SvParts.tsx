@@ -55,7 +55,7 @@ export function SvSheet({ title, onClose, children }: { title: ReactNode; onClos
   return (
     <>
       <div className="sv-scrim" onClick={onClose} aria-hidden />
-      <div ref={ref} role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} tabIndex={-1} className="sv-sheet sv-sheet-in outline-none" dir="rtl">
+      <div ref={ref} role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} tabIndex={-1} className="sv-sheet sv-sheet-in outline-none">
         <div className="sv-grab" aria-hidden />
         <div className="sv-sh">
           <h2>{title}</h2>

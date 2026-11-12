@@ -44,7 +44,7 @@ import Pricing from "./pages/Pricing";
 import ResetPassword from "./pages/ResetPassword";
 import SupervisorView from "./pages/SupervisorView";
 import SupervisorReport from "./pages/SupervisorReport";
-import SupervisorTeams from "./pages/SupervisorTeams";
+import SupervisorDash from "./pages/SupervisorDash";
 import SupervisorEmailAction from "./pages/SupervisorEmailAction";
 import Legal from "./pages/Legal";
 import Survey from "./pages/Survey";
@@ -78,7 +78,7 @@ export default function App() {
       <Route path="/survey" element={<Survey />} />
       <Route path="/s/:token" element={<SurveyPublic />} />
       <Route path="/celebration" element={<Celebration />} />
-      <Route path="/supervisor" element={<SupervisorTeams />} />
+      <Route path="/supervisor" element={<SupervisorDash />} />
       <Route path="/supervisor-email/:action/:token" element={<SupervisorEmailAction />} />
       <Route path="/supervisor/:token" element={<SupervisorView />} />
       <Route path="/supervisor/:token/report" element={<SupervisorReport />} />

@@ -312,7 +312,7 @@ Deno.serve(async (req: Request) => {
     if (!profile?.team_id) return json(403, { error: "no_team" });
     const kind = String(body.kind ?? "");
     const refId = String(body.refId ?? "");
-    if (!["minutes", "decision", "booking"].includes(kind) || !UUID.test(refId)) return json(400, { error: "bad_request" });
+    if (!["minutes", "decision", "booking", "extension"].includes(kind) || !UUID.test(refId)) return json(400, { error: "bad_request" });
 
     const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
     if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
@@ -340,6 +340,15 @@ Deno.serve(async (req: Request) => {
       title = `سؤال بانتظار قراركم — فريق «${team.name}»`;
       inner = `<p><b>${esc(d.question)}</b></p><p style="font-size:13px;color:#ABA095">الخيارات: ${d.options.map((o: string) => esc(o)).join(" · ")}</p><p style="font-size:13px;color:#ABA095">تجاوبون بضغطة وحدة من رابطكم.</p>`;
       plain = `سؤال بانتظار قراركم من فريق «${team.name}»:\n${d.question}\nالخيارات: ${d.options.join(" · ")}`;
+    } else if (kind === "extension") {
+      const { data: r } = await admin.from("extension_requests").select("task_id, current_due, requested_due, reason, note, status, requested_by").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
+      if (!r || r.status !== "pending") return json(200, { sent: false, reason: "not_pending" });
+      const { data: t } = await admin.from("tasks").select("title").eq("id", r.task_id).maybeSingle();
+      const { data: who } = await admin.from("profiles").select("name").eq("id", r.requested_by).maybeSingle();
+      const why: Record<string, string> = { waiting_hospital: "ننتظر المستشفى", exams: "اختبارات", sick: "مرض", other: "سبب ثاني" };
+      title = `طلب تمديد — فريق «${team.name}»`;
+      inner = `<p><b>${esc(who?.name ?? "")}</b> يطلب تمديد <b>«${esc(t?.title ?? "")}»</b> من <b>${esc(String(r.current_due ?? "—"))}</b> إلى <b>${esc(String(r.requested_due))}</b>.</p><p style="${EMAIL_BOX};white-space:pre-wrap">السبب: ${esc(why[r.reason] ?? r.reason)}${r.note ? ` · ${esc(r.note)}` : ""}</p><p style="font-size:13px;color:#ABA095">توافقون أو تعرضون موعدًا ثانيًا أو ترفضون بضغطة وحدة، وكل رد ينحفظ بسجل يشوفه الطرفين.</p>`;
+      plain = `${who?.name ?? ""} يطلب تمديد «${t?.title ?? ""}» من ${r.current_due ?? "—"} إلى ${r.requested_due}. السبب: ${why[r.reason] ?? r.reason}${r.note ? ` · ${r.note}` : ""}`;
     } else {
       const { data: b } = await admin.from("meeting_bookings").select("booking_date, booking_time, note, status").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
       if (!b || b.status !== "pending") return json(200, { sent: false, reason: "not_pending" });

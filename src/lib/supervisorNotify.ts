@@ -1,6 +1,6 @@
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
-export type NotifyKind = "minutes" | "decision" | "booking";
+export type NotifyKind = "minutes" | "decision" | "booking" | "extension";
 
 /** يرسل إيميل للمشرف/ة المؤكَّدة (لو فعّلت الإشعارات) عن شي ينتظر ردّها. فشله ما يوقف شي:
     الواجهة تعرض دايمًا زر واتساب بديل. يرجّع sent=false مع السبب (not_subscribed / cooldown / email_not_configured…) */

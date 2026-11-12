@@ -19,9 +19,11 @@ import {
   X,
   Download,
   MessageSquareQuote,
+  Hourglass,
 } from "lucide-react";
 import AgentWave from "../components/ui/AgentWave";
 import ReceiptProof from "../components/sup/ReceiptProof";
+import { ExtensionSheet, useTeamTime } from "../components/sup/StudentTime";
 import clsx from "clsx";
 import Avatar from "../components/ui/Avatar";
 import Skeleton from "../components/ui/Skeleton";
@@ -126,6 +128,9 @@ export default function Tasks() {
   const { project } = useResearchProject();
   const navigate = useNavigate();
   const [strict, setStrict] = useState<{ task: Task; proof: Proof } | null>(null);
+  // طلب تمديد رسمي من المشرف/ة (SupExtM)
+  const [extFor, setExtFor] = useState<Task | null>(null);
+  const teamTime = useTeamTime();
   const [reviewOpen, setReviewOpen] = useState(true);
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [balancing, setBalancing] = useState(false);
@@ -401,6 +406,8 @@ export default function Tasks() {
           ? { label: tr("رجّعها ما خلصت"), icon: RotateCcw, onClick: () => toggleDone(task) }
           : { label: tr("علّمها خلصت"), icon: Check, onClick: () => toggleDone(task) },
       );
+    if (canWrite && task.status !== "done")
+      menu.push({ label: tr("تحتاجون وقت أكثر؟"), icon: Hourglass, onClick: () => setExtFor(task) });
     if (isLeader)
       menu.push({ label: tr("حذف المهمة"), confirmLabel: tr("تأكيد الحذف؟"), icon: Trash2, tone: "danger", onClick: () => deleteTask(task.id) });
 
@@ -1023,6 +1030,19 @@ export default function Tasks() {
           </div>
         )}
       </Dialog>
+      {extFor && (
+        <ExtensionSheet
+          task={{ id: extFor.id, title: extFor.title, dueDate: extFor.dueDate || null }}
+          fromSupervisor={extFor.source === "supervisor"}
+          pendingFor={teamTime.extensions.find((e) => e.task_id === extFor.id && e.status === "pending") ?? null}
+          onClose={() => setExtFor(null)}
+          onSent={(m) => {
+            setExtFor(null);
+            showToast({ title: m, desc: tr("كل طلب ورد ينحفظ بسجل يشوفه الطرفين."), icon: Hourglass, tone: "brand" });
+            void teamTime.reload();
+          }}
+        />
+      )}
       <Dialog open={balanceOpen} onClose={() => setBalanceOpen(false)} title={tr("وزّعها بالتساوي")}>
         {balanceMoves.length === 0 ? (
           <p className="m-0 text-[15px]">{tr("الحمل متقارب بينكم، ما فيه شي يحتاج ينتقل ✓")}</p>

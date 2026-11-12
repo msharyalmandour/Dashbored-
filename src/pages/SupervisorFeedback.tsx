@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { TeamTimeCard } from "../components/sup/StudentTime";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
@@ -8,6 +9,7 @@ import { useToast } from "../context/ToastContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useCommitments } from "../hooks/useCommitments";
+import { useTasksData } from "../hooks/useTasksData";
 import { Ledger } from "../components/sup/SupParts";
 import { basicSplit, sectionLabels, useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
 import { callStudy } from "../hooks/useStudyTools";
@@ -31,6 +33,8 @@ export default function SupervisorFeedback() {
   const { project } = useResearchProject();
   const { roster } = useTeamRoster();
   const { items: commitments } = useCommitments();
+  const { tasks } = useTasksData();
+  const tasksById = useMemo(() => new Map(tasks.map((t) => [t.id, t.title])), [tasks]);
   const supervisorName = project?.supervisorName ?? "";
   const { items, loading, addItems, patch, remove } = useSupervisorFeedback();
   const aiOk = hasAiAccess(team) && isSupabaseConfigured;
@@ -155,6 +159,8 @@ export default function SupervisorFeedback() {
         <h1 className="text-xl font-extrabold text-brand-950">{tr("ملاحظات المشرف")}</h1>
         <p className="mt-1 text-sm leading-relaxed text-brand-950/55">{tr("ملاحظات المشرفة غالبًا تجي بشكل كلام طويل وتضيع. هنا تحوّلونها لقائمة مهام صغيرة، كل وحدة تنحل وتنعلّم، وتشوفون وين وقفتوا.")}</p>
       </div>
+
+      <TeamTimeCard titleOf={(id) => tasksById.get(id) ?? tr("مهمة")} />
 
       {commitments.length > 0 && (
         <Ledger rows={commitments.map((c) => ({ ...c, owner: c.assignee_id ? (roster.find((r) => r.id === c.assignee_id) ?? null) : null }))} docName={supervisorName || tr("الدكتورة")} />

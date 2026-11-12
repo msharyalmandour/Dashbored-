@@ -1,5 +1,7 @@
 import { useRef, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import SvCommitments from "../components/sup/SvCommitments";
+import { SvTimePanel } from "../components/sup/SvTime";
+import { isEn, setLang } from "../lib/i18n";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, Check, ChevronLeft, FileText, FlaskConical, Gauge, Inbox, ListChecks, Lock, ShieldCheck, Users } from "lucide-react";
 import { useSupervisorBoard } from "../components/supervisor/useSupervisorBoard";
@@ -345,7 +347,7 @@ export default function SupervisorView() {
 
   if (loading) {
     return (
-      <div className="sv-page" dir="rtl">
+      <div className="sv-page">
         <div className="sv-col animate-pulse pt-5">
           <div className="h-9 w-40 rounded-full bg-white/5" />
           <div className="mt-8 h-4 w-24 rounded bg-white/5" />
@@ -360,7 +362,7 @@ export default function SupervisorView() {
 
   if (error || !snapshot || !view) {
     return (
-      <div className="sv-page flex flex-col items-center justify-center gap-3 px-6 text-center" dir="rtl">
+      <div className="sv-page flex flex-col items-center justify-center gap-3 px-6 text-center">
         <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(255,110,90,.12)] text-[#FF9A8A]">
           <AlertTriangle size={22} />
         </span>
@@ -453,7 +455,7 @@ export default function SupervisorView() {
   const rise = () => ({ "--v3-i": i++ }) as CSSProperties;
 
   return (
-    <div className="sv-page pb-[120px]" dir="rtl">
+    <div className="sv-page pb-[120px]">
       <div className="sv-col">
         {/* ١) الشريط العلوي */}
         <header className="sv-top">
@@ -463,11 +465,12 @@ export default function SupervisorView() {
             <Lock size={13} strokeWidth={2.4} />
             {tr("صفحة المشرفة · قراءة فقط")}
           </span>
-          {loadTeams().length > 1 && (
-            <Link to="/supervisor" className="sv-teams">
-              {trx("فرقي ({0})", loadTeams().length)}
-            </Link>
-          )}
+          <button type="button" className="sv-teams" onClick={() => setLang(isEn ? "ar" : "en")} aria-label={isEn ? "التبديل للعربية" : "Switch to English"} lang={isEn ? "ar" : "en"}>
+            {isEn ? "ع" : "EN"}
+          </button>
+          <Link to="/supervisor" className="sv-teams">
+            {loadTeams().length > 1 ? trx("فرقي ({0})", loadTeams().length) : tr("لوحتي")}
+          </Link>
         </header>
 
         {/* ٢) الترحيب */}
@@ -525,6 +528,8 @@ export default function SupervisorView() {
           </h2>
           {board ? <SvWaiting board={board} busy={busy} error={boardError} leaving={leaving} respond={respond} /> : <div className="h-12 animate-pulse rounded-2xl bg-white/5" />}
         </section>
+
+        {token && <SvTimePanel token={token} name={nameDraft.trim()} openTarget={openTarget} primary={!receiptPending && waitingCount === 0} onToast={setToast} />}
 
         {/* ٥) وضع الفريق */}
         <section className="sv-sec" aria-labelledby="sv-h-status">

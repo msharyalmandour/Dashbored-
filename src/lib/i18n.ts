@@ -4,16 +4,18 @@ import { createElement, Fragment, type ReactNode } from "react";
     تبديل اللغة يعيد تحميل الصفحة، فكل النصوص (حتى الثوابت على مستوى الملفات) تنحسب باللغة الجديدة. */
 export type Lang = "ar" | "en";
 
-const KEY = "wesync.lang";
+/** صفحات المشرف/ة (رابط الرمز) لها لغتها الخاصة وأساسها الإنجليزي — طلب المالك. ما تأثر على لغة التطبيق عند الطلاب */
+export const onSupervisorRoute = typeof window !== "undefined" && /^#\/supervisor(\/|-email\/|$|\?)/.test(window.location.hash);
+const KEY = onSupervisorRoute ? "wesync.sv-lang" : "wesync.lang";
 
 function initialLang(): Lang {
   try {
     const v = localStorage.getItem(KEY);
     if (v === "en" || v === "ar") return v;
   } catch {
-    // بدون تخزين: عربي
+    // بدون تخزين: الأساس
   }
-  return "ar";
+  return onSupervisorRoute ? "en" : "ar";
 }
 
 export const lang: Lang = initialLang();

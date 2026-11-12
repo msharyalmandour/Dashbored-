@@ -1,3 +1,4 @@
+import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Compass, PartyPopper } from "lucide-react";
@@ -311,6 +312,12 @@ export default function Overview() {
 
       {mode === "supabase" && (
         <ErrorBoundary>
+          <HomeAway />
+        </ErrorBoundary>
+      )}
+
+      {mode === "supabase" && (
+        <ErrorBoundary>
           <DropEntry style={rise(1)} />
         </ErrorBoundary>
       )}
@@ -410,6 +417,17 @@ export default function Overview() {
           </button>
         </div>
       </Dialog>
+    </div>
+  );
+}
+
+/** شريط «المشرف/ة مو متاح/ة» تحت الترحيب (SupAwayM) */
+function HomeAway() {
+  const { away, extensions } = useTeamTime();
+  if (!away) return null;
+  return (
+    <div className="mb-2.5 lg:mb-[18px]">
+      <AwayStrip away={away} pending={extensions.filter((e) => e.status === "pending").length} />
     </div>
   );
 }

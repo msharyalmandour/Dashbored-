@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import {
   BadgeCheck,
   Check,
@@ -27,7 +26,6 @@ import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import AgentKickstart from "../components/AgentKickstart";
-import ProjectAgentChat from "../components/ProjectAgentChat";
 import { useResearchAgentState, type ResearchTab } from "../context/ResearchAgentContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
@@ -328,35 +326,11 @@ export default function ResearchSearch() {
   const busyOn: Record<ResearchTab, boolean> = { papers: st.searching, tools: st.toolsBusy, strategy: st.strategyBusy };
 
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [params] = useSearchParams();
-  const view: "agent" | "studies" = params.get("tab") === "studies" ? "studies" : "agent";
-
-  // أول ما تطلع نتائج جديدة، ننزل لها — الطالب ما يضطر يدوّر عنها تحت
+  // «الوكيل» صار لوحة وحدة (الكرة أو Ctrl K) — هالصفحة للبحث عن دراسات بس
   useEffect(() => {
-    if (view === "studies" && st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st.activeResult]);
-
-  if (view === "agent") {
-    return (
-      <div className="space-y-5">
-        {!aiOk && <AiLockedCard feature={tr("وكيل البحث العلمي")} />}
-        {aiOk && <ProjectAgentChat />}
-        {aiOk && (
-          <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
-              <span>{tr("جهّزوا لنا البداية")}<span className="ms-2 text-xs font-normal text-[#B8ADA2]">{tr("دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم")}</span>
-              </span>
-              <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
-            </summary>
-            <div className="mt-4">
-              <AgentKickstart />
-            </div>
-          </details>
-        )}
-      </div>
-    );
-  }
 
   const activeTab = tabs.find((t) => t.id === st.tab) ?? tabs[0];
   const fieldPill =
@@ -377,6 +351,21 @@ export default function ResearchSearch() {
       )}
 
       {aiOk && <HowItWorks />}
+
+      {aiOk && (
+        <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
+            <span>
+              {tr("جهّزوا لنا البداية")}
+              <span className="ms-2 text-xs font-normal text-[#B8ADA2]">{tr("دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم")}</span>
+            </span>
+            <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="mt-4">
+            <AgentKickstart />
+          </div>
+        </details>
+      )}
 
       {aiOk && st.tab === "papers" && (
         <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-[#F4F0EC] sm:px-8 md:py-12">

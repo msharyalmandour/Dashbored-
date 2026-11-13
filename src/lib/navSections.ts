@@ -41,8 +41,7 @@ export const journeySections: NavSection[] = [
     icon: Search,
     stages: ["topic", "literature-review"],
     pages: [
-      { to: "/research-search", label: tr("الوكيل") },
-      { to: "/research-search?tab=studies", label: tr("البحث عن دراسات") },
+      { to: "/research-search", label: tr("البحث عن دراسات") },
       { to: "/evidence", label: tr("مكتبة الأدلة") },
       { to: "/literature-review", label: tr("مراجعة الأدبيات") },
     ],

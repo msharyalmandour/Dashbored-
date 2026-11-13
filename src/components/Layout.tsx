@@ -14,7 +14,7 @@ import PaymentProofUpload from "./PaymentProofUpload";
 import CheckoutModal from "./CheckoutModal";
 import { AlertCard } from "./ui/cards";
 import CommandPalette from "./CommandPalette";
-import AiAssistant from "./AiAssistant";
+import AgentPanel from "./agent/AgentPanel";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import AcademyCoach from "./AcademyCoach";
@@ -34,7 +34,7 @@ const titles: Record<string, string> = {
   "/literature-review": tr("مراجعة الأدبيات"),
   "/methodology": tr("المنهجية"),
   "/ethical-approval": tr("الموافقة الأخلاقية"),
-  "/research-search": tr("وكيل البحث العلمي"),
+  "/research-search": tr("البحث عن دراسات"),
   "/stats": tr("استوديو الإحصاء"),
   "/feedback": tr("ملاحظات المشرف"),
   "/study-kit": tr("الاستبيانات والموافقات"),
@@ -128,7 +128,7 @@ export default function Layout() {
       <DriveNotice />
       <StageCelebration />
       <CommandPalette />
-      <AiAssistant />
+      <AgentPanel />
       <TourGuide />
       <AcademyCoach />
       <GlobalDrop />

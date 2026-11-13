@@ -62,7 +62,6 @@ const baseItems: PaletteItem[] = [
   { to: "/ethical-approval", label: tr("الموافقة الأخلاقية"), icon: FileCheck2, keywords: tr("irb ethics اخلاقيات") },
   { to: "/tasks", label: tr("مهامي"), icon: ListChecks, keywords: "tasks" },
   { to: "/evidence", label: tr("مكتبة الأدلة"), icon: Library, keywords: tr("مراجع references papers") },
-  { to: "/research-search", label: tr("وكيل البحث العلمي"), icon: Search, keywords: "agent" },
   { to: "/stats", label: tr("استوديو الإحصاء"), icon: Calculator, keywords: tr("spss احصاء تحليل statistics t-test") },
   { to: "/feedback", label: tr("ملاحظات المشرف"), icon: MessageSquareText },
   { to: "/study-kit", label: tr("الاستبيان والموافقات"), icon: ClipboardList, keywords: tr("consent موافقة استبيان ترجمة") },
@@ -109,10 +108,8 @@ export default function CommandPalette() {
   useEffect(() => {
     if (!currentUser) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setOpen((o) => !o);
-      } else if (e.key === "Escape") {
+      // Ctrl K صار للوكيل (AgentPanel). البحث السريع يفتح من القائمة
+      if (e.key === "Escape") {
         setOpen(false);
       }
     };

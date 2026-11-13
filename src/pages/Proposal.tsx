@@ -196,7 +196,7 @@ export default function Proposal() {
 
   const supervisor = project?.supervisorName?.trim();
   const daysLeft = project?.targetSubmissionDate ? daysUntil(project.targetSubmissionDate) : null;
-  // «الكوتش · القسم المفتوح» جنب كرة الوكيل
+  // القسم المفتوح يطلع كشريحة @ بخانة كتابة الوكيل
   const activeLabel = active ? bi(active.labelAr, active.labelEn) : null;
   useEffect(() => {
     setAgentContext(activeLabel);

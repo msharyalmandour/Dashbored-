@@ -37,10 +37,10 @@
   },
   "/research-search": {
     "name": "Search",
-    "lead": "Find studies here. **The agent searches; you choose what goes into the library.**",
+    "lead": "Find studies here. **Search finds them; you choose what goes into the library.**",
     "symbols": [
       {
-        "title": "The agent = searches and summarises",
+        "title": "Search = finds and summarises",
         "sub": "Describe your topic in your own words"
       },
       {

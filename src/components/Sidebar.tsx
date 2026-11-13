@@ -193,7 +193,6 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                 <button type="button" role="menuitem" className="lx-mi" onClick={() => (setMenu(false), window.dispatchEvent(new Event("nursync:open-command-palette")))}>
                   <Search size={16} aria-hidden />
                   <span className="flex-1">{tr("ابحث أو انتقل بسرعة...")}</span>
-                  <kbd dir="ltr">Ctrl K</kbd>
                 </button>
                 <NavLink role="menuitem" to="/start" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Flag size={16} aria-hidden />

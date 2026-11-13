@@ -196,7 +196,7 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
                 {slide.kind === "calm" && (
                   <>
                     <p className="text-base font-extrabold text-brand-950">{tr("كل شي ماشي 👌")}</p>
-                    <p className="text-xs text-brand-950/55">{trx("ما فيه شي عاجل الحين. {0} الكوتش عن أفضل استغلال لوقتكم.", g(isFemale, tr("اسألي"), tr("اسأل")))}</p>
+                    <p className="text-xs text-brand-950/55">{trx("ما فيه شي عاجل الحين. {0} الوكيل عن أفضل استغلال لوقتكم.", g(isFemale, tr("اسألي"), tr("اسأل")))}</p>
                   </>
                 )}
               </div>

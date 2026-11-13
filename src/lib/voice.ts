@@ -46,6 +46,8 @@ export interface RecorderEvents {
   onLevel?: (level: number) => void;
   onText?: (finalText: string, interim: string) => void;
   onLimit?: () => void;
+  /** كتابة المتصفح وقفت (مثل network بتطبيقات الديسكتوب أو not-allowed): نوقف إعادة التشغيل ونرجع للسيرفر */
+  onSttError?: (code: string) => void;
 }
 
 /** مسجّل واحد: start / pause / resume / stop → Blob */
@@ -58,6 +60,8 @@ export class VoiceRecorder {
   private raf = 0;
   private sr: SR | null = null;
   private srOn = false;
+  /** سبب توقف كتابة المتصفح (لو وقفت) */
+  srFailed: string | null = null;
   private finalText = "";
   private startedAt = 0;
   private pausedTotal = 0;
@@ -143,7 +147,15 @@ export class VoiceRecorder {
       }
       this.ev.onText?.(this.finalText.trim(), interim.trim());
     };
-    sr.onerror = () => {};
+    // كان الخطأ ينبلع وإعادة التشغيل تدور للأبد بصمت. الحين: الأخطاء الدائمة توقف الكتابة المباشرة وتنبلّغ،
+    // والتسجيل نفسه يكمّل (عشان نفرّغه بالسيرفر). «no-speech» و«aborted» عادية ونكمّل.
+    sr.onerror = (e) => {
+      const code = e?.error ?? "unknown";
+      if (code === "no-speech" || code === "aborted") return;
+      this.srOn = false;
+      this.srFailed = code;
+      this.ev.onSttError?.(code);
+    };
     // كروم يوقف بعد سكتة طويلة: نرجّعه طول ما نسجّل
     sr.onend = () => {
       if (this.srOn && !this.pausedAt) {
@@ -179,6 +191,7 @@ export class VoiceRecorder {
     this.rec.resume();
     this.pausedTotal += Date.now() - this.pausedAt;
     this.pausedAt = 0;
+    if (this.srFailed) return;
     try {
       this.sr?.start();
     } catch {

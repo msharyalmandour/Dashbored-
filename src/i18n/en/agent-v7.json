@@ -116,5 +116,11 @@
   "حطّوا الموعد": "Set the date",
   "وزّعوا الأقسام": "Assign sections",
   "ما فيه موعد تسليم": "No submission date",
-  "ما فيه شي عاجل الحين. {0} الوكيل عن أفضل استغلال لوقتكم.": "Nothing urgent right now. {0} the agent how best to use your time."
+  "ما فيه شي عاجل الحين. {0} الوكيل عن أفضل استغلال لوقتكم.": "Nothing urgent right now. {0} the agent how best to use your time.",
+  "المتصفح ما سمح بالكتابة بالصوت. اسمحوا للمايك من إعدادات الموقع وجرّبوا مرة ثانية.": "The browser blocked speech-to-text. Allow the mic in site settings and try again.",
+  "المايك مقفول لهالموقع. اسمحوا له من إعدادات المتصفح وجرّبوا مرة ثانية.": "The mic is blocked for this site. Allow it in browser settings and try again.",
+  "ما لقينا مايك بهالجهاز.": "No microphone found on this device.",
+  "ما قدرنا نفهم الكلام هالمرة. جرّبوا مرة ثانية أو اكتبوا طلبكم.": "We couldn't make out the words this time. Try again or type your request.",
+  "نكتب كلامكم…": "Writing it down…",
+  "تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.": "Speak, then press send and we'll write it down."
 }

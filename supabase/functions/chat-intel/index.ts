@@ -142,7 +142,8 @@ Deno.serve(async (req: Request) => {
       fd.append("file", file, "voice.webm");
       const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", { method: "POST", headers: { "xi-api-key": key }, body: fd });
       if (!r.ok) {
-        console.error("chat-intel stt:", r.status);
+        // سبب الرفض من ElevenLabs (بدون المفتاح): invalid_api_key / missing_permissions / quota…
+        console.error("chat-intel stt:", r.status, (await r.text().catch(() => "")).slice(0, 200));
         return json(200, { text: null, reason: "stt_failed" });
       }
       const out = (await r.json()) as { text?: string };

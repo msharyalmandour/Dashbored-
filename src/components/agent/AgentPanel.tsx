@@ -300,6 +300,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
         <span aria-hidden className="ag-panel-glow" />
         {listen ? (
           <ListenView
+            teamId={team?.id ?? null}
             onClose={() => setListen(false)}
             onSend={(t) => {
               setListen(false);

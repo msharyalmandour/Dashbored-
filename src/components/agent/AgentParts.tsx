@@ -4,7 +4,7 @@ import { CalendarDays, Check, ChevronLeft, Clock, Flag, HelpCircle, Loader2, Mic
 import clsx from "clsx";
 import AgentOrb from "../ui/AgentOrb";
 import AgentStreak from "./AgentStreak";
-import { VoiceRecorder, canTranscribeLive } from "../../lib/voice";
+import { VoiceRecorder, canTranscribeLive, transcribeServer, uploadVoice } from "../../lib/voice";
 import { agoLabel, canUndo, receiptLines, type NeedCard, type NeedIcon, type PlanRow, type Receipt } from "../../lib/agentPlan";
 import { tr } from "../../lib/i18n";
 
@@ -238,41 +238,54 @@ export function NextList({ items, onPick }: { items: string[]; onPick: (s: strin
 
 // ───────────── نسمعك (AgentListenM) ─────────────
 
-export function ListenView({ onClose, onSend }: { onClose: () => void; onSend: (text: string) => void }) {
+export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; onSend: (text: string) => void; teamId: string | null }) {
   const rec = useRef<VoiceRecorder | null>(null);
   const [finalText, setFinal] = useState("");
   const [interim, setInterim] = useState("");
   const [level, setLevel] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [err, setErr] = useState<string | null>(canTranscribeLive() ? null : tr("المتصفح ما يكتب الكلام. جرّبوا كروم أو سفاري، أو اكتبوا طلبكم."));
+  /** المتصفح ما يكتب (أو وقف): نسجّل عادي، ونفرّغ الصوت بالسيرفر لما ترسلون */
+  const [serverOnly, setServerOnly] = useState(!canTranscribeLive());
+  const [working, setWorking] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    if (err) return;
     const r = new VoiceRecorder({
       onLevel: (l) => setLevel(l),
       onText: (f, i) => {
         setFinal(f);
         setInterim(i);
       },
+      onSttError: (code) => {
+        if (code === "not-allowed" || code === "service-not-allowed") setErr(tr("المتصفح ما سمح بالكتابة بالصوت. اسمحوا للمايك من إعدادات الموقع وجرّبوا مرة ثانية."));
+        else setServerOnly(true);
+      },
     });
     rec.current = r;
-    r.start().catch(() => setErr(tr("ما قدرنا نفتح المايك. اسمحوا للموقع يستخدمه وجرّبوا مرة ثانية.")));
+    r.start().catch((e: Error) => setErr(e.message === "blocked" ? tr("المايك مقفول لهالموقع. اسمحوا له من إعدادات المتصفح وجرّبوا مرة ثانية.") : tr("ما لقينا مايك بهالجهاز.")));
     return () => r.cancel();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggle = () => {
-    if (!rec.current) return;
+    if (!rec.current || err) return;
     if (paused) rec.current.resume();
     else rec.current.pause();
     setPaused((p) => !p);
   };
   const send = async () => {
     const r = rec.current;
-    const said = r ? (await r.stop()).text : "";
-    const text = (said || `${finalText} ${interim}`).trim();
+    if (!r || working) return;
+    setWorking(true);
+    const out = await r.stop();
+    let text = (out.text || `${finalText} ${interim}`).trim();
+    // ما انكتب شي بالمتصفح: نرفع الصوت ونفرّغه بالسيرفر
+    if (!text && out.blob.size && teamId) {
+      const path = await uploadVoice(teamId, out.blob);
+      text = (path ? await transcribeServer(path) : null)?.trim() ?? "";
+    }
+    setWorking(false);
     if (text) onSend(text);
-    else onClose();
+    else setErr(tr("ما قدرنا نفهم الكلام هالمرة. جرّبوا مرة ثانية أو اكتبوا طلبكم."));
   };
 
   return (
@@ -283,10 +296,12 @@ export function ListenView({ onClose, onSend }: { onClose: () => void; onSend: (
       <div className="ag-listen-orb">
         <AgentOrb size={230} state={paused ? "idle" : "thinking"} />
       </div>
-      <span className="ag-pill listen">{err ? tr("المايك مو شغّال") : paused ? tr("وقّفنا") : tr("نسمعك…")}</span>
+      <span className="ag-pill listen">{err ? tr("المايك مو شغّال") : working ? tr("نكتب كلامكم…") : paused ? tr("وقّفنا") : tr("نسمعك…")}</span>
       <p className="ag-transcript" aria-live="polite">
         {err ? (
           <span className="text-[16px] font-medium text-[#F2EBE3]">{err}</span>
+        ) : serverOnly && !finalText ? (
+          <span>{tr("تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.")}</span>
         ) : (
           <>
             <b>{finalText}</b> <span>{interim || (!finalText ? tr("تكلّموا… مثل «وزّع مهام الأسبوع على الفريق»") : "")}</span>
@@ -295,7 +310,7 @@ export function ListenView({ onClose, onSend }: { onClose: () => void; onSend: (
       </p>
       <span className="flex-1" />
       <div className="w-full px-2">
-        <AgentStreak width={340} height={56} level={paused || err ? 0 : level} />
+        <AgentStreak width={340} height={56} level={paused || err || working ? 0 : level} />
       </div>
       <div className="ag-listen-ctl">
         <button type="button" className="ag-round" onClick={toggle} disabled={!!err} aria-label={paused ? tr("كمّلوا") : tr("وقّفوا")}>
@@ -304,8 +319,8 @@ export function ListenView({ onClose, onSend }: { onClose: () => void; onSend: (
         <button type="button" className="ag-mic-big" onClick={toggle} disabled={!!err} aria-label={paused ? tr("كمّلوا الكلام") : tr("وقّفوا المايك")} aria-pressed={!paused}>
           <Mic size={26} aria-hidden />
         </button>
-        <button type="button" className="ag-round" onClick={() => void send()} aria-label={tr("أرسلوا")}>
-          <Send size={18} className="ltr:rotate-0 rtl:-scale-x-100" aria-hidden />
+        <button type="button" className="ag-round" onClick={() => (err ? onClose() : void send())} disabled={working} aria-label={err ? tr("رجوع") : tr("أرسلوا")}>
+          {working ? <Loader2 size={18} className="animate-spin" aria-hidden /> : <Send size={18} className="ltr:rotate-0 rtl:-scale-x-100" aria-hidden />}
         </button>
       </div>
     </div>

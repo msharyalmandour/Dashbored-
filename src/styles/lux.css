@@ -43,7 +43,7 @@ html[data-reduce-motion="true"] .lx-menu { animation: none; }
 .lx-ic { width: 36px; height: 36px; flex: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); color: #FFC777; }
 .lx-ic.lg { width: 44px; height: 44px; border-radius: 14px; background: rgba(255,240,225,.05); box-shadow: inset 0 0 0 1px rgba(255,240,225,.12); }
 .lx-pill-n { min-width: 30px; height: 30px; padding: 0 8px; border-radius: 99px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: rgba(255,199,119,.12); color: #FFC777; }
-.lx-rv-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,.07); }
+.lx-rv-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,.07); }
 .lx-rv-row:first-child { border-top: 0; }
 .lx-fix { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-size: 14px; font-weight: 800; color: #FFC777; white-space: nowrap; }
 .lx-fix:hover { color: #FFE2B0; }

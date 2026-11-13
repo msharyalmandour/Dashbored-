@@ -397,9 +397,10 @@ export default function Overview() {
       </div>
 
       {/* ── HomeLux: قبل لا تشوفها الدكتورة · تقدّم البحث · باقي على التسليم ── */}
-      <div className="relative mb-3 hidden grid-cols-[1.25fr_1fr_1fr] items-stretch gap-[18px] lg:mb-[18px] lg:grid">
+      {/* أقل من 1280: المراجعة بعرض الصفحة، والتقدّم والتسليم جنب بعض تحتها — عشان ما ينضغط النص */}
+      <div className="relative mb-3 hidden grid-cols-2 items-stretch gap-[18px] lg:mb-[18px] lg:grid xl:grid-cols-[1.25fr_1fr_1fr]">
         <ErrorBoundary>
-          <ReviewCard items={review} />
+          <ReviewCard items={review} limit={3} className="col-span-2 xl:col-span-1" />
         </ErrorBoundary>
         <ErrorBoundary>
           <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
@@ -410,17 +411,17 @@ export default function Overview() {
       </div>
       <div className="mb-3 lg:hidden">
         <ErrorBoundary>
-          <ReviewCard items={review} />
+          <ReviewCard items={review} limit={3} />
         </ErrorBoundary>
       </div>
 
       {/* ── رحلة البحث + إنجاز الفريق ── */}
-      <div className="relative mb-3 grid grid-cols-1 items-stretch gap-2.5 lg:mb-[18px] lg:grid-cols-[1.75fr_1fr] lg:gap-[18px]">
+      <div className="relative mb-3 grid grid-cols-1 items-stretch gap-2.5 lg:mb-[18px] xl:grid-cols-[1.75fr_1fr] lg:gap-[18px]">
         <ErrorBoundary>
           <JourneyCard steps={journey} headerNote={journeyNote} style={rise(4)} />
         </ErrorBoundary>
         <ErrorBoundary>
-          <TeamChartCard className="hidden lg:block" tasks={tasks} today={todayIso} style={rise(5)} />
+          <TeamChartCard className="hidden xl:block" tasks={tasks} today={todayIso} style={rise(5)} />
         </ErrorBoundary>
       </div>
 

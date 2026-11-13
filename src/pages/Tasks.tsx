@@ -198,6 +198,8 @@ export default function Tasks() {
   });
   const suggestedPlace = form.place ? null : placeByKey(inferPlace(form.title, form.description));
 
+  // قبل matches: عدّادات الفلاتر تناديها أول ما ترسم الصفحة (مهمة خلصت → «بدون دليل»)
+  const proofOf = (task: Task) => proofFor(task, { papers, sections });
   const matches = (t: Task, f: FilterId) =>
     f === "all" ? true : f === "mine" ? t.assigneeId === currentUser?.id : f === "late" ? isLate(t) : f === "proof" ? t.status === "done" && proofOf(t)?.met === false : t.status === f;
 
@@ -272,7 +274,6 @@ export default function Tasks() {
     }
   };
 
-  const proofOf = (task: Task) => proofFor(task, { papers, sections });
   // الطالب الصارم: لو المهمة لها رقم (5 دراسات) والموجود أقل، نسأل قبل ما تنحسب خلصت
   const toggleDone = (task: Task) => {
     if (task.status !== "done") {

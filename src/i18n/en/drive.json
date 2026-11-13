@@ -73,5 +73,6 @@
   "{0} ناقص إيميله": "{0} is missing an email",
   "كل الفريق مربوط، وكل ملف ينحفظ بالمجلد لحاله.": "The whole team is linked, and every file is saved in the folder automatically.",
   "لين يرتبطون، ملفاتهم ما تنحفظ بالمجلد.": "Until they link, their files aren't saved in the folder.",
-  "الدرايف": "Drive"
+  "الدرايف": "Drive",
+  "شوفوا الباقي ({0})": "See the rest ({0})"
 }

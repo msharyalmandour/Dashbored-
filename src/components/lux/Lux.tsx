@@ -53,7 +53,9 @@ export type ReviewRow = { id: string; count: number; text: string; fix: string; 
 const REVIEW_ICON: Record<string, typeof AlertCircle> = { unproven: AlertCircle, dup: Copy, late: Clock, owners: UserRound, deadline: Flag, unplaced: MapPin };
 
 /** «قبل لا تشوفها الدكتورة»: مشاكل حقيقية من بياناتكم، مرتبة من الأهم، وكل وحدة لها حل */
-export function ReviewCard({ items, className }: { items: ReviewRow[]; className?: string }) {
+export function ReviewCard({ items, className, limit, moreTo = "/tasks" }: { items: ReviewRow[]; className?: string; limit?: number; moreTo?: string }) {
+  const shown = limit ? items.slice(0, limit) : items;
+  const more = items.length - shown.length;
   return (
     <section className={clsx("lx-card lx-in p-[18px]", className)} aria-labelledby="lx-rv-h">
       <div className="flex items-center gap-2.5">
@@ -72,7 +74,7 @@ export function ReviewCard({ items, className }: { items: ReviewRow[]; className
         <p className="m-0 mt-4 text-[14px] text-[#E9D3B8]">{tr("ما لقينا شي يضعّف شغلكم ✓")}</p>
       ) : (
         <ol className="m-0 mt-2 list-none p-0">
-          {items.map((it) => {
+          {shown.map((it) => {
             const Icon = REVIEW_ICON[it.id] ?? AlertCircle;
             const text = it.text.replace(/[.،]\s*$/, "");
             const cut = text.search(/[.،]\s/);
@@ -83,24 +85,31 @@ export function ReviewCard({ items, className }: { items: ReviewRow[]; className
                 <span className="lx-ic lg" aria-hidden>
                   <Icon size={18} />
                 </span>
+                {/* الحل تحت النص (مو جنبه) عشان النص ياخذ عرض البطاقة كله حتى بالشاشات الصغيرة */}
                 <div className="min-w-0 flex-1 leading-[1.45]">
-                  <b className="block text-[15px] text-[#F2EBE3]" dir="auto">
+                  <b className="line-clamp-2 block text-[15px] text-[#F2EBE3]" dir="auto">
                     {title}
                   </b>
                   {sub && (
-                    <span className="block text-[13px] text-[#ABA095]" dir="auto">
+                    <span className="line-clamp-2 block text-[13px] text-[#ABA095]" dir="auto">
                       {sub}
                     </span>
                   )}
+                  <Link to={it.to} className="lx-fix !min-h-[36px]">
+                    {it.fix}
+                    <ChevronLeft size={15} className="ltr:rotate-180" aria-hidden />
+                  </Link>
                 </div>
-                <Link to={it.to} className="lx-fix">
-                  {it.fix}
-                  <ChevronLeft size={15} className="ltr:rotate-180" aria-hidden />
-                </Link>
               </li>
             );
           })}
         </ol>
+      )}
+      {more > 0 && (
+        <Link to={moreTo} className="lx-fix mt-1 !min-h-[44px] text-[13px]">
+          {tr("شوفوا الباقي ({0})", more)}
+          <ChevronLeft size={15} className="ltr:rotate-180" aria-hidden />
+        </Link>
       )}
     </section>
   );

@@ -90,7 +90,7 @@ export default function AskSurveyData({ questions, responses }: { questions: Que
       {!result && !busy && examples.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {examples.map((q) => (
-            <button key={q} type="button" onClick={() => ask(q)} className="rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold text-brand-800 hover:bg-surface-muted">
+            <button key={q} type="button" onClick={() => ask(q)} className="rounded-full border border-brand-200 px-3 py-1 text-[12px] font-semibold text-brand-800 hover:bg-surface-muted">
               {q}
             </button>
           ))}
@@ -128,22 +128,22 @@ export default function AskSurveyData({ questions, responses }: { questions: Que
           </div>
           <p className="text-sm leading-relaxed text-brand-950/80">{result.plain}</p>
           <div className="rounded-xl bg-surface-muted p-2.5">
-            <p className="text-[11px] font-bold text-brand-950/50">{tr("صياغة جاهزة لفصل النتائج (عدّلوها بأسلوبكم)")}</p>
+            <p className="text-[12px] font-bold text-brand-950/50">{tr("صياغة جاهزة لفصل النتائج (عدّلوها بأسلوبكم)")}</p>
             <p className="mt-1 text-xs leading-relaxed text-brand-950/80">{result.apa}</p>
-            <button onClick={copy} className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-brand-700">
+            <button onClick={copy} className="mt-1.5 inline-flex items-center gap-1 text-[12px] font-bold text-brand-700">
               {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? tr("اننسخت") : tr("نسخ الصياغة")}
             </button>
           </div>
           {result.notes.map((n, i) => (
-            <p key={i} className="text-[11px] text-brand-950/55">
+            <p key={i} className="text-[12px] text-brand-950/55">
               • {n}
             </p>
           ))}
-          <p className="text-[11px] text-brand-950/40">{tr("الأرقام محسوبة من ردودكم الفعلية، والذكاء اختار الاختبار بس. تأكدوا من الاختبار مع المشرف/ة قبل اعتماده بالبحث.")}</p>
+          <p className="text-[12px] text-brand-950/40">{tr("الأرقام محسوبة من ردودكم الفعلية، والذكاء اختار الاختبار بس. تأكدوا من الاختبار مع المشرف/ة قبل اعتماده بالبحث.")}</p>
         </div>
       )}
 
-      {cols.some((c) => c.id === SCALE_ID) && <p className="text-[11px] text-brand-950/40">{tr("تقدرون تسألون عن «الدرجة الكلية» لكل عبارات ليكرت مع بعض.")}</p>}
+      {cols.some((c) => c.id === SCALE_ID) && <p className="text-[12px] text-brand-950/40">{tr("تقدرون تسألون عن «الدرجة الكلية» لكل عبارات ليكرت مع بعض.")}</p>}
     </Card>
   );
 }

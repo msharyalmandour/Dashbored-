@@ -355,7 +355,7 @@ export default function EvidenceLibrary() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <SourceTag label={sourceFromLink(paper.link)} />
-                  {reviewed && <span className="text-[11px] font-semibold text-[#7fd6a0]">{tr("✓ تمت مراجعتها")}</span>}
+                  {reviewed && <span className="text-[12px] font-semibold text-[#FFC777]">{tr("✓ تمت مراجعتها")}</span>}
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-sm text-[#B8ADA2]">{paper.year}</span>
@@ -406,7 +406,7 @@ export default function EvidenceLibrary() {
                   </p>
                   {paper.relevance && (
                     <div className="rounded-2xl bg-white/[0.05] p-3">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("الصلة بالبحث")}</p>
+                      <p className="text-[12px] font-bold text-[#B8ADA2]">{tr("الصلة بالبحث")}</p>
                       <p className="mt-0.5 text-xs leading-relaxed">{paper.relevance}</p>
                     </div>
                   )}
@@ -415,7 +415,7 @@ export default function EvidenceLibrary() {
                       onClick={() => updateReviewStatus(paper.id, reviewed ? "collected" : "reviewed")}
                       className={clsx(
                         "rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
-                        reviewed ? "border-[#7fd6a0]/60 text-[#7fd6a0]" : "border-[#FF8A24]/60 text-[#FFB444] hover:bg-[#FF6B00]/10",
+                        reviewed ? "border-[#FFC777]/60 text-[#FFC777]" : "border-[#FF8A24]/60 text-[#FFB444] hover:bg-[#FF6B00]/10",
                       )}
                     >
                       {reviewed ? tr("تمت مراجعتها") : tr("تم جمعها — علّموها مراجَعة")}

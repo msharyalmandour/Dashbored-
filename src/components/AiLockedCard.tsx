@@ -28,7 +28,7 @@ export default function AiLockedCard({ feature }: { feature: string }) {
         {isLeader ? tr("أضيفوا المساعد الذكي") : tr("شوفوا الباقات")}
       </Link>
       {!isLeader && (
-        <p className="text-[11px] text-brand-950/40">{tr("تغيير الباقة من قائدة الفريق فقط.")}</p>
+        <p className="text-[12px] text-brand-950/40">{tr("تغيير الباقة من قائدة الفريق فقط.")}</p>
       )}
     </div>
   );

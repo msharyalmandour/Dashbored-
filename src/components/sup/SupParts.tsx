@@ -457,7 +457,7 @@ export function ReceiptCard({
       </div>
       {file && (
         <div className="flex items-center gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}>
-          <span aria-hidden className="relative flex h-[35px] w-[30px] flex-none items-end justify-center rounded-lg pb-[5px] text-[11px] font-extrabold text-[#3A1A08]" style={{ background: "linear-gradient(180deg,#F6EFE7,#E2D6C9)", boxShadow: "0 6px 14px rgba(0,0,0,0.4)" }} dir="ltr">
+          <span aria-hidden className="relative flex h-[35px] w-[30px] flex-none items-end justify-center rounded-lg pb-[5px] text-[12px] font-extrabold text-[#3A1A08]" style={{ background: "linear-gradient(180deg,#F6EFE7,#E2D6C9)", boxShadow: "0 6px 14px rgba(0,0,0,0.4)" }} dir="ltr">
             {(file.name.split(".").pop() || "FILE").slice(0, 4).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1 leading-[1.35]">

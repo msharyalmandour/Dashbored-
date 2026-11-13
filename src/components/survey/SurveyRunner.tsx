@@ -99,7 +99,7 @@ export default function SurveyRunner({
         return (
           <section id={`q-${q.id}`} key={q.id} className={`${box} ${missing.includes(q.id) ? "!border-rose-400/60" : ""}`}>
             <h2 className="flex items-start gap-3 text-base font-bold leading-relaxed text-white">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-[11px] text-amber-300">{i + 1}</span>
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-[12px] text-amber-300">{i + 1}</span>
               <span>
                 {q.text}
                 {q.required && <span className="ms-1 text-rose-300">*</span>}

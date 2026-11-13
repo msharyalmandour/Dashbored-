@@ -206,26 +206,26 @@ function SupervisorContactSection() {
               href={`https://wa.me/?text=${encodeURIComponent(reminderMessage)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <MessageCircle size={13} />{tr("إرسال واتساب")}</a>
             <button
               onClick={copyReminder}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {reminderCopied ? <Check size={13} /> : <Bell size={13} />}
               {reminderCopied ? tr("تم النسخ") : tr("نسخ رسالة تذكير")}
             </button>
             <button
               onClick={copy}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
             </button>
             <a
               href={`mailto:?subject=${encodeURIComponent(tr("رابط متابعة فريقنا البحثي على Wesync"))}&body=${encodeURIComponent(reminderMessage)}`}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-brand-100 px-3.5 py-2 text-xs font-bold text-brand-700 hover:bg-surface-muted"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
@@ -234,7 +234,7 @@ function SupervisorContactSection() {
               {tr("تقرير تقدّم الفريق (PDF) — ترسلونه للمشرف/ة أو القسم")}
             </Link>
           )}
-          <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
+          <p className="mt-2.5 text-[12px] leading-relaxed text-brand-950/50">
             {emailStatus?.isTeamMember
               ? null
               : emailStatus?.state === "active"
@@ -245,7 +245,7 @@ function SupervisorContactSection() {
           </p>
           <SupervisorEmailInvite status={emailStatus} onSent={() => getMyEmailStatus().then(setEmailStatus)} />
           {isLeader && (
-            <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">{tr("أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
+            <p className="mt-3 text-[12px] leading-relaxed text-brand-950/40">{tr("أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
                 {rotating ? tr("جاري التغيير...") : tr("غيّروا الرابط")}
               </button>
               .{rotateError && <span className="font-bold text-rose-600">{tr(" تعذّر التغيير — حاولوا مرة ثانية.")}</span>}
@@ -309,12 +309,12 @@ function ReferralCard() {
               href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <MessageCircle size={13} />{tr("واتساب")}</a>
             <button
               onClick={copy}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
@@ -325,17 +325,17 @@ function ReferralCard() {
             <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl bg-paper/70 p-2.5">
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-brand-950">{stats.referredCount}</p>
-                <p className="text-[10px] font-semibold text-brand-950/50">{tr("فرق دعوتوها")}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("فرق دعوتوها")}</p>
               </div>
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-brand-950">{stats.rewardedCount}</p>
-                <p className="text-[10px] font-semibold text-brand-950/50">{tr("فعّلوا اشتراكهم")}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("فعّلوا اشتراكهم")}</p>
               </div>
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-amber-accent-600">
                   {stats.bonusDaysEarned}
                 </p>
-                <p className="text-[10px] font-semibold text-brand-950/50">{tr("يوم مجاني ربحتوه")}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("يوم مجاني ربحتوه")}</p>
               </div>
             </div>
           )}
@@ -543,15 +543,15 @@ export default function Team() {
             <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-100/15 rounded-2xl bg-black/25 py-3 text-center">
               <div>
                 <p className="text-base font-extrabold text-brand-950">{tasksTotal}</p>
-                <p className="text-[11px] text-brand-950/45">{tr("إجمالي المهام")}</p>
+                <p className="text-[12px] text-brand-950/45">{tr("إجمالي المهام")}</p>
               </div>
               <div>
                 <p className="text-base font-extrabold text-brand-600">{tasksDone}</p>
-                <p className="text-[11px] text-brand-950/45">{tr("مكتملة")}</p>
+                <p className="text-[12px] text-brand-950/45">{tr("مكتملة")}</p>
               </div>
               <div>
                 <p className="text-base font-extrabold text-rose-500">{overdue}</p>
-                <p className="text-[11px] text-brand-950/45">{tr("متأخرة")}</p>
+                <p className="text-[12px] text-brand-950/45">{tr("متأخرة")}</p>
               </div>
             </div>
           </Card>

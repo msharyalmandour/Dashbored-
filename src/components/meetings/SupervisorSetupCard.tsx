@@ -12,7 +12,7 @@ const SENT_KEY = "wesync.supervisorInviteSent";
 function Step({ n, done, title, desc, children }: { n: number; done: boolean; title: string; desc: string; children?: React.ReactNode }) {
   return (
     <li className={clsx(rowSurface, "flex gap-3")}>
-      <span className={clsx("mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-extrabold", done ? "bg-[#7fd6a0]/20 text-[#7fd6a0]" : "border border-brand-500/50 text-amber-accent-400")}>
+      <span className={clsx("mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-extrabold", done ? "bg-[#FFC777]/20 text-[#FFC777]" : "border border-brand-500/50 text-amber-accent-400")}>
         {done ? <Check size={14} strokeWidth={3} /> : n}
       </span>
       <div className="min-w-0 flex-1">
@@ -165,7 +165,7 @@ export default function SupervisorSetupCard({
                     >
                       <Mail size={14} />{tr("افتحوا الإيميل")}</a>
                   </div>
-                  <p className="text-[11px] text-brand-950/40">{tr("يفتح عندكم برنامج الإيميل والرسالة جاهزة — ما نخزّن إيميلها ولا نرسل لها شي منّا قبل ما تفعّله بنفسها.")}</p>
+                  <p className="text-[12px] text-brand-950/40">{tr("يفتح عندكم برنامج الإيميل والرسالة جاهزة — ما نخزّن إيميلها ولا نرسل لها شي منّا قبل ما تفعّله بنفسها.")}</p>
                 </div>
               ) : (
                 <p className="text-xs text-brand-950/50">{tr("الرابط يظهر بعد ما ينشأ الفريق بالوضع الحقيقي.")}</p>

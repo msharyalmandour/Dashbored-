@@ -87,7 +87,7 @@ export default function ContributionCard({ roster, tasks }: { roster: TeamMember
       {summary.idleIds.length > 0 && (
         <p className="mt-2 rounded-xl bg-amber-50 p-2.5 text-xs font-semibold text-amber-800">{trx("ما سجّل إنجاز لحد الحين: {0}. يمكن يحتاج مهمة أوضح أو مساعدة — اسألوه/ا بدل ما تفترضون.", summary.idleIds.map(name).join(tr("، ")))}</p>
       )}
-      <p className="mt-3 flex items-start gap-1.5 text-[11px] leading-relaxed text-brand-950/45">
+      <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-brand-950/45">
         <Info size={12} className="mt-0.5 shrink-0" />{tr("الحصة محسوبة من المهام المكتملة بس (العالية 3 نقاط، المتوسطة 2، المنخفضة 1). ما تقيس القراءة والاجتماعات والكتابة اللي ما تنسجّل كمهام، فاستخدموها للنقاش بين الفريق مو كتقييم.")}</p>
     </Card>
   );

@@ -47,7 +47,7 @@
 .dr-chip.warn { background: rgba(255,138,122,.10); color: #FFB2A6; }
 
 /* أيقونة الملف (PDF / IMG / WA) */
-.dr-file { width: 30px; height: 35px; flex: none; border-radius: 8px; background: linear-gradient(180deg, #F6EFE7, #E2D6C9); color: #3A1A08; font-size: 11px; font-weight: 800; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; box-sizing: border-box; box-shadow: 0 6px 14px rgba(0,0,0,.4); position: relative; }
+.dr-file { width: 30px; height: 35px; flex: none; border-radius: 8px; background: linear-gradient(180deg, #F6EFE7, #E2D6C9); color: #3A1A08; font-size: 12px; font-weight: 800; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; box-sizing: border-box; box-shadow: 0 6px 14px rgba(0,0,0,.4); position: relative; }
 .dr-file i { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: linear-gradient(225deg, #0F0B09 50%, #C9B9A8 50%); border-top-right-radius: 8px; }
 .dr-file.sm { width: 26px; height: 30px; }
 
@@ -83,7 +83,7 @@
 
 /* القراءة */
 .dr-flycard { width: 150px; padding: 12px; border-radius: 16px; background: linear-gradient(180deg, #F6EFE7, #E4D8CB); color: #2A1404; box-shadow: 0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.4) inset; display: flex; gap: 10px; align-items: center; }
-.dr-flycard .dr-ft { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.dr-flycard .dr-ft { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .dr-fly { position: absolute; z-index: 6; pointer-events: none; animation: drFlyX .7s cubic-bezier(.25,.6,.35,1) .2s both; }
 .dr-fly > .dr-flycard { animation: drFlyY .7s cubic-bezier(.6,0,.9,.55) .2s both; transform-origin: 50% 50%; }
 .dr-dot { width: 10px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.14); transition: width .45s cubic-bezier(.2,.8,.2,1), background .45s; }
@@ -104,7 +104,7 @@
 .dr-global { position: fixed; inset: 0; z-index: 130; pointer-events: none; animation: drFade .3s ease-out both; }
 .dr-global-dim { position: absolute; inset: 0; background: rgba(8,6,5,.74); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
 .dr-gcard { position: absolute; z-index: 6; width: 150px; padding: 12px; border-radius: 16px; background: linear-gradient(180deg, #F6EFE7, #E4D8CB); color: #2A1404; box-shadow: 0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.4) inset; display: flex; gap: 10px; align-items: center; text-align: start; }
-.dr-gcard-ic { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.dr-gcard-ic { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 @media (max-width: 767px) { .dr-gcard { display: none; } }
 .dr-global-frame { position: absolute; inset: 24px; border-radius: 32px; border: 2px dashed rgba(255,199,119,.55); box-shadow: inset 0 0 120px rgba(255,120,20,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; }
 

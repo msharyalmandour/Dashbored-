@@ -22,7 +22,7 @@ interface AppointmentsTabProps {
 }
 
 const STATUS: Record<MeetingBookingRow["status"], { label: string; cls: string; icon: typeof Clock }> = {
-  confirmed: { label: tr("مؤكد"), cls: "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]", icon: CalendarCheck },
+  confirmed: { label: tr("مؤكد"), cls: "border-[#FFC777]/40 bg-[#FFC777]/10 text-[#FFC777]", icon: CalendarCheck },
   pending: { label: tr("بانتظار تأكيد المشرف/ة"), cls: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]", icon: Clock },
   declined: { label: tr("اعتذرت، اقترحوا غيره"), cls: "border-rose-400/40 bg-rose-500/10 text-rose-300", icon: CalendarX },
   cancelled: { label: tr("ملغي"), cls: "border-white/15 bg-white/[0.04] text-[#B8ADA2]", icon: CalendarX },
@@ -100,7 +100,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     )}
                   >
                     <span className="block text-xs font-extrabold">{formatDateShort(d.date)}</span>
-                    <span className="block text-[11px] opacity-70">{relativeDayLabel(d.date)}</span>
+                    <span className="block text-[12px] opacity-70">{relativeDayLabel(d.date)}</span>
                   </button>
                 ))}
               </div>
@@ -184,7 +184,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     {b.supervisorNote && <p className="mt-1 text-xs text-[#E6DBD1]">{trx("ملاحظة المشرف/ة: {0}", b.supervisorNote)}</p>}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold ${st.cls}`}>
+                    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[12px] font-bold ${st.cls}`}>
                       <Icon size={12} />
                       {st.label}
                     </span>

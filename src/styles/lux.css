@@ -73,7 +73,7 @@ html[data-reduce-motion="true"] .lx-in { animation: none; }
 .mt-row:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
 .mt-num { flex: none; width: 52px; font-size: 34px; font-weight: 800; line-height: 1; background: linear-gradient(180deg, #FFE2B0, #FF9A3C); -webkit-background-clip: text; background-clip: text; color: transparent; padding-top: .1em; }
 .mt-avs { display: inline-flex; }
-.mt-avs i { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; font-style: normal; color: #160904; box-shadow: 0 0 0 2px #1A120E; margin-inline-start: -6px; }
+.mt-avs i { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; font-style: normal; color: #160904; box-shadow: 0 0 0 2px #1A120E; margin-inline-start: -6px; }
 .mt-avs i:first-child { margin-inline-start: 0; }
 .mt-hero { position: relative; overflow: hidden; border-radius: 30px; padding: 30px 32px; background: radial-gradient(120% 140% at 85% 0%, rgba(255,106,0,.16), transparent 55%), linear-gradient(180deg, #120B08, #0A0705); box-shadow: inset 0 1px 0 rgba(255,240,225,.12), inset 0 0 0 1px rgba(255,199,119,.18), 0 30px 70px rgba(0,0,0,.45); color: #EAE3DC; }
 .mt-count { flex: none; width: 126px; min-height: 132px; border-radius: 26px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(255,240,225,.03); box-shadow: inset 0 0 0 1px rgba(255,240,225,.14); }

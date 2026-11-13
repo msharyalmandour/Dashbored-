@@ -30,7 +30,7 @@ export default function TimeOfDayBadge({ period }: { period: GreetingPeriod }) {
     <span className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center">
       <span
         className={clsx(
-          "absolute inset-0 rounded-full opacity-40 motion-reduce:hidden animate-[ping_2.6s_ease-in-out_infinite]",
+          "absolute inset-0 rounded-full opacity-40 motion-reduce:hidden animate-[ping_2.6s_ease-in-out_3]",
           periodGlow[period],
         )}
       />

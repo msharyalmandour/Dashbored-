@@ -35,7 +35,7 @@ export default function CinematicOverlay() {
               height: d.size,
               filter: "blur(0.6px)",
               opacity: 0,
-              animation: `cine-dust ${d.dur}s ease-out ${d.delay}s infinite`,
+              animation: `cine-dust ${d.dur}s ease-out ${d.delay}s 3`,
               "--dust-x": `${d.x}px`,
               "--dust-o": d.o,
             } as React.CSSProperties

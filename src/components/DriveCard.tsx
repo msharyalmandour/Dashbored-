@@ -144,11 +144,11 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         <div className="flex items-center gap-2">
           <span
             className={clsx(
-              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-bold",
-              connected ? "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]" : "border-white/15 bg-white/[0.04] text-[#B8ADA2]",
+              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[12px] font-bold",
+              connected ? "border-[#FFC777]/40 bg-[#FFC777]/10 text-[#FFC777]" : "border-white/15 bg-white/[0.04] text-[#B8ADA2]",
             )}
           >
-            <span className={clsx("h-1.5 w-1.5 rounded-full", connected ? "bg-[#7fd6a0] shadow-[0_0_8px] shadow-[#7fd6a0]/80" : "bg-white/30")} />
+            <span className={clsx("h-1.5 w-1.5 rounded-full", connected ? "bg-[#FFC777] shadow-[0_0_8px] shadow-[#FFC777]/80" : "bg-white/30")} />
             {connected ? tr("مربوط") : tr("غير مربوط")}
           </span>
           {connected && status.isLeader && (
@@ -192,7 +192,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("مربوط بحساب")}</p>
+              <p className="text-[12px] font-bold text-[#B8ADA2]">{tr("مربوط بحساب")}</p>
               <p dir="ltr" className="truncate text-start text-sm font-bold">{status.googleEmail}</p>
               {status.connectedByName && <p className="mt-0.5 text-xs text-[#B8ADA2]">{trx("ربطه {0}", status.connectedByName)}</p>}
             </div>

@@ -99,7 +99,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
         {chips.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {chips.map((c) => (
-              <button key={c} type="button" onClick={() => setQuery(c)} className="max-w-full truncate rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold text-brand-800 hover:bg-surface-muted" dir="ltr" title={c}>
+              <button key={c} type="button" onClick={() => setQuery(c)} className="max-w-full truncate rounded-full border border-brand-200 px-3 py-1 text-[12px] font-semibold text-brand-800 hover:bg-surface-muted" dir="ltr" title={c}>
                 {c}
               </button>
             ))}
@@ -135,7 +135,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           {logMsg && <span className="text-xs text-brand-950/60">{logMsg}</span>}
         </div>
         {rows.length > 0 && (
-          <ul className="space-y-1 text-[11px] text-brand-950/60">
+          <ul className="space-y-1 text-[12px] text-brand-950/60">
             {rows.slice(0, 5).map((r) => (
               <li key={r.id} className="truncate">
                 <b className="text-brand-950/80">{r.database}</b> · {r.results ?? "؟"} → {r.selected ?? "؟"} · {nameOf(r.by)} · <span dir="ltr">{r.query}</span>
@@ -148,7 +148,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
       <div className="space-y-2">
         <p className="text-xs font-bold text-brand-950/70">{tr("3) ألصقوا الدراسات اللي اخترتوها")}</p>
         <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={4} dir="ltr" className={field} placeholder={"https://doi.org/10.1016/j.ijnurstu.2019.103456\nKnowledge and practice of nurses toward early delirium detection"} />
-        <p className="text-[11px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
+        <p className="text-[12px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
         <button type="button" onClick={convert} disabled={busy || pasted.trim().length < 10} className="inline-flex items-center gap-1.5 rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
           {busy && <Loader2 size={13} className="animate-spin" />}
           {tr("تعرّف عليها")}

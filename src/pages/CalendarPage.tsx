@@ -26,7 +26,7 @@ const typeIcon: Record<CalendarEventType, typeof Users2> = {
 
 const typeColor: Record<CalendarEventType, string> = {
   meeting: "bg-brand-500/15 text-amber-accent-400",
-  review: "bg-[#7fd6a0]/15 text-[#7fd6a0]",
+  review: "bg-[#FFC777]/15 text-[#FFC777]",
   fieldwork: "bg-amber-accent-400/15 text-amber-accent-400",
   deadline: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
 };

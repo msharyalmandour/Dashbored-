@@ -42,7 +42,7 @@ export default function DriveNotice() {
             </span>
             <span className="ml-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.08] ring-1 ring-white/15">
               {done ? (
-                <span className="drive-notice__check flex h-9 w-9 items-center justify-center rounded-full bg-[#7fd6a0] text-[#06210f]">
+                <span className="drive-notice__check flex h-9 w-9 items-center justify-center rounded-full bg-[#FFC777] text-[#1A0802]">
                   <Check size={20} strokeWidth={3.2} />
                 </span>
               ) : failed ? (

@@ -175,20 +175,20 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
               <div className="min-w-0 flex-1">
                 {slide.kind === "title" && (
                   <>
-                    <p className="text-[11px] font-bold text-brand-950/45">{tr("الخطوة الأولى")}</p>
+                    <p className="text-[12px] font-bold text-brand-950/45">{tr("الخطوة الأولى")}</p>
                     <p className="text-base font-extrabold text-brand-950">{tr("ثبّتوا عنوان بحثكم")}</p>
                   </>
                 )}
                 {slide.kind === "advance" && current && next && nextAction && (
                   <>
-                    <p className="text-[11px] font-bold text-brand-950/45">{trx("خلصتوا «{0}»", current.titleAr)}</p>
+                    <p className="text-[12px] font-bold text-brand-950/45">{trx("خلصتوا «{0}»", current.titleAr)}</p>
                     <p className="text-base font-extrabold text-brand-950">{trx("المرحلة الجاية: {0}", next.titleAr)}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-brand-950/60">{nextAction.title} — {nextAction.why}</p>
                   </>
                 )}
                 {slide.kind === "step" && slide.step && (
                   <>
-                    <p className="text-[11px] font-bold text-brand-950/45">{trx("وش {0} الحين؟", g(isFemale, tr("تسوين"), tr("تسوي")))}</p>
+                    <p className="text-[12px] font-bold text-brand-950/45">{trx("وش {0} الحين؟", g(isFemale, tr("تسوين"), tr("تسوي")))}</p>
                     <p className="text-base font-extrabold text-brand-950">{slide.step.title}</p>
                     <p className="mt-0.5 text-xs leading-relaxed text-brand-950/60">{slide.step.why}</p>
                   </>
@@ -253,7 +253,7 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
               </div>
             )}
             {current && (
-              <p className="min-w-0 flex-1 truncate text-[11px] text-brand-950/50">{tr("مرحلتكم: ")}<b className="text-brand-950/75">{current.titleAr}</b>
+              <p className="min-w-0 flex-1 truncate text-[12px] text-brand-950/50">{tr("مرحلتكم: ")}<b className="text-brand-950/75">{current.titleAr}</b>
                 {next && <>{trx(" · الجاية: {0}", next.titleAr)}</>}
               </p>
             )}
@@ -263,11 +263,11 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
                   if (window.confirm(tr("تأكدتم إنكم خلصتوا «{0}» وتبون تنتقلون لـ «{1}»؟", current.titleAr, next.titleAr))) advance();
                 }}
                 disabled={busy}
-                className="rounded-lg border border-brand-100 px-2.5 py-1 text-[11px] font-bold text-brand-700 hover:bg-surface-muted disabled:opacity-50"
+                className="rounded-lg border border-brand-100 px-2.5 py-1 text-[12px] font-bold text-brand-700 hover:bg-surface-muted disabled:opacity-50"
               >{tr("خلّصنا هالمرحلة")}</button>
             )}
             {prev && (
-              <button onClick={revert} disabled={busy} className="flex items-center gap-1 text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">
+              <button onClick={revert} disabled={busy} className="flex items-center gap-1 text-[12px] font-bold text-brand-950/40 hover:text-brand-950/70">
                 <Undo2 size={11} />{trx("رجّعوا «{0}»", prev.titleAr)}</button>
             )}
           </div>
@@ -275,9 +275,9 @@ export default function TodayCard({ stages, autoData, projectTitle, isLeader, is
 
         {showOnb && !celebrate && (
           <div className="flex flex-wrap items-center gap-2 rounded-xl bg-paper/60 px-3 py-2">
-            <span className="text-[11px] font-extrabold text-brand-950/55">{tr("ابدأوا بثلاث خطوات")}</span>
+            <span className="text-[12px] font-extrabold text-brand-950/55">{tr("ابدأوا بثلاث خطوات")}</span>
             {onbSteps.map((s) => (
-              <Link key={s.id} to={s.to} className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${s.done ? "border-brand-200 text-brand-950/40 line-through" : "border-brand-100 text-brand-700 hover:bg-surface-muted"}`}>
+              <Link key={s.id} to={s.to} className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[12px] font-bold ${s.done ? "border-brand-200 text-brand-950/40 line-through" : "border-brand-100 text-brand-700 hover:bg-surface-muted"}`}>
                 {s.done ? <Check size={11} className="text-brand-500" /> : <Circle size={11} className="text-brand-950/30" />}
                 {s.label}
               </Link>

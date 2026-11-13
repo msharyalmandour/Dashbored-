@@ -197,7 +197,7 @@ export default function SupervisorFeedback() {
                         fromSup ? "bg-violet-50 text-brand-950" : "border border-brand-100 bg-surface-muted text-brand-950"
                       }`}
                     >
-                      <p className="text-[11px] font-bold text-brand-950/45">
+                      <p className="text-[12px] font-bold text-brand-950/45">
                         {fromSup ? m.senderName || tr("المشرفة") : m.senderName ? tr("أنتم — {0}", m.senderName) : tr("أنتم")}
                         <span className="ms-2 font-medium">{formatDateLong(m.createdAt.slice(0, 10))}</span>
                       </p>
@@ -242,10 +242,10 @@ export default function SupervisorFeedback() {
                 className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-brand-600"
               >
                 <MessageCircle size={14} />{tr("نبّهوها بواتساب")}</a>
-              <button onClick={() => setNudge(false)} className="text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
+              <button onClick={() => setNudge(false)} className="text-[12px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
             </div>
           )}
-          <p className="text-[11px] text-brand-950/40">{tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}</p>
+          <p className="text-[12px] text-brand-950/40">{tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}</p>
         </Card>
       )}
 
@@ -281,7 +281,7 @@ export default function SupervisorFeedback() {
         </div>
         {splitMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{splitMsg}</p>}
         {!aiOk && isSupabaseConfigured && (
-          <p className="text-[11px] text-brand-950/45">{tr("التقسيم الذكي متاح بباقة AI. التقسيم البسيط مجاني.")}</p>
+          <p className="text-[12px] text-brand-950/45">{tr("التقسيم الذكي متاح بباقة AI. التقسيم البسيط مجاني.")}</p>
         )}
       </Card>
 
@@ -391,7 +391,7 @@ export default function SupervisorFeedback() {
               </button>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-semibold ${i.status === "done" ? "text-brand-950/40 line-through" : "text-brand-950"}`}>{i.comment}</p>
-                <p className="mt-0.5 text-[11px] text-brand-950/45">
+                <p className="mt-0.5 text-[12px] text-brand-950/45">
                   {sectionLabels[i.sectionKey] ?? tr("أخرى")} · {formatDateLong(i.feedbackDate)}
                   {i.status === "done" && i.resolvedAt ? tr(" · انحلّت {0}", formatDateLong(i.resolvedAt.slice(0, 10))) : ""}
                 </p>

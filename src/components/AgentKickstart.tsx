@@ -158,7 +158,7 @@ export default function AgentKickstart() {
 
   const Approve = ({ section, onClick, label, disabled }: { section: Section; onClick: () => void; label: string; disabled?: boolean }) =>
     done[section] ? (
-      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fd6a0]">
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
         <CheckCircle2 size={16} />{tr(" تم")}</span>
     ) : (
       <button onClick={onClick} disabled={!canWrite || disabled || applying !== null} className={primaryBtn}>
@@ -244,7 +244,7 @@ export default function AgentKickstart() {
                 </div>
               </div>
               {result.gap.gapStatement && <p className="mt-2 rounded-2xl bg-black/25 px-4 py-3 text-sm text-brand-950/80">{result.gap.gapStatement}</p>}
-              <p className="mt-1.5 text-[11px] text-brand-950/40">{tr("مسودة مبنية على ملخصات الدراسات فقط — اقرأوا الدراسات كاملة وناقشوها مع المشرف/ة قبل ما تعتمدونها.")}</p>
+              <p className="mt-1.5 text-[12px] text-brand-950/40">{tr("مسودة مبنية على ملخصات الدراسات فقط — اقرأوا الدراسات كاملة وناقشوها مع المشرف/ة قبل ما تعتمدونها.")}</p>
             </section>
           )}
 

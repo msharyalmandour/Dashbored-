@@ -83,11 +83,11 @@
   .sv-mem { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
   .sv-mem + .sv-mem { border-top: 1px solid rgba(255,255,255,.06); }
   .sv-av { position: relative; width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 14px; font-weight: 800; color: #1A0B05; }
-  .sv-av.sm { width: 22px; height: 22px; font-size: 10px; }
+  .sv-av.sm { width: 22px; height: 22px; font-size: 12px; }
   .sv-av i { position: absolute; bottom: -1px; inset-inline-end: -1px; width: 12px; height: 12px; border-radius: 50%; background: #5E554D; box-shadow: 0 0 0 2.5px #150C08; }
   .sv-av i.on { background: #4ADE80; }
   .sv-mn { font-size: 15px; font-weight: 800; color: #F2EBE3; }
-  .sv-lead { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #FFC777; background: rgba(255,180,68,.14); margin-inline-start: 6px; vertical-align: 2px; }
+  .sv-lead { font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #FFC777; background: rgba(255,180,68,.14); margin-inline-start: 6px; vertical-align: 2px; }
   .sv-ms { font-size: 12px; color: #ABA095; margin-top: 1px; }
   .sv-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
   .sv-bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #FF6A00, #FFB547); transform-origin: right; animation: svGrow 1s cubic-bezier(.2,.8,.2,1) .3s both; }

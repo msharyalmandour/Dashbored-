@@ -40,7 +40,7 @@ function Cell({ value, ai, v }: { value: CompareRow["basic"]; ai?: boolean; v: V
       </span>
     );
   if (value === false) return <Minus size={16} className={t.muted} />;
-  return <span className={`text-[11px] leading-snug ${ai ? t.aiText : t.basicText}`}>{value}</span>;
+  return <span className={`text-[12px] leading-snug ${ai ? t.aiText : t.basicText}`}>{value}</span>;
 }
 
 /** جدول مقارنة Basic مقابل AI — مصدره plans.ts (نفس الحقيقة بالصفحة الرئيسية وصفحة الباقات) */
@@ -52,19 +52,19 @@ export default function PlanComparison({ variant = "dark" }: { variant?: Variant
         <p className={`font-display text-base font-extrabold ${t.head}`}>{tr("الفرق بنظرة")}</p>
         <div className="text-center">
           <p className={`text-xs font-extrabold ${t.head}`}>{tr("الفريق")}</p>
-          <p className={`text-[11px] ${t.basicText}`}>{trx("{0} ريال", BASIC_PRICE)}</p>
+          <p className={`text-[12px] ${t.basicText}`}>{trx("{0} ريال", BASIC_PRICE)}</p>
         </div>
         <div className="text-center">
           <p className={`inline-flex items-center gap-1 text-xs font-extrabold ${t.aiText}`}>
             <Wand2 size={11} />
             {tr("+ المساعد")}
           </p>
-          <p className={`text-[11px] ${t.basicText}`}>{trx("{0} ريال", AI_PRICE)}</p>
+          <p className={`text-[12px] ${t.basicText}`}>{trx("{0} ريال", AI_PRICE)}</p>
         </div>
       </div>
       {planComparison.map((g) => (
         <div key={g.title}>
-          <p className={`px-4 py-2 text-[11px] font-extrabold tracking-wide sm:px-6 ${t.group}`}>{g.title}</p>
+          <p className={`px-4 py-2 text-[12px] font-extrabold tracking-wide sm:px-6 ${t.group}`}>{g.title}</p>
           {g.rows.map((r) => (
             <div
               key={r.label}

@@ -76,9 +76,9 @@ export default function ToolsLibrary() {
                   <p className="text-sm font-extrabold text-brand-950">{t.toolName}</p>
                   {t.measures && <p className="mt-0.5 text-xs text-brand-950/55">{t.measures}</p>}
                 </div>
-                {t.isArabic && <span className="shrink-0 rounded-full border border-[#7fd6a0] px-2.5 py-0.5 text-[11px] font-semibold text-[#7fd6a0]">{tr("عربي")}</span>}
+                {t.isArabic && <span className="shrink-0 rounded-full border border-[#FFC777] px-2.5 py-0.5 text-[12px] font-semibold text-[#FFC777]">{tr("عربي")}</span>}
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div className="grid grid-cols-2 gap-2 text-[12px]">
                 {[
                   [tr("الفقرات"), t.items],
                   [tr("الثبات"), t.reliability],
@@ -92,7 +92,7 @@ export default function ToolsLibrary() {
                 ))}
               </div>
               {t.sourceUrl && (
-                <a href={t.sourceUrl} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 text-[11px] font-semibold text-brand-600 hover:underline">
+                <a href={t.sourceUrl} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 text-[12px] font-semibold text-brand-600 hover:underline">
                   <ExternalLink size={12} className="mt-0.5 shrink-0" />
                   <span>
                     {t.sourceTitle || tr("الدراسة الأصلية")}
@@ -104,7 +104,7 @@ export default function ToolsLibrary() {
           ))}
         </div>
       )}
-      <p className="text-center text-[11px] text-brand-950/40">{tr("المعلومات مستخرجة آليًا من ملخصات الدراسات وقد تحتوي أخطاء — تحقّقوا من الدراسة الأصلية وخذوا إذن صاحب الأداة قبل استخدامها.")}</p>
+      <p className="text-center text-[12px] text-brand-950/40">{tr("المعلومات مستخرجة آليًا من ملخصات الدراسات وقد تحتوي أخطاء — تحقّقوا من الدراسة الأصلية وخذوا إذن صاحب الأداة قبل استخدامها.")}</p>
     </div>
   );
 }

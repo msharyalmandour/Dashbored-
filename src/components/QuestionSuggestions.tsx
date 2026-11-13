@@ -144,7 +144,7 @@ export default function QuestionSuggestions({
         </details>
       )}
       {result?.noveltyNote && <p className="mt-3 text-xs text-brand-950/55">💡 {result.noveltyNote}</p>}
-      <p className="mt-2 text-[11px] text-brand-950/40">{tre("اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.")}</p>
+      <p className="mt-2 text-[12px] text-brand-950/40">{tre("اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.")}</p>
     </div>
   );
 }

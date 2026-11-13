@@ -65,10 +65,10 @@ export default function Pricing() {
       <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-gradient-to-b from-brand-50 to-paper px-6 py-10 text-center sm:px-10">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-[blob-drift_11s_ease-in-out_infinite] rounded-full bg-amber-accent-200/40 blur-3xl motion-reduce:animate-none" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-[blob-drift_11s_ease-in-out_3] rounded-full bg-amber-accent-200/40 blur-3xl motion-reduce:animate-none" />
           <div className="pointer-events-none absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-brand-200/30 blur-3xl" />
 
-          <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
+          <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
             <Wand2 size={12} />
             Wesync Premium
           </span>
@@ -101,7 +101,7 @@ export default function Pricing() {
             >
               <div className="glass-panel relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper/80 p-6 backdrop-blur-xl">
                 {isAi && (
-                  <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
+                  <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[12px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
                     <Wand2 size={11} />{tr("الأكثر قيمة")}</span>
                 )}
                 <p className="font-display text-lg font-extrabold text-brand-950">
@@ -114,13 +114,13 @@ export default function Pricing() {
                   <span className="font-display text-4xl font-extrabold text-brand-950">{price}</span>
                   <span className="text-sm font-semibold text-brand-950/50">{tr("ريال / شهريًا للفريق كامل")}</span>
                 </div>
-                <p className="mt-1 text-[11px] font-semibold text-brand-950/45">
+                <p className="mt-1 text-[12px] font-semibold text-brand-950/45">
                   {memberCount > 1
                     ? trx("يعني {0} ريال لكل عضو من {1}", memberShare(price, memberCount), memberCount)
                     : tr("سعر الباحث لحاله — ينزل نصيب كل واحد كل ما زاد فريقكم")}
                 </p>
                 {isAi && isFounder && memberCount > 1 && (
-                  <p className="mt-1 text-[11px] font-bold text-amber-accent-700">{trx("سعر المؤسسين — المساعد بـ{0} ريال بدل {1}، ثابت مدى اشتراككم", AI_ADDON_FOUNDER, AI_ADDON_TEAM)}</p>
+                  <p className="mt-1 text-[12px] font-bold text-amber-accent-700">{trx("سعر المؤسسين — المساعد بـ{0} ريال بدل {1}، ثابت مدى اشتراككم", AI_ADDON_FOUNDER, AI_ADDON_TEAM)}</p>
                 )}
 
                 <ul className="mt-5 flex-1 space-y-2.5">
@@ -189,7 +189,7 @@ export default function Pricing() {
         <div className="relative overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper p-6 sm:p-8">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-950/10 to-transparent" />
           <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-accent-100/70 blur-3xl" />
-          <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
+          <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[12px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
             {currentPlan === "ai" ? tr("الفريق + المساعد الذكي") : tr("اشتراك الفريق")}
           </span>
 
@@ -223,7 +223,7 @@ export default function Pricing() {
             {isActive ? tr("اشتراككم مفعّل ✓") : tr("ادفعوا حصتكم الآن")}
           </button>
 
-          <p className="mt-3 text-center text-[11px] text-brand-950/40">{trx("{0} يوم تجربة مجانية بدون بطاقة · بدون تجديد تلقائي · Apple Pay وSTC Pay ومدى عبر Moyasar", TRIAL_DAYS)}</p>
+          <p className="mt-3 text-center text-[12px] text-brand-950/40">{trx("{0} يوم تجربة مجانية بدون بطاقة · بدون تجديد تلقائي · Apple Pay وSTC Pay ومدى عبر Moyasar", TRIAL_DAYS)}</p>
         </div>
       </div>
 
@@ -245,10 +245,10 @@ export default function Pricing() {
                   </span>
                 </div>
                 {hasPaid ? (
-                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm shadow-brand-500/30">
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2.5 py-1 text-[12px] font-bold text-white shadow-sm shadow-brand-500/30">
                     <Check size={12} />{tr("دفع حصته")}</span>
                 ) : (
-                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-bold text-brand-950/40">{tr("لسا")}</span>
+                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[12px] font-bold text-brand-950/40">{tr("لسا")}</span>
                 )}
               </li>
             );

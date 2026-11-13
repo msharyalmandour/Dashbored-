@@ -135,7 +135,7 @@ export default function MinutesList(props: MinutesListProps) {
 
             {prog.total > 0 && (
               <div>
-                <div className="mb-1 flex items-center justify-between text-[11px] font-bold text-[#B8ADA2]">
+                <div className="mb-1 flex items-center justify-between text-[12px] font-bold text-[#B8ADA2]">
                   <span>{tr("إنجاز بنود هذا الاجتماع")}</span>
                   <span>{trx("{0} من {1}", prog.done, prog.total)}</span>
                 </div>
@@ -167,7 +167,7 @@ export default function MinutesList(props: MinutesListProps) {
                   const done = isActionDone(a, tasks);
                   return (
                     <li key={a.id} className="flex items-start gap-2 text-sm">
-                      {done ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-[#7fd6a0]" /> : <Circle size={16} className="mt-0.5 shrink-0 text-[#B8ADA2]/50" />}
+                      {done ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-[#FFC777]" /> : <Circle size={16} className="mt-0.5 shrink-0 text-[#B8ADA2]/50" />}
                       <span className={done ? "text-[#B8ADA2] line-through" : ""}>
                         {a.text}
                         <span className="text-xs text-[#B8ADA2]">

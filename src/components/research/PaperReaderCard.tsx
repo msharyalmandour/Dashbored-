@@ -149,16 +149,16 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
               .filter(([, v]) => v)
               .map(([k, v]) => (
                 <div key={k}>
-                  <dt className="text-[11px] font-bold text-[#B8ADA2]">{k}</dt>
+                  <dt className="text-[12px] font-bold text-[#B8ADA2]">{k}</dt>
                   <dd className="text-[13px] text-[#E6DBD1]">{v}</dd>
                 </div>
               ))}
           </dl>
-          <p className="text-[11px] text-[#B8ADA2]">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
+          <p className="text-[12px] text-[#B8ADA2]">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             {saved ? (
               <>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fd6a0]">
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
                   <Check size={15} /> {tr("انضافت للمكتبة وجدول الأدبيات")}
                 </span>
                 <Link to="/literature-review" className="text-xs font-bold text-[#FFB444] hover:underline">
@@ -176,7 +176,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
               </>
             )}
           </div>
-          <p className="text-[11px] text-[#B8ADA2]/80">{tr("الملخص من نص الورقة بالذكاء — راجعوا الأرقام بالأصل قبل ما تعتمدونها بالبحث.")}</p>
+          <p className="text-[12px] text-[#B8ADA2]/80">{tr("الملخص من نص الورقة بالذكاء — راجعوا الأرقام بالأصل قبل ما تعتمدونها بالبحث.")}</p>
         </div>
       )}
     </div>

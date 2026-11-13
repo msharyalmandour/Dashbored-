@@ -145,7 +145,7 @@ html[data-reduce-motion="true"] .vm-fi { animation: none; }
 .ml-live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #FF9A3C; }
 .ml-face { position: relative; margin-inline-start: -8px; border: 0; background: transparent; padding: 0; cursor: pointer; min-width: 30px; min-height: 44px; display: flex; align-items: center; }
 .ml-face[aria-pressed="false"] { opacity: .45; }
-.ml-face i { position: absolute; bottom: 2px; inset-inline-end: -2px; width: 14px; height: 14px; border-radius: 50%; background: #FFC777; color: #1A0A02; font-size: 9px; font-style: normal; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A120E; }
+.ml-face i { position: absolute; bottom: 2px; inset-inline-end: -2px; width: 18px; height: 18px; border-radius: 50%; background: #FFC777; color: #1A0A02; font-size: 12px; font-style: normal; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #1A120E; }
 .ml-line { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 18px; animation: mlIn .45s cubic-bezier(.2,.8,.2,1) both; }
 .ml-line.dec { background: linear-gradient(90deg, rgba(255,199,119,.10), rgba(255,199,119,.03)); box-shadow: inset 0 0 0 1px rgba(255,199,119,.25); }
 @keyframes mlIn { from { opacity: 0; transform: translateX(var(--ml-dx, 14px)); } to { opacity: 1; transform: none; } }
@@ -153,7 +153,7 @@ html[data-reduce-motion="true"] .vm-fi { animation: none; }
 .ml-mic-av { width: 28px; height: 28px; flex: none; border-radius: 50%; background: rgba(255,255,255,.08); color: #FFC777; display: flex; align-items: center; justify-content: center; }
 .ml-tag { min-height: 44px; border-radius: 14px; border: 0; font-family: inherit; font-size: 13px; font-weight: 800; background: rgba(255,255,255,.07); color: #EAE3DC; cursor: pointer; }
 .ml-tag.warm { color: #FFC777; background: rgba(255,154,60,.12); }
-.ml-tag small { font-size: 11px; opacity: .7; margin-inline-end: 4px; }
+.ml-tag small { font-size: 12px; opacity: .7; margin-inline-end: 4px; }
 .ml-tag[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px #FFC777; background: rgba(255,199,119,.16); color: #FFE2B0; }
 .ml-micbtn { width: 48px; height: 48px; flex: none; border-radius: 16px; border: 0; background: #F2EBE3; color: #160904; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .ml-micbtn[aria-pressed="true"] { background: rgba(255,199,119,.18); color: #FFC777; box-shadow: inset 0 0 0 1.5px #FFC777; }
@@ -370,7 +370,7 @@ html[data-reduce-motion="true"] .sd-in, html[data-reduce-motion="true"] .sd-bar 
 .mt-btn[aria-pressed="true"] { background: #F2EBE3; color: #160904; }
 .mt-btn.off { color: #FF8A7A; background: rgba(255,138,122,.12); box-shadow: inset 0 0 0 1px rgba(255,138,122,.28); }
 .mt-btn.leave { width: auto; padding: 0 18px; gap: 8px; font-family: inherit; font-weight: 800; font-size: 14px; color: #FFB2A6; background: rgba(255,138,122,.14); box-shadow: inset 0 0 0 1px rgba(255,138,122,.3); }
-.mt-btn .dot { position: absolute; top: 8px; inset-inline-end: 8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: #FF6A00; color: #1A0802; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.mt-btn .dot { position: absolute; top: 8px; inset-inline-end: 8px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 99px; background: #FF6A00; color: #1A0802; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .mt-chat { width: 340px; flex: none; display: flex; flex-direction: column; border-radius: 24px; background: linear-gradient(180deg, #2A1A12, #160E0A); box-shadow: inset 0 1px 0 rgba(255,236,210,.14), inset 0 0 0 1px rgba(255,214,170,.08); overflow: hidden; }
 @media (max-width: 899px) { .mt-chat { position: fixed; inset-inline: 0; bottom: 0; width: auto; height: 62vh; border-radius: 26px 26px 0 0; z-index: 2010; animation: sdSheet .45s cubic-bezier(.2,.9,.25,1) both; } }
 .mt-chat-list { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }

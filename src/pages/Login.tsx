@@ -533,7 +533,7 @@ export default function Login() {
             </div>
         </main>
 
-        <footer className="pb-1 text-center text-[11px] tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
+        <footer className="pb-1 text-center text-[12px] tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
       </div>
     </div>
   );

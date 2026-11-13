@@ -97,9 +97,9 @@ export default function PhoneCalendarCard() {
             ))}
           </div>
 
-          <p className="text-[11px] leading-relaxed text-brand-950/45">{tr("آبل تحدّثه كل 15 دقيقة تقريبًا. قوقل يحدّث التقويمات المشترك فيها بجدوله هو، وممكن يتأخر كم ساعة.")}</p>
+          <p className="text-[12px] leading-relaxed text-brand-950/45">{tr("آبل تحدّثه كل 15 دقيقة تقريبًا. قوقل يحدّث التقويمات المشترك فيها بجدوله هو، وممكن يتأخر كم ساعة.")}</p>
 
-          <details className="text-[11px] text-brand-950/50">
+          <details className="text-[12px] text-brand-950/50">
             <summary className="cursor-pointer font-semibold text-brand-950/60">{tr("خيارات أخرى")}</summary>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <button onClick={copy} className="inline-flex items-center gap-1.5 font-semibold text-amber-accent-400 hover:underline">

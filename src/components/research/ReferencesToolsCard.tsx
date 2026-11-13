@@ -137,7 +137,7 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
       {check && (
         <div className="space-y-2 rounded-2xl border border-white/[0.12] p-3 text-xs">
           <p className="flex items-center gap-1.5 font-bold text-[#F4F0EC]">
-            {check.missing.length === 0 ? <Check size={14} className="text-[#7fd6a0]" /> : <AlertTriangle size={14} className="text-[#FFB444]" />}
+            {check.missing.length === 0 ? <Check size={14} className="text-[#FFC777]" /> : <AlertTriangle size={14} className="text-[#FFB444]" />}
             {tr("{0} استشهاد مطابق لمكتبتكم", check.matched)}
           </p>
           {check.missing.length > 0 && (
@@ -152,7 +152,7 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
               <p dir="ltr" className="text-start text-[#E6DBD1]">{check.uncited.map((p) => `${p.authors.split(",")[0]} (${p.year})`).join(" · ")}</p>
             </div>
           )}
-          <p className="text-[11px] text-[#B8ADA2]/80">{tr("الفحص يقرأ صيغة APA بالنص (Devon, 2010) و(Devon et al., 2010) ويطابق أول مؤلف والسنة. مراجعتكم النهائية تبقى مع المشرف/ة.")}</p>
+          <p className="text-[12px] text-[#B8ADA2]/80">{tr("الفحص يقرأ صيغة APA بالنص (Devon, 2010) و(Devon et al., 2010) ويطابق أول مؤلف والسنة. مراجعتكم النهائية تبقى مع المشرف/ة.")}</p>
         </div>
       )}
     </div>

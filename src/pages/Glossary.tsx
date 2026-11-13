@@ -55,9 +55,9 @@ export default function Glossary() {
             <Card key={g.id} className="space-y-1.5">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm font-extrabold text-brand-950">{g.ar}</p>
-                <span className="shrink-0 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-bold text-brand-950/45">{tr(g.group)}</span>
+                <span className="shrink-0 rounded-full bg-surface-muted px-2 py-0.5 text-[12px] font-bold text-brand-950/45">{tr(g.group)}</span>
               </div>
-              <p className="font-mono text-[11px] text-brand-950/40" dir="ltr">
+              <p className="font-mono text-[12px] text-brand-950/40" dir="ltr">
                 {g.term}
               </p>
               <p className="text-sm leading-relaxed text-brand-950/75">{g.def}</p>

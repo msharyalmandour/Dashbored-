@@ -140,7 +140,7 @@ function SearchProgress() {
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[11px] text-[#B8ADA2]">{tr("ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
+      <p className="mt-3 text-[12px] text-[#B8ADA2]">{tr("ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
     </div>
   );
 }
@@ -202,12 +202,12 @@ function ResultCard({
           </SourceBadge>
           <span
             title={peer ? tr("منشورة بمجلة علمية محكّمة") : tr("مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه")}
-            className={`text-[11px] font-semibold ${peer ? "text-[#7fd6a0]" : "text-[#FFB444]"}`}
+            className={`text-[12px] font-semibold ${peer ? "text-[#FFC777]" : "text-[#FFB444]"}`}
           >
             {peer ? tr("✓ دراسة محكّمة") : result.sourceType === "general" ? tr("مصدر عام — تأكدوا منه") : tr("مصدر غير مصنّف")}
           </span>
-          {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.studyDesign}</span>}
-          {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.sampleSize}</span>}
+          {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[12px] text-[#B8ADA2]">{result.studyDesign}</span>}
+          {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[12px] text-[#B8ADA2]">{result.sampleSize}</span>}
         </div>
         <span className="text-sm text-[#B8ADA2]">{result.year ?? ""}</span>
       </div>
@@ -254,7 +254,7 @@ function ResultCard({
             </div>
           )}
           <label className="block">
-            <span className="mb-1 block text-[11px] font-bold text-[#B8ADA2]">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
+            <span className="mb-1 block text-[12px] font-bold text-[#B8ADA2]">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as LiteratureTheme)}
@@ -268,7 +268,7 @@ function ResultCard({
               ))}
             </select>
           </label>
-          <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-[#B8ADA2]">
+          <div className="flex flex-wrap items-center gap-3 text-[12px] font-semibold text-[#B8ADA2]">
             <a
               href={`https://scholar.google.com/scholar?q=${encodeURIComponent(`"${result.title}"`)}`}
               target="_blank"
@@ -421,11 +421,11 @@ export default function ResearchSearch() {
                 <SourceLogo name="scholar" />
               </a>
             </div>
-            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
+            <p className="-mt-1 text-[12px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
 
             {!st.topic.trim() && !st.searching && (
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="text-[11px] font-bold text-[#B8ADA2]/70">{tr("جرّبوا مثلًا:")}</span>
+                <span className="text-[12px] font-bold text-[#B8ADA2]/70">{tr("جرّبوا مثلًا:")}</span>
                 {exampleTopics.map((ex) => (
                   <button
                     key={ex}
@@ -441,7 +441,7 @@ export default function ResearchSearch() {
             {st.searching && <div className="w-full"><SearchProgress /></div>}
 
             {!st.searching && (
-              <p className="text-[11px] text-[#B8ADA2]/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
+              <p className="text-[12px] text-[#B8ADA2]/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
             )}
 
             {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
@@ -479,7 +479,7 @@ export default function ResearchSearch() {
               <div>
                 <p className="text-sm font-bold">{tr("وش يميّز بحثكم عن اللي انكتب؟")}</p>
                 <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">{st.activeResult.noveltyNote}</p>
-                <p className="mt-1.5 text-[11px] text-[#B8ADA2]/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
+                <p className="mt-1.5 text-[12px] text-[#B8ADA2]/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
               </div>
             </div>
           )}

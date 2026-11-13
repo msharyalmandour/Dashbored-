@@ -110,7 +110,7 @@ export default function PaperQA({
           <p className="ms-auto w-fit max-w-[92%] rounded-2xl bg-brand-500 px-3 py-1.5 text-xs text-white">{a.q}</p>
           <p className="max-w-[96%] whitespace-pre-wrap rounded-2xl bg-paper px-3 py-2 text-xs leading-relaxed text-brand-950/80">
             {a.a}
-            <span className="mt-1.5 block text-[10px] text-brand-950/35">
+            <span className="mt-1.5 block text-[12px] text-brand-950/35">
               {a.usedPdf ? tr("من ملف الـ PDF") : tr("من ملخص الدراسة فقط")}
             </span>
           </p>
@@ -118,7 +118,7 @@ export default function PaperQA({
       ))}
 
       {!hasMaterial && (
-        <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-[11px] font-semibold text-amber-accent-700">{tr("ما فيه ملخص محفوظ لهذي الدراسة — ارفعوا ملف PDF لها وأجاوب منه.")}</p>
+        <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-[12px] font-semibold text-amber-accent-700">{tr("ما فيه ملخص محفوظ لهذي الدراسة — ارفعوا ملف PDF لها وأجاوب منه.")}</p>
       )}
 
       <div className="flex flex-wrap gap-1.5">
@@ -127,7 +127,7 @@ export default function PaperQA({
             key={q}
             onClick={() => send(q)}
             disabled={busy || !hasMaterial}
-            className="rounded-full border border-brand-100 bg-paper px-2.5 py-1 text-[11px] font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-40"
+            className="rounded-full border border-brand-100 bg-paper px-2.5 py-1 text-[12px] font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-40"
           >
             {q}
           </button>
@@ -163,13 +163,13 @@ export default function PaperQA({
         </button>
       </div>
       {pdf && (
-        <p className="flex items-center gap-1.5 text-[11px] font-semibold text-brand-950/55">
+        <p className="flex items-center gap-1.5 text-[12px] font-semibold text-brand-950/55">
           <FileUp size={11} />
           {pdf.name}
           <button onClick={() => setPdf(null)} className="text-rose-500 hover:underline">{tr("إزالة")}</button>
         </p>
       )}
-      {error && <p className="text-[11px] font-semibold text-rose-600">{error}</p>}
+      {error && <p className="text-[12px] font-semibold text-rose-600">{error}</p>}
     </div>
   );
 }

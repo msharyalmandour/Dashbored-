@@ -61,7 +61,7 @@ export default function Celebration() {
         confettiDots.map((i) => (
           <span
             key={i}
-            className={`pointer-events-none absolute h-2.5 w-2.5 rounded-full opacity-70 motion-reduce:hidden ${confettiColors[i % confettiColors.length]} animate-[ping_2.4s_ease-in-out_infinite]`}
+            className={`pointer-events-none absolute h-2.5 w-2.5 rounded-full opacity-70 motion-reduce:hidden ${confettiColors[i % confettiColors.length]} animate-[ping_2.4s_ease-in-out_3]`}
             style={{
               left: `${(i * 37) % 100}%`,
               top: `${(i * 23) % 90}%`,

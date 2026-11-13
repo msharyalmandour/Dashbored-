@@ -22,7 +22,7 @@ function SaveToLibrary({ tool }: { tool: ToolFinding }) {
         const r = await saveToolToLibrary(tool, currentUser.id);
         setState(r.error ? "error" : r.duplicate ? "dup" : "saved");
       }}
-      className="flex items-center gap-1.5 text-[11px] font-bold text-brand-600 hover:underline disabled:opacity-70"
+      className="flex items-center gap-1.5 text-[12px] font-bold text-brand-600 hover:underline disabled:opacity-70"
     >
       {state === "saving" ? <Loader2 size={12} className="animate-spin" /> : state === "saved" || state === "dup" ? <Check size={12} /> : <BookmarkPlus size={12} />}
       {state === "saved" ? tr("انحفظت بالمكتبة المشتركة") : state === "dup" ? tr("موجودة بالمكتبة أصلًا") : state === "error" ? tr("تعذّر الحفظ — حاولوا مرة ثانية") : tr("احفظوها بمكتبة الأدوات")}
@@ -79,7 +79,7 @@ export default function ToolsFinder() {
         </div>
         {!construct.trim() && !busy && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold text-brand-950/40">{tr("جرّبوا مثلًا:")}</span>
+            <span className="text-[12px] font-bold text-brand-950/40">{tr("جرّبوا مثلًا:")}</span>
             {examples.map(([c, p]) => (
               <button
                 key={c}
@@ -118,7 +118,7 @@ export default function ToolsFinder() {
                   <p className="text-sm font-extrabold text-brand-950">{t.toolName}</p>
                   {t.measures && <p className="mt-0.5 text-xs text-brand-950/55">{t.measures}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="grid grid-cols-2 gap-2 text-[12px]">
                   {[
                     [tr("الفقرات"), t.items],
                     [tr("الثبات"), t.reliability],
@@ -137,7 +137,7 @@ export default function ToolsFinder() {
                   href={t.sourceUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-start gap-1.5 text-[11px] font-semibold text-brand-600 hover:underline"
+                  className="flex items-start gap-1.5 text-[12px] font-semibold text-brand-600 hover:underline"
                 >
                   <ExternalLink size={12} className="mt-0.5 shrink-0" />
                   <span>

@@ -206,7 +206,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
             <span className="block truncate">
               {running ? tr("جاري البحث: {0}", pillLabel[pillTarget]) : tr("جاهزة: {0} — اضغطوا للعرض", pillLabel[pillTarget])}
             </span>
-            {running && <span className="block truncate text-[11px] font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
+            {running && <span className="block truncate text-[12px] font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
           </span>
           {!running && <Search size={14} className="shrink-0 text-brand-950/40" />}
         </Link>

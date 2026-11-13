@@ -83,7 +83,7 @@ export default function Timeline() {
                 <RingProgress value={overall} size={104} strokeWidth={10}>
                   <div className="text-center leading-tight">
                     <div className="font-display text-xl font-bold text-brand-950">{overall}%</div>
-                    <div className="text-[11px] text-brand-950/50">{tr("مكتمل")}</div>
+                    <div className="text-[12px] text-brand-950/50">{tr("مكتمل")}</div>
                   </div>
                 </RingProgress>
                 <div className="min-w-0">
@@ -140,7 +140,7 @@ export default function Timeline() {
                     {monthMarks.map((m) => (
                       <span
                         key={m}
-                        className="absolute -translate-x-1/2 text-[11px] font-semibold text-brand-950/40 rtl:translate-x-1/2"
+                        className="absolute -translate-x-1/2 text-[12px] font-semibold text-brand-950/40 rtl:translate-x-1/2"
                         style={{ right: `${offsetPct(m)}%` }}
                       >
                         {monthNames[parseDate(m).getMonth()]}

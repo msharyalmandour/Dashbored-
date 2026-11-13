@@ -83,7 +83,7 @@ export default function Surveys() {
                 </div>
               </Panel>
             )}
-            <p className="text-[11px] leading-relaxed text-brand-950/40">{trx("حد الفريق {0} استبيانات. الردود مجهولة، وتنحفظ عندنا بحيث تشوفها أنتم بس. لازم يراجع الاستبيان المشرف/ـة و", MAX_SURVEYS)}<Term id="irb">{tr("لجنة الأخلاقيات")}</Term>{tr(" بجهتكم قبل النشر.")}</p>
+            <p className="text-[12px] leading-relaxed text-brand-950/40">{trx("حد الفريق {0} استبيانات. الردود مجهولة، وتنحفظ عندنا بحيث تشوفها أنتم بس. لازم يراجع الاستبيان المشرف/ـة و", MAX_SURVEYS)}<Term id="irb">{tr("لجنة الأخلاقيات")}</Term>{tr(" بجهتكم قبل النشر.")}</p>
           </>
         }
       />

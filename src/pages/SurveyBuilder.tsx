@@ -77,7 +77,7 @@ function TipRow({ tip }: { tip: Tip }) {
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center gap-2 text-start font-bold text-brand-950">
         {tip.level === "warn" ? <AlertTriangle size={13} className="shrink-0 text-amber-accent-600" /> : <Lightbulb size={13} className="shrink-0 text-brand-500" />}
         <span className="flex-1">{tip.title}</span>
-        <span className="text-[10px] font-semibold text-brand-950/40">{open ? tr("إخفاء") : tr("ليش؟")}</span>
+        <span className="text-[12px] font-semibold text-brand-950/40">{open ? tr("إخفاء") : tr("ليش؟")}</span>
       </button>
       {open && (
         <div className="mt-2 space-y-1.5 leading-relaxed text-brand-950/70">
@@ -147,7 +147,7 @@ function QuestionCard({
           </button>
         </div>
       </div>
-      <p className="text-[11px] text-brand-950/45">{qTypeMeta[q.type].hint}</p>
+      <p className="text-[12px] text-brand-950/45">{qTypeMeta[q.type].hint}</p>
       <textarea
         disabled={locked}
         value={q.text}
@@ -179,7 +179,7 @@ function QuestionCard({
           <button disabled={locked || (q.options ?? []).length >= 12} onClick={() => onChange({ ...q, options: [...(q.options ?? []), ""] })} className="text-xs font-bold text-brand-600 hover:underline disabled:opacity-40">{tr("+ خيار")}</button>
         </div>
       )}
-      {q.type === "likert" && <p className="rounded-lg bg-surface-muted px-3 py-2 text-[11px] text-brand-950/55">{tr("الخيارات ثابتة: أوافق بشدة · أوافق · محايد · لا أوافق · لا أوافق بشدة")}</p>}
+      {q.type === "likert" && <p className="rounded-lg bg-surface-muted px-3 py-2 text-[12px] text-brand-950/55">{tr("الخيارات ثابتة: أوافق بشدة · أوافق · محايد · لا أوافق · لا أوافق بشدة")}</p>}
       {tips.length > 0 && (
         <div className="space-y-1.5">
           {tips.map((t) => (
@@ -299,7 +299,7 @@ export default function SurveyBuilder() {
               step === st.id ? "border-brand-500 bg-brand-500/10 text-brand-800" : "border-brand-100 bg-paper text-brand-950/60 hover:bg-surface-muted"
             }`}
           >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-500/10 text-[10px] font-extrabold">{i + 1}</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-500/10 text-[12px] font-extrabold">{i + 1}</span>
             {st.label}
           </button>
         ))}
@@ -356,11 +356,11 @@ export default function SurveyBuilder() {
                   <p className="text-xs font-extrabold text-brand-600">
                     {r.n}. {r.title}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-brand-950/60">{r.text}</p>
+                  <p className="mt-0.5 text-[12px] text-brand-950/60">{r.text}</p>
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-brand-950/45">{tr("نراجع صياغة كل سؤال تلقائيًا ونعطيكم ملاحظات. اضغطوا «ليش؟» تحت أي ملاحظة عشان تفهمون السبب — أنواع مثل ")}<Term id="likert">{tr("ليكرت")}</Term>{tr(" و")}<Term id="bias">{tr("التحيّز")}</Term>{tr(" مشروحة بالضغط.")}</p>
+            <p className="text-[12px] text-brand-950/45">{tr("نراجع صياغة كل سؤال تلقائيًا ونعطيكم ملاحظات. اضغطوا «ليش؟» تحت أي ملاحظة عشان تفهمون السبب — أنواع مثل ")}<Term id="likert">{tr("ليكرت")}</Term>{tr(" و")}<Term id="bias">{tr("التحيّز")}</Term>{tr(" مشروحة بالضغط.")}</p>
           </Card>
 
           {responses.length > 0 && (
@@ -416,7 +416,7 @@ export default function SurveyBuilder() {
                 <div>
                   <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
                     <Lightbulb size={15} className="text-amber-accent-500" />{tr("مراجعة الذكاء الاصطناعي")}</p>
-                  <p className="mt-0.5 text-[11px] text-brand-950/50">{tr("يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.")}</p>
+                  <p className="mt-0.5 text-[12px] text-brand-950/50">{tr("يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.")}</p>
                 </div>
                 <button onClick={reviewAi} disabled={aiBusy} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600 disabled:opacity-60">{trx("{0}راجعوا أسئلتي", aiBusy && <Loader2 size={13} className="animate-spin" />)}</button>
               </div>
@@ -498,7 +498,7 @@ export default function SurveyBuilder() {
               placeholder={tr("نص الموافقة اللي يشوفه المشارك قبل ما يبدأ…")}
               className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
             />
-            <p className="text-[11px] text-brand-950/45">{tr("عبّوا كل ما بين [أقواس] قبل النشر.")}</p>
+            <p className="text-[12px] text-brand-950/45">{tr("عبّوا كل ما بين [أقواس] قبل النشر.")}</p>
           </Card>
           <button onClick={() => setStep("preview")} className="rounded-2xl bg-brand-500 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-brand-600">{tr("التالي: جرّبوا")}</button>
         </div>
@@ -519,7 +519,7 @@ export default function SurveyBuilder() {
             ))}
           </Card>
           <div className="overflow-hidden rounded-3xl bg-[#050b12] p-4 sm:p-6">
-            <p className="mb-4 text-center text-[11px] font-bold text-amber-300/80">{tr("معاينة — هكذا يشوفه المشارك (ما ينحفظ أي رد)")}</p>
+            <p className="mb-4 text-center text-[12px] font-bold text-amber-300/80">{tr("معاينة — هكذا يشوفه المشارك (ما ينحفظ أي رد)")}</p>
             <SurveyRunner key={s.questions.length + s.consentText} title={s.title} intro={s.intro} consent={s.consentText} questions={s.questions} preview onSubmit={async () => null} />
           </div>
         </div>
@@ -545,7 +545,7 @@ export default function SurveyBuilder() {
             </div>
             {!canOpen && <p className="text-xs font-semibold text-amber-accent-700">{tr("قبل الفتح: اكتبوا العنوان، وأضيفوا سؤالًا واحدًا على الأقل (كلها بنص)، وجهّزوا نص الموافقة.")}</p>}
             <div className="rounded-xl bg-surface-muted p-3">
-              <p className="mb-1.5 text-[11px] font-bold text-brand-950/50">{tr("رابط المشاركة (بدون حساب)")}</p>
+              <p className="mb-1.5 text-[12px] font-bold text-brand-950/50">{tr("رابط المشاركة (بدون حساب)")}</p>
               <p dir="ltr" className="truncate text-start text-xs text-brand-950/70">
                 {isSupabaseConfigured ? link : tr("الروابط الحقيقية تشتغل بحساب على Wesync (مو العرض التجريبي)")}
               </p>
@@ -559,12 +559,12 @@ export default function SurveyBuilder() {
                     href={`https://wa.me/?text=${encodeURIComponent(tr("تفضلوا بالمشاركة بهذا الاستبيان (مجهول):\n{0}", link))}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3 py-1.5 text-xs font-bold text-white"
+                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
                   >
                     <MessageCircle size={13} />{tr("واتساب")}</a>
                 </div>
               )}
-              {s.status !== "open" && <p className="mt-2 text-[11px] text-brand-950/45">{tr("الرابط ما يشتغل للمشاركين إلا لما تفتحون الاستبيان.")}</p>}
+              {s.status !== "open" && <p className="mt-2 text-[12px] text-brand-950/45">{tr("الرابط ما يشتغل للمشاركين إلا لما تفتحون الاستبيان.")}</p>}
             </div>
           </Card>
 
@@ -578,7 +578,7 @@ export default function SurveyBuilder() {
                 [tr("هامش الخطأ %"), margin, setMargin, "5"],
                 [tr("نسبة الاستبيانات الناقصة المتوقعة %"), loss, setLoss, "10"],
               ].map(([label, v, set, ph]) => (
-                <label key={String(label)} className="block text-[11px] font-bold text-brand-950/55">
+                <label key={String(label)} className="block text-[12px] font-bold text-brand-950/55">
                   {label as string}
                   <input inputMode="numeric" value={v as string} onChange={(e) => (set as (x: string) => void)(e.target.value.replace(/[^\d.]/g, ""))} placeholder={ph as string} className="mt-1 w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300" />
                 </label>
@@ -586,7 +586,7 @@ export default function SurveyBuilder() {
             </div>
             <p className="text-sm font-bold text-brand-950">{tr("العدد المطلوب تقريبًا: ")}<span className="text-brand-600">{sample.withAttrition}</span>{tr(" رد")}<button disabled={!edit} onClick={() => update(s.id, { targetN: sample.withAttrition })} className="ms-3 rounded-lg bg-brand-500/10 px-2.5 py-1 text-xs font-extrabold text-brand-700 hover:bg-brand-500/20 disabled:opacity-40">{tr("خلّوه هدفنا")}</button>
             </p>
-            <p className="text-[11px] text-brand-950/45">{trx("{0}. هذا رقم مبدئي — مشرفتكم لها الكلمة النهائية على حجم العينة.", sample.formula)}</p>
+            <p className="text-[12px] text-brand-950/45">{trx("{0}. هذا رقم مبدئي — مشرفتكم لها الكلمة النهائية على حجم العينة.", sample.formula)}</p>
           </Card>
         </div>
       )}
@@ -633,7 +633,7 @@ export default function SurveyBuilder() {
                 {responses.length > 0 && edit && (
                   <button
                     onClick={() => window.confirm(tr("تحذفون كل الردود؟ (مفيد لو كانت تجريبية) — ما ينرجع.")) && clear()}
-                    className="text-[11px] font-bold text-rose-600 underline"
+                    className="text-[12px] font-bold text-rose-600 underline"
                   >{tr("احذفوا كل الردود (بعد التجربة مثلًا)")}</button>
                 )}
               </Card>
@@ -646,7 +646,7 @@ export default function SurveyBuilder() {
                     α = {alpha.alpha.toFixed(2)}
                   </p>
                   <p className="text-xs font-semibold text-brand-950/60">{alphaLabel(alpha.alpha)}</p>
-                  <p className="mt-1 text-[11px] text-brand-950/40">{tr("تفترض أن كل عبارات ليكرت تقيس مفهومًا واحدًا. لو عندكم أكثر من مقياس، احسبوا لكل واحد لحاله بالاستوديو.")}</p>
+                  <p className="mt-1 text-[12px] text-brand-950/40">{tr("تفترض أن كل عبارات ليكرت تقيس مفهومًا واحدًا. لو عندكم أكثر من مقياس، احسبوا لكل واحد لحاله بالاستوديو.")}</p>
                 </Card>
               )}
 
@@ -656,7 +656,7 @@ export default function SurveyBuilder() {
               {results.map((r, i) => (
                 <Card key={r.q.id} className="space-y-2">
                   <p className="text-sm font-bold text-brand-950">
-                    {i + 1}. {r.q.text || "—"} <span className="text-[11px] font-medium text-brand-950/40">{trx("({0} إجابة)", r.n)}</span>
+                    {i + 1}. {r.q.text || "—"} <span className="text-[12px] font-medium text-brand-950/40">{trx("({0} إجابة)", r.n)}</span>
                   </p>
                   {(r.kind === "freq" || r.kind === "likert") &&
                     r.rows.map((row) => (

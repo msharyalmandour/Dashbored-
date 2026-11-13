@@ -46,7 +46,7 @@ export default function ReadinessCard({ readiness, nextBooking, onUseAgenda }: R
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 text-[11px] font-bold">
+          <div className="flex flex-wrap gap-2 text-[12px] font-bold">
             {totalCount > 0 && <span className="rounded-full bg-surface-muted px-2.5 py-1 text-brand-950/65">{trx("{0} بند مفتوح من اجتماع سابق ({1}/{2} منجز)", openActions.length, doneCount, totalCount)}</span>}
             {overdueTasks.length > 0 && <span className="rounded-full bg-rose-500/10 px-2.5 py-1 text-rose-500">{trx("{0} متأخرة", overdueTasks.length)}</span>}
             {openDecisions.length > 0 && <span className="rounded-full bg-amber-accent-100/50 px-2.5 py-1 text-amber-accent-700">{trx("{0} قرار ينتظر المشرف/ة", openDecisions.length)}</span>}

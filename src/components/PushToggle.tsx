@@ -193,7 +193,7 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
               ))}
               <div className="text-center">
                 <div className="mx-auto h-8 w-8 rounded-[9px]" style={{ background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)", boxShadow: "0 0 0 3px #FF8A24,0 0 20px rgba(255,138,36,.7)" }} />
-                <div className="mt-1 text-[9px]">Wesync</div>
+                <div className="mt-1 text-[12px]">Wesync</div>
               </div>
             </div>
           </Phone>

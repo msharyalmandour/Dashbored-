@@ -119,7 +119,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
                 <span className="font-display text-lg font-extrabold text-brand-700">{trx("{0} ريال", total)}</span>
               </div>
               {mode === "share" && (
-                <p className="mt-3 text-[11px] text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
+                <p className="mt-3 text-[12px] text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
               )}
             </div>
             <MoyasarPayment mode={mode} />

@@ -53,7 +53,7 @@ export default function SplitKeywordsCard({ terms }: { terms: string[] }) {
         {groups.map((g) => (
           <li key={g.memberId} className="rounded-xl bg-surface-muted px-3 py-2 text-xs">
             <b className="text-brand-950">{g.memberId === currentUser?.id ? tr("{0} (أنت)", nameOf(g.memberId)) : nameOf(g.memberId)}</b>
-            <span dir="ltr" className="mt-0.5 block text-start font-mono text-[11px] text-brand-950/70">
+            <span dir="ltr" className="mt-0.5 block text-start font-mono text-[12px] text-brand-950/70">
               {g.terms.join(" · ")}
             </span>
           </li>

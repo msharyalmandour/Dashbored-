@@ -156,14 +156,14 @@ export default function MinutesNew() {
                 <span
                   className={clsx(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
-                    on ? "border-transparent bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : done ? "border-[#7fd6a0]/60 bg-[#7fd6a0]/15 text-[#7fd6a0]" : "border-white/20 text-[#B8ADA2]",
+                    on ? "border-transparent bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : done ? "border-[#FFC777]/60 bg-[#FFC777]/15 text-[#FFC777]" : "border-white/20 text-[#B8ADA2]",
                   )}
                 >
                   {done ? <Check size={15} strokeWidth={3} /> : n}
                 </span>
                 <span className={clsx("hidden text-sm sm:block", on ? "font-bold text-[#F4F0EC]" : "text-[#B8ADA2]")}>{label}</span>
               </button>
-              {n < STEPS.length && <span aria-hidden className={clsx("h-px flex-1", done ? "bg-[#7fd6a0]/50" : "bg-white/15")} />}
+              {n < STEPS.length && <span aria-hidden className={clsx("h-px flex-1", done ? "bg-[#FFC777]/50" : "bg-white/15")} />}
             </li>
           );
         })}
@@ -308,7 +308,7 @@ export default function MinutesNew() {
           ) : (
             <span />
           )}
-          <span className={clsx("text-[11px] text-[#B8ADA2] transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
+          <span className={clsx("text-[12px] text-[#B8ADA2] transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
           {step < 3 ? (
             <button
               type="button"

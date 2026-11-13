@@ -67,7 +67,7 @@ export default function LoadingButton({
       className={clsx(
         base,
         state === "saved"
-          ? "border border-[#7fd6a0]/50 bg-[#7fd6a0]/15 text-[#7fd6a0]"
+          ? "border border-[#FFC777]/50 bg-[#FFC777]/15 text-[#FFC777]"
           : state === "error"
             ? "border border-rose-400/60 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
             : variants[variant],

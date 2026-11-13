@@ -59,7 +59,7 @@ function ShareSiteRow() {
         href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-[#25D366]/40 hover:text-[#25D366]"
+        className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-[#FFC777]/40 hover:text-[#FFC777]"
       >
         <MessageCircle size={13} />{tr(" شاركي الموقع")}</a>
       <button

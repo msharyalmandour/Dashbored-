@@ -83,7 +83,7 @@ export function Segmented<T extends string>({
           {it.badge ? (
             <span
               className={clsx(
-                "rounded-full px-1.5 text-[11px] font-bold",
+                "rounded-full px-1.5 text-[12px] font-bold",
                 value === it.id ? "bg-black/20" : "bg-brand-500/20 text-amber-accent-400",
               )}
             >
@@ -102,7 +102,7 @@ const chipTone: Record<ChipTone, string> = {
   late: "border-[#ff7a6b] text-[#ff7a6b]",
   active: "border-amber-accent-400 text-amber-accent-400",
   todo: "border-[#9aa3f0] text-[#9aa3f0]",
-  done: "border-[#7fd6a0] text-[#7fd6a0]",
+  done: "border-[#FFC777] text-[#FFC777]",
   neutral: "border-brand-950/25 text-brand-950/60",
 };
 
@@ -110,7 +110,7 @@ export const chipDot: Record<ChipTone, string> = {
   late: "bg-[#ff7a6b]",
   active: "bg-amber-accent-400",
   todo: "bg-[#9aa3f0]",
-  done: "bg-[#7fd6a0]",
+  done: "bg-[#FFC777]",
   neutral: "bg-brand-950/30",
 };
 

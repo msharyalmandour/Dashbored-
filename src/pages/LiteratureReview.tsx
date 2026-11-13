@@ -121,7 +121,7 @@ export default function LiteratureReview() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <SourceTag label={sourceFromLink(study.link)} />
-                      <span className={clsx("text-xs font-semibold", done ? "text-[#7fd6a0]" : "text-[#FFB444]")}>
+                      <span className={clsx("text-xs font-semibold", done ? "text-[#FFC777]" : "text-[#FFB444]")}>
                         {done ? tre("✓ تمت مراجعتها") : tre("تم جمعها")}
                       </span>
                     </div>
@@ -136,11 +136,11 @@ export default function LiteratureReview() {
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tre("أهم النتائج")}</p>
+                      <p className="text-[12px] font-bold text-[#B8ADA2]">{tre("أهم النتائج")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.keyFinding || "—"}</p>
                     </div>
                     <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tre("الصلة بالبحث")}</p>
+                      <p className="text-[12px] font-bold text-[#B8ADA2]">{tre("الصلة بالبحث")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.relevance || "—"}</p>
                     </div>
                   </div>

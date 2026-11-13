@@ -67,7 +67,7 @@
   .lv-dash { stroke: rgba(255,199,119,.65); stroke-width: 2.5; stroke-dasharray: 0.5 9; stroke-linecap: round; fill: none; }
   .ld-in .lv-dash { animation: lvDash 1.2s ease .3s both; }
   @keyframes lvDash { from { opacity: 0; } to { opacity: 1; } }
-  .lv-soon { font-size: 11px; font-weight: 800; color: #1A0802; background: #FFC777; border-radius: 999px; padding: 1px 8px; }
+  .lv-soon { font-size: 12px; font-weight: 800; color: #1A0802; background: #FFC777; border-radius: 999px; padding: 1px 8px; }
 
   /* ── الأسعار ── */
   .lv-seg { display: flex; padding: 5px; gap: 4px; border-radius: 999px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); width: 100%; }

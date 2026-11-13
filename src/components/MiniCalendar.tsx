@@ -89,7 +89,7 @@ export default function MiniCalendar({
 
       <div className="grid grid-cols-7 gap-y-1 text-center">
         {arabicWeekdaysShort.map((day) => (
-          <div key={day} className="pb-1 text-[11px] font-semibold text-brand-950/35">
+          <div key={day} className="pb-1 text-[12px] font-semibold text-brand-950/35">
             {day}
           </div>
         ))}

@@ -15,7 +15,7 @@ export default function EmptyState({
     <div className="flex flex-col items-center gap-3 py-14 text-center">
       <div className="relative flex h-20 w-20 items-center justify-center">
         <span
-          className="absolute inset-0 rounded-full bg-brand-100/70 animate-[card-float_4s_ease-in-out_infinite]"
+          className="absolute inset-0 rounded-full bg-brand-100/70 animate-[card-float_4s_ease-in-out_3]"
           style={{ "--tilt": "0deg" } as React.CSSProperties}
         />
         <span className="absolute inset-1.5 rounded-full border-2 border-dashed border-brand-200" />

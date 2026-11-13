@@ -233,7 +233,7 @@ export default function MeetingMinutes() {
                 <X size={16} />
               </button>
               <p className="flex items-center gap-2 text-sm font-extrabold">
-                <Check size={16} className="text-[#7fd6a0]" />{trx("انحفظ محضر {0}", formatDateFull(justSaved.date))}</p>
+                <Check size={16} className="text-[#FFC777]" />{trx("انحفظ محضر {0}", formatDateFull(justSaved.date))}</p>
               <p className="mt-1 text-xs text-[#B8ADA2]">
                 {justSaved.sent ? tr("وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:") : tr("ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت.")}
               </p>

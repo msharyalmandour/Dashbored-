@@ -173,7 +173,7 @@ export default function CommandPalette() {
             placeholder={tr("ابحث أو اكتب أمر…")}
             className="w-full bg-transparent text-sm text-brand-950 outline-none placeholder:text-brand-950/35"
           />
-          <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[10px] font-bold text-brand-950/40">
+          <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[12px] font-bold text-brand-950/40">
             Esc
           </kbd>
         </div>
@@ -192,7 +192,7 @@ export default function CommandPalette() {
                 <item.icon size={16} />
                 <span className="flex-1 text-start">{item.label}</span>
                 {item.action && (
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
                 )}
               </button>
             </li>

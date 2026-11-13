@@ -108,6 +108,7 @@ export const workSections: NavSection[] = [
     pages: [
       { to: "/calendar", label: tr("التقويم") },
       { to: "/files", label: tr("الملفات") },
+      { to: "/drive", label: tr("الدرايف") },
     ],
   },
 ];

@@ -35,6 +35,7 @@ import LearnStrip from "../components/home/LearnStrip";
 import DropEntry from "../components/drop/DropEntry";
 import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
+import DriveStrip from "../components/DriveStrip";
 import { useNavigate } from "react-router-dom";
 import { startSeen } from "./Start";
 import { explainSeen } from "./Explain";
@@ -349,6 +350,12 @@ export default function Overview() {
       {mode === "supabase" && (
         <ErrorBoundary>
           <LearnStrip style={rise(1)} />
+        </ErrorBoundary>
+      )}
+
+      {mode === "supabase" && (
+        <ErrorBoundary>
+          <DriveStrip className="mb-[18px]" />
         </ErrorBoundary>
       )}
 

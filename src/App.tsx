@@ -38,6 +38,8 @@ import Learn from "./pages/Learn";
 import Drop from "./pages/Drop";
 import Start from "./pages/Start";
 import Explain from "./pages/Explain";
+import Drive from "./pages/Drive";
+import DriveJoin from "./pages/DriveJoin";
 import DropShare from "./pages/DropShare";
 import Story from "./pages/Story";
 import Celebration from "./pages/Celebration";
@@ -124,6 +126,8 @@ export default function App() {
         <Route path="/drop" element={<Drop />} />
         <Route path="/start" element={<Start />} />
         <Route path="/explain" element={<Explain />} />
+        <Route path="/drive" element={<Drive />} />
+        <Route path="/drive/join" element={<DriveJoin />} />
         <Route path="/drop/share" element={<DropShare />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />

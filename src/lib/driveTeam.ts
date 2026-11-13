@@ -115,6 +115,26 @@ export async function startDriveConnect() {
   return call<{ url: string }>({ action: "start", origin: window.location.origin });
 }
 
+/** عضو يربط درايفه بالفريق (DriveInviteM): drive.file بس، وما نحفظ له أي رمز */
+export async function startMemberJoin() {
+  return call<{ url: string }>({ action: "member_start", origin: window.location.origin });
+}
+
+/** نتأكد من صلاحيات المجلد الحين (الدالة تحدّث drive_members وعدد ملفات المجلدات) */
+export async function syncDriveMembers(force = false) {
+  return call<{ ok: boolean }>({ action: "members", force }, 30000);
+}
+
+/** القائد يضيف إيميل عضو (أو المشرف/ة) ناقص، ونشارك المجلد معه */
+export async function setDriveEmail(input: { kind: "member" | "supervisor"; profileId?: string; email: string }) {
+  return call<{ ok: boolean }>({ action: "set_email", ...input }, 30000);
+}
+
+/** صلاحية المشرف/ة على المجلد: commenter (تشوف وتعلّق) هي الافتراضية */
+export async function setSupervisorRole(role: "writer" | "commenter" | "reader") {
+  return call<{ ok: boolean }>({ action: "set_supervisor_role", role }, 30000);
+}
+
 export async function shareDriveFolder(readOnlyEmails: string[] = []) {
   return call<{ shared: number; failed: string[] }>({ action: "share", readOnlyEmails });
 }

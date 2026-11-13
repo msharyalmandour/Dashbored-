@@ -1,5 +1,7 @@
 import { MeetLiveStrip } from "../components/meet/MeetLive";
-import { Award, CalendarPlus, CircleHelp, FileText, Folder, Plus, Video } from "lucide-react";
+import { Award, CalendarPlus, CircleHelp, FileText, Plus, Video } from "lucide-react";
+import { GoogleDriveLogo } from "../components/ui/BrandLogos";
+import DriveStrip from "../components/DriveStrip";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import clsx from "clsx";
@@ -201,6 +203,7 @@ export default function MeetingMinutes() {
           </section>
 
           <MeetLiveStrip />
+          <DriveStrip />
 
           {/* ── الجاهزية: جدول الأعمال + تجهيز المشرف/ة + أسئلة للدكتورة ── */}
           <section className="lx-card lx-in flex flex-col gap-5 py-5 md:flex-row md:gap-0" aria-label={tr("جاهزية الاجتماع")}>
@@ -303,9 +306,9 @@ export default function MeetingMinutes() {
                   </ul>
                 )}
               </section>
-              <button type="button" className="lx-card lx-in flex items-center gap-3 p-[18px] text-start" onClick={() => setDlg("drive")}>
+              <button type="button" className="lx-card lx-in flex items-center gap-3 p-[18px] text-start" onClick={() => navigate("/drive")}>
                 <span className="lx-ic lg" aria-hidden>
-                  <Folder size={18} />
+                  <GoogleDriveLogo size={22} />
                 </span>
                 <span className="min-w-0 flex-1 leading-[1.4]">
                   <b className="block text-[16px] text-[#F2EBE3]">{driveStatus?.connected ? tr("درايف الفريق مربوط") : tr("درايف الفريق: {0}", driveValue)}</b>

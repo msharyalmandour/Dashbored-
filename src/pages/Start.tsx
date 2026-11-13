@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Check, ChevronLeft, FileText, Flag, HardDrive, LibraryBig, MessageCircle } from "lucide-react";
+import { Check, ChevronLeft, FileText, Flag, LibraryBig, MessageCircle } from "lucide-react";
+import { GoogleDriveLogo } from "../components/ui/BrandLogos";
+
+/** شعار درايف (بنفس شكل أيقونات lucide: size) */
+const DriveIcon = ({ size = 20 }: { size?: number }) => <GoogleDriveLogo size={size + 4} />;
 import clsx from "clsx";
 import Vessel from "../components/drop/Vessel";
 import { useAuth } from "../context/AuthContext";
@@ -238,7 +242,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
     if (r.data?.url) window.location.href = r.data.url;
   };
 
-  const rows: { id: string; icon: typeof FileText; title: string; sub: string; done: boolean; right: React.ReactNode; hot?: boolean }[] = [
+  const rows: { id: string; icon: React.ComponentType<{ size?: number }>; title: string; sub: string; done: boolean; right: React.ReactNode; hot?: boolean }[] = [
     {
       id: "proposal",
       icon: FileText,
@@ -303,7 +307,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
     },
     {
       id: "drive",
-      icon: HardDrive,
+      icon: DriveIcon,
       title: tr("مجلد الدرايف حقكم"),
       sub: tr("نربطه بدل ما ترفعون كل شي من جديد"),
       done: drive === "on",

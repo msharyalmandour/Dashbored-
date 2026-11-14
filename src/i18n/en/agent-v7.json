@@ -122,5 +122,9 @@
   "ما لقينا مايك بهالجهاز.": "No microphone found on this device.",
   "ما قدرنا نفهم الكلام هالمرة. جرّبوا مرة ثانية أو اكتبوا طلبكم.": "We couldn't make out the words this time. Try again or type your request.",
   "نكتب كلامكم…": "Writing it down…",
-  "تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.": "Speak, then press send and we'll write it down."
+  "تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.": "Speak, then press send and we'll write it down.",
+  "نجهّز طلبكم…": "Preparing your request…",
+  "وقّفنا · اضغطوا المايك وكمّلوا": "Paused · tap the mic to continue",
+  "أرسلوا (Enter)": "Send (Enter)",
+  "Enter = أرسلوا · مسافة = وقّفوا": "Enter = send · Space = pause"
 }

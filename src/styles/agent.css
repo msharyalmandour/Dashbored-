@@ -162,3 +162,20 @@ html[data-reduce-motion="true"] .ag-scrim, html[data-reduce-motion="true"] .ag-p
 html[data-reduce-motion="true"] .ag-streak { transition: none; }
 .ag-input:focus, .ag-input:focus-visible { outline: none; }
 .ag-comp:focus-within { box-shadow: inset 0 1px 0 rgba(255,240,225,.14), inset 0 0 0 1.5px rgba(255,199,119,.55), 0 30px 70px rgba(0,0,0,.5); }
+
+/* «نسمعك» أنعم: كل كلمة تدخل بهدوء، المؤقت باهت، والكرة والمايك يتبعون صوتكم */
+.ag-listen-orb { transition: transform .12s linear; will-change: transform; }
+.ag-transcript { max-height: 7.8em; overflow: hidden; display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-end; gap: 0 .28em; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 1.6em); mask-image: linear-gradient(180deg, transparent 0, #000 1.6em); }
+.ag-word { animation: ag-word-in .32s cubic-bezier(.2,.8,.2,1) both; }
+.ag-interim { color: rgba(255,236,220,.55); font-weight: 700; transition: opacity .2s; }
+@keyframes ag-word-in { from { opacity: 0; transform: translateY(6px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+.ag-pill.listen { gap: 8px; }
+.ag-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #FFE2B0; box-shadow: 0 0 10px rgba(255,226,176,.9); }
+.ag-mic-big { transition: box-shadow .12s linear, background .25s, transform .2s; }
+.ag-mic-big:active { transform: scale(.96); }
+.ag-round { transition: background .25s, color .25s, transform .2s; }
+.ag-round.ready { background: #F2EBE3; color: #160904; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+.ag-round:active { transform: scale(.95); }
+@media (prefers-reduced-motion: reduce) { .ag-word { animation: none; } .ag-listen-orb, .ag-mic-big { transition: none; } }
+html[data-reduce-motion="true"] .ag-word { animation: none; }
+html[data-reduce-motion="true"] .ag-listen-orb, html[data-reduce-motion="true"] .ag-mic-big { transition: none; }

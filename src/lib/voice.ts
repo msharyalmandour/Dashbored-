@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
 import { isEn } from "./i18n";
+import { LiveStt, latinDigits, liveSttPossible, liveSttToken } from "./liveStt";
 
 /* الفويس: تسجيل (MediaRecorder) + مستوى الصوت الحقيقي (AnalyserNode) + كتابة مباشرة من المتصفح (SpeechRecognition)
    + رفع الملف لحاوية drops تحت مجلد الفريق. الحد 5 دقايق. بدون نت: الفويس ينحفظ بالجهاز وينرسل لحاله. */
@@ -40,7 +41,8 @@ const SRClass = (): SRCtor | null => {
   const w = window as unknown as { SpeechRecognition?: SRCtor; webkitSpeechRecognition?: SRCtor };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 };
-export const canTranscribeLive = () => typeof window !== "undefined" && !!SRClass();
+/** فيه كتابة حيّة؟ (ElevenLabs عن طريق السيرفر، وإلا كتابة المتصفح) */
+export const canTranscribeLive = () => typeof window !== "undefined" && (liveSttPossible() || !!SRClass());
 
 export interface RecorderEvents {
   onLevel?: (level: number) => void;
@@ -62,6 +64,8 @@ export class VoiceRecorder {
   private srOn = false;
   /** سبب توقف كتابة المتصفح (لو وقفت) */
   srFailed: string | null = null;
+  /** الكتابة الحيّة من ElevenLabs (لو اشتغلت) — أدق وأسرع وتشتغل بتطبيق الديسكتوب */
+  private live: LiveStt | null = null;
   private finalText = "";
   private startedAt = 0;
   private pausedTotal = 0;
@@ -89,6 +93,8 @@ export class VoiceRecorder {
 
   /** يرمي «blocked» لو المايك مقفل */
   async start() {
+    // نطلب رمز الكتابة الحيّة مع طلب المايك بنفس الوقت (أسرع)
+    const tokenP = liveSttPossible() ? liveSttToken() : Promise.resolve(null);
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
     } catch (e) {
@@ -125,10 +131,35 @@ export class VoiceRecorder {
       };
       tick();
     }
-    this.startSR();
+    void this.startTranscription(tokenP);
     this.limitTimer = window.setInterval(() => {
       if (this.elapsed >= MAX_MS) this.ev.onLimit?.();
     }, 500);
+  }
+
+  /** ElevenLabs أول (كلمة كلمة وأنتم تتكلمون)، ولو ما زبط نرجع لكتابة المتصفح */
+  private async startTranscription(tokenP: Promise<string | null>) {
+    if (this.stream && liveSttPossible()) {
+      const live = new LiveStt(
+        (f, i) => {
+          this.finalText = f;
+          this.ev.onText?.(f, i);
+        },
+        (code) => {
+          // وقفت بالنص: نكمّل بكتابة المتصفح لو موجودة
+          if (this.live === live) {
+            this.live = null;
+            live.close();
+            if (!this.srOn && !this.srFailed) this.startSR();
+            this.ev.onSttError?.(`live_${code}`);
+          }
+        },
+      );
+      this.live = live;
+      if (await live.start(this.stream, tokenP)) return;
+      this.live = null;
+    }
+    this.startSR();
   }
 
   private startSR() {
@@ -142,8 +173,9 @@ export class VoiceRecorder {
       let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const r = e.results[i];
-        if (r.isFinal) this.finalText += `${r[0].transcript} `;
-        else interim += r[0].transcript;
+        const said = latinDigits(r[0].transcript);
+        if (r.isFinal) this.finalText += `${said} `;
+        else interim += said;
       }
       this.ev.onText?.(this.finalText.trim(), interim.trim());
     };
@@ -177,6 +209,7 @@ export class VoiceRecorder {
 
   pause() {
     if (!this.rec || this.pausedAt) return;
+    this.live?.pause();
     this.rec.pause();
     this.pausedAt = Date.now();
     this.ev.onLevel?.(0);
@@ -188,6 +221,7 @@ export class VoiceRecorder {
   }
   resume() {
     if (!this.rec || !this.pausedAt) return;
+    this.live?.resume();
     this.rec.resume();
     this.pausedTotal += Date.now() - this.pausedAt;
     this.pausedAt = 0;
@@ -202,6 +236,13 @@ export class VoiceRecorder {
   async stop(): Promise<{ blob: Blob; duration: number; peaks: number[]; text: string }> {
     const duration = this.elapsed;
     this.srOn = false;
+    // آخر جملة من الكتابة الحيّة (تتثبّت قبل ما نقفل المايك)
+    if (this.live) {
+      const live = this.live;
+      this.live = null;
+      const t = await live.finish();
+      if (t) this.finalText = t;
+    }
     try {
       this.sr?.stop();
     } catch {
@@ -218,6 +259,8 @@ export class VoiceRecorder {
 
   cancel() {
     this.srOn = false;
+    this.live?.close();
+    this.live = null;
     try {
       this.sr?.abort();
     } catch {

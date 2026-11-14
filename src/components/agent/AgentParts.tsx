@@ -249,9 +249,16 @@ export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; o
   const [working, setWorking] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const lastLv = useRef(0);
   useEffect(() => {
     const r = new VoiceRecorder({
-      onLevel: (l) => setLevel(l),
+      // مستوى الصوت ~20 مرة بالثانية (أنعم وأخف من كل فريم)
+      onLevel: (l) => {
+        const now = performance.now();
+        if (now - lastLv.current < 50 && l > 0) return;
+        lastLv.current = now;
+        setLevel((p) => p * 0.55 + l * 0.45);
+      },
       onText: (f, i) => {
         setFinal(f);
         setInterim(i);
@@ -288,41 +295,82 @@ export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; o
     else setErr(tr("ما قدرنا نفهم الكلام هالمرة. جرّبوا مرة ثانية أو اكتبوا طلبكم."));
   };
 
+  // الكيبورد: Enter = أرسلوا · مسافة = وقّفوا/كمّلوا · (Esc يقفل من اللوحة)
+  const keys = useRef({ send, toggle });
+  useEffect(() => {
+    keys.current = { send, toggle };
+  });
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        void keys.current.send();
+      } else if (e.key === " ") {
+        e.preventDefault();
+        keys.current.toggle();
+      }
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, []);
+
+  const words = finalText ? finalText.split(/\s+/) : [];
+  const hasText = !!(finalText || interim);
+  const lv = paused || err || working ? 0 : Math.min(1, level);
+
   return (
     <div className="ag-listen" role="region" aria-label={tr("نسمعك")}>
       <button type="button" className="ag-close-pill" onClick={onClose}>
         <X size={15} aria-hidden /> {tr("سكّروا")}
       </button>
-      <div className="ag-listen-orb">
-        <AgentOrb size={230} state={paused ? "idle" : "thinking"} />
+      {/* الكرة تكبر مع صوتكم الحقيقي (بدون حركة لا نهائية) */}
+      <div className="ag-listen-orb" style={{ transform: `scale(${(1 + lv * 0.09).toFixed(3)})` }}>
+        <AgentOrb size={230} state={working ? "thinking" : "idle"} />
       </div>
-      <span className="ag-pill listen">{err ? tr("المايك مو شغّال") : working ? tr("نكتب كلامكم…") : paused ? tr("وقّفنا") : tr("نسمعك…")}</span>
-      <p className="ag-transcript" aria-live="polite">
+      <span className={clsx("ag-pill listen", !paused && !err && !working && "live")}>
+        {!paused && !err && !working && <i aria-hidden className="ag-live-dot" />}
+        {err ? tr("المايك مو شغّال") : working ? tr("نجهّز طلبكم…") : paused ? tr("وقّفنا · اضغطوا المايك وكمّلوا") : tr("نسمعك…")}
+      </span>
+      <p className="ag-transcript" aria-live="polite" dir="auto">
         {err ? (
           <span className="text-[16px] font-medium text-[#F2EBE3]">{err}</span>
-        ) : serverOnly && !finalText ? (
-          <span>{tr("تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.")}</span>
+        ) : !hasText ? (
+          <span>{serverOnly ? tr("تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.") : tr("تكلّموا… مثل «وزّع مهام الأسبوع على الفريق»")}</span>
         ) : (
           <>
-            <b>{finalText}</b> <span>{interim || (!finalText ? tr("تكلّموا… مثل «وزّع مهام الأسبوع على الفريق»") : "")}</span>
+            {words.slice(-40).map((w, i) => (
+              <b key={`${words.length > 40 ? words.length - 40 + i : i}-${w}`} className="ag-word">
+                {w}{" "}
+              </b>
+            ))}
+            {interim && <span className="ag-interim">{interim}</span>}
           </>
         )}
       </p>
       <span className="flex-1" />
       <div className="w-full px-2">
-        <AgentStreak width={340} height={56} level={paused || err || working ? 0 : level} />
+        <AgentStreak width={340} height={56} level={lv} />
       </div>
       <div className="ag-listen-ctl">
-        <button type="button" className="ag-round" onClick={toggle} disabled={!!err} aria-label={paused ? tr("كمّلوا") : tr("وقّفوا")}>
+        <button type="button" className="ag-round" onClick={toggle} disabled={!!err || working} aria-label={paused ? tr("كمّلوا") : tr("وقّفوا")}>
           {paused ? <Play size={18} aria-hidden /> : <Pause size={18} aria-hidden />}
         </button>
-        <button type="button" className="ag-mic-big" onClick={toggle} disabled={!!err} aria-label={paused ? tr("كمّلوا الكلام") : tr("وقّفوا المايك")} aria-pressed={!paused}>
+        <button
+          type="button"
+          className="ag-mic-big"
+          onClick={toggle}
+          disabled={!!err || working}
+          aria-label={paused ? tr("كمّلوا الكلام") : tr("وقّفوا المايك")}
+          aria-pressed={!paused}
+          style={{ boxShadow: `0 0 0 ${Math.round(8 + lv * 16)}px rgba(255,140,40,${(0.14 + lv * 0.16).toFixed(2)}), 0 20px 50px rgba(255,90,10,.45)` }}
+        >
           <Mic size={26} aria-hidden />
         </button>
-        <button type="button" className="ag-round" onClick={() => (err ? onClose() : void send())} disabled={working} aria-label={err ? tr("رجوع") : tr("أرسلوا")}>
+        <button type="button" className={clsx("ag-round", hasText && !err && "ready")} onClick={() => (err ? onClose() : void send())} disabled={working} aria-label={err ? tr("رجوع") : tr("أرسلوا (Enter)")}>
           {working ? <Loader2 size={18} className="animate-spin" aria-hidden /> : <Send size={18} className="ltr:rotate-0 rtl:-scale-x-100" aria-hidden />}
         </button>
       </div>
+      <p className="m-0 -mt-2 text-[12px] text-[rgba(255,236,220,.6)] max-md:hidden">{tr("Enter = أرسلوا · مسافة = وقّفوا")}</p>
     </div>
   );
 }

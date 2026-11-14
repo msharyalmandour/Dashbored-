@@ -79,16 +79,24 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
       cb.current.onOffline({ ...out, path: null, transcript: text, gist: "", items: [] });
       return;
     }
-    // نرفع الملف، ولو التفريغ بالسيرفر مفعّل ناخذ نصه (أدق من كتابة المتصفح)
-    const path = out.blob.size ? await uploadVoice(teamId, out.blob) : null;
-    if (path) text = (await transcribeServer(path)) || text;
-    const ex = text ? await extractVoice(text) : null;
+    // الكلام انكتب حي (ElevenLabs/المتصفح): نرفع الملف ونطلّع المهام بنفس الوقت — أسرع.
+    // ما انكتب شي: نرفع ونفرّغ بالسيرفر أول.
+    const upload = out.blob.size ? uploadVoice(teamId, out.blob) : Promise.resolve(null);
+    let path: string | null;
+    let ex: Awaited<ReturnType<typeof extractVoice>> = null;
+    if (text) {
+      [path, ex] = await Promise.all([upload, extractVoice(text)]);
+    } else {
+      path = await upload;
+      if (path) text = (await transcribeServer(path)) || text;
+      ex = text ? await extractVoice(text) : null;
+    }
     if (ex) {
       gist = ex.gist;
       found = ex.items;
     }
-    // «نرتّب كلامك…» ثانيتين على الأقل عشان ما تومض الشاشة
-    const wait = 1600 - (Date.now() - t0);
+    // «نرتّب كلامك…» لحظة قصيرة بس عشان ما تومض الشاشة
+    const wait = 600 - (Date.now() - t0);
     if (wait > 0) await new Promise((res) => setTimeout(res, wait));
     setItems(found);
     setResult({ blob: out.blob, path, duration: out.duration, peaks: out.peaks, transcript: text, gist, items: found });

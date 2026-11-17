@@ -1,4 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
+import { useDoors } from "../../hooks/useDoors";
+import { DOOR_HINT, PAGE_DOOR } from "../../lib/doors";
+import { Lock } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useResearchProject } from "../../hooks/useResearchProject";
 import { useProposal } from "../../hooks/useProposal";
@@ -24,6 +27,7 @@ type Live = { proposal?: number; methodology?: number; ethics?: number };
 
 function WriteTabs({ live }: { live?: Live }) {
   const { pathname } = useLocation();
+  const doors = useDoors();
   const { sections } = useProposal();
   const { methodology } = useMethodology();
   const { ethicalApproval } = useEthicalApproval();
@@ -37,9 +41,13 @@ function WriteTabs({ live }: { live?: Live }) {
     { to: "/methodology", label: tr("المنهجية"), n: live?.methodology ?? methodologyReadyCount(methodology), of: 7 },
     { to: "/ethical-approval", label: tr("الموافقة الأخلاقية"), n: live?.ethics ?? principlesAnswered(ethicalApproval.principles), of: PRINCIPLE_KEYS.length },
   ];
+  // المنهجية والأخلاقيات تنفتح بعد أول قسم مكتوب (أو لو فاتحينها الحين)
+  const visible = tabs.filter((t) => doors.isOpen(PAGE_DOOR[t.to]) || pathname.startsWith(t.to));
+  // أول تبويب مقفل يطلع باهت مع وش يفتحه (الطالب يشوف وين رايح)
+  const lockedTab = tabs.find((t) => !visible.includes(t));
   return (
     <nav aria-label={tr("أكتب")} className="wf-tabs mt-5 print:hidden">
-      {tabs.map((t) => {
+      {visible.map((t) => {
         const on = pathname.startsWith(t.to);
         return (
           <Link key={t.to} to={t.to} ref={on ? activeRef : undefined} aria-current={on ? "page" : undefined}>
@@ -50,6 +58,13 @@ function WriteTabs({ live }: { live?: Live }) {
           </Link>
         );
       })}
+      {lockedTab && (
+        <span className="wf-locked" aria-disabled="true" title={DOOR_HINT[PAGE_DOOR[lockedTab.to]!]}>
+          <Lock size={12} aria-hidden />
+          {lockedTab.label}
+          <small>{DOOR_HINT[PAGE_DOOR[lockedTab.to]!]}</small>
+        </span>
+      )}
     </nav>
   );
 }

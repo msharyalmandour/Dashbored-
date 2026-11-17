@@ -1,0 +1,75 @@
+/* ═══ «Wesync يكبر مع بحثكم»: الأبواب اللي تنفتح (docs/DESIGN_BRIEF_UNLOCK.md) ═══ */
+
+/* الباب «الجاي» المقفل: باهت، ما يُضغط، سطر وش يفتحه */
+.door-locked { opacity: .55; cursor: default; min-height: 52px; padding-block: 6px; }
+.door-locked:hover { background: transparent; color: #D9CEC4; }
+
+/* «كل الأبواب» / «رتّبوها حسب مرحلتكم» — رابط هادي */
+.door-all { align-self: flex-start; min-height: 44px; margin-top: 6px; padding: 0 14px; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; color: #ABA095; cursor: pointer; border-radius: 999px; }
+.door-all:hover { color: #FFC777; }
+.door-all:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+
+/* الباب اللي انفتح الحين: ينزل لمكانه بنابض وينور ذهبي مرة وحدة */
+@keyframes doorIn { 0% { opacity: 0; transform: translateY(-6px) scale(.97); } 60% { opacity: 1; transform: translateY(1px) scale(1.01); } 100% { transform: none; } }
+@keyframes doorGlow { 0% { box-shadow: 0 0 0 0 rgba(255,199,119,0); } 30% { box-shadow: 0 0 0 2px rgba(255,199,119,.75), 0 0 26px rgba(255,199,119,.35); } 100% { box-shadow: 0 0 0 1px rgba(255,199,119,.25); } }
+.lx-link.door-new { animation: doorIn .7s cubic-bezier(.2,.9,.25,1.05) both, doorGlow 1.6s .3s ease-out both; }
+
+/* الكبسولة فوق الشاشة */
+@keyframes doorPop { from { opacity: 0; transform: translate(-50%, -14px) scale(.98); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes doorTrace { from { clip-path: inset(0 0 0 100%); opacity: 1; } 75% { clip-path: inset(0 0 0 0); opacity: 1; } to { clip-path: inset(0 0 0 0); opacity: .35; } }
+@keyframes doorShackle { 0% { transform: none; } 45% { transform: translateY(-2.5px); } 100% { transform: translateY(-2.5px) rotate(-28deg); } }
+@keyframes doorLockTurn { 0% { transform: rotate(0); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+.door-pop { position: fixed; z-index: 90; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: min(460px, calc(100vw - 32px)); box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 22px; background: linear-gradient(180deg, rgba(40,22,12,.94), rgba(18,10,6,.94)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 1px 0 rgba(255,240,225,.14), 0 24px 60px rgba(0,0,0,.55); animation: doorPop .45s cubic-bezier(.2,.9,.25,1) both; }
+/* خط ذهبي يمشي على حافة الكبسولة (من البداية للنهاية) وبعدها يهدى */
+.door-trace { position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px #FFC777; pointer-events: none; clip-path: inset(0 0 0 100%); animation: doorTrace 1.2s .35s cubic-bezier(.4,0,.2,1) forwards; }
+[dir="ltr"] .door-trace { animation-name: doorTraceL; }
+@keyframes doorTraceL { from { clip-path: inset(0 100% 0 0); opacity: 1; } 75% { clip-path: inset(0 0 0 0); opacity: 1; } to { clip-path: inset(0 0 0 0); opacity: .35; } }
+.door-lock { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 50%; color: #1A0802; background: radial-gradient(circle at 35% 30%, #FFF0C2, #FFC777 55%, #E9A94F); box-shadow: 0 0 0 4px rgba(255,199,119,.14); animation: doorLockTurn .7s .15s cubic-bezier(.3,.8,.3,1) both; }
+.door-shackle { transform-origin: 16px 11px; animation: doorShackle .6s .55s cubic-bezier(.3,.8,.3,1) forwards; }
+.door-go { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #F2EBE3; color: #160904; font-size: 14px; font-weight: 800; }
+.door-go:focus-visible, .door-x:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+.door-x { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: #ABA095; font-size: 22px; line-height: 1; cursor: pointer; }
+.door-x:hover { color: #F2EBE3; }
+
+/* تقليل الحركة: تظهر ثابتة بتلاشي بسيط، بدون دوران ولا خط */
+@media (prefers-reduced-motion: reduce) {
+  .lx-link.door-new, .door-lock, .door-shackle { animation: none; }
+  .door-shackle { transform: translateY(-2.5px) rotate(-28deg); }
+  .door-pop { animation: svFade .2s both; }
+  .door-trace { animation: none; clip-path: none; opacity: .35; }
+}
+html[data-reduce-motion="true"] .lx-link.door-new, html[data-reduce-motion="true"] .door-lock, html[data-reduce-motion="true"] .door-shackle { animation: none; }
+html[data-reduce-motion="true"] .door-shackle { transform: translateY(-2.5px) rotate(-28deg); }
+html[data-reduce-motion="true"] .door-pop { animation: svFade .2s both; }
+html[data-reduce-motion="true"] .door-trace { animation: none; clip-path: none; opacity: .35; }
+
+/* ═══ كرت «الجاي لكم» — أول شي بالرئيسية ═══ */
+@keyframes nxIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes nxNow { 0% { box-shadow: 0 0 0 0 rgba(255,154,60,.6); } 100% { box-shadow: 0 0 0 7px rgba(255,154,60,0); } }
+.nx-card { position: relative; margin-bottom: 18px; padding: 22px 22px 18px; border-radius: 28px; background: radial-gradient(120% 140% at 100% 0%, rgba(255,106,0,.16), transparent 55%), linear-gradient(180deg, rgba(255,240,225,.085), rgba(255,240,225,.03)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.09), 0 30px 70px rgba(0,0,0,.45); color: #F2EBE3; overflow: hidden; }
+@media (min-width: 1024px) { .nx-card { padding: 28px 32px 22px; } }
+.nx-kick { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 800; color: #FFC777; }
+.nx-of { font-size: 12px; font-weight: 700; color: #ABA095; }
+.nx-body { animation: nxIn .4s cubic-bezier(.2,.8,.2,1) both; }
+.nx-title { margin: 8px 0 0; padding-top: .1em; font-size: 26px; line-height: 1.35; font-weight: 800; letter-spacing: 0; color: #F2EBE3; }
+@media (min-width: 1024px) { .nx-title { font-size: 32px; } }
+.nx-title.nx-done { color: #FFC777; }
+.nx-why { margin: 4px 0 0; font-size: 15px; color: #ABA095; }
+.nx-go { display: inline-flex; align-items: center; gap: 8px; min-height: 50px; margin-top: 16px; padding: 0 24px; border-radius: 999px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-size: 16px; font-weight: 800; box-shadow: 0 12px 30px rgba(255,106,0,.3); transition: transform .15s; }
+.nx-go:hover { transform: translateY(-1px); }
+.nx-go:focus-visible { outline: 2px solid #FFC777; outline-offset: 3px; }
+.nx-dots { display: flex; gap: 6px; margin-top: 18px; }
+.nx-dots i { flex: 1; height: 4px; border-radius: 99px; background: rgba(255,255,255,.08); }
+.nx-dots i.on { background: #FFC777; }
+.nx-dots i.now { background: #FF9A3C; animation: nxNow 1.2s .4s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { .nx-body, .nx-dots i.now { animation: none; } .nx-go { transition: none; } }
+html[data-reduce-motion="true"] .nx-body, html[data-reduce-motion="true"] .nx-dots i.now { animation: none; }
+
+/* زر برتقالي واحد بالشاشة: لما «الجاي» موجود، زر «أول أسبوع» يصير كريمي */
+.nx-on .fw-orange { background: #F2EBE3; color: #160904; box-shadow: none; }
+
+/* تبويب «أكتب» المقفل (المنهجية قبل أول قسم) */
+.wf-locked { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 16px; font-size: 15px; font-weight: 700; color: #ABA095; opacity: .6; white-space: nowrap; cursor: default; }
+.wf-locked svg { color: #FFC777; }
+.wf-locked small { font-size: 12px; font-weight: 500; }
+@media (max-width: 640px) { .wf-locked small { display: none; } }

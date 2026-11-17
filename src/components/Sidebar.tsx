@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, CheckSquare, CircleHelp, Compass, CreditCard, Flag, GraduationCap, House, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
+import { Check, CheckSquare, Compass, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
 import { useChatUnread } from "../hooks/useTeamChat";
-import { useAcademy } from "../hooks/useAcademy";
+import { useDoors } from "../hooks/useDoors";
+import { DOOR_HINT, DOOR_ORDER, SECTION_DOOR, type DoorId } from "../lib/doors";
+import DoorUnlock from "./DoorUnlock";
 import { useLandedBadges } from "../lib/landed";
 import { isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
@@ -21,7 +23,7 @@ import { tr } from "../lib/i18n";
    «مهامي» بند لحاله تحت شغل الفريق، وتحت: «تعلّموا Wesync n/16» + بطاقة الشخص (الجرس والإعدادات واللغة والصوت والمزيد).
    على الديسكتوب ما فيه شريط علوي — أدواته انتقلت لبطاقة الشخص. */
 
-type Item = { id: string; to: string; label: string; icon: NavSection["icon"]; match: string[]; stages?: NavSection["stages"] };
+type Item = { id: string; to: string; label: string; icon: NavSection["icon"]; match: string[]; stages?: NavSection["stages"]; door?: DoorId };
 
 /** «الفريق» بالقائمة ينقسم: مهامي (/tasks) بند لحاله، والفريق (/team + الجدول الزمني) */
 function itemsOf(secs: NavSection[]): Item[] {
@@ -31,7 +33,7 @@ function itemsOf(secs: NavSection[]): Item[] {
       out.push({ id: "tasks", to: "/tasks", label: tr("مهامي"), icon: CheckSquare, match: ["/tasks"] });
       const rest = s.pages.filter((p) => p.to !== "/tasks");
       out.push({ id: "team", to: rest[0]?.to ?? "/team", label: s.label, icon: s.icon, match: rest.map((p) => p.to) });
-    } else out.push({ id: s.id, to: s.pages[0].to, label: s.label, icon: s.icon, match: s.pages.map((p) => p.to), stages: s.stages });
+    } else out.push({ id: s.id, to: s.pages[0].to, label: s.label, icon: s.icon, match: s.pages.map((p) => p.to), stages: s.stages, door: SECTION_DOOR[s.id] });
   }
   return out;
 }
@@ -42,14 +44,11 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
   const { stages } = useResearchStages();
   const unread = useChatUnread();
   const landed = useLandedBadges();
-  const { done, total, loaded, refresh } = useAcademy();
+  const doors = useDoors({ celebrate: true });
   const [menu, setMenu] = useState(false);
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!loaded) void refresh();
-  }, [loaded, refresh]);
   useEffect(() => {
     if (!menu) return;
     const key = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
@@ -71,8 +70,9 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
   const link = (it: Item) => {
     const active = it.match.some((m) => isPathIn(pathname, m));
     const badge = landed[it.id] ?? 0;
+    const fresh = !!it.door && doors.fresh.includes(it.door);
     return (
-      <NavLink key={it.id} data-nav-id={it.id} to={active ? pathname : it.to} onClick={onClose} aria-current={active ? "page" : undefined} className={clsx("lx-link", active && "on")}>
+      <NavLink key={it.id} data-nav-id={it.id} to={active ? pathname : it.to} onClick={onClose} aria-current={active ? "page" : undefined} className={clsx("lx-link", active && "on", fresh && "door-new")}>
         <it.icon size={18} strokeWidth={1.8} aria-hidden />
         <span className="min-w-0 flex-1 truncate">{it.label}</span>
         {!!badge && (
@@ -100,8 +100,26 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
 
   const home: Item = { id: "home", to: "/", label: tr("الرئيسية"), icon: House, match: [] };
   const homeActive = pathname === "/";
+  // الأبواب: القسم يظهر لما ينفتح (أو الصفحة الحالية منه، عشان ما يختفي اللي فاتحينه)
+  const shown = (it: Item) => doors.isOpen(it.door) || it.match.some((m) => isPathIn(pathname, m));
+  const journey = itemsOf(journeySections);
   const work = itemsOf(workSections);
   const extra = morePages.filter((p) => !p.hideInNav);
+  // «الجاي»: باب واحد مقفل بس يطلع، باهت وفيه سطر وش يفتحه
+  // أول باب مقفل له مكان بالقائمة (المنهجية مثلًا تبويب داخل «أكتب» فتطلع هناك مو هنا)
+  const sideNext = doors.next ? DOOR_ORDER.find((d) => !doors.isOpen(d) && [...journey, ...work].some((it) => it.door === d)) : undefined;
+  const nextItem = sideNext ? [...journey, ...work].find((it) => it.door === sideNext) : undefined;
+  const locked = nextItem && sideNext && (
+    <div className="lx-link door-locked" aria-disabled="true" title={DOOR_HINT[sideNext]}>
+      <nextItem.icon size={18} strokeWidth={1.8} aria-hidden />
+      <span className="min-w-0 flex-1 leading-tight">
+        <span className="block truncate">{nextItem.label}</span>
+        <span className="block truncate text-[12px] font-medium text-[#ABA095]">{DOOR_HINT[sideNext]}</span>
+      </span>
+      <Lock size={14} className="flex-none text-[#FFC777]" aria-hidden />
+    </div>
+  );
+  const nextIsJourney = !!nextItem && journey.includes(nextItem);
 
   return (
     <>
@@ -131,10 +149,18 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
           </NavLink>
 
           <div className="lx-group">{tr("رحلة البحث")}</div>
-          {itemsOf(journeySections).map(link)}
+          {journey.filter(shown).map(link)}
+          {nextIsJourney && locked}
 
           <div className="lx-group">{tr("شغل الفريق")}</div>
-          {work.map(link)}
+          {work.filter(shown).map(link)}
+          {nextItem && !nextIsJourney && locked}
+
+          {doors.ready && (doors.next || doors.all) && (
+            <button type="button" className="door-all" onClick={() => doors.setAll(!doors.all)}>
+              {doors.all ? tr("رتّبوها حسب مرحلتكم") : tr("كل الأبواب")}
+            </button>
+          )}
 
           {isSuperAdmin && (
             <NavLink to="/admin/subscriptions" onClick={onClose} className={({ isActive }) => clsx("lx-link mt-2", isActive && "on")}>
@@ -144,19 +170,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
           )}
         </nav>
 
-        <NavLink to="/explain" onClick={onClose} className={({ isActive }) => clsx("lx-link mt-2 !min-h-[40px] !text-[14px]", isActive && "on")}>
-          <CircleHelp size={17} strokeWidth={1.8} aria-hidden />
-          <span className="flex-1">{tr("وش هذا المكان؟")}</span>
-        </NavLink>
-        <NavLink to="/learn" onClick={onClose} className="lx-learn mt-2" data-nav-id="learn">
-          <GraduationCap size={18} className="text-[#FFC777]" aria-hidden />
-          <span className="flex-1">{tr("تعلّموا Wesync")}</span>
-          {loaded && total > 0 && (
-            <span className="text-[12px] font-extrabold text-[#FFC777]" dir="ltr">
-              {done}/{total}
-            </span>
-          )}
-        </NavLink>
+        {doors.fresh.length > 0 && <DoorUnlock key={doors.fresh[0]} door={doors.fresh[0]} onDone={doors.clearFresh} onGo={onClose} />}
 
         {currentUser && (
           <div className="lx-me" ref={menuRef}>

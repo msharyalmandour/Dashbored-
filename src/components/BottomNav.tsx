@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useNavigate } from "react-router-dom";
-import { AudioLines, Camera, Check, Download, House, MessagesSquare, PenLine } from "lucide-react";
+import { AudioLines, Camera, Check, Download, House, MessagesSquare, PenLine, Search } from "lucide-react";
+import { useDoors } from "../hooks/useDoors";
 import clsx from "clsx";
 import { openAgent } from "../lib/agentBus";
 import { tr } from "../lib/i18n";
@@ -14,6 +15,7 @@ import { queueDrop } from "../lib/dropQueue";
 export default function BottomNav() {
   const unread = useChatUnread();
   const navigate = useNavigate();
+  const doors = useDoors();
   const [menu, setMenu] = useState(false);
   const timer = useRef<number | null>(null);
   const longPressed = useRef(false);
@@ -58,7 +60,8 @@ export default function BottomNav() {
     <>
       <nav className="hg-tabbar print:hidden md:hidden" aria-label={tr("التنقل")}>
         {tab("/", tr("الرئيسية"), House, true)}
-        {tab("/proposal", tr("أكتب"), PenLine)}
+        {/* قبل ما ينفتح «أكتب» (أول دراسة)، التبويب هو «أبحث» */}
+        {doors.isOpen("write") ? tab("/proposal", tr("أكتب"), PenLine) : tab("/research-search", tr("أبحث"), Search)}
         <button
           type="button"
           className="hg-fab select-none"

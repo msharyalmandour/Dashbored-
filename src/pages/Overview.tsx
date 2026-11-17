@@ -1,9 +1,7 @@
 import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
 import { MeetLiveStrip } from "../components/meet/MeetLive";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Link } from "react-router-dom";
-import { AlertTriangle, Compass, PartyPopper } from "lucide-react";
-import { AlertCard } from "../components/ui/cards";
+import { AlertTriangle, PartyPopper } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import NotificationsBell from "../components/NotificationsBell";
 import HomeToasts from "../components/home/HomeToasts";
@@ -26,12 +24,11 @@ import {
 import { V3Glow, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { useTour } from "../context/TourContext";
 import type { Task } from "../data/types";
 import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
-import LearnStrip from "../components/home/LearnStrip";
+import NextCard from "../components/home/NextCard";
 import DropEntry from "../components/drop/DropEntry";
 import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
@@ -53,7 +50,7 @@ import { computeNextSteps } from "../lib/nextSteps";
 import { isStageReady } from "../lib/stageAdvance";
 import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { splitReminders } from "../lib/taskReminders";
-import { isLate, todoList, weeklySeries } from "../lib/homeCalm";
+import { isLate, weeklySeries } from "../lib/homeCalm";
 import { METHOD_READY, ethicsStepsDone, methodologyReadyCount } from "../lib/writeProgress";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { isEn, tr } from "../lib/i18n";
@@ -62,7 +59,6 @@ import { isEn, tr } from "../lib/i18n";
 const now = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22, 6);
 const todayIso = toISODate(now);
 
-const GUIDE_BANNER_KEY = "nursync.guideBannerDismissed";
 const LAST_SEEN_STAGE_KEY = "nursync.lastSeenStage";
 const METHOD_TOTAL = Object.keys(METHOD_READY).length;
 
@@ -72,7 +68,6 @@ export default function Overview() {
   const { currentUser, mode, isLeader, canWrite, team } = useAuth();
   const navigate = useNavigate();
   const { stage: teamStage, loaded: stageLoaded } = useTeamStage(team?.id);
-  const { startTour, finished: tourFinished } = useTour();
   const { showToast } = useToast();
   const { stages } = useResearchStages();
   const { papers, loading: papersLoading } = useEvidencePapers();
@@ -87,13 +82,6 @@ export default function Overview() {
   const collection = summarizeCollection(surveys, surveyCounts, methodology.sampling.sampleSize);
   const currentStage = getCurrentStage(stages);
 
-  const [showGuide, setShowGuide] = useState(() => {
-    try {
-      return localStorage.getItem(GUIDE_BANNER_KEY) !== "1";
-    } catch {
-      return false;
-    }
-  });
   const [editDeadline, setEditDeadline] = useState(false);
   const [deadlineDraft, setDeadlineDraft] = useState("");
   const [deadlineError, setDeadlineError] = useState<string | null>(null);
@@ -226,9 +214,7 @@ export default function Overview() {
     { key: "ethics", label: tr("الأخلاقيات"), icon: "ethics", done: ethicsDone, total: 4, late: 0, to: "/ethical-approval" },
   ];
 
-  // ── الزر الأساسي بالجوال: أهم مهمة (عليك أول)، وإلا خطوة الرحلة المقترحة ──
-  const openTodo = todoList(tasks, todayIso, { limit: 50 }).items.filter((r) => r.kind !== "done").map((r) => r.task);
-  const nextTask = openTodo.find((t) => t.assigneeId === currentUser?.id) ?? openTodo[0];
+  // ── «الجاي لكم»: مهمة متأخرة عليكم أول، وإلا خطوة الرحلة (NextCard) ──
   const journeyStep = computeNextSteps({
     stageReady:
       !!currentStage &&
@@ -246,7 +232,6 @@ export default function Overview() {
     evidenceCount: papers.length,
     hasTitle: !!project?.title?.trim(),
   })[0];
-  const primary = nextTask ? { to: taskLink(nextTask), label: tr("افتح «{0}» ←", nextTask.title) } : journeyStep ? { to: journeyStep.to, label: `${journeyStep.cta} ←` } : null;
 
   // ── بطاقات مشهد الوكيل (من بيانات المشروع) ──
   const agentCards = [
@@ -287,41 +272,11 @@ export default function Overview() {
   };
 
   return (
-    <div className="v3 relative">
+    <div className="v3 nx-on relative">
       <V3Glow />
       <ErrorBoundary>
         <HomeToasts />
       </ErrorBoundary>
-
-      {showGuide && (
-        <div className="relative mb-4">
-          <AlertCard
-            tone="warning"
-            icon={Compass}
-            onDismiss={() => {
-              try {
-                localStorage.setItem(GUIDE_BANNER_KEY, "1");
-              } catch {
-                // ما يهم
-              }
-              setShowGuide(false);
-            }}
-            action={
-              !tourFinished && (
-                <button onClick={startTour} className="v3-bd shrink-0 !min-h-[40px] !text-sm">
-                  {tr("ابدأ الجولة")}
-                </button>
-              )
-            }
-          >
-            {tr("أول مرة تستخدمون Wesync؟ خذوا جولة سريعة على أهم الصفحات، أو افتحوا ")}
-            <Link to="/guide" className="underline underline-offset-2">
-              {tr("دليل الطالب")}
-            </Link>
-            .
-          </AlertCard>
-        </div>
-      )}
 
       {/* ── الترحيب + زر الوكيل + الجرس ── */}
       <GlassHeader
@@ -335,6 +290,11 @@ export default function Overview() {
         }
       />
 
+      {/* «الجاي لكم»: خطوة وحدة بزر برتقالي واحد — أول شي بالصفحة (docs/DESIGN_BRIEF_UNLOCK.md) */}
+      <ErrorBoundary>
+        <NextCard urgent={journeyStep} fallback={journeyStep} style={rise(0)} />
+      </ErrorBoundary>
+
       {mode === "supabase" && (
         <ErrorBoundary>
           <HomeAway />
@@ -344,12 +304,6 @@ export default function Overview() {
       {mode === "supabase" && (
         <ErrorBoundary>
           <DropEntry style={rise(1)} />
-        </ErrorBoundary>
-      )}
-
-      {mode === "supabase" && (
-        <ErrorBoundary>
-          <LearnStrip style={rise(1)} />
         </ErrorBoundary>
       )}
 
@@ -389,11 +343,6 @@ export default function Overview() {
             onAdd={addTodayTask}
           />
         </ErrorBoundary>
-        {primary && (
-          <Link to={primary.to} className="hg-primary order-4 group-has-[.fw-orange]/fw:hidden lg:hidden">
-            <span dir="auto">{primary.label}</span>
-          </Link>
-        )}
       </div>
 
       {/* ── HomeLux: قبل لا تشوفها الدكتورة · تقدّم البحث · باقي على التسليم ── */}

@@ -108,17 +108,24 @@ export function addDays(iso: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** المهام المعلّمة «خلصت» ودليلها ناقص (مثل «ابحث عن 5 دراسات» والمكتبة فاضية) — مع وش الناقص */
+export function unprovenDone(dash: Pick<Dash, "tasks" | "papers" | "sections">): { task: DashTask; label: string }[] {
+  const papers = dash.papers.map((p) => ({ addedById: p.addedById ?? "", country: p.lit ? "✓" : "", aim: "", sample: "", dataCollection: "" }));
+  const sections = dash.sections.map((s) => ({ key: s.key, content: s.written ? "✓" : "" }));
+  const out: { task: DashTask; label: string }[] = [];
+  for (const t of dash.tasks) {
+    if (t.status !== "done") continue;
+    const p = proofFor({ title: t.title, description: t.description, sectionKey: t.sectionKey ?? undefined, assigneeId: t.assigneeId ?? "", targetCount: t.targetCount }, { papers, sections } as Parameters<typeof proofFor>[1]);
+    if (p && !p.met) out.push({ task: t, label: p.label });
+  }
+  return out;
+}
+
 /** التقدّم بالدليل: المهمة المعلّمة «خلصت» تنحسب بس لو دليلها موجود (أو ما نقدر نقيسه) */
 export function proofProgress(dash: Pick<Dash, "tasks" | "papers" | "sections">): { pct: number; credited: number; total: number } {
   const total = dash.tasks.length;
   if (!total) return { pct: 0, credited: 0, total: 0 };
-  const papers = dash.papers.map((p) => ({ addedById: p.addedById ?? "", country: p.lit ? "✓" : "", aim: "", sample: "", dataCollection: "" }));
-  const sections = dash.sections.map((s) => ({ key: s.key, content: s.written ? "✓" : "" }));
-  const credited = dash.tasks.filter((t) => {
-    if (t.status !== "done") return false;
-    const p = proofFor({ title: t.title, description: t.description, sectionKey: t.sectionKey ?? undefined, assigneeId: t.assigneeId ?? "", targetCount: t.targetCount }, { papers, sections } as Parameters<typeof proofFor>[1]);
-    return !p || p.met;
-  }).length;
+  const credited = dash.tasks.filter((t) => t.status === "done").length - unprovenDone(dash).length;
   return { pct: Math.round((credited / total) * 100), credited, total };
 }
 
@@ -167,7 +174,12 @@ export function radarOf(dash: Pick<Dash, "tasks" | "project" | "today">): Radar 
   let tone: Tone;
   let label: string;
   let short: string;
-  if (remaining === 0) {
+  if (remaining === 0 && !deadline) {
+    // خلصوا الموجود بس ما فيه لا مهام جاية ولا موعد: مو «ماشي»، يحتاجون الخطوة الجاية
+    tone = "orange";
+    label = tr("خلصوا كل المهام · ما فيه مهام جاية");
+    short = tr("ينتظر الخطوة الجاية");
+  } else if (remaining === 0) {
     tone = "gold";
     label = tr("خلصوا كل المهام");
     short = tr("ماشي");

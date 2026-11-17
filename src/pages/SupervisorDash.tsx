@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { avatarLetter } from "../lib/avatarLetter";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Award, BarChart3, Bell, CalendarDays, FileText, HelpCircle, Hourglass as HourglassIcon, Home, Languages, Link2, Radar as RadarIcon, Settings, Users, X } from "lucide-react";
 import { isEn, setLang, tr } from "../lib/i18n";
@@ -223,7 +224,7 @@ export default function SupervisorDash() {
     <div className="sd-avs" aria-hidden>
       {(t.dash?.members ?? []).slice(0, 5).map((m, i) => (
         <span key={m.id} style={{ background: AV[i % AV.length] }}>
-          {(m.initials || m.name).charAt(0)}
+          {avatarLetter(m.name)}
         </span>
       ))}
     </div>
@@ -402,7 +403,7 @@ export default function SupervisorDash() {
     </section>
   );
 
-  const ledgerBlock = <Ledger rows={ledger} docName={dn || tr("المشرف/ة")} />;
+  const ledgerBlock = <Ledger rows={ledger} docName={dn || tr("المشرف/ة")} viewer="supervisor" />;
 
   const others = waits.filter((w) => w.kind !== "extension");
   const requestsView = (
@@ -569,7 +570,7 @@ export default function SupervisorDash() {
           </button>
           <div className="sd-me">
             <span className="sd-docav" aria-hidden>
-              {dn.replace(/^(د\.|Dr\.?)\s*/i, "").charAt(0) || "؟"}
+              {avatarLetter(dn)}
             </span>
             <div style={{ lineHeight: 1.35 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>{dn || tr("المشرف/ة")}</div>

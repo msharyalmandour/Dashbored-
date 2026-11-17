@@ -15,6 +15,7 @@ import { daysUntil, formatDateFull, formatDateShort, relativeDayLabel } from "..
 import { getSupervisorEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
 import { buildSeen, diffSince, loadApproved, loadSeen, loadTeams, rememberTeam, saveApproved, saveSeen } from "../lib/supervisorLocal";
 import type { ResearchType } from "../data/types";
+import { proofProgress, unprovenDone, type Dash } from "../lib/supervisorDash";
 import { tr, trx } from "../lib/i18n";
 
 interface SnapshotTask {
@@ -77,6 +78,8 @@ const methodReady = (m: SnapshotMethodology) =>
     ? [m.studyDesign, m.studySetting, m.population, filled(m.samplingInclusion) && filled(m.sampleSize) && filled(m.samplingTechnique), m.dataCollectionMethods, m.dataAnalysis, m.ethicalConsiderations].filter(filled).length
     : 0;
 
+/** يعزل اسم (ممكن يكون إنجليزي) داخل جملة عربية عشان ترتيب الكلام ما يتلخبط */
+const iso = (s: string) => `\u2068${s}\u2069`;
 const isLate = (t: SnapshotTask) => t.status === "overdue" || (t.status !== "done" && !!t.dueDate && daysUntil(t.dueDate) < 0);
 const byDue = (a: SnapshotTask, b: SnapshotTask) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999");
 const studentsLabel = (n: number) => (n === 1 ? tr("طالب واحد") : n === 2 ? tr("طالبين") : n <= 10 ? tr("{0} طلاب", n) : tr("{0} طالب", n));
@@ -138,6 +141,18 @@ export default function SupervisorView() {
   const [leaving, setLeaving] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
+  // التقدّم «بالدليل» نفس لوحة المشرفة (المهمة «خلصت» بدون دليلها ما تنحسب)
+  const [dash, setDash] = useState<Dash | null>(null);
+  useEffect(() => {
+    if (!token || !supabase) return;
+    let alive = true;
+    void supabase.rpc("supervisor_dash", { p_token: token }).then(({ data, error }) => {
+      if (alive && !error && data) setDash(data as Dash);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [token]);
   // إيصال ينتظر «تمام»: هو البرتقالي الوحيد بالشاشة، والشريط السفلي يصير كريمي
   const [receiptPending, setReceiptPending] = useState(false);
   const { board, busy, error: boardError, load: loadBoard, run, saveAvailability } = useSupervisorBoard(token, nameDraft);
@@ -372,7 +387,9 @@ export default function SupervisorView() {
     );
   }
 
-  const { tasks, done, late, pct, project, daysLeft, expected, doneBy } = view;
+  const { tasks, done, late, project, daysLeft, expected, doneBy } = view;
+  const unproven = dash && dash.tasks.length === tasks.length ? unprovenDone(dash) : [];
+  const pct = unproven.length && dash ? proofProgress(dash).pct : view.pct;
   const hour = new Date().getHours();
   const greeting = hour >= 4 && hour < 12 ? tr("صباح الخير") : tr("مساء الخير");
   const leader = snapshot.members.find((m) => m.role === "leader") ?? snapshot.members[0];
@@ -392,9 +409,18 @@ export default function SupervisorView() {
   } else if (late.length > 0) {
     const oldest = [...late].sort(byDue)[0];
     say = late.length === 1 ? tr("فيه مهمة متأخرة.") : tr("فيه {0} مهام متأخرة.", late.length);
-    why = oldest.assigneeName ? tr("أقدمها «{0}» عند {1}.", oldest.title, oldest.assigneeName.trim().split(/\s+/)[0]) : tr("أقدمها «{0}».", oldest.title);
+    why = oldest.assigneeName ? tr("أقدمها «{0}» عند {1}.", oldest.title, iso(oldest.assigneeName.trim().split(/\s+/)[0])) : tr("أقدمها «{0}».", oldest.title);
+  } else if (unproven.length > 0) {
+    // «خلصت» بس الدليل ناقص: نقولها للمشرفة بهدوء ومعها المثال
+    const u = unproven[0];
+    say = unproven.length === 1 ? tr("مهمة معلّمة «خلصت» ودليلها ناقص.") : tr("{0} مهام معلّمة «خلصت» ودليلها ناقص.", unproven.length);
+    why = u.task.assigneeName ? tr("مثل «{0}» عند {1}: {2}.", u.task.title, iso(u.task.assigneeName.trim().split(/\s+/)[0]), u.label) : tr("مثل «{0}»: {1}.", u.task.title, u.label);
   } else if (expected !== null && pct < expected - 5) {
     say = tr("بداية بطيئة.");
+  } else if (done.length === tasks.length) {
+    // كل المهام خلصت ومافي جاية: نقولها صريح بدل «ماشين زين»
+    say = tr("خلّصوا كل مهامهم.");
+    why = tr("ما فيه مهمة جاية محددة — يمكن يحتاجون الخطوة الجاية منكم.");
   }
 
   // المهام حسب الفلتر
@@ -409,7 +435,8 @@ export default function SupervisorView() {
   const memberIndex = new Map(snapshot.members.map((m, i) => [m.name, i]));
 
   // المستندات
-  const secDone = snapshot.proposalSections.filter((s) => s.status === "done");
+  // «مكتمل» بدون نص ما ينحسب ولا ينطلب اعتماده (ما فيه شي تقراه)
+  const secDone = snapshot.proposalSections.filter((s) => s.status === "done" && s.content.trim().length > 0);
   const proposalWaiting = secDone.some((s) => !approved.includes(s.key));
   const mReady = methodReady(snapshot.methodology);
   const docs: { kind: DocKind; icon: typeof FileText; label: string; x: number; y: number; at: string | null | undefined; waiting?: boolean }[] = [
@@ -441,7 +468,7 @@ export default function SupervisorView() {
           { key: "steps", label: tr("خطوات النموذج"), content: tr("{0} من 4 خطوات مكتملة", snapshot.ethics.stepsDone) },
           { key: "principles", label: tr("المبادئ الأخلاقية"), content: tr("{0} من 13 بند مجاوب", snapshot.ethics.principles) },
           { key: "attachments", label: tr("المرفقات"), content: tr("{0} من 5 مرفقات جاهزة", snapshot.ethics.attachments) },
-          { key: "outcome", label: tr("قرار اللجنة"), content: snapshot.ethics.outcome ? (OUTCOME[snapshot.ethics.outcome] ?? snapshot.ethics.outcome) : tr("ما انرفع للجنة بعد") },
+          { key: "outcome", label: tr("قرار اللجنة"), content: snapshot.ethics.outcome && !(snapshot.ethics.outcome === "pending" && snapshot.ethics.stepsDone < 4) ? (OUTCOME[snapshot.ethics.outcome] ?? snapshot.ethics.outcome) : tr("ما انرفع للجنة بعد") },
         ]
       : [],
   };
@@ -450,7 +477,7 @@ export default function SupervisorView() {
   const title = project?.title?.trim() ?? "";
   const hasArabic = /[؀-ۿ]/.test(title);
   const en = project?.description && /[A-Za-z]/.test(project.description) && !/[؀-ۿ]/.test(project.description) ? project.description : "";
-  const typeLabel = project?.researchType ? TYPE_LABEL[project.researchType as Exclude<ResearchType, "">]?.[0] : "";
+  const typeLabel = project?.researchType ? TYPE_LABEL[project.researchType as Exclude<ResearchType, "">]?.[isEn ? 1 : 0] : "";
   const setupStrip = <SvSetupStrip nameDone={nameDone} emailDone={emailDone} timesDone={timesDone} onOpen={() => setSheet("setup")} />;
   let i = 0;
   const rise = () => ({ "--v3-i": i++ }) as CSSProperties;
@@ -551,9 +578,9 @@ export default function SupervisorView() {
             <div className="sv-stats">
               <div>
                 <span className="sv-num">
-                  {done.length}/{tasks.length}
+                  {done.length - unproven.length}/{tasks.length}
                 </span>
-                <p>{tr("مهام خلصت")}</p>
+                <p>{unproven.length ? tr("خلصت بدليل") : tr("مهام خلصت")}</p>
               </div>
               <div>
                 <span className={`sv-num${late.length ? " red" : ""}`}>{late.length}</span>

@@ -3,7 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { ChevronRight, Printer } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { daysUntil, formatDateFull, formatDateShort } from "../lib/date";
-import { tr } from "../lib/i18n";
+import { isEn, tr, trx } from "../lib/i18n";
+import { proofProgress, unprovenDone, type Dash } from "../lib/supervisorDash";
 import { useAuth } from "../context/AuthContext";
 import { markLearn } from "../hooks/useAcademy";
 
@@ -17,10 +18,10 @@ interface RSnapshot {
   teamName: string;
   members: { name: string; role: string }[];
   tasks: RTask[];
-  proposalSections: { key: string; labelAr: string; status: string }[];
+  proposalSections: { key: string; labelAr: string; labelEn?: string; status: string; content?: string }[];
   methodology: Record<string, unknown> | null;
   project?: { title: string; targetSubmissionDate: string | null } | null;
-  ethics?: { outcome: string | null } | null;
+  ethics?: { outcome: string | null; stepsDone?: number } | null;
 }
 
 const OUTCOME: Record<string, string> = { pending: "بانتظار اللجنة", approved: "معتمدة", rejected: "مرفوضة", modifications: "مطلوب تعديلات" };
@@ -30,6 +31,7 @@ export default function SupervisorReport() {
   const { token } = useParams<{ token: string }>();
   const [snap, setSnap] = useState<RSnapshot | null>(null);
   const [error, setError] = useState(false);
+  const [dash, setDash] = useState<Dash | null>(null);
   const { currentUser } = useAuth();
   // درس «افتحوا تقرير التقدّم» بأكاديمية Wesync: يكتمل لما عضو بالفريق يفتح التقرير
   useEffect(() => {
@@ -45,6 +47,10 @@ export default function SupervisorReport() {
       if (e || !data) setError(true);
       else setSnap(data as RSnapshot);
     });
+    // التقدّم بالدليل (نفس لوحة المشرفة): لو ما وصل، التقرير يطلع بالعدّ العادي
+    supabase.rpc("supervisor_dash", { p_token: token }).then(({ data, error: e }) => {
+      if (!e && data) setDash(data as Dash);
+    });
   }, [token]);
 
   if (error) return <p className="p-8 text-center text-[#ABA095]">{tr("الرابط غير صالح أو منتهي.")}</p>;
@@ -55,13 +61,18 @@ export default function SupervisorReport() {
   const late = tasks.filter((t) => t.status === "overdue" || (t.status !== "done" && !!t.dueDate && daysUntil(t.dueDate) < 0));
   const upcoming = tasks.filter((t) => t.status !== "done" && t.dueDate && daysUntil(t.dueDate) >= 0).sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? "")).slice(0, 6);
   const sections = snap.proposalSections ?? [];
-  const secDone = sections.filter((s) => s.status === "done").length;
+  // «مكتمل» بدون نص ما ينحسب
+  const written = (s: RSnapshot["proposalSections"][number]) => s.status === "done" && !!s.content?.trim();
+  const secDone = sections.filter(written).length;
   const m = snap.methodology ?? {};
   const methodParts = ["studyDesign", "studySetting", "population", "sampleSize", "dataCollectionMethods", "dataAnalysis", "ethicalConsiderations"].filter((k) => {
     const v = m[k];
     return Array.isArray(v) ? v.length > 0 : !!v && !!String(v).trim();
   }).length;
-  const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  const unproven = dash && dash.tasks.length === tasks.length ? unprovenDone(dash).length : 0;
+  const pct = unproven && dash ? proofProgress(dash).pct : tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  // «بانتظار اللجنة» بس لو انرفع فعلًا (خلصوا خطوات النموذج الأربع)
+  const outcome = snap.ethics?.outcome === "pending" && (snap.ethics.stepsDone ?? 0) < 4 ? null : (snap.ethics?.outcome ?? null);
   const perMember = (snap.members ?? []).map((mem) => {
     const mine = tasks.filter((t) => t.assigneeName === mem.name);
     return { name: mem.name, total: mine.length, done: mine.filter((t) => t.status === "done").length };
@@ -72,7 +83,7 @@ export default function SupervisorReport() {
     <div className="rp-wrap">
       <div className="rp-bar print:hidden">
         <Link to={`/supervisor/${token}`} className="rp-back">
-          <ChevronRight size={16} className="ltr:rotate-180" aria-hidden />
+          <ChevronRight size={16} aria-hidden />
           {tr("رجوع")}
         </Link>
         <button type="button" className="rp-print" onClick={() => window.print()}>
@@ -81,13 +92,16 @@ export default function SupervisorReport() {
         </button>
       </div>
 
-      <article className="rp-page" dir="rtl" lang="ar">
+      <article className="rp-page" dir={isEn ? "ltr" : "rtl"} lang={isEn ? "en" : "ar"}>
         <header className="rp-head">
           <div>
             <p className="rp-kicker">{tr("تقرير تقدّم فريق البحث")}</p>
-            <h1 className="rp-title">{snap.project?.title?.trim() || snap.teamName}</h1>
+            <h1 className="rp-title">
+              {/* bdi: عنوان إنجليزي بصفحة عربية يبقى بمحاذاة الصفحة وعلامة الاستفهام بمكانها */}
+              <bdi>{snap.project?.title?.trim() || snap.teamName}</bdi>
+            </h1>
             <p className="rp-sub">
-              {tr("فريق «{0}» · {1} أعضاء · {2}", snap.teamName, snap.members?.length ?? 0, formatDateFull(today))}
+              {trx("فريق «{0}» · {1} أعضاء · {2}", <bdi key="n">{snap.teamName}</bdi>, snap.members?.length ?? 0, formatDateFull(today))}
             </p>
           </div>
           <span className="rp-logo" aria-hidden>
@@ -98,7 +112,7 @@ export default function SupervisorReport() {
         <section className="rp-stats">
           <div>
             <b dir="ltr">{pct}%</b>
-            <span>{tr("المهام المنجزة ({0} من {1})", done, tasks.length)}</span>
+            <span>{unproven ? tr("المهام المنجزة بدليل ({0} من {1})", done - unproven, tasks.length) : tr("المهام المنجزة ({0} من {1})", done, tasks.length)}</span>
           </div>
           <div>
             <b dir="ltr">
@@ -111,7 +125,7 @@ export default function SupervisorReport() {
             <span>{tr("أجزاء المنهجية")}</span>
           </div>
           <div>
-            <b>{snap.ethics?.outcome ? tr(OUTCOME[snap.ethics.outcome] ?? snap.ethics.outcome) : "—"}</b>
+            <b>{outcome ? tr(OUTCOME[outcome] ?? outcome) : tr("ما انرفعت للجنة")}</b>
             <span>{tr("الموافقة الأخلاقية")}</span>
           </div>
         </section>
@@ -122,8 +136,10 @@ export default function SupervisorReport() {
             <ul>
               {sections.map((s) => (
                 <li key={s.key}>
-                  <span>{s.labelAr}</span>
-                  <em className={s.status === "done" ? "ok" : s.status === "in-progress" ? "mid" : ""}>{s.status === "done" ? tr("مكتمل") : s.status === "in-progress" ? tr("قيد الكتابة") : tr("ما بدأ")}</em>
+                  <span>{isEn ? s.labelEn || s.labelAr : s.labelAr}</span>
+                  <em className={written(s) ? "ok" : s.status === "in-progress" || s.status === "done" ? "mid" : ""}>
+                    {written(s) ? tr("مكتمل") : s.status === "done" ? tr("معلّم مكتمل · بدون نص") : s.status === "in-progress" ? tr("قيد الكتابة") : tr("ما بدأ")}
+                  </em>
                 </li>
               ))}
             </ul>

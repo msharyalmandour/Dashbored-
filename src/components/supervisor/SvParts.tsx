@@ -1,4 +1,5 @@
 import { getSupervisorDigest, setSupervisorDigest, type DigestMode } from "../../lib/supervisorEmail";
+import { avatarLetter } from "../../lib/avatarLetter";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CalendarClock, Check, ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
 import SupervisorEmailCard from "../SupervisorEmailCard";
@@ -27,7 +28,7 @@ export function relTime(iso: string | null | undefined): string {
 
 const AV_BG = ["linear-gradient(135deg,#FFD9A8,#FF9A3C)", "linear-gradient(135deg,#FFE7C2,#FFB547)", "linear-gradient(135deg,#F7C9A8,#E9774A)", "linear-gradient(135deg,#F2EBE3,#C9B8A6)"];
 export function SvAvatar({ name, initials, i, active, sm }: { name: string; initials?: string; i: number; active?: boolean | null; sm?: boolean }) {
-  const letter = (initials || name).trim().charAt(0) || "؟";
+  const letter = avatarLetter(name || initials);
   return (
     <span className={`sv-av${sm ? " sm" : ""}`} style={{ background: AV_BG[i % AV_BG.length] }} aria-hidden>
       {letter}

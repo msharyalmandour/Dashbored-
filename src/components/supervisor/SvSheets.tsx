@@ -205,7 +205,7 @@ export function SvDocSheet({
                 <span className="sv-st">{r.label}</span>
                 {r.en && <span className="mx-2 text-[12px] text-[#8F857C]" dir="ltr">{r.en}</span>}
               </span>
-              {r.status === "done" && onApprove &&
+              {r.status === "done" && !!r.content?.trim() && onApprove &&
                 (approved?.includes(r.key) ? (
                   <span className="sv-badge soon !text-[#FFC777] !bg-[rgba(255,199,119,.12)]">{tr("معتمد ✓")}</span>
                 ) : (

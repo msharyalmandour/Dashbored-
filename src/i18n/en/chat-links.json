@@ -94,5 +94,8 @@
  "أرتّب…": "Organizing…",
  "رتّب ملفات درايف": "Organize Drive files",
  "ينقل الملفات القديمة لمجلداتها حسب النوع ويضيف التاريخ لاسمها.": "Moves older files into folders by type and adds the date to their names.",
- "تقرير تقدّم الفريق (PDF) — ترسلونه للمشرف/ة أو القسم": "Team progress report (PDF) — send it to your supervisor or department"
+ "تقرير تقدّم الفريق (PDF) — ترسلونه للمشرف/ة أو القسم": "Team progress report (PDF) — send it to your supervisor or department",
+ "المهام المنجزة بدليل ({0} من {1})": "Tasks done with proof ({0} of {1})",
+ "ما انرفعت للجنة": "Not submitted yet",
+ "معلّم مكتمل · بدون نص": "Marked done · no text"
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { avatarLetter } from "../../lib/avatarLetter";
 import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { tr } from "../../lib/i18n";
@@ -93,7 +94,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 14 }}>
             <span className="sup-av" style={{ width: 26, height: 26, background: "#FF9A5A" }} aria-hidden>
-              {(ext.requestedBy ?? "؟").charAt(0)}
+              {avatarLetter(ext.requestedBy)}
             </span>
             <span>
               {ext.requestedBy} · {tr("طلب")} <b style={{ color: "#FFC777" }}>{n ? `+${dayCount(n)}` : ""}</b> · {tr("من {0} ← {1}", dayLabel(ext.currentDue), dayLabel(ext.requestedDue))}

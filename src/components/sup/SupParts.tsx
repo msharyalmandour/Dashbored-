@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { avatarLetter } from "../../lib/avatarLetter";
 import { Link } from "react-router-dom";
 import Avatar from "../ui/Avatar";
 import { tr } from "../../lib/i18n";
@@ -62,7 +63,7 @@ export const SupIcons = I;
 
 /** صورة الدكتورة: حرفها الأول على كريمي بحلقة ذهبية 1.5px */
 export function DocAvatar({ name, px = 32 }: { name: string; px?: number }) {
-  const letter = (name.replace(/^د\.?\s*/, "").trim()[0] ?? "د").toUpperCase();
+  const letter = avatarLetter(name, "د");
   return (
     <span aria-hidden className="sup-av doc" style={{ width: px, height: px, fontSize: px >= 30 ? 14 : px >= 26 ? 12 : 10 }}>
       {letter}
@@ -341,7 +342,8 @@ export interface LedgerRow {
 }
 
 /** سجل الوعود: «طلبات الدكتورة منكم» و«وعود الدكتورة لكم» */
-export function Ledger({ rows, docName, action }: { rows: LedgerRow[]; docName: string; action?: (r: LedgerRow) => ReactNode }) {
+export function Ledger({ rows, docName, action, viewer = "team" }: { rows: LedgerRow[]; docName: string; action?: (r: LedgerRow) => ReactNode; viewer?: "team" | "supervisor" }) {
+  const sv = viewer === "supervisor";
   const reqs = rows.filter((r) => r.direction === "from_supervisor");
   const proms = rows.filter((r) => r.direction === "to_team");
   return (
@@ -358,11 +360,11 @@ export function Ledger({ rows, docName, action }: { rows: LedgerRow[]; docName: 
       {!rows.length ? (
         <p className="m-0 mt-3 text-center text-[13px] text-[#E9D3B8]">
           <b className="mb-1 block text-[15px] text-[#EAE3DC]">{tr("السجل فاضي")}</b>
-          {tr("طلبات الدكتورة ووعودها بتتجمع هنا")}
+          {sv ? tr("طلباتكم من الفرق ووعودكم لهم بتتجمع هنا") : tr("طلبات الدكتورة ووعودها بتتجمع هنا")}
         </p>
       ) : (
         <>
-          {reqs.length > 0 && <div className="sup-sec">{tr("طلبات الدكتورة منكم")}</div>}
+          {reqs.length > 0 && <div className="sup-sec">{sv ? tr("طلباتكم من الفريق") : tr("طلبات الدكتورة منكم")}</div>}
           {reqs.map((r) => {
             const s = statusLabel(r);
             return (
@@ -379,7 +381,7 @@ export function Ledger({ rows, docName, action }: { rows: LedgerRow[]; docName: 
               </div>
             );
           })}
-          {proms.length > 0 && <div className="sup-sec" style={{ marginTop: 14 }}>{tr("وعود الدكتورة لكم")}</div>}
+          {proms.length > 0 && <div className="sup-sec" style={{ marginTop: 14 }}>{sv ? tr("وعودكم للفريق") : tr("وعود الدكتورة لكم")}</div>}
           {proms.map((r) => (
             <div key={r.id} className="sup-row">
               <DocAvatar name={docName} px={24} />

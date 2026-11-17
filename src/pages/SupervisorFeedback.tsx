@@ -16,7 +16,7 @@ import { callStudy } from "../hooks/useStudyTools";
 import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
-import { notifySupervisor } from "../lib/supervisorEmail";
+import { getMyEmailStatus, notifySupervisor } from "../lib/supervisorEmail";
 import { formatDateLong } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import { publicBase } from "../lib/publicUrl";
@@ -44,6 +44,18 @@ export default function SupervisorFeedback() {
   const [replyErr, setReplyErr] = useState<string | null>(null);
   const [nudge, setNudge] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  // هل المشرفة مفعّلة إيميلات Wesync؟ (عشان ما نقول «ما يجيها إيميل» وهي يجيها)
+  const [emailOn, setEmailOn] = useState(false);
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let alive = true;
+    void getMyEmailStatus().then((st) => {
+      if (alive) setEmailOn(st?.state === "active" && !st.isTeamMember);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const [raw, setRaw] = useState("");
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
@@ -183,7 +195,7 @@ export default function SupervisorFeedback() {
       {(messages.length > 0 || isSupabaseConfigured) && (
         <Card tone="paper" className="space-y-3">
           <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <GraduationCap size={18} className="text-violet-500" />{tr("رسائل المشرفة")}</h3>
+            <GraduationCap size={18} className="text-[#FFC777]" />{tr("رسائل المشرفة")}</h3>
           {messages.length === 0 ? (
             <p className="text-xs leading-relaxed text-brand-950/55">{tr("لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.")}</p>
           ) : (
@@ -194,7 +206,7 @@ export default function SupervisorFeedback() {
                   <li key={m.id} className={`flex ${fromSup ? "justify-start" : "justify-end"}`}>
                     <div
                       className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 ${
-                        fromSup ? "bg-violet-50 text-brand-950" : "border border-brand-100 bg-surface-muted text-brand-950"
+                        fromSup ? "bg-[rgba(255,199,119,.10)] text-brand-950 ring-1 ring-[rgba(255,199,119,.22)]" : "border border-brand-100 bg-surface-muted text-brand-950"
                       }`}
                     >
                       <p className="text-[12px] font-bold text-brand-950/45">
@@ -205,7 +217,7 @@ export default function SupervisorFeedback() {
                       {fromSup && (
                         <button
                           onClick={() => toTasks(m.body)}
-                          className="mt-2 flex items-center gap-1.5 text-xs font-bold text-violet-600 underline underline-offset-2 hover:text-violet-700"
+                          className="mt-2 flex min-h-[32px] items-center gap-1.5 text-xs font-bold text-[#FF9A3C] underline underline-offset-2 hover:text-[#FFB547]"
                         >
                           <ClipboardCheck size={12} />{tr("حوّلوها لمهام")}</button>
                       )}
@@ -245,7 +257,11 @@ export default function SupervisorFeedback() {
               <button onClick={() => setNudge(false)} className="text-[12px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
             </div>
           )}
-          <p className="text-[12px] text-brand-950/40">{tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}</p>
+          <p className="text-[12px] text-brand-950/40">
+            {emailOn
+              ? tr("المشرفة مفعّلة الإيميل: يوصلها تنبيه بردّكم (تنبيه واحد كل 10 دقايق بالكثير).")
+              : tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}
+          </p>
         </Card>
       )}
 

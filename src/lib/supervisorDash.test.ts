@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, daysBetween, proofProgress, radarOf, requestChips, waitingItems, weeklyVelocity, type Dash, type DashTask, type TeamData } from "./supervisorDash";
+import { addDays, daysBetween, proofProgress, radarOf, unprovenDone, requestChips, waitingItems, weeklyVelocity, type Dash, type DashTask, type TeamData } from "./supervisorDash";
 import type { SupItem } from "./commitments";
 
 const today = "2026-11-12";
@@ -58,6 +58,23 @@ describe("proofProgress", () => {
   });
   it("is zero with no tasks", () => {
     expect(proofProgress({ tasks: [], papers: [], sections: [] }).pct).toBe(0);
+  });
+  it("lists done tasks whose proof is missing, with what is missing", () => {
+    const t = task({ status: "done", title: "ابحث عن 5 دراسات سابقة متعلقة بالبحث" });
+    const out = unprovenDone({ tasks: [t, task({ status: "done", title: "يوجد الاوقات" })], papers: [], sections: [] });
+    expect(out.map((u) => u.task.id)).toEqual([t.id]);
+    expect(out[0].label).toContain("5");
+  });
+});
+
+describe("radarOf · all done", () => {
+  it("is not «on track» when everything is done but nothing is planned and no deadline", () => {
+    const r = radarOf({ today, tasks: [doneOn("2026-11-10")], project: { title: "", startDate: null, deadline: null, createdAt: "2026-10-01T00:00:00Z" } });
+    expect(r.tone).toBe("orange");
+  });
+  it("is gold when everything is done before the deadline", () => {
+    const r = radarOf({ today, tasks: [doneOn("2026-11-10")], project: { title: "", startDate: null, deadline: "2026-12-01", createdAt: "2026-10-01T00:00:00Z" } });
+    expect(r.tone).toBe("gold");
   });
 });
 

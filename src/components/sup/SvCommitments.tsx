@@ -122,6 +122,7 @@ export default function SvCommitments({ token, name, teamName, openTarget, onToa
       {ledger.length > 0 && (
         <Ledger
           rows={ledger}
+          viewer="supervisor"
           docName={name || tr("الدكتورة")}
           action={(r) =>
             r.direction === "from_supervisor" ? (

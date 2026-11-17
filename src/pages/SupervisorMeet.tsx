@@ -35,7 +35,7 @@ export default function SupervisorMeet() {
         return joinAsGuest(token, n);
       }}
       status={status}
-      onExit={() => nav(`/supervisor/${token}`)}
+      onExit={() => nav(`/supervisor?t=${token}`)}
     />
   );
 }

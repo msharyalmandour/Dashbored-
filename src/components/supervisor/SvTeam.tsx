@@ -1,22 +1,21 @@
 import { useRef, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
-import SvCommitments from "../components/sup/SvCommitments";
-import { SvTimePanel } from "../components/sup/SvTime";
-import { useMeetLive } from "../components/meet/MeetLive";
-import { isEn, setLang } from "../lib/i18n";
-import { Link, useParams, useSearchParams } from "react-router-dom";
-import { AlertTriangle, Check, ChevronLeft, FileText, FlaskConical, Gauge, Inbox, ListChecks, Lock, ShieldCheck, Users } from "lucide-react";
-import { useSupervisorBoard } from "../components/supervisor/useSupervisorBoard";
-import { SvAvatar, SvSetupSheet, SvSetupStrip, SvWaiting, relTime } from "../components/supervisor/SvParts";
-import type { SectionComment } from "../components/supervisor/SvSheets";
-import { SvDocSheet, SvNoteSheet, type DocRow, type ThreadMessage } from "../components/supervisor/SvSheets";
-import { TYPE_LABEL } from "../components/v3/WriteHeader";
-import { supabase } from "../lib/supabaseClient";
-import { daysUntil, formatDateFull, formatDateShort, relativeDayLabel } from "../lib/date";
-import { getSupervisorEmailStatus, type EmailStatus } from "../lib/supervisorEmail";
-import { buildSeen, diffSince, loadApproved, loadSeen, loadTeams, rememberTeam, saveApproved, saveSeen } from "../lib/supervisorLocal";
-import type { ResearchType } from "../data/types";
-import { proofProgress, unprovenDone, type Dash } from "../lib/supervisorDash";
-import { tr, trx } from "../lib/i18n";
+import SvCommitments from "../sup/SvCommitments";
+import { SvTimePanel } from "../sup/SvTime";
+import { useMeetLive } from "../meet/MeetLive";
+import { isEn, tr, trx } from "../../lib/i18n";
+import { Link } from "react-router-dom";
+import { AlertTriangle, Check, ChevronLeft, ChevronRight, FileText, FlaskConical, Gauge, Inbox, ListChecks, MessageSquareText, Settings2, ShieldCheck, Users, Video } from "lucide-react";
+import { useSupervisorBoard } from "./useSupervisorBoard";
+import { SvAvatar, SvSetupSheet, SvSetupStrip, SvWaiting, relTime } from "./SvParts";
+import type { SectionComment } from "./SvSheets";
+import { SvDocSheet, SvNoteSheet, type DocRow, type ThreadMessage } from "./SvSheets";
+import { TYPE_LABEL } from "../v3/WriteHeader";
+import { supabase } from "../../lib/supabaseClient";
+import { daysUntil, formatDateFull, formatDateShort, relativeDayLabel } from "../../lib/date";
+import { getSupervisorEmailStatus, type EmailStatus } from "../../lib/supervisorEmail";
+import { buildSeen, diffSince, loadApproved, loadSeen, rememberTeam, saveApproved, saveSeen } from "../../lib/supervisorLocal";
+import type { ResearchType } from "../../data/types";
+import { proofProgress, unprovenDone, type Dash } from "../../lib/supervisorDash";
 
 interface SnapshotTask {
   title: string;
@@ -112,22 +111,29 @@ function Ring({ pct }: { pct: number }) {
   );
 }
 
-export default function SupervisorView() {
-  const { token } = useParams<{ token: string }>();
-  // من الإيميل: ?open=minutes:<id> / decision:<id> / booking:<id> / thread:0 — نفتح الطلب نفسه
-  const [search] = useSearchParams();
-  const openTarget = search.get("open") ?? "";
+/** صفحة الفريق داخل لوحة المشرفة: كل اللي تحتاجه عن فريق واحد (الطلبات، الوضع، المستندات، الرسائل).
+    openTarget من الإيميل: minutes:<id> / decision:<id> / booking:<id> / thread:0 — نفتح الطلب نفسه */
+export default function SvTeam({
+  token,
+  openTarget,
+  nameDraft,
+  setNameDraft,
+  onBack,
+  onToast,
+  onChanged,
+}: {
+  token: string;
+  openTarget: string;
+  nameDraft: string;
+  setNameDraft: (v: string) => void;
+  onBack: () => void;
+  onToast: (msg: string) => void;
+  onChanged: () => void;
+}) {
   const [comments, setComments] = useState<SectionComment[]>([]);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [nameDraft, setNameDraft] = useState(() => {
-    try {
-      return localStorage.getItem("wesync-supervisor-name") ?? "";
-    } catch {
-      return "";
-    }
-  });
   const [noteError, setNoteError] = useState<string | null>(null);
   const [thread, setThread] = useState<ThreadMessage[]>([]);
   const [threadLoaded, setThreadLoaded] = useState(false);
@@ -139,7 +145,7 @@ export default function SupervisorView() {
   const [filter, setFilter] = useState<TaskFilter>("next");
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [leaving, setLeaving] = useState<string[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
+  const setToast = onToast;
   const [confirmAll, setConfirmAll] = useState(false);
   // التقدّم «بالدليل» نفس لوحة المشرفة (المهمة «خلصت» بدون دليلها ما تنحسب)
   const [dash, setDash] = useState<Dash | null>(null);
@@ -256,12 +262,6 @@ export default function SupervisorView() {
     return () => clearTimeout(t);
   }, [token, snapshot, threadLoaded, thread]);
 
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2600);
-    return () => clearTimeout(t);
-  }, [toast]);
-
   const sendMessage = async (body: string) => {
     if (!supabase || !token || !body.trim()) return false;
     setNoteError(null);
@@ -308,6 +308,7 @@ export default function SupervisorView() {
     setTimeout(async () => {
       await loadBoard();
       setLeaving((l) => l.filter((k) => k !== key));
+      onChanged();
     }, 420);
     return true;
   };
@@ -338,6 +339,7 @@ export default function SupervisorView() {
     setTimeout(async () => {
       await loadBoard();
       setLeaving([]);
+      onChanged();
     }, 420);
   };
 
@@ -361,28 +363,34 @@ export default function SupervisorView() {
     return { tasks, done, late, pct, project: p, daysLeft, expected, doneBy };
   }, [snapshot]);
 
+  const backBtn = (
+    <button type="button" className="sd-open" style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 6 }} onClick={onBack}>
+      {/* الأسهم تنعكس تلقائيًا بالإنجليزي (index.css) */}
+      <ChevronRight size={16} aria-hidden />
+      {tr("كل الفرق")}
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="sv-page">
-        <div className="sv-col animate-pulse pt-5">
-          <div className="h-9 w-40 rounded-full bg-white/5" />
-          <div className="mt-8 h-4 w-24 rounded bg-white/5" />
-          <div className="mt-3 h-12 w-56 rounded-2xl bg-white/5" />
-          <div className="mt-8 h-24 rounded-[26px] bg-white/5" />
-          <div className="mt-4 h-40 rounded-[26px] bg-white/5" />
-          <div className="mt-4 h-52 rounded-[26px] bg-white/5" />
-        </div>
+      <div className="animate-pulse" style={{ display: "grid", gap: 18 }} role="status" aria-label={tr("لحظة…")}>
+        {backBtn}
+        <div className="sup-skel" style={{ height: 120 }} />
+        <div className="sup-skel" style={{ height: 220 }} />
       </div>
     );
   }
 
   if (error || !snapshot || !view) {
     return (
-      <div className="sv-page flex flex-col items-center justify-center gap-3 px-6 text-center">
-        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(255,110,90,.12)] text-[#FF9A8A]">
-          <AlertTriangle size={22} />
-        </span>
-        <p className="max-w-sm text-[15px] font-bold text-[#D9D0C6]">{error}</p>
+      <div style={{ display: "grid", gap: 18 }}>
+        {backBtn}
+        <section className="sd-glass" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-[rgba(255,138,122,.12)] text-[#FF8A7A]">
+            <AlertTriangle size={22} />
+          </span>
+          <p className="m-0 text-[15px] font-bold text-[#E9D3B8]">{error}</p>
+        </section>
       </div>
     );
   }
@@ -390,8 +398,6 @@ export default function SupervisorView() {
   const { tasks, done, late, project, daysLeft, expected, doneBy } = view;
   const unproven = dash && dash.tasks.length === tasks.length ? unprovenDone(dash) : [];
   const pct = unproven.length && dash ? proofProgress(dash).pct : view.pct;
-  const hour = new Date().getHours();
-  const greeting = hour >= 4 && hour < 12 ? tr("صباح الخير") : tr("مساء الخير");
   const leader = snapshot.members.find((m) => m.role === "leader") ?? snapshot.members[0];
   const leaderFirst = leader?.name.trim().split(/\s+/)[0] ?? "";
   const nameDone = nameDraft.trim().length > 0;
@@ -409,12 +415,12 @@ export default function SupervisorView() {
   } else if (late.length > 0) {
     const oldest = [...late].sort(byDue)[0];
     say = late.length === 1 ? tr("فيه مهمة متأخرة.") : tr("فيه {0} مهام متأخرة.", late.length);
-    why = oldest.assigneeName ? tr("أقدمها «{0}» عند {1}.", oldest.title, iso(oldest.assigneeName.trim().split(/\s+/)[0])) : tr("أقدمها «{0}».", oldest.title);
+    why = oldest.assigneeName ? tr("أقدمها «{0}» عند {1}.", iso(oldest.title), iso(oldest.assigneeName.trim().split(/\s+/)[0])) : tr("أقدمها «{0}».", oldest.title);
   } else if (unproven.length > 0) {
     // «خلصت» بس الدليل ناقص: نقولها للمشرفة بهدوء ومعها المثال
     const u = unproven[0];
     say = unproven.length === 1 ? tr("مهمة معلّمة «خلصت» ودليلها ناقص.") : tr("{0} مهام معلّمة «خلصت» ودليلها ناقص.", unproven.length);
-    why = u.task.assigneeName ? tr("مثل «{0}» عند {1}: {2}.", u.task.title, iso(u.task.assigneeName.trim().split(/\s+/)[0]), u.label) : tr("مثل «{0}»: {1}.", u.task.title, u.label);
+    why = u.task.assigneeName ? tr("مثل «{0}» عند {1}: {2}.", iso(u.task.title), iso(u.task.assigneeName.trim().split(/\s+/)[0]), u.label) : tr("مثل «{0}»: {1}.", iso(u.task.title), u.label);
   } else if (expected !== null && pct < expected - 5) {
     say = tr("بداية بطيئة.");
   } else if (done.length === tasks.length) {
@@ -479,60 +485,63 @@ export default function SupervisorView() {
   const en = project?.description && /[A-Za-z]/.test(project.description) && !/[؀-ۿ]/.test(project.description) ? project.description : "";
   const typeLabel = project?.researchType ? TYPE_LABEL[project.researchType as Exclude<ResearchType, "">]?.[isEn ? 1 : 0] : "";
   const setupStrip = <SvSetupStrip nameDone={nameDone} emailDone={emailDone} timesDone={timesDone} onOpen={() => setSheet("setup")} />;
-  let i = 0;
-  const rise = () => ({ "--v3-i": i++ }) as CSSProperties;
 
   return (
-    <div className="sv-page pb-[120px]">
-      <div className="sv-col">
-        {/* 1) الشريط العلوي */}
-        <header className="sv-top">
-          <span className="sv-orb" aria-hidden />
-          <span className="sv-brand">Wesync</span>
-          <span className="sv-lock">
-            <Lock size={13} strokeWidth={2.4} />
-            {tr("صفحة المشرفة · قراءة فقط")}
-          </span>
-          <button type="button" className="sv-teams" onClick={() => setLang(isEn ? "ar" : "en")} aria-label={isEn ? "التبديل للعربية" : "Switch to English"} lang={isEn ? "ar" : "en"}>
-            {isEn ? "ع" : "EN"}
-          </button>
-          <Link to="/supervisor" className="sv-teams">
-            {loadTeams().length > 1 ? trx("فرقي ({0})", loadTeams().length) : tr("لوحتي")}
-          </Link>
-        </header>
+    <div className="sv-team">
+      {backBtn}
 
-        {/* 2) الترحيب */}
-        <p className="sv-hello m-0">{greeting}</p>
-        <h1 className="sv-name">{nameDone ? nameDraft.trim() : tr("أهلًا بكم")}</h1>
-        <p className="sv-sub m-0">{leaderFirst ? trx("هذا وضع فريق {0} · {1}", <b key="l">{leaderFirst}</b>, studentsLabel(snapshot.members.length)) : studentsLabel(snapshot.members.length)}</p>
-
-        {setupFirst && <div className="mt-5">{setupStrip}</div>}
-
-        {/* إيصالات طلباتها + أثر ملاحظاتها + سجل الوعود */}
-        {token && <SvCommitments token={token} name={nameDraft.trim()} teamName={snapshot.teamName} openTarget={openTarget} onToast={setToast} onPending={setReceiptPending} />}
-
-        {/* 3) موضوع البحث */}
-        {title && (
-          <section className="hg-card sv-card mt-6" style={rise()} aria-label={tr("موضوع البحث")}>
-            <h2 className="sv-topic-t" dir={hasArabic ? "rtl" : "auto"}>
-              {title}
-            </h2>
+      {/* رأس الفريق: الاسم والموضوع وأزرار الفريق */}
+      <section className="sd-glass sv-team-head" aria-labelledby="sv-team-h">
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <p className="m-0 text-[13px] font-bold text-[#FFB444]">
+              {leaderFirst ? trx("فريق {0} · {1}", <bdi key="l">{leaderFirst}</bdi>, studentsLabel(snapshot.members.length)) : studentsLabel(snapshot.members.length)}
+            </p>
+            <h1 id="sv-team-h" className="m-0 text-[26px] font-extrabold leading-snug text-[#F2EBE3]">
+              <bdi>{snapshot.teamName}</bdi>
+            </h1>
+            {title && (
+              <h2 className="sv-topic-t" style={{ margin: "8px 0 0" }} dir={hasArabic ? "rtl" : "auto"}>
+                {title}
+              </h2>
+            )}
             {en && <div className="sv-topic-en">{en}</div>}
             {(typeLabel || daysLeft !== null) && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {typeLabel && <span className="sv-chip">{trx("بحث {0}", typeLabel)}</span>}
                 {daysLeft !== null && (
-                  <span className="sv-chip" style={{ color: daysLeft < 0 ? "#FF9A8A" : "#FFC777" }}>
+                  <span className="sv-chip" style={{ color: daysLeft < 0 ? "#FF8A7A" : "#FFC777" }}>
                     {daysLeft < 0 ? tr("فات موعد التسليم") : trx("التسليم بعد {0} يوم", <span key="d" className="sv-num">{daysLeft}</span>)}
                   </span>
                 )}
               </div>
             )}
-          </section>
-        )}
+          </div>
+          <div className="sv-team-acts">
+            <button type="button" className={receiptPending ? "sup-btn-cream" : "sv-btn orange"} onClick={() => setSheet("note")} aria-haspopup="dialog">
+              <MessageSquareText size={16} aria-hidden />
+              {tr("ملاحظة للفريق")}
+            </button>
+            {bulkCount > 0 && (
+              <button type="button" className="sd-open" onClick={approveAll} disabled={!!busy}>
+                {confirmAll ? tr("متأكدين؟ اعتمدوا {0}", bulkCount) : tr("اعتمدوا الكل")}
+              </button>
+            )}
+            <Link to={`/supervisor/${token}/report`} className="sd-open" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <FileText size={15} aria-hidden />
+              {tr("التقرير")}
+            </Link>
+            <button type="button" className="sd-open" style={{ display: "inline-flex", alignItems: "center", gap: 6 }} onClick={() => setSheet("setup")} aria-haspopup="dialog">
+              <Settings2 size={15} aria-hidden />
+              {tr("الإعداد")}
+            </button>
+          </div>
+        </div>
+      </section>
 
+      {setupFirst && setupStrip}
         {digest && digest.length > 0 && (
-          <section className="hg-card sv-card mt-3" style={rise()}>
+          <section className="sd-glass">
             <p className="sv-kind m-0">{trx("من زيارتكم الأخيرة ({0})", formatDateShort(seenBefore!.at))}</p>
             <ul className="m-0 mt-2 list-none space-y-1 p-0 text-[14px] text-[#D9D0C6]">
               {digest.slice(0, 5).map((line, k) => (
@@ -547,8 +556,14 @@ export default function SupervisorView() {
           </section>
         )}
 
+
+      {/* إيصالات طلباتها + أثر ملاحظاتها + سجل الوعود */}
+      <SvCommitments token={token} name={nameDraft.trim()} teamName={snapshot.teamName} openTarget={openTarget} onToast={setToast} onPending={setReceiptPending} />
+
+      <div className="sv-team-cols">
+        <div className="sv-team-col">
         {/* 4) تنتظركم */}
-        <section className="sv-sec" aria-labelledby="sv-h-wait">
+        <section className="sv-sec sd-glass" aria-labelledby="sv-h-wait">
           <h2 id="sv-h-wait" className="sv-h">
             <Inbox size={19} />
             {tr("تنتظركم")}
@@ -557,114 +572,8 @@ export default function SupervisorView() {
           {board ? <SvWaiting board={board} busy={busy} error={boardError} leaving={leaving} respond={respond} /> : <div className="h-12 animate-pulse rounded-2xl bg-white/5" />}
         </section>
 
-        {token && <SvMeetCard token={token} />}
 
-        {token && <SvTimePanel token={token} name={nameDraft.trim()} openTarget={openTarget} primary={!receiptPending && waitingCount === 0} onToast={setToast} />}
-
-        {/* 5) وضع الفريق */}
-        <section className="sv-sec" aria-labelledby="sv-h-status">
-          <h2 id="sv-h-status" className="sv-h">
-            <Gauge size={19} />
-            {tr("وضع الفريق")}
-          </h2>
-          <div className="hg-card sv-card" style={rise()}>
-            <div className="flex items-center gap-4">
-              <Ring pct={pct} />
-              <div className="min-w-0">
-                <p className="sv-say">{say}</p>
-                <p className="sv-why">{why}</p>
-              </div>
-            </div>
-            <div className="sv-stats">
-              <div>
-                <span className="sv-num">
-                  {done.length - unproven.length}/{tasks.length}
-                </span>
-                <p>{unproven.length ? tr("خلصت بدليل") : tr("مهام خلصت")}</p>
-              </div>
-              <div>
-                <span className={`sv-num${late.length ? " red" : ""}`}>{late.length}</span>
-                <p>{tr("متأخرة")}</p>
-              </div>
-              <div>
-                <span className="sv-num">{daysLeft === null ? "—" : Math.max(0, daysLeft)}</span>
-                <p>{tr("يوم للتسليم")}</p>
-              </div>
-            </div>
-            {(board?.lastMeeting?.total || board?.upcoming.length) ? (
-              <p className="sv-foot m-0">
-                {board?.lastMeeting && board.lastMeeting.total > 0 && trx("آخر اجتماع ({0}): {1} من {2} بنود منجزة.", formatDateShort(board.lastMeeting.meetingDate), <b key="a">{board.lastMeeting.done}</b>, board.lastMeeting.total)}
-                {board?.upcoming[0] && <> {trx("الاجتماع الجاي: {0} · {1}", formatDateFull(board.upcoming[0].date), <span key="t" className="sv-num">{board.upcoming[0].time}</span>)}</>}
-              </p>
-            ) : null}
-          </div>
-        </section>
-
-        {/* 6) الفريق */}
-        <section className="sv-sec" aria-labelledby="sv-h-team">
-          <h2 id="sv-h-team" className="sv-h">
-            <Users size={19} />
-            {tr("الفريق")}
-          </h2>
-          <div className="hg-card sv-card !py-1.5" style={rise()}>
-            {snapshot.members.map((mem, k) => {
-              const share = done.length ? Math.round(((doneBy.get(mem.name) ?? 0) / done.length) * 100) : 0;
-              const activeToday = mem.lastActiveAt ? new Date(mem.lastActiveAt).toDateString() === new Date().toDateString() : false;
-              return (
-                <div key={mem.name + k} className="sv-mem">
-                  <SvAvatar name={mem.name} initials={mem.initials} i={k} active={mem.lastActiveAt === undefined ? null : activeToday} />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate">
-                      <span className="sv-mn">{mem.name.trim()}</span>
-                      {mem.role === "leader" && <span className="sv-lead">{tr("القائد")}</span>}
-                    </div>
-                    {mem.lastActiveAt !== undefined && <div className="sv-ms">{mem.lastActiveAt ? tr("آخر نشاط {0}", relTime(mem.lastActiveAt)) : tr("ما دخل للحين")}</div>}
-                    <div className="mt-2 flex items-center gap-2.5">
-                      <div className="sv-bar flex-1" role="img" aria-label={tr("مساهمته {0}% من المنجز", share)}>
-                        <span style={{ width: `${share}%` }} />
-                      </div>
-                      <span className="sv-pct">{share}%</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* 7) المستندات */}
-        <section className="sv-sec" aria-labelledby="sv-h-docs">
-          <h2 id="sv-h-docs" className="sv-h">
-            <FileText size={19} />
-            {tr("المستندات")}
-          </h2>
-          <div className="hg-card sv-card !py-1.5" style={rise()}>
-            {docs.map((d) => {
-              const Icon = d.icon;
-              return (
-                <button key={d.kind} className="sv-doc" onClick={() => setSheet(d.kind)} aria-haspopup="dialog">
-                  <span className="sv-di">
-                    <Icon size={18} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block">
-                      <span className="sv-dt">{d.label}</span>
-                      {d.waiting && <span className="sv-wait">{tr("بانتظار اعتمادك")}</span>}
-                    </span>
-                    <span className="sv-dm block">
-                      {trx("{0} من {1} أقسام", <span key="x" className="sv-num">{d.x}</span>, <span key="y" className="sv-num">{d.y}</span>)}
-                      {d.at ? ` · ${relTime(d.at)}` : ""}
-                    </span>
-                    <span className="sv-bar block">
-                      <span style={{ width: `${d.y ? Math.round((d.x / d.y) * 100) : 0}%` }} />
-                    </span>
-                  </span>
-                  <ChevronLeft size={18} className="flex-none text-[#ABA095]" />
-                </button>
-              );
-            })}
-          </div>
-        </section>
+          <SvTimePanel token={token} name={nameDraft.trim()} openTarget={openTarget} primary={!receiptPending && waitingCount === 0} onToast={setToast} />
 
         {/* 8) المهام */}
         <section className="sv-sec" aria-labelledby="sv-h-tasks">
@@ -686,7 +595,7 @@ export default function SupervisorView() {
               </button>
             ))}
           </div>
-          <div className="hg-card sv-card !py-1.5" style={rise()}>
+          <div className="sd-glass !py-1.5">
             {shown.length === 0 && <p className="m-0 py-5 text-center text-[14px] text-[#ABA095]">{filter === "late" ? tr("ما فيه مهام متأخرة ✓") : filter === "done" ? tr("ما خلصت مهام للحين") : tr("ما فيه مهام جاية")}</p>}
             {shown.map((t, k) => {
               const lateT = isLate(t);
@@ -724,36 +633,119 @@ export default function SupervisorView() {
           )}
         </section>
 
-        {/* 9) جهّزوا صفحتكم */}
-        {!setupFirst && <div className="sv-sec">{setupStrip}</div>}
-
-        <div className="sv-sec flex justify-center">
-          <Link to={`/supervisor/${token}/report`} className="sv-btn ghost">
-            <FileText size={16} aria-hidden />
-            {tr("تقرير تقدّم الفريق (PDF)")}
-          </Link>
         </div>
+        <div className="sv-team-col">
+        {/* 5) وضع الفريق */}
+        <section className="sv-sec" aria-labelledby="sv-h-status">
+          <h2 id="sv-h-status" className="sv-h">
+            <Gauge size={19} />
+            {tr("وضع الفريق")}
+          </h2>
+          <div className="sd-glass">
+            <div className="flex items-center gap-4">
+              <Ring pct={pct} />
+              <div className="min-w-0">
+                <p className="sv-say">{say}</p>
+                <p className="sv-why">{why}</p>
+              </div>
+            </div>
+            <div className="sv-stats">
+              <div>
+                <span className="sv-num">
+                  {done.length - unproven.length}/{tasks.length}
+                </span>
+                <p>{unproven.length ? tr("خلصت بدليل") : tr("مهام خلصت")}</p>
+              </div>
+              <div>
+                <span className={`sv-num${late.length ? " red" : ""}`}>{late.length}</span>
+                <p>{tr("متأخرة")}</p>
+              </div>
+              <div>
+                <span className="sv-num">{daysLeft === null ? "—" : Math.max(0, daysLeft)}</span>
+                <p>{tr("يوم للتسليم")}</p>
+              </div>
+            </div>
+            {(board?.lastMeeting?.total || board?.upcoming.length) ? (
+              <p className="sv-foot m-0">
+                {board?.lastMeeting && board.lastMeeting.total > 0 && trx("آخر اجتماع ({0}): {1} من {2} بنود منجزة.", formatDateShort(board.lastMeeting.meetingDate), <b key="a">{board.lastMeeting.done}</b>, board.lastMeeting.total)}
+                {board?.upcoming[0] && <> {trx("الاجتماع الجاي: {0} · {1}", formatDateFull(board.upcoming[0].date), <span key="t" className="sv-num">{board.upcoming[0].time}</span>)}</>}
+              </p>
+            ) : null}
+          </div>
+        </section>
 
-        <p className="mt-8 text-center text-[12px] text-[#ABA095]">{tr("مشاركة من فريق البحث عبر Wesync — رابط قراءة فقط")}</p>
+
+          <SvMeetCard token={token} />
+
+        {/* 6) الفريق */}
+        <section className="sv-sec" aria-labelledby="sv-h-team">
+          <h2 id="sv-h-team" className="sv-h">
+            <Users size={19} />
+            {tr("الفريق")}
+          </h2>
+          <div className="sd-glass !py-1.5">
+            {snapshot.members.map((mem, k) => {
+              const share = done.length ? Math.round(((doneBy.get(mem.name) ?? 0) / done.length) * 100) : 0;
+              const activeToday = mem.lastActiveAt ? new Date(mem.lastActiveAt).toDateString() === new Date().toDateString() : false;
+              return (
+                <div key={mem.name + k} className="sv-mem">
+                  <SvAvatar name={mem.name} initials={mem.initials} i={k} active={mem.lastActiveAt === undefined ? null : activeToday} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate">
+                      <span className="sv-mn">{mem.name.trim()}</span>
+                      {mem.role === "leader" && <span className="sv-lead">{tr("القائد")}</span>}
+                    </div>
+                    {mem.lastActiveAt !== undefined && <div className="sv-ms">{mem.lastActiveAt ? tr("آخر نشاط {0}", relTime(mem.lastActiveAt)) : tr("ما دخل للحين")}</div>}
+                    <div className="mt-2 flex items-center gap-2.5">
+                      <div className="sv-bar flex-1" role="img" aria-label={tr("مساهمته {0}% من المنجز", share)}>
+                        <span style={{ width: `${share}%` }} />
+                      </div>
+                      <span className="sv-pct">{share}%</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 7) المستندات */}
+        <section className="sv-sec" aria-labelledby="sv-h-docs">
+          <h2 id="sv-h-docs" className="sv-h">
+            <FileText size={19} />
+            {tr("المستندات")}
+          </h2>
+          <div className="sd-glass !py-1.5">
+            {docs.map((d) => {
+              const Icon = d.icon;
+              return (
+                <button key={d.kind} className="sv-doc" onClick={() => setSheet(d.kind)} aria-haspopup="dialog">
+                  <span className="sv-di">
+                    <Icon size={18} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block">
+                      <span className="sv-dt">{d.label}</span>
+                      {d.waiting && <span className="sv-wait">{tr("بانتظار اعتمادك")}</span>}
+                    </span>
+                    <span className="sv-dm block">
+                      {trx("{0} من {1} أقسام", <span key="x" className="sv-num">{d.x}</span>, <span key="y" className="sv-num">{d.y}</span>)}
+                      {d.at ? ` · ${relTime(d.at)}` : ""}
+                    </span>
+                    <span className="sv-bar block">
+                      <span style={{ width: `${d.y ? Math.round((d.x / d.y) * 100) : 0}%` }} />
+                    </span>
+                  </span>
+                  <ChevronLeft size={18} className="flex-none text-[#ABA095]" />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+          {!setupFirst && setupStrip}
+        </div>
       </div>
-
-      {/* 10) Dock */}
-      <nav className="sv-dock" aria-label={tr("إجراءات سريعة")}>
-        <button className={`sv-btn ${receiptPending ? "pri" : "orange"}`} onClick={() => setSheet("note")} aria-haspopup="dialog">
-          {tr("ملاحظة للفريق")}
-        </button>
-        {bulkCount > 0 && (
-          <button className="sv-btn ghost" onClick={approveAll} disabled={!!busy}>
-            {confirmAll ? tr("متأكدين؟ اعتمدوا {0}", bulkCount) : tr("اعتمدوا الكل")}
-          </button>
-        )}
-      </nav>
-
-      {toast && (
-        <div className="sv-toast" role="status">
-          {toast}
-        </div>
-      )}
 
       {sheet === "setup" && token && (
         <SvSetupSheet token={token} name={nameDraft} onNameChange={setNameDraft} email={email} onEmailChanged={loadEmail} availability={board?.availability ?? null} busy={busy} error={boardError} save={saveAvailability} onClose={() => setSheet(null)} />
@@ -783,7 +775,10 @@ function SvMeetCard({ token }: { token: string }) {
   if (s && !s.configured) return null;
   const live = !!s?.live;
   return (
-    <section className={live ? "mt-strip-live" : "sd-glass"} style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 12, borderRadius: 22 }}>
+    <section className={live ? "mt-strip-live" : "sd-glass"} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <span className="sup-ic" aria-hidden>
+        <Video size={16} />
+      </span>
       <div style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>
         <b style={{ display: "block", fontSize: 15 }}>{live ? tr("الفريق في اجتماع الحين") : tr("اجتماع فيديو مع الفريق")}</b>
         <span style={{ fontSize: 12, color: "#E9D3B8" }}>{live ? tr("{0} داخلين", s!.names.filter(Boolean).slice(0, 3).join(tr("، ")) || s!.count) : tr("تدخلون برابطكم بدون حساب، وما ينسجل فيديو.")}</span>

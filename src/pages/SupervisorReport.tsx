@@ -82,7 +82,7 @@ export default function SupervisorReport() {
   return (
     <div className="rp-wrap">
       <div className="rp-bar print:hidden">
-        <Link to={`/supervisor/${token}`} className="rp-back">
+        <Link to={`/supervisor?t=${token}`} className="rp-back">
           <ChevronRight size={16} aria-hidden />
           {tr("رجوع")}
         </Link>

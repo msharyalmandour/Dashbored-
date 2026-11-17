@@ -6,6 +6,7 @@ import { isEn, setLang, tr } from "../lib/i18n";
 import { formatDateShort } from "../lib/date";
 import { forgetTeam, loadTeams, rememberTeam } from "../lib/supervisorLocal";
 import { relTime } from "../components/supervisor/SvParts";
+import SvTeam from "../components/supervisor/SvTeam";
 import { Ledger, type LedgerRow } from "../components/sup/SupParts";
 import { AwaySheet, DeadlinesSheet, ExtCard, TimeLog } from "../components/sup/SvTime";
 import { lastActivity, loadTeam, proofProgress, radarOf, requestChips, waitingItems, type TeamData, type WaitItem, type WaitKind } from "../lib/supervisorDash";
@@ -34,7 +35,10 @@ function docName(raw: string): string {
 
 export default function SupervisorDash() {
   const [params, setParams] = useSearchParams();
-  const view = (params.get("v") as View) || "home";
+  // ?t=<رمز الفريق> يفتح صفحة الفريق داخل اللوحة (بدل الصفحة القديمة المستقلة)، و?open= يفتح الطلب نفسه
+  const teamToken = params.get("t") ?? "";
+  const openTarget = params.get("open") ?? "";
+  const view = teamToken ? "teams" : (params.get("v") as View) || "home";
   const nav = useNavigate();
   const [name, setName] = useState(() => {
     try {
@@ -77,12 +81,34 @@ export default function SupervisorDash() {
   const waits = useMemo(() => waitingItems(ok), [ok]);
   const away = ok.find((t) => t.dash?.away)?.dash?.away ?? null;
   const go = (v: View) => setParams(v === "home" ? {} : { v });
+  const openTeam = (token: string, open = "") => {
+    setParams(open ? { t: token, open } : { t: token });
+    window.scrollTo({ top: 0 });
+  };
+  const saveName = (v: string) => {
+    setName(v);
+    try {
+      localStorage.setItem(NAME_KEY, v);
+    } catch {
+      /* بدون تخزين */
+    }
+  };
   const done = (msg: string) => {
     setToast(msg);
     setSheet(null);
     void reload();
   };
-  const openWait = (w: WaitItem) => (w.to.startsWith("?") ? (go("requests"), setTimeout(() => document.getElementById(`ext-${w.extId}`)?.scrollIntoView({ block: "center", behavior: "smooth" }), 250)) : nav(w.to));
+  const openWait = (w: WaitItem) => {
+    if (w.to.startsWith("?")) {
+      go("requests");
+      setTimeout(() => document.getElementById(`ext-${w.extId}`)?.scrollIntoView({ block: "center", behavior: "smooth" }), 250);
+      return;
+    }
+    // «/supervisor/<رمز>?open=…» ← صفحة الفريق داخل اللوحة على الطلب نفسه
+    const m = w.to.match(/^\/supervisor\/([0-9a-f-]{36})(?:\?open=(.+))?$/i);
+    if (m) openTeam(m[1], m[2] ?? "");
+    else nav(w.to);
+  };
 
   const rows = ok
     .map((t) => {
@@ -287,9 +313,9 @@ export default function SupervisorDash() {
             </div>
             <span style={{ fontSize: 13, color: "#E9D3B8" }}>{last ? relTime(last) : "—"}</span>
             <div style={{ display: "grid", gap: 6 }}>
-              <Link to={`/supervisor/${t.token}`} className="sd-open">
+              <button type="button" className="sd-open" onClick={() => openTeam(t.token)}>
                 {tr("افتحوا")}
-              </Link>
+              </button>
               {full && t.dash && (
                 <button type="button" className="sd-open" onClick={() => setSheet({ deadlines: t.token })}>
                   {tr("المواعيد النهائية")}
@@ -302,7 +328,7 @@ export default function SupervisorDash() {
       <div className="sd-tmob">
         {rows.map(({ t, prog, radar }) => (
           <div key={t.token} className="sd-glass sd-mteam">
-            <Link to={`/supervisor/${t.token}`} style={{ color: "inherit", display: "block" }}>
+            <button type="button" onClick={() => openTeam(t.token)} style={{ color: "inherit", display: "block", width: "100%", textAlign: "start", background: "none", border: 0, padding: 0, font: "inherit", cursor: "pointer" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <b style={{ flex: 1, fontSize: 16 }}>{t.name || tr("فريق بدون اسم")}</b>
                 {radar && (
@@ -321,7 +347,7 @@ export default function SupervisorDash() {
                 </span>
                 <span style={{ fontSize: 12, color: "#E9D3B8", whiteSpace: "nowrap" }}>{t.dash?.project?.deadline ? tr("تسليم {0}", formatDateShort(t.dash.project.deadline)) : tr("بدون موعد")}</span>
               </div>
-            </Link>
+            </button>
             {full && t.dash && (
               <button type="button" className="sd-open" style={{ width: "100%", marginTop: 10 }} onClick={() => setSheet({ deadlines: t.token })}>
                 {tr("المواعيد النهائية")}
@@ -464,7 +490,7 @@ export default function SupervisorDash() {
           .flatMap((t) => (t.dash?.bookings ?? []).filter((b) => b.date > today).map((b) => ({ ...b, team: t.name, token: t.token })))
           .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
           .map((b) => (
-            <Link key={b.id} to={`/supervisor/${b.token}?open=booking:${b.id}`} className="sd-slot" style={{ color: "inherit" }}>
+            <button key={b.id} type="button" onClick={() => openTeam(b.token, `booking:${b.id}`)} className="sd-slot" style={{ color: "inherit", width: "100%", background: "none", border: 0, font: "inherit", cursor: "pointer", textAlign: "start" }}>
               <b className="t" dir="ltr">
                 {b.time}
               </b>
@@ -472,7 +498,7 @@ export default function SupervisorDash() {
               <span style={{ fontSize: 12, color: b.status === "pending" ? "#FFC777" : "#ABA095" }}>
                 {formatDateShort(b.date)} {b.status === "pending" ? `· ${tr("ينتظر ردكم")}` : ""}
               </span>
-            </Link>
+            </button>
           ))}
       </section>
     </>
@@ -514,14 +540,7 @@ export default function SupervisorDash() {
           <input
             value={name}
             maxLength={80}
-            onChange={(e) => {
-              setName(e.target.value);
-              try {
-                localStorage.setItem(NAME_KEY, e.target.value);
-              } catch {
-                /* بدون تخزين */
-              }
-            }}
+            onChange={(e) => saveName(e.target.value)}
             placeholder={tr("د. ...")}
           />
         </span>
@@ -609,7 +628,8 @@ export default function SupervisorDash() {
             {navBtns}
           </nav>
 
-          {view === "home" && (
+          {teamToken && <SvTeam key={teamToken} token={teamToken} openTarget={openTarget} nameDraft={name} setNameDraft={saveName} onBack={() => go("teams")} onToast={setToast} onChanged={() => void reload()} />}
+          {!teamToken && view === "home" && (
             <>
               <div className="sd-top">
                 {waitCard}
@@ -625,7 +645,7 @@ export default function SupervisorDash() {
               </div>
             </>
           )}
-          {view === "teams" && (
+          {!teamToken && view === "teams" && (
             <>
               {teamsBlock(true)}
               {radarBlock}

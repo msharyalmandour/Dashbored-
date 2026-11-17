@@ -126,5 +126,9 @@
  "يوصلكم إيميل لما الفريق يرسل لكم طلب أو رد.": "You'll get an email when the team sends you a request or a reply.",
  "أوقفوا الإشعارات": "Stop emails",
  "أكّدوا الاشتراك": "Confirm",
- "المشرفة مفعّلة الإيميل: يوصلها تنبيه بردّكم (تنبيه واحد كل 10 دقايق بالكثير).": "Your supervisor has email on and will get an alert for your reply (at most one every 10 minutes)."
+ "المشرفة مفعّلة الإيميل: يوصلها تنبيه بردّكم (تنبيه واحد كل 10 دقايق بالكثير).": "Your supervisor has email on and will get an alert for your reply (at most one every 10 minutes).",
+ "كل الفرق": "All teams",
+ "التقرير": "Report",
+ "الإعداد": "Setup",
+ "فريق {0} · {1}": "{0}'s team · {1}"
 }

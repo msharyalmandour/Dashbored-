@@ -46,7 +46,7 @@ import Celebration from "./pages/Celebration";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import Pricing from "./pages/Pricing";
 import ResetPassword from "./pages/ResetPassword";
-import SupervisorView from "./pages/SupervisorView";
+import SupervisorLink from "./pages/SupervisorLink";
 import SupervisorReport from "./pages/SupervisorReport";
 import SupervisorDash from "./pages/SupervisorDash";
 import Meet from "./pages/Meet";
@@ -86,7 +86,7 @@ export default function App() {
       <Route path="/celebration" element={<Celebration />} />
       <Route path="/supervisor" element={<SupervisorDash />} />
       <Route path="/supervisor-email/:action/:token" element={<SupervisorEmailAction />} />
-      <Route path="/supervisor/:token" element={<SupervisorView />} />
+      <Route path="/supervisor/:token" element={<SupervisorLink />} />
       <Route path="/supervisor/:token/report" element={<SupervisorReport />} />
       <Route path="/supervisor/:token/meet" element={<SupervisorMeet />} />
       <Route element={<Layout />}>

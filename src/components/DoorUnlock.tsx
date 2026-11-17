@@ -6,7 +6,7 @@ import { tr } from "../lib/i18n";
 
 /** لحظة انفتاح باب: كبسولة زجاج فوق الشاشة — قفل ذهبي ينفك، خط ذهبي يمشي على حافتها، وسطر واحد.
     تطلع مرة وحدة لكل باب، وتختفي بعد 6 ثواني. (المرجع: docs/DESIGN_BRIEF_UNLOCK.md) */
-export default function DoorUnlock({ door, onDone, onGo }: { door: DoorId; onDone: () => void; onGo?: () => void }) {
+export default function DoorUnlock({ door, onDone, onGo, onShare }: { door: DoorId; onDone: () => void; onGo?: () => void; onShare?: () => void }) {
   const d = DOOR_UNLOCKED[door];
   useEffect(() => {
     // نبضة خفيفة بالجوال، بس لو المستخدم تفاعل مع الصفحة (وإلا المتصفح يمنعها ويطبع تحذير)
@@ -28,6 +28,18 @@ export default function DoorUnlock({ door, onDone, onGo }: { door: DoorId; onDon
         <b className="block text-[15px] text-[#F2EBE3]">{d.title}</b>
         <span className="block text-[13px] text-[#E9D3B8]">{d.sub}</span>
       </span>
+      {onShare && (
+        <button
+          type="button"
+          className="door-share"
+          onClick={() => {
+            onShare();
+            onDone();
+          }}
+        >
+          {tr("شاركوها")}
+        </button>
+      )}
       <Link
         to={d.to}
         className="door-go"

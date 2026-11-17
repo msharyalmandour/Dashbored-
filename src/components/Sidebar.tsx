@@ -6,8 +6,10 @@ import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
 import { useChatUnread } from "../hooks/useTeamChat";
 import { useDoors } from "../hooks/useDoors";
-import { DOOR_HINT, DOOR_ORDER, SECTION_DOOR, type DoorId } from "../lib/doors";
+import { DOOR_HINT, DOOR_ORDER, SECTION_DOOR, journeyStep, type DoorId } from "../lib/doors";
 import DoorUnlock from "./DoorUnlock";
+import ShareAchievement from "./ShareAchievement";
+import { DOOR_SHARE } from "../lib/achievementCard";
 import { useLandedBadges } from "../lib/landed";
 import { isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
 import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
@@ -45,6 +47,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
   const unread = useChatUnread();
   const landed = useLandedBadges();
   const doors = useDoors({ celebrate: true });
+  const [shareDoor, setShareDoor] = useState<DoorId | null>(null);
   const [menu, setMenu] = useState(false);
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -170,7 +173,12 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
           )}
         </nav>
 
-        {doors.fresh.length > 0 && <DoorUnlock key={doors.fresh[0]} door={doors.fresh[0]} onDone={doors.clearFresh} onGo={onClose} />}
+        {doors.fresh.length > 0 && (
+          <DoorUnlock key={doors.fresh[0]} door={doors.fresh[0]} onDone={doors.clearFresh} onGo={onClose} onShare={DOOR_SHARE[doors.fresh[0]] ? () => setShareDoor(doors.fresh[0]) : undefined} />
+        )}
+        {shareDoor && DOOR_SHARE[shareDoor] && (
+          <ShareAchievement title={DOOR_SHARE[shareDoor]!.title} sub={DOOR_SHARE[shareDoor]!.sub} step={doors.signals ? journeyStep(doors.signals, doors.open) : null} onClose={() => setShareDoor(null)} />
+        )}
 
         {currentUser && (
           <div className="lx-me" ref={menuRef}>

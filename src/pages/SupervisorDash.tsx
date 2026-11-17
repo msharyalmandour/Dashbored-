@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { avatarLetter } from "../lib/avatarLetter";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Award, BarChart3, Bell, CalendarDays, FileText, HelpCircle, Hourglass as HourglassIcon, Home, Languages, Link2, Radar as RadarIcon, Settings, Users, X } from "lucide-react";
+import { Award, BarChart3, Bell, CalendarDays, FileText, HelpCircle, Hourglass as HourglassIcon, Home, Languages, Link2, MessageCircle, Radar as RadarIcon, Send, Settings, Users, X } from "lucide-react";
+import { publicBase } from "../lib/publicUrl";
 import { isEn, setLang, tr } from "../lib/i18n";
 import { formatDateShort } from "../lib/date";
 import { forgetTeam, loadTeams, rememberTeam } from "../lib/supervisorLocal";
@@ -431,6 +432,40 @@ export default function SupervisorDash() {
 
   const ledgerBlock = <Ledger rows={ledger} docName={dn || tr("المشرف/ة")} viewer="supervisor" />;
 
+  // الدكتورة هي أقوى قناة: فرقها الثانية تثق فيها (فكرة Kahoot — docs/GROWTH_RESEARCH.md)
+  const inviteMsg = tr("مرحبًا يا فريق 👋 أبيكم تتابعون بحثكم على Wesync: أشوف تقدّمكم أول بأول، وأعتمد المحاضر وأرد على أسئلتكم بضغطة. سجّلوا من هنا وأرسلوا لي رابط المشرفة:\n{0}", `${publicBase()}?ref=supervisor`);
+  const inviteBlock = (
+    <section className="sd-glass sd-in" aria-labelledby="sd-inv-h" style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+      <span className="sup-ic" aria-hidden>
+        <Send size={16} />
+      </span>
+      <div style={{ flex: 1, minWidth: 200, lineHeight: 1.4 }}>
+        <b id="sd-inv-h" style={{ fontSize: 16 }}>
+          {tr("عندكم فرق ثانية؟")}
+        </b>
+        <div style={{ fontSize: 13, color: "#ABA095" }}>{tr("أرسلوا لهم Wesync، وتصير كل فرقكم بلوحة وحدة.")}</div>
+      </div>
+      <a className="sup-btn-cream" style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 8, padding: "0 18px", minHeight: 44 }} href={`https://wa.me/?text=${encodeURIComponent(inviteMsg)}`} target="_blank" rel="noreferrer">
+        <MessageCircle size={16} aria-hidden />
+        {tr("أرسلوها واتساب")}
+      </a>
+      <button
+        type="button"
+        className="sd-open"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(inviteMsg);
+            setToast(tr("انسخت الرسالة ✓"));
+          } catch {
+            setToast(tr("ما قدرنا ننسخ — استخدموا زر الواتساب"));
+          }
+        }}
+      >
+        {tr("انسخوا الرسالة")}
+      </button>
+    </section>
+  );
+
   const others = waits.filter((w) => w.kind !== "extension");
   const requestsView = (
     <>
@@ -567,6 +602,12 @@ export default function SupervisorDash() {
       <p style={{ margin: 0, fontSize: 12, color: "#ABA095" }}>{tr("إشعارات الإيميل لكل فريق من صفحة الفريق نفسه.")}</p>
     </section>
   );
+  const settingsWithInvite = (
+    <>
+      {settingsView}
+      {inviteBlock}
+    </>
+  );
 
   const deadlineTeam = sheet && typeof sheet === "object" ? ok.find((t) => t.token === sheet.deadlines) : null;
 
@@ -643,6 +684,7 @@ export default function SupervisorDash() {
                 {ledgerBlock}
                 {radarBlock}
               </div>
+              {ok.length > 0 && inviteBlock}
             </>
           )}
           {!teamToken && view === "teams" && (
@@ -654,7 +696,7 @@ export default function SupervisorDash() {
           {view === "requests" && requestsView}
           {view === "meetings" && meetingsView}
           {view === "reports" && reportsView}
-          {view === "settings" && settingsView}
+          {view === "settings" && settingsWithInvite}
         </main>
       </div>
 

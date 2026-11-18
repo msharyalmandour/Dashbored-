@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import { useTeamStage } from "../lib/teamStage";
+import { fetchDoorRows, markDoorSeen, reconcile, unlockDoor } from "../lib/doorSync";
 import { newlyOpened, nextDoor, openDoors, DOOR_ORDER, type DoorId, type DoorSignals } from "../lib/doors";
 
 /* إشارات الأبواب: عدّادات خفيفة (head counts) من القاعدة، بكاش مشترك بين القائمة والرئيسية والجوال.
@@ -126,16 +127,43 @@ export function useDoors({ celebrate = false }: { celebrate?: boolean } = {}) {
   const ready = !!signals && !demo;
   const open = useMemo(() => (ready ? openDoors(signals!) : new Set<DoorId>(DOOR_ORDER)), [ready, signals]);
 
-  // لحظة الانفتاح: الأبواب الجديدة من آخر زيارة (مرة وحدة لكل باب)
+  // لحظة الانفتاح: الأبواب الجديدة من آخر زيارة (مرة وحدة لكل باب).
+  // بالقاعدة: unlock_door (idempotent) + seen_at. قبل ملف SQL: نرجع لحفظ الجهاز.
   useEffect(() => {
     if (!celebrate || !ready || !teamId) return;
-    const seen = readSeen(teamId);
-    const now = newlyOpened(open, seen);
-    writeSeen(teamId, open);
-    if (now.length) setFresh(now);
+    let off = false;
+    void (async () => {
+      const rows = await fetchDoorRows();
+      if (off) return;
+      if (rows) {
+        const first = rows.length === 0;
+        const { toUnlock, fresh: f } = reconcile(open, rows);
+        for (const d of toUnlock) await unlockDoor(d);
+        // أول مرة بعد الترحيل: اللي شافوه بالجهاز ما نعيد احتفاله
+        // أول زيارة خالص (ما فيه حفظ بالجهاز): المفتوح الحين ما نحتفل فيه — زي قبل
+        const seenLocal = new Set<DoorId>(readSeen(teamId) ?? [...open]);
+        const show = first ? f.filter((d) => !seenLocal.has(d)) : f;
+        if (first) for (const d of f.filter((d) => seenLocal.has(d))) void markDoorSeen(d);
+        writeSeen(teamId, open);
+        if (show.length) setFresh(show);
+        return;
+      }
+      const seen = readSeen(teamId);
+      const now = newlyOpened(open, seen);
+      writeSeen(teamId, open);
+      if (now.length) setFresh(now);
+    })();
+    return () => {
+      off = true;
+    };
   }, [celebrate, ready, teamId, open]);
 
-  const clearFresh = useCallback(() => setFresh((f) => f.slice(1)), []);
+  const clearFresh = useCallback(() => {
+    setFresh((f) => {
+      if (f[0]) void markDoorSeen(f[0]);
+      return f.slice(1);
+    });
+  }, []);
   const setAll = (v: boolean) => {
     try {
       localStorage.setItem(ALL_KEY, v ? "1" : "0");

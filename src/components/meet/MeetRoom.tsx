@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import WLogo from "../brand/WLogo";
 import { createPortal } from "react-dom";
 import { Hand, LogOut, MessageSquare, Mic, MicOff, MonitorUp, Send, Video, VideoOff, Volume2 } from "lucide-react";
 import { tr } from "../../lib/i18n";
@@ -180,7 +181,7 @@ function MeetRoomInner({
     return (
       <div className="mt-page">
         <header className="mt-top">
-          <span className="sd-sun" aria-hidden style={{ width: 28, height: 28 }} />
+          <WLogo size={28} />
           <span className="mt-title">{title}</span>
           <button type="button" className="sup-btn-ghost" style={{ minHeight: 44 }} onClick={onExit}>
             {tr("رجوع")}

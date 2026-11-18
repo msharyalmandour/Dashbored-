@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, Copy, ListTree, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
 import Term from "../Term";
 import SplitKeywordsCard from "./SplitKeywordsCard";
@@ -95,13 +96,13 @@ export default function SearchStrategy() {
             disabled={busy || !topic.trim()}
             className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+            {busy ? <WSpin size={16} /> : <Wand2 size={16} />}
             {busy ? tr("جاري البناء...") : tr("ابنوا الخطة")}
           </button>
         </div>
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />{tr("نجهّز لكم الخطة — ياخذ حوالي 10 ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
+            <WSpin size={13} />{tr("نجهّز لكم الخطة — ياخذ حوالي 10 ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>

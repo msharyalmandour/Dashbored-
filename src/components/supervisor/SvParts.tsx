@@ -1,7 +1,8 @@
 import { getSupervisorDigest, setSupervisorDigest, type DigestMode } from "../../lib/supervisorEmail";
+import { WSpin } from "../brand/WLogo";
 import { avatarLetter } from "../../lib/avatarLetter";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { CalendarClock, Check, ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Check, ChevronDown, Plus, Trash2, X } from "lucide-react";
 import SupervisorEmailCard from "../SupervisorEmailCard";
 import { formatDateFull, formatDateShort, relativeDayLabel } from "../../lib/date";
 import { WEEKDAY_NAMES } from "../../lib/meetings";
@@ -89,7 +90,7 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const { minutes, decisions, bookings } = board.waiting;
   const empty = minutes.length + decisions.length + bookings.length === 0;
-  const spin = (id: string) => busy === id && <Loader2 size={15} className="animate-spin" />;
+  const spin = (id: string) => busy === id && <WSpin size={15} />;
   const back = () => {
     setNoteFor(null);
     setNote("");
@@ -445,7 +446,7 @@ export function SvSetupSheet({
                 }
               }}
             >
-              {busy === "availability" ? <Loader2 size={15} className="animate-spin" /> : saved ? <Check size={15} /> : <CalendarClock size={15} />}
+              {busy === "availability" ? <WSpin size={15} /> : saved ? <Check size={15} /> : <CalendarClock size={15} />}
               {saved ? tr("انحفظت") : tr("احفظوا أوقاتكم")}
             </button>
           </div>

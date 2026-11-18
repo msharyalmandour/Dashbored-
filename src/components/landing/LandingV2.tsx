@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import WLogo from "../brand/WLogo";
 import { Link } from "react-router-dom";
 import { Calendar, Check, CreditCard, Gauge, ShieldCheck, Smartphone, UserPlus, Users } from "lucide-react";
 import clsx from "clsx";
@@ -254,7 +255,9 @@ export function Integrations() {
           ])}
           {ys.flatMap((y, i) => [<circle key={`cr${i}`} cx={W - edge} cy={y} r="3.5" fill="#FFC777" />, <circle key={`cl${i}`} cx={edge} cy={y} r="3.5" fill="#FFC777" />])}
         </svg>
-        <div className="lv-orb absolute left-1/2 top-1/2 h-[150px] w-[150px] -translate-x-1/2 -translate-y-1/2 text-[22px]">Wesync</div>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_20px_60px_rgba(255,106,0,.35)]">
+          <WLogo size={132} label="Wesync" />
+        </div>
         {integrations.map((it, i) => {
           const right = i < 3;
           const y = ys[i % 3];
@@ -264,8 +267,8 @@ export function Integrations() {
 
       {/* جوال وتابلت: الكرة فوق والبطاقات عمودين */}
       <div className="mt-10 lg:hidden">
-        <div {...fx(60)} className="ld-fx lv-orb mx-auto h-[110px] w-[110px] text-[17px]">
-          Wesync
+        <div {...fx(60)} className="ld-fx mx-auto w-fit drop-shadow-[0_16px_44px_rgba(255,106,0,.32)]">
+          <WLogo size={100} label="Wesync" />
         </div>
         <div className="mt-8 grid grid-cols-2 gap-3">
           {integrations.map((it, i) => (

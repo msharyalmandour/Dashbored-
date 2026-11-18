@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { Gift, Infinity as InfinityIcon, Users } from "lucide-react";
+import { Gift, Users } from "lucide-react";
+import WLogo from "../components/brand/WLogo";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import Logo from "../components/Logo";
@@ -211,9 +212,7 @@ export default function Login() {
               <div className="mb-7 space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <Link to="/" aria-label={tr("Wesync — الصفحة الرئيسية")} className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
-                    <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full border-[1.5px] border-[#FFB444] text-[#FFB444]">
-                      <InfinityIcon size={18} strokeWidth={2.25} />
-                    </span>
+                    <WLogo size={32} />
                     Wesync
                   </Link>
                   <div className="flex items-center gap-3">

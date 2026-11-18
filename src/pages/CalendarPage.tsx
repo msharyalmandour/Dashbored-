@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import clsx from "clsx";
-import { CalendarClock, Check, Loader2, MapPin, Users2, Flag, ClipboardCheck, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Check, MapPin, Users2, Flag, ClipboardCheck, Plus, Trash2, X } from "lucide-react";
 import { HighlightCard, PageColumns, PageHeader, Panel, primaryBtn, rowSurface } from "../components/ui/page";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -171,7 +172,7 @@ export default function CalendarPage() {
             onClick={handleAdd}
             disabled={saving || !form.title.trim()}
             className={clsx(primaryBtn, "mt-4")}
-          >{trx("{0}إضافة", saving && <Loader2 size={15} className="animate-spin" />)}</button>
+          >{trx("{0}إضافة", saving && <WSpin size={15} />)}</button>
           <p className="mt-3 text-xs text-brand-950/40">
             {isSupabaseConfigured
               ? tr("الموعد يظهر لكل أعضاء الفريق وبالرئيسية، ويتحدّث مباشرة.")

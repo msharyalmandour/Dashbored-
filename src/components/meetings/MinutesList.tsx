@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
-import { ChevronLeft, CheckCircle2, CloudUpload, Download, ExternalLink, Loader2, MessageCircle, NotebookPen, Pencil, Send, Trash2, Circle } from "lucide-react";
+import { ChevronLeft, CheckCircle2, CloudUpload, Download, ExternalLink, MessageCircle, NotebookPen, Pencil, Send, Trash2, Circle } from "lucide-react";
 import Dialog from "../ui/Dialog";
 import EmptyState from "../ui/EmptyState";
 import ThreeDotsMenu from "../ui/ThreeDotsMenu";
@@ -214,7 +215,7 @@ export default function MinutesList(props: MinutesListProps) {
                   <ExternalLink size={12} />{tr("فتح بدرايف")}</a>
               ) : (
                 props.driveConnected && (
-                  <button onClick={() => props.onUploadDrive(m)} disabled={props.uploadingId === m.id} className={toolBtn}>{trx("{0}رفع لدرايف / إعادة المحاولة", props.uploadingId === m.id ? <Loader2 size={12} className="animate-spin" /> : <CloudUpload size={12} />)}</button>
+                  <button onClick={() => props.onUploadDrive(m)} disabled={props.uploadingId === m.id} className={toolBtn}>{trx("{0}رفع لدرايف / إعادة المحاولة", props.uploadingId === m.id ? <WSpin size={12} /> : <CloudUpload size={12} />)}</button>
                 )
               )}
               <span className="flex-1" />
@@ -228,7 +229,7 @@ export default function MinutesList(props: MinutesListProps) {
                   disabled={sending === m.id}
                   className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-bold text-[#1A0F00] disabled:opacity-50"
                 >
-                  {sending === m.id ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                  {sending === m.id ? <WSpin size={12} /> : <Send size={12} />}
                   {status === "none" ? tr("أرسلوه للاعتماد") : tr("أعيدوا الإرسال")}
                 </button>
               )}

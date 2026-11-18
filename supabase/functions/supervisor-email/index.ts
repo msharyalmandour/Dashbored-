@@ -39,7 +39,7 @@ function layout(title: string, bodyHtml: string, ctaUrl?: string, ctaLabel?: str
 <tr><td height="4" bgcolor="#FF6A00" style="height:4px;line-height:4px;font-size:0;background:#FF6A00;background-image:linear-gradient(90deg,#FF6A00,#FF8A24,#FFB547)">&nbsp;</td></tr>
 <tr><td style="padding:26px 28px 6px;font-family:${FONT};direction:rtl;text-align:right">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="34" height="34" align="center" valign="middle" bgcolor="#FF6A00" style="width:34px;height:34px;border-radius:17px;background:#FF6A00;background-image:radial-gradient(circle at 50% 38%,#FFF0C2,#FFB547 30%,#FF6A00 65%,#C2400A);color:#1A0802;font-size:18px;font-weight:800;line-height:34px">∞</td>
+<td width="34" height="34" valign="middle" style="width:34px;height:34px"><img src="https://wesyncapp.com/icons/email-mark.png" width="34" height="34" alt="Wesync" style="display:block;width:34px;height:34px;border:0;border-radius:8px"></td>
 <td style="padding-right:10px;font-family:${FONT};font-size:17px;font-weight:800;color:#F7EFE6;letter-spacing:.3px">Wesync</td>
 </tr></table>
 </td></tr>

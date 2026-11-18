@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Check, Loader2, Users } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, Users } from "lucide-react";
 import Card from "../ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import { useTasksData } from "../../hooks/useTasksData";
@@ -66,7 +67,7 @@ export default function SplitKeywordsCard({ terms }: { terms: string[] }) {
         </p>
       ) : (
         <button type="button" onClick={create} disabled={busy} className="inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2 text-sm font-bold text-white disabled:opacity-50">
-          {busy && <Loader2 size={14} className="animate-spin" />}
+          {busy && <WSpin size={14} />}
           {tr("وافقوا وأنشئوا المهام")}
         </button>
       )}

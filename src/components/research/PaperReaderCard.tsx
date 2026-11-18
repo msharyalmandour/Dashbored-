@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
-import { BookOpenCheck, Check, FileUp, Loader2, X } from "lucide-react";
+import { BookOpenCheck, Check, FileUp, X } from "lucide-react";
 import clsx from "clsx";
 import { glassCard } from "../ui/researchUi";
 import { readPaperFiles, type PaperReading } from "../../hooks/useProjectAgent";
@@ -116,7 +117,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
           </button>
         )}
         <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50">
-          {busy ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />}
+          {busy ? <WSpin size={14} /> : <FileUp size={14} />}
           {busy ? tr("أقرأها…") : tr("ارفعوا PDF أو صور")}
         </button>
         <input

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Check, Copy, Loader2, Send } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, Copy, Send } from "lucide-react";
 import Card from "../ui/Card";
 import AiLockedCard from "../AiLockedCard";
 import { useAuth } from "../../context/AuthContext";
@@ -83,7 +84,7 @@ export default function AskSurveyData({ questions, responses }: { questions: Que
           className="min-w-0 flex-1 rounded-xl border border-brand-100 bg-surface-muted px-3 py-2 text-sm outline-none focus:border-brand-300 focus:bg-paper"
         />
         <button type="submit" disabled={busy || text.trim().length < 5} aria-label={tr("حلّل")} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white disabled:opacity-50">
-          {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+          {busy ? <WSpin size={15} /> : <Send size={15} />}
         </button>
       </form>
 

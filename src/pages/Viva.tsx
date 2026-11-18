@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Copy, GraduationCap, Lightbulb, Loader2, Presentation, Wand2 } from "lucide-react";
+import { WSpin } from "../components/brand/WLogo";
+import { Check, Copy, GraduationCap, Lightbulb, Presentation, Wand2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import AiLockedCard from "../components/AiLockedCard";
 import { useAuth } from "../context/AuthContext";
@@ -92,7 +93,7 @@ export default function Viva() {
             disabled={busy}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+            {busy ? <WSpin size={16} /> : <Wand2 size={16} />}
             {busy ? tr("اللجنة تقرأ مقترحكم... (حوالي 30 ثانية)") : result ? tr("جلسة جديدة") : tr("ابدأوا التدريب")}
           </button>
           {message && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{message}</p>}

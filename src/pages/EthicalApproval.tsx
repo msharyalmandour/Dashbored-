@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent } from "react";
-import { Check, ExternalLink, Eye, FileCheck2, FileText, Loader2, Wand2 } from "lucide-react";
+import { WSpin } from "../components/brand/WLogo";
+import { Check, ExternalLink, Eye, FileCheck2, FileText, Wand2 } from "lucide-react";
 import AgentWave from "../components/ui/AgentWave";
 import { EditorCard, SectionRail } from "../components/v3/WriteKit";
 import { openAgent, setAgentContext } from "../lib/agentBus";
@@ -235,7 +236,7 @@ export default function EthicalApprovalPage() {
                 {tr("نسخة Wesync")}
               </button>
               <button type="button" className="wf-gb" onClick={() => exportWord("official")} disabled={exporting} title={tr("نسق KAU الرسمي (أبيض) — هذا اللي يُقدَّم للجنة")}>
-                {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} aria-hidden />}
+                {exporting ? <WSpin size={16} /> : <FileCheck2 size={16} aria-hidden />}
                 {tr("Word الرسمي")}
               </button>
             </>
@@ -426,7 +427,7 @@ export default function EthicalApprovalPage() {
                 </button>
               ) : (
                 <button type="button" className="wf-pr" onClick={() => exportWord("official")} disabled={exporting}>
-                  {exporting ? <Loader2 size={16} className="animate-spin" /> : <FileCheck2 size={16} />}
+                  {exporting ? <WSpin size={16} /> : <FileCheck2 size={16} />}
                   {tr("نموذج التقديم الرسمي (Word)")}
                 </button>
               )}

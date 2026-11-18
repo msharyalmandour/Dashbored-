@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Check, Clock, ExternalLink, Eye, Folder, Loader2, Users } from "lucide-react";
+import { Check, Clock, ExternalLink, Eye, Folder, Users } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -267,7 +268,7 @@ export default function Drive() {
               {tr("مين مربوط")}
             </h2>
             <span className="flex items-center gap-1.5 text-[12px] text-[#ABA095]">
-              {syncing && <Loader2 size={13} className="animate-spin motion-reduce:animate-none" aria-hidden />}
+              {syncing && <WSpin size={13} />}
               {tr("نتأكد كل ساعة")}
             </span>
           </div>

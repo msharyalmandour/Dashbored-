@@ -1,6 +1,7 @@
 import { TeamTimeCard } from "../components/sup/StudentTime";
+import { WSpin } from "../components/brand/WLogo";
 import { useEffect, useMemo, useState } from "react";
-import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
+import { Check, ClipboardCheck, Copy, GraduationCap, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import AiLockedCard from "../components/AiLockedCard";
@@ -240,7 +241,7 @@ export default function SupervisorFeedback() {
               onClick={sendReply}
               disabled={replyBusy || !replyText.trim()}
               className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-            >{trx("{0}إرسال", replyBusy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />)}</button>
+            >{trx("{0}إرسال", replyBusy ? <WSpin size={13} /> : <Send size={13} />)}</button>
           </div>
           {replyErr && <p className="text-xs font-semibold text-rose-600">{replyErr}</p>}
           {nudge && supervisorLink && (
@@ -285,7 +286,7 @@ export default function SupervisorFeedback() {
               disabled={!raw.trim() || splitting}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {splitting ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
+              {splitting ? <WSpin size={15} /> : <Wand2 size={15} />}
               {splitting ? tr("جاري التقسيم...") : tr("قسّمها بالذكاء الاصطناعي")}
             </button>
           )}
@@ -444,7 +445,7 @@ export default function SupervisorFeedback() {
           <div className="flex flex-wrap gap-2">
             <button onClick={() => writeMail("remind")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">{tr("تذكير بانتظار ملاحظاتها")}</button>
             <button onClick={() => writeMail("progress")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">{tr("تحديث بتقدّمنا")}</button>
-            {mailBusy && <Loader2 size={18} className="animate-spin self-center text-brand-500" />}
+            {mailBusy && <WSpin size={18} className="self-center text-brand-500" />}
           </div>
           {mailMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm text-amber-accent-700">{mailMsg}</p>}
           {mailText && (

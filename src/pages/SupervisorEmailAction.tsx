@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { useParams } from "react-router-dom";
-import { BellOff, CheckCircle2, Loader2, MailCheck, XCircle } from "lucide-react";
+import { BellOff, CheckCircle2, MailCheck, XCircle } from "lucide-react";
 import Logo from "../components/Logo";
 import { confirmSupervisorEmail, errorText, unsubscribeSupervisorEmail } from "../lib/supervisorEmail";
 import { tr } from "../lib/i18n";
@@ -50,7 +51,7 @@ export default function SupervisorEmailAction() {
           </button>
         </>
       )}
-      {state === "loading" && <Loader2 size={28} className="animate-spin text-[#FF9A3C]" aria-label={tr("لحظة…")} />}
+      {state === "loading" && <WSpin size={28} className="text-[#FF9A3C]" label={tr("لحظة…")} />}
       {state === "ok" && <CheckCircle2 size={36} className="text-[#FFC777]" />}
       {state === "error" && <XCircle size={36} className="text-[#FF8A7A]" />}
       {(state === "ok" || state === "error") && (

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import clsx from "clsx";
-import { CalendarCheck, CalendarClock, CalendarX, Check, Clock, Loader2, MessageCircle, Send, Trash2 } from "lucide-react";
+import { CalendarCheck, CalendarClock, CalendarX, Check, Clock, MessageCircle, Send, Trash2 } from "lucide-react";
 import LoadingButton from "../ui/LoadingButton";
 import { glassCard, gradientPill, pillField } from "../ui/researchUi";
 import EmptyState from "../ui/EmptyState";
@@ -151,7 +152,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
               <div className="flex flex-wrap gap-2">
                 <input type="date" min={today} value={manualDate} onChange={(e) => setManualDate(e.target.value)} aria-label={tr("تاريخ الاقتراح")} className={clsx(pillField, "!w-auto")} />
                 <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} aria-label={tr("وقت الاقتراح")} className={clsx(pillField, "!w-auto")} />
-                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />)}</button>
+                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <WSpin size={14} /> : <Send size={14} />)}</button>
               </div>
               {error && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{error}</p>}
             </div>

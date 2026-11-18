@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link, useLocation } from "react-router-dom";
-import { Check, Loader2, Search } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
 import { useResearchSearch } from "../hooks/useResearchSearch";
@@ -200,7 +201,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
               running ? "bg-brand-500" : "bg-[#FFC777]"
             }`}
           >
-            {running ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+            {running ? <WSpin size={16} /> : <Check size={16} />}
           </span>
           <span className="min-w-0">
             <span className="block truncate">

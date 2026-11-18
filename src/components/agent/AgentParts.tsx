@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
-import { CalendarDays, Check, ChevronLeft, Clock, Flag, HelpCircle, Loader2, Mic, MessageSquareText, Pause, Play, Send, ShieldCheck, Sparkles, Undo2, UserRound, X } from "lucide-react";
+import { CalendarDays, Check, ChevronLeft, Clock, Flag, HelpCircle, Mic, MessageSquareText, Pause, Play, Send, ShieldCheck, Sparkles, Undo2, UserRound, X } from "lucide-react";
 import clsx from "clsx";
 import AgentOrb from "../ui/AgentOrb";
 import AgentStreak from "./AgentStreak";
@@ -158,7 +159,7 @@ export function PlanCard({
           disabled={running || picked.length === 0}
           onClick={() => onApprove(picked.map((row) => ({ row, ownerId: owners[row.key] ?? null, due: dues[row.key] ?? null })))}
         >
-          {running ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Check size={16} aria-hidden />}
+          {running ? <WSpin size={16} /> : <Check size={16} aria-hidden />}
           {running ? tr("نسوّيها…") : picked.length < rows.length ? tr("وافقوا وسوّوا {0}", picked.length) : tr("وافقوا وسوّوها")}
         </button>
       </div>
@@ -189,7 +190,7 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
         </div>
         {canUndo(r) && (
           <button type="button" className="ag-btn glass" disabled={undoing} onClick={onUndo} title={tr("تقدرون تتراجعون خلال 24 ساعة")}>
-            {undoing ? <Loader2 size={15} className="animate-spin" aria-hidden /> : null}
+            {undoing ? <WSpin size={15} /> : null}
             {tr("تراجع")}
             <Undo2 size={15} aria-hidden />
           </button>
@@ -367,7 +368,7 @@ export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; o
           <Mic size={26} aria-hidden />
         </button>
         <button type="button" className={clsx("ag-round", hasText && !err && "ready")} onClick={() => (err ? onClose() : void send())} disabled={working} aria-label={err ? tr("رجوع") : tr("أرسلوا (Enter)")}>
-          {working ? <Loader2 size={18} className="animate-spin" aria-hidden /> : <Send size={18} className="ltr:rotate-0 rtl:-scale-x-100" aria-hidden />}
+          {working ? <WSpin size={18} /> : <Send size={18} className="ltr:rotate-0 rtl:-scale-x-100" aria-hidden />}
         </button>
       </div>
       <p className="m-0 -mt-2 text-[12px] text-[rgba(255,236,220,.6)] max-md:hidden">{tr("Enter = أرسلوا · مسافة = وقّفوا")}</p>

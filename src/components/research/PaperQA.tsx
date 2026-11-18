@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { FileUp, Loader2, MessageCircleQuestion, Send, X } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { FileUp, MessageCircleQuestion, Send, X } from "lucide-react";
 import { useResearchAgent } from "../../hooks/useResearchAgent";
 import { tr } from "../../lib/i18n";
 
@@ -159,7 +160,7 @@ export default function PaperQA({
           disabled={busy || !question.trim() || !hasMaterial}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          {busy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+          {busy ? <WSpin size={14} /> : <Send size={14} />}
         </button>
       </div>
       {pdf && (

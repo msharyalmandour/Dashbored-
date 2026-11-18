@@ -16,6 +16,7 @@
 @import "./styles/agent.css";
 @import "./styles/doors.css";
 @import "./styles/sup.css";
+@import "./styles/brand.css";
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", ui-sans-serif, system-ui, sans-serif;

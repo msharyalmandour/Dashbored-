@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
-import { Check, FileUp, Loader2, PenLine, RotateCcw, Upload, X } from "lucide-react";
+import { Check, FileUp, PenLine, RotateCcw, Upload, X } from "lucide-react";
 import clsx from "clsx";
 import { readPaperFiles, type PaperReading } from "../../hooks/useProjectAgent";
 import type { NewEvidencePaper } from "../../hooks/useEvidencePapers";
@@ -260,7 +261,7 @@ export function StudyDropCard({
             return (
               <li key={it.key} className={clsx("sd-item", it.status)}>
                 <span className="sd-dot" aria-hidden>
-                  {it.status === "reading" || it.status === "saving" ? <Loader2 size={16} className="animate-spin" /> : it.status === "added" ? <Check size={16} strokeWidth={3} /> : it.status === "removed" ? <RotateCcw size={15} /> : <X size={15} />}
+                  {it.status === "reading" || it.status === "saving" ? <WSpin size={16} /> : it.status === "added" ? <Check size={16} strokeWidth={3} /> : it.status === "removed" ? <RotateCcw size={15} /> : <X size={15} />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="sd-title" dir="auto">

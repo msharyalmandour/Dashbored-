@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import WLogo from "../components/brand/WLogo";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -44,7 +45,7 @@ export default function DriveJoin() {
     <div className="relative mx-auto flex min-h-[calc(100dvh-220px)] md:min-h-0 max-w-[440px] flex-col text-[#EAE3DC]">
       <span aria-hidden className="st-glow !top-[-80px]" />
       <div className="relative flex items-center justify-center gap-4 pt-8">
-        <span className="lx-orb !h-16 !w-16" aria-hidden />
+        <WLogo size={64} />
         <span className="h-[2px] w-10 bg-gradient-to-l from-[#FFC777] to-[#FF7A1A]" aria-hidden />
         <span className="dj-tile" aria-hidden>
           <GoogleDriveLogo size={34} />

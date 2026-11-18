@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import {
   BadgeCheck,
   Check,
@@ -7,7 +8,6 @@ import {
   GraduationCap,
   Library,
   ListTree,
-  Loader2,
   Lightbulb,
   Ruler,
   Search,
@@ -135,7 +135,7 @@ function SearchProgress() {
               i < stage ? "text-[#FFB444]" : i === stage ? "text-[#F4F0EC]" : "text-[#F4F0EC]/30"
             }`}
           >
-            {i < stage ? <Check size={13} /> : i === stage ? <Loader2 size={13} className="animate-spin" /> : <span className="w-[13px]" />}
+            {i < stage ? <Check size={13} /> : i === stage ? <WSpin size={13} /> : <span className="w-[13px]" />}
             {s}
           </li>
         ))}
@@ -234,7 +234,7 @@ function ResultCard({
           disabled={adding || added}
           className="flex items-center gap-1.5 font-bold text-[#FFB444] hover:text-[#FFC85A] disabled:opacity-70"
         >
-          {adding ? <Loader2 size={14} className="animate-spin" /> : added ? <Check size={14} /> : <Library size={14} />}
+          {adding ? <WSpin size={14} /> : added ? <Check size={14} /> : <Library size={14} />}
           {added ? tr("انضافت للمكتبة") : tr("+ أضف للمكتبة")}
         </button>
         <a href={result.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
@@ -390,7 +390,7 @@ export default function ResearchSearch() {
                 className={fieldPill}
               />
               <button type="submit" disabled={st.searching || !st.topic.trim()} className={`${gradientPill} !px-7 !py-3 shrink-0`}>
-                {st.searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                {st.searching ? <WSpin size={16} /> : <Search size={16} />}
                 {st.searching ? tr("جاري البحث...") : tr("ابحث")}
               </button>
             </form>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Check, ExternalLink, Loader2, Plus } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, ExternalLink, Plus } from "lucide-react";
 import Card from "../ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import { useEvidencePapers } from "../../hooks/useEvidencePapers";
@@ -150,7 +151,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
         <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={4} dir="ltr" className={field} placeholder={"https://doi.org/10.1016/j.ijnurstu.2019.103456\nKnowledge and practice of nurses toward early delirium detection"} />
         <p className="text-[12px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
         <button type="button" onClick={convert} disabled={busy || pasted.trim().length < 10} className="inline-flex items-center gap-1.5 rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
-          {busy && <Loader2 size={13} className="animate-spin" />}
+          {busy && <WSpin size={13} />}
           {tr("تعرّف عليها")}
         </button>
         {note && <p className="text-xs text-brand-950/60">{note}</p>}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { WSpin } from "./brand/WLogo";
 import clsx from "clsx";
-import { Check, ExternalLink, RefreshCw, HardDrive, Loader2, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
+import { Check, ExternalLink, RefreshCw, HardDrive, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
 import { pillField } from "./ui/researchUi";
 import { GoogleDriveLogo, LogoTile } from "./ui/BrandLogos";
 import ThreeDotsMenu from "./ui/ThreeDotsMenu";
@@ -181,7 +182,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
               disabled={busy === "connect"}
               className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#F6F1EC] px-6 py-3.5 text-sm font-bold text-[#1A0F00] shadow-[0_12px_32px_rgba(0,0,0,.35)] transition hover:brightness-95 disabled:opacity-60"
             >
-              {busy === "connect" ? <Loader2 size={16} className="animate-spin" /> : <GoogleDriveLogo size={20} />}
+              {busy === "connect" ? <WSpin size={16} /> : <GoogleDriveLogo size={20} />}
               {waiting ? tr("ننتظر موافقتكم بقوقل…") : tr("اربطوا Google Drive")}
             </button>
           ) : (
@@ -224,7 +225,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
                   onClick={share}
                   disabled={busy === "share"}
                   className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50"
-                >{trx("{0}شاركوا الآن", busy === "share" ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />)}</button>
+                >{trx("{0}شاركوا الآن", busy === "share" ? <WSpin size={14} /> : <Check size={14} />)}</button>
               </div>
             </div>
           )}
@@ -233,7 +234,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
 
       {waiting && (
         <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-3 text-sm">
-          <Loader2 size={14} className="animate-spin" />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">{tr("إلغاء")}</button>
+          <WSpin size={14} />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">{tr("إلغاء")}</button>
         </p>
       )}
       {msg && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{msg}</p>}

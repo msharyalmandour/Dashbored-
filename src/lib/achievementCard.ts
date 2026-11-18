@@ -1,4 +1,5 @@
 import { tr } from "./i18n";
+import { drawBrandLockup } from "./brandCanvas";
 import type { DoorId } from "./doors";
 
 /* بطاقة الإنجاز للستوري (1080×1920) — فكرة Spotify Wrapped: الطالب يتباهى بإنجازه هو، والاسم يوصل معه.
@@ -54,11 +55,9 @@ export async function drawAchievement({ title, sub, step }: { title: string; sub
   ctx.textAlign = "center";
   ctx.direction = "rtl";
 
-  // العلامة فوق
-  ctx.fillStyle = "rgba(242,235,227,0.85)";
-  ctx.font = "700 34px Tajawal, sans-serif";
-  ctx.direction = "ltr";
-  ctx.fillText("W E S Y N C   ∞", W / 2, 170);
+  // العلامة فوق: شعار W + Wesync
+  drawBrandLockup(ctx, W / 2, 160, 64);
+  ctx.textAlign = "center";
   ctx.direction = "rtl";
 
   // الختم الذهبي: دائرة وعلامة صح

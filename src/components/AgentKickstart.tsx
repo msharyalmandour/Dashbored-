@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "./brand/WLogo";
 import { Link } from "react-router-dom";
-import { Check, CheckCircle2, Loader2, Wand2 } from "lucide-react";
+import { Check, CheckCircle2, Wand2 } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
 import SourceList from "./ui/SourceList";
@@ -162,7 +163,7 @@ export default function AgentKickstart() {
         <CheckCircle2 size={16} />{tr(" تم")}</span>
     ) : (
       <button onClick={onClick} disabled={!canWrite || disabled || applying !== null} className={primaryBtn}>
-        {applying === section ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+        {applying === section ? <WSpin size={15} /> : <Check size={15} />}
         {label}
       </button>
     );
@@ -176,7 +177,7 @@ export default function AgentKickstart() {
       <p className="text-sm leading-relaxed text-brand-950/65">{tr("اضغطوا زر واحد وتخلّون الوكيل يدوّر بدراسات منشورة عن عنوانكم، ويرجّع لكم: ")}<b className="text-brand-950">{tr("دراسات")}</b>{tr(" تحفظونها بمكتبتكم، و")}<b className="text-brand-950">{tr("مسودة فجوة بحثية")}</b>{tr("، و")}<b className="text-brand-950">{tr("أسئلة بحث")}</b>{tr(" مبنية على الدراسات، و")}<b className="text-brand-950">{tr("مهام")}</b>{tr(" للخطوة الجاية. ما ينحفظ شي قبل ما توافقون، وكلها نقطة انطلاق تناقشونها مع المشرف/ة — مو بديل عن شغلكم.")}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button onClick={run} disabled={busy || !title || !canWrite} className={primaryBtn}>
-          {busy ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
+          {busy ? <WSpin size={15} /> : <Wand2 size={15} />}
           {busy ? tr("الوكيل يدوّر بالدراسات… (حوالي دقيقة)") : result ? tr("جهّزوا من جديد") : tr("جهّزوا لنا البداية")}
         </button>
         {!title && <span className="text-sm text-brand-950/50">{tr("اكتبوا عنوان البحث أول (من الرئيسية أو المقترح).")}</span>}

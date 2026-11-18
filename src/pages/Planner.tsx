@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarClock, Check, Loader2, TriangleAlert } from "lucide-react";
+import { WSpin } from "../components/brand/WLogo";
+import { CalendarClock, Check, TriangleAlert } from "lucide-react";
 import Card from "../components/ui/Card";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -161,7 +162,7 @@ export default function Planner() {
               onClick={apply}
               disabled={applying || !canWrite}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-            >{trx("{0}طبّقوا هذا الجدول على مراحل البحث", applying && <Loader2 size={15} className="animate-spin" />)}</button>
+            >{trx("{0}طبّقوا هذا الجدول على مراحل البحث", applying && <WSpin size={15} />)}</button>
             <p className="text-[12px] text-brand-950/45">{tr("يحدّث مواعيد المراحل غير المنتهية بصفحة «الجدول الزمني» (المراحل المنتهية ما تتغير). اتفقوا مع المشرفة قبل التطبيق.")}</p>
           </div>
         </Card>

@@ -1,0 +1,22 @@
+/* شعار W: الموجتين. loading = مؤشر تحميل (الحركة الوحيدة المسموح تتكرر). sync = تقفل مرة وحدة + ومضة ذهبية */
+.wl { display: inline-block; flex: none; vertical-align: middle; overflow: visible; }
+.wl .wl-l, .wl .wl-r { transform-box: fill-box; transform-origin: center; }
+.wl-loading .wl-l { animation: wl-apart-l 1.1s cubic-bezier(.45,0,.55,1) infinite alternate; }
+.wl-loading .wl-r { animation: wl-apart-r 1.1s cubic-bezier(.45,0,.55,1) infinite alternate; }
+@keyframes wl-apart-l { from { transform: translateX(0); } to { transform: translateX(-9px); } }
+@keyframes wl-apart-r { from { transform: translateX(0); } to { transform: translateX(9px); } }
+.wl-sync .wl-l { animation: wl-in-l 520ms cubic-bezier(.2,.9,.25,1) both; }
+.wl-sync .wl-r { animation: wl-in-r 520ms cubic-bezier(.2,.9,.25,1) both; }
+@keyframes wl-in-l { from { transform: translateX(-22px); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes wl-in-r { from { transform: translateX(22px); opacity: .4; } to { transform: none; opacity: 1; } }
+.wl-flash { opacity: 0; animation: wl-flash 700ms 420ms ease-out both; }
+@keyframes wl-flash { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .wl-loading .wl-l, .wl-loading .wl-r, .wl-sync .wl-l, .wl-sync .wl-r { animation: none; }
+  .wl-loading { animation: wl-fade 200ms ease-out both; }
+  .wl-flash { animation: none; }
+}
+html[data-reduce-motion="true"] .wl-loading .wl-l, html[data-reduce-motion="true"] .wl-loading .wl-r,
+html[data-reduce-motion="true"] .wl-sync .wl-l, html[data-reduce-motion="true"] .wl-sync .wl-r { animation: none; }
+html[data-reduce-motion="true"] .wl-flash { animation: none; }
+@keyframes wl-fade { from { opacity: 0; } to { opacity: 1; } }

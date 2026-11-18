@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link, useNavigate } from "react-router-dom";
-import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Loader2, Mic, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
+import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Mic, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import Avatar from "../components/ui/Avatar";
 import { V3Glow } from "../components/v3/WriteHeader";
@@ -762,7 +763,7 @@ export default function TeamChat() {
               </div>
               {messages.length > 0 && canWrite && (
                 <button type="button" className="tc-round" aria-label={tr("حوّلوا المحادثة لمحضر")} title={tr("حوّلوا المحادثة لمحضر")} onClick={chatToMinutes} disabled={minutesBusy}>
-                  {minutesBusy ? <Loader2 size={18} className="animate-spin motion-reduce:animate-none" /> : <NotebookPen size={18} />}
+                  {minutesBusy ? <WSpin size={18} /> : <NotebookPen size={18} />}
                 </button>
               )}
               <FocusPill until={intel.focus?.until ?? null} onClick={() => setFocusSheet(true)} />

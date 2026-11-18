@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { CheckCircle2, } from "lucide-react";
 import { likertOptions, type Question } from "../../lib/surveyCoach";
 import { tr } from "../../lib/i18n";
 
@@ -152,7 +153,7 @@ export default function SurveyRunner({
         disabled={busy}
         className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3.5 text-sm font-extrabold text-neutral-950 disabled:opacity-60"
       >
-        {busy && <Loader2 size={16} className="animate-spin" />}
+        {busy && <WSpin size={16} />}
         {preview ? tr("إرسال (معاينة — ما ينحفظ شي)") : tr("إرسال الإجابات")}
       </button>
     </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link } from "react-router-dom";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, } from "lucide-react";
 import Logo from "../components/Logo";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { tr, trx } from "../lib/i18n";
@@ -243,7 +244,7 @@ export default function Survey() {
           onClick={submit}
           disabled={!ready || busy}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3.5 text-sm font-extrabold text-neutral-950 shadow-[0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-opacity disabled:opacity-40"
-        >{trx("{0}إرسال الإجابات", busy && <Loader2 size={16} className="animate-spin" />)}</button>
+        >{trx("{0}إرسال الإجابات", busy && <WSpin size={16} />)}</button>
         {!ready && <p className="mt-2 text-center text-xs text-white/40">{tr("أجيبوا على التخصص والمرحلة وأكثر ما يتعبكم عشان يتفعّل الإرسال.")}</p>}
       </div>
     </div>

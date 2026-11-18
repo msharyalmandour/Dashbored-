@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import WLogo from "../components/brand/WLogo";
 import { avatarLetter } from "../lib/avatarLetter";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Award, BarChart3, Bell, CalendarDays, FileText, HelpCircle, Hourglass as HourglassIcon, Home, Languages, Link2, MessageCircle, Radar as RadarIcon, Send, Settings, Users, X } from "lucide-react";
@@ -616,7 +617,7 @@ export default function SupervisorDash() {
       <div className="sd-wrap">
         <aside className="sd-side" aria-label={tr("بوابة المشرف/ة")}>
           <div className="sd-brand">
-            <span className="sd-sun" aria-hidden />
+            <WLogo size={34} />
             <div style={{ lineHeight: 1.2 }}>
               <b style={{ fontSize: 20 }}>Wesync</b>
               <div style={{ fontSize: 12, color: "#FFB444" }}>{tr("بوابة المشرف/ة")}</div>

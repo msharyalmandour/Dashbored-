@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import WLogo from "./brand/WLogo";
 import { NavLink, useLocation } from "react-router-dom";
 import { Check, CheckSquare, Compass, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
@@ -129,7 +130,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
       {open && <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={onClose} />}
       <aside className={clsx("lx-side print:hidden", open ? "translate-x-0" : "translate-x-full ltr:-translate-x-full md:translate-x-0 md:ltr:translate-x-0")}>
         <div className="flex items-center gap-2.5 px-3 pb-[18px] pt-1.5">
-          <span aria-hidden className="lx-orb" />
+          <WLogo size={30} />
           <b className="text-[21px] font-extrabold text-[#F2EBE3]" dir="ltr">
             Wesync
           </b>

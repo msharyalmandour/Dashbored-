@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   AlertTriangle,
@@ -11,7 +12,6 @@ import {
   Download,
   Eye,
   Lightbulb,
-  Loader2,
   Lock,
   MessageCircle,
   Plus,
@@ -418,7 +418,7 @@ export default function SurveyBuilder() {
                     <Lightbulb size={15} className="text-amber-accent-500" />{tr("مراجعة الذكاء الاصطناعي")}</p>
                   <p className="mt-0.5 text-[12px] text-brand-950/50">{tr("يقرأ أسئلتكم مع هدفكم، ويقترح صياغة أوضح ويشرح ليش — أنتم تقررون تاخذونها أو لا.")}</p>
                 </div>
-                <button onClick={reviewAi} disabled={aiBusy} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600 disabled:opacity-60">{trx("{0}راجعوا أسئلتي", aiBusy && <Loader2 size={13} className="animate-spin" />)}</button>
+                <button onClick={reviewAi} disabled={aiBusy} className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-white hover:bg-brand-600 disabled:opacity-60">{trx("{0}راجعوا أسئلتي", aiBusy && <WSpin size={13} />)}</button>
               </div>
               {aiMsg && <p className="rounded-xl bg-surface-muted px-3 py-2 text-xs font-semibold text-brand-950/70">{aiMsg}</p>}
               {aiRes && (

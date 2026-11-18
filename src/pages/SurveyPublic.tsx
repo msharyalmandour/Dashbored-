@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { useParams } from "react-router-dom";
-import { Loader2, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import SurveyRunner, { type AnswerMap } from "../components/survey/SurveyRunner";
 import Logo from "../components/Logo";
 import { supabase } from "../lib/supabaseClient";
@@ -63,7 +64,7 @@ export default function SurveyPublic() {
         </header>
         {state === "loading" && (
           <div className="flex justify-center py-24">
-            <Loader2 className="animate-spin text-amber-300" />
+            <WSpin className="text-amber-300" />
           </div>
         )}
         {state === "closed" && (

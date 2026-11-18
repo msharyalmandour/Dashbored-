@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link } from "react-router-dom";
-import { FileDown, FileType2, Loader2, ArrowRight } from "lucide-react";
+import { FileDown, FileType2, ArrowRight } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useProposal } from "../hooks/useProposal";
@@ -106,7 +107,7 @@ export default function FullDocumentExport() {
             disabled={exportingWord}
             title={tre("أبيض بنسق الروبريك الرسمي — للتسليم والطباعة ولرفعه على Google Drive")}
             className="flex items-center gap-2 rounded-xl border border-brand-300 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950 hover:bg-surface-muted disabled:opacity-60"
-          >{trxe("{0}Word رسمي (مناسب لدرايف والتسليم)", exportingWord ? <Loader2 size={16} className="animate-spin" /> : <FileType2 size={16} />)}</button>
+          >{trxe("{0}Word رسمي (مناسب لدرايف والتسليم)", exportingWord ? <WSpin size={16} /> : <FileType2 size={16} />)}</button>
           <button
             onClick={() => exportWord("dark")}
             disabled={exportingWord}

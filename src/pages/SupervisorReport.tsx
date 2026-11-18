@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import WLogo from "../components/brand/WLogo";
 import { Link, useParams } from "react-router-dom";
 import { ChevronRight, Printer } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
@@ -104,9 +105,7 @@ export default function SupervisorReport() {
               {trx("فريق «{0}» · {1} أعضاء · {2}", <bdi key="n">{snap.teamName}</bdi>, snap.members?.length ?? 0, formatDateFull(today))}
             </p>
           </div>
-          <span className="rp-logo" aria-hidden>
-            ∞
-          </span>
+          <WLogo size={44} tone="ink" />
         </header>
 
         <section className="rp-stats">

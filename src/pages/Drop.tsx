@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Camera, Check, ChevronLeft, ClipboardPaste, Download, FileSearch, Folder, Lock, Sparkles, Undo2, WifiOff } from "lucide-react";
+import { Camera, Check, ChevronLeft, Download, ExternalLink, FileSearch, Folder, Lock, Paperclip, Sparkles, Undo2, WifiOff } from "lucide-react";
 import Vessel from "../components/drop/Vessel";
 import { DEST_ICON, DestinationSheet, EditSheet, FileIcon, ResultCard } from "../components/drop/DropParts";
 import { useAuth } from "../context/AuthContext";
@@ -8,7 +8,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useDrop } from "../hooks/useDrop";
 import { supabase } from "../lib/supabaseClient";
-import { ACCEPT, countOf, DEST_LABEL, DEST_NOUN, DEST_PLACE, DESTS, deepLink, detectPaste, fileDrop, listRecent, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource, type RecentDrop } from "../lib/drops";
+import { ACCEPT, countOf, DEST_LABEL, DEST_NOUN, DEST_PLACE, deepLink, detectPaste, fileDrop, listRecent, readDrop, retarget, startDrop, undoDrop, undoMessage, updateResult, type Destination, type DropError, type DropResult, type DropSource, type RecentDrop } from "../lib/drops";
 import { tr } from "../lib/i18n";
 import { track } from "../lib/analytics";
 import { formatDateShort } from "../lib/date";
@@ -61,6 +61,16 @@ export default function Drop() {
   const [moveFor, setMoveFor] = useState<DropResult | null>(null);
   const [editFor, setEditFor] = useState<DropResult | null>(null);
   const [recent, setRecent] = useState<RecentDrop[]>([]);
+  // المسرح مرسوم على 1096×560 (زي المرجع) ويتصغّر بنفس النسبة لو الشاشة أضيق
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stageK, setStageK] = useState(1);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => setStageK(Math.min(1, e.contentRect.width / 1096)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  });
   const [zoneOver, setZoneOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
@@ -520,68 +530,32 @@ export default function Drop() {
     );
   }
 
-  // ── البداية ──
-  const recentCard = (
-    <section className="dr-card dr-in dr-d3 rounded-[26px] px-3.5 pb-1.5 pt-3.5">
-      <div className="flex items-center gap-2.5 px-1 pb-1 text-[16px] font-bold">
-        <span className="dr-ic" aria-hidden>
-          <Folder size={16} />
-        </span>
-        {tr("آخر اللي رميتوه")}
-      </div>
-      {recent.length === 0 ? (
-        <p className="m-0 px-1 pb-3 pt-1 text-[13px] text-[#ABA095]">{tr("لسا ما رميتوا شي. أول رمية بتطلع هنا مع المكان اللي راحت له.")}</p>
-      ) : (
-        recent.map((d) => {
-          const it = d.items[0];
-          const name = d.items.length > 1 ? tr("{0} عناصر", d.items.length) : it?.name ?? d.summary;
-          const placed = d.results.filter((r) => r.created > 0 && !r.undone);
-          const where = d.status === "ready" ? tr("تنتظر مراجعتكم") : [...new Set(placed.map((r) => (r.destination === "tasks" ? tr("مهامي · {0} مهام", r.tasks) : DEST_PLACE[r.destination])))].join(" + ") || tr("ما انحط شي");
-          return (
-            <div key={d.id} className="dr-recent-row">
-              <FileIcon name={it?.name ?? ""} mime={it?.mime} />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[14px] font-bold" dir="auto">
-                  {name}
-                </div>
-                <div className="truncate text-[12px] text-[#ABA095]">
-                  <span className="text-[#FFC777]">‹</span> {where} · {formatDateShort(localDay(d.created_at))}
-                </div>
-              </div>
-              {d.status === "ready" ? (
-                <button type="button" className="dr-text !text-[13px]" onClick={() => setParams({ d: d.id })}>
-                  {tr("راجعوها")}
-                </button>
-              ) : placed.length ? (
-                <button type="button" className="dr-text !text-[13px]" onClick={() => undo(d.id)}>
-                  <Undo2 size={15} aria-hidden />
-                  {tr("تراجع")}
-                </button>
-              ) : null}
-            </div>
-          );
-        })
-      )}
-    </section>
-  );
-  const pickBtns = (desk: boolean) => (
-    <>
-      <button type="button" className={desk ? "dr-primary !w-auto !px-[26px]" : "dr-primary"} onClick={() => fileRef.current?.click()} disabled={!canWrite}>
-        <Download size={18} aria-hidden />
-        {tr("اختاروا ملف")}
-      </button>
-      <div className={desk ? "flex flex-wrap justify-center gap-2" : "mt-2 flex gap-2"}>
-        <button type="button" className={desk ? "dr-ghost !flex-none !px-[18px]" : "dr-ghost"} onClick={() => camRef.current?.click()} disabled={!canWrite}>
-          <Camera size={16} aria-hidden />
-          {tr("صوّروا")}
+  // ── البداية: مسرح واحد (DropPage / DropPageM) ──
+  const last = recent[0];
+  const lastPlaced = last ? last.results.filter((r) => r.created > 0 && !r.undone) : [];
+  const lastPill = last ? (
+    <div className="dp-last" role="status">
+      <span className="dp-last-ok" aria-hidden>
+        <Check size={14} strokeWidth={3} />
+      </span>
+      <b className="truncate" dir="auto">
+        {last.items.length > 1 ? tr("{0} عناصر", last.items.length) : last.items[0]?.name ?? last.summary}
+      </b>
+      <span className="truncate text-[#ABA095]">
+        ← {last.status === "ready" ? tr("تنتظر مراجعتكم") : lastPlaced.length ? DEST_LABEL[lastPlaced[0].destination] : tr("ما انحط شي")} · {ago(last.created_at)}
+      </span>
+      {last.status === "ready" ? (
+        <button type="button" className="dp-last-btn" onClick={() => setParams({ d: last.id })}>
+          {tr("راجعوها")}
         </button>
-        <button type="button" className={desk ? "dr-ghost !flex-none !px-[18px]" : "dr-ghost"} onClick={() => setView("paste")} disabled={!canWrite}>
-          <ClipboardPaste size={16} aria-hidden />
-          {tr("الصقوا نص أو رابط")}
+      ) : lastPlaced.length ? (
+        <button type="button" className="dp-last-btn" onClick={() => undo(last.id)}>
+          <Undo2 size={14} aria-hidden />
+          {tr("تراجع")}
         </button>
-      </div>
-    </>
-  );
+      ) : null}
+    </div>
+  ) : null;
   const onZone = {
     onDragOver: (e: React.DragEvent) => {
       if (Array.from(e.dataTransfer.types).includes("Files")) {
@@ -596,56 +570,165 @@ export default function Drop() {
   return (
     <div className="dr-page">
       {inputs}
-      {/* الجوال */}
-      <div className="mx-auto flex max-w-md flex-col gap-3.5 lg:hidden">
-        <section className="dr-card dr-in overflow-hidden rounded-[28px] px-4 pb-5 pt-2 text-center">
-          <div className="-mb-[18px] -mt-1.5 flex justify-center">
-            <Vessel size={250} scene={!isDesk} />
+      {/* الجوال: الوعاء 280 + 4 أماكن على القوس الفوقاني، والأزرار تحت */}
+      <div className="dp-m flex lg:hidden">
+        <div className="dp-m-stage" aria-hidden>
+          <div className="dp-m-glow" />
+          <svg className="dp-rings" viewBox="0 0 390 420">
+            <defs>
+              <linearGradient id="dpm-g" x1="0" x2="1">
+                <stop offset="0" stopColor="#FFC777" stopOpacity="0" />
+                <stop offset=".5" stopColor="#FFC777" stopOpacity=".7" />
+                <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="195" cy="176.4" rx="152" ry="200" fill="none" stroke="rgba(255,199,119,0.07)" />
+            <ellipse className="dp-li" cx="195" cy="176.4" rx="112" ry="148" fill="none" stroke="url(#dpm-g)" strokeWidth="1.4" />
+            <ellipse cx="195" cy="176.4" rx="176" ry="231" fill="none" stroke="rgba(255,199,119,0.05)" strokeDasharray="2 10" />
+            {M_CHIPS.map((c) => (
+              <path key={c.d} className="dp-li" d={c.curve} fill="none" stroke="rgba(255,199,119,.16)" strokeWidth="1.2" strokeDasharray="3 7" />
+            ))}
+          </svg>
+          {M_CHIPS.map((c, i) => {
+            const Icon = DEST_ICON[c.d];
+            return (
+              <span key={c.d} className="dp-chip dp-chip-m dp-co" style={{ left: c.x, top: c.y, ["--dx" as string]: `${c.dx}px`, ["--dy" as string]: `${c.dy}px`, animationDelay: `${0.25 + i * 0.06}s` }}>
+                <Icon size={14} className="text-[#FFC777]" aria-hidden />
+                {tr(c.label)}
+              </span>
+            );
+          })}
+          <div className="dp-m-vessel">
+            <Vessel size={280} state="hover" />
           </div>
-          <h1 className="dr-title text-[34px] leading-[1.2]">{tr("ارموا أي شي")}</h1>
-          <p className="mx-3 mb-4 mt-1.5 text-[15px] font-medium leading-[1.7] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
-          {pickBtns(false)}
-        </section>
-        {recentCard}
-      </div>
-      {/* الديسكتوب */}
-      <div className="hidden lg:flex lg:flex-col lg:gap-[18px]">
-        <div>
-          <div className="text-[18px] text-[#E9C9A0]">{tr("ملف، صورة، رسالة، رابط")}</div>
-          <h1 className="dr-title text-[52px] leading-[1.1]">{tr("ارموا أي شي")}</h1>
         </div>
-        <div className="grid grid-cols-[1.35fr_1fr] items-start gap-[18px]">
-          <section className="dr-card dr-glow dr-in flex min-h-[max(600px,calc(100vh-226px))] flex-col items-center rounded-[28px] p-6 text-center" {...onZone}>
-            <div className={`dr-zone${zoneOver ? " over" : ""}`}>
-              <Vessel size={360} state={zoneOver ? "hover" : "idle"} scene={isDesk} />
-              <div className="-mt-6 text-[22px] font-extrabold">{tr("اسحبوا الملفات هنا")}</div>
-              <p className="m-0 mb-[18px] mt-1 text-[15px] text-[#E9D3B8]">{tr("PDF، صور، سكرين شوت، ملاحظات، روابط… ونحن نرتبها بمكانها")}</p>
-              <div className="flex items-center gap-2.5">{pickBtns(true)}</div>
-            </div>
-          </section>
-          <div className="flex flex-col gap-[18px]">
-            {recentCard}
-            <section className="dr-card dr-in dr-d4 rounded-[26px] px-[18px] py-4">
-              <div className="mb-2 text-[16px] font-bold">{tr("وش نقدر نرتب؟")}</div>
-              <div className="flex flex-wrap gap-1.5">
-                {DESTS.filter((d) => d !== "supervisor_question").map((d) => {
-                  const Icon = DEST_ICON[d];
-                  return (
-                    <span key={d} className="dr-chip">
-                      <Icon size={12} aria-hidden />
-                      {DEST_LABEL[d]}
-                    </span>
-                  );
-                })}
-              </div>
-            </section>
+        <div className="dp-m-head">
+          <h1 className="dp-h1 text-[54px]">{tr("ارموا أي شي")}</h1>
+          <p className="dp-sub">{tr("ونحن نرتبها")}</p>
+        </div>
+        <div className="dp-m-btns">
+          <button type="button" className="dp-go w-full" onClick={() => fileRef.current?.click()} disabled={!canWrite}>
+            <Download size={18} aria-hidden />
+            {tr("اختاروا ملف")}
+          </button>
+          <div className="grid grid-cols-3 gap-2">
+            <button type="button" className="dp-glass" onClick={() => camRef.current?.click()} disabled={!canWrite}>
+              <Camera size={16} aria-hidden />
+              {tr("صوّروا")}
+            </button>
+            <button type="button" className="dp-glass" onClick={() => setView("paste")} disabled={!canWrite}>
+              <ExternalLink size={16} aria-hidden />
+              {tr("رابط")}
+            </button>
+            <button type="button" className="dp-glass" onClick={() => setView("paste")} disabled={!canWrite}>
+              <Paperclip size={16} aria-hidden />
+              {tr("الصقوا")}
+            </button>
           </div>
+        </div>
+      </div>
+
+      {/* الديسكتوب: الوعاء 430 بالنص، 3 حلقات، 6 أماكن تدور حوله بخطوط منقطة */}
+      <div className={`dp-d hidden lg:flex${zoneOver ? " over" : ""}`} {...onZone}>
+        <div className="dp-stage-wrap" ref={stageRef} style={{ height: Math.round(560 * stageK) }}>
+          <div className="dp-stage" style={{ transform: `scale(${stageK})` }}>
+            <div className="dp-glow" aria-hidden />
+            <svg className="dp-rings" viewBox="0 0 1096 560" aria-hidden>
+              <defs>
+                <linearGradient id="dp-g" x1="0" x2="1">
+                  <stop offset="0" stopColor="#FFC777" stopOpacity="0" />
+                  <stop offset=".5" stopColor="#FFC777" stopOpacity=".7" />
+                  <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <ellipse cx="548" cy="235.2" rx="473" ry="218" fill="none" stroke="rgba(255,199,119,0.07)" />
+              <ellipse className="dp-li" cx="548" cy="235.2" rx="351" ry="161" fill="none" stroke="url(#dp-g)" strokeWidth="1.4" />
+              <ellipse cx="548" cy="235.2" rx="548" ry="252" fill="none" stroke="rgba(255,199,119,0.05)" strokeDasharray="2 10" />
+              {D_CHIPS.map((c) => (
+                <path key={c.d} className="dp-li" d={c.curve} fill="none" stroke="rgba(255,199,119,.16)" strokeWidth="1.2" strokeDasharray="3 7" />
+              ))}
+            </svg>
+            {D_CHIPS.map((c, i) => {
+              const Icon = DEST_ICON[c.d];
+              return (
+                <span key={c.d} className="dp-chip dp-co" style={{ left: c.x, top: c.y, ["--dx" as string]: `${c.dx}px`, ["--dy" as string]: `${c.dy}px`, animationDelay: `${0.25 + i * 0.06}s` }}>
+                  <Icon size={15} className="text-[#FFC777]" aria-hidden />
+                  {tr(c.label)}
+                </span>
+              );
+            })}
+            <div className="dp-vessel">
+              <Vessel size={430} state="hover" />
+            </div>
+            {EMBERS.map(([x, y, w, h], i) => (
+              <i key={i} aria-hidden className={`dp-emb e${(i % 4) + 1}`} style={{ left: x, top: y, width: w, height: h }} />
+            ))}
+          </div>
+        </div>
+        <div className="dp-d-text">
+          <div className="dp-tin text-center">
+            <h1 className="dp-h1 text-[88px]">{tr("ارموا أي شي")}</h1>
+            <p className="dp-sub">{tr("ونحن نرتبها")}</p>
+          </div>
+          <div className="dp-tin dp-t2 mt-[22px] flex items-center justify-center gap-2.5">
+            <button type="button" className="dp-glass !flex-none !px-5" onClick={() => setView("paste")} disabled={!canWrite}>
+              <ExternalLink size={16} aria-hidden />
+              {tr("رابط")}
+            </button>
+            <button type="button" className="dp-glass !flex-none !px-5" onClick={() => camRef.current?.click()} disabled={!canWrite}>
+              <Camera size={16} aria-hidden />
+              {tr("صوّروا")}
+            </button>
+            <button type="button" className="dp-go" onClick={() => fileRef.current?.click()} disabled={!canWrite}>
+              <Download size={18} aria-hidden />
+              {tr("اختاروا ملف")}
+            </button>
+          </div>
+          <p className="dp-tin dp-t2 dp-hint">
+            {tr("أو اسحبوها لأي مكان")} · <kbd dir="ltr">Ctrl V</kbd>
+          </p>
+          {lastPill && <div className="dp-tin dp-t3 mt-7 flex justify-center">{lastPill}</div>}
         </div>
       </div>
       {toastEl}
     </div>
   );
 }
+
+/* أماكن المسرح (DropPage): نفس الإحداثيات بالمرجع داخل مسرح 1096×560 */
+const D_CHIPS: { d: Destination; label: string; x: number; y: number; dx: number; dy: number; curve: string }[] = [
+  { d: "library", label: "المكتبة", x: 114, y: 104, dx: 223, dy: 64, curve: "M176 128 Q 362 142 548 235" },
+  { d: "tasks", label: "مهام", x: 48, y: 211, dx: 263, dy: 0, curve: "M110 235 Q 329 195 548 235" },
+  { d: "minutes", label: "محضر", x: 114, y: 318, dx: 223, dy: -64, curve: "M176 342 Q 362 249 548 235" },
+  { d: "supervisor_note", label: "المشرفة", x: 858, y: 104, dx: -223, dy: 64, curve: "M920 128 Q 734 142 548 235" },
+  { d: "calendar", label: "التقويم", x: 924, y: 211, dx: -263, dy: 0, curve: "M986 235 Q 767 195 548 235" },
+  { d: "proposal", label: "المقترح", x: 858, y: 318, dx: -223, dy: -64, curve: "M920 342 Q 734 249 548 235" },
+];
+/* الجوال (DropPageM): 4 أماكن على القوس الفوقاني، مسرح 390×420 */
+const M_CHIPS: { d: Destination; label: string; x: number; y: number; dx: number; dy: number; curve: string }[] = [
+  { d: "library", label: "المكتبة", x: 9, y: 66, dx: 74, dy: 52, curve: "M71 90 Q 133 93 195 176" },
+  { d: "tasks", label: "مهام", x: 67, y: -11, dx: 40, dy: 98, curve: "M129 13 Q 162 55 195 176" },
+  { d: "supervisor_note", label: "المشرفة", x: 199, y: -11, dx: -40, dy: 98, curve: "M261 13 Q 228 55 195 176" },
+  { d: "calendar", label: "التقويم", x: 257, y: 66, dx: -74, dy: 52, curve: "M319 90 Q 257 93 195 176" },
+];
+/* 10 جمرات تطلع مرة وحدة من فم الوعاء [x, y, عرض، طول] */
+const EMBERS: [number, number, number, number][] = [
+  [563, 184, 4, 5], [422, 174, 5, 3], [585, 172, 5, 3], [417, 176, 4, 4], [433, 195, 3, 5],
+  [615, 172, 5, 3], [512, 172, 5, 5], [601, 171, 3, 3], [683, 182, 4, 4], [471, 234, 3, 5],
+];
+
+/** «قبل ساعتين» — للشريط الصغير تحت */
+function ago(ts: string): string {
+  const m = Math.max(0, Math.round((Date.now() - Date.parse(ts)) / 60000));
+  if (m < 1) return tr("الحين");
+  if (m < 60) return tr("قبل {0} دقيقة", m);
+  const h = Math.round(m / 60);
+  if (h === 1) return tr("قبل ساعة");
+  if (h === 2) return tr("قبل ساعتين");
+  if (h < 24) return tr("قبل {0} ساعات", h);
+  return formatDateShort(localDay(ts));
+}
+
 
 /** أول الشهر الجاي (YYYY-MM-DD) — متى ترجع القراءات */
 function nextMonthIso(): string {

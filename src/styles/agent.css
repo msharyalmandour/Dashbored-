@@ -179,3 +179,4 @@ html[data-reduce-motion="true"] .ag-streak { transition: none; }
 @media (prefers-reduced-motion: reduce) { .ag-word { animation: none; } .ag-listen-orb, .ag-mic-big { transition: none; } }
 html[data-reduce-motion="true"] .ag-word { animation: none; }
 html[data-reduce-motion="true"] .ag-listen-orb, html[data-reduce-motion="true"] .ag-mic-big { transition: none; }
+.ag-comp textarea:focus, .ag-comp textarea:focus-visible { outline: none !important; box-shadow: none !important; }

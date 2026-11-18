@@ -2,6 +2,8 @@ import { useState } from "react";
 import WLogo from "../components/brand/WLogo";
 import Wesy, { WesyAvatar } from "../components/brand/Wesy";
 import type { WesyOutfit, WesyState } from "../vendor/wesy-real";
+import { wesyMood } from "../lib/wesyMood";
+import { CATCHPHRASE } from "../lib/sound";
 
 /* لوحة الهوية (/#/brand): الشعار وكل حالات ويسي وأزيائه — للمراجعة مقابل brand/wesy-demo.html.
    مو بالقائمة؛ رابط مباشر بس. */
@@ -31,6 +33,7 @@ const OUTFITS: [WesyOutfit, string][] = [
 
 export default function BrandBoard() {
   const [sync, setSync] = useState(0);
+  const now = wesyMood();
   return (
     <main dir="rtl" className="min-h-screen bg-[#080808] px-4 py-10 text-[#E9D3B8] sm:px-10">
       <h1 className="m-0 text-[34px] font-extrabold text-[#F2EBE3]">لوحة الهوية</h1>
@@ -48,6 +51,11 @@ export default function BrandBoard() {
           </figcaption>
         </figure>
         <figure className="m-0 text-center"><WesyAvatar size={56} /><figcaption className="mt-2 text-[13px]">الأفاتار</figcaption></figure>
+        <figure className="m-0 text-center">
+          <Wesy size={120} outfit={now.outfit} state={now.state ?? "idle"} stage={now.stage} />
+          <figcaption className="mt-2 text-[13px]">الحين: {now.outfit}{now.line ? ` · «${now.line}»` : ""}</figcaption>
+        </figure>
+        <p className="m-0 self-center text-[22px] font-extrabold text-[#FFC777]">{CATCHPHRASE}</p>
         <figure className="m-0 text-center"><WesyAvatar size={56} formal /><figcaption className="mt-2 text-[13px]">جهة الدكتورة</figcaption></figure>
       </section>
 

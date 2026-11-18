@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import WLogo from "./brand/WLogo";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, CheckSquare, Compass, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
+import { Check, CheckSquare, Compass, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Smile, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
@@ -13,7 +13,7 @@ import ShareAchievement from "./ShareAchievement";
 import { DOOR_SHARE } from "../lib/achievementCard";
 import { useLandedBadges } from "../lib/landed";
 import { isPathIn, journeySections, morePages, workSections, type NavSection } from "../lib/navSections";
-import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
+import { isSoundEnabled, isSyncSoundOn, setSoundEnabled, setSyncSoundOn } from "../lib/sound";
 import Avatar from "./ui/Avatar";
 import IdeaButton from "./IdeaButton";
 import InstallAppButton from "./InstallAppButton";
@@ -51,6 +51,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
   const [shareDoor, setShareDoor] = useState<DoorId | null>(null);
   const [menu, setMenu] = useState(false);
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
+  const [syncOn, setSyncOn] = useState(isSyncSoundOn);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -220,6 +221,15 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                 <NavLink role="menuitem" to="/start" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Flag size={16} aria-hidden />
                   {tr("بدأتوا قبل؟ جيبوا شغلكم")}
+                </NavLink>
+                <button type="button" role="menuitemcheckbox" aria-checked={syncOn} className="lx-mi" onClick={() => (setSyncSoundOn(!syncOn), setSyncOn(!syncOn))}>
+                  {syncOn ? <Volume2 size={16} aria-hidden /> : <VolumeX size={16} aria-hidden />}
+                  <span className="flex-1">{tr("صوت المزامنة")}</span>
+                  <span className="text-[12px] text-[#ABA095]">{syncOn ? tr("شغّال") : tr("مطفي")}</span>
+                </button>
+                <NavLink role="menuitem" to="/stickers" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
+                  <Smile size={16} aria-hidden />
+                  {tr("ستيكرات ويسي")}
                 </NavLink>
                 <NavLink role="menuitem" to="/guide" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Compass size={16} aria-hidden />

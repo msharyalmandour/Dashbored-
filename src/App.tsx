@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 // لوحة الهوية: تحميل كسول عشان ويسي ما يدخل بالحزمة الأساسية
 const BrandBoard = lazy(() => import("./pages/BrandBoard"));
+const Stickers = lazy(() => import("./pages/Stickers"));
 import MinutesNew from "./pages/MinutesNew";
 import MinutesLive from "./pages/MinutesLive";
 import MinutesDoc from "./pages/MinutesDoc";
@@ -130,6 +131,7 @@ export default function App() {
         <Route path="/start" element={<Start />} />
         <Route path="/explain" element={<Explain />} />
         <Route path="/drive" element={<Drive />} />
+        <Route path="/stickers" element={<Suspense fallback={null}><Stickers /></Suspense>} />
         <Route path="/drive/join" element={<DriveJoin />} />
         <Route path="/drop/share" element={<DropShare />} />
         <Route path="/pricing" element={<Pricing />} />

@@ -1,4 +1,5 @@
 import { tr } from "./i18n";
+import { CATCHPHRASE } from "./sound";
 import { drawBrandLockup } from "./brandCanvas";
 import type { DoorId } from "./doors";
 
@@ -121,9 +122,9 @@ export async function drawAchievement({ title, sub, step }: { title: string; sub
     ctx.fillText(tr("رحلة بحثنا: {0} من {1}", step, 10), W / 2, y + 80);
   }
 
-  ctx.fillStyle = "rgba(242,235,227,0.6)";
-  ctx.font = "500 38px Tajawal, sans-serif";
-  ctx.fillText(tr("بحثكم يخلص بوقته، مو بآخر ليلة"), W / 2, H - 190);
+  ctx.fillStyle = "#FFC777";
+  ctx.font = "700 42px Tajawal, sans-serif";
+  ctx.fillText(tr(CATCHPHRASE), W / 2, H - 190);
   ctx.fillStyle = "#FF9A3C";
   ctx.font = "700 40px Tajawal, sans-serif";
   ctx.direction = "ltr";
@@ -137,7 +138,7 @@ export async function shareOrDownload(blob: Blob, name = "wesync-achievement.png
   const file = new File([blob], name, { type: "image/png", lastModified: Date.now() });
   try {
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file] });
+      await navigator.share({ files: [file], text: `${CATCHPHRASE} wesyncapp.com` });
       return "shared";
     }
   } catch (e) {

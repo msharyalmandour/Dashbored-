@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import WLogo from "../components/brand/WLogo";
+import { syncChime } from "../lib/sound";
 import { Link, Navigate } from "react-router-dom";
 import { GraduationCap, Mail, PartyPopper, Wand2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -34,6 +36,8 @@ const confettiColors = [
 ];
 
 export default function Celebration() {
+  // لحظة التسليم النهائي: صوت المزامنة مع ختم W (يطفى من القائمة)
+  useEffect(() => syncChime(), []);
   const { currentUser } = useAuth();
   const [submittedAt] = useState<string>(() => {
     try {
@@ -81,6 +85,10 @@ export default function Celebration() {
 
           <div className="mt-5 rounded-2xl border border-brand-100 bg-surface-muted p-4 text-start">
             <p className="text-xs font-semibold uppercase tracking-wide text-brand-950/40">{tr("شهادة إنجاز بحث")}</p>
+            <p className="mt-1 flex items-center gap-2 text-[15px] font-extrabold text-[#E39A2E]">
+              <WLogo size={24} tone="ink" state="sync" />
+              {tr("على نفس الموجة لين النهاية")}
+            </p>
             <p className="mt-1 font-display text-lg font-bold text-brand-950">{projectMeta.name}</p>
             <p className="text-xs text-brand-700" dir="ltr">
               {projectMeta.subtitle}

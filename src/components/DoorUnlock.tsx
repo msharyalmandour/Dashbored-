@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { syncChime } from "../lib/sound";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { DOOR_UNLOCKED, type DoorId } from "../lib/doors";
@@ -11,6 +12,8 @@ export default function DoorUnlock({ door, onDone, onGo, onShare }: { door: Door
   useEffect(() => {
     // نبضة خفيفة بالجوال، بس لو المستخدم تفاعل مع الصفحة (وإلا المتصفح يمنعها ويطبع تحذير)
     if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.(10);
+    // صوت المزامنة: لحظة كبيرة (باب انفتح) — يطفى من القائمة
+    syncChime();
     const t = window.setTimeout(onDone, 6000);
     return () => window.clearTimeout(t);
   }, [door, onDone]);

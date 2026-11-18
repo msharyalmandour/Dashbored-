@@ -571,9 +571,14 @@ export default function Team() {
         <div className="mt-4">
           <ReferralCard />
           <SeasonCard />
-          <Link to="/receipts" className="lx-ghost self-start">
-            {tr("سجل الرحلة والإيصالات")}
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/receipts" className="lx-ghost">
+              {tr("سجل الرحلة والإيصالات")}
+            </Link>
+            <Link to="/ambassador" className="lx-ghost">
+              {tr("صيروا سفراء Wesync")}
+            </Link>
+          </div>
         </div>
       )}
       {mode === "mock" && <ActivityLog />}

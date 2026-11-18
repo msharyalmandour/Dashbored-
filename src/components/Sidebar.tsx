@@ -187,6 +187,12 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
               <span className="flex-1">{tr("إدارة الاشتراكات")}</span>
             </NavLink>
           )}
+          {isSuperAdmin && (
+            <NavLink to="/admin/growth" onClick={onClose} className={({ isActive }) => clsx("lx-link", isActive && "on")}>
+              <ShieldCheck size={18} strokeWidth={1.8} aria-hidden />
+              <span className="flex-1">{tr("حلقة النمو")}</span>
+            </NavLink>
+          )}
         </nav>
 
         {doors.fresh.length > 0 && (

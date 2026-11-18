@@ -11,6 +11,7 @@ export const DOOR_SHARE: Partial<Record<DoorId, { title: string; sub: string }>>
   write: { title: tr("أول دراسة بمكتبة بحثنا"), sub: tr("وانفتح لنا المقترح") },
   methodology: { title: tr("كتبنا أول قسم من المقترح"), sub: tr("والمنهجية صارت قدّامنا") },
   supervisor: { title: tr("شغلنا صار جاهز للمشرف/ة"), sub: tr("خطوة خطوة، بوقتنا") },
+  calendar: { title: tr("أول موعد مع الدكتورة"), sub: tr("كل مواعيدنا وملفاتنا بمكان واحد") },
   collect: { title: tr("المنهجية جاهزة"), sub: tr("بدأنا جمع البيانات") },
 };
 

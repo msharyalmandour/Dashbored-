@@ -32,6 +32,8 @@ import Team from "./pages/Team";
 import TeamChat from "./pages/TeamChat";
 import DocGroup from "./pages/DocGroup";
 import Receipts from "./pages/Receipts";
+import Ambassador from "./pages/Ambassador";
+import AdminGrowth from "./pages/AdminGrowth";
 import { useSearchParams as useSP } from "react-router-dom";
 
 /** /chat = «الفريق بس» · /chat?g=doc = «مع الدكتورة» */
@@ -124,6 +126,8 @@ export default function App() {
         <Route path="/team" element={<Team />} />
         <Route path="/chat" element={<ChatRoute />} />
         <Route path="/receipts" element={<Receipts />} />
+        <Route path="/ambassador" element={<Ambassador />} />
+        <Route path="/admin/growth" element={<AdminGrowth />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/collect" element={<Collect />} />

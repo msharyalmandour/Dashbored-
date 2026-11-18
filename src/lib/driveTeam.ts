@@ -122,7 +122,8 @@ export async function startMemberJoin() {
 
 /** نتأكد من صلاحيات المجلد الحين (الدالة تحدّث drive_members وعدد ملفات المجلدات) */
 export async function syncDriveMembers(force = false) {
-  return call<{ ok: boolean }>({ action: "members", force }, 30000);
+  // blocked: اللي Google رفض يضيفهم تلقائي (profile_id أو "supervisor") — القائد يضيفهم من درايف بنفسه
+  return call<{ ok: boolean; blocked?: string[] }>({ action: "members", force }, 30000);
 }
 
 /** القائد يضيف إيميل عضو (أو المشرف/ة) ناقص، ونشارك المجلد معه */

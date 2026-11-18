@@ -32,6 +32,8 @@ interface Person {
   profileId: string | null;
   supervisor: boolean;
   color: string;
+  /** Google رفض يضيفه تلقائي (بالمجلد ملفات انرفعت من درايف مباشرة) — القائد يضيفه بنفسه */
+  blocked: boolean;
 }
 
 export default function Drive() {
@@ -42,7 +44,7 @@ export default function Drive() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [status, setStatus] = useState<DriveStatus | null>(null);
-  const { rows, folders, lastSyncAt, notReady, syncing, sync, reload } = useDriveMembers({ sync: true });
+  const { rows, folders, lastSyncAt, notReady, syncing, blocked, sync, reload } = useDriveMembers({ sync: true });
   const [emailFor, setEmailFor] = useState<Person | null>(null);
   const [emailDraft, setEmailDraft] = useState("");
   const [roleOpen, setRoleOpen] = useState(false);
@@ -81,23 +83,31 @@ export default function Drive() {
             ? row?.invited_at
               ? tr("أرسلنا له الدعوة {0} · ما فتحها", relativeDayLabel(row.invited_at.slice(0, 10)))
               : tr("أرسلنا له الدعوة · ما فتحها")
-            : tr("ما وصلته دعوة · إيميله ناقص");
-      return { key: m.id, name: m.name.split(" ")[0], role, status: st, sub, row, profileId: m.id, supervisor: false, color: AV[i % AV.length] };
+            : blocked.includes(m.id)
+              ? tr("درايف ما سمح نضيفه تلقائي · القائد يضيفه من درايف")
+              : tr("ما وصلته دعوة · إيميله ناقص");
+      return { key: m.id, name: m.name.split(" ")[0], role, status: st, sub, row, profileId: m.id, supervisor: false, color: AV[i % AV.length], blocked: blocked.includes(m.id) && st === "missing_email" };
     });
     const srow = rows?.find((r) => r.kind === "supervisor") ?? null;
+    const supBlocked = blocked.includes("supervisor") && (srow?.status ?? "missing_email") === "missing_email" && !!srow?.email;
     out.push({
       key: "supervisor",
       name: supName,
       role: tr("المشرف/ة"),
       status: srow?.status ?? "missing_email",
-      sub: !srow || srow.status === "missing_email" ? tr("ما وصلتها دعوة · إيميلها ناقص") : srow.role === "writer" ? tr("تعدّل على الملفات") : srow.role === "reader" ? tr("تقرا بس · ما تعلّق") : tr("تشوف بس · ما تعدّل"),
+      sub: supBlocked
+        ? tr("درايف ما سمح نضيفها تلقائي · القائد يضيفها من درايف")
+        : !srow || srow.status === "missing_email"
+          ? tr("ما وصلتها دعوة · إيميلها ناقص") : srow.role === "writer" ? tr("تعدّل على الملفات") : srow.role === "reader" ? tr("تقرا بس · ما تعلّق") : tr("تشوف بس · ما تعدّل"),
       row: srow,
       profileId: null,
       supervisor: true,
       color: "#F2EBE3",
+      blocked: supBlocked,
     });
     return out;
-  }, [roster, rows, status?.connected, supName]);
+  }, [roster, rows, status?.connected, supName, blocked]);
+  const anyBlocked = people.some((p) => p.blocked);
 
   const linked = people.filter((p) => isLinked(p.status)).length;
   const total = people.length;
@@ -130,8 +140,22 @@ export default function Drive() {
     else showToast({ title: tr("ما قدرنا نبدأ الربط"), desc: tr("جرّبوا مرة ثانية."), icon: Folder, tone: "rose" });
   };
 
+  /** الإضافة اليدوية: ننسخ الإيميل ونفتح المجلد — بدرايف: «مشاركة» ← الصقوه */
+  const addByHand = async (p: Person) => {
+    const email = p.row?.google_email || p.row?.email || "";
+    try {
+      if (email) await navigator.clipboard.writeText(email);
+    } catch {
+      /* المتصفح منع النسخ — الإيميل ظاهر بالرسالة */
+    }
+    if (status?.folderLink) window.open(status.folderLink, "_blank", "noopener");
+    showToast({ title: email ? tr("نسخنا الإيميل: {0}", email) : tr("افتحوا المجلد"), desc: tr("بدرايف: «مشاركة» ← الصقوه ← «إرسال». نتأكد بعدها لحالنا."), icon: Folder, tone: "brand" });
+  };
+
   const pill = (p: Person) =>
-    p.status === "connected" ? (
+    p.blocked ? (
+      <span className="dv-pill wait">{tr("يدوي")}</span>
+    ) : p.status === "connected" ? (
       <span className="dv-pill gold">
         <Check size={13} strokeWidth={3} aria-hidden /> {tr("مربوط")}
       </span>
@@ -147,6 +171,12 @@ export default function Drive() {
       <span className="dv-pill">{p.supervisor ? tr("مو مربوطة") : tr("مو مربوط")}</span>
     );
   const action = (p: Person) => {
+    if (p.blocked)
+      return isLeader && status?.folderLink ? (
+        <button type="button" className="dv-cream" onClick={() => void addByHand(p)}>
+          {p.supervisor ? tr("أضيفوها من درايف") : tr("أضيفوه من درايف")}
+        </button>
+      ) : null;
     if (p.supervisor && p.status !== "missing_email")
       return isLeader ? (
         <button type="button" className="dv-link" onClick={() => setRoleOpen(true)}>
@@ -261,6 +291,11 @@ export default function Drive() {
               </li>
             ))}
           </ul>
+          {anyBlocked && (
+            <p className="m-0 mt-3 rounded-[14px] border border-[rgba(255,199,119,.22)] bg-[rgba(255,199,119,.06)] p-3 text-[13px] leading-[1.8] text-[#E9D3B8]">
+              {tr("ليش؟ فيه ملفات انرفعت للمجلد من درايف مباشرة، وGoogle ما يخلّي Wesync يشارك مجلد فيه ملفات ما رفعها هو. أضيفوهم مرة وحدة من درايف، وارفعوا ملفاتكم من Wesync عشان ما تتكرر.")}
+            </p>
+          )}
         </section>
 
         <div className="flex flex-col gap-[18px]">

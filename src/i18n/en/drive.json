@@ -74,5 +74,14 @@
   "كل الفريق مربوط، وكل ملف ينحفظ بالمجلد لحاله.": "The whole team is linked, and every file is saved in the folder automatically.",
   "لين يرتبطون، ملفاتهم ما تنحفظ بالمجلد.": "Until they link, their files aren't saved in the folder.",
   "الدرايف": "Drive",
-  "شوفوا الباقي ({0})": "See the rest ({0})"
+  "شوفوا الباقي ({0})": "See the rest ({0})",
+  "درايف ما سمح نضيفه تلقائي · القائد يضيفه من درايف": "Drive blocked the auto-invite · the leader adds them in Drive",
+  "درايف ما سمح نضيفها تلقائي · القائد يضيفها من درايف": "Drive blocked the auto-invite · the leader adds her in Drive",
+  "نسخنا الإيميل: {0}": "Email copied: {0}",
+  "بدرايف: «مشاركة» ← الصقوه ← «إرسال». نتأكد بعدها لحالنا.": "In Drive: Share → paste it → Send. We will check it automatically after.",
+  "أضيفوها من درايف": "Add her in Drive",
+  "أضيفوه من درايف": "Add in Drive",
+  "ليش؟ فيه ملفات انرفعت للمجلد من درايف مباشرة، وGoogle ما يخلّي Wesync يشارك مجلد فيه ملفات ما رفعها هو. أضيفوهم مرة وحدة من درايف، وارفعوا ملفاتكم من Wesync عشان ما تتكرر.": "Why? Some files were uploaded to the folder directly in Drive, and Google does not let Wesync share a folder holding files it did not upload. Add them once in Drive, and upload through Wesync so it does not happen again.",
+  "{0} يحتاج القائد يضيفه من درايف": "{0} needs the leader to add them in Drive",
+  "يدوي": "Manual"
 }

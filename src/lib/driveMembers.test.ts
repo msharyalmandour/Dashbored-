@@ -36,3 +36,15 @@ describe("driveMembers", () => {
     expect(DEFAULT_FOLDERS.map((f) => f.name.slice(0, 2))).toEqual(["01", "02", "03", "04", "05", "06"]);
   });
 });
+
+describe("missingSentence — blocked by Drive", () => {
+  it("names blocked members separately from missing emails", () => {
+    const s = missingSentence([
+      { name: "سارة", status: "missing_email", blocked: true },
+      { name: "ريان", status: "missing_email" },
+    ]);
+    expect(s).toContain("سارة يحتاج القائد يضيفه من درايف");
+    expect(s).toContain("ريان ناقص إيميله");
+    expect(s).not.toContain("سارة ناقص");
+  });
+});

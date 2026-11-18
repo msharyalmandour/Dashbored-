@@ -116,9 +116,12 @@ async function createFolder(token: string, name: string, parent?: string): Promi
   return { id: j.id, link: j.webViewLink };
 }
 
-async function shareFolder(token: string, folderId: string, emails: string[], role: "writer" | "reader"): Promise<{ ok: number; failed: string[] }> {
+async function shareFolder(token: string, folderId: string, emails: string[], role: "writer" | "reader"): Promise<{ ok: number; failed: string[]; blocked: string[] }> {
   let ok = 0;
   const failed: string[] = [];
+  // blocked: Google رفض لأن بالمجلد ملفات انرفعت من درايف مباشرة (مو من Wesync)، وصلاحية drive.file ما تلمسها.
+  // هذا ما ينحل بالإعادة — القائد يضيفهم من درايف بنفسه (زر «مشاركة»)
+  const blocked: string[] = [];
   for (const emailAddress of emails) {
     const r = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}/permissions?sendNotificationEmail=true&fields=id`, {
       method: "POST",
@@ -128,10 +131,23 @@ async function shareFolder(token: string, folderId: string, emails: string[], ro
     if (r.ok) ok++;
     else {
       failed.push(emailAddress);
-      console.error("share failed", r.status, (await r.text()).slice(0, 200));
+      const text = await r.text();
+      if (/appNotAuthorizedToChildFile|child file/i.test(text)) blocked.push(emailAddress);
+      console.error("share failed", r.status, text.slice(0, 200));
     }
   }
-  return { ok, failed };
+  return { ok, failed, blocked };
+}
+
+/** نتذكر الرفض «الدائم» يوم كامل عشان ما نعيد المحاولة كل ساعة على الفاضي (المفتاح: العضو + الإيميل) */
+const blockKey = (who: string, email: string) => `drive-blocked:${who}:${email.toLowerCase()}`;
+async function recentlyBlocked(teamId: string): Promise<Set<string>> {
+  const { data } = await admin.from("agent_runs").select("action").eq("team_id", teamId).like("action", "drive-blocked:%").gte("created_at", new Date(Date.now() - 864e5).toISOString());
+  return new Set((data ?? []).map((r) => r.action as string));
+}
+/** مين محجوب الحين (profile_id أو "supervisor") — للواجهة */
+function blockedWho(keys: Set<string>, current: Map<string, string>): string[] {
+  return [...current].filter(([who, email]) => keys.has(blockKey(who, email))).map(([who]) => who);
 }
 
 
@@ -196,6 +212,9 @@ async function syncTeam(teamId: string, conn: Record<string, unknown>, token: st
 
   const { data: profiles } = await admin.from("profiles").select("id, name, email, role").eq("team_id", teamId);
   const { data: rows } = await admin.from("drive_members").select("*").eq("team_id", teamId);
+  const blockedKeys = await recentlyBlocked(teamId);
+  /** اللي ناقصين صلاحية الحين: مين ← الإيميل اللي نحاول نضيفه */
+  const current = new Map<string, string>();
   const rowOf = (pid: string | null, kind: string) => (rows ?? []).find((r) => r.kind === kind && (kind === "supervisor" || r.profile_id === pid));
 
   for (const m of profiles ?? []) {
@@ -209,10 +228,16 @@ async function syncTeam(teamId: string, conn: Record<string, unknown>, token: st
     else {
       if (!has(email) && !has(google)) {
         const target = google || email!;
-        const sh = await shareFolder(token, folderId, [target], "writer");
-        if (sh.ok) {
-          invitedAt = now;
-          perms = [...perms, { id: "", emailAddress: target, role: "writer", type: "user" }];
+        current.set(m.id, target);
+        if (!blockedKeys.has(blockKey(m.id, target))) {
+          const sh = await shareFolder(token, folderId, [target], "writer");
+          if (sh.ok) {
+            invitedAt = now;
+            perms = [...perms, { id: "", emailAddress: target, role: "writer", type: "user" }];
+          } else if (sh.blocked.length) {
+            blockedKeys.add(blockKey(m.id, target));
+            await admin.from("agent_runs").insert({ team_id: teamId, profile_id: m.id, action: blockKey(m.id, target) });
+          }
         }
       }
       status = row?.connected_at && (has(google) || has(email)) ? "connected" : has(email) || has(google) ? "invited" : "missing_email";
@@ -232,15 +257,25 @@ async function syncTeam(teamId: string, conn: Record<string, unknown>, token: st
     let status = "missing_email";
     if (email) {
       const p = perms.find((x) => x.emailAddress?.toLowerCase() === email.toLowerCase());
+      let shared = !!p;
       if (!p) {
-        const sh = await shareFolder(token, folderId, [email], role === "writer" ? "writer" : "reader");
-        // reader + تعليق: نرفعها لـ commenter بعد المشاركة
-        if (sh.ok && role === "commenter") {
-          const again = (await listPerms(token, folderId)).find((x) => x.emailAddress?.toLowerCase() === email.toLowerCase());
-          if (again) await setPermRole(token, folderId, again.id, "commenter");
+        current.set("supervisor", email);
+        if (!blockedKeys.has(blockKey("supervisor", email))) {
+          const sh = await shareFolder(token, folderId, [email], role === "writer" ? "writer" : "reader");
+          shared = sh.ok > 0;
+          // reader + تعليق: نرفعها لـ commenter بعد المشاركة
+          if (sh.ok && role === "commenter") {
+            const again = (await listPerms(token, folderId)).find((x) => x.emailAddress?.toLowerCase() === email.toLowerCase());
+            if (again) await setPermRole(token, folderId, again.id, "commenter");
+          }
+          if (sh.blocked.length) {
+            blockedKeys.add(blockKey("supervisor", email));
+            await admin.from("agent_runs").insert({ team_id: teamId, profile_id: null, action: blockKey("supervisor", email) });
+          }
         }
       } else if (p.role !== role && p.role !== "owner") await setPermRole(token, folderId, p.id, role);
-      status = role === "writer" ? "connected" : "view_only";
+      // قبل: كانت تنكتب «تشوف بس» حتى لو المشاركة فشلت
+      status = shared ? (role === "writer" ? "connected" : "view_only") : "missing_email";
     }
     const patch = { team_id: teamId, profile_id: null, kind: "supervisor", email, status, role, last_sync_at: now, updated_at: now };
     if (srow) await admin.from("drive_members").update(patch).eq("id", srow.id);
@@ -250,7 +285,18 @@ async function syncTeam(teamId: string, conn: Record<string, unknown>, token: st
   const folders = [];
   for (const [key, name] of SUBFOLDERS) folders.push({ key, name, count: subs[key] ? await countIn(token, subs[key]) : 0 });
   await admin.from("drive_connections").update({ last_sync_at: now, folder_counts: folders }).eq("research_project_id", conn.research_project_id as string);
-  return { folders, syncedAt: now };
+  return { folders, syncedAt: now, blocked: blockedWho(blockedKeys, current) };
+}
+
+/** بدون مزامنة: مين محجوب حسب آخر 24 ساعة (العضو اللي صار عنده صلاحية ينشال من القائمة) */
+async function blockedNow(teamId: string): Promise<string[]> {
+  const keys = await recentlyBlocked(teamId);
+  if (!keys.size) return [];
+  const { data: rows } = await admin.from("drive_members").select("profile_id, kind, status").eq("team_id", teamId);
+  const who = new Set([...keys].map((k) => k.split(":")[1]));
+  return (rows ?? [])
+    .filter((r) => r.status === "missing_email" && who.has(r.kind === "supervisor" ? "supervisor" : String(r.profile_id)))
+    .map((r) => (r.kind === "supervisor" ? "supervisor" : String(r.profile_id)));
 }
 
 // ---------- الفريق/المستخدم ----------
@@ -519,9 +565,10 @@ Deno.serve(async (req: Request) => {
     if (body.force || Date.now() - last > 60 * 1000) {
       const a = await accessFor();
       if (!a.token) return json(409, { error: "reconnect_required" });
-      await syncTeam(ctx.profile.team_id, conn, a.token);
+      const r = await syncTeam(ctx.profile.team_id, conn, a.token);
+      return json(200, { ok: true, blocked: r.blocked });
     }
-    return json(200, { ok: true });
+    return json(200, { ok: true, blocked: await blockedNow(ctx.profile.team_id) });
   }
 
   if (action === "set_email") {

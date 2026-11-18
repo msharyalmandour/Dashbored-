@@ -37,11 +37,13 @@ export const DEFAULT_FOLDERS: DriveFolder[] = [
 export const isLinked = (s: DriveMemberStatus) => s === "connected" || s === "view_only";
 
 /** «خالد ما فتح الدعوة، وأحمد ناقص إيميله» — يسمّي مين ناقص وليش */
-export function missingSentence(people: { name: string; status: DriveMemberStatus }[]): string {
+export function missingSentence(people: { name: string; status: DriveMemberStatus; blocked?: boolean }[]): string {
   const invited = people.filter((p) => p.status === "invited").map((p) => p.name);
-  const noEmail = people.filter((p) => p.status === "missing_email").map((p) => p.name);
+  const blocked = people.filter((p) => p.blocked && !isLinked(p.status) && p.status !== "invited").map((p) => p.name);
+  const noEmail = people.filter((p) => p.status === "missing_email" && !p.blocked).map((p) => p.name);
   const parts: string[] = [];
   if (invited.length) parts.push(tr("{0} ما فتح الدعوة", joinNames(invited)));
+  if (blocked.length) parts.push(tr("{0} يحتاج القائد يضيفه من درايف", joinNames(blocked)));
   if (noEmail.length) parts.push(tr("{0} ناقص إيميله", joinNames(noEmail)));
   if (!parts.length) return tr("كل الفريق مربوط، وكل ملف ينحفظ بالمجلد لحاله.");
   return `${parts.join(tr("، و"))}. ${tr("لين يرتبطون، ملفاتهم ما تنحفظ بالمجلد.")}`;
@@ -58,6 +60,8 @@ export function useDriveMembers(opts: { sync?: boolean } = {}) {
   /** الجدول لسه ما انضاف بالقاعدة (قبل تشغيل الإضافة) */
   const [notReady, setNotReady] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  /** اللي Google رفض يضيفهم تلقائي (profile_id أو "supervisor") */
+  const [blocked, setBlocked] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     if (!isSupabaseConfigured) return;
@@ -78,7 +82,8 @@ export function useDriveMembers(opts: { sync?: boolean } = {}) {
   const sync = useCallback(
     async (force = false) => {
       setSyncing(true);
-      await syncDriveMembers(force);
+      const r = await syncDriveMembers(force);
+      if (r.data) setBlocked(r.data.blocked ?? []);
       setSyncing(false);
       await load();
     },
@@ -90,5 +95,5 @@ export function useDriveMembers(opts: { sync?: boolean } = {}) {
     if (opts.sync) void sync();
   }, [load, sync, opts.sync]);
 
-  return { rows, folders, lastSyncAt, notReady, syncing, reload: load, sync };
+  return { rows, folders, lastSyncAt, notReady, syncing, blocked, reload: load, sync };
 }

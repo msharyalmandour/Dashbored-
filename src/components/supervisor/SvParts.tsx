@@ -278,7 +278,7 @@ interface WindowRow { key: number; weekday: number; start: string; end: string }
 let winKey = 0;
 
 /** الخطوات الثلاث (الاسم، إيميل التنبيهات، الأوقات) ومعها «أوقاتي وتفضيلاتي» كاملة — كلها داخل نفس الـ sheet */
-/** «كل شي أول بأول» أو «ملخص الأحد بس» */
+/** «كل شي أول بأول» أو «ملخص الخميس بس» */
 function DigestChoice({ token }: { token: string }) {
   const [mode, setMode] = useState<DigestMode | null>(null);
   const [saving, setSaving] = useState(false);
@@ -305,7 +305,7 @@ function DigestChoice({ token }: { token: string }) {
         {(
           [
             ["instant", tr("أول بأول"), tr("مع كل محضر أو سؤال أو موعد")],
-            ["weekly", tr("ملخص الأحد بس"), tr("إيميل واحد مرتب كل أسبوع")],
+            ["weekly", tr("ملخص الخميس بس"), tr("إيميل واحد مرتب كل أسبوع")],
           ] as const
         ).map(([k, t, d]) => (
           <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-[#F2EBE3] text-[#160904]" : "bg-white/[.04] text-[#F2EBE3] shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>

@@ -405,8 +405,12 @@ export default function GlobalDrop() {
         <div className="hd-m" role="dialog" aria-modal="true" aria-label={tr("لقينا {0} أشياء", nAll)}>
           <MTop label={sourceLabel(drop?.source)} onClose={close} />
           <div className="hd-m-body">
-            <div className="hd-tin pb-4 pt-6 text-center">
-              <h1 className="hd-h1 text-[32px]">{tr("لقينا {0} أشياء", nAll)}</h1>
+            <div className="hd-tin pb-4 pt-2 text-center">
+              {/* HeroRevealM: الوعاء صغير فوق العنوان */}
+              <div className="mx-auto flex justify-center">
+                <Vessel size={200} state="hover" />
+              </div>
+              <h1 className="hd-h1 mt-1 text-[32px]">{tr("لقينا {0} أشياء", nAll)}</h1>
               <p className="hd-sub m-0 mt-1 text-[14px]">{tr("شوفوا وين بتنحط قبل لا نحطها")}</p>
             </div>
             <div className="flex flex-col gap-3">{cards}</div>

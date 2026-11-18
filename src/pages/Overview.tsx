@@ -1,6 +1,6 @@
 import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
 import { MeetLiveStrip } from "../components/meet/MeetLive";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { AlertTriangle, PartyPopper } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import NotificationsBell from "../components/NotificationsBell";
@@ -246,10 +246,10 @@ export default function Overview() {
         </ErrorBoundary>
       )}
 
-      {/* ── ثلاث أعمدة، كل عمود سؤال واحد: وش علينا اليوم؟ · وين وصلنا؟ · الفريق ── */}
-      <div className="relative mb-4 grid grid-cols-1 items-start gap-2.5 lg:gap-[18px] xl:grid-cols-3">
-        {/* ١) اليوم */}
-        <div className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]">
+      {/* ── ثلاث أعمدة، كل عمود سؤال واحد: وش علينا اليوم؟ · وين وصلنا؟ · وش الجاي بالتقويم؟
+          كل عمود له عنوان صغير بنفس المكان، وآخر بطاقة فيه تمتد لين تتساوى نهايات الأعمدة ── */}
+      <div className="relative mb-4 grid grid-cols-1 gap-2.5 lg:gap-[18px] xl:grid-cols-3 xl:items-stretch">
+        <HomeColumn label={tr("اليوم")}>
           {mode === "supabase" && (
             <ErrorBoundary>
               <FirstWeekCard style={rise(1)} />
@@ -269,33 +269,37 @@ export default function Overview() {
               onAdd={addTodayTask}
             />
           </ErrorBoundary>
-          <ErrorBoundary>
-            <ReviewCard items={review} limit={2} />
-          </ErrorBoundary>
-        </div>
+          <Stretch>
+            <ErrorBoundary>
+              <ReviewCard items={review} limit={2} />
+            </ErrorBoundary>
+          </Stretch>
+        </HomeColumn>
 
-        {/* ٢) وين وصلنا + المواعيد */}
-        <div className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]">
+        <HomeColumn label={tr("وين وصلنا")}>
           <ErrorBoundary>
             <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
           </ErrorBoundary>
           <ErrorBoundary>
             <DeadlineCard className="flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
           </ErrorBoundary>
-          <ErrorBoundary>
-            <WeekLuxCard today={todayIso} now={now} style={rise(6)} />
-          </ErrorBoundary>
-        </div>
+          <Stretch>
+            <ErrorBoundary>
+              <TeamMini tasks={tasks} today={todayIso} style={rise(4)} />
+            </ErrorBoundary>
+          </Stretch>
+        </HomeColumn>
 
-        {/* ٣) الفريق */}
-        <div className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]">
+        <HomeColumn label={tr("المواعيد")}>
           <ErrorBoundary>
-            <MeetLuxCard now={now} style={rise(4)} />
+            <MeetLuxCard now={now} style={rise(5)} />
           </ErrorBoundary>
-          <ErrorBoundary>
-            <TeamMini tasks={tasks} today={todayIso} style={rise(5)} />
-          </ErrorBoundary>
-        </div>
+          <Stretch>
+            <ErrorBoundary>
+              <WeekLuxCard today={todayIso} now={now} style={rise(6)} />
+            </ErrorBoundary>
+          </Stretch>
+        </HomeColumn>
       </div>
 
       {mode !== "supabase" && <p className="v3-mut relative mt-3 text-center text-xs">{tr("عرض تجريبي — التاريخ مثبّت على {0}", formatDateLong(todayIso))}</p>}
@@ -341,4 +345,23 @@ function MeetLiveStripHome() {
       <MeetLiveStrip />
     </div>
   );
+}
+
+/** عمود من أعمدة الرئيسية الثلاثة: عنوان صغير ثابت فوق، والبطاقات تحته بنفس المسافة */
+function HomeColumn({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]" aria-label={label}>
+      <h2 className="lux-eye m-0 flex items-center gap-2.5 px-1 pt-1 !text-[15px]">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF8A24]" aria-hidden />
+        {label}
+        <span className="h-px flex-1 bg-gradient-to-l from-white/15 to-transparent" aria-hidden />
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+/** آخر بطاقة بالعمود تمتد لين نهاية الصف — عشان الأعمدة تخلص على خط واحد */
+function Stretch({ children }: { children: ReactNode }) {
+  return <div className="flex min-h-0 flex-col xl:flex-1 xl:[&>*]:flex-1">{children}</div>;
 }

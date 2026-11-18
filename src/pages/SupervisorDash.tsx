@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import WLogo from "../components/brand/WLogo";
 import { avatarLetter } from "../lib/avatarLetter";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Award, BarChart3, Bell, CalendarDays, FileText, HelpCircle, Hourglass as HourglassIcon, Home, Languages, Link2, MessageCircle, Radar as RadarIcon, Send, Settings, Users, X } from "lucide-react";
-import { publicBase } from "../lib/publicUrl";
+import { Award, BarChart3, Bell, CalendarDays, FileText, HelpCircle, Hourglass as HourglassIcon, Home, Languages, Link2, MessageCircle, Radar as RadarIcon, Settings, Users, X } from "lucide-react";
+import { publicBase, publicOrigin } from "../lib/publicUrl";
+import { supabase } from "../lib/supabaseClient";
+import Wesy from "../components/brand/Wesy";
 import { isEn, setLang, tr } from "../lib/i18n";
 import { formatDateShort } from "../lib/date";
 import { forgetTeam, loadTeams, rememberTeam } from "../lib/supervisorLocal";
@@ -56,6 +58,8 @@ export default function SupervisorDash() {
   const [sheet, setSheet] = useState<null | "away" | { deadlines: string }>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [link, setLink] = useState("");
+  const [docCode, setDocCode] = useState<string | null>(null);
+  const [docJoined, setDocJoined] = useState(0);
   const today = teams.find((t) => t.dash)?.dash?.today ?? todayISO();
 
   const reload = useCallback(async () => {
@@ -83,6 +87,13 @@ export default function SupervisorDash() {
   }, [view, teams]);
 
   const ok = teams.filter((t) => t.state === "ok");
+  const firstToken = ok[0]?.token ?? "";
+  // كود الدكتورة (/j/:code) من رمز أول فريق — قبل ملف SQL يرجع خطأ ونستخدم رابط المصدر العادي
+  useEffect(() => {
+    if (!firstToken || !supabase) return;
+    void supabase.rpc("supervisor_code", { p_token: firstToken }).then(({ data, error }) => !error && typeof data === "string" && setDocCode(data));
+    void supabase.rpc("doc_code_stats", { p_token: firstToken }).then(({ data, error }) => !error && data && setDocJoined(Number((data as { joined?: number }).joined ?? 0)));
+  }, [firstToken]);
   const waits = useMemo(() => waitingItems(ok), [ok]);
   const away = ok.find((t) => t.dash?.away)?.dash?.away ?? null;
   const go = (v: View) => setParams(v === "home" ? {} : { v });
@@ -376,36 +387,46 @@ export default function SupervisorDash() {
   const ledgerBlock = <Ledger rows={ledger} docName={dn || tr("المشرف/ة")} viewer="supervisor" />;
 
   // الدكتورة هي أقوى قناة: فرقها الثانية تثق فيها (فكرة Kahoot — docs/GROWTH_RESEARCH.md)
-  const inviteMsg = tr("مرحبًا يا فريق 👋 أبيكم تتابعون بحثكم على Wesync: أشوف تقدّمكم أول بأول، وأعتمد المحاضر وأرد على أسئلتكم بضغطة. سجّلوا من هنا وأرسلوا لي رابط المشرفة:\n{0}", `${publicBase()}?ref=supervisor`);
+  const inviteLink = docCode ? `${publicOrigin()}/j/${docCode}` : `${publicBase()}?ref=supervisor`;
+  const inviteMsg = tr("هلا 👋 أتابع بحوث التخرج على Wesync، وأرد عليكم من هناك أسرع. سجّلوا فريقكم من الرابط، وتطلعون عندي مباشرة: {0}", inviteLink);
+  // SupInvite / CeoSupInvite: ويسي الرسمي (ما يغمز ولا يضحك) + «أرسلوها واتساب» (برتقالي) + «انسخوا الرابط» (زجاج)
   const inviteBlock = (
-    <section className="sd-glass sd-in" aria-labelledby="sd-inv-h" style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-      <span className="sup-ic" aria-hidden>
-        <Send size={16} />
-      </span>
-      <div style={{ flex: 1, minWidth: 200, lineHeight: 1.4 }}>
-        <b id="sd-inv-h" style={{ fontSize: 16 }}>
+    <section className="si-card sd-in" aria-labelledby="sd-inv-h">
+      <div className="si-wesy" aria-hidden>
+        <Wesy formal state="idle" size={132} shadow={false} />
+        <span className="si-plaque">{tr("ويسي · مساعد {0}", dn || tr("المشرف/ة"))}</span>
+      </div>
+      <div style={{ flex: 1, minWidth: 220, lineHeight: 1.45 }}>
+        <b id="sd-inv-h" style={{ fontSize: 20 }}>
           {tr("عندكم فرق ثانية؟")}
         </b>
-        <div style={{ fontSize: 13, color: "#ABA095" }}>{tr("أرسلوا لهم Wesync، وتصير كل فرقكم بلوحة وحدة.")}</div>
+        <p style={{ margin: "4px 0 0", fontSize: 14, color: "#E9D3B8" }}>{tr("أرسلوا لهم رابطكم، وكل فريق يسجّل منه يطلع عندكم بلوحة وحدة.")}</p>
+        <p className="si-msg" dir="auto">
+          {inviteMsg}
+        </p>
+        {docJoined > 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#FFC777", fontWeight: 800 }}>{docJoined === 1 ? tr("فريق سجّل من رابطكم ✓") : tr("{0} فرق سجّلت من رابطكم ✓", docJoined)}</p>}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+          <a className="dc-send" style={{ textDecoration: "none" }} href={`https://wa.me/?text=${encodeURIComponent(inviteMsg)}`} target="_blank" rel="noreferrer">
+            <MessageCircle size={16} aria-hidden />
+            {tr("أرسلوها واتساب")}
+          </a>
+          <button
+            type="button"
+            className="dh-glass"
+            style={{ padding: "0 18px" }}
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(inviteLink);
+                setToast(tr("انسخ الرابط ✓"));
+              } catch {
+                setToast(tr("ما قدرنا ننسخ — استخدموا زر الواتساب"));
+              }
+            }}
+          >
+            {tr("انسخوا الرابط")}
+          </button>
+        </div>
       </div>
-      <a className="sup-btn-cream" style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 8, padding: "0 18px", minHeight: 44 }} href={`https://wa.me/?text=${encodeURIComponent(inviteMsg)}`} target="_blank" rel="noreferrer">
-        <MessageCircle size={16} aria-hidden />
-        {tr("أرسلوها واتساب")}
-      </a>
-      <button
-        type="button"
-        className="sd-open"
-        onClick={async () => {
-          try {
-            await navigator.clipboard.writeText(inviteMsg);
-            setToast(tr("انسخت الرسالة ✓"));
-          } catch {
-            setToast(tr("ما قدرنا ننسخ — استخدموا زر الواتساب"));
-          }
-        }}
-      >
-        {tr("انسخوا الرسالة")}
-      </button>
     </section>
   );
 
@@ -605,6 +626,7 @@ export default function SupervisorDash() {
               <DocDay slots={slots.map((x) => ({ id: x.id, time: x.time, durationMin: x.durationMin, team: x.team }))} nowMin={nowMin} onAll={() => go("meetings")} />
               {rows.length === 0 && teams.every((t) => t.state !== "loading") ? teamsBlock(false) : <DocTeams teams={ok} waits={waits} onChat={(t) => setParams({ v: "chat", team: t.token })} onOpen={(t) => openTeam(t.token)} />}
               {teams.some((t) => t.state === "loading") && rows.length === 0 && teamsBlock(false)}
+              {ok.length > 0 && inviteBlock}
             </>
           )}
           {!teamToken && view === "chat" && <DocChatView teams={ok} name={dn} initial={params.get("team") ?? ""} onOpenTeam={(tk) => openTeam(tk)} />}

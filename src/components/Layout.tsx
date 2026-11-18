@@ -28,6 +28,8 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import StudToast from "./notify/StudToast";
+import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
+import { supabase } from "../lib/supabaseClient";
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -87,6 +89,16 @@ export default function Layout() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   // «قلّل الحركة» و«وضع الورقة»: الجهاز فورًا، وبعدها الحساب يغلب لو المستخدم اختار من جهاز ثاني
   const userId = currentUser?.id;
+  // بعد التسجيل: نربط الفريق بكود الدكتورة (/j/:code) أو كود السفير (?ref=MSHARY-KAU) — مرة وحدة
+  useEffect(() => {
+    if (mode !== "supabase" || !team?.id || !supabase) return;
+    const doc = storedDocCode();
+    if (doc) void supabase.rpc("join_doc_code", { p_code: doc }).then(() => clearDocCode(), () => undefined);
+    const ref = storedSignupRef();
+    const code = parseRef(ref).code;
+    if (code && code.includes("-")) void supabase.rpc("claim_referral", { p_code: code }).then(() => clearSignupRef(), () => undefined);
+  }, [mode, team?.id]);
+
   useEffect(() => {
     if (!userId) return;
     applyReduceMotion(getReduceMotion(userId));

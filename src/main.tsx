@@ -15,10 +15,12 @@ import "./index.css";
 import { loadDictionary } from "./lib/i18n";
 import { syncCanonicalLink } from "./lib/publicUrl";
 import { applyReduceMotion, getReduceMotion } from "./lib/motionPref";
-import { captureSignupRef } from "./lib/signupSource";
+import { captureDocCode, captureSignupRef } from "./lib/signupSource";
 
 syncCanonicalLink();
 captureSignupRef();
+// wesyncapp.com/j/<كود الدكتورة> → التسجيل (HashRouter)
+if (captureDocCode()) window.history.replaceState(null, "", "/#/login?mode=signup&ref=supervisor");
 applyReduceMotion(getReduceMotion());
 
 // نحمّل قاموس اللغة أول، وبعدها التطبيق: النصوص (حتى الثابتة على مستوى الملفات) تنحسب باللغة الصحيحة

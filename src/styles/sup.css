@@ -560,3 +560,10 @@ html[data-reduce-motion="true"] .mt-chat { animation: none; }
 .cal-acts .dc-send { justify-content: center; }
 .cal-due-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 0; border: 0; border-top: 1px solid rgba(255,255,255,.07); background: none; color: inherit; font: inherit; text-align: start; cursor: pointer; }
 .cal-due-row .d { font-size: 13px; color: #FFC777; flex: none; min-width: 64px; }
+
+/* ───────── «عندكم فرق ثانية؟» (SupInvite) ───────── */
+.si-card { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; border-radius: 28px; padding: 18px 22px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,199,119,.2), 0 30px 70px rgba(0,0,0,.45); }
+.si-wesy { position: relative; width: 150px; flex: none; display: flex; flex-direction: column; align-items: center; }
+.si-plaque { margin-top: -10px; padding: 5px 12px; border-radius: 10px; background: linear-gradient(180deg, #FFE2A8, #E9B05A); color: #2A1404; font-size: 11px; font-weight: 800; white-space: nowrap; box-shadow: 0 6px 16px rgba(0,0,0,.35); position: relative; }
+.si-msg { margin: 10px 0 0; padding: 10px 14px; border-radius: 16px; background: rgba(0,0,0,.28); font-size: 13px; color: #E9D3B8; overflow-wrap: anywhere; }
+@media (max-width: 640px) { .si-wesy { width: 100%; } }

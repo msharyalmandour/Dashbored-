@@ -4,7 +4,7 @@
 //  confirm / unsubscribe : برمز التأكيد اللي بالإيميل نفسه
 //  notify     : عضو فريق مسجّل دخول (JWT) — يرسل إشعار «رد جديد» للمشرفة المؤكَّدة فقط، بحد زمني
 //  set_digest : برمز رابط المشرفة — تختار «فوري» أو «ملخص أسبوعي بس»
-//  weekly     : (من pg_cron بسر الجدولة) ملخص الأحد: وش ينتظرها بأزرار، وش خلّص الفريق، والجاي
+//  weekly     : (من pg_cron بسر الجدولة) ملخص الخميس 16:00 الرياض: تقدّم الفريق بالنسبة وتغيّره هالأسبوع، وش ينتظرها بأزرار، والجاي
 //  receipt    : (من القاعدة بسر الجدولة لما يخلص طلبها) إيصال إنجاز «طلبك خلص ✓» — مرة وحدة لكل طلب
 //  receipt_file : برمز رابطها — رابط مؤقت لملف الإثبات
 // الإرسال عبر Resend. أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (مثل «Wesync <noreply@نطاقكم>»)، وSITE_URL اختياري.
@@ -506,6 +506,12 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
         proj ? admin.from("evidence_papers").select("title").eq("research_project_id", proj.id).gte("created_at", weekAgo).limit(20) : Promise.resolve({ data: [] }),
         admin.from("supervisor_messages").select("id").eq("team_id", sub.team_id).eq("sender", "team").is("read_at", null),
       ]);
+      // التقدّم: المهام اللي خلصت من كل المهام، وكم زاد هالأسبوع
+      const { count: allTasks } = await admin.from("tasks").select("id", { count: "exact", head: true }).eq("team_id", sub.team_id);
+      const { count: doneTasks } = await admin.from("tasks").select("id", { count: "exact", head: true }).eq("team_id", sub.team_id).eq("status", "done");
+      const totalN = allTasks ?? 0;
+      const pct = totalN ? Math.round(((doneTasks ?? 0) / totalN) * 100) : 0;
+      const deltaPct = totalN ? Math.round(((done.data ?? []).length / totalN) * 100) : 0;
       const waiting: string[] = [];
       for (const a of apprs.data ?? []) waiting.push(`<li style="margin:0 0 8px">محضر اجتماع بانتظار اعتمادكم — <a href="${esc(`${base}?open=minutes:${a.minutes_id}`)}" style="color:#FFC777;font-weight:700">افتحوه واعتمدوه</a></li>`);
       for (const d of decs.data ?? []) waiting.push(`<li style="margin:0 0 8px">${esc(d.question)} — <a href="${esc(`${base}?open=decision:${d.id}`)}" style="color:#FFC777;font-weight:700">جاوبوا بضغطة</a></li>`);
@@ -518,7 +524,7 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
       const box = (h: string, inner: string) => `<p style="margin:18px 0 6px;font-size:13px;font-weight:800;color:#FFC777">${h}</p><div style="${EMAIL_BOX}">${inner}</div>`;
       const inner = [
         waiting.length ? box("ينتظركم", `<ul style="margin:0;padding:0 18px 0 0">${waiting.join("")}</ul>`) : `<p>ما فيه شي ينتظركم هالأسبوع ✓</p>`,
-        box("هالأسبوع", `<p style="margin:0">خلّص الفريق <b>${doneN}</b> مهمة${papersN ? ` وأضاف <b>${papersN}</b> دراسة` : ""}.</p>${doneN ? `<p style="margin:6px 0 0;font-size:13px;color:#ABA095">${(done.data ?? []).slice(0, 5).map((t: { title: string }) => esc(t.title)).join(" · ")}</p>` : ""}`),
+        box("هالأسبوع", `<p style="margin:0 0 6px;font-size:22px;font-weight:800;color:#F2EBE3">${pct}% <span style="font-size:14px;color:${deltaPct ? "#FFC777" : "#ABA095"}">${deltaPct ? `+${deltaPct}% هالأسبوع` : "بدون تغيير هالأسبوع"}</span></p><p style="margin:0">خلّص الفريق <b>${doneN}</b> مهمة${papersN ? ` وأضاف <b>${papersN}</b> دراسة` : ""}.</p>${doneN ? `<p style="margin:6px 0 0;font-size:13px;color:#ABA095">${(done.data ?? []).slice(0, 5).map((t: { title: string }) => esc(t.title)).join(" · ")}</p>` : ""}`),
         (due.data ?? []).length ? box("الجاي", `<p style="margin:0;font-size:14px">${(due.data ?? []).map((t: { title: string; due_date: string }) => `${esc(t.title)} <span style="color:#ABA095">(${esc(t.due_date)})</span>`).join("<br>")}</p>`) : "",
       ].join("");
       const title = `ملخص الأسبوع — فريق «${team.name}»`;
@@ -526,8 +532,8 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
       const r = await sendEmail(
         sub.email,
         title,
-        layout(title, inner, base, "افتحوا صفحة الفريق", `ملخص كل أحد. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإيميلات</a>`),
-        `${title}\n\nينتظركم: ${waiting.length}\nخلّص الفريق ${doneN} مهمة.\n\n${base}\n\nإيقاف: ${unsub}`,
+        layout(title, inner, base, "افتحوا صفحة الفريق", `ملخص كل خميس. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإيميلات</a>`),
+        `${title}\n\nالتقدّم: ${pct}% (+${deltaPct}% هالأسبوع)\nينتظركم: ${waiting.length}\nخلّص الفريق ${doneN} مهمة.\n\n${base}\n\nإيقاف: ${unsub}`,
       );
       if (r.ok) sent++;
       else await admin.from("reminder_log").delete().eq("kind", "sup-weekly").eq("ref_id", sub.team_id).eq("recipient", today);

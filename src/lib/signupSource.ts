@@ -13,6 +13,8 @@ export function parseRef(raw: string | null | undefined): { code?: string; sourc
   const low = v.toLowerCase();
   if (SOURCE_WORDS.has(low)) return { source: low };
   if (/^[A-Za-z0-9]{4,12}$/.test(v)) return { code: v.toUpperCase() };
+  // كود سفير/مؤثر (MSHARY-KAU)
+  if (/^[A-Za-z0-9]{2,12}(-[A-Za-z0-9]{1,10})+$/.test(v)) return { code: v.toUpperCase() };
   return {};
 }
 
@@ -46,5 +48,36 @@ export function clearSignupRef(): void {
     localStorage.removeItem(KEY);
   } catch {
     /* لا شي */
+  }
+}
+
+/* رابط الدكتورة wesyncapp.com/j/<كودها>: نحفظ الكود ونودّيهم للتسجيل كمصدر «supervisor»،
+   وبعد ما ينشأ الفريق نربطه بكودها (join_doc_code) عشان ينحسب لها وتشوفه. */
+const DOC_KEY = "wesync.docCode";
+export function captureDocCode(loc: Pick<Location, "pathname"> = window.location): boolean {
+  const m = loc.pathname.match(/^\/j\/([A-Za-z0-9]{6,10})\/?$/);
+  if (!m) return false;
+  try {
+    localStorage.setItem(DOC_KEY, JSON.stringify({ code: m[1].toUpperCase(), at: Date.now() }));
+    localStorage.setItem(KEY, JSON.stringify({ ref: "supervisor", at: Date.now() }));
+  } catch {
+    /* تخزين ممنوع */
+  }
+  return true;
+}
+export function storedDocCode(now = Date.now()): string | null {
+  try {
+    const v = JSON.parse(localStorage.getItem(DOC_KEY) ?? "null") as { code?: string; at?: number } | null;
+    if (!v?.code || !v.at || now - v.at > TTL) return null;
+    return v.code;
+  } catch {
+    return null;
+  }
+}
+export function clearDocCode(): void {
+  try {
+    localStorage.removeItem(DOC_KEY);
+  } catch {
+    /* ما يهم */
   }
 }

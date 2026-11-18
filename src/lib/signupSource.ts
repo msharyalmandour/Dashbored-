@@ -19,9 +19,11 @@ export function parseRef(raw: string | null | undefined): { code?: string; sourc
 /** ينادى مرة بأول فتح: يقرا ref من العنوان (قبل # أو بعدها) ويحفظه */
 export function captureSignupRef(loc: Pick<Location, "search" | "hash"> = window.location): void {
   try {
-    const fromSearch = new URLSearchParams(loc.search).get("ref");
+    // ?ref=CODE (دعوة) أو ?r=CODE (بطاقة الإنجاز — حلقة النمو)
+    const sp = new URLSearchParams(loc.search);
     const hashQuery = loc.hash.includes("?") ? loc.hash.slice(loc.hash.indexOf("?")) : "";
-    const ref = fromSearch ?? new URLSearchParams(hashQuery).get("ref");
+    const hp = new URLSearchParams(hashQuery);
+    const ref = sp.get("ref") ?? sp.get("r") ?? hp.get("ref") ?? hp.get("r");
     if (!ref || (!parseRef(ref).code && !parseRef(ref).source)) return;
     localStorage.setItem(KEY, JSON.stringify({ ref, at: Date.now() }));
   } catch {

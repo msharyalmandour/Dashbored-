@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Download, Share2, X } from "lucide-react";
 import { drawAchievement, shareOrDownload } from "../lib/achievementCard";
 import { tr } from "../lib/i18n";
+import { useAuth } from "../context/AuthContext";
 
 /** نافذة بطاقة الإنجاز: معاينة الصورة + «شاركوها» (قائمة المشاركة بالجوال: ستوري/واتساب) أو «حمّلوها».
     الصورة تنرسم أول ما تنفتح النافذة: سفاري يرفض المشاركة لو سبقها انتظار داخل نفس الضغطة. */
@@ -10,11 +11,13 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
   const [blob, setBlob] = useState<Blob | null>(null);
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
+  const { team } = useAuth();
+  const refCode = team?.referralCode ?? null;
 
   useEffect(() => {
     let alive = true;
     let made = "";
-    void drawAchievement({ title, sub, step }).then((b) => {
+    void drawAchievement({ title, sub, step, refCode }).then((b) => {
       if (!alive || !b) return;
       made = URL.createObjectURL(b);
       setBlob(b);
@@ -24,7 +27,7 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
       alive = false;
       if (made) URL.revokeObjectURL(made);
     };
-  }, [title, sub, step]);
+  }, [title, sub, step, refCode]);
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -34,7 +37,7 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
 
   const act = async () => {
     if (!blob) return;
-    const r = await shareOrDownload(blob);
+    const r = await shareOrDownload(blob, undefined, refCode);
     if (r === "downloaded") setNote(tr("نزلت الصورة — حطّوها بالستوري ✨"));
     if (r === "shared") onClose();
   };

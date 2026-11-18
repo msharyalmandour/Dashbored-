@@ -2,6 +2,7 @@ import { tr } from "./i18n";
 import { CATCHPHRASE } from "./sound";
 import { drawBrandLockup } from "./brandCanvas";
 import type { DoorId } from "./doors";
+import "../vendor/wesy-real.js";
 
 /* بطاقة الإنجاز للستوري (1080×1920) — فكرة Spotify Wrapped: الطالب يتباهى بإنجازه هو، والاسم يوصل معه.
    بدون عنوان البحث ولا أسماء الفريق (بحثهم ما انشر، وخصوصيتهم أول) — بس الإنجاز ورحلتهم من 10. */
@@ -29,7 +30,40 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
   return lines;
 }
 
-export async function drawAchievement({ title, sub, step }: { title: string; sub: string; step: number | null }): Promise<Blob | null> {
+/** رابط البطاقة بكود الفريق (حلقة النمو): wesyncapp.com/?r=CODE */
+export const shareLink = (code?: string | null) => (code ? `wesyncapp.com/?r=${code}` : "wesyncapp.com");
+
+/** راس ويسي (SVG من WesyReal) كصورة للكانفس — رسمي بدون غمزة، بشماغ الهوية */
+async function wesyHead(px: number): Promise<HTMLImageElement | null> {
+  if (typeof window === "undefined" || !window.WesyReal) return null;
+  const host = document.createElement("div");
+  host.style.cssText = `position:fixed;left:-9999px;top:0;width:${px}px;height:${px}px;`;
+  document.body.appendChild(host);
+  try {
+    const w = new window.WesyReal(host, { shemagh: "#FF6A00", confetti: false, state: "success", crop: "head", formal: true, shadow: false });
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const svg = host.querySelector("svg");
+    if (!svg) return null;
+    if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    svg.setAttribute("width", String(px));
+    svg.setAttribute("height", String(px));
+    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }));
+    w.destroy();
+    const img = new Image();
+    await new Promise<void>((ok, bad) => {
+      img.onload = () => ok();
+      img.onerror = () => bad(new Error("wesy"));
+      img.src = url;
+    });
+    return img;
+  } catch {
+    return null;
+  } finally {
+    host.remove();
+  }
+}
+
+export async function drawAchievement({ title, sub, step, refCode }: { title: string; sub: string; step: number | null; refCode?: string | null }): Promise<Blob | null> {
   const W = 1080;
   const H = 1920;
   const canvas = document.createElement("canvas");
@@ -119,8 +153,29 @@ export async function drawAchievement({ title, sub, step }: { title: string; sub
     }
     ctx.fillStyle = "#ABA095";
     ctx.font = "500 40px Tajawal, sans-serif";
-    ctx.fillText(tr("رحلة بحثنا: {0} من {1}", step, 10), W / 2, y + 80);
+    ctx.fillText(tr("الخطوة {0} من {1}", step, 10), W / 2, y + 80);
   }
+
+  // «معتمد من ويسي · الرئيس التنفيذي» مع راسه بمربع كريمي
+  const head = await wesyHead(120);
+  const by = H - 330;
+  ctx.font = "700 40px Tajawal, sans-serif";
+  const label = tr("معتمد من ويسي · الرئيس التنفيذي");
+  const lw = ctx.measureText(label).width;
+  const total = 120 + 24 + lw;
+  const right = W / 2 + total / 2;
+  ctx.fillStyle = "#F3E9DC";
+  ctx.beginPath();
+  ctx.roundRect(right - 120, by - 60, 120, 120, 34);
+  ctx.fill();
+  ctx.strokeStyle = "#FFC777";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  if (head) ctx.drawImage(head, right - 120, by - 60, 120, 120);
+  ctx.fillStyle = "#F2EBE3";
+  ctx.textAlign = "right";
+  ctx.fillText(label, right - 144, by + 14);
+  ctx.textAlign = "center";
 
   ctx.fillStyle = "#FFC777";
   ctx.font = "700 42px Tajawal, sans-serif";
@@ -128,17 +183,17 @@ export async function drawAchievement({ title, sub, step }: { title: string; sub
   ctx.fillStyle = "#FF9A3C";
   ctx.font = "700 40px Tajawal, sans-serif";
   ctx.direction = "ltr";
-  ctx.fillText("wesyncapp.com", W / 2, H - 120);
+  ctx.fillText(shareLink(refCode), W / 2, H - 120);
 
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
 }
 
 /** يشارك الصورة (قائمة المشاركة بالجوال: ستوري، واتساب…) وإلا ينزّلها */
-export async function shareOrDownload(blob: Blob, name = "wesync-achievement.png"): Promise<"shared" | "downloaded" | "cancelled"> {
+export async function shareOrDownload(blob: Blob, name = "wesync-achievement.png", refCode?: string | null): Promise<"shared" | "downloaded" | "cancelled"> {
   const file = new File([blob], name, { type: "image/png", lastModified: Date.now() });
   try {
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], text: `${CATCHPHRASE} wesyncapp.com` });
+      await navigator.share({ files: [file], text: `${CATCHPHRASE} https://${shareLink(refCode)}` });
       return "shared";
     }
   } catch (e) {

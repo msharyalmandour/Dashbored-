@@ -39,3 +39,12 @@ describe("captureSignupRef", () => {
     expect(storedSignupRef(Date.now() + 31 * 864e5)).toBeNull();
   });
 });
+
+describe("captureSignupRef ?r= (achievement card)", () => {
+  it("reads the short r param too", () => {
+    const store: Record<string, string> = {};
+    globalThis.localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => void (store[k] = v), removeItem: (k: string) => void delete store[k] } as unknown as Storage;
+    captureSignupRef({ search: "?r=k7q2xd", hash: "" });
+    expect(storedSignupRef()).toBe("k7q2xd");
+  });
+});

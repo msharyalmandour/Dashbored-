@@ -28,7 +28,7 @@ import type { Task } from "../data/types";
 import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
-import NextCard from "../components/home/NextCard";
+import WesyOffice from "../components/home/WesyOffice";
 import DropEntry from "../components/drop/DropEntry";
 import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
@@ -292,7 +292,7 @@ export default function Overview() {
 
       {/* «الجاي لكم»: خطوة وحدة بزر برتقالي واحد — أول شي بالصفحة (docs/DESIGN_BRIEF_UNLOCK.md) */}
       <ErrorBoundary>
-        <NextCard urgent={journeyStep} fallback={journeyStep} style={rise(0)} />
+        <WesyOffice urgent={journeyStep} fallback={journeyStep} />
       </ErrorBoundary>
 
       {mode === "supabase" && (

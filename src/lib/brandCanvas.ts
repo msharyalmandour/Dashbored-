@@ -1,19 +1,23 @@
-import { W_LEFT, W_RIGHT } from "../components/brand/WLogo";
+import { WAVE, W_CREAM, W_INK } from "../components/brand/WLogo";
 
-/** شعار W على كانفس (بطاقات الستوري والمشاركة): مربع كريمي + الموجة بالحبر */
+/** شعار W على كانفس (بطاقات الستوري والمشاركة) = brand/logo/app-icon-wave-cream.svg */
 export function drawWMark(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
   const k = size / 200;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(k, k);
-  ctx.fillStyle = "#F2EBE3";
+  ctx.fillStyle = W_CREAM;
   ctx.beginPath();
   ctx.roundRect(0, 0, 200, 200, 46);
   ctx.fill();
-  ctx.strokeStyle = "#160904";
-  ctx.lineWidth = 18;
+  // نفس app-icon-wave-cream.svg: الموجة ×0.8 داخل المربع
+  ctx.translate(20, 20);
+  ctx.scale(0.8, 0.8);
+  ctx.strokeStyle = W_INK;
+  ctx.lineWidth = 22;
   ctx.lineCap = "round";
-  ctx.stroke(new Path2D(`${W_LEFT} ${W_RIGHT.replace(/^M100 90 /, "")}`));
+  ctx.lineJoin = "round";
+  ctx.stroke(new Path2D(WAVE));
   ctx.restore();
 }
 

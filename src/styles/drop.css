@@ -167,3 +167,29 @@ html[data-reduce-motion="true"] .dr-fly > .dr-flycard { animation: drFadeOut .45
 .dp-m-btns { margin-top: auto; padding: 18px 0 calc(92px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
 .dp-m-btns .dp-go { height: 58px; font-size: 17px; border-radius: 20px; }
 .dp-m-btns .dp-glass { min-height: 52px; font-size: 14px; }
+
+/* ═══ حركة الدخول (DropEnter) — 1.1 ثانية، مرة وحدة ═══
+   0–300: الوعاء يطلع (60px تحت، .8، blur 10) والحلقة الذهبية ترسم نفسها
+   250–700: الأماكن تطير من جنب الوعاء لمداراتها (60ms بين كل واحد) والخطوط المنقطة تبان
+   700–1100: العنوان يطلع 18px مع blur 6→0، وبعده الأزرار والشريط، والجمر يطلع مرة */
+.dp-enter .dp-vin { animation: dp-vin .3s cubic-bezier(.2,.9,.2,1) both; }
+.dp-enter .dp-ring { animation: dp-ring .3s cubic-bezier(.2,.8,.2,1) backwards; }
+.dp-enter .dp-li { animation: dp-fade .45s cubic-bezier(.2,.8,.2,1) .25s backwards; }
+.dp-enter .dp-co { animation: dp-chip .4s cubic-bezier(.2,.9,.2,1) both; }
+.dp-enter .dp-tin { animation: dp-tin .4s cubic-bezier(.2,.8,.2,1) .7s both; }
+.dp-enter .dp-t2 { animation-delay: .8s; }
+.dp-enter .dp-t3 { animation-delay: .9s; }
+.dp-enter .dp-emb { animation: dp-emb 1.6s ease-out .7s both; }
+.dp-enter .dp-emb.e2 { animation-delay: .78s; }
+.dp-enter .dp-emb.e3 { animation-delay: .86s; }
+.dp-enter .dp-emb.e4 { animation-delay: .94s; }
+@keyframes dp-vin { from { opacity: 0; transform: translateY(60px) scale(.8); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes dp-ring { from { stroke-dasharray: 0 100; } to { stroke-dasharray: 100 0; } }
+@keyframes dp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dp-chip { from { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes dp-tin { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes dp-emb { 0% { transform: translateY(0) scale(.6); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-150px) scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .dp-enter .dp-vin, .dp-enter .dp-ring, .dp-enter .dp-li, .dp-enter .dp-co, .dp-enter .dp-tin, .dp-enter .dp-emb { animation: none; }
+}
+html[data-reduce-motion="true"] .dp-enter :is(.dp-vin, .dp-ring, .dp-li, .dp-co, .dp-tin, .dp-emb) { animation: none; }

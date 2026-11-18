@@ -64,6 +64,17 @@ export default function Drop() {
   // المسرح مرسوم على 1096×560 (زي المرجع) ويتصغّر بنفس النسبة لو الشاشة أضيق
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageK, setStageK] = useState(1);
+  // حركة الدخول (DropEnter): مرة لكل دخول، وما تعيد لو رجعتوا خلال 10 دقايق
+  const [enter] = useState(() => {
+    try {
+      const last = Number(localStorage.getItem("wesync.dropEnterAt") || 0);
+      if (Date.now() - last < 10 * 60e3) return false;
+      localStorage.setItem("wesync.dropEnterAt", String(Date.now()));
+    } catch {
+      /* بدون تخزين: نلعبها */
+    }
+    return true;
+  });
   useEffect(() => {
     const el = stageRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -571,7 +582,7 @@ export default function Drop() {
     <div className="dr-page">
       {inputs}
       {/* الجوال: الوعاء 280 + 4 أماكن على القوس الفوقاني، والأزرار تحت */}
-      <div className="dp-m flex lg:hidden">
+      <div className={`dp-m flex lg:hidden${enter ? " dp-enter" : ""}`}>
         <div className="dp-m-stage" aria-hidden>
           <div className="dp-m-glow" />
           <svg className="dp-rings" viewBox="0 0 390 420">
@@ -583,7 +594,7 @@ export default function Drop() {
               </linearGradient>
             </defs>
             <ellipse cx="195" cy="176.4" rx="152" ry="200" fill="none" stroke="rgba(255,199,119,0.07)" />
-            <ellipse className="dp-li" cx="195" cy="176.4" rx="112" ry="148" fill="none" stroke="url(#dpm-g)" strokeWidth="1.4" />
+            <ellipse className="dp-ring" pathLength={100} cx="195" cy="176.4" rx="112" ry="148" fill="none" stroke="url(#dpm-g)" strokeWidth="1.4" />
             <ellipse cx="195" cy="176.4" rx="176" ry="231" fill="none" stroke="rgba(255,199,119,0.05)" strokeDasharray="2 10" />
             {M_CHIPS.map((c) => (
               <path key={c.d} className="dp-li" d={c.curve} fill="none" stroke="rgba(255,199,119,.16)" strokeWidth="1.2" strokeDasharray="3 7" />
@@ -598,15 +609,15 @@ export default function Drop() {
               </span>
             );
           })}
-          <div className="dp-m-vessel">
+          <div className="dp-m-vessel dp-vin">
             <Vessel size={280} state="hover" />
           </div>
         </div>
-        <div className="dp-m-head">
+        <div className="dp-m-head dp-tin">
           <h1 className="dp-h1 text-[54px]">{tr("ارموا أي شي")}</h1>
           <p className="dp-sub">{tr("ونحن نرتبها")}</p>
         </div>
-        <div className="dp-m-btns">
+        <div className="dp-m-btns dp-tin dp-t2">
           <button type="button" className="dp-go w-full" onClick={() => fileRef.current?.click()} disabled={!canWrite}>
             <Download size={18} aria-hidden />
             {tr("اختاروا ملف")}
@@ -629,7 +640,7 @@ export default function Drop() {
       </div>
 
       {/* الديسكتوب: الوعاء 430 بالنص، 3 حلقات، 6 أماكن تدور حوله بخطوط منقطة */}
-      <div className={`dp-d hidden lg:flex${zoneOver ? " over" : ""}`} {...onZone}>
+      <div className={`dp-d hidden lg:flex${zoneOver ? " over" : ""}${enter ? " dp-enter" : ""}`} {...onZone}>
         <div className="dp-stage-wrap" ref={stageRef} style={{ height: Math.round(560 * stageK) }}>
           <div className="dp-stage" style={{ transform: `scale(${stageK})` }}>
             <div className="dp-glow" aria-hidden />
@@ -642,7 +653,7 @@ export default function Drop() {
                 </linearGradient>
               </defs>
               <ellipse cx="548" cy="235.2" rx="473" ry="218" fill="none" stroke="rgba(255,199,119,0.07)" />
-              <ellipse className="dp-li" cx="548" cy="235.2" rx="351" ry="161" fill="none" stroke="url(#dp-g)" strokeWidth="1.4" />
+              <ellipse className="dp-ring" pathLength={100} cx="548" cy="235.2" rx="351" ry="161" fill="none" stroke="url(#dp-g)" strokeWidth="1.4" />
               <ellipse cx="548" cy="235.2" rx="548" ry="252" fill="none" stroke="rgba(255,199,119,0.05)" strokeDasharray="2 10" />
               {D_CHIPS.map((c) => (
                 <path key={c.d} className="dp-li" d={c.curve} fill="none" stroke="rgba(255,199,119,.16)" strokeWidth="1.2" strokeDasharray="3 7" />
@@ -657,7 +668,7 @@ export default function Drop() {
                 </span>
               );
             })}
-            <div className="dp-vessel">
+            <div className="dp-vessel dp-vin">
               <Vessel size={430} state="hover" />
             </div>
             {EMBERS.map(([x, y, w, h], i) => (

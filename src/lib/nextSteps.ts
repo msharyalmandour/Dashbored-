@@ -33,7 +33,7 @@ export function computeNextSteps(input: {
   hasDeadline: boolean;
   /** المرحلة الحالية مكتملة — بطاقة «انتقلوا للجاية» تتولى التوجيه، فما نكرر الخطوة */
   stageReady?: boolean;
-  /** عدد الدراسات المحفوظة بمكتبة الأدلة وهل كتبوا عنوان — لتقترح «جهّزوا البداية بالوكيل» لما العنوان جاهز والمكتبة فاضية */
+  /** عدد الدراسات المحفوظة بمكتبة الأدلة وهل كتبوا عنوان — لتقترح «جهّزوا البداية بويسي» لما العنوان جاهز والمكتبة فاضية */
   evidenceCount?: number;
   hasTitle?: boolean;
 }): NextStep[] {
@@ -79,7 +79,7 @@ export function computeNextSteps(input: {
   if (input.hasTitle && input.evidenceCount === 0) {
     steps.push({
       id: "agent-kickstart",
-      title: tr("خلّوا الوكيل يجهّز لكم البداية"),
+      title: tr("خلّوا ويسي يجهّز لكم البداية"),
       why: tr("يدوّر بدراسات منشورة عن عنوانكم ويطلّع دراسات ومسودة فجوة وأسئلة ومهام — وأنتم توافقون على اللي يعجبكم."),
       to: "/research-search",
       cta: tr("جهّزوا البداية"),

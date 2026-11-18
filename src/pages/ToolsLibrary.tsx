@@ -8,7 +8,7 @@ import { useValidatedTools } from "../hooks/useValidatedTools";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { tr } from "../lib/i18n";
 
-/** مكتبة أدوات القياس المشتركة — تتراكم من عمليات «أدوات القياس» بوكيل البحث لما أي فريق يحفظ أداة.
+/** مكتبة أدوات القياس المشتركة — تتراكم من عمليات «أدوات القياس» بويسي للبحث لما أي فريق يحفظ أداة.
     كل أداة مربوطة بدراستها الأصلية؛ تحقّقوا دايمًا من الدراسة والإذن قبل الاستخدام. */
 export default function ToolsLibrary() {
   const { tools, loading } = useValidatedTools();
@@ -50,7 +50,7 @@ export default function ToolsLibrary() {
           <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-brand-950/70">
             <input type="checkbox" checked={arabicOnly} onChange={(e) => setArabicOnly(e.target.checked)} className="h-4 w-4 accent-[var(--color-brand-500)]" />{tr("فيها نسخة عربية فقط")}</label>
         </div>
-        <p className="mt-3 text-xs text-brand-950/45">{tr("تكبر كل ما فريق يحفظ أداة من «وكيل البحث ← أدوات القياس». ما فيها أي بيانات فرق — فقط معلومات الأداة من الدراسة المنشورة.")}</p>
+        <p className="mt-3 text-xs text-brand-950/45">{tr("تكبر كل ما فريق يحفظ أداة من «ويسي للبحث ← أدوات القياس». ما فيها أي بيانات فرق — فقط معلومات الأداة من الدراسة المنشورة.")}</p>
       </Panel>
 
       {loading ? (
@@ -64,7 +64,7 @@ export default function ToolsLibrary() {
           <EmptyState
             icon={Library}
             title={tools.length === 0 ? tr("المكتبة فاضية لسا") : tr("ما فيه نتائج")}
-            desc={tools.length === 0 ? tr("كونوا أول من يضيف: دوّروا أداة بوكيل البحث واضغطوا «احفظوها بالمكتبة».") : tr("جرّبوا كلمة ثانية أو ألغوا فلتر العربي.")}
+            desc={tools.length === 0 ? tr("كونوا أول من يضيف: دوّروا أداة بويسي للبحث واضغطوا «احفظوها بالمكتبة».") : tr("جرّبوا كلمة ثانية أو ألغوا فلتر العربي.")}
           />
         </Card>
       ) : (

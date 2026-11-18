@@ -309,7 +309,7 @@ export default function Drop() {
             <span className="dr-stamp h-8 w-8" aria-hidden>
               <Sparkles size={15} />
             </span>
-            <span className="flex-1 text-[14px] text-[#EAE3DC]">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("الوكيل يقرا ويفرز…"))}</span>
+            <span className="flex-1 text-[14px] text-[#EAE3DC]">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("ويسي يقرا ويفرز…"))}</span>
           </section>
           <button type="button" className="dr-text dim mt-1" onClick={again}>
             {tr("إلغاء")}

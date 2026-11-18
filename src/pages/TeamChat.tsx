@@ -237,7 +237,7 @@ export default function TeamChat() {
   );
 
   const people = useMemo(() => new Map(roster.map((m) => [m.id, m])), [roster]);
-  const names = useMemo(() => [...roster.map((m) => firstName(m.name)), tr("وكيل")].filter(Boolean), [roster]);
+  const names = useMemo(() => [...roster.map((m) => firstName(m.name)), tr("ويسي")].filter(Boolean), [roster]);
   const onlineIds = new Set(online.map((u) => u.id));
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
@@ -393,8 +393,8 @@ export default function TeamChat() {
       const sending = send(body, { replyTo: replyTo?.id ?? null, ref: attach, mentions: mentionedIds(body, roster, currentUser.id) });
       setReplyTo(null);
       setAttach(null);
-      // «@وكيل …»: الوكيل يرد بالقروب للكل، من سياق المحادثة
-      if (/@وكيل|@الوكيل|@agent/i.test(body)) void askAgent(body, sending);
+      // «@ويسي …»: ويسي يرد بالقروب للكل، من سياق المحادثة
+      if (/@ويسي|@وكيل|@الوكيل|@agent/i.test(body)) void askAgent(body, sending);
     }
     setText("");
     setMentionQ(null);
@@ -409,14 +409,14 @@ export default function TeamChat() {
       .filter((m) => !m.deletedAt && m.kind !== "event")
       .slice(-12)
       .map((m) => ({ role: m.kind === "agent" ? ("agent" as const) : ("user" as const), text: m.kind === "agent" ? m.body : `${nameOf(m.authorId)}: ${m.body}` }));
-    const r = await askProjectAgent(question.replace(/@(وكيل|الوكيل|agent)/gi, "").trim() || question, history);
+    const r = await askProjectAgent(question.replace(/@(ويسي|وكيل|الوكيل|agent)/gi, "").trim() || question, history);
     setAgentBusy(false);
     const last = [...messages].reverse().find((m) => m.authorId === currentUser.id && !m.pending);
     const out = await post("agent", r.data?.answer ?? r.message ?? tr("ما وصل الرد — حاولوا مرة ثانية."), { askedBy: currentUser.id }, last?.id ?? null);
-    if (out.error) showToast({ title: tr("رد الوكيل ما انحفظ بالمحادثة — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
+    if (out.error) showToast({ title: tr("رد ويسي ما انحفظ بالمحادثة — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
   };
 
-  // «حوّلوا المحادثة لمحضر»: الوكيل يلخّص رسائل اليوم (أو آخر 40) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
+  // «حوّلوا المحادثة لمحضر»: ويسي يلخّص رسائل اليوم (أو آخر 40) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
   const chatToMinutes = async () => {
     if (minutesBusy) return;
     const today = toISODate(new Date());
@@ -424,15 +424,15 @@ export default function TeamChat() {
     if (pool.length < 4) pool = messages.filter((m) => !m.deletedAt && m.kind !== "event").slice(-40);
     if (pool.length === 0) return;
     setMinutesBusy(true);
-    const transcript = pool.map((m) => `${m.kind === "agent" ? tr("الوكيل") : nameOf(m.authorId)}: ${m.body}`).join("\n");
+    const transcript = pool.map((m) => `${m.kind === "agent" ? tr("ويسي") : nameOf(m.authorId)}: ${m.body}`).join("\n");
     const r = await askProjectAgent(
-      // تعليمات للوكيل (مو نص يظهر للمستخدم) — العناوين ثابتة عشان نقسّم الرد
+      // تعليمات لويسي (مو نص يظهر للمستخدم) — العناوين ثابتة عشان نقسّم الرد
       `لخّص محادثة الفريق هذي كمحضر اجتماع مختصر. اكتب بالضبط بهذا الشكل بدون أي مقدمة:\nالمناقشة:\n- …\nالقرارات:\n- …\n\nالمحادثة:\n${transcript}`,
       [],
     );
     setMinutesBusy(false);
     if (!r.data) {
-      showToast({ title: r.message ?? tr("الوكيل غير متاح الحين — جرّبوا بعد شوي."), icon: CircleAlert });
+      showToast({ title: r.message ?? tr("ويسي غير متاح الحين — جرّبوا بعد شوي."), icon: CircleAlert });
       return;
     }
     const txt = r.data.answer;
@@ -451,11 +451,11 @@ export default function TeamChat() {
   };
 
   const mentionList = mentionQ === null ? [] : others.filter((m) => fold(firstName(m.name)).startsWith(fold(mentionQ))).slice(0, 5);
-  const agentMatch = mentionQ !== null && fold(tr("وكيل")).startsWith(fold(mentionQ));
+  const agentMatch = mentionQ !== null && fold(tr("ويسي")).startsWith(fold(mentionQ));
   const pickAgent = () => {
     const el = inputRef.current;
     const caret = el?.selectionStart ?? text.length;
-    const before = text.slice(0, caret).replace(/@(\S*)$/, `@${tr("وكيل")} `);
+    const before = text.slice(0, caret).replace(/@(\S*)$/, `@${tr("ويسي")} `);
     setText(before + text.slice(caret));
     setMentionQ(null);
     requestAnimationFrame(() => el?.focus());
@@ -544,7 +544,7 @@ export default function TeamChat() {
     }
     const isAgent = m.kind === "agent";
     const isPoll = m.kind === "poll";
-    // رد الوكيل ينحفظ باسم اللي سأل، بس يطلع بجهة الباقين كـ«الوكيل»
+    // رد ويسي ينحفظ باسم اللي سأل، بس يطلع بجهة الباقين كـ«ويسي»
     const mine = m.authorId === currentUser.id && !isAgent;
     const prev = shown[idx - 1];
     const next = shown[idx + 1];
@@ -563,7 +563,7 @@ export default function TeamChat() {
         <div
           role="group"
           tabIndex={gone || m.pending ? -1 : 0}
-          aria-label={tr("رسالة من {0}", mine ? tr("أنت") : isAgent ? tr("الوكيل") : nameOf(m.authorId))}
+          aria-label={tr("رسالة من {0}", mine ? tr("أنت") : isAgent ? tr("ويسي") : nameOf(m.authorId))}
           className={`tc-bubble${isAgent ? " agent" : ""}${m.pending ? " pending" : ""}${m.failed ? " failed" : ""}${gone ? " gone" : ""}${flash === m.id ? " flash" : ""}`}
           onPointerDown={(e) => !gone && !m.pending && !m.failed && pressStart(m.id, e)}
           onPointerUp={pressEnd}
@@ -588,7 +588,7 @@ export default function TeamChat() {
             </>
           ) : (
             <>
-              {!mine && firstOfRun && <span className="tc-name">{isAgent ? tr("الوكيل · رد على {0}", nameOf(m.authorId)) : nameOf(m.authorId)}</span>}
+              {!mine && firstOfRun && <span className="tc-name">{isAgent ? tr("ويسي · رد على {0}", nameOf(m.authorId)) : nameOf(m.authorId)}</span>}
               {quoted && (
                 <button type="button" className="tc-quote" onClick={() => jumpTo(quoted.id)}>
                   <b>{nameOf(quoted.authorId)}</b>
@@ -856,7 +856,7 @@ export default function TeamChat() {
                 <div className="tc-row">
                   <AgentMark />
                   <div className="tc-bubble agent">
-                    <span className="tc-name">{tr("الوكيل")}</span>
+                    <span className="tc-name">{tr("ويسي")}</span>
                     <span className="tc-text text-[#ABA095]">{tr("يقرا المحادثة ويجهّز رد…")}</span>
                   </div>
                 </div>
@@ -881,7 +881,7 @@ export default function TeamChat() {
                     <button type="button" role="option" aria-selected={false} onMouseDown={(e) => e.preventDefault()} onClick={pickAgent}>
                       <AgentMark />
                       <span>
-                        {tr("الوكيل")} <small className="text-[12px] font-medium text-[#ABA095]">{tr("· يرد بالقروب للكل")}</small>
+                        {tr("ويسي")} <small className="text-[12px] font-medium text-[#ABA095]">{tr("· يرد بالقروب للكل")}</small>
                       </span>
                     </button>
                   )}
@@ -1041,7 +1041,7 @@ export default function TeamChat() {
             [
               [BookOpen, tr("أشيروا لشي بالبحث"), tr("مهمة، قسم بالمقترح، أو دراسة بالمكتبة"), () => setRefOpen(true)],
               [Download, tr("ارموها: رتّبوها بمكانها"), tr("أي ملف أو صورة أو سكرين شوت، ونوريكم وين ينحط قبل لا نحطه"), () => dropPick.current?.click()],
-              [FileUp, tr("ارموا دراسة"), tr("PDF أو صور صفحاتها، والوكيل يقرأها ويحطها بالمكتبة وجدول الأدبيات"), () => setStudyOpen(true)],
+              [FileUp, tr("ارموا دراسة"), tr("PDF أو صور صفحاتها، وويسي يقرأها ويحطها بالمكتبة وجدول الأدبيات"), () => setStudyOpen(true)],
               [BarChart3, tr("تصويت سريع"), tr("سؤال بخيارات، والنتيجة تصير قرار"), () => setPollOpen(true)],
             ] as const
           ).map(([Icon, title, sub, go]) => (

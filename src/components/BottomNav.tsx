@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { WesyAvatar } from "./brand/Wesy";
 import { createPortal } from "react-dom";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AudioLines, Camera, Check, Download, House, MessagesSquare, PenLine, Search } from "lucide-react";
@@ -9,9 +10,9 @@ import { tr } from "../lib/i18n";
 import { useChatUnread } from "../hooks/useTeamChat";
 import { queueDrop } from "../lib/dropQueue";
 
-/** شريط التبويبات بالجوال فقط (زجاج عائم): الرئيسية · أكتب · [الوكيل بالنص] · مهامي · المحادثة.
-    زر الوكيل كرة برتقالية فوقها موجة صوت. ضغطة طويلة (نص ثانية) تفتح قائمة: ارموا أي شي · صوّروا ورقة · اسألوا الوكيل.
-    الضغطة العادية تبقى مثل ما هي (تفتح الوكيل). الديسكتوب يبقى على القائمة الجانبية. */
+/** شريط التبويبات بالجوال فقط (زجاج عائم): الرئيسية · أكتب · [ويسي بالنص] · مهامي · المحادثة.
+    زر ويسي كرة برتقالية فوقها موجة صوت. ضغطة طويلة (نص ثانية) تفتح قائمة: ارموا أي شي · صوّروا ورقة · اسألوا ويسي.
+    الضغطة العادية تبقى مثل ما هي (تفتح ويسي). الديسكتوب يبقى على القائمة الجانبية. */
 export default function BottomNav() {
   const unread = useChatUnread();
   const navigate = useNavigate();
@@ -77,17 +78,9 @@ export default function BottomNav() {
             if (longPressed.current) return;
             openAgent();
           }}
-          aria-label={tr("وكيل Wesync — ضغطة طويلة لـ«ارموا أي شي»")}
+          aria-label={tr("ويسي — ضغطة طويلة لـ«ارموا أي شي»")}
         >
-          {/* موجة ثابتة (بدون حلقة حركة) */}
-          <svg aria-hidden width="24" height="24" viewBox="0 0 26 26">
-            <g fill="#FF9A3C">
-              <rect x="4" y="10" width="3" height="6" rx="1.5" />
-              <rect x="9.2" y="6" width="3" height="14" rx="1.5" />
-              <rect x="14.4" y="3.5" width="3" height="19" rx="1.5" />
-              <rect x="19.6" y="8.5" width="3" height="9" rx="1.5" />
-            </g>
-          </svg>
+          <WesyAvatar size={44} />
         </button>
         {tab("/tasks", tr("مهامي"), Check)}
         {tab("/chat", tr("المحادثة"), MessagesSquare, false, unread)}
@@ -154,7 +147,7 @@ export default function BottomNav() {
                 <span className="dr-ic" aria-hidden>
                   <AudioLines size={16} />
                 </span>
-                {tr("اسألوا الوكيل")}
+                {tr("اسألوا ويسي")}
               </button>
             </div>
           </div>,

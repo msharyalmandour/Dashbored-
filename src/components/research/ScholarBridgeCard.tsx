@@ -9,7 +9,7 @@ import { useTeamRoster } from "../../hooks/useTeamRoster";
 import { SEARCH_DATABASES, extractDois, extractTitleLines, resolveDoi, resolveTitle, scholarUrl, type ResolvedPaper } from "../../lib/scholarBridge";
 import { tr } from "../../lib/i18n";
 
-/** جسر قوقل سكولار: ما نقدر نبحث فيه من الموقع، لكن نفتحه لكم جاهز، نسجّل وش بحثتوا (والوكيل يعرفه)،
+/** جسر قوقل سكولار: ما نقدر نبحث فيه من الموقع، لكن نفتحه لكم جاهز، نسجّل وش بحثتوا (وويسي يعرفه)،
     وأي DOI أو عنوان تلصقونه يتحول لدراسة كاملة تنضاف للمكتبة. */
 export default function ScholarBridgeCard({ suggestions }: { suggestions: string[] }) {
   const { currentUser, canWrite } = useAuth();
@@ -92,7 +92,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
     <Card className="space-y-4" data-agent="scholar-bridge">
       <div>
         <p className="text-sm font-extrabold text-brand-950">{tr("قوقل سكولار — ابحثوا وسجّلوا هنا")}</p>
-        <p className="mt-0.5 text-xs text-brand-950/55">{tr("قوقل ما يسمح بالبحث فيه من موقعنا، فنفتحه لكم جاهز بجملة البحث. بعد ما تبحثون: سجّلوا كم طلع وكم اخترتم (الوكيل يشوف سجلكم)، وألصقوا DOI أو عناوين الدراسات المختارة ونضيفها لمكتبتكم.")}</p>
+        <p className="mt-0.5 text-xs text-brand-950/55">{tr("قوقل ما يسمح بالبحث فيه من موقعنا، فنفتحه لكم جاهز بجملة البحث. بعد ما تبحثون: سجّلوا كم طلع وكم اخترتم (ويسي يشوف سجلكم)، وألصقوا DOI أو عناوين الدراسات المختارة ونضيفها لمكتبتكم.")}</p>
       </div>
 
       <div className="space-y-2">

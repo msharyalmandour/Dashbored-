@@ -19,7 +19,7 @@ export default function AiLockedCard({ feature }: { feature: string }) {
         <Lock size={18} />
       </span>
       <p className="font-display text-base font-extrabold text-brand-950">{trx("{0} ضمن باقة AI", feature)}</p>
-      <p className="max-w-sm text-sm text-brand-950/55">{trx("فريقكم الحين بدون المساعد الذكي. إضافته بـ{0} ريال شهريًا للفريق كامل تفتح المساعد البحثي ووكيل البحث العلمي وتحسين الصياغة والصوت الطبيعي.", price)}</p>
+      <p className="max-w-sm text-sm text-brand-950/55">{trx("فريقكم الحين بدون المساعد الذكي. إضافته بـ{0} ريال شهريًا للفريق كامل تفتح المساعد البحثي وويسي للبحث العلمي وتحسين الصياغة والصوت الطبيعي.", price)}</p>
       <Link
         to="/pricing"
         className="inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"

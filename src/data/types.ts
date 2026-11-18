@@ -350,7 +350,7 @@ export interface ResearchSearchResult {
   pubTypes?: string[];
 }
 
-/** أداة قياس معتمدة يقترحها وكيل البحث (من ملخصات دراسات حقيقية) */
+/** أداة قياس معتمدة يقترحها ويسي للبحث (من ملخصات دراسات حقيقية) */
 export interface ToolFinding {
   toolName: string;
   measures: string;
@@ -366,7 +366,7 @@ export interface ToolFinding {
   authors: string;
 }
 
-/** استراتيجية بحث بأسلوب PRISMA يبنيها الوكيل من عنوان البحث */
+/** استراتيجية بحث بأسلوب PRISMA يبنيها ويسي من عنوان البحث */
 export interface SearchStrategy {
   pico?: { population?: string; intervention?: string; comparison?: string; outcome?: string; note?: string };
   keywordsEn?: string[];

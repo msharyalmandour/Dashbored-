@@ -56,7 +56,7 @@ interface ResearchAgentValue {
 
 const Ctx = createContext<ResearchAgentValue | undefined>(undefined);
 
-/** حالة وكيل البحث تعيش هنا (فوق الصفحات) — عشان التحميل والنتائج ما تختفي
+/** حالة ويسي للبحث تعيش هنا (فوق الصفحات) — عشان التحميل والنتائج ما تختفي
     لما الطالبة تتنقل لقسم ثاني وترجع. الطلب نفسه يكمل بالخلفية، ومؤشر عائم
     يقول "جاري البحث" وبعدها "النتائج جاهزة" بأي صفحة. */
 export function ResearchAgentProvider({ children }: { children: ReactNode }) {
@@ -120,7 +120,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
       return;
     }
     setActiveResult({ results: row.results, noveltyNote: row.noveltyNote, queryText: row.queryText, scholarQuery: row.scholarQuery, scholarInside: row.scholarInside });
-    finished("papers", tr("نتائج البحث جاهزة ✅"), tr("{0} دراسة قريبة من بحثكم — افتحوا وكيل البحث", row.results.length));
+    finished("papers", tr("نتائج البحث جاهزة ✅"), tr("{0} دراسة قريبة من بحثكم — افتحوا ويسي للبحث", row.results.length));
   }, [topic, currentUser, searching, runSearch, finished]);
 
   const showSearch = useCallback((s: ResearchSearchQuery) => {
@@ -189,7 +189,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={value}>
       {children}
-      {/* مؤشر عائم: يبان بأي صفحة غير صفحة الوكيل طول ما فيه بحث شغّال أو نتيجة ما انشافت */}
+      {/* مؤشر عائم: يبان بأي صفحة غير صفحة ويسي طول ما فيه بحث شغّال أو نتيجة ما انشافت */}
       {!onResearchPage && pillTarget && (
         <Link
           to="/research-search?tab=studies"

@@ -24,11 +24,11 @@ type Save = (p: {
   dataCollection: string;
 }) => Promise<{ error?: string }>;
 
-/** «اقرأ لي هذي الورقة»: ترفعون PDF أو صور صفحاتها (تصوير جوال/لقطات شاشة)، الوكيل يطلّع بطاقة قراءة
+/** «اقرأ لي هذي الورقة»: ترفعون PDF أو صور صفحاتها (تصوير جوال/لقطات شاشة)، ويسي يطلّع بطاقة قراءة
     (الدولة، الهدف، التصميم، العينة، النتيجة، الحدود، علاقتها ببحثكم) وأنتم تراجعونها وتعتمدون إضافتها للمكتبة،
     وتنزل بجدول الأدبيات. الملخص من نص الورقة فقط — راجعوه قبل ما تعتمدونه بالبحث.
-    compact: داخل الوكيل العائم (بدون الإطار الزجاجي). */
-export default function PaperReaderCard({ onSave, compact = false, onClose, initialFiles }: { onSave: Save; compact?: boolean; onClose?: () => void; /** ملفات اختارها الطالب من الوكيل — تنقرا أول ما يفتح الكرت */ initialFiles?: File[] }) {
+    compact: داخل ويسي العائم (بدون الإطار الزجاجي). */
+export default function PaperReaderCard({ onSave, compact = false, onClose, initialFiles }: { onSave: Save; compact?: boolean; onClose?: () => void; /** ملفات اختارها الطالب من ويسي — تنقرا أول ما يفتح الكرت */ initialFiles?: File[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [paper, setPaper] = useState<PaperReading | null>(null);

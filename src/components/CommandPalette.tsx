@@ -108,7 +108,7 @@ export default function CommandPalette() {
   useEffect(() => {
     if (!currentUser) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      // Ctrl K صار للوكيل (AgentPanel). البحث السريع يفتح من القائمة
+      // Ctrl K صار لويسي (AgentPanel). البحث السريع يفتح من القائمة
       if (e.key === "Escape") {
         setOpen(false);
       }

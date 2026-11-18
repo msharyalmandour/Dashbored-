@@ -2,7 +2,7 @@ import type { AgentAction } from "../hooks/useProjectAgent";
 import type { TaskStatus } from "../data/types";
 import { tr } from "./i18n";
 
-/* الوكيل (المرحلة 7): يعرف ← يقترح ← توافقون ← ينفّذ ← إيصال + تراجع.
+/* ويسي (المرحلة 7): يعرف ← يقترح ← توافقون ← ينفّذ ← إيصال + تراجع.
    هنا المنطق الصافي (بدون واجهة): كروت «يحتاجكم الحين»، صفوف الخطة، الإيصال، ونافذة التراجع (24 ساعة). */
 
 export const UNDO_WINDOW_MS = 24 * 3600_000;
@@ -11,7 +11,7 @@ export const UNDO_WINDOW_MS = 24 * 3600_000;
 
 export type NeedIcon = "question" | "note" | "calendar" | "clock" | "user" | "flag" | "proof";
 
-/** وش يصير لما تضغطون زر الكرت: خطة جاهزة (بدون ذكاء)، أو سؤال للوكيل، أو تنقّل لصفحة */
+/** وش يصير لما تضغطون زر الكرت: خطة جاهزة (بدون ذكاء)، أو سؤال لويسي، أو تنقّل لصفحة */
 export type NeedGo = { kind: "plan"; request: string; actions: AgentAction[]; why: string } | { kind: "ask"; text: string } | { kind: "open"; to: string };
 
 export interface NeedCard {
@@ -60,7 +60,7 @@ export function buildNeeds(i: NeedsInput): NeedCard[] {
   const out: NeedCard[] = [];
   const supName = i.supervisorName.trim() || tr("المشرف/ة");
 
-  // 1) أسئلة بحث كثيرة → اقتراح دمجها (الوكيل يجهّز set_questions، وأنتم توافقون)
+  // 1) أسئلة بحث كثيرة → اقتراح دمجها (ويسي يجهّز set_questions، وأنتم توافقون)
   if (i.questions.length > 3) {
     out.push({
       id: "questions",

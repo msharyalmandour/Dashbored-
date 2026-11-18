@@ -233,7 +233,7 @@ export default function Overview() {
     hasTitle: !!project?.title?.trim(),
   })[0];
 
-  // ── بطاقات مشهد الوكيل (من بيانات المشروع) ──
+  // ── بطاقات مشهد ويسي (من بيانات المشروع) ──
   const agentCards = [
     { title: tr("المقترح"), sub: currentSection ? (isEn ? currentSection.labelEn : currentSection.labelAr) : secTotal ? tr("خلص ✓") : tr("ابدأوا الكتابة") },
     { title: tr("الأدبيات"), sub: papers.length ? countAr(papers.length, tr("دراسة وحدة"), tr("دراستين"), "{0} دراسات", "{0} دراسة") : tr("ما فيه دراسات بعد") },
@@ -278,7 +278,7 @@ export default function Overview() {
         <HomeToasts />
       </ErrorBoundary>
 
-      {/* ── الترحيب + زر الوكيل + الجرس ── */}
+      {/* ── الترحيب + زر ويسي + الجرس ── */}
       <GlassHeader
         firstName={firstName}
         now={now}
@@ -374,7 +374,7 @@ export default function Overview() {
         </ErrorBoundary>
       </div>
 
-      {/* ── وكيل Wesync ── */}
+      {/* ── ويسي ── */}
       <ErrorBoundary>
         <AgentScene cards={agentCards} style={rise(6)} />
       </ErrorBoundary>

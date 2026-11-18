@@ -88,7 +88,7 @@
   .tc-today b { color: #FFC777; font-weight: 800; }
 
   /* الوكيل بالمحادثة */
-  .tc-agent-av { width: 30px; height: 30px; flex: none; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, #2A1A12, #120C09); border: 1px solid rgba(255,170,90,.45); }
+  .tc-agent-av { width: 30px; height: 30px; flex: none; }
   .tc-bubble.agent { background: linear-gradient(180deg, rgba(255,150,50,.08), rgba(255,245,235,.04)); border-color: rgba(255,170,90,.35); }
   .tc-mentions .tc-agent-av { width: 28px; height: 28px; }
 

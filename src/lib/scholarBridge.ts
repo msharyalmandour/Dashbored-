@@ -98,7 +98,7 @@ export interface SearchLogEntry {
   at: string;
 }
 
-/** ملخص نصي مختصر للوكيل: كل قاعدة وكم بحث وكم دراسة انختارت */
+/** ملخص نصي مختصر لويسي: كل قاعدة وكم بحث وكم دراسة انختارت */
 export function searchLogSummary(log: SearchLogEntry[]): { database: string; searches: number; selected: number }[] {
   const by = new Map<string, { searches: number; selected: number }>();
   for (const e of log) {

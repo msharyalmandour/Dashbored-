@@ -80,7 +80,7 @@ function PreviewVideo({ stream }: { stream: MediaStream }) {
   return <video ref={ref} className="mirror" autoPlay playsInline muted />;
 }
 
-/** فوق كل شي بالتطبيق (شريط التبويب وزر الوكيل) */
+/** فوق كل شي بالتطبيق (شريط التبويب وزر ويسي) */
 export default function MeetRoom(props: Parameters<typeof MeetRoomInner>[0]) {
   return createPortal(<MeetRoomInner {...props} />, document.body);
 }

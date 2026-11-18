@@ -23,7 +23,7 @@ function mapRow(row: SearchRowDb): ResearchSearchQuery {
   };
 }
 
-/** وكيل البحث العلمي الحقيقي — يبحث بقواعد PubMed وOpenAlex وCrossref عبر دالة
+/** ويسي للبحث العلمي الحقيقي — يبحث بقواعد PubMed وOpenAlex وCrossref عبر دالة
     research-agent، وإذا رجّعت أقل من 3 نتائج يكمّل ببحث الويب (ai-assist).
     ما فيه بديل تجريبي: بحث حي ما له معنى بوضع العرض التجريبي. النتائج
     تُخزَّن بجدول research_search_queries عشان الفريق يرجع لها بدون إعادة

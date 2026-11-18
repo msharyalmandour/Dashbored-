@@ -326,7 +326,7 @@ export default function ResearchSearch() {
   const busyOn: Record<ResearchTab, boolean> = { papers: st.searching, tools: st.toolsBusy, strategy: st.strategyBusy };
 
   const resultsRef = useRef<HTMLDivElement>(null);
-  // «الوكيل» صار لوحة وحدة (الكرة أو Ctrl K) — هالصفحة للبحث عن دراسات بس
+  // «ويسي» صار لوحة وحدة (الكرة أو Ctrl K) — هالصفحة للبحث عن دراسات بس
   useEffect(() => {
     if (st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -338,7 +338,7 @@ export default function ResearchSearch() {
 
   return (
     <div className="space-y-6">
-      {!aiOk && <AiLockedCard feature={tr("وكيل البحث العلمي")} />}
+      {!aiOk && <AiLockedCard feature={tr("ويسي للبحث العلمي")} />}
 
       {aiOk && (
         <div className="flex flex-wrap gap-2">

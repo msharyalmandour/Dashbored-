@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-/** رد الوكيل يظهر كلمة كلمة، كل كلمة تتضح من blur خفيف، ومؤشر كتابة يرمش. الردود القديمة (والمحادثة المخزّنة) تظهر كاملة فورًا. */
+/** رد ويسي يظهر كلمة كلمة، كل كلمة تتضح من blur خفيف، ومؤشر كتابة يرمش. الردود القديمة (والمحادثة المخزّنة) تظهر كاملة فورًا. */
 export default function StreamedText({ text, at }: { text: string; at?: number }) {
   const [live] = useState(() => !!at && Date.now() - at < 2000 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const words = text.split(/(\s+)/);

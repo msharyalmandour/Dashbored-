@@ -1,6 +1,6 @@
 import { tr } from "./i18n";
 
-/** منطق «لمسات الوكيل» (بطاقة الوضع، الردود السريعة): قواعد ثابتة بدون ذكاء ولا تكلفة. التصميم بملفات components/agent/. */
+/** منطق «لمسات ويسي» (بطاقة الوضع، الردود السريعة): قواعد ثابتة بدون ذكاء ولا تكلفة. التصميم بملفات components/agent/. */
 
 export interface StatusInput {
   today: string;
@@ -47,7 +47,7 @@ export interface QuickReply {
   ask: string;
 }
 
-/** 2–3 ردود سريعة منطقية بعد رد الوكيل، حسب نوع الإجراءات وسؤال المستخدم */
+/** 2–3 ردود سريعة منطقية بعد رد ويسي، حسب نوع الإجراءات وسؤال المستخدم */
 export function quickRepliesFor(input: { question: string; actionTypes: string[]; isLeader: boolean; status?: StatusSnapshot }): QuickReply[] {
   const out: QuickReply[] = [];
   const has = (t: string) => input.actionTypes.includes(t);
@@ -64,5 +64,5 @@ export function quickRepliesFor(input: { question: string; actionTypes: string[]
   return out.filter((r) => (seen.has(r.label) ? false : (seen.add(r.label), true))).slice(0, 3);
 }
 
-/** خطوات «الوكيل يشتغل» الحقيقية بدل جمل عامة */
+/** خطوات «ويسي يشتغل» الحقيقية بدل جمل عامة */
 export const THINKING_STEPS = [tr("أقرأ مهامكم ومرحلتكم الحالية"), tr("أراجع الأهداف والأسئلة المحفوظة"), tr("أجهّز الاقتراح")];

@@ -68,7 +68,7 @@ export default function EvidenceLibrary() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const memberById = (id: string) => roster.find((m) => m.id === id);
-  // «ارموا الدراسة»: الوكيل يقراها وتنضاف للمكتبة والجدول بكل خاناتها
+  // «ارموا الدراسة»: ويسي يقراها وتنضاف للمكتبة والجدول بكل خاناتها
   const pickRef = useRef<(() => void) | null>(null);
   const dropOn = canAsk && !!currentUser;
   const drops = useStudyQueue({ add: addPaper, remove: deletePaper, existingTitles: papers.map((p) => p.title), addedById: currentUser?.id ?? "" });

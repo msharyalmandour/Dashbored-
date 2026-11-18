@@ -13,7 +13,6 @@ import { useResearchProject } from "../../hooks/useResearchProject";
 import { askProjectAgent, type AgentAction, type AskTurn } from "../../hooks/useProjectAgent";
 import { insertEvidencePaper } from "../../hooks/useEvidencePapers";
 import AgentOrb from "../ui/AgentOrb";
-import AgentWave from "../ui/AgentWave";
 import StreamedText from "../ui/StreamedText";
 import ThinkingLine from "../ui/ThinkingLine";
 import AiLockedCard from "../AiLockedCard";
@@ -30,7 +29,7 @@ import { hasAiAccess } from "../../lib/plans";
 import { isSupabaseConfigured } from "../../lib/supabaseClient";
 import { isEn, tr } from "../../lib/i18n";
 
-/* الوكيل (المرحلة 7) — مكان واحد: الكرة أو Ctrl K تفتح نفس اللوحة من أي صفحة.
+/* ويسي (المرحلة 7) — مكان واحد: الكرة أو Ctrl K تفتح نفس اللوحة من أي صفحة.
    520px على الديسكتوب (بالجهة البعيدة عن القائمة) وشاشة كاملة على الجوال.
    القاعدة: يعرف ← يقترح ← توافقون ← ينفّذ ← إيصال + تراجع. ما يكتب ولا يرسل ولا يحذف شي قبل «وافقوا». */
 
@@ -86,12 +85,12 @@ export default function AgentPanel() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={tr("الوكيل (Ctrl K)")}
-        title={tr("الوكيل · Ctrl K")}
+        aria-label={tr("ويسي (Ctrl K)")}
+        title={tr("ويسي · Ctrl K")}
         data-learn="agent"
         className={clsx("fixed bottom-6 start-6 z-40 hidden rounded-full transition-transform hover:scale-[1.03] print:hidden md:start-[320px]", !open && "md:flex")}
       >
-        <AgentOrb size={56} symbol={<AgentWave size={24} color="#1A0802" />} />
+        <AgentOrb size={56} />
       </button>
       {open && <AgentBody onClose={() => setOpen(false)} prefill={prefill} />}
     </>
@@ -212,7 +211,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
     const q = (raw ?? text).trim();
     if (!q || busy) return;
     if (!live) {
-      showToast({ title: tr("الوكيل يشتغل بالنسخة الحقيقية"), desc: tr("سجّلوا دخول بحساب فريقكم."), icon: AlertCircle, tone: "amber" });
+      showToast({ title: tr("ويسي يشتغل بالنسخة الحقيقية"), desc: tr("سجّلوا دخول بحساب فريقكم."), icon: AlertCircle, tone: "amber" });
       return;
     }
     setText("");
@@ -296,7 +295,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
   return (
     <>
       <div aria-hidden className="ag-scrim" onClick={onClose} />
-      <aside ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={tr("الوكيل")} className={clsx("ag-panel", !started && !listen && "ag-now")}>
+      <aside ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={tr("ويسي")} className={clsx("ag-panel", !started && !listen && "ag-now")}>
         <span aria-hidden className="ag-panel-glow" />
         {listen ? (
           <ListenView
@@ -312,7 +311,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
             <header className="ag-head">
               <AgentOrb size={44} state={busy ? "thinking" : "idle"} />
               <div className="min-w-0 flex-1 leading-[1.35]">
-                <b className="block text-[19px]">{tr("الوكيل")}</b>
+                <b className="block text-[19px]">{tr("ويسي")}</b>
                 <span className="ag-head-sub block truncate text-[13px]">{tr("يعرف بحثكم · ما يسوي شي بدون موافقتكم")}</span>
               </div>
               <button type="button" className="ag-x" onClick={onClose} aria-label={tr("إغلاق")}>
@@ -322,7 +321,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
 
             {!aiOk ? (
               <div className="min-h-0 flex-1 overflow-y-auto">
-                <AiLockedCard feature={tr("الوكيل")} />
+                <AiLockedCard feature={tr("ويسي")} />
               </div>
             ) : (
               <>
@@ -434,8 +433,8 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
                         void send();
                       }
                     }}
-                    placeholder={live ? tr("اطلبوا أي شي… مثل «وزّع مهام الأسبوع»") : tr("الوكيل يشتغل بالنسخة الحقيقية")}
-                    aria-label={tr("رسالتكم للوكيل")}
+                    placeholder={live ? tr("اطلبوا أي شي… مثل «وزّع مهام الأسبوع»") : tr("ويسي يشتغل بالنسخة الحقيقية")}
+                    aria-label={tr("رسالتكم لويسي")}
                     className="ag-input"
                   />
                   {!started && (

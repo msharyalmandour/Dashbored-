@@ -84,7 +84,7 @@ export function useTasksData() {
     /** وين الشغل: قسم من المقترح أو مكان بالموقع (lib/taskLinks) */
     sectionKey?: string | null;
   }) => {
-    // كل مهمة تنربط بمكان شغلها: اللي اختاره المستخدم، وإلا نستنتجه من العنوان (من المحادثة والوكيل والرئيسية كمان)
+    // كل مهمة تنربط بمكان شغلها: اللي اختاره المستخدم، وإلا نستنتجه من العنوان (من المحادثة وويسي والرئيسية كمان)
     const sectionKey = input.sectionKey ?? inferPlace(input.title, input.description) ?? null;
     if (!isSupabaseConfigured) {
       const newTask: Task = {

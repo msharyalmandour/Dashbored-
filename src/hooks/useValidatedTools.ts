@@ -57,7 +57,7 @@ export const toolKey = (name: string) =>
 
 const isArabicLang = (languages: string) => /arab|عرب/i.test(languages);
 
-/** حفظ أداة قياس وثّقها وكيل البحث بالمكتبة المشتركة (مكررة الاسم تتجاهل بصمت) */
+/** حفظ أداة قياس وثّقها ويسي للبحث بالمكتبة المشتركة (مكررة الاسم تتجاهل بصمت) */
 export async function saveToolToLibrary(t: ToolFinding, userId: string): Promise<{ error?: string; duplicate?: boolean }> {
   if (!isSupabaseConfigured) return { error: tr("متاح فقط بالوضع الحقيقي") };
   const key = toolKey(t.toolName);

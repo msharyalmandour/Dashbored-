@@ -30,7 +30,7 @@ function load(): AgentResult | null {
   }
 }
 
-/** «جهّزوا لنا البداية»: الوكيل يدوّر بدراسات حقيقية عن عنوانكم ويطلّع لكم دراسات + مسودة فجوة + أسئلة + مهام،
+/** «جهّزوا لنا البداية»: ويسي يدوّر بدراسات حقيقية عن عنوانكم ويطلّع لكم دراسات + مسودة فجوة + أسئلة + مهام،
     كل قسم بطاقة موافقة (احفظوه / تجاهلوه). ما ينحفظ شي قبل ضغطتكم، ولا يكتب البحث بدالكم — هذي نقطة انطلاق للنقاش مع المشرف/ة. */
 export default function AgentKickstart() {
   const { team, currentUser, isLeader, canWrite } = useAuth();
@@ -49,7 +49,7 @@ export default function AgentKickstart() {
   const [skipTask, setSkipTask] = useState<Record<number, boolean>>({});
 
   if (!isSupabaseConfigured) return null;
-  if (!hasAiAccess(team)) return <AiLockedCard feature={tr("تجهيز البداية بالوكيل")} />;
+  if (!hasAiAccess(team)) return <AiLockedCard feature={tr("تجهيز البداية بويسي")} />;
 
   const title = project?.title?.trim() ?? "";
   const existingQs = questions.map((q) => q.text);
@@ -173,12 +173,12 @@ export default function AgentKickstart() {
   );
 
   return (
-    <Panel title={tr("جهّزوا لنا البداية")} hint={tr("الوكيل يشتغل، وأنتم توافقون")}>
-      <p className="text-sm leading-relaxed text-brand-950/65">{tr("اضغطوا زر واحد وتخلّون الوكيل يدوّر بدراسات منشورة عن عنوانكم، ويرجّع لكم: ")}<b className="text-brand-950">{tr("دراسات")}</b>{tr(" تحفظونها بمكتبتكم، و")}<b className="text-brand-950">{tr("مسودة فجوة بحثية")}</b>{tr("، و")}<b className="text-brand-950">{tr("أسئلة بحث")}</b>{tr(" مبنية على الدراسات، و")}<b className="text-brand-950">{tr("مهام")}</b>{tr(" للخطوة الجاية. ما ينحفظ شي قبل ما توافقون، وكلها نقطة انطلاق تناقشونها مع المشرف/ة — مو بديل عن شغلكم.")}</p>
+    <Panel title={tr("جهّزوا لنا البداية")} hint={tr("ويسي يشتغل، وأنتم توافقون")}>
+      <p className="text-sm leading-relaxed text-brand-950/65">{tr("اضغطوا زر واحد وتخلّون ويسي يدوّر بدراسات منشورة عن عنوانكم، ويرجّع لكم: ")}<b className="text-brand-950">{tr("دراسات")}</b>{tr(" تحفظونها بمكتبتكم، و")}<b className="text-brand-950">{tr("مسودة فجوة بحثية")}</b>{tr("، و")}<b className="text-brand-950">{tr("أسئلة بحث")}</b>{tr(" مبنية على الدراسات، و")}<b className="text-brand-950">{tr("مهام")}</b>{tr(" للخطوة الجاية. ما ينحفظ شي قبل ما توافقون، وكلها نقطة انطلاق تناقشونها مع المشرف/ة — مو بديل عن شغلكم.")}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button onClick={run} disabled={busy || !title || !canWrite} className={primaryBtn}>
           {busy ? <WSpin size={15} /> : <Wand2 size={15} />}
-          {busy ? tr("الوكيل يدوّر بالدراسات… (حوالي دقيقة)") : result ? tr("جهّزوا من جديد") : tr("جهّزوا لنا البداية")}
+          {busy ? tr("ويسي يدوّر بالدراسات… (حوالي دقيقة)") : result ? tr("جهّزوا من جديد") : tr("جهّزوا لنا البداية")}
         </button>
         {!title && <span className="text-sm text-brand-950/50">{tr("اكتبوا عنوان البحث أول (من الرئيسية أو المقترح).")}</span>}
         {title && <span className="text-xs text-brand-950/45" dir="auto">{trx("العنوان: {0}", title)}</span>}

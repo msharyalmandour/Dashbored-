@@ -146,7 +146,7 @@ export default function Pricing() {
                     ))
                   ) : (
                     <li className="flex items-start gap-2.5 text-sm text-brand-950/40">
-                      <Lock size={15} className="mt-0.5 shrink-0" />{tr("بدون المساعد الذكي ووكيل البحث وتحسين الصياغة")}</li>
+                      <Lock size={15} className="mt-0.5 shrink-0" />{tr("بدون المساعد الذكي وويسي للبحث وتحسين الصياغة")}</li>
                   )}
                 </ul>
 

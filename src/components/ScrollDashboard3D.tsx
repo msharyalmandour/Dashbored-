@@ -103,7 +103,7 @@ function PlanCards() {
           <span className="text-[12px] font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/75">
-          {[tr("كل مزايا Basic"), tr("كوتش يعرف بحثكم وينصحكم بالأولويات"), tr("وكيل بحث + تدريب مناقشة + تحسين الصياغة")].map((t) => (
+          {[tr("كل مزايا Basic"), tr("كوتش يعرف بحثكم وينصحكم بالأولويات"), tr("ويسي للبحث + تدريب مناقشة + تحسين الصياغة")].map((t) => (
             <li key={t} className="flex items-start gap-2">
               <Wand2 size={12} className="mt-0.5 shrink-0 text-amber-300" />
               {t}

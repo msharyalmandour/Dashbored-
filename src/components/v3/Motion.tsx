@@ -10,7 +10,7 @@ export const CheckSvg = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
-/** نقاط «يكتب…» (1.2s، فرق 150ms) — تنعرض بس والوكيل شغّال */
+/** نقاط «يكتب…» (1.2s، فرق 150ms) — تنعرض بس وويسي شغّال */
 export const Typing = () => (
   <span className="v3-typing" aria-hidden="true">
     <i />

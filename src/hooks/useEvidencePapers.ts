@@ -61,7 +61,7 @@ export interface NewEvidencePaper {
   dataCollection?: string;
 }
 
-/** يحفظ دراسة بمكتبة الأدلة (وتطلع بجدول الأدبيات) — بدون ما يحمّل المكتبة كاملة، للوكيل العائم */
+/** يحفظ دراسة بمكتبة الأدلة (وتطلع بجدول الأدبيات) — بدون ما يحمّل المكتبة كاملة، لويسي العائم */
 export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ error?: string; id?: string }> {
   if (!isSupabaseConfigured) return { error: "demo" };
   const { data: projectId } = await supabase!.rpc("my_research_project_id");

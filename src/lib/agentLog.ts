@@ -1,7 +1,7 @@
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
 import type { Receipt, ReceiptItem } from "./agentPlan";
 
-/* سجل الوكيل (agent_actions): مين وافق، وش تغيّر، وكيف نتراجع (24 ساعة).
+/* سجل ويسي (agent_actions): مين وافق، وش تغيّر، وكيف نتراجع (24 ساعة).
    قبل ما ينضاف الجدول بالقاعدة نحفظ بالجهاز (localStorage) عشان التراجع يشتغل على الأقل من نفس الجهاز. */
 
 const LOCAL = (teamId: string) => `wesync.agent.receipts.${teamId}`;

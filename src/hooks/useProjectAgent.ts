@@ -120,7 +120,7 @@ export interface AskTurn {
   text: string;
 }
 
-/** «اسألوا الوكيل عن مشروعكم»: جواب من لقطة المشروع الحقيقية + إجراءات مقترحة تنتظر موافقة الفريق */
+/** «اسألوا ويسي عن مشروعكم»: جواب من لقطة المشروع الحقيقية + إجراءات مقترحة تنتظر موافقة الفريق */
 export async function askProjectAgent(
   question: string,
   history: AskTurn[],
@@ -131,7 +131,7 @@ export async function askProjectAgent(
   if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { message: reply.error };
   if (reply?.answer) return { data: { answer: reply.answer, actions: reply.actions ?? [] } };
-  return { message: error ? tr("الوكيل غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
+  return { message: error ? tr("ويسي غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
 }
 
 export interface ReviewCheck {

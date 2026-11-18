@@ -10,7 +10,7 @@ import type { AgentAction } from "../../hooks/useProjectAgent";
 import { addDaysISO, toISODate } from "../../lib/date";
 import type { ReceiptItem, UndoPayload } from "../../lib/agentPlan";
 
-/** ينفّذ إجراء الوكيل بصلاحيات المستخدم (RLS)، ويرجّع وش تغيّر + كيف نتراجع (ينحفظ بالسجل).
+/** ينفّذ إجراء ويسي بصلاحيات المستخدم (RLS)، ويرجّع وش تغيّر + كيف نتراجع (ينحفظ بالسجل).
     ما ينادى إلا بعد «وافقوا وسوّوها». */
 export function useAgentRun() {
   const { currentUser } = useAuth();

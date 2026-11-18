@@ -11,7 +11,7 @@ import { arabicMonths, daysUntil, formatDateShort } from "../../lib/date";
 import { isLate, todoList, weeklySeries, type TodoKind } from "../../lib/homeCalm";
 import { isEn, tr } from "../../lib/i18n";
 
-/* «الرئيسية الفخمة (زجاج + تقدّم + الوكيل)»: لوحة V3HomeGlass للكمبيوتر و MHomeGlass للجوال.
+/* «الرئيسية الفخمة (زجاج + تقدّم + ويسي)»: لوحة V3HomeGlass للكمبيوتر و MHomeGlass للجوال.
    كل الأرقام محسوبة من بيانات الفريق الحقيقية (المهام، الأقسام، الأدبيات، المنهجية، الموافقة الأخلاقية، المراحل). */
 
 const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
@@ -43,10 +43,10 @@ export function GlassHeader({ firstName, now, aside }: { firstName: string; now:
   );
 }
 
-/** زر الوكيل جنب الترحيب (كمبيوتر) */
+/** زر ويسي جنب الترحيب (كمبيوتر) */
 export function AgentPill({ firstName }: { firstName: string }) {
   return (
-    <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح وكيل Wesync")}>
+    <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح ويسي")}>
       <span aria-hidden className="h-10 w-10 flex-none rounded-full" style={{ background: "radial-gradient(circle at 40% 35%,#FFF0C2,#FFB444 35%,#FF6A00 70%,#8A2A05)", boxShadow: "0 0 24px rgba(255,140,40,.6)" }} />
       <span className="min-w-0 flex-1 text-sm leading-normal">
         <b>{tr("هلا {0}!", `\u2068${firstName}\u2069`)}</b> <span className="text-[#ABA095]">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
@@ -700,7 +700,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
   );
 }
 
-// ───────────────────────────── وكيل Wesync ─────────────────────────────
+// ───────────────────────────── ويسي ─────────────────────────────
 
 export function AgentScene({ cards, style }: { cards: { title: string; sub: string }[]; style?: CSSProperties }) {
   const [q, setQ] = useState("");
@@ -741,7 +741,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
         </div>
       ))}
       <div className={clsx("relative z-[2] lg:absolute lg:top-10 lg:w-[330px]", isEn ? "lg:right-[34px]" : "lg:left-[34px]")}>
-        <div className="text-xs font-extrabold tracking-[.12em] text-[rgba(255,235,220,.75)] lg:text-[13px]">{tr("وكيل Wesync")}</div>
+        <div className="text-xs font-extrabold tracking-[.12em] text-[rgba(255,235,220,.75)] lg:text-[13px]">{tr("ويسي")}</div>
         <h2 id="hg-ai-title" className="m-0 mt-1 text-[22px] font-extrabold leading-[1.3] text-[#FFF3E8] lg:mt-1.5 lg:text-[34px] lg:leading-[1.25]">
           <span className="lg:hidden">{tr("اسألوه، يعرف بحثكم كامل")}</span>
           <span className="hidden lg:inline">
@@ -753,7 +753,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
         <p className="m-0 mt-2 hidden text-[15px] leading-[1.8] text-[rgba(255,235,220,.75)] lg:block">{tr("الأقسام، الملفات، الدراسات، وملاحظات المشرف/ة. اكتبوا سؤالكم وهو يجاوب.")}</p>
       </div>
       <form className="hg-prompt" onSubmit={send}>
-        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر 3 دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل وكيل Wesync")} />
+        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر 3 دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل ويسي")} />
         <div className="-mx-4 mt-2.5 flex gap-1.5 overflow-x-auto px-4 pb-0.5 lg:mx-0 lg:mt-3 lg:flex-wrap lg:gap-2 lg:overflow-visible lg:px-0">
           {suggestions.map((s) => (
             <button key={s} type="button" className="hg-sug" onClick={() => openAgent(s)}>
@@ -762,7 +762,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
           ))}
         </div>
         <div className="mt-3 flex items-center lg:mt-[18px]">
-          <button type="button" className="hg-pbtn" onClick={() => openAgent()} aria-label={tr("افتح وكيل Wesync")}>
+          <button type="button" className="hg-pbtn" onClick={() => openAgent()} aria-label={tr("افتح ويسي")}>
             <AgentWave size={22} />
           </button>
           <div className="flex flex-1 flex-col items-center gap-1.5 lg:gap-2" aria-hidden>
@@ -781,7 +781,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
             </div>
             <span className="text-[13px] text-[rgba(255,235,220,.7)] lg:text-[15px]">{tr("اكتبوا واضغطوا Enter")}</span>
           </div>
-          <button type="submit" className="hg-pbtn" aria-label={tr("أرسل للوكيل")}>
+          <button type="submit" className="hg-pbtn" aria-label={tr("أرسل لويسي")}>
             <ArrowUp size={22} aria-hidden />
           </button>
         </div>

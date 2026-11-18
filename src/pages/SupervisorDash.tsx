@@ -658,7 +658,7 @@ export default function SupervisorDash() {
               {teams.some((t) => t.state === "loading") && rows.length === 0 && teamsBlock(false)}
             </>
           )}
-          {!teamToken && view === "chat" && <DocChatView teams={ok} />}
+          {!teamToken && view === "chat" && <DocChatView teams={ok} name={dn} initial={params.get("team") ?? ""} onOpenTeam={(tk) => openTeam(tk)} />}
           {!teamToken && view === "teams" && (
             <>
               {teamsBlock(true)}

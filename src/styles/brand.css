@@ -19,3 +19,8 @@
 html[data-reduce-motion="true"] .wl-loading .wl-a, html[data-reduce-motion="true"] .wl-loading .wl-b,
 html[data-reduce-motion="true"] .wl-sync .wl-a, html[data-reduce-motion="true"] .wl-sync .wl-b, html[data-reduce-motion="true"] .wl-spark { animation: none; }
 @keyframes wl-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ويسي */
+.wesy { display: inline-block; flex: none; }
+.wesy > svg { display: block; animation: wl-fade 200ms ease-out both; }
+.wesy-av { display: inline-flex; flex: none; overflow: hidden; border-radius: 28%; background: #F3E9DC; box-shadow: 0 0 0 1.5px #FFC777; }

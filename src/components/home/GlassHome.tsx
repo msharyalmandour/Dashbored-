@@ -2,6 +2,7 @@ import { useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, t
 import { Link } from "react-router-dom";
 import { ArrowUp, BookOpen, Check, Clock, Flag, Gauge, PenLine, Route, Shield, Users } from "lucide-react";
 import clsx from "clsx";
+import { WesyAvatar } from "../brand/Wesy";
 import AgentWave from "../ui/AgentWave";
 import { PALETTE, letter, weekdayAr } from "./TeamMeetLux";
 import { num } from "../v3/WriteHeader";
@@ -47,12 +48,9 @@ export function GlassHeader({ firstName, now, aside }: { firstName: string; now:
 export function AgentPill({ firstName }: { firstName: string }) {
   return (
     <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح ويسي")}>
-      <span aria-hidden className="h-10 w-10 flex-none rounded-full" style={{ background: "radial-gradient(circle at 40% 35%,#FFF0C2,#FFB444 35%,#FF6A00 70%,#8A2A05)", boxShadow: "0 0 24px rgba(255,140,40,.6)" }} />
+      <WesyAvatar size={40} />
       <span className="min-w-0 flex-1 text-sm leading-normal">
         <b>{tr("هلا {0}!", `\u2068${firstName}\u2069`)}</b> <span className="text-[#ABA095]">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
-      </span>
-      <span className="hg-pbtn !h-[38px] !w-[38px] !rounded-xl" aria-hidden>
-        <AgentWave size={18} />
       </span>
     </button>
   );

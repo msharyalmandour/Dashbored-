@@ -146,7 +146,9 @@ export default function MeetingMinutes() {
         <>
           {/* ── الاجتماع الجاي (MeetLux) ── */}
           <section className="mt-hero lx-in flex flex-col gap-6 md:flex-row md:items-center">
-            <div className="min-w-0 flex-1">
+            <img src="/sup/pen_hero.jpg" alt="" aria-hidden className="mt-hero-img" />
+            <div aria-hidden className="mt-hero-veil" />
+            <div className="relative min-w-0 flex-1 md:max-w-[68%]">
               <div className="text-[13px] font-bold text-[#FFB444]">{liveOn ? tr("اجتماع شغّال الحين") : tr("الاجتماع الجاي")}</div>
               <h2 className="lx-h1 !mt-1 !text-[40px] md:!text-[52px]" dir="auto">
                 {nextBooking ? (supName ? tr("{0} مع {1}", formatWeekday(nextBooking.date), supName) : formatWeekday(nextBooking.date)) : tr("ما فيه موعد محجوز")}
@@ -195,7 +197,7 @@ export default function MeetingMinutes() {
                 </div>
               )}
             </div>
-            <div className="mt-count self-start md:self-center" role="timer" aria-label={left ? tr("باقي {0}", left.label) : tr("ما فيه موعد")}>
+            <div className="mt-count relative self-start md:me-0 md:ms-auto md:self-center" role="timer" aria-label={left ? tr("باقي {0}", left.label) : tr("ما فيه موعد")}>
               <span className="text-[13px] font-bold text-[#FFB444]">{tr("باقي")}</span>
               <b dir="ltr">{left ? left.big : "—"}</b>
               <span className="mt-1 text-[13px] text-[#E9D3B8]">{left ? left.small : tr("بدون موعد")}</span>

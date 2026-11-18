@@ -238,7 +238,7 @@ export function StudyDropCard({
           <p className={clsx("m-0 mt-1 text-[#E9D3B8]", hero ? "text-[18px]" : "text-[15px]")}>{tr("ونعبّي الجدول لحاله")}</p>
         </div>
         <div className={clsx("flex shrink-0 flex-wrap items-center gap-2.5", hero && "justify-center")}>
-          <button type="button" className="sd-glass" onClick={onImport}>
+          <button type="button" className="sdz-glass" onClick={onImport}>
             {tr("استيراد Zotero")}
           </button>
           <button type="button" className="sd-pick" onClick={() => inputRef.current?.click()}>

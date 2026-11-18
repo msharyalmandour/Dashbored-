@@ -13,6 +13,7 @@ import { Ledger, type LedgerRow } from "../components/sup/SupParts";
 import { AwaySheet, DeadlinesSheet, ExtCard, TimeLog } from "../components/sup/SvTime";
 import { DocDay, DocTeams, DocWaitStrip } from "../components/sup/DocHome";
 import { DocChatView } from "../components/sup/DocChat";
+import DocCal from "../components/sup/DocCal";
 import { lastActivity, loadTeam, proofProgress, radarOf, requestChips, teamStatus, waitingItems, type TeamData, type WaitItem, type WaitKind } from "../lib/supervisorDash";
 
 type View = "home" | "chat" | "teams" | "requests" | "meetings" | "reports" | "settings";
@@ -188,31 +189,6 @@ export default function SupervisorDash() {
   ));
 
   // ───────── الكتل ─────────
-  const back2back = slots.length > 1 && slots.every((s, i) => i === 0 || minutes(s.time) - (minutes(slots[i - 1].time) + slots[i - 1].durationMin) <= 10);
-  const day = (
-    <section className="sd-glass sd-in sd-d4" aria-labelledby="sd-day-h">
-      <div className="sd-h">
-        <span className="sup-ic">
-          <CalendarDays size={16} aria-hidden />
-        </span>
-        <b id="sd-day-h">{tr("يومك")}</b>
-        <span className="note">{slots.length ? (back2back ? tr("{0} اجتماعات ورا بعض", slots.length) : tr("{0} اجتماعات", slots.length)) : ""}</span>
-      </div>
-      <div style={{ marginTop: 6 }}>
-        {slots.length === 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("ما فيه اجتماعات اليوم.")}</p>}
-        {slots.map((s) => (
-          <div key={s.id} className="sd-slot">
-            <b className="t" dir="ltr">
-              {s.time}
-            </b>
-            <span style={{ flex: 1, fontSize: 14, fontWeight: 700 }}>{s.team}</span>
-            <span style={{ fontSize: 12, color: "#ABA095" }}>{tr("{0} د", s.durationMin)}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-
   const toneCls = (tone?: string) => (tone === "late" ? "sd-late" : tone === "orange" ? "sd-orange" : "sd-gold");
   const avatars = (t: TeamData) => (
     <div className="sd-avs" aria-hidden>
@@ -477,34 +453,7 @@ export default function SupervisorDash() {
     </>
   );
 
-  const meetingsView = (
-    <>
-      {day}
-      <section className="sd-glass">
-        <div className="sd-h">
-          <span className="sup-ic">
-            <CalendarDays size={16} aria-hidden />
-          </span>
-          <b>{tr("الجاية")}</b>
-        </div>
-        {ok.flatMap((t) => (t.dash?.bookings ?? []).filter((b) => b.date > today).map((b) => ({ ...b, team: t.name, token: t.token }))).length === 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("ما فيه مواعيد جاية.")}</p>}
-        {ok
-          .flatMap((t) => (t.dash?.bookings ?? []).filter((b) => b.date > today).map((b) => ({ ...b, team: t.name, token: t.token })))
-          .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
-          .map((b) => (
-            <button key={b.id} type="button" onClick={() => openTeam(b.token, `booking:${b.id}`)} className="sd-slot" style={{ color: "inherit", width: "100%", background: "none", border: 0, font: "inherit", cursor: "pointer", textAlign: "start" }}>
-              <b className="t" dir="ltr">
-                {b.time}
-              </b>
-              <span style={{ flex: 1, fontSize: 14, fontWeight: 700 }}>{b.team}</span>
-              <span style={{ fontSize: 12, color: b.status === "pending" ? "#FFC777" : "#ABA095" }}>
-                {formatDateShort(b.date)} {b.status === "pending" ? `· ${tr("ينتظر ردكم")}` : ""}
-              </span>
-            </button>
-          ))}
-      </section>
-    </>
-  );
+  const meetingsView = <DocCal teams={ok} today={today} name={dn} onOpenTeam={(tk, open) => openTeam(tk, open ?? "")} onToast={setToast} onChanged={() => void reload()} />;
 
   const reportsView = (
     <section className="sd-glass">
@@ -594,7 +543,7 @@ export default function SupervisorDash() {
           <div className="dh-hours">
             <b>{tr("ساعات مكتبك")}</b>
             <span>{tr("الطلاب يحجزون من الأوقات الفاضية")}</span>
-            <button type="button" onClick={() => go("meetings")}>
+            <button type="button" onClick={() => (ok[0] ? openTeam(ok[0].token, "setup:0") : go("meetings"))}>
               {tr("عدّلوها")}
             </button>
           </div>
@@ -695,7 +644,3 @@ export default function SupervisorDash() {
   );
 }
 
-function minutes(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + (m || 0);
-}

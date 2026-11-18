@@ -157,7 +157,7 @@ export default function EvidenceLibrary() {
       ) : (
         <div className="sd-card flex flex-wrap items-center justify-between gap-3">
           <p className="m-0 text-[15px] font-bold text-[#F2EBE3]">{tr("ارموا الدراسة هنا")}</p>
-          <button type="button" className="sd-glass" onClick={() => setImportOpen(true)}>
+          <button type="button" className="sdz-glass" onClick={() => setImportOpen(true)}>
             {tr("استيراد Zotero")}
           </button>
         </div>
@@ -166,7 +166,7 @@ export default function EvidenceLibrary() {
       {importOpen && (
         <Dialog open onClose={() => setImportOpen(false)} title={tr("استيراد Zotero")}>
           {currentUser && <ReferencesToolsCard papers={papers} addPaper={addPaper as never} />}
-          <button type="button" className="sd-glass mt-3" onClick={() => (setImportOpen(false), setShowForm(true))}>
+          <button type="button" className="sdz-glass mt-3" onClick={() => (setImportOpen(false), setShowForm(true))}>
             {tr("أو اكتبوها يدوي")}
           </button>
         </Dialog>

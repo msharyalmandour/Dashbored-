@@ -173,6 +173,10 @@ export default function SvTeam({
       setSheet("note");
       return;
     }
+    if (kind === "setup") {
+      setSheet("setup");
+      return;
+    }
     const el = document.getElementById(`sv-open-${kind}-${id}`) ?? document.getElementById("sv-h-wait");
     if (!el) return;
     setTimeout(() => {

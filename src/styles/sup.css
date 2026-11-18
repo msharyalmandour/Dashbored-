@@ -181,7 +181,7 @@ html[data-reduce-motion="true"] .ml-ring { transition: none; }
 .md-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(270deg, rgba(10,6,4,.92) 0%, rgba(10,6,4,.55) 45%, rgba(10,6,4,.2) 100%), linear-gradient(0deg, rgba(10,6,4,.85), rgba(10,6,4,0) 60%); }
 [dir="ltr"] .md-hero::after { background: linear-gradient(90deg, rgba(10,6,4,.92) 0%, rgba(10,6,4,.55) 45%, rgba(10,6,4,.2) 100%), linear-gradient(0deg, rgba(10,6,4,.85), rgba(10,6,4,0) 60%); }
 .md-hero-in { position: relative; z-index: 1; padding: 28px 30px; max-width: 640px; }
-.md-title { margin: 6px 0 0; font-size: 54px; line-height: 1.15; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.md-title { padding-top: .2em; margin: 6px 0 0; font-size: 54px; line-height: 1.15; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 @media (max-width: 767px) { .md-hero { min-height: 260px; } .md-hero-in { padding: 20px; } .md-title { font-size: 32px; } }
 .md-sec { padding: 26px 0; border-top: 1px solid rgba(255,255,255,.07); animation: mdRise .55s cubic-bezier(.2,.8,.2,1) both; }
 .md-sec:first-child { border-top: 0; padding-top: 6px; }
@@ -223,7 +223,7 @@ html[data-reduce-motion="true"] .md-sec { animation: none; }
 @media (min-width: 1024px) { .sd-mnav { display: none; } }
 
 .sd-hi { font-size: 16px; color: #E9C9A0; }
-.sd-name { font-size: 46px; font-weight: 800; line-height: 1.05; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sd-name { padding-top: .2em; font-size: 46px; font-weight: 800; line-height: 1.05; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 @media (min-width: 1024px) { .sd-hi { font-size: 18px; } .sd-name { font-size: 58px; } }
 .sd-sub { font-size: 14px; color: #ABA095; margin-top: 4px; }
 .sd-pill { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 8px 0 16px; border-radius: 999px; border: 0; font-family: inherit; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); color: #EAE3DC; font-size: 14px; cursor: pointer; }
@@ -289,7 +289,7 @@ html[data-reduce-motion="true"] .md-sec { animation: none; }
 .sd-ext { border-radius: 28px; padding: 20px; }
 .sd-ext-obj { width: 88px; height: 88px; flex: none; }
 @media (min-width: 1024px) { .sd-ext-obj { width: 120px; height: 120px; } }
-.sd-ttl { font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sd-ttl { padding-top: .2em; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .sd-why { margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: rgba(0,0,0,.25); font-size: 14px; color: #EAE3DC; }
 .sd-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .sd-acts .p { flex: 1; min-width: 120px; height: 52px; border-radius: 18px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-weight: 800; box-shadow: 0 12px 30px rgba(255,106,0,.3); border: 0; font-size: 16px; font-family: inherit; cursor: pointer; }

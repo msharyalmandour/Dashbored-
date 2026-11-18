@@ -1072,3 +1072,18 @@ a:hover > .logo-tile, button:hover > .logo-tile { transform: scale(1.12); }
 html[dir="rtl"] body *:not([dir="ltr"], [dir="ltr"] *, .keep-track) {
   letter-spacing: 0 !important;
 }
+
+/* FixList 01: أي عنوان متدرّج (bg-clip-text) يقص الهمزة من فوق — مساحة .2em فوق. بطبقة base عشان pt-* المكتوبة تغلبها */
+@layer base {
+  :where(.bg-clip-text) { padding-top: .2em; }
+}
+
+/* FixList 02: التباعد بين الحروف يقطّع العربي («مها مي»). بالعربي = 0، إلا الأرقام والإنجليزي داخل dir=ltr */
+html[dir="rtl"] :is(.hg-name, .lux-eye, .lux-k2, .lux-name, .lux-now-k, .lv-title, .lv-faq-word, .v3-eye, .wf-grp),
+html[dir="rtl"] [class*="tracking-"]:not([dir="ltr"]) {
+  letter-spacing: 0;
+}
+
+/* FixList 07 + 09: بدون عناوين إنجليزية تحت العربي، وزر «اختاروا ملف» ما ينكسر لسطرين */
+html[dir="rtl"] .v3-en { display: none; }
+.dr-primary, .sd-pick { white-space: nowrap; }

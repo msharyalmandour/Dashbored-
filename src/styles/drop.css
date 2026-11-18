@@ -28,7 +28,7 @@
 /* زجاج */
 .dr-card { position: relative; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); }
 @media (min-width: 1024px) { .dr-card-lg { background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); } }
-.dr-title { margin: 0; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dr-title { padding-top: .2em; margin: 0; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .dr-ic { width: 32px; height: 32px; flex: none; border-radius: 10px; background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: #EAE3DC; }
 .dr-ic.gold { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,199,119,.12); color: #FFC777; }
 

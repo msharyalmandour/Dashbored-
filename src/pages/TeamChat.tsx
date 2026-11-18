@@ -20,6 +20,9 @@ import { notifySupervisor } from "../lib/supervisorNotify";
 import { DocBubble, Ledger, RequestCard, SideThread, SupState, Thread, ThreadExplainer, type LedgerRow } from "../components/sup/SupParts";
 import { createPortal } from "react-dom";
 import { useCommitments } from "../hooks/useCommitments";
+import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
+import { GroupBanner, GroupTabs, GroupsIntro, MoveToDoc, useGroupsIntro } from "../components/chat/Groups";
+import { Lock } from "lucide-react";
 import { useChatIntel } from "../hooks/useChatIntel";
 import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
 import { MeetLiveStrip } from "../components/meet/MeetLive";
@@ -284,6 +287,9 @@ export default function TeamChat() {
     for (const c of commitments) if (c.source_message_id) map.set(c.source_message_id, [...(map.get(c.source_message_id) ?? []), c]);
     return map;
   }, [commitments]);
+  const docThread = useSupervisorMessages();
+  const [introOpen, closeIntro] = useGroupsIntro(currentUser?.id);
+  const [moveDoc, setMoveDoc] = useState<ChatMessage | null>(null);
   const docName = useMemo(() => {
     const ev = [...messages].reverse().find((x) => x.kind === "event" && x.meta?.type === "supervisor_message" && x.meta.by);
     return String(ev?.meta?.by ?? "").trim() || tr("المشرف/ة");
@@ -690,6 +696,12 @@ export default function TeamChat() {
             <AlarmClock size={19} aria-hidden />
             {tr("ذكّروني")}
           </button>
+          {canWrite && !isAgent && !isPoll && (
+            <button role="menuitem" onClick={() => { setMoveDoc(m); setSelected(null); }}>
+              <SendToBack size={19} aria-hidden />
+              {tr("انقلوها للدكتورة")}
+            </button>
+          )}
           <button role="menuitem" onClick={() => { void navigator.clipboard?.writeText(m.body); setSelected(null); showToast({ title: tr("انتسخت"), icon: CircleCheck }); }}>
             <Copy size={19} aria-hidden />
             {tr("نسخ")}
@@ -746,6 +758,8 @@ export default function TeamChat() {
       <div className="tc-shell">
         <div className="tc-wrap relative" style={{ "--tc-h": `${composerH}px` } as CSSProperties}>
           <header>
+            <GroupTabs active="team" docName={docName} unreadDoc={docThread.unread} unreadTeam={0} />
+            <GroupBanner group="team" docName={docName} />
             <div className="tc-head">
               <div className="min-w-0 flex-1">
                 <h1 className="tc-title">{tr("محادثة الفريق")}</h1>
@@ -867,6 +881,10 @@ export default function TeamChat() {
 
           {!unavailable && (
             <div className="tc-composer" ref={composerRef}>
+              <div className="gr-to team">
+                <Lock size={13} aria-hidden />
+                {tr("ترسلون للفريق بس · الدكتورة ما تشوف")}
+              </div>
               <div className="tc-typing" aria-live="polite">
                 {typingPeople.length > 0 && (
                   <>
@@ -1140,6 +1158,20 @@ export default function TeamChat() {
           </div>
         </>,
         document.body,
+      )}
+      {introOpen && <GroupsIntro docName={docName} onDone={closeIntro} />}
+      {moveDoc && (
+        <MoveToDoc
+          docName={docName}
+          text={moveDoc.body}
+          onClose={() => setMoveDoc(null)}
+          onSend={async () => {
+            const body = moveDoc.body;
+            setMoveDoc(null);
+            const r = await docThread.reply(body);
+            showToast(r.error ? { title: r.error, icon: CircleAlert } : { title: tr("انرسلت لقروب الدكتورة ✓"), icon: CircleCheck });
+          }}
+        />
       )}
       {toSupervisor && (
         <SupervisorQuestionSheet

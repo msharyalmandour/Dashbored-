@@ -1,3 +1,4 @@
+import { downloadIcs } from "../lib/ics";
 import { MeetLiveStrip } from "../components/meet/MeetLive";
 import { Award, CalendarPlus, CircleHelp, FileText, Plus, Video } from "lucide-react";
 import { GoogleDriveLogo } from "../components/ui/BrandLogos";
@@ -47,20 +48,6 @@ function countdown(date: string, time: string): { big: string; small: string; la
   const hours = Math.floor((ms % 86400000) / 3600000);
   if (days > 0) return { big: String(days), small: tr("أيام و {0} ساعة", hours), label: tr("{0} أيام و {1} ساعة", days, hours) };
   return { big: String(hours), small: tr("ساعة"), label: tr("{0} ساعة", hours) };
-}
-
-/** ملف .ics للموعد (يفتح بتقويم الجوال أو قوقل) */
-function downloadIcs(date: string, time: string, minutes: number, who: string) {
-  const [h, m] = (time || "00:00").split(":").map(Number);
-  const [y, mo, d] = date.split("-").map(Number);
-  const start = new Date(y, mo - 1, d, h || 0, m || 0);
-  const end = new Date(start.getTime() + (minutes || 30) * 60000);
-  const z = (t: Date) => t.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Wesync//AR", "BEGIN:VEVENT", `UID:${z(start)}@wesyncapp.com`, `DTSTAMP:${z(new Date())}`, `DTSTART:${z(start)}`, `DTEND:${z(end)}`, `SUMMARY:${who ? tr("اجتماع مع {0}", who) : tr("اجتماع المشرف/ة")}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
-  const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
-  const el = Object.assign(document.createElement("a"), { href: url, download: "wesync-meeting.ics" });
-  el.click();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 export default function MeetingMinutes() {

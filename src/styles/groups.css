@@ -1,0 +1,53 @@
+/* ───────── المجموعتين: «مع الدكتورة» (كريمي دافي) · «الفريق بس» (زجاج داكن + قفل) ───────── */
+.gr-docav { flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #3A1504; background: linear-gradient(160deg, #FFF0E0, #E9C9A0); box-shadow: 0 0 0 2px rgba(255,226,190,.35); }
+.gr-lock { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.07); color: #E9D3B8; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.gr-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; border-radius: 26px; background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); margin: 0 0 14px; }
+.gr-tab { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; border-radius: 20px; color: #EAE3DC; text-decoration: none; transition: background .2s, box-shadow .2s; }
+.gr-tab:hover { background: rgba(255,255,255,.03); }
+.gr-tab-m { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+.gr-tab-m b { font-size: 15px; }
+.gr-tab-m span { font-size: 12px; color: #ABA095; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gr-tab.doc.on { background: linear-gradient(180deg, rgba(255,226,190,.12), rgba(255,226,190,.05)); box-shadow: inset 0 0 0 1px rgba(255,226,190,.42), 0 12px 30px rgba(0,0,0,.35); }
+.gr-tab.team.on { background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 12px 30px rgba(0,0,0,.35); }
+.gr-badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; background: #FFC777; color: #1A0A02; font-size: 12px; font-style: normal; font-weight: 800; display: grid; place-items: center; }
+.gr-banner { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 20px; margin-bottom: 10px; }
+.gr-banner > div { display: flex; flex-direction: column; line-height: 1.4; }
+.gr-banner b { font-size: 15px; }
+.gr-banner > div > span { font-size: 13px; color: #E9D3B8; }
+.gr-banner.doc { background: linear-gradient(180deg, rgba(255,226,190,.1), rgba(255,226,190,.04)); box-shadow: inset 0 0 0 1px rgba(255,226,190,.28); }
+.gr-banner.team { background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.gr-pill { display: inline-flex !important; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 99px; background: rgba(255,255,255,.08); font-size: 12px !important; font-weight: 800; color: #F2EBE3 !important; flex: none; }
+.gr-panel { display: flex; flex-direction: column; border-radius: 30px; padding: 14px; min-height: calc(100vh - 330px); }
+.gr-panel.doc { background: linear-gradient(180deg, rgba(255,240,225,.06), rgba(255,240,225,.02)); box-shadow: inset 0 0 0 1px rgba(255,226,190,.28), 0 30px 70px rgba(0,0,0,.45); }
+.gr-msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 10px 6px; max-height: calc(100vh - 540px); min-height: 300px; }
+.gr-empty { margin: auto; color: #ABA095; font-size: 14px; text-align: center; max-width: 340px; }
+.dc-b.cream { background: linear-gradient(160deg, #FFF0E0, #E9C9A0); color: #2A1404; font-weight: 700; box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+.gr-comp { margin-top: 10px; padding: 12px 14px 14px; border-radius: 24px; display: flex; flex-direction: column; gap: 10px; }
+.gr-comp.doc { background: rgba(0,0,0,.28); box-shadow: inset 0 0 0 1px rgba(255,226,190,.32); }
+.gr-to { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: #F2EBE3; }
+.gr-to.team { color: #E9D3B8; padding: 0 4px 6px; font-size: 12px; }
+.gr-rsvp { min-height: 44px; padding: 0 16px; border-radius: 14px; border: 0; background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); color: #EAE3DC; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.gr-rsvp.go { background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; box-shadow: none; }
+.gr-rsvp.on { background: rgba(255,199,119,.14); color: #FFC777; box-shadow: inset 0 0 0 1px rgba(255,199,119,.4); }
+.gr-del { margin-inline-start: 6px; min-height: 32px; padding: 0 8px; border-radius: 10px; border: 0; background: rgba(255,138,122,.1); color: #FF8A7A; font: inherit; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.gr-scrim { position: fixed; inset: 0; z-index: 80; background: rgba(5,3,2,.72); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; animation: grIn .25s ease both; }
+.gr-intro, .gr-guard { width: min(640px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; border-radius: 30px; padding: 24px; background: linear-gradient(180deg, #1C120C, #0E0806); box-shadow: inset 0 1px 0 rgba(255,240,225,.14), inset 0 0 0 1px rgba(255,199,119,.2), 0 40px 90px rgba(0,0,0,.6); color: #EAE3DC; }
+.gr-intro h2, .gr-guard h2 { margin: 0 0 14px; font-size: 22px; font-weight: 800; padding-top: .1em; }
+.gr-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .gr-cols { grid-template-columns: minmax(0, 1fr); } }
+.gr-col { border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.gr-col.doc { background: linear-gradient(180deg, rgba(255,226,190,.12), rgba(255,226,190,.04)); box-shadow: inset 0 0 0 1px rgba(255,226,190,.32); }
+.gr-col.team { background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.gr-col-h { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.gr-col ul { margin: 0; padding-inline-start: 18px; font-size: 14px; color: #E9D3B8; line-height: 1.9; }
+.gr-col-f { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #FFC777; margin-top: auto; }
+.gr-ok, .gr-go { width: 100%; min-height: 52px; margin-top: 16px; border-radius: 18px; border: 0; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font: inherit; font-size: 16px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 12px 30px rgba(255,106,0,.28); }
+.gr-alt { width: 100%; min-height: 48px; margin-top: 8px; border-radius: 16px; border: 0; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); color: #EAE3DC; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.gr-guard { width: min(440px, 100%); text-align: center; display: flex; flex-direction: column; align-items: center; }
+.gr-guard h2 { margin-top: 12px; }
+.gr-quote { margin: 0; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.05); font-size: 15px; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; }
+.gr-why { margin: 10px 0 0; font-size: 14px; color: #ABA095; }
+@keyframes grIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .gr-scrim { animation: none; } }
+html[data-reduce-motion="true"] .gr-scrim { animation: none; }
+@media (max-width: 640px) { .gr-tab-m span { display: none; } .gr-tab { min-height: 52px; } .gr-banner span:not(.gr-pill) { font-size: 12px; } }

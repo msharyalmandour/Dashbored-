@@ -30,6 +30,14 @@ import Tasks from "./pages/Tasks";
 import EvidenceLibrary from "./pages/EvidenceLibrary";
 import Team from "./pages/Team";
 import TeamChat from "./pages/TeamChat";
+import DocGroup from "./pages/DocGroup";
+import { useSearchParams as useSP } from "react-router-dom";
+
+/** /chat = «الفريق بس» · /chat?g=doc = «مع الدكتورة» */
+function ChatRoute() {
+  const [sp] = useSP();
+  return sp.get("g") === "doc" ? <DocGroup /> : <TeamChat />;
+}
 import Timeline from "./pages/Timeline";
 import Fieldwork from "./pages/Fieldwork";
 import Collect from "./pages/Collect";
@@ -113,7 +121,7 @@ export default function App() {
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/evidence" element={<EvidenceLibrary />} />
         <Route path="/team" element={<Team />} />
-        <Route path="/chat" element={<TeamChat />} />
+        <Route path="/chat" element={<ChatRoute />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/fieldwork" element={<Fieldwork />} />
         <Route path="/collect" element={<Collect />} />

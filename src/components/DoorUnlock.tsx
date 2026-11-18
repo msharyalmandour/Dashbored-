@@ -1,61 +1,104 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { syncChime } from "../lib/sound";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { DOOR_UNLOCKED, type DoorId } from "../lib/doors";
 import { tr } from "../lib/i18n";
+import { WesyAvatar } from "./brand/Wesy";
 
-/** لحظة انفتاح باب: كبسولة زجاج فوق الشاشة — قفل ذهبي ينفك، خط ذهبي يمشي على حافتها، وسطر واحد.
-    تطلع مرة وحدة لكل باب، وتختفي بعد 6 ثواني. (المرجع: docs/DESIGN_BRIEF_UNLOCK.md) */
+/** كبسولة الإشعار (DoorToastD/M · CeoToastM): تنزل من فوق عند 1200ms (بعد لحظة انفتاح الباب بالقائمة)،
+    راس ويسي بمربع كريمي، «ويسي فتح لكم: المقترح» (الكلمة الأخيرة ذهبية)، «افتحوه» كريمي و«شاركوها» زجاج،
+    وشريط ذهبي يقصر خلال 6 ثواني — يوقف لما الماوس فوقها أو تنلمس — وبعدها تختفي بـ 260ms. */
+const SHOW_AT = 1200;
+const LIFE = 6000;
+
 export default function DoorUnlock({ door, onDone, onGo, onShare }: { door: DoorId; onDone: () => void; onGo?: () => void; onShare?: () => void }) {
   const d = DOOR_UNLOCKED[door];
-  useEffect(() => {
-    // نبضة خفيفة بالجوال، بس لو المستخدم تفاعل مع الصفحة (وإلا المتصفح يمنعها ويطبع تحذير)
-    if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.(10);
-    // صوت المزامنة: لحظة كبيرة (باب انفتح) — يطفى من القائمة
-    syncChime();
-    const t = window.setTimeout(onDone, 6000);
-    return () => window.clearTimeout(t);
-  }, [door, onDone]);
+  const name = d.title.split(/[:：]\s*/).pop() ?? d.title;
+  const [shown, setShown] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const left = useRef(LIFE);
+  const started = useRef(0);
 
+  useEffect(() => {
+    const t = window.setTimeout(() => setShown(true), SHOW_AT);
+    // نبضة اهتزاز وحدة مع نبضة الباب بالقائمة (1100ms)، بس لو المستخدم تفاعل مع الصفحة
+    const v = window.setTimeout(() => navigator.userActivation?.hasBeenActive && navigator.vibrate?.(12), 1100);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(v);
+    };
+  }, [door]);
+  useEffect(() => {
+    if (shown) syncChime();
+  }, [shown]);
+
+  const close = () => {
+    setLeaving(true);
+    window.setTimeout(onDone, 260);
+  };
+  // المؤقت: 6 ثواني، يوقف مع المرور/اللمس ويكمل من مكانه
+  useEffect(() => {
+    if (!shown || paused || leaving) return;
+    started.current = Date.now();
+    const t = window.setTimeout(close, left.current);
+    return () => {
+      window.clearTimeout(t);
+      left.current -= Date.now() - started.current;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shown, paused, leaving]);
+
+  if (!shown) return null;
   return createPortal(
-    <div className="door-pop" role="status" aria-live="polite">
-      <span className="door-trace" aria-hidden />
-      <span className="door-lock" aria-hidden>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="5" y="11" width="14" height="10" rx="2.5" />
-          <path className="door-shackle" d="M8 11V7.5a4 4 0 0 1 8 0" />
-        </svg>
-      </span>
-      <span className="min-w-0 flex-1 leading-tight">
-        <b className="block text-[15px] text-[#F2EBE3]">{d.title}</b>
-        <span className="block text-[13px] text-[#E9D3B8]">{d.sub}</span>
-      </span>
-      {onShare && (
-        <button
-          type="button"
-          className="door-share"
+    <div
+      className={leaving ? "door-pop out" : "door-pop"}
+      role="status"
+      aria-live="polite"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <div className="door-row">
+        <WesyAvatar size={44} state="wink" />
+        <span className="min-w-0 flex-1 leading-tight">
+          <b className="block text-[15px] text-[#F2EBE3]">
+            {tr("ويسي فتح لكم:")} <span className="text-[#FFC777]">{name}</span>
+          </b>
+          <span className="block text-[13px] text-[#E9D3B8]">{d.sub}</span>
+        </span>
+        <button type="button" className="door-x" aria-label={tr("إغلاق")} onClick={close}>
+          ×
+        </button>
+      </div>
+      <div className="door-acts">
+        <Link
+          to={d.to}
+          className="door-go"
           onClick={() => {
-            onShare();
             onDone();
+            onGo?.();
           }}
         >
-          {tr("شاركوها")}
-        </button>
-      )}
-      <Link
-        to={d.to}
-        className="door-go"
-        onClick={() => {
-          onDone();
-          onGo?.();
-        }}
-      >
-        {tr("افتحوه")}
-      </Link>
-      <button type="button" className="door-x" aria-label={tr("إغلاق")} onClick={onDone}>
-        ×
-      </button>
+          {tr("افتحوه")}
+        </Link>
+        {onShare && (
+          <button
+            type="button"
+            className="door-share"
+            onClick={() => {
+              onShare();
+              onDone();
+            }}
+          >
+            {tr("شاركوها")}
+          </button>
+        )}
+      </div>
+      <span className={paused ? "door-timer paused" : "door-timer"} style={{ animationDuration: `${LIFE}ms` }} aria-hidden />
     </div>,
     document.body,
   );

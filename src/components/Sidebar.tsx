@@ -78,8 +78,22 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
     const fresh = !!it.door && doors.fresh.includes(it.door);
     return (
       <NavLink key={it.id} data-nav-id={it.id} to={active ? pathname : it.to} onClick={onClose} aria-current={active ? "page" : undefined} className={clsx("lx-link", active && "on", fresh && "door-new")}>
-        <it.icon size={18} strokeWidth={1.8} aria-hidden />
-        <span className="min-w-0 flex-1 truncate">{it.label}</span>
+        {fresh && (
+          <>
+            {/* لحظة الانفتاح (DoorMotionSpec): خط ذهبي على حافة الكبسولة + القفل يدور وينفك */}
+            <svg className="dl-edge" aria-hidden>
+              <rect x="1" y="1" rx="16" pathLength={100} style={{ width: "calc(100% - 2px)", height: "calc(100% - 2px)" }} />
+            </svg>
+            <span className="dl-lock" aria-hidden>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2.5" />
+                <path d="M8 11V7.5a4 4 0 0 1 8 0" />
+              </svg>
+            </span>
+          </>
+        )}
+        <it.icon size={18} strokeWidth={1.8} aria-hidden className={fresh ? "dl-fade" : undefined} />
+        <span className={clsx("min-w-0 flex-1 truncate", fresh && "dl-fade")}>{it.label}</span>
         {!!badge && (
           <span className="hd-badge" dir="ltr" aria-label={tr("{0} أشياء جديدة", badge)}>
             +{badge}

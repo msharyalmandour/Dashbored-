@@ -40,6 +40,8 @@ interface AuthContextValue {
     teamId?: string,
     referralCode?: string,
     university?: string,
+    /** من وين جا (supervisor = رابط المشرفة) — للقياس بس */
+    source?: string,
   ) => Promise<AuthResult>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
@@ -239,6 +241,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     teamId?: string,
     referralCode?: string,
     university?: string,
+    source?: string,
   ) => {
     const { error } = await supabase!.auth.signUp({
       email,
@@ -251,6 +254,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           ...(teamId ? { team_id: teamId } : {}),
           ...(referralCode ? { referral_code: referralCode } : {}),
           ...(university?.trim() ? { university: university.trim() } : {}),
+          ...(source && !teamId ? { source } : {}),
         },
       },
     });

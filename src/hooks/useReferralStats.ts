@@ -6,8 +6,9 @@ import { useAuth } from "../context/AuthContext";
 const mockStats: ReferralStats = {
   referralCode: "DEMO01",
   referredCount: 2,
+  activatedCount: 1,
   rewardedCount: 1,
-  bonusDaysEarned: 15,
+  bonusDaysEarned: 44,
 };
 
 export function useReferralStats() {
@@ -30,12 +31,14 @@ export function useReferralStats() {
           const row = data as {
             referral_code: string;
             referred_count: number;
+            activated_count?: number;
             rewarded_count: number;
             bonus_days_earned: number;
           };
           setStats({
             referralCode: row.referral_code,
             referredCount: row.referred_count,
+            activatedCount: row.activated_count ?? 0,
             rewardedCount: row.rewarded_count,
             bonusDaysEarned: row.bonus_days_earned,
           });

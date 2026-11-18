@@ -6,6 +6,7 @@ import { demoCredentials, teamMembers } from "../data/mockData";
 import Logo from "../components/Logo";
 import LangToggle from "../components/ui/LangToggle";
 import { tr } from "../lib/i18n";
+import { clearSignupRef, parseRef, storedSignupRef } from "../lib/signupSource";
 
 /** اقتراحات جاهزة بخانة "الجامعة" وقت التسجيل — الحقل نص حر أصلًا
     (datalist)، فأي جامعة مو بالقائمة تُكتب يدويًا بدون أي قيد */
@@ -51,7 +52,9 @@ export default function Login() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const inviteTeamId = searchParams.get("team");
-  const referralCode = searchParams.get("ref");
+  // ?ref= بالرابط أو المحفوظ من أول فتح للموقع (رابط المشرفة يوصل للرئيسية قبل الـ #)
+  const refRaw = searchParams.get("ref") ?? storedSignupRef();
+  const { code: referralCode, source: signupSource } = parseRef(refRaw);
 
   // نلتقط هل المستخدمة كانت مسجلة دخولها أصلًا وقت أول تحميل للصفحة (زي
   // استرجاع جلسة محفوظة) — عشان ما نشغّل حركة الاحتفال إلا لما تسجّل دخول
@@ -72,7 +75,7 @@ export default function Login() {
     return () => clearTimeout(t);
   }, [celebrating]);
 
-  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode || searchParams.has("signup"));
+  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode || !!signupSource || searchParams.has("signup"));
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -130,14 +133,16 @@ export default function Login() {
           name,
           gender,
           effectiveTeamId,
-          referralCode ?? undefined,
+          referralCode,
           effectiveTeamId ? undefined : university || undefined,
+          signupSource,
         )
       : await signInWithPassword(email, password);
 
     setSubmitting(false);
     if (result.error) setError(result.error);
     else if (isSignUp) {
+      clearSignupRef();
       setError(tr("تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل دخولك."));
     }
   };
@@ -252,7 +257,7 @@ export default function Login() {
                   )}
                   {!inviteTeamId && referralCode && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
-                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة 14 يوم مجانية، وتاخذون شهر هدية أنتم وهم أول ما تشتركون 🎉")}</span>
+                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة 14 يوم مجانية. لما تبدأون فعليًا تاخذون أسبوعين هدية أنتم وهم، ولما تشتركون شهر 🎉")}</span>
                   )}
                 </div>
               </div>

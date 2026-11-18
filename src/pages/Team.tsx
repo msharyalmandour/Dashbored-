@@ -283,7 +283,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${publicBase()}#/login?ref=${team.referralCode}`;
-  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة 14 يوم مجانية، وأول ما تشتركون ناخذ شهر هدية أنا وأنتم 🎁\n{0}", referralLink);
+  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة 14 يوم مجانية. لما تبدأون فعليًا ناخذ أسبوعين هدية أنا وأنتم، ولما تشتركون شهر 🎁\n{0}", referralLink);
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -302,8 +302,8 @@ function ReferralCard() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
             <Gift size={19} />
           </span>
-          <p className="mt-3 font-bold text-brand-950">{tr("ادعوا فريق ثاني واربحوا 15 يوم مجاني")}</p>
-          <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون 15 يوم إضافي تلقائيًا.")}</p>
+          <p className="mt-3 font-bold text-brand-950">{tr("أهدوا فريق من دفعتكم أسبوعين")}</p>
+          <p className="mt-1 text-sm text-brand-950/55">{tr("لما يبدأون فعليًا (عضوين وأول قسم بالمقترح) تاخذون أنتم وهم أسبوعين، ولما يشتركون شهر كامل — تلقائيًا.")}</p>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
@@ -328,8 +328,8 @@ function ReferralCard() {
                 <p className="text-[12px] font-semibold text-brand-950/50">{tr("فرق دعوتوها")}</p>
               </div>
               <div className="text-center">
-                <p className="font-display text-lg font-extrabold text-brand-950">{stats.rewardedCount}</p>
-                <p className="text-[12px] font-semibold text-brand-950/50">{tr("فعّلوا اشتراكهم")}</p>
+                <p className="font-display text-lg font-extrabold text-brand-950">{stats.activatedCount}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("بدأوا فعليًا")}</p>
               </div>
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-amber-accent-600">

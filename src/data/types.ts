@@ -52,6 +52,8 @@ export interface Team {
 export interface ReferralStats {
   referralCode: string;
   referredCount: number;
+  /** فرق بدأت فعليًا (عضوين + أول قسم أو 3 دراسات) — أسبوعين هدية لكل فريق */
+  activatedCount: number;
   rewardedCount: number;
   bonusDaysEarned: number;
 }

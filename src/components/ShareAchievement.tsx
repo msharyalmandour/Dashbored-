@@ -4,6 +4,7 @@ import { Download, Share2, X } from "lucide-react";
 import { drawAchievement, shareOrDownload } from "../lib/achievementCard";
 import { tr } from "../lib/i18n";
 import { useAuth } from "../context/AuthContext";
+import { useFounderNumber } from "../hooks/useFounderNumber";
 
 /** نافذة بطاقة الإنجاز: معاينة الصورة + «شاركوها» (قائمة المشاركة بالجوال: ستوري/واتساب) أو «حمّلوها».
     الصورة تنرسم أول ما تنفتح النافذة: سفاري يرفض المشاركة لو سبقها انتظار داخل نفس الضغطة. */
@@ -13,11 +14,12 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
   const [note, setNote] = useState("");
   const { team } = useAuth();
   const refCode = team?.referralCode ?? null;
+  const founder = useFounderNumber();
 
   useEffect(() => {
     let alive = true;
     let made = "";
-    void drawAchievement({ title, sub, step, refCode }).then((b) => {
+    void drawAchievement({ title, sub, step, refCode, founder }).then((b) => {
       if (!alive || !b) return;
       made = URL.createObjectURL(b);
       setBlob(b);
@@ -27,7 +29,7 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
       alive = false;
       if (made) URL.revokeObjectURL(made);
     };
-  }, [title, sub, step, refCode]);
+  }, [title, sub, step, refCode, founder]);
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();

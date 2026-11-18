@@ -63,7 +63,7 @@ async function wesyHead(px: number): Promise<HTMLImageElement | null> {
   }
 }
 
-export async function drawAchievement({ title, sub, step, refCode }: { title: string; sub: string; step: number | null; refCode?: string | null }): Promise<Blob | null> {
+export async function drawAchievement({ title, sub, step, refCode, founder }: { title: string; sub: string; step: number | null; refCode?: string | null; founder?: number | null }): Promise<Blob | null> {
   const W = 1080;
   const H = 1920;
   const canvas = document.createElement("canvas");
@@ -94,6 +94,22 @@ export async function drawAchievement({ title, sub, step, refCode }: { title: st
   drawBrandLockup(ctx, W / 2, 160, 64);
   ctx.textAlign = "center";
   ctx.direction = "rtl";
+
+  // شارة المؤسسين (رقم حقيقي من القاعدة بس)
+  if (founder) {
+    ctx.font = "800 34px Tajawal, sans-serif";
+    const t = tr("فريق مؤسس #{0}", founder);
+    const tw = ctx.measureText(t).width + 56;
+    ctx.fillStyle = "rgba(255,199,119,0.12)";
+    ctx.strokeStyle = "rgba(255,199,119,0.55)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(W / 2 - tw / 2, 246, tw, 62, 31);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#FFC777";
+    ctx.fillText(t, W / 2, 289);
+  }
 
   // الختم الذهبي: دائرة وعلامة صح
   const cx = W / 2;

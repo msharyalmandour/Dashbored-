@@ -1,3 +1,6 @@
+import SeasonCard from "../components/team/SeasonCard";
+import FounderBadge from "../components/team/FounderBadge";
+import { useFounderNumber } from "../hooks/useFounderNumber";
 import { useEffect, useState } from "react";
 import {
   Bell,
@@ -453,6 +456,7 @@ function ActivityLog() {
 }
 
 export default function Team() {
+  const founderN = useFounderNumber();
   const { roster, removeMember } = useTeamRoster();
   const { tasks } = useTasksData();
   const { isLeader, mode, currentUser } = useAuth();
@@ -461,6 +465,7 @@ export default function Team() {
     <div>
       <div className="mb-6">
         <PageHeader kicker={tr("الفريق")} title={tr("الفريق")} subtitle={tr("ادعوا فريقكم والمشرف/ة، وتابعوا إنجاز كل واحد منكم.")} />
+        <FounderBadge n={founderN} />
       </div>
       {mode === "supabase" && <UniversityField />}
       {isLeader && mode === "supabase" && (
@@ -565,6 +570,10 @@ export default function Team() {
       {isLeader && mode === "supabase" && (
         <div className="mt-4">
           <ReferralCard />
+          <SeasonCard />
+          <Link to="/receipts" className="lx-ghost self-start">
+            {tr("سجل الرحلة والإيصالات")}
+          </Link>
         </div>
       )}
       {mode === "mock" && <ActivityLog />}

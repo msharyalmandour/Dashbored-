@@ -154,3 +154,32 @@ button.nx-go { border: 0; font: inherit; font-size: 16px; font-weight: 800; curs
 @keyframes nxSwap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .nx-sk { animation: none; } .nx-body { animation: none; } }
 html[data-reduce-motion="true"] .nx-sk, html[data-reduce-motion="true"] .nx-body { animation: none; }
+
+/* شارة المؤسسين + سجل الرحلة + المكتب المظلم */
+.fb-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,199,119,.1); box-shadow: inset 0 0 0 1px rgba(255,199,119,.45); color: #FFC777; font-size: 13px; font-weight: 800; }
+.fb-badge small { font-size: 11px; font-weight: 600; color: #ABA095; }
+.fb-badge.sm { margin: 0; padding: 3px 10px; font-size: 11px; }
+.wo.dim .wo-window, .wo.dim .wo-shelf { filter: brightness(.45) saturate(.8); transition: filter .6s; }
+.wo.dim .wo-lamp { opacity: .35; }
+.rc-sheet { border-radius: 28px; padding: 22px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,199,119,.18); }
+.rc-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid rgba(255,199,119,.16); }
+.rc-head .fb-badge { margin: 0; }
+.rc-list { list-style: none; margin: 0; padding: 0; }
+.rc-row { display: flex; align-items: center; gap: 12px; min-height: 64px; border-bottom: 1px dashed rgba(255,199,119,.16); }
+.rc-n { font-size: 13px; font-weight: 800; color: #ABA095; width: 26px; }
+.rc-ic { width: 34px; height: 34px; flex: none; border-radius: 11px; display: grid; place-items: center; background: rgba(255,199,119,.1); color: #FFC777; }
+.rc-ok { font-size: 12px; font-weight: 800; color: #FFC777; }
+.rc-empty { margin: 24px 0; text-align: center; color: #ABA095; font-size: 14px; }
+@media print {
+  body { background: #fff !important; }
+  .rc-noprint, aside, nav, header.lx-head, .lx-side, [data-tour] { display: none !important; }
+  .rc-sheet { box-shadow: none; background: #fff; color: #160904; }
+  .rc-sheet * { color: #160904 !important; }
+  .rc-ok, .fb-badge { color: #9A5A0A !important; }
+}
+.as-seal { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; font-size: 12px; color: #ABA095; } .as-seal b { color: #FFC777; font-weight: 800; }
+.wo-morning { position: relative; z-index: 3; display: flex; align-items: center; gap: 10px; margin: 0 16px 16px; padding: 10px 14px; border-radius: 18px; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1px rgba(255,199,119,.2); font-size: 13px; }
+@media (min-width: 1024px) { .wo-morning { position: absolute; bottom: 16px; inset-inline-end: 28px; width: min(470px, 42%); margin: 0; box-sizing: border-box; } }
+.wo-morning-k { flex: none; font-weight: 800; color: #FFC777; }
+.wo-morning-t { flex: 1; min-width: 0; color: #E9D3B8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wo-morning button { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: #ABA095; font-size: 18px; cursor: pointer; }

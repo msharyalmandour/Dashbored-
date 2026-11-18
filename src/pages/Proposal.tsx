@@ -1,3 +1,5 @@
+import { recordAuthorship } from "../lib/authorship";
+import AuthorshipSeal from "../components/write/AuthorshipSeal";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AlertCircle, Check, Eye, FileDown, Paperclip } from "lucide-react";
@@ -320,7 +322,7 @@ export default function Proposal() {
 
                 {/* مسؤول القسم + مهامه المربوطة */}
                 <SectionTasks sectionKey={active.key} ownerId={active.ownerId} onOwner={(id) => saved(setSectionOwner(active.key, id))} />
-                <SectionDrafts sectionKey={active.key} content={active.content ?? ""} onApply={(content) => saved(updateSection(active.key, { content }))} />
+                <SectionDrafts sectionKey={active.key} content={active.content ?? ""} onApply={(content) => (void recordAuthorship(active.key, active.content ?? "", content, "ai_suggestion_edited"), saved(updateSection(active.key, { content })))} />
 
                 {/* المحرر حسب القسم — نفس الحقول السابقة */}
                 <div key={active.key} className="flex flex-col gap-3">
@@ -386,13 +388,14 @@ export default function Proposal() {
                     <AutoSaveTextarea
                       label={bi(active.labelAr, active.labelEn)}
                       value={active.content}
-                      onSave={(content) => saved(updateSection(active.key, { content }))}
+                      onSave={(content) => (void recordAuthorship(active.key, active.content ?? "", content, "human"), saved(updateSection(active.key, { content })))}
                       onDraft={onWriting}
                       placeholder={tr("اكتبوا {0} هنا…", bi(active.labelAr, active.labelEn))}
                       rows={10}
                       className="wf-ed"
                     />
                   )}
+                  {!gapRelated && <AuthorshipSeal section={active.key} bump={active.content} />}
 
                   {/* نص القسم الإضافي لأقسام الفجوة/الهدف/الأسئلة — كان حقل مستقل بقائمة الأقسام، باقي ومحفوظ */}
                   {gapRelated && (

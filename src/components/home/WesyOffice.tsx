@@ -11,6 +11,9 @@ import { useAuth } from "../../context/AuthContext";
 import { journeyStep } from "../../lib/doors";
 import { docDisplayName } from "../../lib/docThread";
 import { nextState, wesyFor } from "../../lib/nextState";
+import { seasonOf } from "../../lib/season";
+import { wesyMood } from "../../lib/wesyMood";
+import { useAcademicCalendar } from "../../hooks/useAcademicCalendar";
 import type { NextStep } from "../../lib/nextSteps";
 import { tr } from "../../lib/i18n";
 
@@ -63,6 +66,42 @@ function Shelf() {
   );
 }
 
+/** صوت ويسي الصباحي (B05VoiceM): 7:30–11 الصبح، سطر قصير عن خطوة اليوم. الصوت ينتظر مفتاح خدمة تحويل النص لصوت،
+    فالحين «اقرأوه بس». يطفى من × (ويتذكر بالجهاز). */
+const MORNING_KEY = "wesync.morningVoice";
+function MorningNote({ text }: { text: string }) {
+  const [off, setOff] = useState(() => {
+    try {
+      return localStorage.getItem(MORNING_KEY) === "off";
+    } catch {
+      return false;
+    }
+  });
+  const now = new Date();
+  const mins = now.getHours() * 60 + now.getMinutes();
+  if (off || mins < 7 * 60 + 30 || mins >= 11 * 60) return null;
+  return (
+    <div className="wo-morning" role="note">
+      <span className="wo-morning-k">{tr("صباحية ويسي · اقرأوه بس")}</span>
+      <span className="wo-morning-t">{text}</span>
+      <button
+        type="button"
+        aria-label={tr("أوقفوا صباحية ويسي")}
+        onClick={() => {
+          setOff(true);
+          try {
+            localStorage.setItem(MORNING_KEY, "off");
+          } catch {
+            /* ما يهم */
+          }
+        }}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
 export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fallback?: NextStep }) {
   const { mode, team } = useAuth();
   const doors = useDoors();
@@ -74,10 +113,16 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
   const loading = mode === "supabase" && !!team && !doors.signals;
   const step = doors.signals ? journeyStep(doors.signals, doors.open) : null;
   const state = nextState({ loading, topic: project?.title ?? "", waitingDoc: waiting, step });
-  const w = wesyFor(state, docName);
+  const { events } = useAcademicCalendar();
+  const season = seasonOf(events);
+  const mood = wesyMood({ deadlines: events.filter((e) => e.kind === "deadline").map((e) => `${e.startsOn}T23:59:00+03:00`) });
+  const base = wesyFor(state, docName);
+  // الموسم يغلب حالة الكرت العادية (منتصف) — بس ما يغطي يوم أول ولا التحميل ولا الخلاص
+  const w = season.kind !== "normal" && (state === "middle" || state === "waiting") ? { state: season.state ?? base.state, line: season.line ?? base.line } : base;
+  const outfit = season.outfit ?? mood.outfit;
 
   return (
-    <section className="wo" aria-label={tr("مكتب ويسي")}>
+    <section className={season.dim ? "wo dim" : "wo"} aria-label={tr("مكتب ويسي")}>
       <div className="wo-scene" aria-hidden>
         <div className="wo-window">
           <Skyline />
@@ -86,7 +131,7 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
         <div className="wo-lamp" />
         <div className="wo-desk" />
         <div className="wo-wesy">
-          <Wesy state={w.state} size={300} shadow={false} label={tr("ويسي، الرئيس التنفيذي")} />
+          <Wesy state={w.state} outfit={outfit} size={300} shadow={false} label={tr("ويسي، الرئيس التنفيذي")} />
           <div className="wo-laptop">
             <WLogo tone="bare" size={64} className="wo-w" />
           </div>
@@ -112,6 +157,7 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
           onAchieve={() => setShare(true)}
         />
       </div>
+      {state === "middle" && <MorningNote text={tr("صباح الخير ☕ خطوة اليوم وحدة: {0}.", (urgent?.title ?? fallback?.title ?? tr("كمّلوا من «الجاي لكم»")))} />}
       {share && <ShareAchievement title={tr("خلّصنا البحث")} sub={tr("رحلة كاملة من الموضوع للتسليم")} step={10} onClose={() => setShare(false)} />}
     </section>
   );

@@ -400,3 +400,56 @@ html[data-reduce-motion="true"] .mt-chat { animation: none; }
   .mt-btn.leave { width: 46px; padding: 0; }
   .mt-btn.leave .lbl { display: none; }
 }
+
+/* ───────── بوابة الدكتورة · الرئيسية (DocHome2 / DocHomeM2) ───────── */
+.dh-wait { border-radius: 30px; padding: 20px 22px 22px; background: linear-gradient(165deg, #FF9A3C 0%, #FF7414 45%, #E85500 100%); box-shadow: inset 0 1px 0 rgba(255,236,210,.6), inset 0 0 0 1px rgba(255,220,180,.35), 0 30px 80px rgba(255,100,10,.25); color: #2A0E02; }
+.dh-wait-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.dh-wait-n { font-size: 44px; line-height: 1; font-weight: 800; }
+.dh-wait-all { margin-inline-start: auto; min-height: 44px; padding: 0 16px; border-radius: 14px; border: 0; background: rgba(42,14,2,.14); color: #2A0E02; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.dh-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.dh-tile { text-align: start; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 150px; padding: 16px; border-radius: 22px; border: 0; background: rgba(255,236,214,.22); box-shadow: inset 0 1px 0 rgba(255,244,230,.45); color: #2A0E02; font: inherit; cursor: pointer; transition: background .2s; }
+.dh-tile:hover { background: rgba(255,236,214,.32); }
+.dh-tile-ic { width: 40px; height: 40px; border-radius: 13px; background: rgba(42,14,2,.14); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; align-self: flex-end; }
+.dh-tile-t { font-size: 17px; font-weight: 800; }
+.dh-tile-s { font-size: 13px; color: #3A1504; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.dh-tile-go { margin-top: auto; padding-top: 10px; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 800; }
+.dh-link { min-height: 44px; padding: 0 6px; background: none; border: 0; color: #FFC777; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.dh-day { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
+.dh-slot { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 20px; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.dh-slot.next { background: #F2EBE3; color: #160904; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+.dh-slot-t { font-size: 20px; font-weight: 800; }
+.dh-slot-n { font-size: 13px; color: #ABA095; }
+.dh-slot.next .dh-slot-n { color: #6B4A33; }
+.dh-soon { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 99px; background: #160904; color: #FFC777; }
+.dh-sep { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #FFB444; }
+.dh-sep::after { content: ""; flex: 1; height: 1px; background: rgba(255,199,119,.16); }
+.dh-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+.dh-team { display: flex; flex-direction: column; gap: 10px; border-radius: 28px; padding: 20px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); }
+.dh-team.hot { box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,199,119,.32), 0 30px 70px rgba(0,0,0,.45); }
+.dh-team-n { display: block; font-size: 19px; font-weight: 800; padding-top: .1em; }
+.dh-ring { position: relative; width: 84px; height: 84px; flex: none; display: grid; place-items: center; }
+.dh-ring svg { position: absolute; inset: 0; }
+.dh-ring b { font-size: 18px; font-weight: 800; }
+.dh-tone { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; }
+.dh-tone i { width: 8px; height: 8px; border-radius: 50%; }
+.dh-why { margin: 0; font-size: 14px; color: #E9D3B8; min-height: 2.6em; }
+.dh-msg { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 18px; background: rgba(0,0,0,.25); min-height: 58px; }
+.dh-msg-t { font-size: 12px; color: #ABA095; }
+.dh-msg-b { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dh-acts { display: grid; grid-template-columns: 1.7fr 1fr; gap: 10px; margin-top: 2px; }
+.dh-cream, .dh-glass { min-height: 48px; border-radius: 16px; border: 0; font: inherit; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.dh-cream { background: #F2EBE3; color: #160904; }
+.dh-glass { background: rgba(255,255,255,.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); color: #EAE3DC; }
+.dh-hours { margin: 8px 4px; padding: 14px 16px; border-radius: 20px; box-shadow: inset 0 0 0 1px rgba(255,199,119,.2); background: rgba(255,199,119,.04); display: flex; flex-direction: column; gap: 2px; }
+.dh-hours b { font-size: 14px; }
+.dh-hours span { font-size: 12px; color: #ABA095; }
+.dh-hours button { align-self: flex-start; min-height: 36px; padding: 0; background: none; border: 0; color: #FFC777; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.sd-nav-sm { min-height: 44px !important; font-size: 13px !important; color: #ABA095 !important; }
+.dh-tabbar { position: fixed; z-index: 40; inset-inline: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px; border-radius: 26px; background: rgba(20,12,8,.86); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: inset 0 0 0 1px rgba(255,240,225,.1), 0 20px 50px rgba(0,0,0,.5); }
+.dh-tab { position: relative; min-height: 56px; border: 0; border-radius: 20px; background: transparent; color: #ABA095; font: inherit; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; }
+.dh-tab[aria-current="page"] { background: #F2EBE3; color: #160904; }
+.dh-tab-b { position: absolute; top: 5px; inset-inline-end: 18%; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; background: #FF6A00; color: #1A0802; font-size: 11px; font-style: normal; font-weight: 800; display: grid; place-items: center; }
+@media (min-width: 1024px) { .dh-tabbar { display: none; } }
+@media (max-width: 1023px) { .sd-main { padding-bottom: 96px; } .dh-tile { min-height: 0; } .dh-tiles { grid-template-columns: minmax(0, 1fr); } .dh-tile-ic { display: none; } }
+@media (max-width: 767px) { .dh-day { grid-template-columns: minmax(0, 1fr); } .dh-teams { grid-template-columns: minmax(0, 1fr); } }
+.dh-daycard { display: flex !important; flex-direction: column !important; align-items: stretch !important; }

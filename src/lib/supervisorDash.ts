@@ -276,7 +276,8 @@ export function waitingItems(teams: TeamData[], now = Date.now()): WaitItem[] {
       out.push({ key: `bk:${b.id}`, kind: "booking", token: t.token, team: t.name, title: tr("اقتراح موعد"), sub: `${t.name} · ${b.date} ${b.time}`, action: tr("ردّوا"), at: b.createdAt, to: `${base}?open=booking:${b.id}` });
     }
     const q = t.dash?.lastTeamMessage;
-    if (q) {
+    // سؤال الطلاب يدخل «ينتظرك» بس إذا له أكثر من 48 ساعة بدون رد (DocHome2)
+    if (q && hoursSince(q.at, now) >= 48) {
       out.push({ key: `q:${t.token}`, kind: "question", token: t.token, team: t.name, title: tr("سؤال من {0} ساعة", hoursSince(q.at, now)), sub: `${t.name} · «${q.body}»`, action: tr("جاوبوا"), at: q.at, to: `${base}?open=thread:0` });
     }
     if (t.dash) {
@@ -293,6 +294,33 @@ export function waitingItems(teams: TeamData[], now = Date.now()): WaitItem[] {
   const rank: Record<WaitKind, number> = { extension: 0, receipt: 1, minutes: 2, decision: 3, booking: 4, question: 5, radar: 6 };
   return out.sort((a, b) => rank[a.kind] - rank[b.kind] || a.at.localeCompare(b.at));
 }
+
+// ───────── حالة الفريق (DocHome2) ─────────
+export type TeamTone = "ok" | "push" | "late";
+export const TEAM_TONE: Record<TeamTone, { label: string; color: string }> = {
+  ok: { label: "ماشين تمام", color: "#FFC777" },
+  push: { label: "يحتاجون دفعة", color: "#FFB65C" },
+  late: { label: "متأخرين شوي", color: "#FF9A7A" },
+};
+
+/** حالة الفريق من التقدّم مقابل الموعد + كم صار من آخر رد، وجملة سبب وحدة */
+export function teamStatus(t: TeamData, waits: WaitItem[], now = Date.now()): { tone: TeamTone; reason: string; pct: number | null } {
+  const dash = t.dash;
+  const radar = dash ? radarOf(dash) : null;
+  let tone: TeamTone = radar?.tone === "late" ? "late" : radar?.tone === "orange" ? "push" : "ok";
+  const last = lastActivity(dash);
+  const quietDays = last ? Math.floor((now - Date.parse(last)) / DAY) : null;
+  if (quietDays !== null && quietDays >= 4 && tone === "ok") tone = "push";
+  if (quietDays !== null && quietDays >= 10) tone = "late";
+  const mine = waits.filter((w) => w.token === t.token && w.kind !== "radar");
+  let reason: string;
+  if (mine.length) reason = mine[0].kind === "minutes" ? tr("المحضر ينتظر اعتمادك") : mine[0].kind === "extension" ? tr("طلبوا تمديد · {0}", mine[0].sub.split(" · ")[1] ?? "") : mine[0].title;
+  else if (quietDays !== null && quietDays >= 4) reason = tr("ما ردّوا من {0}", dayCount(quietDays));
+  else reason = radar?.label ?? tr("ما فيه بيانات كافية بعد");
+  const prog = dash ? proofProgress(dash) : null;
+  return { tone, reason, pct: prog && prog.total ? prog.pct : null };
+}
+export const TONE_RANK: Record<TeamTone, number> = { late: 0, push: 1, ok: 2 };
 
 // ───────── كتابة (برمز الرابط) ─────────
 const ERR = () => tr("ما انحفظ — جرّبوا مرة ثانية.");

@@ -11,9 +11,11 @@ import { relTime } from "../components/supervisor/SvParts";
 import SvTeam from "../components/supervisor/SvTeam";
 import { Ledger, type LedgerRow } from "../components/sup/SupParts";
 import { AwaySheet, DeadlinesSheet, ExtCard, TimeLog } from "../components/sup/SvTime";
-import { lastActivity, loadTeam, proofProgress, radarOf, requestChips, waitingItems, type TeamData, type WaitItem, type WaitKind } from "../lib/supervisorDash";
+import { DocDay, DocTeams, DocWaitStrip } from "../components/sup/DocHome";
+import { DocChatView } from "../components/sup/DocChat";
+import { lastActivity, loadTeam, proofProgress, radarOf, requestChips, teamStatus, waitingItems, type TeamData, type WaitItem, type WaitKind } from "../lib/supervisorDash";
 
-type View = "home" | "teams" | "requests" | "meetings" | "reports" | "settings";
+type View = "home" | "chat" | "teams" | "requests" | "meetings" | "reports" | "settings";
 const NAME_KEY = "wesync-supervisor-name";
 const AV = ["#FFC85A", "#FFB444", "#FFE3C2", "#FF9A5A"];
 const dateFmt = new Intl.DateTimeFormat(isEn ? "en-GB" : "ar-u-ca-gregory-nu-latn", { weekday: "long", day: "numeric", month: "long" });
@@ -121,15 +123,9 @@ export default function SupervisorDash() {
     })
     .sort((a, b) => b.need - a.need);
 
-  const openReq = ok.reduce((n, t) => {
-    const c = requestChips(t.items);
-    return n + c.waiting + c.doing;
-  }, 0);
   const slots = ok
     .flatMap((t) => (t.dash?.bookings ?? []).filter((b) => b.date === today && b.status === "confirmed").map((b) => ({ ...b, team: t.name })))
     .sort((a, b) => a.time.localeCompare(b.time));
-  const progs = rows.filter((r) => r.prog && r.prog.total).map((r) => r.prog!.pct);
-  const avg = progs.length ? Math.round(progs.reduce((a, b) => a + b, 0) / progs.length) : 0;
   const pendingExt = ok.flatMap((t) => (t.dash?.extensions ?? []).filter((e) => e.status === "pending").map((e) => ({ e, t })));
   const log = ok.flatMap((t) => (t.dash?.log ?? []).map((l) => ({ ...l, team: t.name }))).sort((a, b) => b.at.localeCompare(a.at));
   const ledger: LedgerRow[] = ok.flatMap((t) => t.items.map((c) => ({ ...c, title: `${c.title} · ${t.name}`, owner: c.assignee ? { name: c.assignee } : null })));
@@ -137,6 +133,17 @@ export default function SupervisorDash() {
   const hour = new Date().getHours();
   const dn = docName(name);
 
+  const tones = ok.map((t) => teamStatus(t, waits).tone);
+  const behind = tones.filter((x) => x !== "ok").length;
+  const fine = tones.length - behind;
+  const teamsWord = (n: number) => (n === 1 ? tr("فريق") : n === 2 ? tr("فريقين") : tr("{0} فرق", n));
+  const statusLine = !ok.length
+    ? tr("أضيفوا رابط فريق عشان تبدأ اللوحة")
+    : behind === 0
+      ? tr("كل الفرق ماشية تمام")
+      : fine === 0
+        ? tr("{0} يحتاجونك شوي", teamsWord(behind))
+        : tr("{0} ماشين، و{1} يحتاجك شوي", teamsWord(fine), teamsWord(behind));
   const addLink = () => {
     const m = link.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     if (!m) return setToast(tr("الرابط ما فيه رمز فريق — انسخوه كامل من رسالة الفريق."));
@@ -146,14 +153,32 @@ export default function SupervisorDash() {
     void reload();
   };
 
-  const NAV: { v: View; label: string; icon: ReactNode; badge?: number }[] = [
-    { v: "home", label: tr("الرئيسية"), icon: <Home size={18} aria-hidden /> },
-    { v: "teams", label: tr("فرقي"), icon: <Users size={18} aria-hidden /> },
-    { v: "requests", label: tr("الطلبات"), icon: <FileText size={18} aria-hidden />, badge: waits.length },
-    { v: "meetings", label: tr("المواعيد"), icon: <CalendarDays size={18} aria-hidden /> },
+  const unread = ok.filter((t) => t.dash?.lastTeamMessage).length;
+  const pendingBookings = ok.reduce((n, t) => n + (t.board?.waiting.bookings.length ?? 0), 0);
+  const minutesWaiting = waits.filter((w) => w.kind === "minutes" || w.kind === "extension" || w.kind === "receipt").length;
+  // DocHome2: 5 بس — الرئيسية / المحادثات / المواعيد / فرقي / المحاضر. التقارير والإعدادات تحت كرت ساعات المكتب.
+  const NAV: { v: View; label: string; icon: ReactNode; badge?: number; tab?: boolean }[] = [
+    { v: "home", label: tr("الرئيسية"), icon: <Home size={18} aria-hidden />, tab: true },
+    { v: "chat", label: tr("المحادثات"), icon: <MessageCircle size={18} aria-hidden />, badge: unread, tab: true },
+    { v: "meetings", label: tr("المواعيد"), icon: <CalendarDays size={18} aria-hidden />, badge: pendingBookings, tab: true },
+    { v: "teams", label: tr("فرقي"), icon: <Users size={18} aria-hidden />, tab: true },
+    { v: "requests", label: tr("المحاضر والطلبات"), icon: <FileText size={18} aria-hidden />, badge: minutesWaiting },
+  ];
+  const NAV2: { v: View; label: string; icon: ReactNode }[] = [
     { v: "reports", label: tr("التقارير"), icon: <BarChart3 size={18} aria-hidden /> },
     { v: "settings", label: tr("الإعدادات"), icon: <Settings size={18} aria-hidden /> },
   ];
+  const nowMin = (() => {
+    const d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
+  })();
+  const tabBtns = NAV.filter((n) => n.tab).map((n) => (
+    <button key={n.v} type="button" className="dh-tab" aria-current={view === n.v ? "page" : undefined} onClick={() => go(n.v)}>
+      {n.icon}
+      <span>{n.label}</span>
+      {!!n.badge && <i className="dh-tab-b">{n.badge}</i>}
+    </button>
+  ));
   const navBtns = NAV.map((n) => (
     <button key={n.v} type="button" className="sd-nav" aria-current={view === n.v ? "page" : undefined} onClick={() => go(n.v)}>
       {n.icon}
@@ -163,65 +188,6 @@ export default function SupervisorDash() {
   ));
 
   // ───────── الكتل ─────────
-  const waitCard =
-    waits.length > 0 ? (
-      <section className="sd-wait sd-in" aria-labelledby="sd-wait-h">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <b style={{ fontSize: 64, lineHeight: 1 }} dir="ltr">
-            {waits.length}
-          </b>
-          <div style={{ lineHeight: 1.3 }}>
-            <div id="sd-wait-h" style={{ fontSize: 22, fontWeight: 800 }}>
-              {tr("ينتظركم")}
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#3A1504" }}>{tr("باقي الطلبات ماشية مع الطلاب")}</div>
-          </div>
-        </div>
-        <div style={{ marginTop: 10 }}>
-          {waits.slice(0, 3).map((w) => (
-            <div key={w.key} className="sd-wait-row">
-              <span className="sd-wait-ic">{WAIT_ICON[w.kind]}</span>
-              <div style={{ flex: 1, minWidth: 0, lineHeight: 1.35 }}>
-                <b style={{ fontSize: 15 }}>{w.title}</b>
-                <div style={{ fontSize: 13, color: "#3A1504", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.sub}</div>
-              </div>
-              <button type="button" className="sd-wait-btn" onClick={() => openWait(w)}>
-                {w.action}
-              </button>
-            </div>
-          ))}
-          {waits.length > 3 && (
-            <button type="button" className="sd-wait-btn" style={{ marginTop: 6, background: "rgba(42,14,2,.14)", color: "#2A0E02" }} onClick={() => go("requests")}>
-              {tr("كل الطلبات ({0})", waits.length)}
-            </button>
-          )}
-        </div>
-      </section>
-    ) : (
-      <section className="sd-glass sd-calm sd-in">
-        <b style={{ fontSize: 22 }}>{tr("ما فيه شي ينتظركم")}</b>
-        <p style={{ margin: "4px 0 0", fontSize: 14, color: "#E9D3B8" }}>{ok.length ? tr("كل الطلبات ماشية مع الطلاب.") : tr("أضيفوا رابط فريق عشان تبدأ اللوحة.")}</p>
-      </section>
-    );
-
-  const kpi = (i: number, icon: ReactNode, value: ReactNode, label: string) => (
-    <div className={`sd-glass sd-kpi sd-in sd-d${i}`}>
-      <span style={{ color: "#FFC777" }}>{icon}</span>
-      <b dir="ltr" style={{ textAlign: "start" }}>
-        {value}
-      </b>
-      <span className="l">{label}</span>
-    </div>
-  );
-  const kpis = (
-    <div className="sd-kpis">
-      {kpi(1, <Users size={16} aria-hidden />, ok.length, tr("فرق"))}
-      {kpi(2, <FileText size={16} aria-hidden />, openReq, tr("طلبات مفتوحة"))}
-      {kpi(3, <CalendarDays size={16} aria-hidden />, slots.length, tr("اجتماعات اليوم"))}
-      {kpi(4, <BarChart3 size={16} aria-hidden />, `${avg}%`, tr("متوسط التقدّم بالدليل"))}
-    </div>
-  );
-
   const back2back = slots.length > 1 && slots.every((s, i) => i === 0 || minutes(s.time) - (minutes(slots[i - 1].time) + slots[i - 1].durationMin) <= 10);
   const day = (
     <section className="sd-glass sd-in sd-d4" aria-labelledby="sd-day-h">
@@ -625,7 +591,20 @@ export default function SupervisorDash() {
           </div>
           {navBtns}
           <span style={{ flex: 1 }} />
-          <button type="button" className="sd-nav" onClick={() => setLang(isEn ? "ar" : "en")} aria-label={isEn ? "التبديل للعربية" : "Switch to English"}>
+          <div className="dh-hours">
+            <b>{tr("ساعات مكتبك")}</b>
+            <span>{tr("الطلاب يحجزون من الأوقات الفاضية")}</span>
+            <button type="button" onClick={() => go("meetings")}>
+              {tr("عدّلوها")}
+            </button>
+          </div>
+          {NAV2.map((n) => (
+            <button key={n.v} type="button" className="sd-nav sd-nav-sm" aria-current={view === n.v ? "page" : undefined} onClick={() => go(n.v)}>
+              {n.icon}
+              {n.label}
+            </button>
+          ))}
+          <button type="button" className="sd-nav sd-nav-sm" onClick={() => setLang(isEn ? "ar" : "en")} aria-label={isEn ? "التبديل للعربية" : "Switch to English"}>
             <Languages size={18} aria-hidden />
             {isEn ? "العربية" : "English"}
           </button>
@@ -653,45 +632,40 @@ export default function SupervisorDash() {
                 </button>
               )}
               <div className="sd-sub">
-                {dateFmt.format(new Date())} · {waits.length ? tr("{0} أشياء تنتظرك، والباقي ماشي", waits.length) : tr("كل شي ماشي")}
+                {dateFmt.format(new Date())} · {statusLine}
               </div>
             </div>
             <button type="button" className="sd-pill" onClick={() => setSheet("away")}>
               <i className={away ? "away" : ""} aria-hidden />
-              {away ? tr("مو متاح/ة لين {0}", formatDateShort(away.to)) : tr("متاح/ة")}
-              <span>{away ? tr("عدّلوا") : tr("حددوا «مو متاح/ة»")}</span>
+              {away ? tr("مو متاح/ة لين {0}", formatDateShort(away.to)) : tr("متاح/ة اليوم")}
+              {away && <span>{tr("عدّلوا")}</span>}
             </button>
             <button type="button" className="sd-bell" aria-label={waits.length ? tr("التنبيهات: {0} تنتظركم", waits.length) : tr("التنبيهات")} onClick={() => go("requests")}>
               <Bell size={18} aria-hidden />
               {waits.length > 0 && <i />}
             </button>
           </header>
-          <nav className="sd-mnav" aria-label={tr("بوابة المشرف/ة")}>
-            {navBtns}
+          <nav className="dh-tabbar" aria-label={tr("بوابة المشرف/ة")}>
+            {tabBtns}
           </nav>
 
           {teamToken && <SvTeam key={teamToken} token={teamToken} openTarget={openTarget} nameDraft={name} setNameDraft={saveName} onBack={() => go("teams")} onToast={setToast} onChanged={() => void reload()} />}
           {!teamToken && view === "home" && (
             <>
-              <div className="sd-top">
-                {waitCard}
-                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                  <div className="sd-tdesk">{kpis}</div>
-                  {day}
-                </div>
-              </div>
-              {teamsBlock(false)}
+              <DocWaitStrip waits={waits} icon={(w) => WAIT_ICON[w.kind]} onOpen={openWait} onAll={() => go("requests")} />
+              <DocDay slots={slots.map((x) => ({ id: x.id, time: x.time, durationMin: x.durationMin, team: x.team }))} nowMin={nowMin} onAll={() => go("meetings")} />
+              {rows.length === 0 && teams.every((t) => t.state !== "loading") ? teamsBlock(false) : <DocTeams teams={ok} waits={waits} onChat={(t) => setParams({ v: "chat", team: t.token })} onOpen={(t) => openTeam(t.token)} />}
+              {teams.some((t) => t.state === "loading") && rows.length === 0 && teamsBlock(false)}
+            </>
+          )}
+          {!teamToken && view === "chat" && <DocChatView teams={ok} />}
+          {!teamToken && view === "teams" && (
+            <>
+              {teamsBlock(true)}
               <div className="sd-bottom">
                 {ledgerBlock}
                 {radarBlock}
               </div>
-              {ok.length > 0 && inviteBlock}
-            </>
-          )}
-          {!teamToken && view === "teams" && (
-            <>
-              {teamsBlock(true)}
-              {radarBlock}
             </>
           )}
           {view === "requests" && requestsView}

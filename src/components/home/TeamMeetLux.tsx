@@ -420,3 +420,85 @@ export function WeekLuxCard({ today, now, style }: { today: string; now: Date; s
     </section>
   );
 }
+
+// ───────────────────── الفريق (مختصر) — لعمود الرئيسية الثالث ─────────────────────
+
+/** نسخة مختصرة من «الفريق مع بعض»: سطر لكل عضو — حرفه، اسمه، وش عليه الحين، ونسبته.
+    بدون عناوين فرعية ولا شرح، عشان الرئيسية تبقى خفيفة. */
+export function TeamMini({ tasks, today, style }: { tasks: Task[]; today: string; style?: CSSProperties }) {
+  const { currentUser } = useAuth();
+  const { roster } = useTeamRoster();
+  const online = useTeamPresence();
+  const onlineIds = new Set([...online.map((u) => u.id), ...(currentUser ? [currentUser.id] : [])]);
+  const weekAgo = new Date(Date.parse(`${today}T00:00:00Z`) - 6 * 86400000).toISOString().slice(0, 10);
+  const doneThisWeek = (t: Task) => t.status === "done" && (t.completedAt ? t.completedAt.slice(0, 10) >= weekAgo : !isSupabaseConfigured);
+
+  const rows = roster
+    .map((m, i) => {
+      const mine = tasks.filter((t) => t.assigneeId === m.id);
+      const open = mine.filter((t) => t.status !== "done").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+      const done = mine.filter(doneThisWeek).length;
+      const now = open.find((t) => t.status === "in-progress") ?? open[0];
+      const pct = done + open.length === 0 ? 0 : Math.round((done / (done + open.length)) * 100);
+      return { m, i, now, pct, on: onlineIds.has(m.id), me: m.id === currentUser?.id };
+    })
+    .sort((a, b) => Number(b.me) - Number(a.me) || a.i - b.i);
+
+  return (
+    <section className="hg-card v3-rise" style={style} aria-labelledby="home-team-mini">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 id="home-team-mini" className="lux-k2 m-0 !text-[22px]">
+          {tr("الفريق")}
+        </h2>
+        <Link to="/team" className="v3-mut text-sm font-bold hover:text-[var(--ws-c-text)]">
+          {tr("الكل ←")}
+        </Link>
+      </div>
+      {rows.length === 0 ? (
+        <p className="v3-mut m-0 py-3 text-sm">{tr("ادعوا زملاءكم من صفحة الفريق.")}</p>
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-1 p-0">
+          {rows.map(({ m, i, now, pct, on, me }) => {
+            const pal = PALETTE[i % PALETTE.length];
+            return (
+              <li key={m.id}>
+                <Link
+                  to={now ? `/tasks?task=${now.id}` : "/team"}
+                  className="flex min-h-[52px] items-center gap-3 rounded-2xl px-2 py-1.5 transition-colors hover:bg-white/[0.04]"
+                >
+                  <span className="relative shrink-0">
+                    <span
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold text-[#2A1206]"
+                      style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}
+                      aria-hidden
+                    >
+                      {letter(m.name)}
+                    </span>
+                    <span
+                      className="absolute -bottom-0.5 -start-0.5 h-3 w-3 rounded-full border-2 border-[#120a06]"
+                      style={{ background: on ? "#FFC777" : "#6E645C" }}
+                      role="img"
+                      aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")}
+                    />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-bold leading-tight">
+                      {m.name.split(" ")[0]}
+                      {me && <span className="v3-mut ms-1.5 text-xs font-medium">{tr("(أنت)")}</span>}
+                    </span>
+                    <span className="v3-mut block truncate text-[13px]" dir="auto">
+                      {now ? now.title : tr("ما عليه شي مفتوح")}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-sm font-extrabold tabular-nums" style={{ color: pct >= 75 ? "#FFC777" : "var(--ws-c-muted)" }}>
+                    {n0(pct)}٪
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}

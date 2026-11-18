@@ -1,38 +1,31 @@
 import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
 import { MeetLiveStrip } from "../components/meet/MeetLive";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { AlertTriangle, PartyPopper } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import NotificationsBell from "../components/NotificationsBell";
 import HomeToasts from "../components/home/HomeToasts";
 import ErrorBoundary from "../components/ErrorBoundary";
-import { MeetLuxCard, TeamRow, WeekLuxCard } from "../components/home/TeamMeetLux";
+import { MeetLuxCard, TeamMini, WeekLuxCard } from "../components/home/TeamMeetLux";
 import {
   AgentPill,
-  AgentScene,
   DeadlineCard,
   GlassHeader,
-  JourneyCard,
-  MobileTiles,
   ProgressCard,
-  TeamChartCard,
   TodoCard,
   countAr,
   type AreaBar,
-  type JourneyStep,
 } from "../components/home/GlassHome";
 import { V3Glow, num } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import type { Task } from "../data/types";
-import { arabicMonths, daysUntil, formatDateLong, formatDateShort, toISODate } from "../lib/date";
+import { daysUntil, formatDateLong, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
 import WesyOffice from "../components/home/WesyOffice";
-import DropEntry from "../components/drop/DropEntry";
 import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
-import DriveStrip from "../components/DriveStrip";
 import { useNavigate } from "react-router-dom";
 import { startSeen } from "./Start";
 import { explainSeen } from "./Explain";
@@ -123,18 +116,14 @@ export default function Overview() {
     [tasks, papers, sections, deadline, roster],
   );
   const daysLeft = deadline ? daysUntil(deadline, now) : null;
-  const supervisor = project?.supervisorName?.trim();
 
   // ── الأقسام والأدبيات والمنهجية والأخلاقيات ──
   const orderedSections = [...sections].sort((a, b) => a.order - b.order);
   const secTotal = orderedSections.length;
   const secDone = orderedSections.filter((s) => s.status === "done").length;
-  const currentSection = orderedSections.find((s) => s.status !== "done");
   const reviewed = papers.filter((p) => p.reviewStatus === "reviewed").length;
   const methReady = methodologyReadyCount(methodology);
   const ethicsDone = ethicsStepsDone(ethicalApproval).filter(Boolean).length;
-  const litStageDone = stages.some((s) => s.stageKey === "literature-review" && s.status === "done");
-  const methStageDone = stages.some((s) => s.stageKey === "methodology" && s.status === "done");
   const sectionOf = (t: Task) => sections.find((s) => s.key === t.sectionKey);
   // المهمة توديك لمكان شغلها (قسم المقترح، مكتبة الأدلة، الأخلاقيات…) — المكان المحفوظ أو المستنتج من العنوان
   const taskLink = (t: Task) => placeOf(t)?.route ?? `/tasks?task=${t.id}`;
@@ -161,42 +150,6 @@ export default function Overview() {
       : currentStage
         ? tr("المرحلة الحالية: {0}", isEn ? currentStage.titleEn : currentStage.titleAr)
         : tr("كل المراحل خلصت 🎉");
-
-  // ── رحلة البحث: الموضوع ← المقترح ← الأدبيات ← المنهجية ← التسليم ──
-  const journey: JourneyStep[] = useMemo(() => {
-    const hasTitle = !!project?.title?.trim();
-    const areas = [
-      { key: "topic", label: tr("الموضوع"), done: hasTitle, d: hasTitle ? 1 : 0, n: 1, unit: "", to: "/proposal" },
-      { key: "proposal", label: tr("المقترح"), done: secTotal > 0 && secDone === secTotal, d: secDone, n: secTotal, unit: countAr(secTotal, tr("قسم"), tr("قسمين"), "{0} أقسام", "{0} قسم"), to: "/proposal" },
-      { key: "lit", label: tr("الأدبيات"), done: litStageDone || (papers.length > 0 && reviewed === papers.length), d: reviewed, n: papers.length, unit: countAr(papers.length, tr("دراسة"), tr("دراستين"), "{0} دراسات", "{0} دراسة"), to: "/literature-review" },
-      { key: "method", label: tr("المنهجية"), done: methStageDone || methReady === METHOD_TOTAL, d: methReady, n: METHOD_TOTAL, unit: countAr(METHOD_TOTAL, tr("جزء"), tr("جزأين"), "{0} أجزاء", "{0} جزء"), to: "/methodology" },
-    ];
-    const cur = areas.findIndex((a) => !a.done);
-    const steps: JourneyStep[] = areas.map((a, i) => {
-      const started = a.d > 0 && a.key !== "topic";
-      const progress = tr("{0} من {1}", num(a.d), a.unit);
-      return {
-        key: a.key,
-        label: a.label,
-        to: a.to,
-        state: a.done ? "done" : i === cur ? "now" : "todo",
-        long: a.done ? tr("خلص ✓") : started ? progress : tr("ما بدأت"),
-        short: a.done ? "✓" : started ? tr("{0} من {1}", num(a.d), num(a.n)) : "—",
-      };
-    });
-    const dl = deadline ? new Date(`${deadline}T00:00:00`) : null;
-    steps.push({
-      key: "deliver",
-      label: tr("التسليم"),
-      to: "/timeline",
-      state: "deliver",
-      long: deadline ? (isEn ? formatDateShort(deadline) : `${num(dl!.getDate())} ${arabicMonths[dl!.getMonth()]}`) : tr("ما انحدد"),
-      short: deadline ? (isEn ? formatDateShort(deadline) : `${num(dl!.getDate())} ${arabicMonths[dl!.getMonth()].slice(0, 3)}`) : "—",
-    });
-    return steps;
-  }, [project?.title, secTotal, secDone, litStageDone, papers.length, reviewed, methStageDone, methReady, deadline]);
-  const nowStep = journey.find((s) => s.state === "now");
-  const journeyNote = nowStep?.key === "proposal" && currentSection ? tr("القسم {0} من {1}", num(currentSection.order), num(secTotal)) : nowStep ? nowStep.long : journey[journey.length - 1].long;
 
   // ── أشرطة «باقي على التسليم» ──
   const bars: AreaBar[] = [
@@ -232,14 +185,6 @@ export default function Overview() {
     evidenceCount: papers.length,
     hasTitle: !!project?.title?.trim(),
   })[0];
-
-  // ── بطاقات مشهد ويسي (من بيانات المشروع) ──
-  const agentCards = [
-    { title: tr("المقترح"), sub: currentSection ? (isEn ? currentSection.labelEn : currentSection.labelAr) : secTotal ? tr("خلص ✓") : tr("ابدأوا الكتابة") },
-    { title: tr("الأدبيات"), sub: papers.length ? countAr(papers.length, tr("دراسة وحدة"), tr("دراستين"), "{0} دراسات", "{0} دراسة") : tr("ما فيه دراسات بعد") },
-    { title: tr("المنهجية"), sub: methodology.studyDesign.trim() || (methReady ? tr("{0} من {1}", num(methReady), num(METHOD_TOTAL)) : tr("ما بدأت")) },
-    { title: tr("ملاحظات المشرف/ة"), sub: supervisor || tr("المشرف/ة") },
-  ];
 
   const toggleTask = async (t: Task, done: boolean) => {
     const { error } = await updateStatus(t.id, done ? "done" : "todo");
@@ -301,95 +246,60 @@ export default function Overview() {
         </ErrorBoundary>
       )}
 
-      {mode === "supabase" && (
-        <ErrorBoundary>
-          <DropEntry style={rise(1)} />
-        </ErrorBoundary>
-      )}
-
-      {mode === "supabase" && (
-        <ErrorBoundary>
-          <DriveStrip className="mb-[18px]" />
-        </ErrorBoundary>
-      )}
-
-      {/* ── HomeLux: «وش علينا اليوم؟» (يسار) + «أول أسبوع» (يمين) ── */}
-      <div className="group/fw relative mb-2.5 grid grid-cols-1 items-start gap-2.5 lg:mb-[18px] lg:gap-[18px] lg:has-[.fw-card]:grid-cols-[1.08fr_1fr]">
-        {mode === "supabase" && (
+      {/* ── ثلاث أعمدة، كل عمود سؤال واحد: وش علينا اليوم؟ · وين وصلنا؟ · وش الجاي بالتقويم؟
+          كل عمود له عنوان صغير بنفس المكان، وآخر بطاقة فيه تمتد لين تتساوى نهايات الأعمدة ── */}
+      <div className="relative mb-4 grid grid-cols-1 gap-2.5 lg:gap-[18px] xl:grid-cols-3 xl:items-stretch">
+        <HomeColumn label={tr("اليوم")}>
+          {mode === "supabase" && (
+            <ErrorBoundary>
+              <FirstWeekCard style={rise(1)} />
+            </ErrorBoundary>
+          )}
           <ErrorBoundary>
-            <FirstWeekCard style={rise(1)} />
+            <TodoCard
+              style={rise(2)}
+              tasks={tasks}
+              today={todayIso}
+              roster={roster}
+              canToggle={(t) => canWrite && (isLeader || t.assigneeId === currentUser?.id)}
+              canAdd={canWrite && isLeader}
+              sectionTag={sectionTag}
+              taskLink={taskLink}
+              onToggle={toggleTask}
+              onAdd={addTodayTask}
+            />
           </ErrorBoundary>
-        )}
-        <div className="order-1 lg:hidden">
+          <Stretch>
+            <ErrorBoundary>
+              <ReviewCard items={review} limit={2} />
+            </ErrorBoundary>
+          </Stretch>
+        </HomeColumn>
+
+        <HomeColumn label={tr("وين وصلنا")}>
           <ErrorBoundary>
-            <ProgressCard style={rise(1)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
+            <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
           </ErrorBoundary>
-        </div>
-        <div className="order-2 lg:hidden">
-          <MobileTiles deadline={deadline} daysLeft={daysLeft} weekDone={thisWeek?.done ?? 0} weekDiff={weekDiff} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
-        </div>
-        <ErrorBoundary>
-          <TodoCard
-            className="order-3"
-            style={rise(2)}
-            tasks={tasks}
-            today={todayIso}
-            roster={roster}
-            canToggle={(t) => canWrite && (isLeader || t.assigneeId === currentUser?.id)}
-            canAdd={canWrite && isLeader}
-            sectionTag={sectionTag}
-            taskLink={taskLink}
-            onToggle={toggleTask}
-            onAdd={addTodayTask}
-          />
-        </ErrorBoundary>
-      </div>
+          <ErrorBoundary>
+            <DeadlineCard className="flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
+          </ErrorBoundary>
+          <Stretch>
+            <ErrorBoundary>
+              <TeamMini tasks={tasks} today={todayIso} style={rise(4)} />
+            </ErrorBoundary>
+          </Stretch>
+        </HomeColumn>
 
-      {/* ── HomeLux: قبل لا تشوفها الدكتورة · تقدّم البحث · باقي على التسليم ── */}
-      {/* أقل من 1280: المراجعة بعرض الصفحة، والتقدّم والتسليم جنب بعض تحتها — عشان ما ينضغط النص */}
-      <div className="relative mb-3 hidden grid-cols-2 items-stretch gap-[18px] lg:mb-[18px] lg:grid xl:grid-cols-[1.25fr_1fr_1fr]">
-        <ErrorBoundary>
-          <ReviewCard items={review} limit={3} className="col-span-2 xl:col-span-1" />
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <DeadlineCard className="flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
-        </ErrorBoundary>
-      </div>
-      <div className="mb-3 lg:hidden">
-        <ErrorBoundary>
-          <ReviewCard items={review} limit={3} />
-        </ErrorBoundary>
-      </div>
-
-      {/* ── رحلة البحث + إنجاز الفريق ── */}
-      <div className="relative mb-3 grid grid-cols-1 items-stretch gap-2.5 lg:mb-[18px] xl:grid-cols-[1.75fr_1fr] lg:gap-[18px]">
-        <ErrorBoundary>
-          <JourneyCard steps={journey} headerNote={journeyNote} style={rise(4)} />
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <TeamChartCard className="hidden xl:block" tasks={tasks} today={todayIso} style={rise(5)} />
-        </ErrorBoundary>
-      </div>
-
-      {/* ── ويسي ── */}
-      <ErrorBoundary>
-        <AgentScene cards={agentCards} style={rise(6)} />
-      </ErrorBoundary>
-
-      {/* ── الفريق مع بعض (بعرض الصفحة) + الاجتماع الجاي (يمين) وهالأسبوع (يسار) ── */}
-      <ErrorBoundary>
-        <TeamRow tasks={tasks} today={todayIso} style={rise(7)} />
-      </ErrorBoundary>
-      <div className="relative mb-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[1.1fr_1fr] lg:gap-[18px]">
-        <ErrorBoundary>
-          <MeetLuxCard now={now} style={rise(8)} />
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <WeekLuxCard today={todayIso} now={now} style={rise(8)} />
-        </ErrorBoundary>
+        <HomeColumn label={tr("المواعيد")}>
+          <ErrorBoundary>
+            <MeetLuxCard now={now} style={rise(5)} />
+          </ErrorBoundary>
+          <Stretch>
+            <ErrorBoundary>
+              <WeekLuxCard today={todayIso} now={now} style={rise(6)} />
+            </ErrorBoundary>
+          </Stretch>
+        </HomeColumn>
       </div>
 
       {mode !== "supabase" && <p className="v3-mut relative mt-3 text-center text-xs">{tr("عرض تجريبي — التاريخ مثبّت على {0}", formatDateLong(todayIso))}</p>}
@@ -435,4 +345,23 @@ function MeetLiveStripHome() {
       <MeetLiveStrip />
     </div>
   );
+}
+
+/** عمود من أعمدة الرئيسية الثلاثة: عنوان صغير ثابت فوق، والبطاقات تحته بنفس المسافة */
+function HomeColumn({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]" aria-label={label}>
+      <h2 className="lux-eye m-0 flex items-center gap-2.5 px-1 pt-1 !text-[15px]">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF8A24]" aria-hidden />
+        {label}
+        <span className="h-px flex-1 bg-gradient-to-l from-white/15 to-transparent" aria-hidden />
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+/** آخر بطاقة بالعمود تمتد لين نهاية الصف — عشان الأعمدة تخلص على خط واحد */
+function Stretch({ children }: { children: ReactNode }) {
+  return <div className="flex min-h-0 flex-col xl:flex-1 xl:[&>*]:flex-1">{children}</div>;
 }

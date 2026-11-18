@@ -1,0 +1,148 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wesync · ويسي v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Lalezar&family=Bagel+Fat+One&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1E0B05;--cream:#F3E9DC;--ember:#E9651F;--gold:#FFC777}
+*{box-sizing:border-box}html,body{margin:0;font-family:Tajawal,system-ui,sans-serif;background:var(--ink);color:var(--cream);line-height:1.6}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;direction:ltr}
+/* poster */
+.poster{position:relative;min-height:100vh;overflow:hidden;display:grid;place-items:center;background:#120603}
+.door{position:absolute;left:50%;top:14%;width:min(300px,34vw);height:62%;transform:translateX(-30%);background:linear-gradient(90deg,rgba(233,101,31,.0),rgba(255,199,119,.42) 35%,rgba(243,233,220,.55));filter:blur(18px);opacity:.9;animation:door 6s ease-in-out infinite}
+.glow{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 55%,rgba(233,101,31,.38),transparent 70%),radial-gradient(40% 30% at 55% 95%,rgba(233,101,31,.25),transparent 70%)}
+.grain{position:absolute;inset:-50%;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:gr 1s steps(4) infinite}
+@keyframes gr{50%{transform:translate(3%,-2%)}}@keyframes door{50%{opacity:.7;transform:translateX(-30%) scaleY(1.02)}}
+.mark{position:relative;width:min(240px,52vw);aspect-ratio:400/320;cursor:pointer}
+.mark .r{position:absolute;top:-6px;left:-26px;font:500 20px Tajawal;color:var(--cream);opacity:.9}
+.cap{position:absolute;left:calc(50% - 110px);top:calc(50% + 100px)}
+.foot{position:absolute;bottom:18px;left:22px;right:22px;display:flex;justify-content:space-between;gap:16px;color:rgba(243,233,220,.8)}
+.foot p{margin:0;text-align:center}
+.hint{position:absolute;top:22px;right:24px;font-size:14px;color:rgba(243,233,220,.75)}
+/* solto */
+.cream{background:var(--cream);color:var(--ink)}
+.solto{min-height:100vh;display:grid;place-items:center;position:relative;padding:40px 20px}
+.lock{position:relative;width:min(600px,92vw);aspect-ratio:1/1.05}
+.lock .word{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:0;justify-content:flex-end}
+.lock .en{font-family:'Bagel Fat One',Tajawal;font-size:min(128px,22vw);line-height:.9;color:var(--ink);direction:ltr}
+.lock .ar{font-family:Lalezar,Tajawal;font-size:min(56px,11vw);line-height:1.3;color:var(--ink);padding-top:.2em}
+.lock .ch{position:absolute;inset:0 4% 36%}
+.tagl{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-weight:700;font-size:18px}
+section.blk{padding:72px 6vw}
+h2{font-size:clamp(28px,4vw,44px);margin:0 0 8px;font-weight:800}
+.sub{opacity:.75;margin:0 0 28px;font-size:17px}
+/* states */
+.stage{display:grid;grid-template-columns:minmax(260px,420px) 1fr;gap:40px;align-items:center}
+@media(max-width:780px){.stage{grid-template-columns:1fr}}
+.big{aspect-ratio:520/500;width:100%;max-width:380px;margin:auto}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chips button{min-height:44px;padding:8px 18px;border-radius:999px;border:2px solid var(--ink);background:transparent;font:700 15px Tajawal;color:var(--ink);cursor:pointer}
+.chips button.on{background:var(--ink);color:var(--cream)}
+.say{margin-top:22px;padding:18px 22px;border-radius:22px 22px 6px 22px;background:#fff;box-shadow:0 1px 0 rgba(30,11,5,.08);font-size:19px;font-weight:500;min-height:64px}
+.say small{display:block;opacity:.6;font-size:13px;margin-top:6px}
+/* grid of explanations */
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.why div{padding:22px;border-radius:20px;background:rgba(243,233,220,.05);box-shadow:inset 0 0 0 1px rgba(243,233,220,.1)}
+.why b{display:block;font-size:18px;margin-bottom:6px;color:var(--gold)}
+.why p{margin:0;opacity:.85;font-size:15px}
+.n{font-family:'JetBrains Mono';font-size:12px;opacity:.6;display:block;margin-bottom:8px}
+/* in-app */
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.card{border-radius:24px;background:#fff;color:var(--ink);padding:20px;box-shadow:0 20px 50px -30px rgba(30,11,5,.5)}
+.card h4{margin:0 0 12px;font-size:13px;opacity:.6;font-weight:700}
+.row{display:flex;gap:12px;align-items:flex-start}
+.av{width:56px;height:56px;flex:none;border-radius:16px;background:var(--cream)}
+.bub{background:var(--cream);border-radius:18px 18px 18px 6px;padding:12px 14px;font-size:15px}
+.btn{margin-top:14px;min-height:44px;width:100%;border:0;border-radius:14px;background:var(--ember);color:#fff;font:700 16px Tajawal;cursor:pointer}
+.load{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 0}
+.load .m{width:120px;aspect-ratio:400/320}
+.notif{display:flex;gap:12px;align-items:center;background:rgba(30,11,5,.92);color:var(--cream);border-radius:20px;padding:12px 14px}
+.notif .av{width:48px;height:48px;background:var(--cream)}
+a{color:var(--ember)}
+@media(max-width:600px){.foot p{display:none}}
+.pick{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}@media(max-width:780px){.pick{grid-template-columns:repeat(2,1fr)}}
+.pick button{background:#fff;border:3px solid transparent;border-radius:24px;padding:14px 10px 12px;cursor:pointer;font:700 17px Tajawal;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:6px;min-height:44px}
+.pick button.on{border-color:var(--ember)}.pick .fig{width:100%;aspect-ratio:520/600}.pick small{font-weight:500;opacity:.65;font-size:13px}
+.scene{position:relative;overflow:hidden;background:#120603;min-height:88vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:40px 6vw;gap:30px}
+@media(max-width:780px){.scene{grid-template-columns:1fr;text-align:center}}
+.sglow{position:absolute;inset:0;background:radial-gradient(38% 46% at 30% 58%,rgba(233,101,31,.42),transparent 70%),radial-gradient(30% 12% at 30% 92%,rgba(255,199,119,.22),transparent 70%)}
+.sfig{position:relative;width:100%;max-width:520px;aspect-ratio:520/500;margin:auto}
+.stxt{position:relative}.stxt h2{font-size:clamp(32px,4.4vw,56px);line-height:1.25;padding-top:.15em}.stxt p{opacity:.8;font-size:18px;max-width:420px}
+@media(max-width:780px){.stxt p{margin:auto}}
+</style></head><body>
+
+<section class="poster" id="poster">
+ <div class="glow"></div><div class="door"></div><div class="grain"></div>
+ <div class="hint">اضغط على الشعار ↓</div>
+ <div class="mark" id="markHero" role="button" aria-label="شعار Wesync"><span class="r">®</span></div>
+ <div class="cap mono">Logomark<br>v0.2</div>
+ <div class="foot mono"><span>Wesync<br>/ identity</span><p>two students. one high-five.<br>the hands meet — the team is in sync.</p><span>design<br>by wesy</span></div>
+</section>
+
+<section class="cream solto">
+ <div class="lock"><div class="word"><div class="en">Wesync</div><div class="ar">ويسي معاكم</div></div><div class="ch" id="lockChar"></div></div>
+ <div class="tagl">هذا ويسي. باحث سعودي، يشتغل معكم على بحثكم.</div>
+</section>
+
+<section class="scene" id="scene">
+ <div class="sglow"></div><div class="grain"></div>
+ <div class="sfig" id="sceneChar"></div>
+ <div class="stxt"><span class="mono" style="opacity:.6">wesy / at work</span><h2>ويسي يبحث ويكتب معكم</h2><p>يدوّر على الدراسات، يلخّصها، ويرتّبها. وأنتم تكتبون البحث.<br>والشعار على لابتوبه.</p></div>
+</section>
+<section class="blk" style="background:#160803">
+ <h2>ليش صار أقوى؟</h2><p class="sub">أربع أفكار تخليه شخصية حقيقية.</p>
+ <div class="why">
+  <div><span class="n">01</span><b>فرفوش</b><p>شاب سعودي باحث، بدقن وشنب. مبتسم دايم، يغمز للطلاب، ويضحك معهم.</p></div>
+  <div><span class="n">02</span><b>حركات واقعية</b><p>يديه تتحرك زي اليد الحقيقية بكوع ومعصم. يكتب، ويمسح دقنه وهو يفكر، ويشرب قهوة، ويرمش، وعيونه تقرأ السطور من اليمين لليسار.</p></div>
+  <div><span class="n">03</span><b>الشعار على اللابتوب</b><p>الموجتين على غطاء اللابتوب. لما يفكر يتأخرون، ولما يخلّص يتزامنون ويصيرون ذهبي.</p></div>
+  <div><span class="n">04</span><b>شماغ حقيقي</b><p>شماغ أحمر بتلبيسة سعودية: رأس مرفوع، عقال على الجبهة، وطرفين نازلين على الصدر بحواشي مخططة.</p></div>
+ </div>
+</section>
+
+<section class="blk cream">
+ <h2>ويسي في كل حالة</h2><p class="sub">اختر حالة. أو اضغط عليه. لو تركته هادي، يشرب قهوة كل شوي ☕</p>
+ <div class="chips" id="shc" style="margin-bottom:18px"><button data-v="#C8102E">شماغ أحمر ★</button><button data-v="#E9651F">شماغ بلون Wesync</button></div>
+ <div class="stage">
+  <div class="big" id="bigChar"></div>
+  <div><div class="chips" id="chips"></div><div class="say" id="say"></div></div>
+ </div>
+</section>
+
+<section class="blk cream" style="padding-top:0">
+ <h2>داخل الموقع</h2><p class="sub">نفس الشخصية، بأحجام صغيرة.</p>
+ <div class="apps">
+  <div class="card"><h4>لوحة ويسي</h4>
+   <div class="row"><div class="av" id="av1"></div><div class="bub">لقيت ٣ دراسات تناسب الفصل الثاني. أحطها بالمكتبة وأوزّعها على خالد وسارة؟</div></div>
+   <button class="btn" id="ok">وافقوا وسوّوها</button></div>
+  <div class="card"><h4>التحميل</h4><div class="load"><div class="m" id="ld"></div><b>نرتّب ملفاتكم…</b><span style="opacity:.6;font-size:14px">لحظة، الأيدي بتلتقي</span></div></div>
+  <div class="card" style="background:var(--cream)"><h4>تنبيه الجوال</h4><div class="notif"><div class="av" id="av2"></div><div><b>ويسي</b><br><span style="font-size:14px">د. إسراء أرسلت موعد: الأحد ١٠ص</span></div></div></div>
+ </div>
+</section>
+
+<section class="blk" style="background:#160803">
+ <h2>ملاحظة على الهوية</h2>
+ <p class="sub" style="max-width:720px">الموجتين على الكريمي تظل أيقونة التطبيق. ويسي هو الأيقونة لما تصير حية، وعلامة الـW للمواقف اللي فيها الفريق كله: الشاشة الأولى، التحميل، البوستر، والسوشال. الصفحة القديمة للهوية: <a href="v1.html">هنا</a>.</p>
+</section>
+
+<script src="wesy-line.js"></script><script src="wesy-real.js"></script>
+<script>
+const hero=new TeamW(document.getElementById('markHero'),{state:'idle'});
+setTimeout(()=>hero.set('sync'),1400);
+const S={idle:['مبتسم','«هلا والله! وش نسوي اليوم؟»','مبتسم دايم. يغمز، ويضحك كل شوي، ويشرب من فنجاله.'],greet:['يسلّم','«هلا والله مشاري! عندكم مهمتين اليوم.»','يرفع يده ويلوّح ويبتسم.'],typing:['يكتب','«أكتب ملخص الدراسة الثالثة…»','يديه على الكيبورد، وعيونه تقرأ من اليمين لليسار.'],thinking:['يفكّر','«خلّني أشوف ملفاتكم…»','يمسح دقنه، وعيونه فوق، والموجتين تتأخر.'],listening:['يسمعكم','«أسمعك… كمّل.»','يميل راسه ويهز مع كلامك.'],laugh:['يضحك','«ههههه والله إنكم فريق ونعم!»','يضحك من قلب، وراسه يهتز، وتطير «هه».'],success:['خلّص','«خلصت الترتيب. ٣ دراسات، كل وحدة في مكانها.»','يرفع يدينه، والموجتين على اللابتوب يصيرون ذهبي.'],error:['ما ضبط','«الملف ما فتح. ترفعونه مرة ثانية؟»','يحط يده على جبهته، والموجتين يتفرقون.'],sleep:['نايم','«…z»','راسه يميل وينام. حرّك الماوس ويصحى.']};
+let SHC=(()=>{try{return localStorage.getItem('wesyShemagh2')}catch(e){return null}})()||'#C8102E';
+let inst={},cur='idle';
+function mount(){Object.values(inst).forEach(i=>i&&i.destroy());const x={shemagh:SHC};
+ inst.lock=new WesyReal(document.getElementById('lockChar'),Object.assign({state:'greet',shadow:false},x));
+ inst.scene=new WesyReal(document.getElementById('sceneChar'),Object.assign({state:'typing',shadow:false},x));
+ inst.big=new WesyReal(document.getElementById('bigChar'),Object.assign({state:cur},x));
+ inst.a1=new WesyReal(document.getElementById('av1'),Object.assign({crop:'head',shadow:false},x));
+ inst.a2=new WesyReal(document.getElementById('av2'),Object.assign({crop:'head',shadow:false,state:'greet'},x));
+ [...document.querySelectorAll('#shc button')].forEach(b=>b.classList.toggle('on',b.dataset.v===SHC))}
+document.querySelectorAll('#shc button').forEach(x=>x.onclick=()=>{SHC=x.dataset.v;try{localStorage.setItem('wesyShemagh2',SHC)}catch(e){}mount();inst.big.set(cur)});
+const chips=document.getElementById('chips'),say=document.getElementById('say');
+function pick(k){cur=k;inst.big.set(k);[...chips.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));say.innerHTML=S[k][1]+'<small>'+S[k][2]+'</small>'}
+Object.keys(S).forEach(k=>{const b=document.createElement('button');b.textContent=S[k][0];b.dataset.k=k;b.onclick=()=>pick(k);chips.appendChild(b)});
+mount();pick('idle');
+let idleT=Date.now();addEventListener('pointermove',()=>{idleT=Date.now();if(cur==='sleep')pick('greet')});
+setInterval(()=>{if(Date.now()-idleT>12000&&cur==='idle')pick('sleep')},1000);
+document.getElementById('ok').onclick=e=>{inst.a1.set('typing');e.target.textContent='ويسي يشتغل…';setTimeout(()=>{inst.a1.set('success');e.target.textContent='خلص ✓ شوفوا المكتبة'},1800);setTimeout(()=>{inst.a1.set('idle');e.target.textContent='وافقوا وسوّوها'},5200)};
+new TeamW(document.getElementById('ld'),{state:'loading',color:'#1E0B05',gold:'#E39A2E'});
+</script></body></html>

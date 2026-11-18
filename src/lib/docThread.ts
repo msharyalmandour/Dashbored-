@@ -46,8 +46,13 @@ const missing = (msg: string) => /supervisor_post|function .* does not exist|PGR
 /** ترسل الدكتورة. يرجع رسالة خطأ أو null */
 export async function postDocMessage(token: string, kind: DocKind, body: string, payload: Record<string, unknown>, name: string): Promise<string | null> {
   if (!supabase) return tr("ما انرسلت — جرّبوا مرة ثانية.");
-  const { error } = await supabase.rpc("supervisor_post", { p_token: token, p_kind: kind, p_body: body, p_payload: payload, p_name: name });
-  if (!error) return null;
+  const { data, error } = await supabase.rpc("supervisor_post", { p_token: token, p_kind: kind, p_body: body, p_payload: payload, p_name: name });
+  if (!error) {
+    // تنبيه الجوال للفريق (أولوية عالية) — ما نوقف لو فشل
+    const id = (data as { id?: string } | null)?.id;
+    if (id) void supabase.functions.invoke("push-notify", { body: { action: "doc", token, messageId: id } }).catch(() => undefined);
+    return null;
+  }
   if (missing(error.message)) {
     if (kind !== "text") return tr("الطلبات والمواعيد داخل المحادثة تشتغل بعد تحديث قاعدة البيانات.");
     const r = await supabase.rpc("submit_supervisor_message", { p_token: token, p_body: body, p_name: name });
@@ -68,4 +73,11 @@ export function looksTeamOnly(text: string): boolean {
   if (/(الدكتور[ةه]?|الدكتورة|الدكتوره|الدكتور|المشرف[ةه]?|الدكتوره)\s+(نس|قال|تبي|يبي|ما\s|مدري|زعلان|معصب|عصب|ردت|رد|شكل)/.test(t)) return true;
   if (/(يا\s?شباب|يا\s?بنات|ياخي|يا\s?جماعة|والله\s?مدري|طفشت|زهقت|خلونا\s?نطنش)/.test(t)) return true;
   return false;
+}
+
+/** اسم الدكتورة من آخر رسالة منها («د. إسراء»)، وإلا «الدكتورة» */
+export function docDisplayName(msgs: { sender: string; senderName: string }[]): string {
+  const n = [...msgs].reverse().find((m) => m.sender === "supervisor" && m.senderName.trim())?.senderName.trim();
+  if (!n) return tr("الدكتورة");
+  return /^(د\.|د |dr)/i.test(n) ? n : `${tr("د.")} ${n}`;
 }

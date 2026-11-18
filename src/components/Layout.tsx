@@ -27,6 +27,7 @@ import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
+import StudToast from "./notify/StudToast";
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -202,6 +203,7 @@ export default function Layout() {
           </div>
         </main>
       </div>
+      <StudToast />
       {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
     </ResearchAgentProvider>

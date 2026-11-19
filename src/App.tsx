@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound";
 // لوحة الهوية: تحميل كسول عشان ويسي ما يدخل بالحزمة الأساسية
 const BrandBoard = lazy(() => import("./pages/BrandBoard"));
 const Stickers = lazy(() => import("./pages/Stickers"));
+const LandingV3 = lazy(() => import("./pages/LandingV3"));
 import MinutesNew from "./pages/MinutesNew";
 import MinutesLive from "./pages/MinutesLive";
 import MinutesDoc from "./pages/MinutesDoc";
@@ -96,6 +97,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/brand" element={<Suspense fallback={null}><BrandBoard /></Suspense>} />
       <Route path="/legal/:doc" element={<Legal />} />
+      {/* صفحة الهبوط الجديدة — رابط تجربة لين يوافق المالك (القديمة باقية على «/») */}
+      <Route path="/welcome" element={<Suspense fallback={null}><LandingV3 /></Suspense>} />
       <Route path="/survey" element={<Survey />} />
       <Route path="/s/:token" element={<SurveyPublic />} />
       <Route path="/celebration" element={<Celebration />} />

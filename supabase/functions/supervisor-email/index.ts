@@ -212,7 +212,7 @@ Deno.serve(async (req: Request) => {
       `<p>أضافكم ${esc(leader)} كمشرف/ة للفريق${topic ? ` على بحث <b>${esc(topic)}</b>` : ""}.</p>` +
       `<p>من الحين توصلكم هنا: محاضر الاجتماعات للاعتماد، أسئلة الفريق، واقتراحات المواعيد. وكل شي تردّون عليه بضغطة من رابطكم، بدون حساب ولا كلمة مرور.</p>` +
       (waiting.length ? `<p style="${EMAIL_BOX}"><b>ينتظركم الحين:</b><br>${waiting.map(esc).join("<br>")}</p>` : "") +
-      `<p style="font-size:13px;color:#ABA095">تقدرون من صفحتكم تختارون «ملخص الأحد بس» بدل الإيميلات أول بأول.</p>`;
+      `<p style="font-size:13px;color:#ABA095">تقدرون من صفحتكم تختارون «ملخص الخميس بس» بدل الإيميلات أول بأول.</p>`;
     const sent = await sendEmail(
       email,
       title,
@@ -266,7 +266,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
     if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
-    // اختارت الملخص الأسبوعي بس: الرد يطلع لها بالأحد
+    // اختارت الملخص الأسبوعي بس: الرد يطلع لها بملخص الخميس
     if (sub.digest === "weekly") return json(200, { sent: false, reason: "weekly_digest" });
     if (sub.last_notified_at && Date.now() - new Date(sub.last_notified_at).getTime() < NOTIFY_COOLDOWN_MINUTES * 60_000) {
       return json(200, { sent: false, reason: "cooldown" });
@@ -479,7 +479,7 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
     return json(200, { ok: true });
   }
 
-  // ---------- ملخص الأحد للمشرفات (pg_cron) ----------
+  // ---------- ملخص الخميس للمشرفات (pg_cron) ----------
   if (action === "weekly") {
     const given = req.headers.get("x-digest-secret");
     const { data: okSecret } = given ? await admin.rpc("verify_digest_secret", { p_secret: given }) : { data: false };

@@ -66,7 +66,7 @@ export async function getMyEmailStatus(): Promise<EmailStatus | null> {
 export const inviteSupervisorByEmail = (_shareToken: string, email: string) => call<{ ok: true; active: true }>({ action: "invite", email });
 
 export type DigestMode = "instant" | "weekly";
-/** المشرف/ة تختار: كل طلب يوصلها أول بأول، أو ملخص الأحد بس */
+/** المشرف/ة تختار: كل طلب يوصلها أول بأول، أو ملخص الخميس بس */
 export async function getSupervisorDigest(token: string): Promise<DigestMode> {
   const r = await call<{ digest?: DigestMode }>({ action: "digest_status", token });
   return r.data?.digest === "weekly" ? "weekly" : "instant";

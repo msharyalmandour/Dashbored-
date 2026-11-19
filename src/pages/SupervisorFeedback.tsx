@@ -298,7 +298,7 @@ export default function SupervisorFeedback() {
         </div>
         {splitMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{splitMsg}</p>}
         {!aiOk && isSupabaseConfigured && (
-          <p className="text-[12px] text-brand-950/45">{tr("التقسيم الذكي متاح بباقة AI. التقسيم البسيط مجاني.")}</p>
+          <p className="text-[12px] text-brand-950/45">{tr("التقسيم الذكي يفتح مع الاشتراك. التقسيم البسيط مجاني.")}</p>
         )}
       </Card>
 

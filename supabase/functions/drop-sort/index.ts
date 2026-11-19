@@ -207,7 +207,7 @@ Deno.serve(async (req: Request) => {
     if (!teamId) return json({ error: "ما لقينا فريقكم" });
 
     const { data: planRow } = await db.from("teams").select("plan, on_trial").eq("id", teamId).single();
-    if (planRow && planRow.plan !== "ai" && !planRow.on_trial) return json({ upgradeRequired: true, limitReached: true, message: "«ارموا أي شي» ضمن المساعد الذكي. تقدر قائدة الفريق تضيفه من صفحة «الباقات والاشتراك»." });
+    if (planRow && planRow.plan !== "ai" && !planRow.on_trial) return json({ upgradeRequired: true, limitReached: true, message: "«ارموا أي شي» داخل اشتراك Wesync الشامل — أول دفعة من صفحة «الاشتراك» تفتحه لفريقكم كامل." });
     const monthStart = new Date();
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);

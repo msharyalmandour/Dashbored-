@@ -6,7 +6,7 @@ import type { WesyState } from "../vendor/wesy-real";
 import WLogo from "../components/brand/WLogo";
 import LangToggle from "../components/ui/LangToggle";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
-import { AI_ADDON_TEAM, TEAM_PRICE, TRIAL_DAYS } from "../lib/plans";
+import { DUO_PRICE, SOLO_PRICE, TEAM_PRICE, TRIAL_DAYS, teamAnnualTotal, type BillingPeriod } from "../lib/plans";
 import { tr } from "../lib/i18n";
 import shotOverview from "../assets/landing/overview.webp";
 import shotTasks from "../assets/landing/tasks.webp";
@@ -306,18 +306,37 @@ function Doctors() {
 /* ── 06: السعر ── */
 function Price() {
   const [ref, on] = useReveal<HTMLElement>();
+  const [period, setPeriod] = useState<BillingPeriod>("year");
+  const yearly = period === "year";
   return (
     <section id="price" ref={ref} className={`l3-sec l3-price ${on ? "on" : ""}`}>
       <div className="l3-wrap">
         <Kicker n="06">{tr("السعر")}</Kicker>
         <div className="l3-price-card">
-          <p className="l3-price-k">{tr("الفريق كامل")}</p>
+          <div className="l3-period" role="radiogroup" aria-label={tr("مدة الاشتراك")}>
+            <button type="button" role="radio" aria-checked={!yearly} className={!yearly ? "on" : ""} onClick={() => setPeriod("month")}>
+              {tr("شهري")}
+            </button>
+            <button type="button" role="radio" aria-checked={yearly} className={yearly ? "on" : ""} onClick={() => setPeriod("year")}>
+              {tr("سنوي")} <span className="l3-period-tag">{tr("شهرين مجانًا")}</span>
+            </button>
+          </div>
+          <p className="l3-price-k">{tr("الفريق كامل · كل شي داخل")}</p>
           <p className="l3-price-n">
-            <b>{TEAM_PRICE}</b> {tr("ريال بالشهر")}
+            <b>{yearly ? teamAnnualTotal(5) : TEAM_PRICE}</b> {yearly ? tr("ريال بالسنة") : tr("ريال بالشهر")}
           </p>
-          <p className="l3-price-s">{tr("للفريق كله، مو لكل واحد.")}</p>
+          <p className="l3-price-s">
+            {yearly
+              ? tr("يعني {0} ريال بالشهر — تدفعون 10 وتاخذون 12.", Math.round(teamAnnualTotal(5) / 12))
+              : tr("للفريق كله، مو لكل واحد.")}
+          </p>
           <ul>
-            {[tr("كل أدوات البحث والفريق"), tr("الدكتورة مجانًا دايمًا"), tr("{0} يوم مجانًا بدون بطاقة", TRIAL_DAYS), tr("المساعد الذكي إضافة اختيارية: {0} ريال للفريق", AI_ADDON_TEAM)].map((x) => (
+            {[
+              tr("كل أدوات البحث والفريق + ويسي المساعد الذكي"),
+              tr("الدكتورة مجانًا دايمًا"),
+              tr("{0} يوم مجانًا بدون بطاقة", TRIAL_DAYS),
+              tr("بدون تجديد تلقائي — كل واحد يقدر يدفع حصته"),
+            ].map((x) => (
               <li key={x}>
                 <Check size={16} aria-hidden />
                 {x}
@@ -325,6 +344,11 @@ function Price() {
             ))}
           </ul>
           <Cta />
+          <p className="l3-price-small">
+            {yearly
+              ? tr("لحالك {0} · شخصين {1} ريال بالسنة", teamAnnualTotal(1), teamAnnualTotal(2))
+              : tr("لحالك {0} · شخصين {1} ريال بالشهر", SOLO_PRICE, DUO_PRICE)}
+          </p>
         </div>
       </div>
     </section>

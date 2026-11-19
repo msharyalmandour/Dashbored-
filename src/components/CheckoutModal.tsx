@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import MoyasarPayment from "./MoyasarPayment";
 import { tr, trx } from "../lib/i18n";
-import { memberShare, teamMonthlyTotal } from "../lib/plans";
+import { memberShare, periodTotal, teamMonthlyTotal, type BillingPeriod } from "../lib/plans";
 
 /** نافذة دفع منبثقة تلخّص الطلب قبل تضمين نموذج Moyasar الفعلي، وتعرض حالة
     نجاح واضحة لما يرجع المستخدم بعد الدفع (Moyasar يرجّعه بـ ?status=paid
@@ -17,6 +17,8 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   // أي عضو يدفع حصته بشكل افتراضي — دفع الفاتورة كاملة اختيار إضافي لقائد
   // الفريق فقط (قرار يخص الفريق كله، مو كل عضو يقدر يسويه بالعفوية)
   const [mode, setMode] = useState<"share" | "full">("share");
+  // السنوي = تدفعون 10 شهور وتاخذون 12 — الافتراضي لأنه أوفر ويغطي السنة الدراسية
+  const [period, setPeriod] = useState<BillingPeriod>("year");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -34,8 +36,10 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   if (!team) return null;
 
   const memberCount = roster.length || 1;
-  const teamTotal = teamMonthlyTotal(team.plan, team.isFounder, memberCount);
+  const yearly = period === "year";
+  const teamTotal = periodTotal(memberCount, period);
   const share = memberShare(teamTotal, memberCount);
+  const saved = teamMonthlyTotal(memberCount) * 12 - teamTotal;
   const total = mode === "full" ? teamTotal : share;
 
   return (
@@ -82,6 +86,24 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div className="p-5">
+            <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl bg-surface-muted p-1" role="radiogroup" aria-label={tr("مدة الاشتراك")}>
+              <button
+                role="radio"
+                aria-checked={!yearly}
+                onClick={() => setPeriod("month")}
+                className={`min-h-11 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                  !yearly ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
+                }`}
+              >{tr("شهري")}</button>
+              <button
+                role="radio"
+                aria-checked={yearly}
+                onClick={() => setPeriod("year")}
+                className={`min-h-11 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                  yearly ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
+                }`}
+              >{tr("سنوي · شهرين مجانًا")}</button>
+            </div>
             {isLeader && (
               <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-surface-muted p-1">
                 <button
@@ -114,15 +136,22 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
               <div className="mt-3 flex items-center justify-between border-t border-brand-100 pt-3">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-950">
                   <CreditCard size={14} />
-                  {mode === "full" ? tr("الإجمالي شهريًا") : tr("المبلغ الآن")}
+                  {mode === "full" ? (yearly ? tr("الإجمالي للسنة") : tr("الإجمالي شهريًا")) : tr("المبلغ الآن")}
                 </span>
                 <span className="font-display text-lg font-extrabold text-brand-700">{trx("{0} ريال", total)}</span>
               </div>
+              {yearly && saved > 0 && (
+                <p className="mt-2 text-[12px] font-bold text-amber-accent-700">{trx("توفّرون {0} ريال على الفريق — 12 شهر بسعر 10", saved)}</p>
+              )}
               {mode === "share" && (
-                <p className="mt-3 text-[12px] text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
+                <p className="mt-3 text-[12px] text-brand-950/45">
+                  {yearly
+                    ? tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من السنة — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")
+                    : tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}
+                </p>
               )}
             </div>
-            <MoyasarPayment mode={mode} />
+            <MoyasarPayment mode={mode} period={period} />
           </div>
         )}
       </div>

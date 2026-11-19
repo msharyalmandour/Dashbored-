@@ -21,15 +21,15 @@ export default function ImproveWritingButton({
 
   if (mode !== "supabase") return null;
 
-  // باقة Basic: الزر يبقى ظاهر لكن يودّي لصفحة الباقات بدل ما يستدعي الـ AI
+  // فريق قديم على Basic بعد التجربة: الزر يودّي لصفحة الاشتراك بدل ما يستدعي الـ AI
   if (!hasAiAccess(team)) {
     return (
       <Link
         to="/pricing"
-        title={tr("تحسين الصياغة ضمن باقة AI")}
+        title={tr("تحسين الصياغة داخل الاشتراك")}
         className="flex items-center gap-1.5 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-bold text-brand-950/50 hover:text-brand-700"
       >
-        <Lock size={12} />{tr("حسّن الصياغة (باقة AI)")}</Link>
+        <Lock size={12} />{tr("حسّن الصياغة (مع الاشتراك)")}</Link>
     );
   }
 

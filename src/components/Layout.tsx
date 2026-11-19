@@ -1,13 +1,12 @@
 import { applyReduceMotion, getReduceMotion, setReduceMotion } from "../lib/motionPref";
 import { storePaperMode } from "../lib/paperMode";
 import { loadProfilePrefs } from "../lib/profilePrefs";
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, CreditCard } from "lucide-react";
 import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import Landing from "../pages/Landing";
 import SectionTabs from "./SectionTabs";
 import { PageHelpButton } from "./help/PageHelp";
 import PaymentProofUpload from "./PaymentProofUpload";
@@ -34,6 +33,8 @@ import InviteSeats from "./growth/InviteSeats";
 import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
+
+const LandingV3 = lazy(() => import("../pages/LandingV3"));
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -64,7 +65,7 @@ const titles: Record<string, string> = {
   "/guide": tr("دليل الطالب"),
   "/learn": tr("تعلّموا Wesync"),
   "/drop": tr("ارموا أي شي"),
-  "/pricing": tr("الباقات والاشتراك"),
+  "/pricing": tr("الاشتراك"),
   "/admin/subscriptions": tr("إدارة الاشتراكات"),
 };
 
@@ -127,7 +128,7 @@ export default function Layout() {
   if (loading) return <AppSplash />;
 
   if (!currentUser) {
-    if (location.pathname === "/") return <Landing />;
+    if (location.pathname === "/") return <Suspense fallback={<AppSplash />}><LandingV3 /></Suspense>;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
@@ -186,7 +187,7 @@ export default function Layout() {
                     {isLeader ? tr("فعّلوا الاشتراك الآن") : tr("ادفعوا حصتكم")}
                   </button>
                 }
-              >{trx("أنتم بفترة التجربة المجانية 🎉 — باقي {0}. أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو ", trialDaysLeft <= 0 ? tr("أقل من يوم") : `${trialDaysLeft} ${trialDaysLeft === 1 ? tr("يوم") : tr("أيام")}`)}<Link to="/pricing" className="underline underline-offset-2">{tr("شوفوا الباقات")}</Link>
+              >{trx("أنتم بفترة التجربة المجانية 🎉 — باقي {0}. أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو ", trialDaysLeft <= 0 ? tr("أقل من يوم") : `${trialDaysLeft} ${trialDaysLeft === 1 ? tr("يوم") : tr("أيام")}`)}<Link to="/pricing" className="underline underline-offset-2">{tr("شوفوا الاشتراك")}</Link>
                 .
               </AlertCard>
             )}

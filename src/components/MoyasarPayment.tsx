@@ -5,7 +5,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { g, isFemaleUser } from "../lib/gender";
 import { MOYASAR_PUBLISHABLE_KEY } from "../lib/moyasar";
 import { tr } from "../lib/i18n";
-import { memberShare, teamMonthlyTotal } from "../lib/plans";
+import { memberShare, periodTotal, type BillingPeriod } from "../lib/plans";
 
 const SCRIPT_SRC = "https://cdn.moyasar.com/mpf/1.15.0/moyasar.js";
 const STYLE_HREF = "https://cdn.moyasar.com/mpf/1.15.0/moyasar.css";
@@ -64,7 +64,7 @@ function loadMoyasarAssets(): Promise<void> {
     مع المبلغ الفعلي — فمو شرط اختيار "كامل" عشان الفريق يستفيد، كل دفعة
     تراكمية بحد ذاتها. profile_id بالـ metadata يربط الدفعة بصاحبها عشان
     قائمة "مين دفع حصته" بصفحة الأسعار. */
-export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
+export default function MoyasarPayment({ mode, period = "month" }: { mode: "share" | "full"; period?: BillingPeriod }) {
   const { team, currentUser } = useAuth();
   const { roster } = useTeamRoster();
   const formRef = useRef<HTMLDivElement>(null);
@@ -73,7 +73,8 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
 
   const memberCount = roster.length || 1;
   // نفس حسبة السيرفر (team_monthly_total / moyasar-webhook): السعر للفريق كامل، والحصة تتقرّب لفوق
-  const teamTotal = team ? teamMonthlyTotal(team.plan, team.isFounder, memberCount) : 0;
+  const teamTotal = team ? periodTotal(memberCount, period) : 0;
+  const yearly = period === "year";
   const amountRiyals = mode === "full" ? teamTotal : memberShare(teamTotal, memberCount);
   const isFemale = isFemaleUser(currentUser);
 
@@ -92,8 +93,8 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
       currency: "SAR",
       description:
         mode === "full"
-          ? tr("اشتراك فريق {0} — الفاتورة كاملة", team.name)
-          : tr("حصة {0} — فريق {1}", currentUser.name, team.name),
+          ? tr("اشتراك فريق {0} — الفاتورة كاملة ({1})", team.name, yearly ? tr("سنة") : tr("شهر"))
+          : tr("حصة {0} — فريق {1} ({2})", currentUser.name, team.name, yearly ? tr("سنة") : tr("شهر")),
       publishable_api_key: MOYASAR_PUBLISHABLE_KEY,
       callback_url: window.location.href,
       // Apple Pay يحتاج توثيق الدومين بلوحة Moyasar، وSTC Pay يحتاج تفعيله من حسابهم — لو مو مفعّلين ما يطلعون
@@ -103,19 +104,19 @@ export default function MoyasarPayment({ mode }: { mode: "share" | "full" }) {
         label: "Wesync",
         validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate",
       },
-      metadata: { team_id: team.id, profile_id: currentUser.id },
+      metadata: { team_id: team.id, profile_id: currentUser.id, period },
     });
-  }, [ready, team, currentUser, amountRiyals, mode]);
+  }, [ready, team, currentUser, amountRiyals, mode, period, yearly]);
 
   if (!team || !currentUser) return null;
 
   return (
-    <div key={mode} className="mt-3 rounded-2xl border border-amber-accent-200 bg-paper p-4">
+    <div key={`${mode}-${period}`} className="mt-3 rounded-2xl border border-amber-accent-200 bg-paper p-4">
       <div className="mb-3 flex items-center gap-2">
         <CreditCard size={16} className="text-amber-accent-600" />
         <p className="text-sm font-bold text-brand-950">
           {mode === "full"
-            ? tr("ادفعوا الآن — تفعيل فوري ({0} ريال / شهر لـ {1} {2})", amountRiyals, memberCount, memberCount === 1 ? tr("عضو") : tr("أعضاء"))
+            ? tr("ادفعوا الآن — تفعيل فوري ({0} ريال / {1} لـ {2} {3})", amountRiyals, yearly ? tr("سنة") : tr("شهر"), memberCount, memberCount === 1 ? tr("عضو") : tr("أعضاء"))
             : tr("{0} حصتك — تفعيل فوري ({1} ريال)", g(isFemale, tr("ادفعي"), tr("ادفع")), amountRiyals)}
         </p>
       </div>

@@ -1,26 +1,20 @@
 import { useState } from "react";
+import { BadgeCheck, CalendarClock, Check, CreditCard, ShieldCheck, Wand2 } from "lucide-react";
 import {
-  BadgeCheck,
-  CalendarClock,
-  Check,
-  CreditCard,
-  Lock,
-  ShieldCheck,
-  Wand2,
-} from "lucide-react";
-import {
-  AI_ADDON_FOUNDER,
-  AI_ADDON_TEAM,
+  DUO_PRICE,
   MAX_TEAM_MEMBERS,
+  SOLO_PRICE,
+  TEAM_PRICE,
   TRIAL_DAYS,
   aiFeatures,
   basicHighlights,
   memberShare,
+  periodTotal,
+  teamAnnualTotal,
   teamMonthlyTotal,
-  type PlanId,
+  type BillingPeriod,
 } from "../lib/plans";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
-import PlanComparison from "../components/PlanComparison";
 import Card, { CardHeader } from "../components/ui/Card";
 import Avatar from "../components/ui/Avatar";
 import GrowingPlant from "../components/GrowingPlant";
@@ -33,30 +27,20 @@ import { daysUntil, formatDateLong } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 
 export default function Pricing() {
-  const { team, isLeader, setTeamPlan } = useAuth();
+  const { team } = useAuth();
   const { roster } = useTeamRoster();
   const { paidProfileIds } = useTeamPayments();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [planBusy, setPlanBusy] = useState<PlanId | null>(null);
-  const [planError, setPlanError] = useState<string | null>(null);
+  const [period, setPeriod] = useState<BillingPeriod>("year");
 
   const state = getTeamSubscriptionState(team?.subscriptionEndDate);
   const daysLeft = team?.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
-  const currentPlan: PlanId = team?.plan ?? "ai";
-  const isFounder = team?.isFounder ?? false;
-
-  const choosePlan = async (plan: PlanId) => {
-    if (planBusy || plan === currentPlan) return;
-    setPlanError(null);
-    setPlanBusy(plan);
-    const { error } = await setTeamPlan(plan);
-    setPlanBusy(null);
-    if (error) setPlanError(error);
-  };
   const memberCount = roster.length || 1;
+  const yearly = period === "year";
   // نحسب من نفس معادلة السيرفر (team_monthly_total) بدل monthly_price المخزّن
-  const total = teamMonthlyTotal(currentPlan, isFounder, memberCount);
+  const total = periodTotal(memberCount, period);
   const share = memberShare(total, memberCount);
+  const saved = teamMonthlyTotal(memberCount) * 12 - teamAnnualTotal(memberCount);
   const isActive = state === "active";
 
   return (
@@ -76,7 +60,7 @@ export default function Pricing() {
           <h1 className="relative mt-4 font-display text-2xl font-extrabold leading-snug text-brand-950 sm:text-3xl">{tr("بحثكم يستحق مساحة تواكبه")}<br />
             <span className="bg-gradient-to-l from-brand-600 to-amber-accent-600 bg-clip-text text-transparent">{tr("من أول فكرة، لآخر صفحة")}</span>
           </h1>
-          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("اشتراك واحد لفريقكم كامل (حتى {0} أعضاء) بسعر الإطلاق — والمساعد الذكي إضافة اختيارية. المشرفة تدخل مجانًا دايمًا 🌱", MAX_TEAM_MEMBERS)}</p>
+          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("اشتراك واحد لفريقكم كامل (حتى {0} أعضاء) وكل شي داخل — حتى ويسي المساعد الذكي. المشرفة تدخل مجانًا دايمًا 🌱", MAX_TEAM_MEMBERS)}</p>
 
           <div className="relative mx-auto mt-7 flex w-fit items-center justify-center">
             <GrowingPlant className="h-32 w-32 opacity-95 sm:h-40 sm:w-40" />
@@ -84,105 +68,46 @@ export default function Pricing() {
         </div>
       </div>
 
-      {/* Plans */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {(["basic", "ai"] as const).map((plan) => {
-          const isAi = plan === "ai";
-          const selected = currentPlan === plan;
-          const price = teamMonthlyTotal(plan, isFounder, memberCount);
-          return (
-            <div
-              key={plan}
-              className={`relative flex flex-col rounded-[1.75rem] p-[1.5px] ${
-                isAi
-                  ? "bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 shadow-lg shadow-brand-950/10"
-                  : "bg-brand-100/60"
-              }`}
-            >
-              <div className="glass-panel relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper/80 p-6 backdrop-blur-xl">
-                {isAi && (
-                  <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[12px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-                    <Wand2 size={11} />{tr("الأكثر قيمة")}</span>
-                )}
-                <p className="font-display text-lg font-extrabold text-brand-950">
-                  {isAi ? tr("الفريق + المساعد الذكي") : tr("اشتراك الفريق")}
-                </p>
-                <p className="mt-0.5 text-xs text-brand-950/50">
-                  {isAi ? tr("كل شي بالإضافة للذكاء الاصطناعي") : tr("كل أدوات إدارة البحث")}
-                </p>
-                <div className="mt-4 flex items-baseline gap-1.5">
-                  <span className="font-display text-4xl font-extrabold text-brand-950">{price}</span>
-                  <span className="text-sm font-semibold text-brand-950/50">{tr("ريال / شهريًا للفريق كامل")}</span>
-                </div>
-                <p className="mt-1 text-[12px] font-semibold text-brand-950/45">
-                  {memberCount > 1
-                    ? trx("يعني {0} ريال لكل عضو من {1}", memberShare(price, memberCount), memberCount)
-                    : tr("سعر الباحث لحاله — ينزل نصيب كل واحد كل ما زاد فريقكم")}
-                </p>
-                {isAi && isFounder && memberCount > 1 && (
-                  <p className="mt-1 text-[12px] font-bold text-amber-accent-700">{trx("سعر المؤسسين — المساعد بـ{0} ريال بدل {1}، ثابت مدى اشتراككم", AI_ADDON_FOUNDER, AI_ADDON_TEAM)}</p>
-                )}
-
-                <ul className="mt-5 flex-1 space-y-2.5">
-                  {isAi ? (
-                    <li className="flex items-start gap-2.5 text-sm font-bold text-brand-950/80">
-                      <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />{tr("كل مزايا Basic")}</li>
-                  ) : (
-                    basicHighlights.map((label) => (
-                      <li key={label} className="flex items-start gap-2.5 text-sm text-brand-950/70">
-                        <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />
-                        {label}
-                      </li>
-                    ))
-                  )}
-                  {isAi ? (
-                    aiFeatures.map((f) => (
-                      <li key={f.title} className="flex items-start gap-2.5 text-sm text-brand-950/70">
-                        <Wand2 size={15} className="mt-0.5 shrink-0 text-amber-accent-500" />
-                        <span>
-                          <b className="font-bold text-brand-950">{f.title}</b> — {f.desc}
-                        </span>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="flex items-start gap-2.5 text-sm text-brand-950/40">
-                      <Lock size={15} className="mt-0.5 shrink-0" />{tr("بدون المساعد الذكي وويسي للبحث وتحسين الصياغة")}</li>
-                  )}
-                </ul>
-
-                <button
-                  onClick={() => choosePlan(plan)}
-                  disabled={selected || !isLeader || planBusy !== null}
-                  className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-extrabold transition-colors disabled:cursor-default ${
-                    selected
-                      ? "bg-brand-100 text-brand-700"
-                      : "bg-gradient-to-l from-brand-500 to-brand-600 text-white disabled:opacity-50"
-                  }`}
-                >
-                  {selected ? (
-                    <>
-                      <BadgeCheck size={16} />{tr("باقتكم الحالية")}</>
-                  ) : planBusy === plan ? (
-                    tr("جاري التغيير...")
-                  ) : isLeader ? (
-                    tr("انتقلوا لباقة {0}", isAi ? "AI" : "Basic")
-                  ) : (
-                    tr("التغيير من قائدة الفريق")
-                  )}
-                </button>
-              </div>
-            </div>
-          );
-        })}
+      {/* مدة الاشتراك */}
+      <div className="mx-auto grid w-full max-w-sm grid-cols-2 gap-2 rounded-2xl bg-surface-muted p-1" role="radiogroup" aria-label={tr("مدة الاشتراك")}>
+        <button
+          role="radio"
+          aria-checked={!yearly}
+          onClick={() => setPeriod("month")}
+          className={`min-h-11 rounded-xl px-3 text-sm font-bold transition-colors ${!yearly ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"}`}
+        >{tr("شهري")}</button>
+        <button
+          role="radio"
+          aria-checked={yearly}
+          onClick={() => setPeriod("year")}
+          className={`min-h-11 rounded-xl px-3 text-sm font-bold transition-colors ${yearly ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"}`}
+        >{tr("سنوي · شهرين مجانًا")}</button>
       </div>
-      <PlanComparison variant="light" />
 
-      {planError && (
-        <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">{planError}</p>
-      )}
-      {team?.isOnTrial && (
-        <p className="rounded-2xl bg-amber-accent-50 px-4 py-3 text-xs font-semibold text-amber-accent-700">{tr("أنتم الحين بفترة التجربة — كل ميزات AI مفتوحة لكم مهما كانت الباقة المختارة، واختياركم يبدأ يسري مع أول اشتراك.")}</p>
-      )}
+      {/* كل شي داخل الاشتراك */}
+      <Card>
+        <CardHeader title={tr("كل شي داخل الاشتراك")} subtitle="All-inclusive" />
+        <div className="grid grid-cols-1 gap-x-6 gap-y-2.5 md:grid-cols-2">
+          <ul className="space-y-2.5">
+            {basicHighlights.map((label) => (
+              <li key={label} className="flex items-start gap-2.5 text-sm text-brand-950/70">
+                <Check size={15} className="mt-0.5 shrink-0 text-brand-500" />
+                {label}
+              </li>
+            ))}
+          </ul>
+          <ul className="space-y-2.5">
+            {aiFeatures.map((f) => (
+              <li key={f.title} className="flex items-start gap-2.5 text-sm text-brand-950/70">
+                <Wand2 size={15} className="mt-0.5 shrink-0 text-amber-accent-500" />
+                <span>
+                  <b className="font-bold text-brand-950">{f.title}</b> — {f.desc}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Card>
 
       {/* Price card */}
       <div className="rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
@@ -190,7 +115,7 @@ export default function Pricing() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-950/10 to-transparent" />
           <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-accent-100/70 blur-3xl" />
           <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[12px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-            {currentPlan === "ai" ? tr("الفريق + المساعد الذكي") : tr("اشتراك الفريق")}
+            {yearly ? tr("سنوي · شهرين مجانًا") : tr("شهري")}
           </span>
 
           <div className="relative flex flex-col items-start gap-1">
@@ -198,8 +123,11 @@ export default function Pricing() {
               <BadgeCheck size={14} className="text-brand-500" />{trx("حالة الاشتراك: {0}", subscriptionStateLabel[state])}</p>
             <div className="flex items-baseline gap-1.5">
               <span className="font-display text-4xl font-extrabold text-brand-950">{total}</span>
-              <span className="text-sm font-semibold text-brand-950/50">{tr("ريال / شهريًا للفريق كامل")}</span>
+              <span className="text-sm font-semibold text-brand-950/50">{yearly ? tr("ريال / سنويًا للفريق كامل") : tr("ريال / شهريًا للفريق كامل")}</span>
             </div>
+            {yearly && saved > 0 && (
+              <p className="text-xs font-bold text-amber-accent-700">{trx("12 شهر بسعر 10 — توفّرون {0} ريال", saved)}</p>
+            )}
             {memberCount > 1 && (
               <p className="text-xs text-brand-950/45">{trx("نصيب كل عضو {0} ريال — {1} أعضاء بفريقكم", share, memberCount)}</p>
             )}
@@ -229,7 +157,7 @@ export default function Pricing() {
 
       {/* Split payment roster — مين دفع حصته */}
       <Card>
-        <CardHeader title={tr("حصص الأعضاء هالشهر")} subtitle="Who's paid" />
+        <CardHeader title={tr("حصص الأعضاء")} subtitle="Who's paid" />
         <ul className="space-y-2.5">
           {roster.map((member) => {
             const hasPaid = paidProfileIds.has(member.id);
@@ -262,7 +190,7 @@ export default function Pricing() {
         <div className="space-y-4 text-sm">
           <div>
             <p className="font-bold text-brand-950">{tr("السعر لكل شخص ولا للفريق؟")}</p>
-            <p className="mt-1 text-brand-950/55">{tr("للفريق كامل: باحث لحاله 19 ريال، شخصين 39، ومن 3 إلى 5 أعضاء 49 ريال بالشهر. المساعد الذكي إضافة اختيارية (+39 للفريق، +19 للباحث لحاله). المشرفة مجانًا دايمًا ولا تنحسب.")}</p>
+            <p className="mt-1 text-brand-950/55">{trx("للفريق كامل وكل شي داخل (حتى ويسي المساعد الذكي): باحث لحاله {0} ريال، شخصين {1}، ومن 3 إلى 5 أعضاء {2} ريال بالشهر. والسنوي بشهرين مجانًا ({3} ريال للفريق). المشرفة مجانًا دايمًا ولا تنحسب.", SOLO_PRICE, DUO_PRICE, TEAM_PRICE, teamAnnualTotal(MAX_TEAM_MEMBERS))}</p>
           </div>
           <div>
             <p className="font-bold text-brand-950">{tr("لازم قائد الفريق يدفع، ولا أي عضو يقدر؟")}</p>
@@ -281,8 +209,8 @@ export default function Pricing() {
             <p className="mt-1 text-brand-950/55">{tr("إذا فريق دخل من رابطكم ودفع أول مرة، تاخذون شهر مجاني أنتم وهم.")}</p>
           </div>
           <div>
-            <p className="font-bold text-brand-950">{tr("أقدر أغيّر الباقة؟")}</p>
-            <p className="mt-1 text-brand-950/55">{tr("قائدة الفريق تغيّرها أثناء التجربة، أو قبل التجديد بأسبوع، أو بعد انتهاء الاشتراك. نمنع التبديل بنص الشهر عشان الحسبة تبقى عادلة لكل الفرق.")}</p>
+            <p className="font-bold text-brand-950">{tr("الشهري ولا السنوي؟")}</p>
+            <p className="mt-1 text-brand-950/55">{tr("السنوي تدفعون 10 شهور وتاخذون 12، ويغطي السنة الدراسية كاملة بدون ما تتذكرون الدفع كل شهر. وكل عضو يقدر يدفع حصته من السنوي بعد.")}</p>
           </div>
           <div>
             <p className="font-bold text-brand-950">{tr("ظروفي ما تسمح بالدفع؟")}</p>

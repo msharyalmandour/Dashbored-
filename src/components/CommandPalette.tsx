@@ -79,7 +79,7 @@ const baseItems: PaletteItem[] = [
   { to: "/calendar", label: tr("التقويم"), icon: CalendarDays },
   { to: "/story", label: tr("قصة بحثك"), icon: Wand2 },
   { to: "/guide", label: tr("دليل الطالب"), icon: Compass },
-  { to: "/pricing", label: tr("الباقات والاشتراك"), icon: CreditCard },
+  { to: "/pricing", label: tr("الاشتراك"), icon: CreditCard },
 ];
 
 export default function CommandPalette() {

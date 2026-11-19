@@ -98,7 +98,7 @@ export default function AdminSubscriptions() {
     return s === "expired" || s === "none";
   }).length;
   const monthlyRevenue = activeTeams.reduce(
-    (sum, t) => sum + teamMonthlyTotal(t.plan, t.isFounder, t.memberCount),
+    (sum, t) => sum + teamMonthlyTotal(t.memberCount),
     0,
   );
 
@@ -172,7 +172,7 @@ export default function AdminSubscriptions() {
                     <span className="rounded-full bg-surface-muted px-2 py-0.5 font-bold text-brand-700">
                       {team.plan === "ai" ? tr("باقة AI") : tr("باقة Basic")}
                     </span>
-                    <span><span className="font-bold text-brand-700">{trx("{0} ريال/شهر", teamMonthlyTotal(team.plan, team.isFounder, team.memberCount))}</span>
+                    <span><span className="font-bold text-brand-700">{trx("{0} ريال/شهر", teamMonthlyTotal(team.memberCount))}</span>
                     </span>
                     {team.university && (
                       <span className="flex items-center gap-1.5">

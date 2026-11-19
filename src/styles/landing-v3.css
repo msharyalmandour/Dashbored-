@@ -150,3 +150,16 @@ html[data-reduce-motion="true"] .l3-step, html[data-reduce-motion="true"] .l3-se
 .l3-stage.still .l3-stage-pin { position: relative; height: auto; overflow: visible; }
 .l3-stage.still .l3-hero, .l3-stage.still .l3-big { position: relative; min-height: 100vh; }
 .l3-stage.still .l3-big { background: var(--cream); overflow: hidden; }
+
+/* شهري / سنوي */
+.l3-period { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 auto 22px; border-radius: 999px; background: rgba(255,199,119,.08); border: 1px solid rgba(255,199,119,.2); }
+.l3-period button { min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .25s, color .25s; }
+.l3-period button.on { background: #F2EBE3; color: #160904; }
+.l3-period button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.l3-period-tag { font-size: 12px; font-weight: 800; color: #8A4B10; background: rgba(255,199,119,.35); padding: 2px 8px; border-radius: 999px; }
+.l3-period button:not(.on) .l3-period-tag { color: var(--gold); background: rgba(255,199,119,.12); }
+.l3-price-small { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .l3-period button { transition: none; } }
+html[data-reduce-motion="true"] .l3-period button { transition: none; }
+.l3-period button, .l3-period-tag { white-space: nowrap; }
+@media (max-width: 480px) { .l3-period button { padding: 0 12px; gap: 6px; } }

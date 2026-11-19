@@ -118,7 +118,7 @@ export const morePages: { to: string; label: string; icon: LucideIcon; /** مخ�
   { hideInNav: true, to: "/proposal/export", label: tr("تصدير المقترح"), icon: FileDown },
   { hideInNav: true, to: "/glossary", label: tr("قاموس المصطلحات"), icon: BookA },
   { hideInNav: true, to: "/story", label: tr("قصة بحثك"), icon: Flag },
-  { to: "/pricing", label: tr("الباقات والاشتراك"), icon: CreditCard },
+  { to: "/pricing", label: tr("الاشتراك"), icon: CreditCard },
 ];
 
 export const allSections = [...journeySections, ...workSections];

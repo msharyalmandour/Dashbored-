@@ -1,36 +1,32 @@
 import type { Team } from "../data/types";
 import { tr } from "./i18n";
 
+/** "basic" باقي بس للفرق القديمة — من 2026-11-19 كل اشتراك مدفوع = "ai" (الويبهوك يثبّته) */
 export type PlanId = "basic" | "ai";
 
-/** سعر الإطلاق (2026-10-27): السعر للفريق كامل بالشهر مو لكل عضو.
+/** السعر (2026-11-19): اشتراك واحد شامل كل شي (المساعد الذكي داخل) — للفريق كامل بالشهر مو لكل عضو.
     لازم يطابق public.team_monthly_total() بقاعدة البيانات وحسبة moyasar-webhook. */
 export const SOLO_PRICE = 19;
 export const DUO_PRICE = 39;
-export const TEAM_PRICE = 49;
-/** المساعد الذكي إضافة على اشتراك الفريق */
-export const AI_ADDON_SOLO = 19;
-export const AI_ADDON_TEAM = 39;
-/** الفرق المؤسسة (أول 15 فريق) — إضافة المساعد عليهم أرخص مدى اشتراكهم */
-export const AI_ADDON_FOUNDER = 19;
+export const TEAM_PRICE = 60;
 export const MAX_TEAM_MEMBERS = 5;
 export const TRIAL_DAYS = 14;
 
-/** للعرض بالصفحة الرئيسية: فريق 3–5 أعضاء بدون/مع المساعد */
-export const BASIC_PRICE = TEAM_PRICE;
-export const AI_PRICE = TEAM_PRICE + AI_ADDON_TEAM;
+/** السنوي: تدفعون 10 شهور وتاخذون 12 (شهرين مجانًا) */
+export type BillingPeriod = "month" | "year";
+export const ANNUAL_MONTHS = 10;
+export const FREE_MONTHS = 12 - ANNUAL_MONTHS;
 
-export function basePrice(members: number): number {
+export function teamMonthlyTotal(members: number): number {
   return members <= 1 ? SOLO_PRICE : members === 2 ? DUO_PRICE : TEAM_PRICE;
 }
 
-export function aiAddonPrice(members: number, isFounder: boolean): number {
-  return members <= 1 ? AI_ADDON_SOLO : isFounder ? AI_ADDON_FOUNDER : AI_ADDON_TEAM;
+export function teamAnnualTotal(members: number): number {
+  return teamMonthlyTotal(members) * ANNUAL_MONTHS;
 }
 
-/** إجمالي اشتراك الفريق بالشهر */
-export function teamMonthlyTotal(plan: PlanId, isFounder: boolean, members: number): number {
-  return basePrice(members) + (plan === "ai" ? aiAddonPrice(members, isFounder) : 0);
+export function periodTotal(members: number, period: BillingPeriod): number {
+  return period === "year" ? teamAnnualTotal(members) : teamMonthlyTotal(members);
 }
 
 /** نصيب العضو لما كل واحد يدفع لحاله — يتقرّب لفوق عشان يغطي رسوم الدفع الإضافية */
@@ -38,7 +34,7 @@ export function memberShare(total: number, members: number): number {
   return Math.ceil(total / Math.max(members, 1));
 }
 
-/** ميزات الذكاء الاصطناعي الحصرية لباقة AI — تُعرض بصفحة الباقات والصفحة الرئيسية */
+/** ميزات المساعد الذكي — داخل الاشتراك */
 export const aiFeatures = [
   {
     title: tr("كوتش الفريق (مساعد بحثي)"),
@@ -62,7 +58,7 @@ export const aiFeatures = [
   },
 ] as const;
 
-/** كل اللي بباقة Basic — مكتوبة كفوائد، تُعرض بصفحة الباقات والصفحة الرئيسية */
+/** أدوات إدارة البحث — مكتوبة كفوائد */
 export const basicHighlights = [
   tr("لوحة فريقكم: مهام وتوزيع أعمال وتنبيه بالمتأخر — بدون قروب واتساب ضايع"),
   tr("المقترح والمنهجية ومراجعة الأدبيات مرتبة خطوة بخطوة، مع مكتبة أدلتكم"),
@@ -74,44 +70,6 @@ export const basicHighlights = [
   tr("تقويم جوالكم: مهامكم ومواعيدكم تنزل على تقويم آيفون/أندرويد وقوقل"),
   tr("تصدير Word ومحاضر الاجتماعات، ودعوة كل الفريق بدون حد"),
 ] as const;
-
-export interface CompareRow {
-  label: string;
-  /** true = ✓ / false = ✗ / نص = وصف مختصر لمستوى الميزة بهالباقة */
-  basic: boolean | string;
-  ai: boolean | string;
-}
-
-export interface CompareGroup {
-  title: string;
-  rows: CompareRow[];
-}
-
-/** جدول "وش الفرق بين Basic وAI" — الأرقام لازم تطابق حدود السيرفر (ai-assist / research-agent / study-tools) */
-export const planComparison: CompareGroup[] = [
-  {
-    title: tr("إدارة البحث كاملة"),
-    rows: [
-      { label: tr("مهام الفريق والتنبيهات والتقويم"), basic: true, ai: true },
-      { label: tr("المقترح والمنهجية ومراجعة الأدبيات ومكتبة الأدلة"), basic: true, ai: true },
-      { label: tr("استوديو الإحصاء ومخطط الموعد وحقيبة الموافقات"), basic: true, ai: true },
-      { label: tr("رابط ومحادثة المشرفة + تقويم الجوال"), basic: true, ai: true },
-      { label: tr("تصدير Word ومحاضر الاجتماعات"), basic: true, ai: true },
-    ],
-  },
-  {
-    title: tr("الذكاء الاصطناعي"),
-    rows: [
-      { label: tr("كوتش الفريق — يعرف مهامكم ومراحلكم وينصحكم بالأولويات"), basic: false, ai: tr("7 رسائل يوميًا") },
-      { label: tr("ويسي للبحث العلمي — دراسات حقيقية قريبة من عنوانكم"), basic: false, ai: tr("عمليتين بحث شهريًا") },
-      { label: tr("ملاحظات المشرفة"), basic: tr("تقسيم بسيط (سطر = ملاحظة)"), ai: tr("تقسيم ذكي بالأقسام + مسودة رسالة لها") },
-      { label: tr("تدريب المناقشة — أسئلة من مقترحكم الفعلي + شرائح"), basic: false, ai: true },
-      { label: tr("تحسين الصياغة الأكاديمية بضغطة زر"), basic: false, ai: true },
-      { label: tr("منشئ الاستبيان — مراجعة أسئلتكم بالذكاء مع اقتراح صياغة أوضح"), basic: tr("مدقق تلقائي مجاني"), ai: true },
-      { label: tr("القراءة الصوتية"), basic: tr("صوت المتصفح الآلي"), ai: tr("صوت مشاري الطبيعي") },
-    ],
-  },
-];
 
 /** هل فريق المستخدم يقدر يستخدم ميزات الـ AI؟ — أيام التجربة كاملة المزايا.
     (السيرفر هو اللي يفرض القفل فعليًا؛ هذي للواجهة فقط.) */

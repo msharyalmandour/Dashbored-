@@ -103,7 +103,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: team, error: teamError } = await supabaseAdmin
     .from("teams")
-    .select("subscription_end_date, plan, is_founder, referred_by_team_id, referral_reward_granted")
+    .select("subscription_end_date, referred_by_team_id, referral_reward_granted")
     .eq("id", teamId)
     .single();
 
@@ -112,20 +112,24 @@ Deno.serve(async (req: Request) => {
     return new Response("error", { status: 500, headers: corsHeaders });
   }
 
-  // السعر للفريق كامل (سعر الإطلاق، نفس public.team_monthly_total): باحث لحاله 19، شخصين 39،
-  // ٣–٥ أعضاء 49، والمساعد الذكي +19 للباحث لحاله، +39 للفريق (+19 للمؤسسين).
-  // كل عضو يقدر يدفع نصيبه لحاله، فنمدد بالتناسب: (المبلغ ÷ اشتراك الفريق) × ٣٠ يوم —
-  // الدفعات تتراكم، ودفعة الفريق كامل تمدد شهر كامل.
+  // السعر (2026-11-19) شامل كل شي وللفريق كامل (نفس public.team_monthly_total و src/lib/plans.ts):
+  // باحث لحاله 19، شخصين 39، ٣–٥ أعضاء 60. السنوي = 10 شهور بسعر 12 (شهرين مجانًا).
+  // كل عضو يقدر يدفع نصيبه لحاله، فنمدد بالتناسب — الدفعات تتراكم:
+  //   شهري: (المبلغ ÷ الشهري) × 30 يوم
+  //   سنوي: (المبلغ ÷ السنوي) × 365 يوم — بس لو المبلغ يغطي حصة عضو من السنوي على الأقل،
+  //         غير كذا نحسبه شهري (ما نعطي سعر السنوي لدفعة صغيرة مكتوب عليها period=year)
   const { count: memberCount } = await supabaseAdmin
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("team_id", teamId);
   const members = Math.max(memberCount ?? 1, 1);
-  const basePrice = members <= 1 ? 19 : members === 2 ? 39 : 49;
-  const addon = team.plan === "ai" ? (members <= 1 ? 19 : team.is_founder ? 19 : 39) : 0;
-  const totalMonthlyCost = basePrice + addon;
-  const daysToAdd =
-    totalMonthlyCost > 0 ? Math.max(Math.round((amount / totalMonthlyCost) * 30), 1) : 30;
+  const monthly = members <= 1 ? 19 : members === 2 ? 39 : 60;
+  const annual = monthly * 10;
+  const annualShare = Math.floor(annual / members);
+  const isYearly = metadata?.period === "year" && amount >= annualShare;
+  const daysToAdd = isYearly
+    ? Math.max(Math.round((amount / annual) * 365), 1)
+    : Math.max(Math.round((amount / monthly) * 30), 1);
 
   const currentEnd = team.subscription_end_date
     ? new Date(team.subscription_end_date as string)
@@ -138,7 +142,8 @@ Deno.serve(async (req: Request) => {
 
   await supabaseAdmin
     .from("teams")
-    .update({ subscription_end_date: newEndStr, on_trial: false })
+    // الاشتراك شامل: أي دفعة تفتح المساعد الذكي (plan='ai') حتى للفرق القديمة اللي كانت Basic
+    .update({ subscription_end_date: newEndStr, on_trial: false, plan: "ai" })
     .eq("id", teamId);
 
   // أول تمديد حقيقي لفريق مُحال: شهر مجاني للفريقين (الداعي والجديد) — مرة وحدة بس، نفس منطق admin_extend_subscription

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDaysISO, formatDateFull, formatHijri, formatMonthYear, formatTimestampLong, isValidISODate, relativeDayLabel } from "./date";
+import { addDaysISO, formatDateShort, parseDate, formatDateFull, formatHijri, formatMonthYear, formatTimestampLong, isValidISODate, relativeDayLabel } from "./date";
 
 describe("date helpers", () => {
   it("validates real calendar dates only", () => {
@@ -40,5 +40,12 @@ describe("formatTimestampLong", () => {
   it("قيمة غير صالحة ترجع نص فاضي", () => {
     expect(formatTimestampLong("")).toBe("");
     expect(formatTimestampLong("غير تاريخ")).toBe("");
+  });
+});
+
+describe("parseDate with a full timestamp", () => {
+  it("does not return NaN (supervisor «since your last visit»)", () => {
+    expect(Number.isNaN(parseDate("2026-11-18T09:30:00.000Z").getTime())).toBe(false);
+    expect(formatDateShort("2026-11-18T09:30:00.000Z")).not.toMatch(/NaN|undefined/);
   });
 });

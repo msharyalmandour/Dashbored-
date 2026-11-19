@@ -19,6 +19,8 @@ const arabicWeekdaysShort = [tr("أحد"), tr("اثنين"), tr("ثلاثاء"),
 
 // الأسماء تمر على tr() وقت الاستدعاء كمان: قاموس الإنجليزي ينحمّل بعد تحميل هالملف
 export function parseDate(value: string): Date {
+  // وقت كامل (2026-11-18T12:00:00Z): نقرأه بتوقيت الجهاز — قبل كان يطلع «NaN undefined»
+  if (value.length > 10 && value.includes("T")) return new Date(value);
   const [y, m, d] = value.split("-").map(Number);
   return new Date(y, m - 1, d);
 }

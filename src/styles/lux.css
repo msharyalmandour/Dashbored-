@@ -194,3 +194,21 @@ html[data-reduce-motion="true"] .ph-sheet, html[data-reduce-motion="true"] .ph-s
 .dv-strip { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 20px; color: #EAE3DC; background: linear-gradient(90deg, rgba(255,199,119,.12), rgba(255,199,119,.04)); box-shadow: inset 0 0 0 1px rgba(255,199,119,.3); }
 .dv-strip:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
 .ph-show:disabled { opacity: .55; cursor: default; }
+
+/* ── القائمة تنسحب (الكمبيوتر): المقبض على حافتها، والداش ياخذ الشاشة كاملة لما تختفي ── */
+.side-handle { display: none; }
+@media (min-width: 768px) {
+  .lx-side { transition: width .3s cubic-bezier(.2,.8,.2,1), margin .3s cubic-bezier(.2,.8,.2,1), padding .3s, opacity .25s, transform .3s; }
+  html[data-side="hidden"] .lx-side { width: 0; margin-inline: 0; padding-inline: 0; opacity: 0; visibility: hidden; overflow: hidden; }
+  .side-handle { position: fixed; top: 50%; translate: 0 -50%; inset-inline-start: 297px; z-index: 35; display: grid; place-items: center; width: 22px; height: 96px; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; transition: inset-inline-start .3s cubic-bezier(.2,.8,.2,1); }
+  .side-handle.is-drag { cursor: grabbing; }
+  .side-handle-bar { width: 4px; height: 44px; border-radius: 99px; background: rgba(255,240,225,.16); transition: background .2s, height .2s; }
+  .side-handle:hover .side-handle-bar, .side-handle:focus-visible .side-handle-bar, .side-handle.is-drag .side-handle-bar { height: 60px; background: #FFC777; }
+  .side-handle:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; border-radius: 12px; }
+  /* مخفية: لسان صغير على حافة الشاشة يرجّعها */
+  .side-handle.is-hidden { inset-inline-start: 0; width: 28px; height: 88px; border-start-end-radius: 16px; border-end-end-radius: 16px; color: #F2EBE3; background: linear-gradient(180deg, rgba(255,240,225,.12), rgba(255,240,225,.05)); box-shadow: inset 0 0 0 1px rgba(255,240,225,.12); cursor: pointer; }
+  .side-handle.is-hidden:hover { background: rgba(255,199,119,.18); color: #FFC777; }
+}
+@media (prefers-reduced-motion: reduce) { .lx-side, .side-handle { transition: none !important; } }
+html[data-reduce-motion="true"] .lx-side, html[data-reduce-motion="true"] .side-handle { transition: none !important; }
+@media print { .side-handle { display: none !important; } }

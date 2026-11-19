@@ -31,6 +31,7 @@ import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import StudToast from "./notify/StudToast";
 import InviteSeats from "./growth/InviteSeats";
+import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
 
@@ -90,6 +91,8 @@ export default function Layout() {
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  // الكمبيوتر: القائمة تنسحب وتختفي والداش ياخذ الشاشة كاملة
+  const [sideHidden, setSideHidden] = useSideHidden();
   // «قلّل الحركة» و«وضع الورقة»: الجهاز فورًا، وبعدها الحساب يغلب لو المستخدم اختار من جهاز ثاني
   const userId = currentUser?.id;
   // بعد التسجيل: نربط الفريق بكود الدكتورة (/j/:code) أو كود السفير (?ref=MSHARY-KAU) — مرة وحدة
@@ -157,6 +160,7 @@ export default function Layout() {
       <GlobalDrop />
       <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+      <SideHandle hidden={sideHidden} setHidden={setSideHidden} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         {/* «؟» وش هذي الصفحة — بالديسكتوب فوق زاوية المحتوى (بالجوال بالشريط العلوي) */}
         <PageHelpButton className="absolute end-6 top-6 z-20 !hidden md:!inline-flex print:!hidden" />

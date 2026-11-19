@@ -4,11 +4,22 @@ import tailwindcss from '@tailwindcss/vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// رقم النسخة: الموقع يقارنه بـ /version.json (يجي من النت دايمًا) — لو المتصفح شغّال على نسخة قديمة مخزّنة يحدّث نفسه
+const BUILD_ID = (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 12) || String(Date.now())
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   base: mode === 'artifact' ? './' : '/',
+  define: { __BUILD_ID__: JSON.stringify(mode === 'artifact' ? '' : BUILD_ID) },
   plugins: [
     react(),
+    {
+      name: 'wesync-version',
+      apply: 'build',
+      generateBundle() {
+        if (mode !== 'artifact') this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ id: BUILD_ID }) })
+      },
+    },
     tailwindcss(),
     ...(mode === 'artifact' ? [viteSingleFile()] : []),
     // خدمة الـ Service Worker ما تشتغل جوا إطار الـ Artifact المعزول، فتفعّل بس بالبناء العادي

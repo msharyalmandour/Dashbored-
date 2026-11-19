@@ -277,7 +277,8 @@ export default function Overview() {
           </ErrorBoundary>
           <Stretch>
             <ErrorBoundary>
-              <ReviewCard items={review} limit={2} />
+              {/* المتأخر يطلع فوق مرتين (الجاي لكم + وش علينا اليوم) — ما نكرره هنا */}
+              <ReviewCard items={review.filter((r) => r.id !== "late")} limit={2} />
             </ErrorBoundary>
           </Stretch>
         </HomeColumn>

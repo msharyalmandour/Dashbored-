@@ -24,14 +24,14 @@ export default function SubscriptionBadge() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   if (mode !== "supabase" || !team) return null;
+  // اشتراك شغّال = ما فيه شي تسوونه، فما نزحم الرأس بـ«نشط»
+  if (subscriptionState === "active") return null;
 
   const daysLeft = team.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
   const needsAction = subscriptionState === "expired" || subscriptionState === "none";
 
   const label =
-    subscriptionState === "active"
-      ? subscriptionStateLabel.active
-      : subscriptionState === "expiring-soon"
+    subscriptionState === "expiring-soon"
         ? tr("{0} {1} متبقية", Math.max(daysLeft, 0), daysLeft === 1 ? tr("يوم") : tr("أيام"))
         : subscriptionStateLabel[subscriptionState];
 

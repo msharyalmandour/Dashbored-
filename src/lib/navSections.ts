@@ -66,8 +66,6 @@ export const journeySections: NavSection[] = [
       { to: "/collect", label: tr("المحطات") },
       { to: "/study-kit", label: tr("الاستبيانات والموافقات") },
       { to: "/surveys", label: tr("منشئ الاستبيان") },
-      { to: "/tools-library", label: tr("أدوات القياس") },
-      { to: "/fieldwork", label: tr("الميدان") },
       { to: "/stats", label: tr("الإحصاء") },
     ],
   },
@@ -87,7 +85,6 @@ export const workSections: NavSection[] = [
     pages: [
       { to: "/tasks", label: tr("مهامي") },
       { to: "/team", label: tr("الفريق") },
-      { to: "/timeline", label: tr("الجدول الزمني") },
     ],
   },
   {

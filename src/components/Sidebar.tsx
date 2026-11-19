@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import WLogo from "./brand/WLogo";
 import { NavLink, useLocation } from "react-router-dom";
-import { Award, Check, CheckSquare, Compass, ScrollText, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Smile, Volume2, VolumeX } from "lucide-react";
+import { Award, Check, CheckSquare, Compass, ScrollText, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
@@ -257,10 +257,6 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                   <span className="flex-1">{tr("صوت المزامنة")}</span>
                   <span className="text-[12px] text-[#ABA095]">{syncOn ? tr("شغّال") : tr("مطفي")}</span>
                 </button>
-                <NavLink role="menuitem" to="/stickers" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
-                  <Smile size={16} aria-hidden />
-                  {tr("ستيكرات ويسي")}
-                </NavLink>
                 <NavLink role="menuitem" to="/guide" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Compass size={16} aria-hidden />
                   {tr("دليل الطالب")}

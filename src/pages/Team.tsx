@@ -52,9 +52,13 @@ function InviteCard() {
   const { team } = useAuth();
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
+  // الزميل يدخل على مهمة محددة بدل الصفحة الرئيسية — يتعلّم المهام من أول ثانية
+  const { tasks } = useTasksData();
+  const [taskId, setTaskId] = useState("");
+  const openTasks = tasks.filter((t) => t.status !== "done").slice(0, 30);
 
   if (!team) return null;
-  const inviteLink = `${publicBase()}#/login?team=${team.id}`;
+  const inviteLink = `${publicBase()}#/login?team=${team.id}${taskId ? `&task=${encodeURIComponent(taskId)}` : ""}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(inviteLink);
@@ -81,6 +85,23 @@ function InviteCard() {
           </span>
           <p className="mt-3 font-bold text-brand-950">{tr("دعوة بقية أعضاء الفريق")}</p>
           <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا هذا الرابط مع بقية الفريق — كل من يسجّل حساب عبره ينضم لنفس فريقكم تلقائيًا.")}</p>
+          {openTasks.length > 0 && (
+            <label className="mt-3 flex flex-col gap-1 text-[13px] font-semibold text-brand-950/60">
+              {tr("يبدأ على مهمة؟ (اختياري)")}
+              <select
+                value={taskId}
+                onChange={(e) => setTaskId(e.target.value)}
+                className="min-h-[44px] w-full max-w-xs rounded-xl border border-brand-200/70 bg-paper/60 px-3 text-sm font-semibold text-brand-950 outline-none focus:border-brand-400"
+              >
+                <option value="">{tr("لا، الصفحة الرئيسية")}</option>
+                {openTasks.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <button
             onClick={copy}
             className="mt-4 flex items-center justify-center gap-2 self-start rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"

@@ -102,7 +102,22 @@ export default function CommandPalette() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((i) => i.label.toLowerCase().includes(q) || (i.keywords ?? "").toLowerCase().includes(q));
+    // يفهم الكلام العادي: «وين أحط الدراسات اللي لقيتها» تلقى «مكتبة الأدلة» حتى لو الجملة كاملة ما تطابق —
+    // نعدّ كم كلمة (حرفين وفوق، بدون «ال») تطابق، ونرتّب بالأكثر
+    const norm = (t: string) => t.toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+    const words = norm(q)
+      .split(/\s+/)
+      .map((w) => w.replace(/^ال/, ""))
+      .filter((w) => w.length >= 2);
+    const scored = items
+      .map((i) => {
+        const hay = norm(`${i.label} ${i.keywords ?? ""}`);
+        if (hay.includes(norm(q))) return { i, score: 100 };
+        return { i, score: words.filter((w) => hay.includes(w)).length };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+    return scored.map((x) => x.i);
   }, [items, query]);
 
   useEffect(() => {

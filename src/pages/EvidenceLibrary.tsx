@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Quote, Search, Sparkles, Table2, Trash2 } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
+import { useLocation } from "react-router-dom";
 import { openAgent } from "../lib/agentBus";
 import ReferencesToolsCard from "../components/research/ReferencesToolsCard";
 import { PageDropOverlay, StudyDropCard, usePageDrop, useStudyQueue } from "../components/research/StudyDrop";
@@ -48,6 +49,7 @@ const emptyForm = {
   keyFinding: "",
   relevance: "",
   section: "other" as EvidenceSection,
+  link: undefined as string | undefined,
 };
 
 export default function EvidenceLibrary() {
@@ -65,6 +67,14 @@ export default function EvidenceLibrary() {
   const [importOpen, setImportOpen] = useState(false);
   const [q, setQ] = useState("");
   const [form, setForm] = useState(emptyForm);
+  // ويسي لاحظ رابط دراسة انلصق بخانة ثانية وأرسله هنا (state.link): نفتح النموذج والرابط جاهز
+  const evidenceLocation = useLocation();
+  useEffect(() => {
+    const link = (evidenceLocation.state as { link?: string } | null)?.link;
+    if (!link) return;
+    setShowForm(true);
+    setForm((f) => ({ ...f, link }));
+  }, [evidenceLocation.state]);
   // «ارموا الدراسة»: ويسي يقراها وتنضاف للمكتبة والجدول بكل خاناتها
   const pickRef = useRef<(() => void) | null>(null);
   const dropOn = canAsk && !!currentUser;
@@ -191,6 +201,11 @@ export default function EvidenceLibrary() {
 
       {showForm && (
         <div className={clsx(glassCard, "p-5")}>
+          {form.link && (
+            <p className="mb-3 truncate text-[13px] font-semibold text-[#ABA095]" dir="ltr">
+              🔗 {form.link}
+            </p>
+          )}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               value={form.title}

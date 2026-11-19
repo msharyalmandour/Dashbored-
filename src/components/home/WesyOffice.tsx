@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Bell, BookOpen, Coffee, GraduationCap, Image as ImageIcon, KeyRound, ScrollText, Stamp, type LucideIcon } from "lucide-react";
+import { useAcademy } from "../../hooks/useAcademy";
+import { itemLesson, officeItemIds, type OfficeItemId } from "../../data/wesyNeeds";
 import Wesy from "../brand/Wesy";
 import WLogo from "../brand/WLogo";
 import NextCard from "./NextCard";
@@ -51,19 +54,71 @@ function Skyline() {
   );
 }
 
-function Shelf() {
-  const books = ["#E9651F", "#FFC777", "#7A2E1C", "#F2EBE3", "#B4430B", "#FFB547", "#3A1504"];
+const ITEM_ICON: Record<OfficeItemId, LucideIcon> = {
+  photo: ImageIcon,
+  bell: Bell,
+  cup: Coffee,
+  key: KeyRound,
+  books: BookOpen,
+  stamp: Stamp,
+  papers: ScrollText,
+  cap: GraduationCap,
+};
+const BOOKS = ["#E9651F", "#FFC777", "#7A2E1C", "#F2EBE3", "#B4430B", "#FFB547", "#3A1504"];
+
+/** رف ويسي: كل ما ساعدوه بشي (درس من الأكاديمية) تنحط قطعة على الرف مكان كتاب.
+    القطعة الجديدة تطلع بحركة وحدة بس (مرة)، والباقي ثابت. */
+function Shelf({ earned, fresh }: { earned: Set<OfficeItemId>; fresh: OfficeItemId | null }) {
+  const rows = [officeItemIds.slice(0, 3), officeItemIds.slice(3, 6), officeItemIds.slice(6)];
   return (
     <div className="wo-shelf" aria-hidden>
-      {[0, 1, 2].map((r) => (
+      {rows.map((row, r) => (
         <div key={r} className="wo-row">
-          {books.map((_, i) => (
-            <i key={i} style={{ background: books[(i + r * 2) % books.length], height: `${70 + ((i * 7 + r * 11) % 26)}%` }} />
-          ))}
+          {row.map((id, i) => {
+            if (!earned.has(id)) {
+              return (
+                <i key={id} style={{ background: BOOKS[(i + r * 2) % BOOKS.length], height: `${70 + ((i * 7 + r * 11) % 26)}%` }} />
+              );
+            }
+            const Icon = ITEM_ICON[id];
+            return (
+              <b key={id} className={id === fresh ? "wo-item fresh" : "wo-item"}>
+                <Icon size={18} strokeWidth={1.8} />
+              </b>
+            );
+          })}
         </div>
       ))}
     </div>
   );
+}
+
+const SEEN_ITEMS = "wesync.office.seen";
+/** القطع اللي انضافت من آخر مرة شافوا المكتب — وحدة بس تتحرك */
+function useOfficeItems() {
+  const { signals, loaded, refresh } = useAcademy();
+  useEffect(() => {
+    if (!loaded) refresh();
+  }, [loaded, refresh]);
+  const earned = new Set(officeItemIds.filter((id) => signals[itemLesson(id)]));
+  const [fresh] = useState<OfficeItemId | null>(() => {
+    try {
+      const seen = new Set(JSON.parse(localStorage.getItem(SEEN_ITEMS) ?? "[]") as string[]);
+      return officeItemIds.find((id) => signals[itemLesson(id)] && !seen.has(id)) ?? null;
+    } catch {
+      return null;
+    }
+  });
+  useEffect(() => {
+    if (!loaded) return;
+    try {
+      localStorage.setItem(SEEN_ITEMS, JSON.stringify([...earned]));
+    } catch {
+      /* ما يهم */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, earned.size]);
+  return { earned, fresh: loaded ? fresh : null };
 }
 
 /** صوت ويسي الصباحي (B05VoiceM): 7:30–11 الصبح، سطر قصير عن خطوة اليوم. الصوت ينتظر مفتاح خدمة تحويل النص لصوت،
@@ -109,6 +164,7 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
   const { project, updateProject } = useResearchProject();
   const { messages } = useSupervisorMessages();
   const [share, setShare] = useState(false);
+  const office = useOfficeItems();
   const docName = docDisplayName(messages);
   const loading = mode === "supabase" && !!team && !doors.signals;
   const step = doors.signals ? journeyStep(doors.signals, doors.open) : null;
@@ -127,7 +183,7 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
         <div className="wo-window">
           <Skyline />
         </div>
-        <Shelf />
+        <Shelf earned={office.earned} fresh={office.fresh} />
         <div className="wo-lamp" />
         <div className="wo-desk" />
         <div className="wo-wesy">

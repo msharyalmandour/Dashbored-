@@ -1,7 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Check, GraduationCap, X } from "lucide-react";
+import { MousePointer2, X } from "lucide-react";
+import { WesyAvatar } from "./brand/Wesy";
+import { wesyNeeds } from "../data/wesyNeeds";
 import { allLessons, type LessonId } from "../data/academy";
 import { setActiveLesson, useAcademy } from "../hooks/useAcademy";
 import { tr } from "../lib/i18n";
@@ -161,14 +163,15 @@ export default function AcademyCoach() {
     const l = allLessons.find((x) => x.id === celebrate);
     return createPortal(
       <div className="ac-card ac-done" role="status">
-        <span className="ac-check" aria-hidden>
-          <Check size={20} strokeWidth={3} />
-        </span>
+        <WesyAvatar size={44} state="laugh" className="shrink-0" />
         <div className="min-w-0 flex-1">
           <p className="ac-kicker">
-            {tr("تعلّمتوها! {0} من {1}", done, total)}
+            {tr("شكرًا! ساعدتوه {0} من {1}", done, total)}
           </p>
-          <p className="ac-title">{l?.title}</p>
+          <p className="ac-title">{celebrate ? wesyNeeds[celebrate].thanks : l?.title}</p>
+          {celebrate && wesyNeeds[celebrate].item && (
+            <p className="ac-note !mt-1">{tr("انحطت على رفّه بالرئيسية.")}</p>
+          )}
           <div className="mt-3 flex flex-wrap gap-2">
             {next ? (
               <button
@@ -179,7 +182,7 @@ export default function AcademyCoach() {
                   start(next.id);
                 }}
               >
-                {tr("الدرس الجاي: {0}", next.title)}
+                {tr("وبعدين؟ {0}", wesyNeeds[next.id].ask)}
               </button>
             ) : (
               <Link
@@ -195,7 +198,7 @@ export default function AcademyCoach() {
               className="ac-ghost"
               onClick={() => setCelebrate(null)}
             >
-              {tr("كل الدروس")}
+              {tr("كل اللي يحتاجه")}
             </Link>
           </div>
         </div>
@@ -256,6 +259,15 @@ export default function AcademyCoach() {
       {hole && (
         <>
           <div className="ac-hole" style={hole} aria-hidden />
+          {/* يد ويسي: تنزلق للزر وتضغطه مرة وحدة، وتختفي */}
+          <span
+            key={`${lesson.id}-${location.pathname}`}
+            className="ac-hand"
+            style={{ left: hole.left + hole.width / 2, top: hole.top + hole.height / 2 }}
+            aria-hidden
+          >
+            <MousePointer2 size={30} strokeWidth={1.6} />
+          </span>
           {!open && (
             <div
               className="ac-bubble"
@@ -275,12 +287,10 @@ export default function AcademyCoach() {
       )}
       {open ? (
         <section className={`ac-card${pos}`} aria-label={tr("الدرس الحالي")}>
-          <span className="ac-ic" aria-hidden>
-            <GraduationCap size={18} />
-          </span>
+          <WesyAvatar size={40} state="wink" className="shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="ac-kicker">{tr("درس · سووها بأيديكم")}</p>
-            <p className="ac-title">{lesson.title}</p>
+            <p className="ac-kicker">{tr("ويسي يحتاجكم")}</p>
+            <p className="ac-title">{wesyNeeds[lesson.id].ask}</p>
             {hole && <p className="ac-tip">{lesson.tip}</p>}
             {!onPage ? (
               <Link to={lesson.route} className="ac-primary mt-3">
@@ -299,7 +309,7 @@ export default function AcademyCoach() {
             <p className="ac-note">
               {reviewing
                 ? tr("خلصتوا هالدرس من قبل، هذي مراجعة.")
-                : tr("يكتمل لحاله أول ما تسوونها.")}
+                : tr("أول ما تسوونها، ويسي يدري لحاله.")}
             </p>
             <div className="mt-1 flex flex-wrap gap-x-3">
               {onPage && lesson.target && !hole && rect && (
@@ -319,7 +329,7 @@ export default function AcademyCoach() {
                 {tr("صغّروها")}
               </button>
               <button type="button" className="ac-ghost" onClick={stop}>
-                {tr("وقّفوا الدرس")}
+                {tr("بعدين")}
               </button>
             </div>
           </div>
@@ -330,8 +340,8 @@ export default function AcademyCoach() {
           className={`ac-pill${pos}`}
           onClick={() => setOpen(true)}
         >
-          <GraduationCap size={16} aria-hidden />
-          {lesson.title}
+          <WesyAvatar size={22} state="idle" />
+          {wesyNeeds[lesson.id].ask}
         </button>
       )}
     </>,

@@ -53,6 +53,16 @@ export default function Login() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const inviteTeamId = searchParams.get("team");
+  // رابط دعوة على مهمة محددة (?task=) — نحفظها، وبعد الدخول يوصل عليها مباشرة (PendingTaskRedirect)
+  const inviteTaskId = searchParams.get("task");
+  useEffect(() => {
+    if (!inviteTaskId) return;
+    try {
+      localStorage.setItem("wesync.pendingTask", inviteTaskId);
+    } catch {
+      /* تخزين غير متاح */
+    }
+  }, [inviteTaskId]);
   // ?ref= بالرابط أو المحفوظ من أول فتح للموقع (رابط المشرفة يوصل للرئيسية قبل الـ #)
   const refRaw = searchParams.get("ref") ?? storedSignupRef();
   const { code: referralCode, source: signupSource } = parseRef(refRaw);

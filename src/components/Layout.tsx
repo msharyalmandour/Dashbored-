@@ -18,6 +18,8 @@ import AgentPanel from "./agent/AgentPanel";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import AcademyCoach from "./AcademyCoach";
+import WesyNudges from "./onboarding/WesyNudges";
+import PendingTaskRedirect from "./onboarding/PendingTaskRedirect";
 import GlobalDrop from "./drop/GlobalDrop";
 import BottomNav from "./BottomNav";
 import AppSplash from "./ui/AppSplash";
@@ -144,6 +146,8 @@ export default function Layout() {
       <AgentPanel />
       <TourGuide />
       <AcademyCoach />
+      <WesyNudges />
+      <PendingTaskRedirect />
       <GlobalDrop />
       <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />

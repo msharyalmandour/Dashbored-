@@ -24,6 +24,7 @@ import { daysUntil, formatDateLong, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
 import FirstWeekCard from "../components/home/FirstWeekCard";
 import WesyOffice from "../components/home/WesyOffice";
+import WesyNeeds from "../components/home/WesyNeeds";
 import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
 import { useNavigate } from "react-router-dom";
@@ -238,6 +239,9 @@ export default function Overview() {
       {/* «الجاي لكم»: خطوة وحدة بزر برتقالي واحد — أول شي بالصفحة (docs/DESIGN_BRIEF_UNLOCK.md) */}
       <ErrorBoundary>
         <WesyOffice urgent={journeyStep} fallback={journeyStep} />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <WesyNeeds />
       </ErrorBoundary>
 
       {mode === "supabase" && (

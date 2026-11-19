@@ -239,6 +239,7 @@ export default function Files() {
                   <li>
                     <EmptyState
                       icon={FileIcon}
+                      preview={[tr("المقترح البحثي — نسخة 3.docx"), tr("الاستبيان النهائي.pdf"), tr("موافقة اللجنة الأخلاقية.pdf"), tr("بيانات الردود.xlsx")]}
                       title={tr("لا ملفات هنا بعد")}
                       desc={tr("أرفقوا أول ملف للفريق — أي مستند أو صورة أو جدول يخص بحثكم.")}
                     />

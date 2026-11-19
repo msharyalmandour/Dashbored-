@@ -727,6 +727,28 @@ export default function Tasks() {
                 <Skeleton key={i} className="h-14" />
               ))}
             </div>
+          ) : tasks.length === 0 && !query.trim() ? (
+            /* الصفحة الفاضية تعلّم: تبيّن شكلها وهي مليانة (صفوف باهتة) وزر واحد بس */
+            <div className="relative overflow-hidden px-2 py-6">
+              <ul aria-hidden className="m-0 flex list-none flex-col gap-2.5 p-0 opacity-50 blur-[1.5px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]">
+                {[tr("جمع 5 دراسات عن الموضوع"), tr("صياغة سؤال البحث بصيغة PICO"), tr("حجز موعد مع المشرفة"), tr("تصميم الاستبيان")].map((t, i) => (
+                  <li key={i} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5">
+                    <span className="h-5 w-5 shrink-0 rounded-md border-2 border-white/25" />
+                    <span className="truncate text-sm">{t}</span>
+                    <span className="ms-auto h-7 w-7 shrink-0 rounded-full bg-white/10" />
+                  </li>
+                ))}
+              </ul>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
+                <div className="v3-k text-lg">{tr("كذا بتصير الصفحة")}</div>
+                <p className="v3-mut m-0 text-sm">{tr("كل مهمة لها صاحب وموعد، وتعرفون مين على وش.")}</p>
+                {isLeader && canWrite && (
+                  <button type="button" onClick={() => setShowForm(true)} className="v3-bd mt-1 !min-h-[44px] !text-sm">
+                    {tr("أضيفوا أول مهمة")}
+                  </button>
+                )}
+              </div>
+            </div>
           ) : filtered.length === 0 ? (
             <div className="px-4 py-10 text-center">
               <div className="v3-k text-lg">

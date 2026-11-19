@@ -190,3 +190,9 @@ html[data-reduce-motion="true"] .nx-sk, html[data-reduce-motion="true"] .nx-body
 .am-stat b { font-size: 34px; line-height: 1.1; color: #F2EBE3; }
 .am-stat span { font-size: 12px; color: #ABA095; }
 .ag-t { width: 100%; border-collapse: collapse; font-size: 14px; } .ag-t th { text-align: start; padding: 8px 10px; font-size: 12px; color: #FFB444; white-space: nowrap; } .ag-t td { padding: 8px 10px; border-top: 1px solid rgba(255,255,255,.07); white-space: nowrap; }
+
+/* رف ويسي: القطع اللي كسبوها من مساعدته (دروس الأكاديمية) */
+.wo-row .wo-item { flex: 1; align-self: flex-end; display: grid; place-items: center; height: 86%; border-radius: 6px 6px 2px 2px; background: rgba(255,199,119,.12); color: #FFC777; box-shadow: inset 0 0 0 1px rgba(255,199,119,.25); }
+.wo-row .wo-item.fresh { animation: wo-item-pop .7s cubic-bezier(.3,1.2,.5,1) .6s both; box-shadow: inset 0 0 0 1px rgba(255,199,119,.6), 0 0 18px rgba(255,138,36,.45); }
+@keyframes wo-item-pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .wo-row .wo-item.fresh { animation: none; } }

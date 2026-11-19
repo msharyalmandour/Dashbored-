@@ -172,6 +172,17 @@ html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="t
   100% { opacity: 1; transform: none; }
 }
 @keyframes ws-toast-out { to { opacity: 0; transform: perspective(900px) translateY(-40px) rotateX(30deg) scale(.94); } }
+/* الكمبيوتر: الإشعارات بالزاوية تحت (ما تغطي التحية ولا زر «الجاي لكم») فتطلع من تحت */
+@keyframes ws-toast-in-up {
+  0% { opacity: 0; transform: perspective(900px) translateY(70px) rotateX(70deg) scale(.92); }
+  70% { opacity: 1; transform: perspective(900px) translateY(-6px) rotateX(-8deg) scale(1); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ws-toast-out-down { to { opacity: 0; transform: perspective(900px) translateY(40px) rotateX(-30deg) scale(.94); } }
+@media (min-width: 768px) {
+  .ws-toast { animation-name: ws-toast-in-up; }
+  .ws-toast.out { animation-name: ws-toast-out-down; }
+}
 @keyframes ws-life { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @keyframes ws-spin { to { transform: rotate(360deg); } }
 @keyframes ws-pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }

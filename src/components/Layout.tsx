@@ -30,6 +30,7 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import StudToast from "./notify/StudToast";
+import InviteSeats from "./growth/InviteSeats";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
 
@@ -100,6 +101,11 @@ export default function Layout() {
     const code = parseRef(ref).code;
     if (code && code.includes("-")) void supabase.rpc("claim_referral", { p_code: code }).then(() => clearSignupRef(), () => undefined);
   }, [mode, team?.id]);
+
+  // صفحة جديدة تبدأ من فوق (قبل: تنفتح من نص الصفحة لو كنتوا نازلين بالصفحة اللي قبلها)
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!userId) return;
@@ -214,6 +220,7 @@ export default function Layout() {
               className="animate-[page-in_0.35s_ease-out]"
             >
               <SectionTabs />
+              <InviteSeats />
               <Outlet />
             </div>
           </div>

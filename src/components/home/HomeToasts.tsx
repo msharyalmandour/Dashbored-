@@ -325,7 +325,7 @@ export default function HomeToasts() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-[84px] z-[45] flex justify-center px-4" role="region" aria-label={tr("إشعارات")}>
+    <div className="pointer-events-none fixed inset-x-0 top-[64px] z-[45] md:inset-x-auto md:top-auto md:bottom-6 md:left-6 md:w-[600px] md:max-w-[calc(100vw-360px)] flex justify-center px-4" role="region" aria-label={tr("إشعارات")}>
       <div
         key={current.key}
         className={clsx("ws-toast pointer-events-auto relative w-full max-w-[600px] overflow-hidden rounded-[24px] px-4 pb-4 pt-3.5", leaving && "out")}

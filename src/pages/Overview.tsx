@@ -69,7 +69,8 @@ export default function Overview() {
   const { methodology } = useMethodology();
   const { ethicalApproval } = useEthicalApproval();
   const { tasks: allTasks, addTask, updateStatus } = useTasksData();
-  const { roster } = useTeamRoster();
+  const { roster, loading: rosterLoading } = useTeamRoster();
+  const rosterReady = !rosterLoading && roster.length > 0;
   const { project, updateProject } = useResearchProject();
   const { surveys } = useSurveys();
   const surveyCounts = useSurveyResponseCounts(surveys);
@@ -185,6 +186,7 @@ export default function Overview() {
     hasDeadline: !!deadline,
     evidenceCount: papers.length,
     hasTitle: !!project?.title?.trim(),
+    memberCount: rosterReady ? roster.length : undefined,
   })[0];
 
   const toggleTask = async (t: Task, done: boolean) => {

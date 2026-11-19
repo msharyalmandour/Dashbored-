@@ -27,7 +27,7 @@ import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useReferralStats } from "../hooks/useReferralStats";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
@@ -73,7 +73,7 @@ function InviteCard() {
   };
 
   return (
-    <div data-learn="invite" className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <div id="invite" data-learn="invite" className="h-full scroll-mt-24 rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
       <Card
         tone="cream"
         className="relative flex h-full flex-col overflow-hidden !rounded-[calc(1.75rem-1.5px)] !shadow-none"
@@ -102,19 +102,28 @@ function InviteCard() {
               </select>
             </label>
           )}
-          <button
-            onClick={copy}
-            className="mt-4 flex items-center justify-center gap-2 self-start rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
-          >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? tr("تم النسخ") : tr("نسخ رابط الدعوة")}
-          </button>
+          {/* واتساب أول (الطلاب يتواصلون بقروب الدفعة)، والنسخ ثاني */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(tr("انضموا لفريق بحثنا على Wesync عشان نشتغل على البحث مع بعض: {0}", inviteLink))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
+            >
+              <MessageCircle size={15} />
+              {tr("أرسلوا الدعوة بواتساب")}
+            </a>
+            <button onClick={copy} className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-brand-950/70 ring-1 ring-brand-200/70 hover:bg-white/5">
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              {copied ? tr("تم النسخ") : tr("نسخ رابط الدعوة")}
+            </button>
+          </div>
           <button
             onClick={copyCode}
-            className="mt-2 flex items-center gap-1.5 self-start text-xs font-semibold text-brand-950/45 hover:text-brand-700 hover:underline"
+            className="mt-2 flex min-h-[44px] items-center gap-1.5 self-start text-xs font-semibold text-brand-950/45 hover:text-brand-700 hover:underline"
           >
             {codeCopied ? <Check size={12} /> : <Copy size={12} />}
-            {codeCopied ? tr("تم نسخ الرمز") : tr("الرابط ما اشتغل معهم؟ انسخي رمز الفريق")}
+            {codeCopied ? tr("تم نسخ الرمز") : tr("الرابط ما اشتغل معهم؟ انسخوا رمز الفريق")}
           </button>
         </div>
       </Card>
@@ -221,7 +230,7 @@ function SupervisorContactSection() {
               <p className="text-xs text-brand-950/45">Academic Supervisor</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-brand-950/55">{tr("شاركوه مع مشرفكم بأي وسيلة تناسبكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.")}</p>
+          <p className="mt-3 text-sm text-brand-950/55">{tr("رابط واحد للدكتورة بدون حساب: تشوف تقدّمكم، وتردّ عليكم بقروب «مع الدكتورة»، وتعتمد المحاضر والمواعيد. ولو عندها فرق ثانية، كلها تطلع لها بلوحة وحدة.")}</p>
           <p dir="ltr" className="mt-3 truncate rounded-xl bg-surface-muted px-3 py-2 text-start text-xs text-brand-950/60">
             {shareLink}
           </p>
@@ -269,11 +278,14 @@ function SupervisorContactSection() {
           </p>
           <SupervisorEmailInvite status={emailStatus} onSent={() => getMyEmailStatus().then(setEmailStatus)} />
           {isLeader && (
-            <p className="mt-3 text-[12px] leading-relaxed text-brand-950/40">{tr("أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
+            <details className="mt-3 text-[12px] leading-relaxed text-brand-950/40">
+              <summary className="cursor-pointer py-3 font-semibold">{tr("الرابط وصل لأحد غير دكتورتكم؟")}</summary>
+              <p className="mt-2">{tr("تغيير الرابط يعطّل القديم فورًا، وتحتاجون ترسلون الجديد للدكتورة. لا تغيّرونه إلا إذا وصل لأحد ثاني. ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
                 {rotating ? tr("جاري التغيير...") : tr("غيّروا الرابط")}
               </button>
               .{rotateError && <span className="font-bold text-rose-600">{tr(" تعذّر التغيير — حاولوا مرة ثانية.")}</span>}
             </p>
+            </details>
           )}
         </div>
 
@@ -477,6 +489,14 @@ function ActivityLog() {
 }
 
 export default function Team() {
+  // جاي من «ادعوا فريقكم» بالرئيسية: نوديكم على كرت الدعوة مباشرة
+  const [teamParams] = useSearchParams();
+  const wantsInvite = teamParams.get("invite") === "1";
+  useEffect(() => {
+    if (!wantsInvite) return;
+    const t = setTimeout(() => document.getElementById("invite")?.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
+    return () => clearTimeout(t);
+  }, [wantsInvite]);
   const founderN = useFounderNumber();
   const { roster, removeMember } = useTeamRoster();
   const { tasks } = useTasksData();
@@ -489,14 +509,13 @@ export default function Team() {
         <FounderBadge n={founderN} />
       </div>
       {mode === "supabase" && <UniversityField />}
-      {isLeader && mode === "supabase" && (
-        <>
-          <div className="mb-4">
-            <InviteCard />
-          </div>
-          <SupervisorContactSection />
-        </>
+      {/* رابط الفريق يقدر يرسله أي عضو (مو القائد بس) — كل زميل يجيب زميل */}
+      {mode === "supabase" && (
+        <div className="mb-4">
+          <InviteCard />
+        </div>
       )}
+      {isLeader && mode === "supabase" && <SupervisorContactSection />}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {roster.map((member, i) => {
         const memberTasks = tasks.filter((t) => t.assigneeId === member.id);

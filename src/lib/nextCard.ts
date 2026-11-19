@@ -33,7 +33,8 @@ export function journeyNext(s: DoorSignals): Step {
 
 /** الأولوية: مهمة متأخرة عليكم أول، وإلا خطوة الرحلة */
 export function pickStep(urgent: NextStep | undefined, s: DoorSignals | null, fallback: NextStep | undefined): Step | null {
-  if (urgent && urgent.tone === "urgent" && urgent.id === "my-late") return { key: `u-${urgent.title}`, title: urgent.title, why: urgent.why, to: urgent.to, cta: urgent.cta, done: tr("تم ✓") };
+  // «ادعوا فريقكم» (فريق أقل من 3) أو مهمة متأخرة عليكم: قبل خطوة الرحلة
+  if (urgent && urgent.tone === "urgent" && (urgent.id === "my-late" || urgent.id === "invite")) return { key: `u-${urgent.title}`, title: urgent.title, why: urgent.why, to: urgent.to, cta: urgent.cta, done: tr("تم ✓") };
   if (s) return journeyNext(s);
   if (fallback) return { key: `f-${fallback.id}`, title: fallback.title, why: fallback.why, to: fallback.to, cta: fallback.cta, done: tr("تم ✓") };
   return null;

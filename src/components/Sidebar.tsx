@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import WLogo from "./brand/WLogo";
 import { NavLink, useLocation } from "react-router-dom";
-import { Check, CheckSquare, Compass, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Smile, Volume2, VolumeX } from "lucide-react";
+import { Award, Check, CheckSquare, Compass, ScrollText, CreditCard, Flag, House, Lock, LogOut, MoreHorizontal, Search, ShieldCheck, Download, Smile, Volume2, VolumeX } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "../context/AuthContext";
 import { useResearchStages } from "../hooks/useResearchStages";
@@ -238,6 +238,16 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                   <Search size={16} aria-hidden />
                   <span className="flex-1">{tr("ابحث أو انتقل بسرعة...")}</span>
                 </button>
+                {/* النمو: سفير Wesync + سجل رحلتكم — كانت مدفونة بآخر صفحة الفريق */}
+                <NavLink role="menuitem" to="/ambassador" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
+                  <Award size={16} aria-hidden />
+                  <span className="flex-1">{tr("صيروا سفراء Wesync")}</span>
+                  <span className="text-[12px] text-[#FFC777]">{tr("أشهر مجانية")}</span>
+                </NavLink>
+                <NavLink role="menuitem" to="/receipts" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
+                  <ScrollText size={16} aria-hidden />
+                  {tr("سجل رحلتكم")}
+                </NavLink>
                 <NavLink role="menuitem" to="/start" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Flag size={16} aria-hidden />
                   {tr("بدأتوا قبل؟ جيبوا شغلكم")}

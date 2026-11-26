@@ -23,6 +23,7 @@ import PeakBar from "../components/ui/PeakBar";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import ContributionCard from "../components/ContributionCard";
 import AlertsCard from "../components/PushToggle";
+import WhatsAppCard from "../components/WhatsAppCard";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useReferralStats } from "../hooks/useReferralStats";
@@ -606,6 +607,7 @@ export default function Team() {
 
       <WorkloadBalance roster={roster} tasks={tasks} />
       <AlertsCard />
+      <WhatsAppCard />
       {mode === "supabase" && isLeader && <ContributionCard roster={roster} tasks={tasks} />}
       {isLeader && mode === "supabase" && (
         <div className="mt-4">

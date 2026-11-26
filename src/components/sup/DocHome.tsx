@@ -43,7 +43,7 @@ export function DocWaitStrip({ waits, icon, onOpen, onAll }: { waits: WaitItem[]
             <span className="dh-tile-s">{w.sub}</span>
             <span className="dh-tile-go">
               {w.kind === "extension" ? tr("وافقوا أو اقترحوا يوم") : w.kind === "minutes" ? tr("شوفوه واعتمدوه") : w.kind === "question" || w.kind === "decision" ? tr("جاوبوهم") : w.action}
-              <ChevronLeft size={14} className="ltr:rotate-180" aria-hidden />
+              <ChevronLeft size={14} aria-hidden />
             </span>
           </button>
         ))}

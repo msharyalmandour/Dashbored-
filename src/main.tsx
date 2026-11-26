@@ -1,12 +1,14 @@
 import { createRoot } from "react-dom/client";
 
 // نسخة جديدة من الموقع: لو الخدمة الجديدة استلمت خلال أول 20 ثانية من فتح الصفحة نعيد التحميل مرة،
-// عشان الناس يشوفون التحديث فورًا بدل ما يعلقون على النسخة القديمة المخزّنة بالجوال
+// عشان الناس يشوفون التحديث فورًا بدل ما يعلقون على النسخة القديمة المخزّنة بالجوال.
+// بس لو كان فيه خدمة قديمة أصلًا — أول زيارة (ما فيه خدمة) كانت تعيد تحميل صفحة الهبوط بعد ثانيتين لكل زائر جديد.
 if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
   const openedAt = Date.now();
+  const hadController = !!navigator.serviceWorker.controller;
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (reloaded || Date.now() - openedAt > 20_000) return;
+    if (!hadController || reloaded || Date.now() - openedAt > 20_000) return;
     reloaded = true;
     window.location.reload();
   });

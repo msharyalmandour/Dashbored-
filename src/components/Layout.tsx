@@ -1,7 +1,8 @@
 import { applyReduceMotion, getReduceMotion, setReduceMotion } from "../lib/motionPref";
 import { storePaperMode } from "../lib/paperMode";
 import { loadProfilePrefs } from "../lib/profilePrefs";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { lazyPage } from "../lib/lazyPage";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, CreditCard } from "lucide-react";
 import GiftMotion from "./GiftMotion";
@@ -22,6 +23,7 @@ import PendingTaskRedirect from "./onboarding/PendingTaskRedirect";
 import GlobalDrop from "./drop/GlobalDrop";
 import BottomNav from "./BottomNav";
 import AppSplash from "./ui/AppSplash";
+import RouteFallback from "./ui/RouteFallback";
 import DriveNotice from "./ui/DriveNotice";
 import StageCelebration from "./ui/StageCelebration";
 import { useAuth } from "../context/AuthContext";
@@ -34,7 +36,7 @@ import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
 
-const LandingV3 = lazy(() => import("../pages/LandingV3"));
+const LandingV3 = lazyPage(() => import("../pages/LandingV3"));
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -226,7 +228,9 @@ export default function Layout() {
             >
               <SectionTabs />
               <InviteSeats />
-              <Outlet />
+              <Suspense fallback={<RouteFallback />}>
+                <Outlet />
+              </Suspense>
             </div>
           </div>
         </main>

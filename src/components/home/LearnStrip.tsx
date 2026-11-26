@@ -26,7 +26,7 @@ export default function LearnStrip({ style }: { style?: React.CSSProperties }) {
           <span className="block h-full rounded-full bg-gradient-to-l from-[#FFC777] to-[#FF6A00]" style={{ width: `${Math.max(4, pct)}%` }} />
         </span>
       </span>
-      <ChevronLeft size={20} className="shrink-0 text-[#ABA095] ltr:rotate-180" aria-hidden />
+      <ChevronLeft size={20} className="shrink-0 text-[#ABA095]" aria-hidden />
     </Link>
   );
 }

@@ -454,7 +454,7 @@ export default function GlobalDrop() {
           </button>
           <button type="button" className="hd-go" onClick={file} disabled={!nIncluded || busy || !canWrite}>
             {busy ? tr("نحطها…") : tr("حطوها بأماكنها")}
-            <ChevronLeft size={18} className="ltr:rotate-180" aria-hidden />
+            <ChevronLeft size={18} aria-hidden />
           </button>
         </div>
       </div>

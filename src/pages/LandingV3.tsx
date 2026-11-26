@@ -96,7 +96,7 @@ function Cta({ className = "" }: { className?: string }) {
     <div className={`l3-cta-wrap ${className}`}>
       <Link to={SIGNUP} className="l3-cta">
         {tr("ابدأوا فريقكم مجانًا")}
-        <ArrowLeft size={18} aria-hidden className="ltr:rotate-180" />
+        <ArrowLeft size={18} aria-hidden />
       </Link>
       <span className="l3-cta-note">{tr("{0} يوم مجانًا · بدون بطاقة · الدكتورة مجانًا دايمًا", TRIAL_DAYS)}</span>
     </div>
@@ -112,19 +112,33 @@ const FACES = [
   { src: "/landing/v3/face-4.webp", x: 42, y: 2, r: -9, d: 0.18 },
 ];
 
+/** مقاس رأس ويسي = عرض بطاقته (نفس clamp حق .l3-face) — قبل كان 170 ثابت وينقص نص الوجه بالشاشات الأصغر */
+const wesyTile = () => (window.innerWidth <= 760 ? 104 : Math.round(Math.min(186, Math.max(92, window.innerWidth * 0.115))));
+function useWesyTile() {
+  const [size, setSize] = useState(wesyTile);
+  useEffect(() => {
+    const on = () => setSize(wesyTile());
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, []);
+  return size;
+}
+
 function Stage() {
   const [ref, prog] = useSectionProgress<HTMLElement>();
+  const tile = useWesyTile();
   // «قلّل الحركة»: الهيرو والقسم الكريمي تحت بعض، ثابتين بمكانهم النهائي
   const still = reduced();
   const p = still ? 0 : prog;
-  // 0→0.35 الهيرو · 0.3→0.6 الخلفية تصير كريمي والكلمات تكبر · 0.45→0.85 الوجوه تنتثر
-  const out = still ? 0 : clamp01((p - 0.12) / 0.25);
-  const cream = still ? 1 : clamp01((p - 0.3) / 0.25);
+  // 0.08→0.26 الهيرو يطلع · 0.26→0.46 دائرة الكريمي تنفتح والكلمات تكبر · 0.42→0.9 الوجوه تنتثر
+  // الهيرو يطلع كامل قبل ما تبدأ دائرة الكريمي — ما يتداخلون أبدًا
+  const out = still ? 0 : clamp01((p - 0.08) / 0.18);
+  const cream = still ? 1 : clamp01((p - 0.26) / 0.2);
   const faces = (i: number) => (still ? 1 : clamp01((p - 0.42 - FACES[i].d) / 0.3));
   const ease = (t: number) => 1 - Math.pow(1 - t, 3);
   return (
     <section ref={ref} className={still ? "l3-stage still" : "l3-stage"} aria-label={tr("فريقٌ صغير، بحثٌ كبير")}>
-      <div className="l3-stage-pin" style={{ ["--cr" as string]: still ? 0 : cream }}>
+      <div className="l3-stage-pin" style={{ ["--cr" as string]: still ? 1 : cream }}>
         {/* الهيرو */}
         <div className="l3-hero" style={{ opacity: 1 - out, transform: `translateY(${-out * 60}px) scale(${1 - out * 0.06})`, pointerEvents: out > 0.6 ? "none" : undefined }}>
           <div className="l3-hero-copy">
@@ -145,7 +159,7 @@ function Stage() {
         </div>
 
         {/* القسم الكريمي: الكلمات الضخمة والوجوه */}
-        <div className="l3-big" aria-hidden={cream < 0.5} style={{ opacity: cream, pointerEvents: cream > 0.5 ? undefined : "none" }}>
+        <div className="l3-big" aria-hidden={cream < 0.5} style={{ visibility: cream > 0 ? "visible" : "hidden", pointerEvents: cream > 0.5 ? undefined : "none" }}>
           <Kicker n="02">{tr("الفريق")}</Kicker>
           <p className="l3-big-top">{tr("أربعة طلاب، دكتورة وحدة، وويسي بالنص.")}</p>
           <div className="l3-words" style={{ transform: `scale(${0.82 + ease(cream) * 0.18})` }}>
@@ -163,7 +177,7 @@ function Stage() {
             })}
             <figure className="l3-face l3-face-wesy" style={{ opacity: cream, transform: `scale(${0.7 + ease(cream) * 0.3})` }}>
               <span className="l3-face-wesy-in">
-                <Wesy state="wink" size={170} head label={tr("ويسي")} />
+                <Wesy state="wink" size={tile} head label={tr("ويسي")} />
               </span>
             </figure>
           </div>

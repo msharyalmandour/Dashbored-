@@ -264,7 +264,7 @@ export default function Collect() {
                 <ChevronLeft
                   size={20}
                   aria-hidden
-                  className="hidden shrink-0 self-center lg:block ltr:rotate-180"
+                  className="hidden shrink-0 self-center lg:block"
                   style={{ color: s.state === "done" ? "var(--ws-c-muted)" : "rgba(255,255,255,.25)" }}
                 />
               )}

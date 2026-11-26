@@ -123,7 +123,7 @@ function Choice({ stage, onPick, onNext }: { stage: TeamStage | null; onPick: (s
           <span className="flex-1" />
           <button type="button" className="st-go" disabled={!sel || busy} onClick={() => sel && void save(sel).then(onNext)}>
             {tr("كملوا")}
-            <ChevronLeft size={18} className="ltr:rotate-180" aria-hidden />
+            <ChevronLeft size={18} aria-hidden />
           </button>
         </div>
       </div>
@@ -374,7 +374,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
         <span className="hidden flex-1 md:block" />
         <button type="button" className="st-go" onClick={onNext}>
           {tr("شوفوا وش لقينا")}
-          <ChevronLeft size={18} className="ltr:rotate-180" aria-hidden />
+          <ChevronLeft size={18} aria-hidden />
         </button>
       </div>
     </>

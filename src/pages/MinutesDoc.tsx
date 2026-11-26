@@ -344,7 +344,7 @@ export default function MinutesDoc() {
                         {place && (
                           <Link to={place.route} className="md-place">
                             {place.label}
-                            <ChevronLeft size={13} aria-hidden className="ltr:rotate-180" />
+                            <ChevronLeft size={13} aria-hidden />
                           </Link>
                         )}
                       </span>

@@ -89,7 +89,7 @@ export default function SideHandle({ hidden, setHidden }: { hidden: boolean; set
       aria-label={hidden ? tr("أظهروا القائمة") : tr("أخفوا القائمة وكبّروا الداش")}
       title={hidden ? tr("أظهروا القائمة (Ctrl + \\)") : tr("اسحبوه لليمين أو اضغطوه (Ctrl + \\)")}
     >
-      {hidden ? <ChevronLeft size={16} aria-hidden className="ltr:rotate-180" /> : <span className="side-handle-bar" aria-hidden />}
+      {hidden ? <ChevronLeft size={16} aria-hidden /> : <span className="side-handle-bar" aria-hidden />}
     </button>
   );
 }

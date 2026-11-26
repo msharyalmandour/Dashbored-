@@ -36,7 +36,7 @@ export default function DriveStrip({ className = "" }: { className?: string }) {
         <span className="block truncate text-[13px] text-[#E9D3B8]">{status?.connected ? tr("باقي: {0}", info.missing.join(tr("، "))) : tr("اربطوه عشان كل ملف ينحفظ بمجلد الفريق")}</span>
       </span>
       <span className="text-[13px] font-extrabold text-[#FFC777]">{tr("كمّلوا الربط")}</span>
-      <ChevronLeft size={16} className="text-[#FFC777] ltr:rotate-180" aria-hidden />
+      <ChevronLeft size={16} className="text-[#FFC777]" aria-hidden />
     </Link>
   );
 }

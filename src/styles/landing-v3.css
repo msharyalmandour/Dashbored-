@@ -7,7 +7,7 @@
 .l3-center { text-align: center; justify-content: center; align-items: center; margin-inline: auto; }
 
 /* الرأس */
-.l3-head { position: fixed; inset: 0 0 auto; z-index: 50; display: flex; align-items: center; gap: 6px; padding: 14px max(16px, calc((100% - 1120px) / 2)); background: rgba(8,8,8,.78); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,199,119,.1); }
+.l3-head { position: fixed; inset: 0 0 auto; z-index: 50; display: flex; align-items: center; gap: 6px; padding: 14px max(16px, calc((100% - 1120px) / 2)); background: #080808; border-bottom: 1px solid rgba(255,199,119,.12); }
 .l3-logo { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 18px; color: #F7EFE6; }
 .l3-nav { display: none; gap: 4px; margin-inline-start: 18px; }
 .l3-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 15px; color: var(--muted); }
@@ -34,8 +34,7 @@
 
 /* ── المشهد: الهيرو → القسم الكريمي ── */
 .l3-stage { position: relative; height: 320vh; }
-.l3-stage-pin { --cr: 0; position: sticky; top: 0; height: 100vh; overflow: hidden;
-  background: color-mix(in srgb, #F2EBE3 calc(var(--cr) * 100%), #080808); }
+.l3-stage-pin { --cr: 0; position: sticky; top: 0; height: 100vh; overflow: hidden; background: #080808; }
 .l3-hero { position: absolute; inset: 0; display: grid; align-items: center; gap: 24px; padding: 96px max(16px, calc((100% - 1120px) / 2)) 40px; will-change: transform, opacity; }
 @media (min-width: 900px) { .l3-hero { grid-template-columns: 1.15fr .85fr; } }
 .l3-hero-copy { position: relative; z-index: 2; }
@@ -51,20 +50,22 @@
   .l3-plaque { display: none; }
 }
 
+/* الانتقال للكريمي: دائرة تنفتح من النص (بدل ما يختلط الأسود بالكريمي ويطلع رمادي باهت بالنص) */
+.l3-big { background: var(--cream); clip-path: circle(calc(var(--cr) * 150%) at 50% 55%); }
 .l3-big { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 90px 16px 40px; color: var(--cream-ink); text-align: center; }
 .l3-big .l3-kicker { color: #A0521A; }
 .l3-big .l3-rule { background: linear-gradient(90deg, transparent, #A0521A); }
-.l3-big-top { margin: 0; font-size: clamp(18px, 2.2vw, 26px); font-weight: 800; }
-.l3-words { display: flex; flex-direction: column; align-items: center; line-height: .86; font-weight: 800; font-size: clamp(110px, 24vw, 330px); color: #8A817A; will-change: transform; }
+.l3-big-top { position: relative; z-index: 4; margin: 0; font-size: clamp(18px, 2.2vw, 26px); font-weight: 800; }
+.l3-words { display: flex; flex-direction: column; align-items: center; line-height: .86; font-weight: 800; font-size: clamp(110px, 24vw, 330px); color: #DDD2C6; margin-top: 8px; will-change: transform; }
 .l3-big-sub { position: relative; z-index: 4; margin: 10px 0 0; max-width: 30em; font-size: clamp(15px, 1.5vw, 18px); line-height: 1.8; color: #3A2A1F; }
 .l3-disclaimer { position: absolute; bottom: 14px; inset-inline-start: 16px; margin: 0; font-size: 12px; color: #7A6E64; }
 .l3-faces { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
 .l3-face { grid-area: 1 / 1; margin: 0; width: clamp(92px, 11.5vw, 186px); aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; background: linear-gradient(180deg, #FF6A00, #B8360E); box-shadow: 0 22px 44px rgba(60,20,5,.28); will-change: transform, opacity; }
 .l3-face { --fx: 1; --fy: 1; transform: translate(calc(var(--tx, 0) * var(--fx) * 1vw), calc(var(--ty, 0) * var(--fy) * 1vh)) rotate(var(--rot, 0deg)) scale(var(--sc, 1)); }
 @media (max-width: 760px) {
-  .l3-face { --fx: 1.08; --fy: 1.45; width: 84px; border-radius: 14px; }
-  .l3-face-wesy-in { display: block; transform: scale(.6); transform-origin: 50% 100%; }
-  .l3-face-wesy { width: 100px; aspect-ratio: 1; }
+  /* الجوال: الصور أصغر وأقرب للنص الكبير عشان ما تغطي العنوان ولا الجملة تحت */
+  .l3-face { --fx: 1; --fy: .3; width: 72px; border-radius: 14px; }
+  .l3-faces .l3-face-wesy { width: 104px; aspect-ratio: 1; }
   .l3-bubble { display: none; }
 }
 .l3-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -149,6 +150,7 @@ html[data-reduce-motion="true"] .l3-step, html[data-reduce-motion="true"] .l3-se
 .l3-stage.still { height: auto; }
 .l3-stage.still .l3-stage-pin { position: relative; height: auto; overflow: visible; }
 .l3-stage.still .l3-hero, .l3-stage.still .l3-big { position: relative; min-height: 100vh; }
+.l3-stage.still .l3-big { clip-path: none; }
 .l3-stage.still .l3-big { background: var(--cream); overflow: hidden; }
 
 /* شهري / سنوي */

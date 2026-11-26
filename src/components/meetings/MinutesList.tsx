@@ -98,7 +98,7 @@ export default function MinutesList(props: MinutesListProps) {
                   {decisionCount > 0 ? `${arDigit(decisionCount)} ${decisionCount === 1 ? tr("قرار") : tr("قرارات")}` : tr("بدون قرارات")} · {items > 0 ? `${arDigit(items)} ${items === 1 ? tr("مهمة") : tr("مهام")}` : tr("بدون بنود")}
                 </span>
                 <ApprovalBadge status={st} />
-                <ChevronLeft size={16} className="shrink-0 text-[#ABA095] ltr:rotate-180" aria-hidden />
+                <ChevronLeft size={16} className="shrink-0 text-[#ABA095]" aria-hidden />
               </button>
             </li>
           );

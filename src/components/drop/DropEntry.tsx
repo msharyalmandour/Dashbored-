@@ -21,7 +21,7 @@ export default function DropEntry({ style }: { style?: React.CSSProperties }) {
           <b className="block text-[17px]">{tr("ارموا أي شي")}</b>
           <span className="text-[13px] text-[#E9D3B8]">{tr("ملف، صورة، رسالة المشرف/ة… ونرتبها")}</span>
         </span>
-        <ChevronLeft size={20} className="shrink-0 text-[#ABA095] ltr:rotate-180" aria-hidden />
+        <ChevronLeft size={20} className="shrink-0 text-[#ABA095]" aria-hidden />
       </Link>
       <Link to="/drop" className="lx-drop lx-in mb-[18px] hidden lg:flex" style={style} aria-label={tr("ارموا أي شي")} data-learn="drop-entry">
         <span aria-hidden className="lx-drop-glow" />

@@ -97,7 +97,7 @@ export function ReviewCard({ items, className, limit, moreTo = "/tasks" }: { ite
                   )}
                   <Link to={it.to} className="lx-fix !min-h-[36px]">
                     {it.fix}
-                    <ChevronLeft size={15} className="ltr:rotate-180" aria-hidden />
+                    <ChevronLeft size={15} aria-hidden />
                   </Link>
                 </div>
               </li>
@@ -108,7 +108,7 @@ export function ReviewCard({ items, className, limit, moreTo = "/tasks" }: { ite
       {more > 0 && (
         <Link to={moreTo} className="lx-fix mt-1 !min-h-[44px] text-[13px]">
           {tr("شوفوا الباقي ({0})", more)}
-          <ChevronLeft size={15} className="ltr:rotate-180" aria-hidden />
+          <ChevronLeft size={15} aria-hidden />
         </Link>
       )}
     </section>

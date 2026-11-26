@@ -359,7 +359,7 @@ export default function Drop() {
               <span className="text-[12px] text-[#ABA095] lg:text-[13px]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
             </span>
             <span className="hidden text-[13px] lg:inline">{tr("افتحوها")}</span>
-            <ChevronLeft size={18} className="text-[#ABA095] ltr:rotate-180" aria-hidden />
+            <ChevronLeft size={18} className="text-[#ABA095]" aria-hidden />
           </Link>
         ))}
         {waiting.map((r) => (

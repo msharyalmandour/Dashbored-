@@ -108,7 +108,7 @@ export default function DropShare() {
               <b className="flex-1 truncate text-[15px]" dir="auto">
                 {project?.title?.trim() || team?.name || tr("فريقكم")}
               </b>
-              <ChevronLeft size={18} className="text-[#ABA095] ltr:rotate-180" aria-hidden />
+              <ChevronLeft size={18} className="text-[#ABA095]" aria-hidden />
             </div>
           </section>
           <label className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-black/25 px-3.5 text-[14px] text-[#ABA095] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">

@@ -57,7 +57,7 @@ export function NeedsList({ needs, onGo, busy }: { needs: NeedCard[]; onGo: (n: 
                 <span className="flex-1" />
                 <button type="button" className={clsx("ag-btn", k === 0 ? "cream" : "glass")} disabled={busy} onClick={() => onGo(n)}>
                   {n.button}
-                  <ChevronLeft size={15} className="ag-m-only ltr:rotate-180" aria-hidden />
+                  <ChevronLeft size={15} className="ag-m-only" aria-hidden />
                 </button>
               </div>
             </article>
@@ -208,7 +208,7 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
             {!undone && (
               <Link to={l.to} className="ag-link">
                 {l.place}
-                <ChevronLeft size={14} className="ltr:rotate-180" aria-hidden />
+                <ChevronLeft size={14} aria-hidden />
               </Link>
             )}
           </li>
@@ -229,7 +229,7 @@ export function NextList({ items, onPick }: { items: string[]; onPick: (s: strin
           <button key={s} type="button" className="ag-next" onClick={() => onPick(s)}>
             <Sparkles size={14} className="text-[#FFC777]" aria-hidden />
             <span className="min-w-0 flex-1 text-start">{s}</span>
-            <ChevronLeft size={15} className="ltr:rotate-180" aria-hidden />
+            <ChevronLeft size={15} aria-hidden />
           </button>
         ))}
       </div>

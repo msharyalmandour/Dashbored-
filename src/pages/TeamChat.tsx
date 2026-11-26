@@ -632,7 +632,7 @@ export default function TeamChat() {
                     </span>
                     {refSub(m.ref) && <span className="tc-ref-s">{refSub(m.ref)}</span>}
                   </span>
-                  <ChevronLeft size={16} className="shrink-0 text-[#ABA095] rtl:rotate-0 ltr:rotate-180" aria-hidden />
+                  <ChevronLeft size={16} className="shrink-0 text-[#ABA095] rtl:rotate-0" aria-hidden />
                 </Link>
               )}
               {!m.failed && (

@@ -6,7 +6,7 @@ import type { WesyState } from "../vendor/wesy-real";
 import WLogo from "../components/brand/WLogo";
 import LangToggle from "../components/ui/LangToggle";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
-import { DUO_PRICE, SOLO_PRICE, TEAM_PRICE, TRIAL_DAYS, teamAnnualTotal, type BillingPeriod } from "../lib/plans";
+import { BEST_PLAN, PLAN_OPTIONS, TRIAL_DAYS, perMonth, planOf, planSaving, type BillingPeriod } from "../lib/plans";
 import { tr } from "../lib/i18n";
 import shotOverview from "../assets/landing/overview.webp";
 import shotTasks from "../assets/landing/tasks.webp";
@@ -318,38 +318,45 @@ function Doctors() {
 }
 
 /* ── 06: السعر ── */
+const PLAN_NAME: Record<BillingPeriod, () => string> = {
+  month: () => tr("شهري"),
+  semester: () => tr("فصل"),
+  year: () => tr("السنة الدراسية"),
+};
+
 function Price() {
   const [ref, on] = useReveal<HTMLElement>();
-  const [period, setPeriod] = useState<BillingPeriod>("year");
-  const yearly = period === "year";
+  const [period, setPeriod] = useState<BillingPeriod>(BEST_PLAN);
+  const plan = planOf(period);
   return (
     <section id="price" ref={ref} className={`l3-sec l3-price ${on ? "on" : ""}`}>
       <div className="l3-wrap">
         <Kicker n="06">{tr("السعر")}</Kicker>
         <div className="l3-price-card">
-          <div className="l3-period" role="radiogroup" aria-label={tr("مدة الاشتراك")}>
-            <button type="button" role="radio" aria-checked={!yearly} className={!yearly ? "on" : ""} onClick={() => setPeriod("month")}>
-              {tr("شهري")}
-            </button>
-            <button type="button" role="radio" aria-checked={yearly} className={yearly ? "on" : ""} onClick={() => setPeriod("year")}>
-              {tr("سنوي")} <span className="l3-period-tag">{tr("شهرين مجانًا")}</span>
-            </button>
+          <div className="l3-period l3-period-3" role="radiogroup" aria-label={tr("مدة الاشتراك")}>
+            {PLAN_OPTIONS.map((p) => (
+              <button key={p.id} type="button" role="radio" aria-checked={period === p.id} className={period === p.id ? "on" : ""} onClick={() => setPeriod(p.id)}>
+                {PLAN_NAME[p.id]()}
+                {p.id === BEST_PLAN && <span className="l3-period-tag">{tr("الأوفر")}</span>}
+              </button>
+            ))}
           </div>
-          <p className="l3-price-k">{tr("الفريق كامل · كل شي داخل")}</p>
+          <p className="l3-price-k">{tr("لكل شخص · كل شي داخل")}</p>
           <p className="l3-price-n">
-            <b>{yearly ? teamAnnualTotal(5) : TEAM_PRICE}</b> {yearly ? tr("ريال بالسنة") : tr("ريال بالشهر")}
+            <b>{plan.price}</b> {tr("ريال")}
           </p>
           <p className="l3-price-s">
-            {yearly
-              ? tr("يعني {0} ريال بالشهر — تدفعون 10 وتاخذون 12.", Math.round(teamAnnualTotal(5) / 12))
-              : tr("للفريق كله، مو لكل واحد.")}
+            {period === "month"
+              ? tr("بالشهر — يعني نص ريال باليوم.")
+              : tr("{0} شهور — يعني {1} بالشهر، وتوفّر {2} ريال.", plan.months, perMonth(period), planSaving(period))}
           </p>
           <ul>
             {[
               tr("كل أدوات البحث والفريق + ويسي المساعد الذكي"),
               tr("الدكتورة مجانًا دايمًا"),
               tr("{0} يوم مجانًا بدون بطاقة", TRIAL_DAYS),
-              tr("بدون تجديد تلقائي — كل واحد يقدر يدفع حصته"),
+              tr("ادفع حصتك بنفسك، أو عن صاحبك، أو عن الفريق كامل"),
+              tr("ضمان أول شهر · سعرك ثابت لين تتخرج"),
             ].map((x) => (
               <li key={x}>
                 <Check size={16} aria-hidden />
@@ -358,11 +365,7 @@ function Price() {
             ))}
           </ul>
           <Cta />
-          <p className="l3-price-small">
-            {yearly
-              ? tr("لحالك {0} · شخصين {1} ريال بالسنة", teamAnnualTotal(1), teamAnnualTotal(2))
-              : tr("لحالك {0} · شخصين {1} ريال بالشهر", SOLO_PRICE, DUO_PRICE)}
-          </p>
+          <p className="l3-price-small">{tr("فريق من 4 بالشهري = 60 ريال · وبالسنة الدراسية = 396 للفريق كامل")}</p>
         </div>
       </div>
     </section>

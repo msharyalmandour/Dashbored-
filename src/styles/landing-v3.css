@@ -165,3 +165,6 @@ html[data-reduce-motion="true"] .l3-step, html[data-reduce-motion="true"] .l3-se
 html[data-reduce-motion="true"] .l3-period button { transition: none; }
 .l3-period button, .l3-period-tag { white-space: nowrap; }
 @media (max-width: 480px) { .l3-period button { padding: 0 12px; gap: 6px; } }
+/* ثلاث مدد (شهري · فصل · السنة الدراسية) */
+.l3-period-3 { grid-template-columns: repeat(3, auto); }
+@media (max-width: 480px) { .l3-period-3 button { padding: 0 10px; font-size: 13px; } .l3-period-3 .l3-period-tag { display: none; } }

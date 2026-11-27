@@ -32,6 +32,7 @@ import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import StudToast from "./notify/StudToast";
 import InviteSeats from "./growth/InviteSeats";
+import GiftNotice from "./growth/GiftNotice";
 import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
@@ -227,6 +228,7 @@ export default function Layout() {
               className="animate-[page-in_0.35s_ease-out]"
             >
               <SectionTabs />
+              <GiftNotice />
               <InviteSeats />
               <Suspense fallback={<RouteFallback />}>
                 <Outlet />

@@ -8,6 +8,7 @@ import { projectMeta, teamMembers } from "../data/mockData";
 import { formatDateLong, toISODate } from "../lib/date";
 import { g, isFemaleUser } from "../lib/gender";
 import { tr, trx } from "../lib/i18n";
+import PassTheTorch from "../components/growth/PassTheTorch";
 
 const SUBMITTED_KEY = "nursync.submittedAt";
 const CAPSULE_KEY = "nursync.timecapsule";
@@ -123,6 +124,8 @@ export default function Celebration() {
               <Wand2 size={14} />{trx("{0} — بكل فخر.", g(isFemale, tr("وصلتِ لها"), tr("وصلت لها")))}</p>
           </div>
         )}
+
+        <PassTheTorch />
 
         <div className="text-center">
           <Link

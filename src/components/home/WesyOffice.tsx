@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Bell, BookOpen, Coffee, GraduationCap, Image as ImageIcon, KeyRound, ScrollText, Stamp, type LucideIcon } from "lucide-react";
 import { useAcademy } from "../../hooks/useAcademy";
 import { itemLesson, officeItemIds, type OfficeItemId } from "../../data/wesyNeeds";
-import wesyWave from "../../assets/wesy/wesy-wave.webp";
+import { WesyFigure } from "../brand/Wesy";
 import WLogo from "../brand/WLogo";
 import NextCard from "./NextCard";
 import ShareAchievement from "../ShareAchievement";
@@ -188,7 +188,7 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
         <div className="wo-desk" />
         <div className="wo-wesy">
           <div className="wo-wesy-cut">
-            <img src={wesyWave} alt={tr("ويسي، الرئيس التنفيذي")} data-state={w.state} data-outfit={outfit} draggable={false} />
+            <WesyFigure label={tr("ويسي، الرئيس التنفيذي")} playKey={`${w.state}-${outfit}`} />
           </div>
           <div className="wo-laptop">
             <WLogo tone="bare" size={64} className="wo-w" />

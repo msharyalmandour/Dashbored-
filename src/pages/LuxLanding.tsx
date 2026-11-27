@@ -4,7 +4,8 @@ import { ArrowLeft, Check, MessageCircle } from "lucide-react";
 import { useWhatsAppAvoid } from "../components/landing/LandingV2";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import { faqs } from "./landingFaqs";
-import { MAX_TEAM_MEMBERS, TEAM_PRICE, TRIAL_DAYS, memberShare } from "../lib/plans";
+import { MAX_TEAM_MEMBERS, TRIAL_DAYS } from "../lib/plans";
+import { FOUNDING_TEAMS, FOUNDING_TEAM_MONTHLY, PER_MEMBER_MONTHLY, RESEARCH_MONTHS, TEAM_MONTHLY, monthlyFor, researchFor, researchSaving } from "../lib/pricingV2";
 import LangToggle from "../components/ui/LangToggle";
 import { tr, trx } from "../lib/i18n";
 import "../styles/lux-landing.css";
@@ -83,6 +84,8 @@ export default function LuxLanding() {
   const [stage, setStage] = useState(0);
   const [members, setMembers] = useState(4);
   const [split, setSplit] = useState(4);
+  const [group, setGroup] = useState(true);
+  const payers = group ? split : 1;
   const plan = useMemo(() => planFor(deadline, stage), [deadline, stage]);
   const share = useMemo(() => {
     const lines = plan.map((p) => `${p.name}: ${p.range}`).join("\n");
@@ -406,30 +409,73 @@ export default function LuxLanding() {
           </div>
         </section>
 
-        {/* ٠٩ السعر */}
+        {/* ٠٩ السعر: لحالك أو مع فريقك، شهري أو للبحث كامل */}
         <section id="price" className="ll-sec ll-cream ll-price">
           <div className="ll-wrap" data-rise>
             <div className="ll-eb">{tr("السعر")}</div>
-            <div className="ll-big">
-              <b>{TEAM_PRICE}</b>
-              <span>{tr("ر.س بالشهر")}</span>
+            <h2 className="ll-h2">
+              {tr("للطالب،")} <b>{tr("والوكيل داخل السعر.")}</b>
+            </h2>
+            <div className="ll-switch" role="group" aria-label={tr("لمين الاشتراك؟")}>
+              <button type="button" aria-pressed={!group} onClick={() => setGroup(false)}>
+                {tr("لحالي")}
+              </button>
+              <button type="button" aria-pressed={group} onClick={() => setGroup(true)}>
+                {tr("مع فريقي")}
+              </button>
             </div>
-            <div className="per">{trx("للفريق كامل (من 3 إلى {0} أعضاء)، مو لكل شخص.", MAX_TEAM_MEMBERS)}</div>
-            <div className="ll-split">
-              <span>{tr("قسّموها بينكم:")}</span>
-              <div className="ll-seg">
-                {[3, 4, 5].filter((n) => n <= MAX_TEAM_MEMBERS).map((n) => (
-                  <button key={n} type="button" aria-pressed={split === n} onClick={() => setSplit(n)}>
-                    {n}
-                  </button>
-                ))}
+            {group && (
+              <div className="ll-split">
+                <span>{tr("كم واحد أنتم؟")}</span>
+                <div className="ll-seg">
+                  {[2, 3, 4, 5].filter((n) => n <= MAX_TEAM_MEMBERS).map((n) => (
+                    <button key={n} type="button" aria-pressed={split === n} onClick={() => setSplit(n)}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <strong>{trx("= {0} ر.س للواحد", memberShare(TEAM_PRICE, split))}</strong>
+            )}
+            {group && (
+              <p className="ll-founding">
+                <b>{trx("سعر الفرق المؤسِّسة: أول {0} فريق", FOUNDING_TEAMS)}</b>
+                {trx("{0} ر.س للطالب بدل {1}، ثابت لكم طول بحثكم.", FOUNDING_TEAM_MONTHLY, TEAM_MONTHLY)}
+              </p>
+            )}
+            <div className="ll-plans">
+              <div className="ll-planbox">
+                <div className="k">{tr("شهري")}</div>
+                <div className="ll-big">
+                  {group && <s>{PER_MEMBER_MONTHLY}</s>}
+                  <b>{monthlyFor(payers, true)}</b>
+                  <span>{tr("ر.س للطالب بالشهر")}</span>
+                </div>
+                <div className="tot">{group ? trx("الفريق كامل: {0} ر.س بالشهر", monthlyFor(payers, true) * payers) : tr("تلغونه متى ما بغيتوا")}</div>
+              </div>
+              <div className="ll-planbox best">
+                <div className="k">
+                  {trx("البحث كامل · {0} شهور", RESEARCH_MONTHS)}
+                  <em>{trx("توفّرون {0} ر.س", researchSaving(payers, true))}</em>
+                </div>
+                <div className="ll-big">
+                  <b>{researchFor(payers, true)}</b>
+                  <span>{tr("ر.س للطالب، دفعة وحدة")}</span>
+                </div>
+                <div className="tot">{group ? trx("الفريق كامل: {0} ر.س للبحث كله", researchFor(payers, true) * payers) : tr("بدل ما تدفعون كل شهر")}</div>
+              </div>
             </div>
+            <ul className="ll-incl">
+              {[tr("الوكيل: يقرا الدراسات ويلخّصها ويرتّب المراجع"), tr("المهام والمحادثة والملفات للفريق"), tr("رابط الدكتورة، وهي مجانًا دايمًا")].map((t) => (
+                <li key={t}>
+                  <Check size={16} aria-hidden />
+                  {t}
+                </li>
+              ))}
+            </ul>
             <div className="ll-terms">
               <span>{trx("{0} يوم تجربة مجانية", TRIAL_DAYS)}</span>
               <span>{tr("بدون تجديد تلقائي")}</span>
-              <span>{tr("الدكتورة مجانًا دايمًا")}</span>
+              {group && <span>{trx("بعد أول {0} فريق: {1} ر.س للطالب", FOUNDING_TEAMS, TEAM_MONTHLY)}</span>}
             </div>
             <Cta />
           </div>

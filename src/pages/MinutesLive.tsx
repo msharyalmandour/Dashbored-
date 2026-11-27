@@ -79,7 +79,7 @@ export default function MinutesLive() {
   }, []);
   // الساعة توقف لما يخلص الاجتماع
   useEffect(() => {
-    if (!d.startedAt || ending) return;
+    if (!d.startedAt || ending || d.endedAt) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, [d.startedAt, ending]);
@@ -91,6 +91,10 @@ export default function MinutesLive() {
 
   const add = useCallback((c: Omit<Capture, "id" | "at"> & { at?: string }) => setD((p) => ({ ...p, captures: [...p.captures, { id: uid(), at: c.at ?? new Date().toISOString(), ...c }] })), []);
   const who = (id: string | null) => (id ? roster.find((m) => m.id === id) : undefined);
+  // سطور ويسي: الفريق يراجعها — يغيّر الوسم بضغطة، أو يحذف الغلط
+  const retag = (id: string) => setD((p) => ({ ...p, captures: p.captures.map((c) => (c.id === id ? { ...c, tag: TAGS[(TAGS.indexOf(c.tag) + 1) % TAGS.length] } : c)) }));
+  const removeCapture = (id: string) => setD((p) => ({ ...p, captures: p.captures.filter((c) => c.id !== id) }));
+  const video = d.source === "video";
 
   // المايك يشتغل طول الاجتماع: كل ما يتجمع كلام كافي، الذكاء يطلّع منه سطور موسومة
   const toggleMic = () => {
@@ -167,7 +171,7 @@ export default function MinutesLive() {
     stopMic.current = null;
     setMicOn(false);
     setBusy(true);
-    const endedAt = new Date().toISOString();
+    const endedAt = d.endedAt ?? new Date().toISOString();
     const present = d.attendance.filter((a) => a.joinedAt);
     const { row, error } = await addMinutes({
       meetingDate: toISODate(new Date(d.startedAt ?? endedAt)),
@@ -218,7 +222,7 @@ export default function MinutesLive() {
   };
 
   if (!team || !currentUser) return null;
-  const elapsed = d.startedAt ? now - Date.parse(d.startedAt) : 0;
+  const elapsed = d.startedAt ? (d.endedAt ? Date.parse(d.endedAt) : now) - Date.parse(d.startedAt) : 0;
   const pct = ringPct(elapsed, d.planned);
   const present = d.attendance.filter((a) => a.joinedAt && a.joinedAt !== "pending").length;
   const agendaNow = d.agenda[d.current];
@@ -302,11 +306,22 @@ export default function MinutesLive() {
         </span>
         {sup ? <DocAvatar name={tr("الدكتورة")} px={28} /> : p ? <Avatar initials="" name={p.name} avatar={p.avatar ?? undefined} px={28} ring="#1A120E" /> : <span className="ml-mic-av" aria-label={tr("من الصوت")}><Mic size={14} aria-hidden /></span>}
         <div className="min-w-0 flex-1">
-          <span className={`sup-chip${c.tag === "decision" || c.tag === "task" ? " gold" : ""}`}>{TAG_LABEL[c.tag]}</span>
+          {c.auto ? (
+            <button type="button" className={`sup-chip${c.tag === "decision" || c.tag === "task" ? " gold" : ""}`} style={{ border: 0, cursor: "pointer", fontFamily: "inherit" }} aria-label={tr("غيّروا الوسم ({0})", TAG_LABEL[c.tag])} onClick={() => retag(c.id)}>
+              {TAG_LABEL[c.tag]} ⇄
+            </button>
+          ) : (
+            <span className={`sup-chip${c.tag === "decision" || c.tag === "task" ? " gold" : ""}`}>{TAG_LABEL[c.tag]}</span>
+          )}
           <div className="mt-1 text-[15px] leading-[1.7] text-[#f4f0ec]" dir="auto">
             {c.text}
           </div>
         </div>
+        {c.auto && (
+          <button type="button" className="ml-x" aria-label={tr("احذفوا السطر")} onClick={() => removeCapture(c.id)}>
+            ×
+          </button>
+        )}
       </div>
     );
   };
@@ -425,7 +440,7 @@ export default function MinutesLive() {
     return (
       <div className="v3 flex min-h-[calc(100vh-160px)] flex-col px-4 pb-[300px] pt-4">
         <div className="flex items-center justify-between">
-          <span className="ml-live">{tr("الاجتماع شغّال")}</span>
+          <span className="ml-live">{video ? tr("من اجتماع الفيديو") : tr("الاجتماع شغّال")}</span>
           {faces}
         </div>
         <div className="mt-4 flex justify-center">
@@ -442,7 +457,8 @@ export default function MinutesLive() {
             <b>{agendaNow}</b>
           </p>
         )}
-        <div className="mt-4 flex flex-col gap-2">{d.captures.slice(-3).map(line)}</div>
+        {video && <p className="m-0 mt-3 text-center text-[13px] text-[#E9D3B8]">{tr("ويسي كتب المحضر من كلامكم. راجعوا السطور: اضغطوا الوسم عشان تغيّرونه، أو × للغلط، وبعدها «خلّصنا».")}</p>}
+        <div className="mt-4 flex flex-col gap-2">{(video ? d.captures : d.captures.slice(-3)).map(line)}</div>
         <div className="ml-mbar">
           {composer}
           <div className="mt-2">{tagBar}</div>
@@ -472,7 +488,7 @@ export default function MinutesLive() {
           <div className="mt-1.5 text-[12px] text-[#b8ada2]">{tr("من {0} دقيقة", d.planned)}</div>
         </Ring>
         <div className="min-w-0 flex-1">
-          <span className="ml-live">{tr("الاجتماع شغّال")}</span>
+          <span className="ml-live">{video ? tr("من اجتماع الفيديو") : tr("الاجتماع شغّال")}</span>
           <h1 className="m-0 mt-1 truncate bg-gradient-to-b from-[#FFF6EC] to-[#E9C9A0] bg-clip-text text-[36px] font-extrabold text-transparent">{d.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-4">
             {faces}
@@ -497,7 +513,7 @@ export default function MinutesLive() {
         <section className="sup-glass flex min-h-[420px] flex-col">
           <div className="flex items-center">
             <b className="flex-1 text-[18px]">{tr("اللي انقال")}</b>
-            <span className="text-[12px] text-[#b8ada2]">{tr("صوت + كتابة · كل سطر له وسم")}</span>
+            <span className="text-[12px] text-[#b8ada2]">{video ? tr("ويسي كتبها من الاجتماع · اضغطوا الوسم لتغييره أو × للغلط") : tr("صوت + كتابة · كل سطر له وسم")}</span>
           </div>
           <div className="mt-2 flex flex-1 flex-col gap-2" aria-live="polite">
             {d.captures.length ? d.captures.map(line) : <p className="m-auto text-[14px] text-[#b8ada2]">{tr("شغّلوا المايك أو اكتبوا أول سطر")}</p>}

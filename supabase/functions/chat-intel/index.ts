@@ -2,12 +2,13 @@
 //  summary : «الخلاصة الحيّة» (انقرر / مفتوح / مين عليه وش) — محفوظة لكل فريق، وما تنحسب من جديد إلا لو فيه رسائل جديدة ومرّت دقيقتين
 //  catchup : «اللي فاتك ويخصك» — ٣ أسطر لصاحب الطلب من رسائل غيابه ومهامه
 //  voice   : يطلع من نص الفويس الزبدة والمهام/القرارات/الأسئلة/المواعيد (كل ~٥ ثواني وقت التسجيل، ومرة أخيرة بعد الإيقاف)
+//  meeting : محضر اجتماع الفيديو من نصه (مين قال وش) — الزبدة + نقاش/قرارات/مهام/أسئلة/مواعيد، والفريق يراجعه قبل الحفظ
 //  stt     : تفريغ ملف الفويس (حاوية drops) — بس لو فيه ELEVENLABS_API_KEY، وإلا not_configured ويكفي نص المتصفح
 //  stt_token: رمز لمرة وحدة (15 دقيقة) للكتابة الحيّة من المتصفح (Scribe v2 Realtime) — المفتاح ما يطلع للمتصفح
 // نموذج سريع واحد بمخطط JSON صارم. المتغيرات: ANTHROPIC_API_KEY، ELEVENLABS_API_KEY (اختياري).
 import Anthropic from "npm:@anthropic-ai/sdk@^0.68.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { CATCHUP_SCHEMA, CATCHUP_SYSTEM, normalizeCatchup, normalizeSummary, normalizeVoice, riyadhToday, SUMMARY_SCHEMA, SUMMARY_SYSTEM, transcript, VOICE_SCHEMA, VOICE_SYSTEM, type Line } from "./lib.ts";
+import { CATCHUP_SCHEMA, CATCHUP_SYSTEM, normalizeCatchup, normalizeSummary, MEETING_SYSTEM, normalizeVoice, riyadhToday, SUMMARY_SCHEMA, SUMMARY_SYSTEM, transcript, VOICE_SCHEMA, VOICE_SYSTEM, type Line } from "./lib.ts";
 
 const MODEL = "claude-haiku-5-5";
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
@@ -16,7 +17,7 @@ const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 // حدود شهرية لكل فريق (عدّاد agent_runs) — سخية، بس تمنع الإسراف
-const MONTHLY: Record<string, number> = { "chat-summary": 900, "chat-catchup": 300, "voice-extract": 3000, "voice-stt": 400, "voice-live": 1500 };
+const MONTHLY: Record<string, number> = { "chat-summary": 900, "chat-catchup": 300, "voice-extract": 3000, "voice-stt": 400, "voice-live": 1500, "meeting-minutes": 300 };
 const SUMMARY_EVERY_MS = 2 * 60_000;
 
 const monthStart = () => {
@@ -125,6 +126,18 @@ Deno.serve(async (req: Request) => {
       const prompt = `TODAY: ${today}\nROSTER: ${roster.map((m) => m.name).join(" · ")}\n\n<voice>\n${text}\n</voice>`;
       const out = normalizeVoice(await ask(VOICE_SYSTEM, VOICE_SCHEMA, prompt, 700), roster, today);
       await logRun(teamId, me.id, "voice-extract");
+      return json(200, out);
+    }
+
+    if (action === "meeting") {
+      const text = String(body.text ?? "").slice(-24000).trim();
+      if (text.split(/\s+/).length < 12) return json(200, { gist: "", items: [], reason: "too_short" });
+      if (!active) return json(200, { gist: "", items: [], reason: "read_only" });
+      if (!(await underLimit(teamId, "meeting-minutes"))) return json(200, { gist: "", items: [], reason: "ai_limit" });
+      const today = riyadhToday();
+      const prompt = `TODAY: ${today}\nROSTER: ${roster.map((m) => m.name).join(" · ")}\n\n<meeting>\n${text}\n</meeting>`;
+      const out = normalizeVoice(await ask(MEETING_SYSTEM, VOICE_SCHEMA, prompt, 1600), roster, today, 14);
+      await logRun(teamId, me.id, "meeting-minutes");
       return json(200, out);
     }
 

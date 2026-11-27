@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   UserMinus,
   UserPlus,
+  ExternalLink,
 } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import { PageHeader } from "../components/ui/page";
@@ -196,6 +197,8 @@ function SupervisorContactSection() {
     window.location.reload();
   };
   const shareLink = `${publicBase()}#/supervisor/${team.shareToken}`;
+  // يفتح لوحة المشرفة مباشرة على فريقكم (نفس اللي يصير لما تضغط الدكتورة الرابط)
+  const dashLink = `${publicBase()}#/supervisor?t=${team.shareToken}`;
   const waitingDays = team.supervisorNoteAt ? daysAgo(team.supervisorNoteAt) : null;
   const reminderMessage = team.supervisorNote
     ? tr("مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n{0}", shareLink)
@@ -232,9 +235,25 @@ function SupervisorContactSection() {
             </div>
           </div>
           <p className="mt-3 text-sm text-brand-950/55">{tr("رابط واحد للدكتورة بدون حساب: تشوف تقدّمكم، وتردّ عليكم بقروب «مع الدكتورة»، وتعتمد المحاضر والمواعيد. ولو عندها فرق ثانية، كلها تطلع لها بلوحة وحدة.")}</p>
-          <p dir="ltr" className="mt-3 truncate rounded-xl bg-surface-muted px-3 py-2 text-start text-xs text-brand-950/60">
-            {shareLink}
-          </p>
+          <a
+            href={dashLink}
+            target="_blank"
+            rel="noreferrer"
+            dir="ltr"
+            title={tr("افتحوا لوحة الدكتورة")}
+            className="mt-3 flex min-h-[44px] items-center gap-2 rounded-xl bg-surface-muted px-3 text-start text-xs text-brand-950/60 transition hover:text-brand-950/85"
+          >
+            <ExternalLink size={14} className="flex-none text-[#FFC777]" aria-hidden />
+            <span className="min-w-0 truncate">{shareLink}</span>
+          </a>
+          <a
+            href={dashLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-bold text-[#FFC777] underline underline-offset-2"
+          >
+            {tr("شوفوا وش تشوف الدكتورة (لوحتها)")}
+          </a>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(reminderMessage)}`}

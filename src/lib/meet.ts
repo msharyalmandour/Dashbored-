@@ -35,7 +35,13 @@ export const joinAsGuest = (shareToken: string, name: string) => call<MeetJoin>(
 export const meetStatus = (shareToken?: string) => call<MeetStatus>(shareToken ? { action: "status", shareToken } : { action: "status" });
 
 // ───────── رسائل البيانات داخل الغرفة ─────────
-export type MeetData = { t: "chat"; id: string; text: string; at: number } | { t: "hand"; up: boolean };
+export type MeetData =
+  | { t: "chat"; id: string; text: string; at: number }
+  | { t: "hand"; up: boolean }
+  /** سطر من نص الاجتماع (كلام المرسل نفسه) */
+  | { t: "line"; id: string; text: string; at: number }
+  /** النص شغّال للغرفة كلها أو لا */
+  | { t: "tx"; on: boolean };
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 export const encodeData = (d: MeetData) => enc.encode(JSON.stringify(d));
@@ -44,6 +50,8 @@ export function decodeData(bytes: Uint8Array): MeetData | null {
     const d = JSON.parse(dec.decode(bytes)) as MeetData;
     if (d?.t === "chat" && typeof d.text === "string") return { t: "chat", id: String(d.id ?? ""), text: d.text.slice(0, 2000), at: Number(d.at) || Date.now() };
     if (d?.t === "hand") return { t: "hand", up: !!d.up };
+    if (d?.t === "line" && typeof d.text === "string") return { t: "line", id: String(d.id ?? "").slice(0, 40), text: d.text.slice(0, 600), at: Number(d.at) || Date.now() };
+    if (d?.t === "tx") return { t: "tx", on: !!d.on };
   } catch {
     /* رسالة مو لنا */
   }

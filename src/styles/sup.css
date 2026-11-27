@@ -150,6 +150,8 @@ html[data-reduce-motion="true"] .vm-fi { animation: none; }
 .ml-line.dec { background: linear-gradient(90deg, rgba(255,199,119,.10), rgba(255,199,119,.03)); box-shadow: inset 0 0 0 1px rgba(255,199,119,.25); }
 @keyframes mlIn { from { opacity: 0; transform: translateX(var(--ml-dx, 14px)); } to { opacity: 1; transform: none; } }
 [dir="ltr"] .ml-line { --ml-dx: -14px; }
+.ml-x { flex: none; width: 44px; height: 44px; margin: -6px -6px 0 0; border: 0; border-radius: 14px; background: transparent; color: #ABA095; font: 700 20px/1 inherit; cursor: pointer; }
+.ml-x:hover, .ml-x:focus-visible { background: rgba(255,255,255,.06); color: #FF8A7A; }
 .ml-mic-av { width: 28px; height: 28px; flex: none; border-radius: 50%; background: rgba(255,255,255,.08); color: #FFC777; display: flex; align-items: center; justify-content: center; }
 .ml-tag { min-height: 44px; border-radius: 14px; border: 0; font-family: inherit; font-size: 13px; font-weight: 800; background: rgba(255,255,255,.07); color: #f4f0ec; cursor: pointer; }
 .ml-tag.warm { color: #FFC777; background: rgba(255,154,60,.12); }
@@ -377,6 +379,13 @@ html[data-reduce-motion="true"] .sd-in, html[data-reduce-motion="true"] .sd-bar 
 .mt-msg { max-width: 85%; padding: 8px 12px; border-radius: 16px; background: rgba(255,255,255,.06); font-size: 14px; line-height: 1.5; align-self: flex-start; }
 .mt-msg.mine { align-self: flex-end; background: rgba(255,199,119,.14); }
 .mt-msg b { display: block; font-size: 12px; color: #FFC777; }
+.mt-tx { display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.7; }
+.mt-tx b { font-size: 12px; color: #FFC777; }
+.mt-tx b.sup { color: #f4f0ec; }
+.mt-tx.now span { color: #ABA095; }
+.mt-cap { align-self: center; max-width: min(720px, 100%); margin-top: -4px; padding: 8px 14px; border-radius: 16px; background: rgba(8,6,5,.78); box-shadow: inset 0 0 0 1px rgba(255,240,225,.08); }
+.mt-cap p { margin: 0; font-size: 15px; line-height: 1.6; color: #f4f0ec; }
+.mt-cap b { color: #FFC777; font-weight: 800; }
 .mt-chat form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid rgba(255,255,255,.06); }
 .mt-chat input { flex: 1; min-width: 0; min-height: 44px; border-radius: 14px; border: 0; padding: 0 12px; background: rgba(0,0,0,.3); color: #f4f0ec; font: inherit; outline: none; }
 .mt-chat input:focus { box-shadow: inset 0 0 0 1.5px rgba(255,199,119,.6); }

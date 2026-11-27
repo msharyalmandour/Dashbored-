@@ -1,0 +1,10 @@
+{
+  "يبدأ على مهمة؟ (اختياري)": "Start on a task? (optional)",
+  "لا، الصفحة الرئيسية": "No, the home page",
+  "مرحبًا دكتور/ة، ودّينا نطمّنكم على آخر تحديث لتقدم فريقنا البحثي — تقدرون تراجعونه وتتركون لنا ملاحظة جديدة من هنا:\n{0}": "Hello Doctor, here is the latest update on our research team's progress — you can review it and leave us a new note here:\n{0}",
+  "مرحبًا دكتور/ة، جهّزنا رابط متابعة لتقدم فريقنا البحثي على Wesync — نكون شاكرين لو تقدرون تطّلعون عليه وتتركون لنا ملاحظتكم:\n{0}": "Hello Doctor, we set up a link to follow our research team's progress on Wesync — we'd be grateful if you could take a look and leave us your note:\n{0}",
+  " تعذّر التغيير — حاولوا مرة ثانية.": " Couldn't change it — please try again.",
+  " — {0} متأخرة": " — {0} overdue",
+  " · {0} متأخرة": " · {0} overdue",
+  "سجل الرحلة والإيصالات": "Journey log & receipts"
+}

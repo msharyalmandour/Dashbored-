@@ -65,7 +65,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
     <div className="space-y-5">
       {replyDays !== null && (
         <p className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-[#B8ADA2]">
-          <Clock size={14} className="text-[#FFB444]" />{tr("المشرف/ة ترد عادةً خلال ")}<b className="text-[#F4F0EC]">{replyDays} {replyDays <= 2 ? tr("يوم") : tr("أيام")}</b>. {availability?.note && <span>— {availability.note}</span>}
+          <Clock size={14} className="text-[#ffb547]" />{tr("المشرف/ة ترد عادةً خلال ")}<b className="text-[#F4F0EC]">{replyDays} {replyDays <= 2 ? tr("يوم") : tr("أيام")}</b>. {availability?.note && <span>— {availability.note}</span>}
         </p>
       )}
 
@@ -89,7 +89,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               </div>
             ))}
             {options.length < 4 && (
-              <button onClick={() => setOptions((p) => [...p, ""])} className="flex items-center gap-1 text-xs font-bold text-[#FFB444] hover:underline">
+              <button onClick={() => setOptions((p) => [...p, ""])} className="flex items-center gap-1 text-xs font-bold text-[#ffb547] hover:underline">
                 <Plus size={13} />{tr("أضيفوا خيارًا")}</button>
             )}
           </div>
@@ -115,7 +115,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               <div className="flex items-start justify-between gap-2">
                 <p className="font-bold">{d.question}</p>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#FFB444]/40 bg-[#FFB444]/10 px-2.5 py-1 text-[12px] font-bold text-[#FFB444]">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#ffb547]/40 bg-[#ffb547]/10 px-2.5 py-1 text-[12px] font-bold text-[#ffb547]">
                     <Clock size={12} />{tr("بانتظار القرار")}</span>
                   {canWrite && <ThreeDotsMenu items={[{ label: tr("إلغاء الطلب"), confirmLabel: tr("تأكيد الإلغاء؟"), icon: Trash2, tone: "danger", onClick: () => onCancel(d.id) }]} />}
                 </div>
@@ -127,7 +127,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               </ul>
               <div className="flex flex-wrap items-center gap-2 text-xs text-[#B8ADA2]">
                 {d.neededBy && <span>{trx("مطلوب قبل {0} ({1})", formatDateShort(d.neededBy), relativeDayLabel(d.neededBy))}</span>}
-                {overdue(d) && <span className="rounded-full bg-[#FFB444]/15 px-2 py-0.5 font-bold text-[#FFB444]">{tr("تجاوز المدة المتوقعة، ذكّروا بلطف")}</span>}
+                {overdue(d) && <span className="rounded-full bg-[#ffb547]/15 px-2 py-0.5 font-bold text-[#ffb547]">{tr("تجاوز المدة المتوقعة، ذكّروا بلطف")}</span>}
                 <span className="flex-1" />
                 {supervisorUrl && (
                   <a href={whatsappUrl(decisionRequestMessage(d.question, supervisorUrl))} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 font-bold text-[#B8ADA2] hover:border-[#FF8A24]/50 hover:text-[#F4F0EC]">
@@ -145,7 +145,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               </div>
               <ul className="flex flex-wrap gap-2">
                 {d.options.map((o, i) => (
-                  <li key={o} className={clsx("rounded-full px-3.5 py-1 text-xs font-semibold", i === d.chosenIndex ? "bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : "border border-white/10 text-[#B8ADA2]/60 line-through")}>{o}</li>
+                  <li key={o} className={clsx("rounded-full px-3.5 py-1 text-xs font-semibold", i === d.chosenIndex ? "bg-gradient-to-l from-[#ffb547] to-[#ff6a00] text-[#1A0F00]" : "border border-white/10 text-[#B8ADA2]/60 line-through")}>{o}</li>
                 ))}
               </ul>
               {d.answerNote && <p className="text-sm text-[#E6DBD1]">«{d.answerNote}»</p>}

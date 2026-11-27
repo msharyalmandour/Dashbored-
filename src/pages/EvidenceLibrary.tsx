@@ -147,7 +147,7 @@ export default function EvidenceLibrary() {
   const segBtn = (on: boolean) =>
     clsx(
       "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
-      on ? "bg-[#FF6B00]/20 text-[#FFB444]" : "text-[#B8ADA2] hover:text-[#F4F0EC]",
+      on ? "bg-[#ff6a00]/20 text-[#ffb547]" : "text-[#B8ADA2] hover:text-[#F4F0EC]",
     );
 
   const inTable = (p: EvidencePaper) => !!(p.aim?.trim() && p.keyFinding?.trim());
@@ -166,7 +166,7 @@ export default function EvidenceLibrary() {
         </>
       ) : (
         <div className="sd-card flex flex-wrap items-center justify-between gap-3">
-          <p className="m-0 text-[15px] font-bold text-[#F2EBE3]">{tr("ارموا الدراسة هنا")}</p>
+          <p className="m-0 text-[15px] font-bold text-[#f4f0ec]">{tr("ارموا الدراسة هنا")}</p>
           <button type="button" className="sdz-glass" onClick={() => setImportOpen(true)}>
             {tr("استيراد Zotero")}
           </button>
@@ -202,7 +202,7 @@ export default function EvidenceLibrary() {
       {showForm && (
         <div className={clsx(glassCard, "p-5")}>
           {form.link && (
-            <p className="mb-3 truncate text-[13px] font-semibold text-[#ABA095]" dir="ltr">
+            <p className="mb-3 truncate text-[13px] font-semibold text-[#b8ada2]" dir="ltr">
               🔗 {form.link}
             </p>
           )}
@@ -392,7 +392,7 @@ export default function EvidenceLibrary() {
               <div className="flex items-center gap-2">
                 <span className="lb-axis">{(() => { const f = sectionFilters.find((x) => x.id === paper.section); return f?.short ?? f?.label ?? themeLabelAr[paper.theme] ?? tr("أخرى"); })()}</span>
                 <span className="flex-1" />
-                <span className="text-[13px] font-bold text-[#ABA095]" dir="ltr">
+                <span className="text-[13px] font-bold text-[#b8ada2]" dir="ltr">
                   {paper.year}
                 </span>
                 <ThreeDotsMenu items={menu} />

@@ -88,7 +88,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <Hourglass className="sd-ext-obj" />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("طلب تمديد · {0}", team)}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#ffb547" }}>{tr("طلب تمديد · {0}", team)}</div>
           <div className="sd-ttl" style={{ fontSize: 24, lineHeight: 1.3 }}>
             {ext.taskTitle}
           </div>
@@ -113,7 +113,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
         <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
           {mode === "counter" && (
             <label className="sd-field">
-              <span style={{ fontSize: 13, color: "#ABA095" }}>{tr("الموعد الجديد")}</span>
+              <span style={{ fontSize: 13, color: "#b8ada2" }}>{tr("الموعد الجديد")}</span>
               <input type="date" value={date} min={ext.currentDue ?? undefined} onChange={(e) => setDate(e.target.value)} />
             </label>
           )}
@@ -187,14 +187,14 @@ export function TimeLog({ log, title = tr("السجل"), limit = 8, showTeam }: 
   return (
     <section className="sd-glass" style={{ borderRadius: 26 }}>
       <b style={{ fontSize: 17 }}>{title}</b>
-      {log.length === 0 && <p style={{ margin: "8px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("ما فيه حركة على المواعيد بعد. كل طلب ورد ينحفظ هنا ويشوفه الطرفين.")}</p>}
+      {log.length === 0 && <p style={{ margin: "8px 0 0", fontSize: 13, color: "#b8ada2" }}>{tr("ما فيه حركة على المواعيد بعد. كل طلب ورد ينحفظ هنا ويشوفه الطرفين.")}</p>}
       <div style={{ marginTop: 6 }}>
         {log.slice(0, limit).map((l) => (
           <div key={l.id} className="sd-log">
-            <i style={{ background: LOG_DOT[l.action] ?? "#ABA095" }} />
+            <i style={{ background: LOG_DOT[l.action] ?? "#b8ada2" }} />
             <div style={{ flex: 1, lineHeight: 1.5 }}>
-              <div style={{ fontSize: 14, color: "#EAE3DC" }}>{logText(l)}</div>
-              <div style={{ fontSize: 12, color: "#ABA095" }}>
+              <div style={{ fontSize: 14, color: "#f4f0ec" }}>{logText(l)}</div>
+              <div style={{ fontSize: 12, color: "#b8ada2" }}>
                 {[showTeam ? l.team : "", l.actorName, relTime(l.at)]
                   .filter(Boolean)
                   .map((x, k) => (
@@ -245,13 +245,13 @@ export function DeadlinesSheet({ token, team, dash, name, onClose, onSaved }: { 
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <Hourglass px={72} />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{team}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#ffb547" }}>{team}</div>
           <div id={hid} className="sd-ttl" style={{ fontSize: 24 }}>
             {tr("المواعيد بيدكم")}
           </div>
         </div>
       </div>
-      <p style={{ margin: "8px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("أي تغيير يوصل الفريق برسالة وينحفظ بالسجل.")}</p>
+      <p style={{ margin: "8px 0 0", fontSize: 13, color: "#b8ada2" }}>{tr("أي تغيير يوصل الفريق برسالة وينحفظ بالسجل.")}</p>
 
       <div className="sup-sec" style={{ marginTop: 14 }}>
         {tr("التسليم النهائي للبحث")}
@@ -268,12 +268,12 @@ export function DeadlinesSheet({ token, team, dash, name, onClose, onSaved }: { 
       <div className="sup-sec" style={{ marginTop: 16 }}>
         {tr("مواعيد المهام المفتوحة ({0})", open.length)}
       </div>
-      {open.length === 0 && <p style={{ margin: 0, fontSize: 13, color: "#ABA095" }}>{tr("ما فيه مهام مفتوحة.")}</p>}
+      {open.length === 0 && <p style={{ margin: 0, fontSize: 13, color: "#b8ada2" }}>{tr("ما فيه مهام مفتوحة.")}</p>}
       {open.map((t) => (
         <div key={t.id} className="sup-row" style={{ alignItems: "center" }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 700 }}>{t.title}</div>
-            <div style={{ fontSize: 12, color: t.dueDate && t.dueDate < dash.today ? "#FFB2A6" : "#ABA095" }}>{t.assigneeName ?? ""}</div>
+            <div style={{ fontSize: 12, color: t.dueDate && t.dueDate < dash.today ? "#FFB2A6" : "#b8ada2" }}>{t.assigneeName ?? ""}</div>
           </div>
           <label className="sd-field" style={{ flex: "none", width: 168, minHeight: 44 }}>
             <input
@@ -356,7 +356,7 @@ export function AwaySheet({
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <Hourglass px={84} />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("إجازة · مؤتمر · ضغط")}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#ffb547" }}>{tr("إجازة · مؤتمر · ضغط")}</div>
           <div className="sd-ttl" style={{ fontSize: 24 }}>
             {tr("مو متاح/ة لفترة؟")}
           </div>
@@ -364,11 +364,11 @@ export function AwaySheet({
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
         <label className="sd-box">
-          <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("من")}</div>
+          <div style={{ fontSize: 12, color: "#b8ada2" }}>{tr("من")}</div>
           <input type="date" value={from} min={today} onChange={(e) => setFrom(e.target.value)} />
         </label>
         <label className="sd-box">
-          <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("إلى")}</div>
+          <div style={{ fontSize: 12, color: "#b8ada2" }}>{tr("إلى")}</div>
           <input type="date" value={to} min={from || today} onChange={(e) => setTo(e.target.value)} />
         </label>
       </div>
@@ -382,21 +382,21 @@ export function AwaySheet({
       <div className="sd-tog">
         <span style={{ flex: 1, fontSize: 14 }}>
           {tr("انقلوا المواعيد لحالها")}
-          <div style={{ fontSize: 12, color: "#ABA095" }}>{meetings ? tr("{0} مواعيد بتتحرك لأقرب يوم متاح", meetings) : tr("ما فيه مواعيد بهالفترة")}</div>
+          <div style={{ fontSize: 12, color: "#b8ada2" }}>{meetings ? tr("{0} مواعيد بتتحرك لأقرب يوم متاح", meetings) : tr("ما فيه مواعيد بهالفترة")}</div>
         </span>
         <Switch on={move} onChange={setMove} label={tr("انقلوا المواعيد لحالها")} />
       </div>
       <div className="sd-tog">
         <span style={{ flex: 1, fontSize: 14 }}>
           {tr("أجّلوا الطلبات")}
-          <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("{0} طلبات تنتظر رجعتكم", pending)}</div>
+          <div style={{ fontSize: 12, color: "#b8ada2" }}>{tr("{0} طلبات تنتظر رجعتكم", pending)}</div>
         </span>
         <Switch on={defer} onChange={setDefer} label={tr("أجّلوا الطلبات")} />
       </div>
       <div className="sd-tog">
         <span style={{ flex: 1, fontSize: 14 }}>
           {tr("رسالة للطلاب")}
-          <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("«المشرف/ة مو متاح/ة لين {0}»", to ? formatDateShort(to) : "…")}</div>
+          <div style={{ fontSize: 12, color: "#b8ada2" }}>{tr("«المشرف/ة مو متاح/ة لين {0}»", to ? formatDateShort(to) : "…")}</div>
         </span>
         <Switch on={message} onChange={setMessage} label={tr("رسالة للطلاب")} />
       </div>
@@ -452,7 +452,7 @@ export function SvTimePanel({ token, name, openTarget, primary, onToast }: { tok
         <div className="sd-glass" style={{ display: "flex", alignItems: "center", gap: 12, borderRadius: 22 }}>
           <div style={{ flex: 1, lineHeight: 1.4 }}>
             <b style={{ fontSize: 15 }}>{dash.project?.deadline ? tr("التسليم النهائي {0}", dayLabel(dash.project.deadline)) : tr("ما فيه موعد تسليم نهائي")}</b>
-            <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("تقدرون تغيّرون موعد التسليم أو أي مهمة، ويوصلهم التغيير.")}</div>
+            <div style={{ fontSize: 12, color: "#b8ada2" }}>{tr("تقدرون تغيّرون موعد التسليم أو أي مهمة، ويوصلهم التغيير.")}</div>
           </div>
           <button type="button" className="sup-btn-cream" style={{ flex: "none", padding: "0 18px" }} onClick={() => setSheet(true)}>
             {tr("المواعيد النهائية")}

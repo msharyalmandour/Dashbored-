@@ -30,7 +30,7 @@ export default function SupervisorEmailAction() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#080808] px-6 text-center text-[#F2EBE3]">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#080808] px-6 text-center text-[#f4f0ec]">
       <div className="flex items-center gap-2.5">
         <Logo size={28} />
         <span className="text-base font-extrabold">Wesync</span>

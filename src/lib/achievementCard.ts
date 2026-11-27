@@ -144,7 +144,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.fillText(tr("إنجاز جديد"), W / 2, 930);
 
   // العنوان (سطرين بالكثير)
-  ctx.fillStyle = "#F2EBE3";
+  ctx.fillStyle = "#f4f0ec";
   ctx.font = "800 96px Tajawal, sans-serif";
   const lines = wrap(ctx, title, W - 180).slice(0, 2);
   lines.forEach((l, i) => ctx.fillText(l, W / 2, 1060 + i * 120));
@@ -168,7 +168,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
       ctx.roundRect(x, y, segW, 10, 5);
       ctx.fill();
     }
-    ctx.fillStyle = "#ABA095";
+    ctx.fillStyle = "#b8ada2";
     ctx.font = "500 40px Tajawal, sans-serif";
     ctx.fillText(tr("الخطوة {0} من {1}", step, 10), W / 2, y + 80);
   }
@@ -189,7 +189,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.lineWidth = 3;
   ctx.stroke();
   if (head) ctx.drawImage(head, right - 120, by - 60, 120, 120);
-  ctx.fillStyle = "#F2EBE3";
+  ctx.fillStyle = "#f4f0ec";
   ctx.textAlign = "right";
   ctx.fillText(label, right - 144, by + 14);
   ctx.textAlign = "center";

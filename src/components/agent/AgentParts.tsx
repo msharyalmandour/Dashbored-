@@ -46,7 +46,7 @@ export function NeedsList({ needs, onGo, busy }: { needs: NeedCard[]; onGo: (n: 
                   <Icon size={18} />
                 </span>
                 <div className="min-w-0 flex-1 leading-[1.5]">
-                  <b className="block text-[16px] text-[#F2EBE3]">{n.title}</b>
+                  <b className="block text-[16px] text-[#f4f0ec]">{n.title}</b>
                   <span className="ag-need-sub line-clamp-2 block text-[14px] text-[#E9D3B8]">{n.sub}</span>
                 </div>
               </div>
@@ -97,7 +97,7 @@ export function PlanCard({
   return (
     <section className="ag-plan ag-rise" aria-label={tr("الخطة")}>
       <div className="flex items-center gap-2">
-        <span className="text-[13px] font-extrabold text-[#FFB444]">{allTasks ? tr("الخطة · {0} مهام", rows.length) : tr("الخطة · {0} خطوات", rows.length)}</span>
+        <span className="text-[13px] font-extrabold text-[#ffb547]">{allTasks ? tr("الخطة · {0} مهام", rows.length) : tr("الخطة · {0} خطوات", rows.length)}</span>
         <span className="flex-1" />
         <span className="ag-pill dim">{tr("ما انحفظ شي للحين")}</span>
       </div>
@@ -119,10 +119,10 @@ export function PlanCard({
                 <i aria-hidden />
               </button>
               <div className="min-w-0 flex-1 leading-[1.45]">
-                <b className="line-clamp-2 block text-[15px] text-[#F2EBE3]" dir="auto">
+                <b className="line-clamp-2 block text-[15px] text-[#f4f0ec]" dir="auto">
                   {r.title}
                 </b>
-                <span className="block text-[12px] text-[#ABA095]">{r.allowed ? r.sub : r.blockedWhy}</span>
+                <span className="block text-[12px] text-[#b8ada2]">{r.allowed ? r.sub : r.blockedWhy}</span>
                 {edit && r.allowed && (r.action.type === "add_task" || r.action.type === "add_event") && (
                   <span className="mt-2 flex flex-wrap gap-2">
                     {r.action.type === "add_task" && (
@@ -185,8 +185,8 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
           {undone ? <Undo2 size={18} /> : <Check size={20} strokeWidth={3} />}
         </span>
         <div className="min-w-0 flex-1 leading-[1.35]">
-          <b className="block text-[18px] text-[#F2EBE3]">{undone ? tr("تراجعنا عنها") : tr("سوّيتها")}</b>
-          <span className="text-[12px] text-[#ABA095]">{tr("{0} · بموافقة {1}", agoLabel(r.createdAt), r.approvedByName)}</span>
+          <b className="block text-[18px] text-[#f4f0ec]">{undone ? tr("تراجعنا عنها") : tr("سوّيتها")}</b>
+          <span className="text-[12px] text-[#b8ada2]">{tr("{0} · بموافقة {1}", agoLabel(r.createdAt), r.approvedByName)}</span>
         </div>
         {canUndo(r) && (
           <button type="button" className="ag-btn glass" disabled={undoing} onClick={onUndo} title={tr("تقدرون تتراجعون خلال 24 ساعة")}>
@@ -202,7 +202,7 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
             <span className="ag-tick" aria-hidden>
               <Check size={12} strokeWidth={3} />
             </span>
-            <span className={clsx("min-w-0 flex-1 truncate text-[14px] font-bold text-[#F2EBE3]", undone && "line-through opacity-60")} dir="auto">
+            <span className={clsx("min-w-0 flex-1 truncate text-[14px] font-bold text-[#f4f0ec]", undone && "line-through opacity-60")} dir="auto">
               {l.label}
             </span>
             {!undone && (
@@ -223,7 +223,7 @@ export function NextList({ items, onPick }: { items: string[]; onPick: (s: strin
   if (!items.length) return null;
   return (
     <div className="ag-rise">
-      <div className="mb-2 text-[12px] font-extrabold text-[#FFB444]">{tr("اللي بعده؟")}</div>
+      <div className="mb-2 text-[12px] font-extrabold text-[#ffb547]">{tr("اللي بعده؟")}</div>
       <div className="flex flex-col gap-2">
         {items.map((s) => (
           <button key={s} type="button" className="ag-next" onClick={() => onPick(s)}>
@@ -334,7 +334,7 @@ export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; o
       </span>
       <p className="ag-transcript" aria-live="polite" dir="auto">
         {err ? (
-          <span className="text-[16px] font-medium text-[#F2EBE3]">{err}</span>
+          <span className="text-[16px] font-medium text-[#f4f0ec]">{err}</span>
         ) : !hasText ? (
           <span>{serverOnly ? tr("تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.") : tr("تكلّموا… مثل «وزّع مهام الأسبوع على الفريق»")}</span>
         ) : (

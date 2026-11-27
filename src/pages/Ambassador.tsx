@@ -51,7 +51,7 @@ export default function Ambassador() {
     <div className="v3 relative">
       <V3Glow />
       <LuxHead kicker={tr("سفراء Wesync")} title={tr("كودكم")} sub={tr("كل فريق يبدأ فعليًا من كودكم = شهر مجاني لكم وله")} />
-      {state === "soon" && <p className="lx-card text-[14px] text-[#ABA095]">{tr("برنامج السفراء ينفتح قريب.")}</p>}
+      {state === "soon" && <p className="lx-card text-[14px] text-[#b8ada2]">{tr("برنامج السفراء ينفتح قريب.")}</p>}
       {state === "ok" && code && (
         <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
           <section className="am-code lx-in" aria-labelledby="am-h">
@@ -94,7 +94,7 @@ export default function Ambassador() {
                 <b dir="ltr">{stats?.activated ?? 0}</b>
                 <span>{tr("أشهر مجانية ربحتوها")}</span>
               </div>
-              <p className="col-span-2 m-0 text-[12px] text-[#ABA095]">{tr("الشهر ينحسب لما الفريق الجديد يفتح أول باب، مو بس يسجّل.")}</p>
+              <p className="col-span-2 m-0 text-[12px] text-[#b8ada2]">{tr("الشهر ينحسب لما الفريق الجديد يفتح أول باب، مو بس يسجّل.")}</p>
             </section>
             <section className="lx-card lx-in" aria-labelledby="am-col-h">
               <div className="flex items-center gap-2">
@@ -103,7 +103,7 @@ export default function Ambassador() {
                   {tr("ترتيب الكليات هالشهر")}
                 </b>
               </div>
-              {(stats?.colleges ?? []).length === 0 && <p className="m-0 mt-2 text-[13px] text-[#ABA095]">{tr("أول فريق يسجّل يحط كليته فوق.")}</p>}
+              {(stats?.colleges ?? []).length === 0 && <p className="m-0 mt-2 text-[13px] text-[#b8ada2]">{tr("أول فريق يسجّل يحط كليته فوق.")}</p>}
               <ol className="m-0 mt-2 list-none p-0">
                 {(stats?.colleges ?? []).map((c, i) => (
                   <li key={c.college} className="flex min-h-[44px] items-center gap-3 border-t border-white/[0.07] first:border-0">
@@ -113,7 +113,7 @@ export default function Ambassador() {
                     <span className="flex-1 text-[14px] font-bold" dir="auto">
                       {c.college}
                     </span>
-                    <span className="text-[13px] text-[#ABA095]">{tr("{0} فرق", c.teams)}</span>
+                    <span className="text-[13px] text-[#b8ada2]">{tr("{0} فرق", c.teams)}</span>
                   </li>
                 ))}
               </ol>

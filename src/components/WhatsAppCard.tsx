@@ -133,7 +133,7 @@ export default function WhatsAppCard() {
             <label className="wsa-s flex items-center gap-2">
               {tr("وقت رسالة الصباح")}
               <select
-                className="min-h-11 rounded-xl border border-white/15 bg-white/5 px-3 text-[14px] text-[#F6F1EC]"
+                className="min-h-11 rounded-xl border border-white/15 bg-white/5 px-3 text-[14px] text-[#f4f0ec]"
                 value={row.morning_hour}
                 disabled={busy}
                 onChange={(e) => void setPrefs(null, Number(e.target.value))}

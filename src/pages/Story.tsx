@@ -33,7 +33,7 @@ export default function Story() {
     label: string;
     value: string;
     sub: string;
-    tone: "teal" | "cream" | "sky" | "amber" | "violet";
+    tone: "teal" | "cream" | "sky" | "amber";
   }[] = [
     {
       icon: CalendarHeart,
@@ -67,7 +67,7 @@ export default function Story() {
 
   return (
     <div className="space-y-6">
-      <Card tone="violet" className="relative overflow-hidden">
+      <Card tone="amber" className="relative overflow-hidden">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-[var(--color-overlay-soft)]" />
         <div className="relative flex items-center gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-sm shadow-brand-500/30">

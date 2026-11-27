@@ -123,12 +123,12 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
                   <span className="block text-[#B8ADA2]">
                     {e.authors} ({e.year ?? "—"}) {e.journal && `· ${e.journal}`}
                   </span>
-                  {e.dup && <span className="text-[#FFB444]">{tr("موجودة بالمكتبة")}</span>}
+                  {e.dup && <span className="text-[#ffb547]">{tr("موجودة بالمكتبة")}</span>}
                 </span>
               </li>
             ))}
           </ul>
-          <button type="button" onClick={addSelected} disabled={!canWrite || !found.some((x) => x.on)} className="rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00] disabled:opacity-50">
+          <button type="button" onClick={addSelected} disabled={!canWrite || !found.some((x) => x.on)} className="rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00] disabled:opacity-50">
             {tr("أضيفوا المحدد ({0})", found.filter((x) => x.on).length)}
           </button>
         </div>
@@ -137,12 +137,12 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
       {check && (
         <div className="space-y-2 rounded-2xl border border-white/[0.12] p-3 text-xs">
           <p className="flex items-center gap-1.5 font-bold text-[#F4F0EC]">
-            {check.missing.length === 0 ? <Check size={14} className="text-[#FFC777]" /> : <AlertTriangle size={14} className="text-[#FFB444]" />}
+            {check.missing.length === 0 ? <Check size={14} className="text-[#FFC777]" /> : <AlertTriangle size={14} className="text-[#ffb547]" />}
             {tr("{0} استشهاد مطابق لمكتبتكم", check.matched)}
           </p>
           {check.missing.length > 0 && (
             <div>
-              <p className="font-semibold text-[#FFB444]">{tr("مذكورة بالنص وما لها مرجع بالمكتبة:")}</p>
+              <p className="font-semibold text-[#ffb547]">{tr("مذكورة بالنص وما لها مرجع بالمكتبة:")}</p>
               <p dir="ltr" className="text-start text-[#E6DBD1]">{check.missing.map((c) => c.raw).join(" · ")}</p>
             </div>
           )}

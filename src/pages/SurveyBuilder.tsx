@@ -534,7 +534,7 @@ export default function SurveyBuilder() {
                 <button
                   disabled={!edit || !canOpen}
                   onClick={() => update(s.id, { status: "open" })}
-                  className="rounded-2xl bg-[#F2EBE3] px-5 py-2.5 text-sm font-extrabold text-[#160904] hover:bg-white disabled:opacity-40"
+                  className="rounded-2xl bg-[#f4f0ec] px-5 py-2.5 text-sm font-extrabold text-[#160904] hover:bg-white disabled:opacity-40"
                 >{tr("افتحوه للمشاركين")}</button>
               ) : (
                 <button disabled={!edit} onClick={() => update(s.id, { status: "closed" })} className="rounded-2xl bg-rose-600 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-rose-700 disabled:opacity-40">{tr("أغلقوا الاستبيان")}</button>
@@ -559,7 +559,7 @@ export default function SurveyBuilder() {
                     href={`https://wa.me/?text=${encodeURIComponent(tr("تفضلوا بالمشاركة بهذا الاستبيان (مجهول):\n{0}", link))}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
                   >
                     <MessageCircle size={13} />{tr("واتساب")}</a>
                 </div>

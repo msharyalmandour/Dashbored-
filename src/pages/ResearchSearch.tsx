@@ -92,11 +92,11 @@ function HowItWorks() {
         <X size={15} />
       </button>
       <p className="mb-3 flex items-center gap-2 text-sm font-extrabold">
-        <Lightbulb size={16} className="text-[#FFB444]" />{tr("أول مرة؟ كذا تستخدمونه بثلاث خطوات")}</p>
+        <Lightbulb size={16} className="text-[#ffb547]" />{tr("أول مرة؟ كذا تستخدمونه بثلاث خطوات")}</p>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {steps.map(([n, title, desc]) => (
           <div key={n} className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#FF8A24] text-xs font-extrabold text-[#FFB444]">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#FF8A24] text-xs font-extrabold text-[#ffb547]">
               {n}
             </span>
             <div>
@@ -123,7 +123,7 @@ function SearchProgress() {
     <div className="mt-4 rounded-2xl bg-white/[0.05] p-4 text-start" role="status" aria-live="polite">
       <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
-          className="h-full rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] transition-all duration-1000"
+          className="h-full rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] transition-all duration-1000"
           style={{ width: `${Math.min(92, 12 + sec * 4.5)}%` }}
         />
       </div>
@@ -132,7 +132,7 @@ function SearchProgress() {
           <li
             key={s}
             className={`flex items-center gap-2 text-xs font-semibold ${
-              i < stage ? "text-[#FFB444]" : i === stage ? "text-[#F4F0EC]" : "text-[#F4F0EC]/30"
+              i < stage ? "text-[#ffb547]" : i === stage ? "text-[#F4F0EC]" : "text-[#F4F0EC]/30"
             }`}
           >
             {i < stage ? <Check size={13} /> : i === stage ? <WSpin size={13} /> : <span className="w-[13px]" />}
@@ -202,7 +202,7 @@ function ResultCard({
           </SourceBadge>
           <span
             title={peer ? tr("منشورة بمجلة علمية محكّمة") : tr("مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه")}
-            className={`text-[12px] font-semibold ${peer ? "text-[#FFC777]" : "text-[#FFB444]"}`}
+            className={`text-[12px] font-semibold ${peer ? "text-[#FFC777]" : "text-[#ffb547]"}`}
           >
             {peer ? tr("✓ دراسة محكّمة") : result.sourceType === "general" ? tr("مصدر عام — تأكدوا منه") : tr("مصدر غير مصنّف")}
           </span>
@@ -212,7 +212,7 @@ function ResultCard({
         <span className="text-sm text-[#B8ADA2]">{result.year ?? ""}</span>
       </div>
 
-      <a href={result.url} target="_blank" rel="noreferrer" dir="auto" className="block text-[17px] font-bold leading-snug hover:text-[#FFB444]">
+      <a href={result.url} target="_blank" rel="noreferrer" dir="auto" className="block text-[17px] font-bold leading-snug hover:text-[#ffb547]">
         <span className="me-2 text-sm font-semibold text-[#B8ADA2]">{index + 1}.</span>
         {result.title}
       </a>
@@ -232,7 +232,7 @@ function ResultCard({
         <button
           onClick={handleAdd}
           disabled={adding || added}
-          className="flex items-center gap-1.5 font-bold text-[#FFB444] hover:text-[#FFC85A] disabled:opacity-70"
+          className="flex items-center gap-1.5 font-bold text-[#ffb547] hover:text-[#FFC85A] disabled:opacity-70"
         >
           {adding ? <WSpin size={14} /> : added ? <Check size={14} /> : <Library size={14} />}
           {added ? tr("انضافت للمكتبة") : tr("+ أضف للمكتبة")}
@@ -274,7 +274,7 @@ function ResultCard({
               target="_blank"
               rel="noreferrer"
               title={tr("تشوفون كم مرة اقتُبست هالدراسة")}
-              className="flex items-center gap-1.5 text-[#FFB444] hover:underline"
+              className="flex items-center gap-1.5 text-[#ffb547] hover:underline"
             >
               <GraduationCap size={13} />
               {typeof result.citedBy === "number" && result.citedBy > 0 ? tr("مقتبسة {0} مرة · افتحوها بـ Google Scholar", result.citedBy) : tr("شوفوا عدد الاقتباسات بـ Google Scholar")}
@@ -402,7 +402,7 @@ export default function ResearchSearch() {
                 : ([["pubmed", "PubMed"], ["openalex", "OpenAlex"], ["crossref", "Crossref"]] as const)
               ).map(([k, label]) => (
                 <span key={k} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 py-1 ps-3.5 pe-1.5 text-[#F4F0EC]">
-                  <Check size={13} className="text-[#FFB444]" />
+                  <Check size={13} className="text-[#ffb547]" />
                   {label}
                   <SourceLogo name={k} />
                 </span>
@@ -430,7 +430,7 @@ export default function ResearchSearch() {
                   <button
                     key={ex}
                     onClick={() => st.setTopic(ex)}
-                    className="rounded-full border border-white/[0.14] px-3.5 py-1 text-xs text-[#E6DBD1] transition hover:border-[#FF8A24]/60 hover:bg-[#FF6B00]/10"
+                    className="rounded-full border border-white/[0.14] px-3.5 py-1 text-xs text-[#E6DBD1] transition hover:border-[#FF8A24]/60 hover:bg-[#ff6a00]/10"
                   >
                     {ex}
                   </button>
@@ -446,7 +446,7 @@ export default function ResearchSearch() {
 
             {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
             {st.limitMessage && (
-              <p className="flex items-start gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-2.5 text-start text-sm font-medium text-[#FFB444]">
+              <p className="flex items-start gap-2 rounded-2xl bg-[#ff6a00]/10 px-4 py-2.5 text-start text-sm font-medium text-[#ffb547]">
                 <Wand2 size={15} className="mt-0.5 shrink-0" />
                 {st.limitMessage}
               </p>
@@ -474,8 +474,8 @@ export default function ResearchSearch() {
           </div>
 
           {st.activeResult.noveltyNote && (
-            <div className="flex items-start gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#FF6B00]/[0.06] p-4">
-              <Wand2 size={18} className="mt-0.5 shrink-0 text-[#FFB444]" />
+            <div className="flex items-start gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#ff6a00]/[0.06] p-4">
+              <Wand2 size={18} className="mt-0.5 shrink-0 text-[#ffb547]" />
               <div>
                 <p className="text-sm font-bold">{tr("وش يميّز بحثكم عن اللي انكتب؟")}</p>
                 <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">{st.activeResult.noveltyNote}</p>
@@ -508,7 +508,7 @@ export default function ResearchSearch() {
       <div className={aiOk && st.tab === "papers" ? "space-y-3" : "hidden"}>
         <div>
           <h3 className="flex items-center gap-2 font-kufi text-lg font-bold">
-            <BadgeCheck size={16} className="text-[#FFB444]" />{tr("عمليات البحث السابقة")}</h3>
+            <BadgeCheck size={16} className="text-[#ffb547]" />{tr("عمليات البحث السابقة")}</h3>
           <p className="text-xs text-[#B8ADA2]">{tr("اضغطوا على أي بحث لعرض نتائجه مرة ثانية — مجانًا وبدون ما يحسب من حدكم.")}</p>
         </div>
         {st.searchesLoading ? (

@@ -62,7 +62,7 @@ const sections: { icon: typeof LayoutDashboard; title: string; desc: string; ton
     icon: ListChecks,
     title: tr("مهامي"),
     desc: tr("مهام الكتابة البحثية الفعلية. تقدر تفلتر حسب الحالة، وقائدة الفريق فقط تقدر تسند مهام جديدة."),
-    tone: "violet",
+    tone: "amber",
   },
   {
     icon: Library,
@@ -98,7 +98,7 @@ const sections: { icon: typeof LayoutDashboard; title: string; desc: string; ton
     icon: CalendarDays,
     title: tr("التقويم"),
     desc: tr("تقويم شهري كامل لكل الاجتماعات ومواعيد التسليم النهائية."),
-    tone: "violet",
+    tone: "amber",
   },
 ];
 
@@ -189,7 +189,7 @@ export default function Guide() {
           )}
         </Card>
 
-        <Card tone="violet">
+        <Card tone="amber">
           <CardHeader title={tr("نصائح سريعة")} />
           <ul className="space-y-3 text-sm text-brand-950/70">
             <li className="flex gap-2">

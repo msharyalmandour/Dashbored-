@@ -48,7 +48,7 @@
 }
 .v3-bw:hover { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(255,106,0,.34); }
 /* FixList 06: زر ثانوي كريمي — البرتقالي لزر واحد بالصفحة */
-.v3-bc { border: 0; background: #F2EBE3; color: #160904; transition: background .2s; }
+.v3-bc { border: 0; background: #f4f0ec; color: #160904; transition: background .2s; }
 .v3-bc:hover { background: #fff; }
 .v3-bd { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: var(--ws-c-text); transition: border-color .2s, background .2s; }
 .v3-bd:hover { border-color: var(--ws-c-border-hover); background: rgba(255,255,255,.1); }
@@ -157,7 +157,7 @@ html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="t
 .ws-life { position: absolute; inset: 0; display: block; background: linear-gradient(90deg, var(--ws-c-accent), #FFC777); transform-origin: right center; animation: ws-life 5s linear both; }
 [dir="ltr"] .ws-life { transform-origin: left center; }
 /* دوّارة متدرجة (بس وقت «جاري الربط») */
-.ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #FFB444 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
+.ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #ffb547 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
 /* ✓ خضرا تنط مرة وحدة */
 .ws-ok { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; background: rgba(255,199,119,.16); color: var(--ws-c-done); box-shadow: 0 0 18px rgba(255,199,119,.3); animation: ws-pop .5s cubic-bezier(.3,1.6,.5,1) both; }
 /* مفتاح الإيميل: ينزلق بـ spring ويتوهج لما يشتغل */

@@ -18,8 +18,8 @@ type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
 
 const base = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed";
 const variants = {
-  primary: "bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] hover:brightness-110 disabled:opacity-60",
-  ghost: "border border-[#FF6B00]/40 text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-60",
+  primary: "bg-gradient-to-l from-[#ffb547] to-[#ff6a00] text-[#1A0F00] shadow-[0_8px_28px_-8px_#ff6a00] hover:brightness-110 disabled:opacity-60",
+  ghost: "border border-[#ff6a00]/40 text-[#ffb547] hover:bg-[#ff6a00]/10 disabled:opacity-60",
 };
 
 /** زر بحالات: عادي ← تحميل (دائرة صغيرة + نص) ← «✓ انحفظ» أخضر ثانيتين ← أو خطأ + «أعد المحاولة». */

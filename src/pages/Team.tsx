@@ -240,26 +240,26 @@ function SupervisorContactSection() {
               href={`https://wa.me/?text=${encodeURIComponent(reminderMessage)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <MessageCircle size={13} />{tr("إرسال واتساب")}</a>
             <button
               onClick={copyReminder}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {reminderCopied ? <Check size={13} /> : <Bell size={13} />}
               {reminderCopied ? tr("تم النسخ") : tr("نسخ رسالة تذكير")}
             </button>
             <button
               onClick={copy}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
             </button>
             <a
               href={`mailto:?subject=${encodeURIComponent(tr("رابط متابعة فريقنا البحثي على Wesync"))}&body=${encodeURIComponent(reminderMessage)}`}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
@@ -346,12 +346,12 @@ function ReferralCard() {
               href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <MessageCircle size={13} />{tr("واتساب")}</a>
             <button
               onClick={copy}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#f4f0ec] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? tr("تم النسخ") : tr("نسخ الرابط")}

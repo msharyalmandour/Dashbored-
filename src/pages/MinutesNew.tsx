@@ -156,7 +156,7 @@ export default function MinutesNew() {
                 <span
                   className={clsx(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
-                    on ? "border-transparent bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : done ? "border-[#FFC777]/60 bg-[#FFC777]/15 text-[#FFC777]" : "border-white/20 text-[#B8ADA2]",
+                    on ? "border-transparent bg-gradient-to-l from-[#ffb547] to-[#ff6a00] text-[#1A0F00]" : done ? "border-[#FFC777]/60 bg-[#FFC777]/15 text-[#FFC777]" : "border-white/20 text-[#B8ADA2]",
                   )}
                 >
                   {done ? <Check size={15} strokeWidth={3} /> : n}
@@ -183,7 +183,7 @@ export default function MinutesNew() {
                     onClick={() => setMeetingDate(p.value)}
                     className={clsx(
                       "rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors",
-                      meetingDate === p.value ? "border-[#FF8A24]/70 bg-[#FF6B00]/15 text-[#FFB444]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
+                      meetingDate === p.value ? "border-[#FF8A24]/70 bg-[#ff6a00]/15 text-[#ffb547]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
                     )}
                   >
                     {p.label}
@@ -212,10 +212,10 @@ export default function MinutesNew() {
                       onClick={() => setAttendeeIds((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id]))}
                       className={clsx(
                         "flex items-center gap-2 rounded-full border py-1.5 ps-1.5 pe-4 text-sm transition-colors",
-                        on ? "border-[#FF8A24]/70 bg-[#FF6B00]/15 text-[#FFB444]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
+                        on ? "border-[#FF8A24]/70 bg-[#ff6a00]/15 text-[#ffb547]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
                       )}
                     >
-                      <span className={clsx("flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold", on ? "border-[#FFB444]" : "border-white/25")}>{m.name.trim().charAt(0)}</span>
+                      <span className={clsx("flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold", on ? "border-[#ffb547]" : "border-white/25")}>{m.name.trim().charAt(0)}</span>
                       {m.name.split(" ")[0]}
                     </button>
                   );
@@ -228,13 +228,13 @@ export default function MinutesNew() {
         {step === 2 && (
           <>
             {hint && (
-              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#FF6B00]/[0.06] p-3.5">
+              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#ff6a00]/[0.06] p-3.5">
                 <AgentOrb size={34} />
                 <p className="min-w-0 flex-1 text-sm">{tr("عندكم جدول أعمال جاهز، تبغون نعبّي النقاط منه؟")}</p>
                 <button
                   type="button"
                   onClick={() => setAgenda(readiness.agendaText)}
-                  className="rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-bold text-[#1A0F00]"
+                  className="rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-4 py-1.5 text-xs font-bold text-[#1A0F00]"
                 >{tr("نعم، عبّوها")}</button>
                 <button type="button" onClick={() => setDismissedHint(true)} className="text-xs text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("لا، شكراً")}</button>
               </div>
@@ -262,7 +262,7 @@ export default function MinutesNew() {
                 <p className="font-bold">{tr("البنود المطلوبة")}</p>
                 <p className="text-xs text-[#B8ADA2]">{tr("كل بند يتحول لمهمة بمسؤول وموعد، وتتابعون إنجازها.")}</p>
               </div>
-              <button type="button" onClick={addRow} className="flex shrink-0 items-center gap-1 rounded-full border border-[#FF8A24]/50 px-3.5 py-1.5 text-xs font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
+              <button type="button" onClick={addRow} className="flex shrink-0 items-center gap-1 rounded-full border border-[#FF8A24]/50 px-3.5 py-1.5 text-xs font-bold text-[#ffb547] hover:bg-[#ff6a00]/10">
                 <Plus size={13} />{tr("أضيفوا بند")}</button>
             </div>
             {rows.length === 0 ? (
@@ -288,7 +288,7 @@ export default function MinutesNew() {
               </ul>
             )}
             <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-white/[0.04] p-4 text-sm">
-              <input type="checkbox" checked={sendToSupervisor} onChange={(e) => setSendToSupervisor(e.target.checked)} className="mt-1 h-4 w-4 accent-[#FF6B00]" />
+              <input type="checkbox" checked={sendToSupervisor} onChange={(e) => setSendToSupervisor(e.target.checked)} className="mt-1 h-4 w-4 accent-[#ff6a00]" />
               <span>
                 <span className="block font-bold">{tr("أرسلوه للمشرف/ة للاعتماد")}</span>
                 <span className="mt-0.5 block text-xs leading-relaxed text-[#B8ADA2]">{tr("تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال 48 ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.")}</span>
@@ -314,7 +314,7 @@ export default function MinutesNew() {
               type="button"
               disabled={!canNext}
               onClick={() => setStep((s) => s + 1)}
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-7 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] transition hover:brightness-110 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-7 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#ff6a00] transition hover:brightness-110 disabled:opacity-50"
             >{tr("التالي")}</button>
           ) : (
             <LoadingButton loading={saving} error={failed} loadingText={tr("جاري الحفظ…")} onClick={submit} disabled={!discussion.trim() || !!dateProblem}>{tr("حفظ المحضر")}</LoadingButton>

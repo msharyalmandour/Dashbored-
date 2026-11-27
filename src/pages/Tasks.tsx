@@ -344,7 +344,7 @@ export default function Tasks() {
     if (!r) return null;
     const when = r.dueDate === today ? tr("تذكير اليوم") : r.dueDate === tomorrow ? tr("تذكير بكرة") : tr("تذكير {0}", formatDateShort(r.dueDate));
     return (
-      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-xs text-[#FFB444]">
+      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-xs text-[#ffb547]">
         <Bell size={11} aria-hidden />
         {when}
       </span>
@@ -514,7 +514,7 @@ export default function Tasks() {
             )}
             {reminders.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                <Bell size={14} className="text-[#FFB444]" aria-hidden />
+                <Bell size={14} className="text-[#ffb547]" aria-hidden />
                 <span className="v3-mut">{tr("تذكيرات هالمهمة:")}</span>
                 {reminders.map((r) => (
                   <span key={r.id} className={clsx("v3-st", r.status === "done" || r.dueDate < today ? "todo" : "doing")}>
@@ -674,10 +674,10 @@ export default function Tasks() {
           <div className="relative h-[92px] w-[92px] flex-none">
             <div className="v3-ring h-[92px] w-[92px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0} من {1} خلصت", num(doneCount), num(visible.length))} />
             <div className="absolute inset-0 flex flex-col items-center justify-center leading-[1.1]" aria-hidden>
-              <b className="text-[23px] font-extrabold text-[#EAE3DC]" dir="ltr">
+              <b className="text-[23px] font-extrabold text-[#f4f0ec]" dir="ltr">
                 {num(doneCount)}/{num(visible.length)}
               </b>
-              <span className="mt-1 text-[12px] text-[#ABA095]">{tr("خلصت")}</span>
+              <span className="mt-1 text-[12px] text-[#b8ada2]">{tr("خلصت")}</span>
             </div>
           </div>
           <div className="leading-[1.4]">
@@ -695,14 +695,14 @@ export default function Tasks() {
           <small>{tr("الدكتورة تشوفها «بدون دليل»")}</small>
         </div>
         <div className="lx-stat">
-          <b dir="ltr" className={lateCount ? "text-[#FF8A7A]" : "text-[#EAE3DC]"}>
+          <b dir="ltr" className={lateCount ? "text-[#FF8A7A]" : "text-[#f4f0ec]"}>
             {num(lateCount)}
           </b>
           <div>{tr("متأخرة")}</div>
           <small>{lateCount ? (tomorrowCount ? tr("و{0} بكرة", num(tomorrowCount)) : tr("خلّصوها أول")) : tr("ممتاز، كملوا كذا")}</small>
         </div>
         <div className="lx-stat">
-          <b dir="ltr" className={project?.targetSubmissionDate ? "text-[#EAE3DC]" : "text-[#ABA095]"}>
+          <b dir="ltr" className={project?.targetSubmissionDate ? "text-[#f4f0ec]" : "text-[#b8ada2]"}>
             {project?.targetSubmissionDate ? num(Math.max(0, daysUntil(project.targetSubmissionDate))) : "—"}
           </b>
           <div>{tr("موعد التسليم")}</div>
@@ -805,8 +805,8 @@ export default function Tasks() {
                         width: `${mine.length === 0 ? 0 : Math.max(8, (mine.length / maxLoad) * 100)}%`,
                         background:
                           imbalanced && member.id === most.member.id
-                            ? "linear-gradient(90deg,#FF6B00,#FF8A7A)"
-                            : "linear-gradient(90deg,#FF6B00,#FFD25A)",
+                            ? "linear-gradient(90deg,#ff6a00,#FF8A7A)"
+                            : "linear-gradient(90deg,#ff6a00,#FFD25A)",
                       }}
                     />
                   </div>
@@ -844,7 +844,7 @@ export default function Tasks() {
             <p className="m-0 text-[15px] leading-relaxed" dir="auto">
               {tr("مهمة «{0}» تطلب {1}، والموجود فعلًا {2}.", strict.task.title, num(strict.proof.need), strict.proof.label)}
             </p>
-            <p className="m-0 text-[13px] text-[#ABA095]">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
+            <p className="m-0 text-[13px] text-[#b8ada2]">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
             <div className="flex flex-wrap gap-2 pt-1">
               <button
                 type="button"

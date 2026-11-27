@@ -218,7 +218,7 @@ export default function Login() {
 
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
         <main className="flex w-full flex-1 flex-col items-center justify-center py-6">
-            <div className="w-full max-w-[500px] animate-[panel-in_0.5s_ease-out] rounded-[40px] border border-[rgba(255,220,180,.25)] bg-[rgba(20,8,4,.55)] p-7 text-[#F6F1EC] shadow-[0_60px_140px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,240,220,.25)] backdrop-blur-[30px] backdrop-saturate-150 sm:p-10">
+            <div className="w-full max-w-[500px] animate-[panel-in_0.5s_ease-out] rounded-[40px] border border-[rgba(255,220,180,.25)] bg-[rgba(20,8,4,.55)] p-7 text-[#f4f0ec] shadow-[0_60px_140px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,240,220,.25)] backdrop-blur-[30px] backdrop-saturate-150 sm:p-10">
               <div className="mb-7 space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <Link to="/" aria-label={tr("Wesync — الصفحة الرئيسية")} className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
@@ -236,10 +236,10 @@ export default function Login() {
                       className="text-sm text-[#B8ADA2]"
                     >
                       {isSignUp ? (
-                        <>{tr("عندك حساب؟ ")}<span className="text-[#FFB444]">{tr("ادخل")}</span>
+                        <>{tr("عندك حساب؟ ")}<span className="text-[#ffb547]">{tr("ادخل")}</span>
                         </>
                       ) : (
-                        <>{tr("ما عندك حساب؟ ")}<span className="text-[#FFB444]">{tr("أنشئ واحد")}</span>
+                        <>{tr("ما عندك حساب؟ ")}<span className="text-[#ffb547]">{tr("أنشئ واحد")}</span>
                         </>
                       )}
                     </button>
@@ -451,7 +451,7 @@ export default function Login() {
                         type="button"
                         onClick={() => setShowManualTeamCode(true)}
                         className="block w-full text-center text-sm text-[#B8ADA2]"
-                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-[#FFB444]">{tr("ادخله هنا")}</span>
+                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-[#ffb547]">{tr("ادخله هنا")}</span>
                       </button>
                     )}
                   </form>

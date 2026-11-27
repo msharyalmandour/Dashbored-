@@ -451,7 +451,7 @@ export default function Proposal() {
                 <AlertCircle size={22} color="#FF8A7A" className="shrink-0" />
                 <div className="min-w-[200px] flex-1">
                   <div className="font-bold">{tr("الهدف لازم يطلع من الفجوة")}</div>
-                  <div className="text-sm text-[#ABA095]">{tr("الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة. صيغوا الفجوة بشكل نهائي أول، وبعدها اكتبوا الهدف منها.")}</div>
+                  <div className="text-sm text-[#b8ada2]">{tr("الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة. صيغوا الفجوة بشكل نهائي أول، وبعدها اكتبوا الهدف منها.")}</div>
                 </div>
                 {active?.key !== "gap" && (
                   <button type="button" className="wf-gb" onClick={() => setActiveKey("gap")}>
@@ -468,8 +468,8 @@ export default function Proposal() {
                   <h3 id="abs-title" className="m-0 text-[18px] font-extrabold">
                     {tr("الملخص")}
                   </h3>
-                  {!isEn && <span className="text-xs text-[#ABA095]" dir="ltr">Abstract</span>}
-                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#FFC777" : "#ABA095" }}>
+                  {!isEn && <span className="text-xs text-[#b8ada2]" dir="ltr">Abstract</span>}
+                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#FFC777" : "#b8ada2" }}>
                     {abstractWords > 0 && (
                       <>
                         <span className="wf-num">{abstractWords}</span> /{" "}
@@ -478,7 +478,7 @@ export default function Proposal() {
                     <span className="wf-num">150–250</span> {tr("كلمة")}
                   </span>
                 </div>
-                <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("نكتبه آخر شي، بعد ما تخلص الأقسام.")}</div>
+                <div className="mt-0.5 text-[13px] text-[#b8ada2]">{tr("نكتبه آخر شي، بعد ما تخلص الأقسام.")}</div>
                 <AutoSaveTextarea
                   label={tr("الملخص")}
                   value={project?.abstract ?? ""}

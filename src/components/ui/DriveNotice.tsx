@@ -35,7 +35,7 @@ export default function DriveNotice() {
           {/* مسار الطيران: الملف يمين ← درايف يسار (اتجاه ثابت بغض النظر عن RTL) */}
           <div dir="ltr" className="relative flex h-12 w-28 shrink-0 items-center justify-between">
             <span
-              className={`drive-notice__file absolute left-0 flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#FFB444] ${n.phase === "done" ? "drive-notice__file--fly" : ""} ${flown ? "opacity-0" : ""}`}
+              className={`drive-notice__file absolute left-0 flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-[#ffb547] ${n.phase === "done" ? "drive-notice__file--fly" : ""} ${flown ? "opacity-0" : ""}`}
               style={failed ? { opacity: 1, transform: "none" } : undefined}
             >
               <FileText size={20} />
@@ -65,7 +65,7 @@ export default function DriveNotice() {
                 <p className="text-sm font-bold">{tr("انحفظ في درايف")}</p>
                 <p className="text-xs text-[#B8ADA2]">{tr("وصل للفريق وللمشرف")}</p>
                 {n.link && (
-                  <a href={n.link} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-[#FFB444] hover:underline">
+                  <a href={n.link} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-[#ffb547] hover:underline">
                     <ExternalLink size={12} />{tr("افتح الملف")}</a>
                 )}
               </>
@@ -79,7 +79,7 @@ export default function DriveNotice() {
         </div>
         {!failed && (
           <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/10" aria-hidden>
-            <div className={`h-full rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] ${n.phase === "uploading" ? "drive-notice__bar" : "w-full"}`} />
+            <div className={`h-full rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] ${n.phase === "uploading" ? "drive-notice__bar" : "w-full"}`} />
           </div>
         )}
       </div>

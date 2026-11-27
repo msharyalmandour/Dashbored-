@@ -24,7 +24,7 @@ interface AppointmentsTabProps {
 
 const STATUS: Record<MeetingBookingRow["status"], { label: string; cls: string; icon: typeof Clock }> = {
   confirmed: { label: tr("مؤكد"), cls: "border-[#FFC777]/40 bg-[#FFC777]/10 text-[#FFC777]", icon: CalendarCheck },
-  pending: { label: tr("بانتظار تأكيد المشرف/ة"), cls: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]", icon: Clock },
+  pending: { label: tr("بانتظار تأكيد المشرف/ة"), cls: "border-[#ffb547]/40 bg-[#ffb547]/10 text-[#ffb547]", icon: Clock },
   declined: { label: tr("اعتذرت، اقترحوا غيره"), cls: "border-rose-400/40 bg-rose-500/10 text-rose-300", icon: CalendarX },
   cancelled: { label: tr("ملغي"), cls: "border-white/15 bg-white/[0.04] text-[#B8ADA2]", icon: CalendarX },
 };
@@ -97,7 +97,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     }}
                     className={clsx(
                       "shrink-0 rounded-2xl border px-4 py-2 text-start transition-colors",
-                      d.date === activeDate ? "border-[#FF8A24]/70 bg-[#FF6B00]/15 text-[#FFB444]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
+                      d.date === activeDate ? "border-[#FF8A24]/70 bg-[#ff6a00]/15 text-[#ffb547]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
                     )}
                   >
                     <span className="block text-xs font-extrabold">{formatDateShort(d.date)}</span>
@@ -113,7 +113,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     aria-pressed={pickedTime === t}
                     className={clsx(
                       "rounded-2xl border py-3 text-sm font-bold tabular-nums transition-colors",
-                      pickedTime === t ? "border-transparent bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : "border-white/[0.14] text-[#E6DBD1] hover:border-[#FF8A24]/60",
+                      pickedTime === t ? "border-transparent bg-gradient-to-l from-[#ffb547] to-[#ff6a00] text-[#1A0F00]" : "border-white/[0.14] text-[#E6DBD1] hover:border-[#FF8A24]/60",
                     )}
                   >
                     {t}
@@ -152,7 +152,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
               <div className="flex flex-wrap gap-2">
                 <input type="date" min={today} value={manualDate} onChange={(e) => setManualDate(e.target.value)} aria-label={tr("تاريخ الاقتراح")} className={clsx(pillField, "!w-auto")} />
                 <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} aria-label={tr("وقت الاقتراح")} className={clsx(pillField, "!w-auto")} />
-                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <WSpin size={14} /> : <Send size={14} />)}</button>
+                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#ffb547] hover:bg-[#ff6a00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <WSpin size={14} /> : <Send size={14} />)}</button>
               </div>
               {error && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{error}</p>}
             </div>

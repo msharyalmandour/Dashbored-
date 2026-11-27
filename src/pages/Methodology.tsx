@@ -380,7 +380,7 @@ export default function Methodology() {
               <h3 id="m-link-title" className="m-0 text-[18px] font-extrabold">
                 {tr("مربوطة بباقي البحث")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
+              <div className="mt-0.5 text-[13px] text-[#b8ada2]">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
               <div className="mt-2.5">
                 <div className="wf-kv">
                   <span>{tr("الأجزاء الجاهزة")}</span>
@@ -421,7 +421,7 @@ export default function Methodology() {
                 )}
               </div>
               {notes.length === 0 ? (
-                <p className="m-0 mt-2 text-[14px] text-[#ABA095]">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
+                <p className="m-0 mt-2 text-[14px] text-[#b8ada2]">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
               ) : (
                 <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
                   {notes.slice(0, 2).map((n) => (

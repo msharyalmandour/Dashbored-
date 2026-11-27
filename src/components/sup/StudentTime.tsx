@@ -82,10 +82,10 @@ export function AwayStrip({ away, pending = 0, to = "/feedback" }: { away: DashA
     <section className="sd-strip sd-in" aria-label={tr("{0} مو متاح/ة", who)}>
       <Hourglass px={64} />
       <div style={{ flex: 1, lineHeight: 1.45, minWidth: 0 }}>
-        <b style={{ display: "block", fontSize: 15, color: "#EAE3DC" }}>{tr("{0} مو متاح/ة لين {1}", who, formatDateShort(away.to))}</b>
+        <b style={{ display: "block", fontSize: 15, color: "#f4f0ec" }}>{tr("{0} مو متاح/ة لين {1}", who, formatDateShort(away.to))}</b>
         {bits.length > 0 && <span style={{ fontSize: 12, color: "#E9D3B8" }}>{bits.join(" · ")}</span>}
       </div>
-      <Link to={to} style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#EAE3DC" }}>
+      <Link to={to} style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#f4f0ec" }}>
         {tr("التفاصيل")}
         <Chev size={14} aria-hidden />
       </Link>
@@ -152,14 +152,14 @@ export function ExtensionSheet({
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <Hourglass px={76} />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("طلب تمديد رسمي")}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#ffb547" }}>{tr("طلب تمديد رسمي")}</div>
           <div className="sd-ttl" style={{ fontSize: 24 }}>
             {tr("تحتاجون وقت أكثر؟")}
           </div>
         </div>
       </div>
       <div style={{ marginTop: 12, padding: 12, borderRadius: 16, background: "rgba(255,255,255,0.05)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}>
-        <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("المهمة")}</div>
+        <div style={{ fontSize: 12, color: "#b8ada2" }}>{tr("المهمة")}</div>
         <b style={{ fontSize: 15 }}>{task.title}</b>
         <div style={{ fontSize: 12, color: "#FFB2A6" }}>
           {task.dueDate ? tr("موعدها {0}", dayLabel(task.dueDate)) : tr("بدون موعد")}
@@ -171,7 +171,7 @@ export function ExtensionSheet({
         <p style={{ margin: "14px 0 0", fontSize: 14, color: "#E9D3B8" }}>{tr("فيه طلب معلّق لين {0} — ينتظر رد المشرف/ة.", dayLabel(pendingFor.requested_due))}</p>
       ) : (
         <>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#ABA095", margin: "12px 0 6px" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#b8ada2", margin: "12px 0 6px" }}>
             {tr("الموعد الجديد")}
             {n && n > 0 ? (
               <>
@@ -201,20 +201,20 @@ export function ExtensionSheet({
               );
             })}
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginTop: 8, fontSize: 12, color: "#ABA095" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginTop: 8, fontSize: 12, color: "#b8ada2" }}>
             <span>
               <i style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, boxShadow: "inset 0 0 0 1.5px #FF8A7A" }} /> {tr("الموعد الحالي")}
             </span>
             <span>
-              <i style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: "#F2EBE3" }} /> {tr("المطلوب")}
+              <i style={{ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: "#f4f0ec" }} /> {tr("المطلوب")}
             </span>
             <label style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 44 }}>
               {tr("أو تاريخ ثاني")}
-              <input type="date" value={pick} min={min} onChange={(e) => e.target.value && setPick(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: 0, borderRadius: 10, color: "#EAE3DC", colorScheme: "dark", padding: "6px 8px", font: "inherit" }} />
+              <input type="date" value={pick} min={min} onChange={(e) => e.target.value && setPick(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: 0, borderRadius: 10, color: "#f4f0ec", colorScheme: "dark", padding: "6px 8px", font: "inherit" }} />
             </label>
           </div>
 
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#ABA095", margin: "12px 0 6px" }}>{tr("ليش؟")}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#b8ada2", margin: "12px 0 6px" }}>{tr("ليش؟")}</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {REASONS.map((r) => (
               <button key={r.key} type="button" className="sd-chipbtn" aria-pressed={reason === r.key} onClick={() => setReason(r.key)}>
@@ -235,7 +235,7 @@ export function ExtensionSheet({
           </button>
         </>
       )}
-      <p style={{ margin: "8px 0 0", textAlign: "center", fontSize: 12, color: "#ABA095" }}>{tr("كل طلب ورد ينحفظ بسجل يشوفه الطرفين.")}</p>
+      <p style={{ margin: "8px 0 0", textAlign: "center", fontSize: 12, color: "#b8ada2" }}>{tr("كل طلب ورد ينحفظ بسجل يشوفه الطرفين.")}</p>
     </Sheet>
   );
 }
@@ -263,7 +263,7 @@ export function TeamTimeCard({ titleOf }: { titleOf: (taskId: string) => string 
             <div key={e.id} className="sup-row">
               <div style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>
                 <b style={{ fontSize: 14 }}>{titleOf(e.task_id)}</b>
-                <div style={{ fontSize: 12, color: "#ABA095" }}>
+                <div style={{ fontSize: 12, color: "#b8ada2" }}>
                   {tr("من {0} ← {1}", dayLabel(e.current_due), dayLabel(e.requested_due))} · {away?.deferRequests ? tr("تنتظر الرجعة") : tr("ينتظر رد المشرف/ة")}
                 </div>
               </div>

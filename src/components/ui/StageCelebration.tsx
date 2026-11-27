@@ -13,7 +13,7 @@ const arDigit = (n: number) => String(n);
 const SPARKS = Array.from({ length: 28 }, (_, i) => {
   const a = (i / 28) * Math.PI * 2;
   const r = 130 + (i % 4) * 38;
-  return { x: Math.cos(a) * r, y: Math.sin(a) * r, s: 4 + (i % 3) * 2, d: (i % 7) * 0.05, c: i % 2 ? "#FFB444" : "#FF6B00" };
+  return { x: Math.cos(a) * r, y: Math.sin(a) * r, s: 4 + (i % 3) * 2, d: (i % 7) * 0.05, c: i % 2 ? "#ffb547" : "#ff6a00" };
 });
 
 /** احتفال إنهاء مرحلة: الكرة تنبض برقم المرحلة، شرارات برتقالية وذهبية، «خلصتوا [المرحلة]!»، و«يلا للمرحلة التالية» */
@@ -42,7 +42,7 @@ export default function StageCelebration() {
         <p className="mt-2 text-sm text-[#B8ADA2]">{c.nextTitle ? tr("الجاي: «{0}». خطوة خطوة وبحثكم يخلص بوقته.", c.nextTitle) : tr("بحثكم قطع شوط كبير. عاشت أيديكم.")}</p>
         <div className="mt-7 flex flex-col gap-3">
           <Link to={c.nextTo} onClick={() => stageCelebration.hide()} className={`${gradientPill} !py-3`}>{tr("يلا للمرحلة التالية")}</Link>
-          <a href={whatsappUrl(`${share}\n${publicOrigin()}`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#FF8A24]/50 py-3 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
+          <a href={whatsappUrl(`${share}\n${publicOrigin()}`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#FF8A24]/50 py-3 text-sm font-bold text-[#ffb547] hover:bg-[#ff6a00]/10">
             <MessageCircle size={15} />{tr("شاركوها بالقروب")}</a>
           <button onClick={() => stageCelebration.hide()} className="text-xs text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("لاحقًا")}</button>
         </div>

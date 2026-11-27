@@ -50,7 +50,7 @@ async function loadVesselGlb(url: string): Promise<{ name: string; geometry: Buf
 }
 
 /* الوعاء الـ 3D (design-reference/3d/README.md):
-   Obsidian #090706 خشونة .38 + clearcoat .6 · EmberInner #2E0F02 يضيء #FF6B00 (1 → 2.2) · MoltenCore يضيء #FFC777 حسب glow.
+   Obsidian #090706 خشونة .38 + clearcoat .6 · EmberInner #2E0F02 يضيء #ff6a00 (1 → 2.2) · MoltenCore يضيء #FFC777 حسب glow.
    ضوء دافي 2700K من فوق يمين 35° · حافة برتقالية #FF9A3C من ورا · ambient .08 · ظل تلامس مزيف ·
    كاميرا FOV 30° ارتفاع 22° · ACES + sRGB + خلفية شفافة · parallax ±3° (lerp .08) بس مع وجود المؤشر، بدون دوران تلقائي.
    يرسم بس لما فيه تغيير، ويوقف لما يطلع من الشاشة أو التبويب مخفي. */
@@ -133,7 +133,7 @@ export class VesselScene {
   private scene = new Scene();
   private camera = new PerspectiveCamera(30, 1, 0.01, 10);
   private rig = new Group();
-  private ember = new MeshStandardMaterial({ color: new Color("#2E0F02"), roughness: 0.55, emissive: new Color("#FF6B00"), emissiveIntensity: 1, side: DoubleSide });
+  private ember = new MeshStandardMaterial({ color: new Color("#2E0F02"), roughness: 0.55, emissive: new Color("#ff6a00"), emissiveIntensity: 1, side: DoubleSide });
   private core = new MeshStandardMaterial({ color: new Color("#3A1A05"), roughness: 0.9, emissive: new Color("#FFC777"), emissiveIntensity: 1, side: DoubleSide });
   private obsidian = new MeshPhysicalMaterial({ color: new Color("#090706"), roughness: 0.38, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.25 });
   private uGlow = { value: GLOW.idle };

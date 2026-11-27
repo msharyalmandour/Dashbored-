@@ -1,109 +1,32 @@
-import {
-  BookMarked,
-  BookOpenText,
-  CalendarDays,
-  Compass,
-  LayoutDashboard,
-  ListChecks,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-import overviewShot from "../assets/tour/overview.png";
-import proposalShot from "../assets/tour/proposal.png";
-import tasksShot from "../assets/tour/tasks.png";
-import evidenceShot from "../assets/tour/evidence.png";
-import teamShot from "../assets/tour/team.png";
-import calendarShot from "../assets/tour/calendar.png";
-import guideShot from "../assets/tour/guide.png";
+import { CalendarDays, CheckSquare, House, MessagesSquare, PenLine, Search, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { tr } from "../lib/i18n";
 
-/** اسم المرشد اللي ياخذ المستخدمة بالجولة التعريفية — يعرّف عن نفسه
-    بأول خطوة قبل ما يبدأ يشرح */
-export const guideName = tr("مشاري");
+/** ويسي هو اللي يمشي معكم بالجولة — يعرّف عن نفسه بأول خطوة */
+export const guideName = tr("ويسي");
 
-/** جملة تعريفية واثقة بلهجة سعودية/خليجية عامية — تُقال صوتيًا بأول خطوة
-    قبل شرح الصفحة نفسها. بدون إيموجي عشان القراءة الصوتية تطلع نظيفة */
-export const guideIntro =
-  tr("أنا مشاري، مرشدكم في Wesync، وأبي أوريكم بسرعة ليش هالمنصة بتغيّر طريقة شغلكم البحثي من الجذور، وتنقذكم من عشرين رسالة واتساب في اليوم.");
+/** أول جملة يقولها (وتنقال صوتيًا لو الصوت شغّال). بدون إيموجي ولا تعجّب */
+export const guideIntro = tr("أنا ويسي. بوريكم المكان في دقيقة.");
 
 export interface TourStep {
   id: string;
   route: string;
+  /** البند بالقائمة اللي ويسي يأشّر عليه (data-nav-id بـ Sidebar) */
+  nav: string;
   label: string;
   icon: LucideIcon;
   title: string;
+  /** جملة وحدة بسيطة: وش المكان + مثال. بدون مصطلحات */
   body: string;
-  /** لقطة حقيقية من الصفحة نفسها — تبان كصورة مصغّرة تحت النص عشان
-      توضح فعليًا شكل الصفحة اللي يتكلم عنها المرشد */
-  image: string;
 }
 
-/** جولة تعريفية قصيرة تمشي بالمستخدمة الجديدة على أهم صفحات Wesync، خطوة
-    خطوة، وتنقلها فعليًا لكل صفحة وهي تشرح. النبرة عامية وواثقة، بأسلوب
-    تسويقي حديث — تبيع الفايدة مو بس تصف الوظيفة، وبدون إيموجي بالنص عشان
-    القراءة الصوتية (Web Speech API) تطلع سليمة */
+/** الجولة: ويسي ينتقل معكم لكل قسم، يضوّي بنده بالقائمة، ويقول جملة وحدة. اختيارية، وتقدرون تطلعون منها أي وقت. */
 export const tourSteps: TourStep[] = [
-  {
-    id: "overview",
-    route: "/",
-    label: tr("الرئيسية"),
-    icon: LayoutDashboard,
-    title: tr("لوحتك الذكية"),
-    body: tr("هذي مو صفحة عادية، هذي مركز قيادتكم. بلمحة واحدة تعرفون وين وصلتوا، وش الجاي، ووش يستاهل تركيزكم اليوم. خلاص ودّعوا الفوضى، وودّعوا رسائل وصلتوا وين كل خمس دقايق."),
-    image: overviewShot,
-  },
-  {
-    id: "proposal",
-    route: "/proposal",
-    label: tr("المقترح البحثي"),
-    icon: BookOpenText,
-    title: tr("المقترح البحثي، أساس كل شي"),
-    body: tr("من هنا يبدأ بحثكم فعليًا. الخلفية، الفجوة البحثية، والهدف، كله موثّق بمكان واحد، ويبان لمشرفكم إنكم فريق يعرف شغله، مو فريق يجمّع الفصول ليلة التسليم."),
-    image: proposalShot,
-  },
-  {
-    id: "tasks",
-    route: "/tasks",
-    label: tr("مهامي"),
-    icon: ListChecks,
-    title: tr("المهام، صفر فوضى"),
-    body: tr("وزّعوا الشغل، وتابعوا كل مهمة لحظة بلحظة. ما فيه بعد اليوم حجة ما كنت أدري إني عليّ مهمة."),
-    image: tasksShot,
-  },
-  {
-    id: "evidence",
-    route: "/evidence",
-    label: tr("مكتبة الأدلة"),
-    icon: BookMarked,
-    title: tr("مكتبة الأدلة، ذخيرتكم العلمية"),
-    body: tr("كل دراسة تجمعونها تنحفظ هنا جاهزة باقتباس صحيح. هذي مو مجرد أرشيف، هذا سلاحكم وقت الكتابة، ولا داعي تدورون نفس المصدر عشر مرات."),
-    image: evidenceShot,
-  },
-  {
-    id: "team",
-    route: "/team",
-    label: tr("الفريق"),
-    icon: Users,
-    title: tr("فريقك"),
-    body: tr("شوفوا مين شغال أكثر، ادعوا زملاءكم برابط واحد، وحتى مشرفكم يتابعكم بدون ما يسجّل دخول. شفافية كاملة، وصفر دراما بجروب الواتساب."),
-    image: teamShot,
-  },
-  {
-    id: "calendar",
-    route: "/calendar",
-    label: tr("التقويم"),
-    icon: CalendarDays,
-    title: tr("التقويم"),
-    body: tr("كل اجتماع وكل تسليم نهائي بمكان واحد، وتقدرون تصدّرونه لجوالكم بضغطة واحدة. صفر أعذار بعد اليوم، ولا حتى نسيت أحط تنبيه."),
-    image: calendarShot,
-  },
-  {
-    id: "guide",
-    route: "/guide",
-    label: tr("دليل الطالب"),
-    icon: Compass,
-    title: tr("دليل الطالب"),
-    body: tr("احتجتوا تفاصيل أكثر عن أي صفحة؟ هذا الدليل جاهز لكم وقت ما تبون ترجعون له، بدون ما تحرجون تسألون بعض نفس السؤال ثالث مرة."),
-    image: guideShot,
-  },
+  { id: "overview", route: "/", nav: "home", label: tr("الرئيسية"), icon: House, title: tr("هنا تبدؤون كل يوم"), body: tr("كل يوم تلقون فيها خطوة وحدة تبدؤون فيها، وين وصلتوا، ومواعيدكم.") },
+  { id: "tasks", route: "/tasks", nav: "tasks", label: tr("مهامي"), icon: CheckSquare, title: tr("مهامك"), body: tr("كل مهمة لها صاحب وموعد. اضغطوا الدائرة جنبها لما تخلص، والفريق يشوف.") },
+  { id: "search", route: "/research-search", nav: "search", label: tr("أبحث"), icon: Search, title: tr("تدوّرون دراسات"), body: tr("اكتبوا موضوعكم بكلمتين، واحفظوا الدراسات في مكتبتكم.") },
+  { id: "proposal", route: "/proposal", nav: "write", label: tr("أكتب"), icon: PenLine, title: tr("تكتبون المقترح"), body: tr("المقترح مقسوم أقسام، وكل واحد منكم يمسك قسم.") },
+  { id: "chat", route: "/chat", nav: "chat", label: tr("المحادثة"), icon: MessagesSquare, title: tr("تتكلمون كفريق"), body: tr("بدل قروب الواتساب. اللي ينقال هنا ما يضيع.") },
+  { id: "team", route: "/team", nav: "team", label: tr("الفريق"), icon: Users, title: tr("فريقكم"), body: tr("تدعون زملاءكم برابط واحد، والمشرف/ة يتابعكم بدون تسجيل.") },
+  { id: "supervisor", route: "/meeting-minutes", nav: "supervisor", label: tr("المشرف/ة"), icon: ShieldCheck, title: tr("المشرف/ة والاجتماعات"), body: tr("ملاحظات المشرف/ة تصير مهام، والاجتماعات ومحاضرها هنا.") },
+  { id: "calendar", route: "/calendar", nav: "calendar", label: tr("التقويم والملفات"), icon: CalendarDays, title: tr("المواعيد والملفات"), body: tr("كل موعد وكل ملف بمكان واحد. وخلصنا، أنا موجود بالرئيسية لو احتجتوني.") },
 ];

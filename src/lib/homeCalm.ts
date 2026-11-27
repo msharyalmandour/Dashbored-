@@ -28,6 +28,27 @@ export function streakDays(completedAt: (string | null | undefined)[], today: st
   return n;
 }
 
+/** سلسلة الفريق بالأسابيع (مو بالأيام): الأسبوع = آخر ٧ أيام تنتهي اليوم، وقبله ٧ قبلها… يحسب كم أسبوع ورا بعض الفريق خلّص فيه مهمة وحدة على الأقل.
+    بالأسابيع عشان الراحة ما تكسرها: يوم أو يومين بدون شغل عادي. الأسبوع الحالي لو فاضي ما يكسرها (لسا ما خلص). */
+export function teamWeeks(completedAt: (string | null | undefined)[], today: string, show = 4): { weeks: number; dots: boolean[] } {
+  const t0 = Date.parse(`${today}T00:00:00Z`);
+  const idx = new Set<number>();
+  for (const d of completedAt) {
+    if (!d) continue;
+    const k = Math.floor((t0 - Date.parse(`${d.slice(0, 10)}T00:00:00Z`)) / (7 * DAY));
+    if (k >= 0) idx.add(k);
+  }
+  let k = idx.has(0) ? 0 : 1;
+  let weeks = 0;
+  while (idx.has(k)) {
+    weeks++;
+    k++;
+  }
+  // النقاط من الأقدم للأحدث: آخر show أسابيع
+  const dots = Array.from({ length: show }, (_, i) => idx.has(show - 1 - i));
+  return { weeks, dots };
+}
+
 /** كم مهمة خلصت بين from (شامل) و to (مو شامل) */
 const doneBetween = (tasks: CalmTask[], from: string, to: string) =>
   tasks.filter((t) => t.status === "done" && t.completedAt && t.completedAt.slice(0, 10) >= from && t.completedAt.slice(0, 10) < to).length;

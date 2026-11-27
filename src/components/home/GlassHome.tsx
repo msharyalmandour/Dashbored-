@@ -1,6 +1,6 @@
 import { useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUp, BookOpen, Check, Clock, Flag, Gauge, PenLine, Route, Shield, Users } from "lucide-react";
+import { ArrowUp, BookOpen, Check, Clock, Flag, Flame, Gauge, PenLine, Route, Shield, Users } from "lucide-react";
 import clsx from "clsx";
 import { WesyAvatar } from "../brand/Wesy";
 import AgentWave from "../ui/AgentWave";
@@ -281,7 +281,10 @@ export function GaugeSvg({ pct }: { pct: number }) {
   );
 }
 
-export function ProgressCard({ pct, stagesDone, stagesTotal, note, style, className }: { pct: number; stagesDone: number; stagesTotal: number; note: string; style?: CSSProperties; className?: string }) {
+/** سلسلة الفريق بالأسابيع (lib/homeCalm teamWeeks) + هل الخصم مفعّل من السيرفر (my_streak_ok) */
+export type TeamStreak = { weeks: number; dots: boolean[]; discount: boolean | null };
+
+export function ProgressCard({ pct, stagesDone, stagesTotal, note, streak, style, className }: { pct: number; stagesDone: number; stagesTotal: number; note: string; streak?: TeamStreak; style?: CSSProperties; className?: string }) {
   return (
     <Link to="/timeline" className={clsx("hg-card hg-orange flex flex-col", className)} style={style} aria-label={tr("تقدّم البحث {0}٪ — افتح الجدول الزمني", String(pct))}>
       <div className="hg-hd">
@@ -300,7 +303,33 @@ export function ProgressCard({ pct, stagesDone, stagesTotal, note, style, classN
         <GaugeSvg pct={pct} />
       </div>
       <div className="-mt-0.5 text-center text-sm font-bold text-[#2A0E02] lg:text-sm">{note}</div>
+      {streak && <StreakRow streak={streak} />}
     </Link>
+  );
+}
+
+/** «٣ أسابيع شغل ورا بعض»: نقاط آخر ٤ أسابيع، والراحة داخل الأسبوع ما تكسرها. لو السيرفر قال الخصم شغّال نقوله */
+function StreakRow({ streak }: { streak: TeamStreak }) {
+  const { weeks, dots, discount } = streak;
+  const line =
+    weeks > 0
+      ? countAr(weeks, tr("أسبوع شغل"), tr("أسبوعين شغل ورا بعض"), "{0} أسابيع شغل ورا بعض", "{0} أسبوع شغل ورا بعض")
+      : tr("خلّصوا مهمة هالأسبوع وتبدأ سلسلتكم");
+  return (
+    <div className="hg-streak mt-2.5 flex flex-col items-center gap-1 border-t border-[#3A1504]/15 pt-2 text-[#3A1504]">
+      <div className="flex items-center gap-1.5 text-xs font-bold">
+        <Flame size={14} strokeWidth={2} aria-hidden />
+        {line}
+        <span className="ms-1 flex items-center gap-1" aria-hidden>
+          {dots.map((on, i) => (
+            <i key={i} className={clsx("h-1.5 w-1.5 rounded-full", on ? "bg-[#3A1504]" : "bg-[#3A1504]/20", i === dots.length - 1 && on && "hg-streak-now")} />
+          ))}
+        </span>
+      </div>
+      <div className="text-[11px] font-medium text-[#3A1504]/75">
+        {discount ? tr("خصم الاستمرار شغّال: ٣ ريال أقل بالشهر") : tr("٤ أسابيع ورا بعض = ٣ ريال أقل بالشهر")}
+      </div>
+    </div>
   );
 }
 

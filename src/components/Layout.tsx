@@ -17,6 +17,8 @@ import CommandPalette from "./CommandPalette";
 import AgentPanel from "./agent/AgentPanel";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
+import WesyHint from "./WesyHint";
+import "../styles/wesy-guide.css";
 import AcademyCoach from "./AcademyCoach";
 import WesyNudges from "./onboarding/WesyNudges";
 import PendingTaskRedirect from "./onboarding/PendingTaskRedirect";
@@ -158,6 +160,7 @@ export default function Layout() {
       <CommandPalette />
       <AgentPanel />
       <TourGuide />
+      <WesyHint />
       <AcademyCoach />
       <WesyNudges />
       <PendingTaskRedirect />

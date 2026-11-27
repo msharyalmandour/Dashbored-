@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { paceStatus, streakDays, timeLeft, todayList, weeklyImprovement, todoList, weeklySeries } from "./homeCalm";
+import { paceStatus, streakDays, teamWeeks, timeLeft, todayList, weeklyImprovement, todoList, weeklySeries } from "./homeCalm";
 
 const t = (id: string, dueDate: string, status = "todo", completedAt: string | null = null) => ({ id, title: id, status, dueDate, assigneeId: "a", completedAt });
 const today = "2026-10-28";
@@ -78,5 +78,25 @@ describe("weeklySeries", () => {
       { done: 1, planned: 1 },
       { done: 1, planned: 2 },
     ]);
+  });
+});
+
+describe("teamWeeks", () => {
+  const today = "2026-11-27";
+  it("يحسب الأسابيع ورا بعض والأسبوع الحالي الفاضي ما يكسرها", () => {
+    // الأسبوع اللي قبل (14-20) واللي قبله (7-13) فيها شغل، الحالي (21-27) فاضي
+    expect(teamWeeks(["2026-11-18T10:00:00Z", "2026-11-09"], today).weeks).toBe(2);
+  });
+  it("الراحة يومين داخل الأسبوع ما تكسرها", () => {
+    expect(teamWeeks(["2026-11-27", "2026-11-20", "2026-11-13"], today).weeks).toBe(3);
+  });
+  it("أسبوع فاضي بالنص يكسرها", () => {
+    expect(teamWeeks(["2026-11-27", "2026-11-10"], today).weeks).toBe(1);
+  });
+  it("النقاط من الأقدم للأحدث", () => {
+    expect(teamWeeks(["2026-11-27", "2026-11-10"], today).dots).toEqual([false, true, false, true]);
+  });
+  it("بدون شغل = صفر", () => {
+    expect(teamWeeks([null, undefined], today)).toEqual({ weeks: 0, dots: [false, false, false, false] });
   });
 });

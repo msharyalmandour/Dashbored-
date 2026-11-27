@@ -1,119 +1,142 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { Volume2, VolumeX, X } from "lucide-react";
 import { useTour } from "../context/TourContext";
 import { guideIntro, guideName } from "../data/onboardingTour";
-import { isNarrationAvailable, onSpeakingChange, speak, stopSpeaking } from "../lib/speech";
-import ErrorBoundary from "./ErrorBoundary";
-import { tr, trx } from "../lib/i18n";
+import { isNarrationAvailable, speak, stopSpeaking } from "../lib/speech";
+import { WesyFigure } from "./brand/Wesy";
+import { isEn, tr } from "../lib/i18n";
+
+/* جولة ويسي (اختيارية): ويسي يمشي معكم قسم قسم. ينقلكم للصفحة، ويضوّي بند القسم بالقائمة، ويقول جملة وحدة بسيطة.
+   ما يغطي الشاشة كلها: البند المضاء واضح وكل شي ثاني معتّم شوي. بالجوال (القائمة مخفية) تطلع بطاقة تحت.
+   الحركة قصيرة (أقل من ٤٠٠ جزء من الثانية) وتطفى مع «تقليل الحركة». Esc يقفل، والأسهم تمشي. */
 
 const MUTED_KEY = "nursync.tourMuted";
+const CARD_W = 320;
+const GAP = 18;
 
-// كسل التحميل — مشهد Three.js ثقيل (~950 كيلوبايت)، ونادر إنه يُفتح أصلاً
-// (بس وقت الجولة التعريفية)، فما نبي يدخل الحزمة الرئيسية اللي تحمّل بكل صفحة
-const VoiceLogoScene = lazy(() => import("./cinematic/VoiceLogoScene"));
+type Box = { top: number; left: number; width: number; height: number };
 
-/** الجولة التعريفية — الشعار وحده هو العنصر البصري بمنتصف الشاشة، حي
-    ويتفاعل مع صوت المرشد الحقيقي (نبض، توهج، موجات تنطلق منه). بدون بطاقة
-    أو صندوق حوله — النص والتنقل عناصر خفيفة عائمة أسفل الشاشة بس */
+/** مكان بند القسم بالقائمة لو ظاهر (الكمبيوتر)، وإلا null (الجوال) */
+function navBox(nav: string): Box | null {
+  const el = document.querySelector<HTMLElement>(`[data-nav-id="${nav}"]`);
+  if (!el || el.offsetParent === null) return null;
+  const r = el.getBoundingClientRect();
+  // القائمة الجانبية بالجوال درج مخفي برا الشاشة: نعتبره مو ظاهر
+  if (r.width === 0 || r.height === 0 || r.right <= 0 || r.left >= window.innerWidth || r.bottom <= 0 || r.top >= window.innerHeight) return null;
+  return { top: r.top, left: r.left, width: r.width, height: r.height };
+}
+
 export default function TourGuide() {
   const { steps, activeIndex, next, prev, close } = useTour();
-  const [muted, setMuted] = useState(() => localStorage.getItem(MUTED_KEY) === "1");
-  const [speaking, setSpeaking] = useState(false);
+  const [muted, setMuted] = useState(() => localStorage.getItem(MUTED_KEY) !== "0");
+  const [box, setBox] = useState<Box | null>(null);
+  const step = activeIndex === null ? null : steps[activeIndex];
 
-  useEffect(() => onSpeakingChange(setSpeaking), []);
+  const measure = useCallback(() => setBox(step ? navBox(step.nav) : null), [step]);
+
+  // نقيس بعد ما تنتقل الصفحة (القائمة ممكن تتغيّر)، ومع تغيّر حجم الشاشة
+  useLayoutEffect(() => {
+    if (!step) return;
+    measure();
+    const t = window.setTimeout(measure, 120);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, [step, measure]);
 
   useEffect(() => {
-    if (activeIndex === null) {
-      stopSpeaking();
-      return;
-    }
-    if (muted) return;
-    const step = steps[activeIndex];
-    const intro = activeIndex === 0 ? `${guideIntro} ` : "";
-    speak(`${intro}${step.title}. ${step.body}`);
+    if (!step) return stopSpeaking();
+    if (muted || !isNarrationAvailable()) return;
+    speak(`${activeIndex === 0 ? `${guideIntro} ` : ""}${step.title}. ${step.body}`);
     return () => stopSpeaking();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex, muted]);
+  }, [step, activeIndex, muted]);
 
-  const toggleMute = () => {
-    const willMute = !muted;
-    setMuted(willMute);
-    localStorage.setItem(MUTED_KEY, willMute ? "1" : "0");
-    if (willMute) stopSpeaking();
-  };
+  useEffect(() => {
+    if (!step) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      else if (e.key === (isEn ? "ArrowRight" : "ArrowLeft")) next();
+      else if (e.key === (isEn ? "ArrowLeft" : "ArrowRight")) prev();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [step, next, prev, close]);
 
-  if (activeIndex === null) return null;
+  if (!step || activeIndex === null) return null;
 
-  const step = steps[activeIndex];
   const isFirst = activeIndex === 0;
   const isLast = activeIndex === steps.length - 1;
+  const toggleMute = () => {
+    const m = !muted;
+    setMuted(m);
+    localStorage.setItem(MUTED_KEY, m ? "1" : "0");
+    if (m) stopSpeaking();
+  };
+
+  // البطاقة جنب البند: بالعربي القائمة يمين → البطاقة يسارها، وبالإنجليزي العكس
+  const cardStyle = box
+    ? {
+        top: Math.min(Math.max(box.top + box.height / 2 - 110, 16), window.innerHeight - 260),
+        left: isEn ? Math.min(box.left + box.width + GAP, window.innerWidth - CARD_W - 16) : Math.max(box.left - CARD_W - GAP, 16),
+        width: CARD_W,
+      }
+    : undefined;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-neutral-950/[0.97] backdrop-blur-md print:hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_42%,rgba(251,191,36,0.07),transparent_70%)]" />
+    <div className="wt-tour print:hidden" role="dialog" aria-modal="true" aria-label={tr("جولة ويسي")}>
+      {box ? (
+        <div className="wt-spot" style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12 }} aria-hidden />
+      ) : (
+        <div className="wt-dim" aria-hidden onClick={close} />
+      )}
 
-      <ErrorBoundary>
-        <Suspense fallback={null}>
-          <VoiceLogoScene speaking={speaking} />
-        </Suspense>
-      </ErrorBoundary>
-
-      <button
-        onClick={close}
-        title={tr("إنهاء الجولة")}
-        className="absolute end-5 top-5 z-10 rounded-xl p-1.5 text-white/35 hover:bg-white/10 hover:text-white/70"
-      >
-        <X size={18} />
-      </button>
-
-      <div className="absolute inset-x-0 bottom-0 z-10 flex animate-[hero-in_0.9s_ease-out] flex-col items-center gap-4 px-6 pb-10 text-center">
-        <div className="max-w-sm">
-          <p className="text-xs font-bold text-amber-300/85">
-            <span className="text-white/90">{guideName}</span>{trx(" · خطوة {0} من {1} — {2}", activeIndex + 1, steps.length, step.label)}</p>
-          <p className="mt-2 font-display text-xl font-bold text-white">{step.title}</p>
-          <p className="mx-auto mt-1.5 max-w-xs text-sm leading-relaxed text-white/45">
-            {step.body}
-          </p>
-          <img
-            key={step.id}
-            src={step.image}
-            alt={step.title}
-            className="mx-auto mt-3 h-24 w-44 animate-[panel-in_0.4s_ease-out] rounded-xl border border-amber-400/25 object-cover object-top shadow-lg shadow-black/50 sm:h-28 sm:w-52"
-          />
+      <div className={box ? "wt-card" : "wt-card wt-card-sheet"} style={cardStyle}>
+        <div className="wt-card-top">
+          <span className="wt-step">
+            {guideName} · {tr("{0} من {1}", String(activeIndex + 1), String(steps.length))}
+          </span>
+          <span className="flex items-center gap-0.5">
+            {isNarrationAvailable() && (
+              <button type="button" className="wt-icon" onClick={toggleMute} aria-label={muted ? tr("تشغيل الصوت") : tr("كتم الصوت")}>
+                {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              </button>
+            )}
+            <button type="button" className="wt-icon" onClick={close} aria-label={tr("إنهاء الجولة")}>
+              <X size={16} />
+            </button>
+          </span>
         </div>
 
-        {isNarrationAvailable() && (
-          <button
-            onClick={toggleMute}
-            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-bold text-white/35 hover:bg-white/10 hover:text-white/65"
-          >
-            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-            {muted ? tr("تشغيل الصوت") : tr("كتم الصوت")}
-          </button>
-        )}
-
-        <div className="flex items-center gap-1.5">
-          {steps.map((s, i) => (
-            <span
-              key={s.id}
-              className={`h-1.5 w-1.5 rounded-full ${i === activeIndex ? "bg-amber-400" : "bg-white/15"}`}
-            />
-          ))}
+        <div className="wt-body">
+          {/* ويسي يمشي (هزة خفيفة) كل ما تنتقلون لقسم، ويسلّم بأول خطوة */}
+          <div key={step.id} className={isFirst ? "wt-wesy" : "wt-wesy is-walking"} aria-hidden>
+            <WesyFigure playKey={isFirst ? step.id : undefined} />
+          </div>
+          <div key={`${step.id}-t`} className="wt-text">
+            {isFirst && <p className="wt-intro">{guideIntro}</p>}
+            <p className="wt-title">{step.title}</p>
+            <p className="wt-line">{step.body}</p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {!isFirst && (
-            <button
-              onClick={prev}
-              className="rounded-xl px-4 py-2 text-sm font-bold text-white/40 hover:bg-white/10"
-            >{tr("السابق")}</button>
-          )}
-          <button
-            onClick={next}
-            className="rounded-xl bg-amber-400 px-6 py-2 text-sm font-bold text-neutral-950 shadow-sm shadow-amber-400/20 transition-all duration-300 hover:scale-[1.03] hover:bg-amber-300 hover:shadow-[0_0_24px_rgba(251,191,36,0.4)]"
-          >
-            {isLast ? tr("خلصنا! 🎉") : tr("التالي")}
-          </button>
+        <div className="wt-foot">
+          <span className="wt-dots" aria-hidden>
+            {steps.map((s, i) => (
+              <i key={s.id} className={i === activeIndex ? "on" : i < activeIndex ? "done" : ""} />
+            ))}
+          </span>
+          <span className="flex items-center gap-1.5">
+            {!isFirst && (
+              <button type="button" className="wt-back" onClick={prev}>
+                {tr("السابق")}
+              </button>
+            )}
+            <button type="button" className="ws-btn-primary wt-next" onClick={next} autoFocus>
+              {isLast ? tr("تمام، فهمت") : tr("التالي")}
+            </button>
+          </span>
         </div>
       </div>
     </div>

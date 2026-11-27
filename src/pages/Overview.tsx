@@ -29,7 +29,6 @@ import { placeOf, strictReview } from "../lib/taskLinks";
 import { ReviewCard } from "../components/lux/Lux";
 import { useNavigate } from "react-router-dom";
 import { startSeen } from "./Start";
-import { explainSeen } from "./Explain";
 import { useTeamStage } from "../lib/teamStage";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
@@ -44,9 +43,10 @@ import { computeNextSteps } from "../lib/nextSteps";
 import { isStageReady } from "../lib/stageAdvance";
 import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { splitReminders } from "../lib/taskReminders";
-import { isLate, weeklySeries } from "../lib/homeCalm";
+import { isLate, teamWeeks, weeklySeries } from "../lib/homeCalm";
 import { METHOD_READY, ethicsStepsDone, methodologyReadyCount } from "../lib/writeProgress";
-import { isSupabaseConfigured } from "../lib/supabaseClient";
+import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
+import WesyTourOffer from "../components/home/WesyTourOffer";
 import { isEn, tr } from "../lib/i18n";
 
 // بالعرض التجريبي البيانات مثبّتة على أغسطس 2026، فنثبّت «اليوم» عليه عشان الحسابات تطلع منطقية
@@ -104,9 +104,8 @@ export default function Overview() {
   // «بدأتوا قبل؟»: فريق جديد (أسبوعين) ما حدد وين وصل ومكتبته ومقترحه فاضيين → نفتحها له مرة وحدة
   useEffect(() => {
     if (mode !== "supabase" || !team || !currentUser) return;
-    // «وش هذا المكان؟» أول زيارة (للفرق اللي عمرها أقل من شهر)
+    // «وش هذا المكان؟» صارت اختيارية: ويسي يعرض الجولة بالرئيسية (WesyTourOffer) بدل ما نحوّلهم غصب
     const age = team.createdAt ? Date.now() - new Date(team.createdAt).getTime() : Infinity;
-    if (!explainSeen(currentUser.id) && age < 30 * 86400000) return void navigate("/explain", { replace: true });
     if (!stageLoaded || papersLoading || !sections.length || teamStage || startSeen(team.id)) return;
     const fresh = age < 14 * 86400000;
     const empty = papers.length === 0 && sections.every((x) => !x.content.trim());
@@ -144,6 +143,13 @@ export default function Overview() {
     dataCollection: { collected: collection.collected, target: collection.target },
   });
   const stagesDone = stages.filter((s) => s.status === "done").length;
+  // ── سلسلة الفريق بالأسابيع + هل خصم الاستمرار شغّال (السيرفر هو اللي يقرر) ──
+  const weeksRun = useMemo(() => teamWeeks(allTasks.map((t) => t.completedAt), todayIso), [allTasks]);
+  const [streakOk, setStreakOk] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (mode !== "supabase" || !supabase || !team) return;
+    void supabase.rpc("my_streak_ok").then(({ data, error }) => setStreakOk(error ? null : data === true));
+  }, [mode, team]);
   const [lastWeek, thisWeek] = weeklySeries(tasks, todayIso, 2);
   const weekDiff = (thisWeek?.done ?? 0) - (lastWeek?.done ?? 0);
   const progressNote =
@@ -240,6 +246,9 @@ export default function Overview() {
 
       {/* «الجاي لكم»: خطوة وحدة بزر برتقالي واحد — أول شي بالصفحة (docs/DESIGN_BRIEF_UNLOCK.md) */}
       <ErrorBoundary>
+        <WesyTourOffer firstName={firstName} />
+      </ErrorBoundary>
+      <ErrorBoundary>
         <WesyOffice urgent={journeyStep} fallback={journeyStep} />
       </ErrorBoundary>
       <ErrorBoundary>
@@ -285,7 +294,7 @@ export default function Overview() {
 
         <HomeColumn label={tr("وين وصلنا")}>
           <ErrorBoundary>
-            <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} />
+            <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} streak={{ ...weeksRun, discount: streakOk }} />
           </ErrorBoundary>
           <ErrorBoundary>
             <DeadlineCard className="flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />

@@ -11,7 +11,7 @@ import type { TeamData } from "../../lib/supervisorDash";
 /* محادثات الدكتورة (DocChat): قائمة على اليمين (محادثة لكل فريق + «كل فرقي (إعلان)») والمحادثة على اليسار.
    الكتابة بأربع أوضاع: رسالة · طلب = مهمة · موعد · اعتماد. الدكتورة تدخل برمز الرابط (بدون حساب)، فنحدّث كل 10 ثواني بدل Realtime. */
 
-const AV = ["#FFC85A", "#FFB444", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFC85A", "#ffb547", "#FFE3C2", "#FF9A5A"];
 type Mode = "text" | "request" | "meeting" | "approval";
 const ALL = "__all__";
 
@@ -125,7 +125,7 @@ function Broadcast({ teams, name, onBack, onSent }: { teams: TeamData[]; name: s
         </button>
         <div style={{ flex: 1 }}>
           <b style={{ fontSize: 19 }}>{tr("كل فرقي (إعلان)")}</b>
-          <div style={{ fontSize: 13, color: "#ABA095" }}>{tr("توصل لـ {0} فرق، كل فريق بمحادثته", teams.length)}</div>
+          <div style={{ fontSize: 13, color: "#b8ada2" }}>{tr("توصل لـ {0} فرق، كل فريق بمحادثته", teams.length)}</div>
         </div>
       </header>
       <div style={{ flex: 1 }} />
@@ -216,7 +216,7 @@ function Thread({ team, msgs, name, onBack, onSent, onOpenTeam }: { team: TeamDa
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <b style={{ fontSize: 19 }}>{team.name}</b>
-          <div style={{ fontSize: 13, color: "#ABA095" }}>{typingHint}</div>
+          <div style={{ fontSize: 13, color: "#b8ada2" }}>{typingHint}</div>
         </div>
         <button type="button" className="dc-chip" onClick={() => setMode("meeting")}>
           <CalendarDays size={15} aria-hidden />
@@ -337,7 +337,7 @@ function Thread({ team, msgs, name, onBack, onSent, onOpenTeam }: { team: TeamDa
                 ))}
               </select>
             ) : (
-              <span style={{ fontSize: 13, color: "#ABA095" }}>{tr("ما فيه محاضر تنتظر اعتمادكم.")}</span>
+              <span style={{ fontSize: 13, color: "#b8ada2" }}>{tr("ما فيه محاضر تنتظر اعتمادكم.")}</span>
             )}
           </div>
         )}
@@ -378,7 +378,7 @@ function RequestCard({ m }: { m: DocMsg }) {
         <b style={{ display: "block", fontSize: 14 }}>{p.title || m.body}</b>
       </div>
       {p.assignee_name && <span className="dc-av sm">{avatarLetter(p.assignee_name)}</span>}
-      {p.due && <span style={{ fontSize: 12, color: "#ABA095" }}>{formatWeekday(p.due)}</span>}
+      {p.due && <span style={{ fontSize: 12, color: "#b8ada2" }}>{formatWeekday(p.due)}</span>}
     </div>
   );
 }
@@ -399,7 +399,7 @@ export function MeetingCard({ m, members, actions }: { m: DocMsg; members: { id:
             <span dir="ltr">{p.time}</span>
             {p.place ? ` · ${p.place}` : ""}
           </b>
-          <span style={{ fontSize: 12, color: "#ABA095" }}>
+          <span style={{ fontSize: 12, color: "#b8ada2" }}>
             {p.duration ? tr("{0} دقيقة", p.duration) + " · " : ""}
             {tr("انضاف لتقويم الفريق")}
           </span>

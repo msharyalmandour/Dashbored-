@@ -54,7 +54,7 @@ export default function SupervisorEmailCard({ token, onChanged, embedded = false
         </p>
       ) : (
         <>
-          <p className={glass ? "m-0 text-[13px] leading-relaxed text-[#ABA095]" : "mt-1 text-xs text-brand-950/50"}>
+          <p className={glass ? "m-0 text-[13px] leading-relaxed text-[#b8ada2]" : "mt-1 text-xs text-brand-950/50"}>
             {pending
               ? tr("أرسلنا رابط تأكيد إلى {0} — اضغطوه عشان تبدأ الإشعارات (شوفوا الرسائل المزعجة لو ما وصل).", status?.emailMasked || tr("إيميلكم"))
               : tr("بدل ما تفتحون الرابط كل مرة، اكتبوا إيميلكم ويوصلكم تنبيه لما الفريق يرد. نرسل لكم رابط تأكيد أول، وما نرسل شي قبله.")}

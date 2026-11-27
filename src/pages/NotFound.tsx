@@ -5,7 +5,7 @@ import { tr } from "../lib/i18n";
 /** 404 (brand-kit-demo · 13): 404 بالذهبي + «الصفحة ضاعت…» + سطر واحد + زر واحد، وويسي يفكر جنبها */
 export default function NotFound() {
   return (
-    <div className="mx-auto grid min-h-[70vh] max-w-[980px] items-center gap-6 px-6 py-10 text-[#F2EBE3] md:grid-cols-2">
+    <div className="mx-auto grid min-h-[70vh] max-w-[980px] items-center gap-6 px-6 py-10 text-[#f4f0ec] md:grid-cols-2">
       <div className="text-center md:text-start">
         <div dir="ltr" className="text-[clamp(80px,14vw,160px)] font-extrabold leading-none text-[#FFC777]">
           404

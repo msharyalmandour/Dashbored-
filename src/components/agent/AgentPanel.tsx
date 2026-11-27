@@ -387,7 +387,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
                               <div className="ag-say">
                                 <AgentOrb size={26} />
                                 <p className="m-0 flex-1">
-                                  {tr("هذي خطتي.")} <b className="text-[#F2EBE3]">{tr("ما بسوي شي لين توافقون")}</b>
+                                  {tr("هذي خطتي.")} <b className="text-[#f4f0ec]">{tr("ما بسوي شي لين توافقون")}</b>
                                   {tr("، وتقدرون تشيلون أي خطوة.")}
                                 </p>
                               </div>

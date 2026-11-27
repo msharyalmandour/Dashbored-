@@ -54,8 +54,8 @@ export default function SupervisorReport() {
     });
   }, [token]);
 
-  if (error) return <p className="p-8 text-center text-[#ABA095]">{tr("الرابط غير صالح أو منتهي.")}</p>;
-  if (!snap) return <p className="p-8 text-center text-[#ABA095]" role="status">{tr("نجهّز التقرير…")}</p>;
+  if (error) return <p className="p-8 text-center text-[#b8ada2]">{tr("الرابط غير صالح أو منتهي.")}</p>;
+  if (!snap) return <p className="p-8 text-center text-[#b8ada2]" role="status">{tr("نجهّز التقرير…")}</p>;
 
   const tasks = snap.tasks ?? [];
   const done = tasks.filter((t) => t.status === "done").length;

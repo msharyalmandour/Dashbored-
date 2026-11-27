@@ -8,7 +8,7 @@ import { TEAM_TONE, TONE_RANK, teamStatus, type TeamData, type WaitItem } from "
 /* بوابة الدكتورة — الرئيسية (DocHome2 / DocHomeM2):
    الشريط البرتقالي «أشياء تنتظرك» (3 بلاطات بالكثير، فعل واحد لكل وحدة) ← «يومك» (3 بلاطات، الجاي كريمي) ← كروت الفرق مرتبة باللي يحتاجك أكثر. */
 
-const AV = ["#FFC85A", "#FFB444", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFC85A", "#ffb547", "#FFE3C2", "#FF9A5A"];
 
 export function DocWaitStrip({ waits, icon, onOpen, onAll }: { waits: WaitItem[]; icon: (w: WaitItem) => ReactNode; onOpen: (w: WaitItem) => void; onAll: () => void }) {
   const list = waits.filter((w) => w.kind !== "radar");
@@ -79,7 +79,7 @@ export function DocDay({ slots, nowMin, onAll }: { slots: DaySlot[]; nowMin: num
         </button>
       </div>
       {shown.length === 0 ? (
-        <p style={{ margin: "8px 0 0", fontSize: 14, color: "#ABA095" }}>{tr("ما فيه اجتماعات اليوم.")}</p>
+        <p style={{ margin: "8px 0 0", fontSize: 14, color: "#b8ada2" }}>{tr("ما فيه اجتماعات اليوم.")}</p>
       ) : (
         <div className="dh-day">
           {shown.map((s) => {

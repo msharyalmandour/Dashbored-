@@ -108,11 +108,11 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
             </span>
           ))}
         </div>
-        <h2 id="fw-h" className="m-0 mt-4 text-[26px] font-extrabold leading-snug text-[#F2EBE3]">
+        <h2 id="fw-h" className="m-0 mt-4 text-[26px] font-extrabold leading-snug text-[#f4f0ec]">
           {tr("خلصتوا أول أسبوع")}
         </h2>
         <p className="m-0 mt-2 text-[15px] leading-relaxed text-[#E9D3B8]">{tr("الفريق كامل، والموضوع مكتوب، وأول دراسة بالجدول، والمشرف/ة معكم. من هنا يبدأ الشغل الحقيقي.")}</p>
-        <button type="button" className="tc-ghost mt-3 !px-0 text-[#ABA095]" onClick={hide}>
+        <button type="button" className="tc-ghost mt-3 !px-0 text-[#b8ada2]" onClick={hide}>
           {tr("أخفوا الكرت")}
         </button>
       </section>
@@ -128,7 +128,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
 
   const action = (s: Step): ReactNode => {
     if (s.key === "invite") {
-      if (!isLeader) return <p className="m-0 text-[13px] text-[#ABA095]">{tr("القائد يرسل رابط الفريق.")}</p>;
+      if (!isLeader) return <p className="m-0 text-[13px] text-[#b8ada2]">{tr("القائد يرسل رابط الفريق.")}</p>;
       return (
         <div className="flex flex-col gap-2">
           {solo && (
@@ -141,7 +141,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
                   </span>
                 ))}
               </span>
-              <span className="text-[13px] font-bold text-[#ABA095]">{tr("أنت لحالك للحين")}</span>
+              <span className="text-[13px] font-bold text-[#b8ada2]">{tr("أنت لحالك للحين")}</span>
             </div>
           )}
           <a href={teamWa} target="_blank" rel="noreferrer" className="tc-cream w-full">
@@ -158,7 +158,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
     if (s.key === "topic") return linkBtn("/proposal", tr("اكتبوا الموضوع"), <PenLine size={18} aria-hidden />);
     if (s.key === "paper") return linkBtn("/evidence", tr("أضيفوا أول دراسة"), <BookOpen size={18} aria-hidden />);
     if (s.key === "table") return linkBtn("/literature-review", tr("افتحوا الجدول"), <Table2 size={18} aria-hidden />);
-    if (!isLeader || !supLink) return <p className="m-0 text-[13px] text-[#ABA095]">{tr("القائد يرسل الرابط للمشرف/ة.")}</p>;
+    if (!isLeader || !supLink) return <p className="m-0 text-[13px] text-[#b8ada2]">{tr("القائد يرسل الرابط للمشرف/ة.")}</p>;
     return (
       <div className="flex flex-col gap-2">
         <a href={supWa} target="_blank" rel="noreferrer" className="tc-cream w-full">
@@ -170,7 +170,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
           {copied === "sup" ? tr("انتسخ") : tr("انسخوا الرابط")}
         </button>
         <SupervisorEmailInvite status={email} onSent={() => getMyEmailStatus().then(setEmail)} />
-        <p className="m-0 flex items-start gap-1.5 text-[13px] leading-relaxed text-[#ABA095]">
+        <p className="m-0 flex items-start gap-1.5 text-[13px] leading-relaxed text-[#b8ada2]">
           <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#FFC777]" aria-hidden />
           {tr("تشوف بس، وتعلّق وتعتمد. ما تقدر تعدّل على شغلكم.")}
         </p>
@@ -181,12 +181,12 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
   return (
     <section className="fw-card hg-card relative mb-2.5 lg:mb-0" style={style} aria-labelledby="fw-h">
       <div className="flex items-center justify-between">
-        <h2 id="fw-h" className="m-0 text-[20px] font-extrabold text-[#F2EBE3]">
+        <h2 id="fw-h" className="m-0 text-[20px] font-extrabold text-[#f4f0ec]">
           {tr("أول أسبوع")}
         </h2>
         <span className="text-[15px] font-extrabold" dir="ltr">
           <span className="text-[#FFC777]">{doneCount}</span>
-          <span className="text-[#ABA095]">/{steps.length}</span>
+          <span className="text-[#b8ada2]">/{steps.length}</span>
         </span>
       </div>
       <div
@@ -214,7 +214,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
               <span className="fw-num-on" aria-hidden>
                 {current.n}
               </span>
-              <span className="text-[18px] font-extrabold text-[#F2EBE3]">{current.label}</span>
+              <span className="text-[18px] font-extrabold text-[#f4f0ec]">{current.label}</span>
               {current.done && <span className="sr-only">{tr("(خلصت)")}</span>}
             </div>
             <p className="m-0 text-[15px] leading-[1.7] text-[#E9D3B8]">{current.hint}</p>
@@ -226,7 +226,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
             <span className="fw-num" aria-hidden>
               {s.n}
             </span>
-            <span className="text-[15px] text-[#F2EBE3]">{s.label}</span>
+            <span className="text-[15px] text-[#f4f0ec]">{s.label}</span>
           </li>
         ))}
         {finished.map((s) => (
@@ -234,7 +234,7 @@ export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
             <span className="fw-dot done" aria-hidden>
               <Check size={14} strokeWidth={2.6} />
             </span>
-            <span className="text-[15px] text-[#ABA095] line-through decoration-[rgba(171,160,149,.7)]">
+            <span className="text-[15px] text-[#b8ada2] line-through decoration-[rgba(171,160,149,.7)]">
               {s.label}
               <span className="sr-only">{tr("(خلصت)")}</span>
             </span>

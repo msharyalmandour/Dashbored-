@@ -26,8 +26,8 @@ const sizePx: Record<NonNullable<AvatarProps["size"]>, number> = { sm: 32, md: 4
 const BODY: Record<AvatarCharacter["piece"], string> = {
   hair: "#5A3424",
   glasses: "#3A2418",
-  cap: "#F2EBE3",
-  shemagh: "#F2EBE3",
+  cap: "#f4f0ec",
+  shemagh: "#f4f0ec",
   curly: "#5A2A16",
 };
 
@@ -61,7 +61,7 @@ export function CharacterSvg({ character, size }: { character: AvatarCharacter; 
       )}
       {p === "cap" && (
         <>
-          <path d="M10.5 19C10.5 12.5 15 10 20 10C25.5 10 29.5 12.5 29.5 19Z" fill="#F2EBE3" />
+          <path d="M10.5 19C10.5 12.5 15 10 20 10C25.5 10 29.5 12.5 29.5 19Z" fill="#f4f0ec" />
           <path d="M10.5 19H4.5C4.5 17.3 6.5 16.6 10.5 16.8Z" fill="#E6D8C8" />
           <circle cx="20" cy="10.6" r="1.2" fill="#FF6A00" />
         </>

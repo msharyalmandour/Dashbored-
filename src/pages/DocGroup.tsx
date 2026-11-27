@@ -175,7 +175,7 @@ function Row({ m, me, docName, roster, myRsvp, now, onRsvp, onRemove }: { m: Sup
               <b style={{ display: "block", fontSize: 14 }}>{String(p.title ?? m.body)}</b>
             </div>
             {p.assignee_name && <span className="dc-av sm">{avatarLetter(String(p.assignee_name))}</span>}
-            {p.due && <span style={{ fontSize: 12, color: "#ABA095" }}>{formatWeekday(String(p.due))}</span>}
+            {p.due && <span style={{ fontSize: 12, color: "#b8ada2" }}>{formatWeekday(String(p.due))}</span>}
           </div>
         )}
         {m.kind === "meeting" && p.date && (
@@ -191,7 +191,7 @@ function Row({ m, me, docName, roster, myRsvp, now, onRsvp, onRemove }: { m: Sup
                   <span dir="ltr">{String(p.time ?? "")}</span>
                   {p.place ? ` · ${p.place}` : ""}
                 </b>
-                <span style={{ fontSize: 12, color: "#ABA095" }}>{tr("انضاف لتقويم الفريق")}</span>
+                <span style={{ fontSize: 12, color: "#b8ada2" }}>{tr("انضاف لتقويم الفريق")}</span>
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -207,7 +207,7 @@ function Row({ m, me, docName, roster, myRsvp, now, onRsvp, onRemove }: { m: Sup
                 </button>
               )}
             </div>
-            {roster.length > 0 && <span style={{ fontSize: 12, color: "#ABA095" }}>{tr("الدكتورة تشوف مين بيحضر")}</span>}
+            {roster.length > 0 && <span style={{ fontSize: 12, color: "#b8ada2" }}>{tr("الدكتورة تشوف مين بيحضر")}</span>}
           </div>
         )}
         {m.kind === "approval" && (

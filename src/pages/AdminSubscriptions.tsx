@@ -121,7 +121,7 @@ export default function AdminSubscriptions() {
             {activeTeams.length}
           </p>
         </Card>
-        <Card tone="violet">
+        <Card tone="amber">
           <p className="text-sm font-semibold text-brand-950/60">{tr("الإيراد الشهري الحالي")}</p>
           <p className="mt-1 font-display text-3xl font-extrabold text-brand-950">
             {monthlyRevenue} <span className="text-base font-medium text-brand-950/40">{tr("ريال")}</span>

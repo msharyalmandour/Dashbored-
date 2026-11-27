@@ -78,10 +78,10 @@ export default function MinutesList(props: MinutesListProps) {
                   {String(n).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-[1.4] leading-[1.4]">
-                  <b className="block truncate text-[16px] text-[#F2EBE3]" dir="auto">
+                  <b className="block truncate text-[16px] text-[#f4f0ec]" dir="auto">
                     {title}
                   </b>
-                  <span className="flex items-center gap-2 text-[13px] text-[#ABA095]">
+                  <span className="flex items-center gap-2 text-[13px] text-[#b8ada2]">
                     {formatDateShort(x.meetingDate)}
                     {x.attendees.length > 0 && (
                       <span className="mt-avs" aria-label={tr("{0} حضروا", x.attendees.length)}>
@@ -98,7 +98,7 @@ export default function MinutesList(props: MinutesListProps) {
                   {decisionCount > 0 ? `${arDigit(decisionCount)} ${decisionCount === 1 ? tr("قرار") : tr("قرارات")}` : tr("بدون قرارات")} · {items > 0 ? `${arDigit(items)} ${items === 1 ? tr("مهمة") : tr("مهام")}` : tr("بدون بنود")}
                 </span>
                 <ApprovalBadge status={st} />
-                <ChevronLeft size={16} className="shrink-0 text-[#ABA095]" aria-hidden />
+                <ChevronLeft size={16} className="shrink-0 text-[#b8ada2]" aria-hidden />
               </button>
             </li>
           );
@@ -141,7 +141,7 @@ export default function MinutesList(props: MinutesListProps) {
                   <span>{trx("{0} من {1}", prog.done, prog.total)}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-                  <div className="h-full rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] transition-[width] duration-500" style={{ width: `${pct}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] transition-[width] duration-500" style={{ width: `${pct}%` }} />
                 </div>
               </div>
             )}
@@ -227,7 +227,7 @@ export default function MinutesList(props: MinutesListProps) {
                     setSending(null);
                   }}
                   disabled={sending === m.id}
-                  className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-bold text-[#1A0F00] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-4 py-1.5 text-xs font-bold text-[#1A0F00] disabled:opacity-50"
                 >
                   {sending === m.id ? <WSpin size={12} /> : <Send size={12} />}
                   {status === "none" ? tr("أرسلوه للاعتماد") : tr("أعيدوا الإرسال")}

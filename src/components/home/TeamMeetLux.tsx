@@ -23,7 +23,7 @@ const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
 /** لون كل عضو (تدرج الأفاتار + هالة الضوء) — ثابت حسب ترتيبه بالفريق */
 export const PALETTE = [
-  { from: "#FFE08A", to: "#FFB444", tint: "rgba(255,190,80,.7)" },
+  { from: "#FFE08A", to: "#ffb547", tint: "rgba(255,190,80,.7)" },
   { from: "#FFC27A", to: "#FF8A2A", tint: "rgba(255,130,40,.6)" },
   { from: "#FFF3E2", to: "#E7D3BC", tint: "rgba(255,225,190,.45)" },
   { from: "#FF9A5A", to: "#D9500A", tint: "rgba(230,80,20,.6)" },

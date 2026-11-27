@@ -42,7 +42,7 @@ export default function DriveJoin() {
   };
 
   return (
-    <div className="relative mx-auto flex min-h-[calc(100dvh-220px)] md:min-h-0 max-w-[440px] flex-col text-[#EAE3DC]">
+    <div className="relative mx-auto flex min-h-[calc(100dvh-220px)] md:min-h-0 max-w-[440px] flex-col text-[#f4f0ec]">
       <span aria-hidden className="st-glow !top-[-80px]" />
       <div className="relative flex items-center justify-center gap-4 pt-8">
         <WLogo size={64} />
@@ -52,7 +52,7 @@ export default function DriveJoin() {
         </span>
       </div>
       <div className="relative mt-6 text-center">
-        {inviter && <div className="text-[13px] font-extrabold text-[#FFB444]">{tr("{0} يدعوك", inviter)}</div>}
+        {inviter && <div className="text-[13px] font-extrabold text-[#ffb547]">{tr("{0} يدعوك", inviter)}</div>}
         <h1 className="lx-h1 !text-[32px]">{tr("اربط درايفك بالفريق")}</h1>
         <p className="m-0 mt-2 text-[15px] leading-[1.8] text-[#E9D3B8]">
           {tr("عشان ملفاتك تنحفظ بمجلد الفريق، والدكتورة تشوفها.")}
@@ -87,7 +87,7 @@ export default function DriveJoin() {
           {busy ? tr("نفتح Google…") : tr("اربط بحساب Google")}
         </button>
       )}
-      {status && !status.connected && <p className="m-0 mt-3 text-center text-[13px] text-[#ABA095]">{tr("القائد لسه ما ربط درايف الفريق.")}</p>}
+      {status && !status.connected && <p className="m-0 mt-3 text-center text-[13px] text-[#b8ada2]">{tr("القائد لسه ما ربط درايف الفريق.")}</p>}
     </div>
   );
 }

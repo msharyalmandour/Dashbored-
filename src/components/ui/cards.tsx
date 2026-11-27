@@ -133,7 +133,7 @@ export function ActionCard({
 /* -------------------------------------------------------------------- */
 /* Alert — بانر تنبيه/معلومة بأيقونة، مع إجراء و/أو زر إغلاق اختياري     */
 /* -------------------------------------------------------------------- */
-export type AlertTone = "info" | "warning" | "danger" | "success" | "violet";
+export type AlertTone = "info" | "warning" | "danger" | "success";
 
 const alertToneClasses: Record<
   AlertTone,
@@ -170,14 +170,6 @@ const alertToneClasses: Record<
     glow: "shadow-[0_0_0_4px_rgba(255,106,0,0.14)]",
     text: "text-brand-700",
     iconText: "text-brand-600",
-  },
-  violet: {
-    border: "border-violet-200/70",
-    bg: "bg-violet-50/80",
-    chip: "bg-gradient-to-br from-violet-400 to-violet-600",
-    glow: "shadow-[0_0_0_4px_rgba(139,92,246,0.14)]",
-    text: "text-violet-700",
-    iconText: "text-violet-600",
   },
 };
 

@@ -52,7 +52,7 @@ export default function Receipts() {
           <WLogo size={40} />
           <div style={{ flex: 1 }}>
             <b style={{ fontSize: 18 }}>{team?.name ?? ""}</b>
-            <div style={{ fontSize: 13, color: "#ABA095" }}>{tr("سجل رحلة البحث · Wesync")}</div>
+            <div style={{ fontSize: 13, color: "#b8ada2" }}>{tr("سجل رحلة البحث · Wesync")}</div>
           </div>
           <FounderBadge n={founder} />
         </header>
@@ -69,7 +69,7 @@ export default function Receipts() {
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <b style={{ display: "block", fontSize: 15 }}>{label(r)}</b>
-                <span style={{ fontSize: 12, color: "#ABA095" }}>
+                <span style={{ fontSize: 12, color: "#b8ada2" }}>
                   {formatDateShort(r.created_at.slice(0, 10))}
                   {daysIn(r.created_at) !== null ? ` · ${tr("اليوم {0} من رحلتكم", daysIn(r.created_at)! + 1)}` : ""}
                 </span>

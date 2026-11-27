@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import clsx from "clsx";
 
-export type CardTone = "paper" | "cream" | "teal" | "sky" | "amber" | "violet" | "rose";
+export type CardTone = "paper" | "cream" | "teal" | "sky" | "amber" | "rose";
 
 const toneClasses: Record<CardTone, string> = {
   paper: "bg-paper/60 border-brand-100/50",
@@ -9,7 +9,6 @@ const toneClasses: Record<CardTone, string> = {
   teal: "bg-brand-50/55 border-brand-100/60",
   sky: "bg-sky-accent-50/55 border-sky-accent-100/60",
   amber: "bg-amber-accent-100/50 border-amber-accent-200/60",
-  violet: "bg-violet-50/55 border-violet-100/60",
   rose: "bg-rose-50/55 border-rose-100/60",
 };
 

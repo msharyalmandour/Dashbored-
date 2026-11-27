@@ -58,16 +58,16 @@ export default function SupervisorEmailInvite({ status, onSent }: { status: Emai
               placeholder="name@kau.edu.sa"
               aria-label={tr("إيميل المشرف/ة")}
               disabled={!canWrite}
-              className="min-h-[44px] min-w-0 flex-1 basis-full rounded-full border border-[rgba(255,240,225,.14)] sm:basis-auto bg-[rgba(255,245,235,.05)] px-4 text-[15px] text-[#F2EBE3] outline-none focus:border-[rgba(255,199,119,.55)]"
+              className="min-h-[44px] min-w-0 flex-1 basis-full rounded-full border border-[rgba(255,240,225,.14)] sm:basis-auto bg-[rgba(255,245,235,.05)] px-4 text-[15px] text-[#f4f0ec] outline-none focus:border-[rgba(255,199,119,.55)]"
             />
-            <button type="button" onClick={send} disabled={busy || !canWrite || !/^\S+@\S+\.\S+$/.test(email.trim())} className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#F2EBE3] px-4 text-[14px] font-extrabold text-[#160904] disabled:opacity-50">
+            <button type="button" onClick={send} disabled={busy || !canWrite || !/^\S+@\S+\.\S+$/.test(email.trim())} className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#f4f0ec] px-4 text-[14px] font-extrabold text-[#160904] disabled:opacity-50">
               {msg?.ok ? <Check size={15} aria-hidden /> : <Mail size={15} aria-hidden />}
               {busy ? tr("لحظة…") : tr("فعّلوا إيميلات المشرف/ة")}
             </button>
           </div>
         </>
       ) : (
-        <p className="m-0 text-[13px] text-[#ABA095]">{tr("القائد يكتب إيميل المشرف/ة من هنا.")}</p>
+        <p className="m-0 text-[13px] text-[#b8ada2]">{tr("القائد يكتب إيميل المشرف/ة من هنا.")}</p>
       )}
       {msg && (
         <p className={`m-0 mt-2 text-[13px] leading-relaxed ${msg.ok ? "text-[#FFC777]" : "text-[#FF8A7A]"}`} role={msg.ok ? "status" : "alert"}>

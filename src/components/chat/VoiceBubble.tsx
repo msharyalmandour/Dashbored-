@@ -66,15 +66,15 @@ export default function VoiceBubble({ meta }: { meta: VoiceMeta }) {
           {rate}×
         </button>
       </div>
-      {failed && <p className="m-0 mt-1 text-[12px] text-[#ABA095]">{meta.path ? tr("ما قدرنا نشغّله الحين — جرّبوا بعد شوي.") : tr("الفويس لسا يرفع…")}</p>}
+      {failed && <p className="m-0 mt-1 text-[12px] text-[#b8ada2]">{meta.path ? tr("ما قدرنا نشغّله الحين — جرّبوا بعد شوي.") : tr("الفويس لسا يرفع…")}</p>}
       {meta.gist && (
-        <div className="mt-2 text-[14px] leading-[1.6] text-[#EAE3DC]" dir="auto">
+        <div className="mt-2 text-[14px] leading-[1.6] text-[#f4f0ec]" dir="auto">
           <span className="font-bold text-[#FFC777]">✦ {tr("الزبدة:")}</span> {meta.gist}
         </div>
       )}
       {meta.transcript && (
         <details className="mt-1.5">
-          <summary className="flex min-h-[36px] cursor-pointer items-center text-[13px] font-bold text-[#EAE3DC]">{tr("النص كامل")}</summary>
+          <summary className="flex min-h-[36px] cursor-pointer items-center text-[13px] font-bold text-[#f4f0ec]">{tr("النص كامل")}</summary>
           <p className="m-0 whitespace-pre-wrap text-[14px] leading-[1.7] text-[#E9D3B8]" dir="auto">
             {meta.transcript}
           </p>

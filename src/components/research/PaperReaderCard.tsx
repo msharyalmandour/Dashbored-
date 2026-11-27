@@ -107,7 +107,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-sm font-extrabold text-[#F4F0EC]">
-            <BookOpenCheck size={16} className="text-[#FFB444]" /> {tr("اقرأ لي هذي الورقة")}
+            <BookOpenCheck size={16} className="text-[#ffb547]" /> {tr("اقرأ لي هذي الورقة")}
           </p>
           <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى 10 صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
         </div>
@@ -116,7 +116,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
             <X size={14} />
           </button>
         )}
-        <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50">
+        <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#ffb547] transition hover:bg-[#ff6a00]/10 disabled:opacity-50">
           {busy ? <WSpin size={14} /> : <FileUp size={14} />}
           {busy ? tr("أقرأها…") : tr("ارفعوا PDF أو صور")}
         </button>
@@ -162,13 +162,13 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
                   <Check size={15} /> {tr("انضافت للمكتبة وجدول الأدبيات")}
                 </span>
-                <Link to="/literature-review" className="text-xs font-bold text-[#FFB444] hover:underline">
+                <Link to="/literature-review" className="text-xs font-bold text-[#ffb547] hover:underline">
                   {tr("شوفوها بالجدول ←")}
                 </Link>
               </>
             ) : (
               <>
-                <button type="button" onClick={save} className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00]">
+                <button type="button" onClick={save} className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00]">
                   <Check size={14} /> {tr("أضفها للمكتبة")}
                 </button>
                 <button type="button" onClick={() => setPaper(null)} className="flex items-center gap-1 text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">

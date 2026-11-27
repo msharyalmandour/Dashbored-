@@ -447,7 +447,7 @@ export default function GlobalDrop() {
           </span>
           <div className="min-w-0 flex-1 leading-[1.4]">
             <b className="text-[16px]">{tr("{0} من {1} مختارة", included.length, nAll)}</b>
-            <div className="truncate text-[13px] text-[#ABA095]">{noteLine}</div>
+            <div className="truncate text-[13px] text-[#b8ada2]">{noteLine}</div>
           </div>
           <button type="button" className="hd-glass !min-h-[52px] !rounded-[18px] !text-[15px]" onClick={reviewOneByOne} disabled={!included.length}>
             {tr("راجعوها وحدة وحدة")}
@@ -687,7 +687,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
           ))}
         </div>
       ) : (
-        <div className="text-[13px] text-[#ABA095]" dir="auto">
+        <div className="text-[13px] text-[#b8ada2]" dir="auto">
           {[p.authors, p.year].filter(Boolean).join(" · ")}
         </div>
       );
@@ -718,7 +718,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
               </div>
             );
           })}
-          {(p.tasks?.length ?? 0) > 4 && <div className="text-[12px] text-[#ABA095]">{tr("و{0} غيرها", p.tasks.length - 4)}</div>}
+          {(p.tasks?.length ?? 0) > 4 && <div className="text-[12px] text-[#b8ada2]">{tr("و{0} غيرها", p.tasks.length - 4)}</div>}
           {!isLeader && <div className="mt-1 text-[12px] text-[#FFC777]">{tr("تنتظر القائد — هو اللي يضيف المهام")}</div>}
         </div>
       );
@@ -735,7 +735,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
             <b className="block truncate text-[16px]" dir="auto">
               {ev.title}
             </b>
-            <div className="text-[13px] text-[#ABA095]">{[ev.time, ev.date ? monthName(ev.date) : ""].filter(Boolean).join(" · ")}</div>
+            <div className="text-[13px] text-[#b8ada2]">{[ev.time, ev.date ? monthName(ev.date) : ""].filter(Boolean).join(" · ")}</div>
           </div>
         </div>
       ) : null;

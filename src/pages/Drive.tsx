@@ -19,7 +19,7 @@ import { tr } from "../lib/i18n";
 /* الدرايف ومين مربوط (DriveD) — مجلد واحد للفريق والمشرف/ة، فيه 6 مجلدات فرعية.
    كل شخص بسطر: الحالة وإجراء واحد (ذكّروه بالواتساب / أضيفوا إيميله / غيّروا الصلاحية). */
 
-const AV = ["#FFC85A", "#FF9A5A", "#FFE3C2", "#FFB444", "#F2EBE3"];
+const AV = ["#FFC85A", "#FF9A5A", "#FFE3C2", "#ffb547", "#f4f0ec"];
 const EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]{2,}$/;
 export const inviteLink = () => `${window.location.origin}/#/drive/join`;
 
@@ -103,7 +103,7 @@ export default function Drive() {
       row: srow,
       profileId: null,
       supervisor: true,
-      color: "#F2EBE3",
+      color: "#f4f0ec",
       blocked: supBlocked,
     });
     return out;
@@ -201,7 +201,7 @@ export default function Drive() {
 
   const list = folders ?? DEFAULT_FOLDERS;
   return (
-    <div className="relative text-[#EAE3DC]">
+    <div className="relative text-[#f4f0ec]">
       <LuxHead kicker={tr("التقويم والملفات")} title={tr("الدرايف ومين مربوط")} sub={tr("مجلد واحد للفريق والمشرف/ة، وكل شي ينحفظ فيه لحاله")}>
         {status?.folderLink && (
           <a className="lx-ghost" href={status.folderLink} target="_blank" rel="noreferrer">
@@ -228,17 +228,17 @@ export default function Drive() {
             <b className="text-[34px] font-extrabold" dir="ltr">
               {linked}/{total}
             </b>
-            <span className="mt-1 text-[12px] text-[#ABA095]">{tr("مربوطين")}</span>
+            <span className="mt-1 text-[12px] text-[#b8ada2]">{tr("مربوطين")}</span>
           </span>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-center gap-1.5 text-[12px] font-extrabold text-[#FFB444] md:justify-start">
+          <div className="flex items-center justify-center gap-1.5 text-[12px] font-extrabold text-[#ffb547] md:justify-start">
             <GoogleDriveLogo size={16} />
             <span dir="auto">
               Wesync · Google Drive{project?.title ? ` — ${project.title}` : ""}
             </span>
           </div>
-          <h2 className="m-0 mt-1 text-[26px] font-extrabold text-[#F2EBE3]">{connected ? tr("{0} من {1} مربوطين", linked, total) : tr("الدرايف مو مربوط")}</h2>
+          <h2 className="m-0 mt-1 text-[26px] font-extrabold text-[#f4f0ec]">{connected ? tr("{0} من {1} مربوطين", linked, total) : tr("الدرايف مو مربوط")}</h2>
           <p className="m-0 mt-1 text-[15px] leading-[1.8] text-[#E9D3B8]">{sentence}</p>
         </div>
         {connected ? (
@@ -254,7 +254,7 @@ export default function Drive() {
             {tr("اربطوا الدرايف")}
           </button>
         ) : (
-          <span className="text-[14px] text-[#ABA095]">{tr("القائد يربطه من هنا")}</span>
+          <span className="text-[14px] text-[#b8ada2]">{tr("القائد يربطه من هنا")}</span>
         )}
       </section>
 
@@ -267,7 +267,7 @@ export default function Drive() {
             <h2 id="dv-who" className="lx-h2 flex-1">
               {tr("مين مربوط")}
             </h2>
-            <span className="flex items-center gap-1.5 text-[12px] text-[#ABA095]">
+            <span className="flex items-center gap-1.5 text-[12px] text-[#b8ada2]">
               {syncing && <WSpin size={13} />}
               {tr("نتأكد كل ساعة")}
             </span>
@@ -280,7 +280,7 @@ export default function Drive() {
                 </span>
                 <span className="min-w-0 flex-1 leading-[1.45]">
                   <span className="block truncate">
-                    <b className="text-[16px] text-[#F2EBE3]">{p.name}</b> <span className="text-[13px] text-[#ABA095]">· {p.role}</span>
+                    <b className="text-[16px] text-[#f4f0ec]">{p.name}</b> <span className="text-[13px] text-[#b8ada2]">· {p.role}</span>
                   </span>
                   <span className="block truncate text-[13px] text-[#E9D3B8]">{p.sub}</span>
                 </span>
@@ -308,7 +308,7 @@ export default function Drive() {
               <h2 id="dv-tree" className="lx-h2 flex-1">
                 {tr("ترتيب المجلد")}
               </h2>
-              <span className="text-[12px] text-[#ABA095]">{lastSyncAt ? tr("نسويها لحاله") : tr("نسويه أول ما تربطون")}</span>
+              <span className="text-[12px] text-[#b8ada2]">{lastSyncAt ? tr("نسويها لحاله") : tr("نسويه أول ما تربطون")}</span>
             </div>
             <ul className="m-0 list-none p-0">
               {list.map((f) => (
@@ -323,7 +323,7 @@ export default function Drive() {
             </ul>
           </section>
           <section className="lx-card lx-in p-[18px]">
-            <b className="block text-[16px] text-[#F2EBE3]">{tr("ليش الدكتورة «تشوف بس»؟")}</b>
+            <b className="block text-[16px] text-[#f4f0ec]">{tr("ليش الدكتورة «تشوف بس»؟")}</b>
             <p className="m-0 mt-1.5 text-[14px] leading-[1.8] text-[#E9D3B8]">{tr("تشوف كل الملفات وتعلّق، بس ما تعدّل على شغلكم. تقدرون تغيّرونها.")}</p>
           </section>
           {!connected && !isLeader && (
@@ -356,7 +356,7 @@ export default function Drive() {
             return (
               <button key={id} type="button" className={clsx("dv-opt", on && "on")} onClick={() => void changeRole(id)} disabled={busy}>
                 <b className="block text-[15px]">{title}</b>
-                <span className="block text-[13px] text-[#ABA095]">{sub}</span>
+                <span className="block text-[13px] text-[#b8ada2]">{sub}</span>
               </button>
             );
           })}

@@ -1,6 +1,6 @@
 /* ═══ صفحة الهبوط v3 «فخامة كلاسيكية» (LandingV3) — Obsidian × Ember، قسم كريمي واحد، خطوط ذهبية وأرقام أقسام.
    برتقالي واحد بكل شاشة (زر «ابدأوا فريقكم مجانًا»)، نصوص ≥12px، أهداف ≥44px، بدون حركة لا نهائية، و«قلّل الحركة» ثابت. ═══ */
-.l3 { --ink: #080808; --ember: #FF6A00; --ember2: #FF9A3C; --gold: #FFC777; --cream: #F2EBE3; --cream-ink: #160904; --text: #E9D3B8; --muted: #ABA095;
+.l3 { --ink: #080808; --ember: #FF6A00; --ember2: #FF9A3C; --gold: #FFC777; --cream: #f4f0ec; --cream-ink: #160904; --text: #E9D3B8; --muted: #b8ada2;
   background: var(--ink); color: var(--text); font-family: Tajawal, system-ui, sans-serif; letter-spacing: 0; overflow-x: clip; min-height: 100vh; }
 .l3 a { color: inherit; text-decoration: none; }
 .l3-wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
@@ -13,7 +13,7 @@
 .l3-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 15px; color: var(--muted); }
 .l3-nav a:hover { color: #F7EFE6; }
 @media (min-width: 760px) { .l3-nav { display: flex; } }
-.l3-lang { border-color: rgba(255,245,235,.18) !important; background: rgba(255,245,235,.06) !important; color: #F2EBE3 !important; }
+.l3-lang { border-color: rgba(255,245,235,.18) !important; background: rgba(255,245,235,.06) !important; color: #f4f0ec !important; }
 .l3-login { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; font-size: 15px; font-weight: 700; color: var(--cream-ink) !important; background: var(--cream); }
 
 /* عناوين الأقسام: رقم + خط ذهبي */
@@ -156,7 +156,7 @@ html[data-reduce-motion="true"] .l3-step, html[data-reduce-motion="true"] .l3-se
 /* شهري / سنوي */
 .l3-period { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 auto 22px; border-radius: 999px; background: rgba(255,199,119,.08); border: 1px solid rgba(255,199,119,.2); }
 .l3-period button { min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .25s, color .25s; }
-.l3-period button.on { background: #F2EBE3; color: #160904; }
+.l3-period button.on { background: #f4f0ec; color: #160904; }
 .l3-period button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .l3-period-tag { font-size: 12px; font-weight: 800; color: #8A4B10; background: rgba(255,199,119,.35); padding: 2px 8px; border-radius: 999px; }
 .l3-period button:not(.on) .l3-period-tag { color: var(--gold); background: rgba(255,199,119,.12); }

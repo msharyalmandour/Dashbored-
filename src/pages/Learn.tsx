@@ -30,10 +30,10 @@ function Ring({ done, total }: { done: number; total: number }) {
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
-          <b className="block text-[26px] font-extrabold leading-none text-[#F2EBE3]" dir="ltr">
+          <b className="block text-[26px] font-extrabold leading-none text-[#f4f0ec]" dir="ltr">
             {done}/{total}
           </b>
-          <span className="text-xs text-[#ABA095]">{tr("دروس")}</span>
+          <span className="text-xs text-[#b8ada2]">{tr("دروس")}</span>
         </div>
       </div>
     </div>
@@ -64,11 +64,11 @@ export default function Learn() {
           {ok ? <Check size={16} strokeWidth={3} /> : <span dir="ltr">{i + 1}</span>}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="m-0 text-[15px] font-bold text-[#F2EBE3]">
+          <p className="m-0 text-[15px] font-bold text-[#f4f0ec]">
             {l.title}
             {ok && <span className="sr-only"> · {tr("مكتمل")}</span>}
           </p>
-          <p className="m-0 mt-0.5 text-[13px] leading-relaxed text-[#ABA095]">{leaderTask ? tr("هذي يسويها قائد الفريق، ما تنحسب عليكم.") : l.why}</p>
+          <p className="m-0 mt-0.5 text-[13px] leading-relaxed text-[#b8ada2]">{leaderTask ? tr("هذي يسويها قائد الفريق، ما تنحسب عليكم.") : l.why}</p>
         </div>
         {!loaded ? (
           <span className="wsa-skel h-9 w-16 rounded-full" aria-hidden />
@@ -95,18 +95,18 @@ export default function Learn() {
         <Ring done={loaded ? done : 0} total={total} />
         <div className="min-w-0 flex-1">
           <p className="m-0 text-[13px] font-bold text-[#FFC777]">{loaded ? level.name : tr("نحسب تقدّمكم…")}</p>
-          <h1 className="m-0 mt-1 text-[28px] font-extrabold leading-tight text-[#F2EBE3]">{tr("تعلّموا Wesync")}</h1>
+          <h1 className="m-0 mt-1 text-[28px] font-extrabold leading-tight text-[#f4f0ec]">{tr("تعلّموا Wesync")}</h1>
           <p className="m-0 mt-2 text-[15px] leading-relaxed text-[#E9D3B8]">
             {first ? tr("{0}، كل درس دقيقة أو دقيقتين تسوونه بأيديكم على بحثكم الحقيقي، ويكتمل لحاله أول ما تسوونه.", first) : tr("كل درس دقيقة أو دقيقتين تسوونه بأيديكم على بحثكم الحقيقي، ويكتمل لحاله أول ما تسوونه.")}
           </p>
-          {loaded && level.next !== null && !allDone && <p className="m-0 mt-2 text-[13px] text-[#ABA095]">{tr("باقي {0} للمستوى الجاي.", level.next - done)}</p>}
+          {loaded && level.next !== null && !allDone && <p className="m-0 mt-2 text-[13px] text-[#b8ada2]">{tr("باقي {0} للمستوى الجاي.", level.next - done)}</p>}
         </div>
       </header>
 
       {allDone ? (
         <section className="hg-card ac-cert mt-4" style={rise(1)} aria-labelledby="ac-cert-h">
           <Award size={34} className="text-[#FFC777]" aria-hidden />
-          <h2 id="ac-cert-h" className="m-0 mt-3 text-[24px] font-extrabold text-[#F2EBE3]">
+          <h2 id="ac-cert-h" className="m-0 mt-3 text-[24px] font-extrabold text-[#f4f0ec]">
             {tr("صرتوا خبراء Wesync")}
           </h2>
           <p className="m-0 mt-2 text-[15px] leading-relaxed text-[#E9D3B8]">{tr("تعرفون كل شي يحتاجه فريقكم: المحادثة، الدراسات، المهام، المقترح، والمشرف/ة. علّموا اللي ما خلص من فريقكم.")}</p>
@@ -117,12 +117,12 @@ export default function Learn() {
       ) : (
         next && (
           <section className="hg-card mt-4" style={rise(1)} aria-labelledby="ac-next-h">
-            <p className="m-0 text-[13px] font-bold text-[#ABA095]">{done === 0 ? tr("ابدأوا من هنا") : tr("كمّلوا من هنا")}</p>
-            <h2 id="ac-next-h" className="m-0 mt-1 text-[22px] font-extrabold text-[#F2EBE3]">
+            <p className="m-0 text-[13px] font-bold text-[#b8ada2]">{done === 0 ? tr("ابدأوا من هنا") : tr("كمّلوا من هنا")}</p>
+            <h2 id="ac-next-h" className="m-0 mt-1 text-[22px] font-extrabold text-[#f4f0ec]">
               {next.title}
             </h2>
             <p className="m-0 mt-1.5 text-[15px] leading-relaxed text-[#E9D3B8]">{next.why}</p>
-            <p className="m-0 mt-2 flex items-center gap-1.5 text-[13px] text-[#ABA095]">
+            <p className="m-0 mt-2 flex items-center gap-1.5 text-[13px] text-[#b8ada2]">
               <Clock size={14} aria-hidden />
               {tr("{0} دقيقة تقريبًا", next.minutes)}
             </p>
@@ -140,24 +140,24 @@ export default function Learn() {
         return (
           <section key={ch.id} className="hg-card mt-4" style={rise(ci + 2)} aria-labelledby={`ac-ch-${ch.id}`}>
             <div className="flex items-baseline gap-2">
-              <h2 id={`ac-ch-${ch.id}`} className="m-0 text-[18px] font-extrabold text-[#F2EBE3]">
+              <h2 id={`ac-ch-${ch.id}`} className="m-0 text-[18px] font-extrabold text-[#f4f0ec]">
                 {ch.title}
               </h2>
-              <span className="ms-auto text-[13px] text-[#ABA095]" dir="ltr">
+              <span className="ms-auto text-[13px] text-[#b8ada2]" dir="ltr">
                 {loaded ? `${chDone}/${mine.length}` : ""}
               </span>
             </div>
-            <p className="m-0 mt-0.5 text-[13px] text-[#ABA095]">{ch.sub}</p>
+            <p className="m-0 mt-0.5 text-[13px] text-[#b8ada2]">{ch.sub}</p>
             <ol className="m-0 mt-3 list-none p-0">{ch.lessons.map(row)}</ol>
           </section>
         );
       })}
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2 pb-4">
-        <button type="button" className="tc-ghost text-[#ABA095]" onClick={startTour}>
+        <button type="button" className="tc-ghost text-[#b8ada2]" onClick={startTour}>
           {tr("الجولة السريعة بالصور")}
         </button>
-        <Link to="/guide" className="tc-ghost text-[#ABA095]">
+        <Link to="/guide" className="tc-ghost text-[#b8ada2]">
           {tr("دليل الطالب")}
         </Link>
       </div>

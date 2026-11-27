@@ -64,7 +64,7 @@ const ITEM_ICON: Record<OfficeItemId, LucideIcon> = {
   papers: ScrollText,
   cap: GraduationCap,
 };
-const BOOKS = ["#E9651F", "#FFC777", "#7A2E1C", "#F2EBE3", "#B4430B", "#FFB547", "#3A1504"];
+const BOOKS = ["#E9651F", "#FFC777", "#7A2E1C", "#f4f0ec", "#B4430B", "#FFB547", "#3A1504"];
 
 /** رف ويسي: كل ما ساعدوه بشي (درس من الأكاديمية) تنحط قطعة على الرف مكان كتاب.
     القطعة الجديدة تطلع بحركة وحدة بس (مرة)، والباقي ثابت. */

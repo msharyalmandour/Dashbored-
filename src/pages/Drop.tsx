@@ -230,7 +230,7 @@ export default function Drop() {
     </>
   );
   const toastEl = toast && (
-    <div role="status" className="dr-card dr-in fixed inset-x-4 bottom-24 z-[60] mx-auto max-w-md rounded-2xl px-4 py-3 text-[14px] text-[#EAE3DC] md:bottom-8">
+    <div role="status" className="dr-card dr-in fixed inset-x-4 bottom-24 z-[60] mx-auto max-w-md rounded-2xl px-4 py-3 text-[14px] text-[#f4f0ec] md:bottom-8">
       {toast}
     </div>
   );
@@ -282,7 +282,7 @@ export default function Drop() {
               {e.icon}
             </span>
           </div>
-          <b className="mt-2 text-[18px] text-[#EAE3DC]">{e.title}</b>
+          <b className="mt-2 text-[18px] text-[#f4f0ec]">{e.title}</b>
           <p className="m-0 mb-3.5 mt-1.5 text-[14px] leading-[1.7] text-[#E9D3B8]">{localErr?.code === "offline" ? localErr.message : e.body}</p>
           <button type="button" className="dr-cream w-full !flex-none" onClick={e.run}>
             {e.action}
@@ -318,7 +318,7 @@ export default function Drop() {
           <div className="mt-[70px]">
             <Vessel size={300} state="reading" scene />
           </div>
-          <div className="text-[13px] font-bold tracking-[.04em] text-[#FFB444]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("1 من 1 · {0}", kindWord(1, mime, first))}</div>
+          <div className="text-[13px] font-bold tracking-[.04em] text-[#ffb547]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("1 من 1 · {0}", kindWord(1, mime, first))}</div>
           <h1 className="dr-title text-[28px]">{starting ? tr("نرفعها…") : tr("نقرا الملف…")}</h1>
           <p className="m-0 text-[15px] text-[#E9D3B8]">{tr("نطلّع النقاط، المهام، ومين مسؤول عن وش.")}</p>
           <div className="mt-2.5 flex gap-1.5" aria-hidden>
@@ -330,7 +330,7 @@ export default function Drop() {
             <span className="dr-stamp h-8 w-8" aria-hidden>
               <Sparkles size={15} />
             </span>
-            <span className="flex-1 text-[14px] text-[#EAE3DC]">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("ويسي يقرا ويفرز…"))}</span>
+            <span className="flex-1 text-[14px] text-[#f4f0ec]">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("ويسي يقرا ويفرز…"))}</span>
           </section>
           <button type="button" className="dr-text dim mt-1" onClick={again}>
             {tr("إلغاء")}
@@ -356,10 +356,10 @@ export default function Drop() {
               <b className="block truncate text-[15px]" dir="auto">
                 {r.title}
               </b>
-              <span className="text-[12px] text-[#ABA095] lg:text-[13px]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
+              <span className="text-[12px] text-[#b8ada2] lg:text-[13px]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
             </span>
             <span className="hidden text-[13px] lg:inline">{tr("افتحوها")}</span>
-            <ChevronLeft size={18} className="text-[#ABA095]" aria-hidden />
+            <ChevronLeft size={18} className="text-[#b8ada2]" aria-hidden />
           </Link>
         ))}
         {waiting.map((r) => (
@@ -457,11 +457,11 @@ export default function Drop() {
           <div className="flex items-center gap-3">
             <Vessel size={84} state="hover" scene={!isDesk} />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-bold text-[#FFB444]" dir="auto">
+              <div className="truncate text-[13px] font-bold text-[#ffb547]" dir="auto">
                 {items.length > 1 ? tr("{0} عناصر رميتوها", items.length) : items[0]?.name}
               </div>
               <h1 className="dr-title text-[24px] leading-[1.3]">{tr("لقينا {0} أشياء", nAll)}</h1>
-              {drop?.summary && <div className="text-[13px] text-[#ABA095]">{drop.summary}</div>}
+              {drop?.summary && <div className="text-[13px] text-[#b8ada2]">{drop.summary}</div>}
             </div>
           </div>
           {cards}
@@ -552,7 +552,7 @@ export default function Drop() {
       <b className="truncate" dir="auto">
         {last.items.length > 1 ? tr("{0} عناصر", last.items.length) : last.items[0]?.name ?? last.summary}
       </b>
-      <span className="truncate text-[#ABA095]">
+      <span className="truncate text-[#b8ada2]">
         ← {last.status === "ready" ? tr("تنتظر مراجعتكم") : lastPlaced.length ? DEST_LABEL[lastPlaced[0].destination] : tr("ما انحط شي")} · {ago(last.created_at)}
       </span>
       {last.status === "ready" ? (

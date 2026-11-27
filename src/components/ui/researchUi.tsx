@@ -12,7 +12,7 @@ export const glassCard =
 
 /** زر رئيسي كبسولة (تدرّج برتقالي ← ذهبي) */
 export const gradientPill =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-6 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-6 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#ff6a00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
 
 /** حقل بكبسولة زجاجية */
 export const pillField =
@@ -41,7 +41,7 @@ export function FilterPill({ active, count, children, onClick }: { active: boole
       className={clsx(
         "rounded-full border px-4 py-1.5 text-sm transition-colors",
         active
-          ? "border-[#FF8A24]/70 bg-[#FF6B00]/15 text-[#FFB444]"
+          ? "border-[#FF8A24]/70 bg-[#ff6a00]/15 text-[#ffb547]"
           : "border-white/[0.14] text-[#B8ADA2] hover:border-[#FF8A24]/50 hover:text-[#F4F0EC]",
       )}
     >
@@ -53,7 +53,7 @@ export function FilterPill({ active, count, children, onClick }: { active: boole
 
 /** شارة المصدر — كلها بلون الهوية (الذهبي)، والتفريق بالاسم */
 export function SourceBadge({ children }: { children: ReactNode }) {
-  return <span className="rounded-full bg-[#FFB444] px-2.5 py-0.5 text-xs font-bold text-[#1A0F00]">{children}</span>;
+  return <span className="rounded-full bg-[#ffb547] px-2.5 py-0.5 text-xs font-bold text-[#1A0F00]">{children}</span>;
 }
 
 /** نص المصدر من رابط الدراسة (ما عندنا حقل مصدر محفوظ بالمكتبة) */

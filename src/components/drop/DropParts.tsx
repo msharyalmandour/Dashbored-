@@ -107,7 +107,7 @@ function Preview({ r, roster }: { r: DropResult; roster: TeamMember[] }) {
               <span className="min-w-0 flex-1 text-[14px] font-bold" dir="auto">
                 {t.title}
               </span>
-              {t.due && <span className="text-[12px] font-bold text-[#ABA095]">{formatDateShort(t.due)}</span>}
+              {t.due && <span className="text-[12px] font-bold text-[#b8ada2]">{formatDateShort(t.due)}</span>}
               <Owner id={t.owner_id} roster={roster} />
             </div>
           ))}
@@ -280,7 +280,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       <div ref={box} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className="dr-sheet dr-sh outline-none">
         <div className="dr-grab md:hidden" aria-hidden />
         <div className="mb-2 flex items-center gap-2">
-          <h2 className="m-0 flex-1 text-[17px] font-extrabold text-[#F2EBE3]">{title}</h2>
+          <h2 className="m-0 flex-1 text-[17px] font-extrabold text-[#f4f0ec]">{title}</h2>
           <button type="button" className="dr-text dim !min-w-[44px]" onClick={onClose} aria-label={tr("إغلاق")}>
             <X size={18} />
           </button>
@@ -308,7 +308,7 @@ export function DestinationSheet({ r, onClose, onPick }: { r: DropResult | null;
                   <Icon size={16} />
                 </span>
                 <span className="flex-1">{DEST_LABEL[d]}</span>
-                {!ok && <span className="text-[12px] text-[#ABA095]">{d === "calendar" ? tr("يحتاج تاريخ") : d === "dataset" ? tr("يحتاج جدول") : tr("ما يناسبها")}</span>}
+                {!ok && <span className="text-[12px] text-[#b8ada2]">{d === "calendar" ? tr("يحتاج تاريخ") : d === "dataset" ? tr("يحتاج جدول") : tr("ما يناسبها")}</span>}
                 {cur && <Check size={16} className="text-[#FFC777]" aria-hidden />}
               </button>
             );
@@ -395,7 +395,7 @@ export function EditSheet({ r, roster, onClose, onSave }: { r: DropResult | null
           {r.destination === "tasks" &&
             (p.tasks ?? []).map((t: { title: string; owner_id: string | null; due: string }, i: number) => (
               <fieldset key={i} className="mt-3 rounded-2xl border border-white/10 p-3">
-                <legend className="px-1 text-[12px] text-[#ABA095]">{tr("مهمة {0}", i + 1)}</legend>
+                <legend className="px-1 text-[12px] text-[#b8ada2]">{tr("مهمة {0}", i + 1)}</legend>
                 <input className="dr-field" aria-label={tr("عنوان المهمة")} value={t.title} onChange={(e) => setIn("tasks", i, "title", e.target.value)} dir="auto" />
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <select className="dr-field" aria-label={tr("المسؤول")} value={t.owner_id ?? ""} onChange={(e) => setIn("tasks", i, "owner_id", e.target.value || null)}>

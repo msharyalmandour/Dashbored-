@@ -156,7 +156,7 @@ export function PollCard({
                   </span>
                 ))}
               </span>
-              <span className="relative z-[1] w-9 text-end text-[12px] font-bold text-[#ABA095]" dir="ltr">
+              <span className="relative z-[1] w-9 text-end text-[12px] font-bold text-[#b8ada2]" dir="ltr">
                 {pct}%
               </span>
             </button>

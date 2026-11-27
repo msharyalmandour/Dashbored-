@@ -31,7 +31,7 @@ export function helpFor(pathname: string, table: Record<string, PageHelpEntry> =
 
 /** «**كذا**» = عريض */
 function rich(s: string): ReactNode[] {
-  return s.split(/(\*\*[^*]+\*\*)/g).map((p, i) => (p.startsWith("**") ? <b key={i} className="font-extrabold text-[#F2EBE3]">{p.slice(2, -2)}</b> : p));
+  return s.split(/(\*\*[^*]+\*\*)/g).map((p, i) => (p.startsWith("**") ? <b key={i} className="font-extrabold text-[#f4f0ec]">{p.slice(2, -2)}</b> : p));
 }
 
 export function PageHelpButton({ className }: { className?: string }) {
@@ -82,7 +82,7 @@ export function PageHelpButton({ className }: { className?: string }) {
             <div className="ph-scrim" aria-hidden onClick={() => setOpen(false)} />
             <div ref={panel} className="ph-sheet" role="dialog" aria-modal="true" aria-labelledby="ph-title" tabIndex={-1}>
               <div className="flex items-start justify-between gap-3">
-                <span className="pt-3 text-[13px] font-extrabold text-[#FFB444]">{tr("وش هذي الصفحة؟")}</span>
+                <span className="pt-3 text-[13px] font-extrabold text-[#ffb547]">{tr("وش هذي الصفحة؟")}</span>
                 <button type="button" className="ph-x" onClick={() => setOpen(false)} aria-label={tr("إغلاق")}>
                   <X size={18} />
                 </button>
@@ -98,8 +98,8 @@ export function PageHelpButton({ className }: { className?: string }) {
                       {i + 1}
                     </span>
                     <span className="min-w-0 flex-1 leading-[1.5]">
-                      <b className="block text-[15px] text-[#F2EBE3]">{s.title}</b>
-                      <span className="block text-[13px] text-[#ABA095]">{s.sub}</span>
+                      <b className="block text-[15px] text-[#f4f0ec]">{s.title}</b>
+                      <span className="block text-[13px] text-[#b8ada2]">{s.sub}</span>
                     </span>
                   </li>
                 ))}
@@ -109,7 +109,7 @@ export function PageHelpButton({ className }: { className?: string }) {
                 <Play size={15} aria-hidden />
                 {tr("ورّوني بنفسي (30 ثانية)")}
               </button>
-              <p className="m-0 mt-3 text-center text-[12px] text-[#ABA095]">{tr("علامة ؟ فوق كل صفحة تفتح هذا")}</p>
+              <p className="m-0 mt-3 text-center text-[12px] text-[#b8ada2]">{tr("علامة ؟ فوق كل صفحة تفتح هذا")}</p>
             </div>
           </>,
           document.body,

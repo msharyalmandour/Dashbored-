@@ -41,7 +41,7 @@ async function shareToWhatsApp(k: string) {
 
 export default function Stickers() {
   return (
-    <div className="text-[#EAE3DC]">
+    <div className="text-[#f4f0ec]">
       <LuxHead kicker={tr("شارك")} title={tr("ستيكرات ويسي")} sub={tr("حمّلوها، أو أرسلوها للواتساب من جوالكم")} />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {STICKERS.map(([k, cap]) => (

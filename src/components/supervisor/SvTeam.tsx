@@ -498,10 +498,10 @@ export default function SvTeam({
       <section className="sd-glass sv-team-head" aria-labelledby="sv-team-h">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <p className="m-0 text-[13px] font-bold text-[#FFB444]">
+            <p className="m-0 text-[13px] font-bold text-[#ffb547]">
               {leaderFirst ? trx("فريق {0} · {1}", <bdi key="l">{leaderFirst}</bdi>, studentsLabel(snapshot.members.length)) : studentsLabel(snapshot.members.length)}
             </p>
-            <h1 id="sv-team-h" className="m-0 text-[26px] font-extrabold leading-snug text-[#F2EBE3]">
+            <h1 id="sv-team-h" className="m-0 text-[26px] font-extrabold leading-snug text-[#f4f0ec]">
               <bdi>{snapshot.teamName}</bdi>
             </h1>
             {title && (
@@ -551,7 +551,7 @@ export default function SvTeam({
               {digest.slice(0, 5).map((line, k) => (
                 <li key={k}>• {line}</li>
               ))}
-              {digest.length > 5 && <li className="text-[12px] text-[#ABA095]">{tr("و{0} تغييرات ثانية", digest.length - 5)}</li>}
+              {digest.length > 5 && <li className="text-[12px] text-[#b8ada2]">{tr("و{0} تغييرات ثانية", digest.length - 5)}</li>}
             </ul>
             <button className="sv-more" onClick={markSeen}>
               <Check size={14} />
@@ -600,7 +600,7 @@ export default function SvTeam({
             ))}
           </div>
           <div className="sd-glass !py-1.5">
-            {shown.length === 0 && <p className="m-0 py-5 text-center text-[14px] text-[#ABA095]">{filter === "late" ? tr("ما فيه مهام متأخرة ✓") : filter === "done" ? tr("ما خلصت مهام للحين") : tr("ما فيه مهام جاية")}</p>}
+            {shown.length === 0 && <p className="m-0 py-5 text-center text-[14px] text-[#b8ada2]">{filter === "late" ? tr("ما فيه مهام متأخرة ✓") : filter === "done" ? tr("ما خلصت مهام للحين") : tr("ما فيه مهام جاية")}</p>}
             {shown.map((t, k) => {
               const lateT = isLate(t);
               const d = t.dueDate ? daysUntil(t.dueDate) : null;
@@ -740,7 +740,7 @@ export default function SvTeam({
                       <span style={{ width: `${d.y ? Math.round((d.x / d.y) * 100) : 0}%` }} />
                     </span>
                   </span>
-                  <ChevronLeft size={18} className="flex-none text-[#ABA095]" />
+                  <ChevronLeft size={18} className="flex-none text-[#b8ada2]" />
                 </button>
               );
             })}

@@ -142,7 +142,7 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
         <div className="notch" />
         {children}
       </div>
-      <figcaption className="wsa-s text-center font-bold" style={{ color: "#F6F1EC" }}>
+      <figcaption className="wsa-s text-center font-bold" style={{ color: "#f4f0ec" }}>
         {caption}
       </figcaption>
     </figure>

@@ -101,7 +101,7 @@ const GROUPS: { id: string; ar: string; en: string; keys: (keyof EthicalPrincipl
 const ANSWERS: { v: Exclude<EthicalPrincipleAnswer, null>; label: string; on: CSSProperties }[] = [
   { v: "yes", label: "نعم", on: { background: "#FFC777", color: "#160904" } },
   { v: "no", label: "لا", on: { background: "#FF8A7A", color: "#160904" } },
-  { v: "na", label: "لا ينطبق", on: { background: "rgba(255,255,255,.22)", color: "#F6F1EC" } },
+  { v: "na", label: "لا ينطبق", on: { background: "rgba(255,255,255,.22)", color: "#f4f0ec" } },
 ];
 
 const attachmentItems: { key: keyof EthicalAttachments; label: string; to: string }[] = [
@@ -261,7 +261,7 @@ export default function EthicalApprovalPage() {
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {pulled.map((p) => (
                       <div key={p.label} className="wf-tpl !block">
-                        <div className="text-xs text-[#ABA095]">{p.label}</div>
+                        <div className="text-xs text-[#b8ada2]">{p.label}</div>
                         <div className="line-clamp-2 text-sm leading-relaxed" dir="auto" style={{ color: p.value.trim() ? undefined : "#8F857C" }}>
                           {p.value.trim() || tr("لم يُحدد بعد")}
                         </div>
@@ -329,7 +329,7 @@ export default function EthicalApprovalPage() {
                     const val = ea.principles[k];
                     return (
                       <li key={k} className="flex flex-col gap-2.5 border-t py-3 sm:flex-row sm:items-center sm:gap-3.5" style={{ borderColor: "rgba(255,255,255,.07)" }}>
-                        <span className="wf-num w-6 shrink-0 text-[13px] text-[#ABA095]">{n}</span>
+                        <span className="wf-num w-6 shrink-0 text-[13px] text-[#b8ada2]">{n}</span>
                         <p className="m-0 flex-1 text-[15px] leading-relaxed" id={`q-${k}`}>
                           {tr(QUESTION[k])}
                         </p>
@@ -350,7 +350,7 @@ export default function EthicalApprovalPage() {
               {stop.step === 4 && (
                 <>
                   <div>
-                    <div className="wf-lbl mb-1.5 text-[13px] font-bold text-[#ABA095]">
+                    <div className="wf-lbl mb-1.5 text-[13px] font-bold text-[#b8ada2]">
                       {tr("المرفقات المطلوبة")} {!isEn && <span className="font-normal">· Attachments</span>}
                     </div>
                     <ul className="m-0 list-none p-0">
@@ -410,7 +410,7 @@ export default function EthicalApprovalPage() {
             </div>
 
             <div className="ws-write-foot flex flex-wrap items-center gap-2.5">
-              <span className="text-[13px] text-[#ABA095]">{tr("ينحفظ تلقائيًا")}</span>
+              <span className="text-[13px] text-[#b8ada2]">{tr("ينحفظ تلقائيًا")}</span>
               <span className="flex-1" />
               <button type="button" className="wf-gb" onClick={() => openAgent(tr("ساعدني أعبّي «{0}» في نموذج الموافقة الأخلاقية", label))}>
                 <AgentWave size={15} />
@@ -439,7 +439,7 @@ export default function EthicalApprovalPage() {
               <h3 id="e-tpl-title" className="m-0 text-[18px] font-extrabold">
                 {tr("القوالب الجاهزة")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("نماذج الموافقة والإذن في حقيبة الاستبيان، تتعبّى ببيانات بحثكم.")}</div>
+              <div className="mt-0.5 text-[13px] text-[#b8ada2]">{tr("نماذج الموافقة والإذن في حقيبة الاستبيان، تتعبّى ببيانات بحثكم.")}</div>
               <div className="mt-3 grid gap-2">
                 {[
                   { t: tr("نموذج الموافقة المستنيرة"), d: tr("للمشاركين قبل البدء") },
@@ -449,7 +449,7 @@ export default function EthicalApprovalPage() {
                     <FileText size={18} className="shrink-0 text-[#FFC777]" aria-hidden />
                     <div className="min-w-0 flex-1">
                       <b className="text-sm">{x.t}</b>
-                      <div className="text-xs text-[#ABA095]">{x.d}</div>
+                      <div className="text-xs text-[#b8ada2]">{x.d}</div>
                     </div>
                     <Link to="/study-kit" className="wf-gb !min-h-[38px] !px-3.5">
                       {tr("افتح")}
@@ -463,7 +463,7 @@ export default function EthicalApprovalPage() {
               <h3 id="e-ready-title" className="m-0 text-[18px] font-extrabold">
                 {tr("جاهزية التقديم للجنة")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("لما تكتمل الأقسام والمرفقات، نزّلوا النموذج الرسمي وقدّموه.")}</div>
+              <div className="mt-0.5 text-[13px] text-[#b8ada2]">{tr("لما تكتمل الأقسام والمرفقات، نزّلوا النموذج الرسمي وقدّموه.")}</div>
               <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/[0.08]" role="progressbar" aria-valuemin={0} aria-valuemax={STOPS.length} aria-valuenow={doneStops} aria-label={tr("جاهزية التقديم")}>
                 <div className="h-full rounded-full" style={{ width: `${(doneStops / STOPS.length) * 100}%`, background: "linear-gradient(90deg,#FF6A00,#FFC777)" }} />
               </div>
@@ -488,7 +488,7 @@ export default function EthicalApprovalPage() {
                 </div>
                 <div className="wf-kv">
                   <span>{tr("النتيجة")}</span>
-                  <b style={{ color: ea.outcome === "granted" ? "#FFC777" : ea.outcome === "rejected" ? "#FF8A7A" : "#ABA095" }}>{tr(outcomeLabel[ea.outcome] ?? outcomeLabel.pending)}</b>
+                  <b style={{ color: ea.outcome === "granted" ? "#FFC777" : ea.outcome === "rejected" ? "#FF8A7A" : "#b8ada2" }}>{tr(outcomeLabel[ea.outcome] ?? outcomeLabel.pending)}</b>
                 </div>
               </div>
             </section>

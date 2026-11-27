@@ -114,9 +114,9 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
         <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
           {mine.map((c) => (
             <li key={c.id} className="rounded-[14px] bg-[rgba(255,199,119,.07)] px-3 py-2 text-[13px] leading-relaxed text-[#E9D3B8]">
-              {c.quote && <span className="mb-1 block border-s-[3px] border-[#FFC777] ps-2 text-[12px] text-[#ABA095]">«{c.quote}»</span>}
+              {c.quote && <span className="mb-1 block border-s-[3px] border-[#FFC777] ps-2 text-[12px] text-[#b8ada2]">«{c.quote}»</span>}
               {c.body}
-              <span className="ms-2 text-[12px] text-[#ABA095]">{c.resolvedAt ? tr("· اتعدّلت ✓") : tr("· {0}", relTime(c.createdAt))}</span>
+              <span className="ms-2 text-[12px] text-[#b8ada2]">{c.resolvedAt ? tr("· اتعدّلت ✓") : tr("· {0}", relTime(c.createdAt))}</span>
             </li>
           ))}
         </ul>
@@ -131,7 +131,7 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
           {quote ? (
             <p className="m-0 mb-2 border-s-[3px] border-[#FFC777] ps-2 text-[13px] leading-relaxed text-[#D9CFC5]">«{quote}»</p>
           ) : (
-            <p className="m-0 mb-2 text-[12px] text-[#ABA095]">{tr("ملاحظة على القسم كامل. (لو تبون جملة محددة: حدّدوها من النص فوق ثم اضغطوا «علّقوا على جملة».)")}</p>
+            <p className="m-0 mb-2 text-[12px] text-[#b8ada2]">{tr("ملاحظة على القسم كامل. (لو تبون جملة محددة: حدّدوها من النص فوق ثم اضغطوا «علّقوا على جملة».)")}</p>
           )}
           <textarea
             value={body}
@@ -140,7 +140,7 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
             autoFocus
             aria-label={tr("ملاحظتكم على «{0}»", label)}
             placeholder={tr("وش يعدّلون؟")}
-            className="min-h-[80px] w-full resize-y rounded-[14px] border border-[rgba(255,240,225,.12)] bg-[rgba(255,245,235,.05)] p-3 text-[15px] leading-relaxed text-[#F2EBE3] outline-none focus:border-[rgba(255,199,119,.55)]"
+            className="min-h-[80px] w-full resize-y rounded-[14px] border border-[rgba(255,240,225,.12)] bg-[rgba(255,245,235,.05)] p-3 text-[15px] leading-relaxed text-[#f4f0ec] outline-none focus:border-[rgba(255,199,119,.55)]"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
@@ -166,7 +166,7 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
               {tr("إلغاء")}
             </button>
           </div>
-          <p className="m-0 mt-2 text-[12px] text-[#ABA095]">{tr("تصير مهمة على اللي كتب القسم، وتوصل الفريق بالمحادثة.")}</p>
+          <p className="m-0 mt-2 text-[12px] text-[#b8ada2]">{tr("تصير مهمة على اللي كتب القسم، وتوصل الفريق بالمحادثة.")}</p>
         </div>
       )}
     </div>
@@ -215,14 +215,14 @@ export function SvDocSheet({
                     {tr("اعتمد القسم")}
                   </button>
                 ))}
-              {r.status && r.status !== "done" && <span className="sv-badge soon !text-[#ABA095] !bg-[rgba(255,255,255,.06)]">{r.status === "in-progress" ? tr("قيد الكتابة") : tr("ما بدأ")}</span>}
+              {r.status && r.status !== "done" && <span className="sv-badge soon !text-[#b8ada2] !bg-[rgba(255,255,255,.06)]">{r.status === "in-progress" ? tr("قيد الكتابة") : tr("ما بدأ")}</span>}
             </div>
             {r.content ? (
               <p id={`sv-sec-${r.key}`} className="m-0 mt-1.5 whitespace-pre-wrap text-[14px] leading-[1.9] text-[#D9D0C6]">
                 {r.content}
               </p>
             ) : (
-              <p className="m-0 mt-1.5 text-[13px] text-[#ABA095]">{tr("لم يُكتب بعد")}</p>
+              <p className="m-0 mt-1.5 text-[13px] text-[#b8ada2]">{tr("لم يُكتب بعد")}</p>
             )}
             {r.content && onComment && <CommentBox sectionKey={r.key} label={r.label} comments={comments} onComment={onComment} />}
           </div>

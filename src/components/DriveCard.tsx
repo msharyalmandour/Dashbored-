@@ -68,8 +68,8 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
     return (
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-4">
         <p className="flex items-center gap-2 text-sm text-[#E6DBD1]">
-          <HardDrive size={16} className="text-[#FFB444]" />{trx("تعذّر فحص ربط الدرايف الحين{0}.", status.errorCode && status.errorCode !== "failed" ? ` (${status.errorCode})` : "")}</p>
-        <button onClick={onChanged} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-2 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
+          <HardDrive size={16} className="text-[#ffb547]" />{trx("تعذّر فحص ربط الدرايف الحين{0}.", status.errorCode && status.errorCode !== "failed" ? ` (${status.errorCode})` : "")}</p>
+        <button onClick={onChanged} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-2 text-sm font-bold text-[#ffb547] hover:bg-[#ff6a00]/10">
           <RefreshCw size={14} />{tr("أعيدوا المحاولة")}</button>
       </div>
     );
@@ -164,7 +164,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
             {STEPS.map((s, i) => (
               <li key={s.title} className="relative flex gap-3.5 pb-4 last:pb-0">
                 {i < STEPS.length - 1 && <span aria-hidden className="absolute start-[17px] top-9 h-[calc(100%-2.25rem)] w-px bg-white/15" />}
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#FF8A24]/60 text-sm font-bold text-[#FFB444]">{i + 1}</span>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#FF8A24]/60 text-sm font-bold text-[#ffb547]">{i + 1}</span>
                 <span className="pt-0.5">
                   <span className="block text-sm font-bold">{s.title}</span>
                   <span className="block text-xs leading-relaxed text-[#B8ADA2]">{s.desc}</span>
@@ -174,13 +174,13 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
           </ol>
 
           <p className="flex items-start gap-2 rounded-2xl bg-white/[0.04] p-3.5 text-xs leading-relaxed text-[#B8ADA2]">
-            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#FFB444]" />{tr("صلاحية محدودة: Wesync يشوف بس الملفات اللي ينشئها، وما يقدر يفتح بقية درايفكم. ورمز الربط يتخزن مشفّر بالخادم، مو بمتصفحكم.")}</p>
+            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#ffb547]" />{tr("صلاحية محدودة: Wesync يشوف بس الملفات اللي ينشئها، وما يقدر يفتح بقية درايفكم. ورمز الربط يتخزن مشفّر بالخادم، مو بمتصفحكم.")}</p>
 
           {status.isLeader ? (
             <button
               onClick={connect}
               disabled={busy === "connect"}
-              className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#F6F1EC] px-6 py-3.5 text-sm font-bold text-[#1A0F00] shadow-[0_12px_32px_rgba(0,0,0,.35)] transition hover:brightness-95 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#f4f0ec] px-6 py-3.5 text-sm font-bold text-[#1A0F00] shadow-[0_12px_32px_rgba(0,0,0,.35)] transition hover:brightness-95 disabled:opacity-60"
             >
               {busy === "connect" ? <WSpin size={16} /> : <GoogleDriveLogo size={20} />}
               {waiting ? tr("ننتظر موافقتكم بقوقل…") : tr("اربطوا Google Drive")}
@@ -202,14 +202,14 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
                 href={status.folderLink}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-5 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] transition hover:brightness-110"
+                className="flex items-center gap-2 rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-5 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#ff6a00] transition hover:brightness-110"
               >
                 <ExternalLink size={15} />{tr("افتحوا المجلد")}</a>
             )}
           </div>
 
           <p className="flex items-center gap-2 text-xs text-[#B8ADA2]">
-            <Users size={14} className="text-[#FFB444]" />{tr("المحاضر تنرفع تلقائيًا لمجلد الفريق بصيغة Word، والمجلد مشترك مع الأعضاء.")}</p>
+            <Users size={14} className="text-[#ffb547]" />{tr("المحاضر تنرفع تلقائيًا لمجلد الفريق بصيغة Word، والمجلد مشترك مع الأعضاء.")}</p>
           {!status.isLeader && (
             <p className="text-xs leading-relaxed text-[#B8ADA2]/80">{tr("ما وصلك إيميل الدعوة؟ لازم إيميلك في Wesync يكون عليه حساب Google — ")}<a href="https://accounts.google.com/signup" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-[#F4F0EC]">{tr("سوّ حساب بنفس إيميلك")}</a>{tr(" وبلّغ القائد يضغط «شاركوا الآن». والمحاضر كلها موجودة هنا بعد وتنزل Word.")}</p>
           )}
@@ -217,14 +217,14 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
           {status.isLeader && (
             <div className="rounded-2xl border border-white/10 p-4">
               <p className="mb-1 flex items-center gap-1.5 text-xs font-bold">
-                <Mail size={13} className="text-[#FFB444]" />{tr("مشاركة المجلد")}</p>
+                <Mail size={13} className="text-[#ffb547]" />{tr("مشاركة المجلد")}</p>
               <p className="mb-3 text-xs leading-relaxed text-[#B8ADA2]">{tr("يشارك مع كل أعضاء الفريق (تعديل)، ولو كتبتم إيميل الدكتورة تشوف المجلد قراءة فقط. العضو الجديد اضغطوا له «شاركوا الآن».")}</p>
               <div className="flex flex-wrap gap-2">
                 <input type="email" dir="ltr" value={doctorEmail} onChange={(e) => setDoctorEmail(e.target.value)} placeholder={tr("إيميل الدكتورة (اختياري)")} className={clsx(pillField, "min-w-0 basis-full sm:flex-1 sm:basis-0")} />
                 <button
                   onClick={share}
                   disabled={busy === "share"}
-                  className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#ffb547] transition hover:bg-[#ff6a00]/10 disabled:opacity-50"
                 >{trx("{0}شاركوا الآن", busy === "share" ? <WSpin size={14} /> : <Check size={14} />)}</button>
               </div>
             </div>
@@ -233,8 +233,8 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
       )}
 
       {waiting && (
-        <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-3 text-sm">
-          <WSpin size={14} />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">{tr("إلغاء")}</button>
+        <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-[#ff6a00]/10 px-4 py-3 text-sm">
+          <WSpin size={14} />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#ffb547] underline underline-offset-2">{tr("إلغاء")}</button>
         </p>
       )}
       {msg && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{msg}</p>}

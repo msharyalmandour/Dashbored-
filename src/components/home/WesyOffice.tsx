@@ -215,7 +215,7 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
           onAchieve={() => setShare(true)}
         />
       </div>
-      {state === "middle" && <MorningNote text={tr("صباح الخير ☕ خطوة اليوم وحدة: {0}.", (urgent?.title ?? fallback?.title ?? tr("كمّلوا من «الجاي لكم»")))} />}
+      {state === "middle" && <MorningNote text={tr("صباح الخير، خطوة اليوم وحدة: {0}.", (urgent?.title ?? fallback?.title ?? tr("كمّلوا من «الجاي لكم»")))} />}
       {share && <ShareAchievement title={tr("خلّصنا البحث")} sub={tr("رحلة كاملة من الموضوع للتسليم")} step={10} onClose={() => setShare(false)} />}
     </section>
   );

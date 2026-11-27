@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, MessageCircle } from "lucide-react";
 import { useWhatsAppAvoid } from "../hooks/useWhatsAppAvoid";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import { faqs } from "./landingFaqs";
 import { BEST_PLAN, FOUNDING_TEAMS, MAX_TEAM_MEMBERS, PLAN_OPTIONS, TIER_PRICES, TRIAL_DAYS, perMonth, planSaving, type BillingPeriod } from "../lib/plans";
 import LangToggle from "../components/ui/LangToggle";
-import { tr, trx } from "../lib/i18n";
+import { isEn, tr, trx } from "../lib/i18n";
 import "../styles/lux-landing.css";
 
 /** صفحة الهبوط الفخمة: للزوار بدون تسجيل على «/». كل الأرقام من lib/plans، والشاشات لقطات حقيقية من التطبيق. */
@@ -42,12 +42,12 @@ function Cta({ children = tr("ابدأوا مجانًا") }: { children?: React.
   return (
     <Link to="/login?signup=1" className="ll-cta">
       {children}
-      <ArrowLeft size={18} className="ltr:rotate-180" aria-hidden />
+      {isEn ? <ArrowRight size={18} aria-hidden /> : <ArrowLeft size={18} aria-hidden />}
     </Link>
   );
 }
 
-const TOUR = [
+const tour = () => [
   { img: "home", t: tr("الرئيسية"), d: tr("أول ما تدخلون: وش المطلوب اليوم، ومين عليه، وكم باقي على التسليم. وويسي يقول لكم الخطوة الجاية.") },
   { img: "chat", t: tr("المحادثة"), d: tr("قروبين: واحد مع الدكتورة، وواحد للفريق بس. والدكتورة ما تشوف قروبكم أبد.") },
   { img: "library", t: tr("مكتبة الأدلة"), d: tr("كل الدراسات اللي لقيتوها بمكان واحد، بتصنيفها، ومراجع APA جاهزة للنسخ.") },
@@ -55,7 +55,7 @@ const TOUR = [
   { img: "supervisor", t: tr("ملاحظات الدكتورة"), d: tr("رسائلها وملاحظاتها تتحوّل لمهام واضحة لها صاحب وموعد.") },
 ];
 
-const STAGES = [tr("أبحث"), tr("أكتب"), tr("أجمع وأحلل")];
+const stages = () => [tr("أبحث"), tr("أكتب"), tr("أجمع وأحلل")];
 const WEIGHT = [3, 4, 2];
 
 function planFor(deadline: string, stage: number) {
@@ -64,6 +64,7 @@ function planFor(deadline: string, stage: number) {
   const left = WEIGHT.map((w, i) => (i >= stage ? w : 0));
   const sum = left.reduce((a, b) => a + b, 0);
   let start = 1;
+  const STAGES = stages();
   return STAGES.map((name, i) => {
     if (!left[i]) return { name, range: tr("خلصت"), pct: 100 };
     const n = Math.max(1, Math.round((weeks * left[i]) / sum));
@@ -90,6 +91,8 @@ export default function LuxLanding() {
     const lines = plan.map((p) => `${p.name}: ${p.range}`).join("\n");
     return `https://wa.me/?text=${encodeURIComponent(`${tr("خطة فريقنا للبحث")}\n${lines}\n${tr("من Wesync")}`)}`;
   }, [plan]);
+  const TOUR = tour();
+  const STAGES = stages();
   const cur = TOUR[shot];
 
   return (
@@ -99,7 +102,7 @@ export default function LuxLanding() {
         <div className="ll-wrap">
           <nav className="ll-nav" aria-label={tr("التنقل")}>
             <div className="ll-logo">
-              Wesync <small>{tr("ويسينك")}</small>
+              Wesync {!isEn && <small>ويسينك</small>}
             </div>
             <div className="ll-navlinks">
               <a href="#what">{tr("وش هو؟")}</a>

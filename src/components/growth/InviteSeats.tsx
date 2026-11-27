@@ -64,10 +64,10 @@ export default function InviteSeats() {
         ))}
       </span>
       <div className="min-w-0 flex-1">
-        <b id="gs-seats-h" className="block text-[15px] text-[#f4f0ec]">
+        <b id="gs-seats-h" className="block text-base text-ws-text">
           {roster.length <= 1 ? tr("بحثكم لحالكم؟ فريقكم ينتظركم") : tr("فريقكم {0} من {1}", roster.length, TARGET)}
         </b>
-        <span className="block text-[13px] text-[#b8ada2]">{tr("رابط واحد بالقروب، وكل من يفتحه يدخل فريقكم على طول.")}</span>
+        <span className="block text-sm text-ws-muted">{tr("رابط واحد بالقروب، وكل من يفتحه يدخل فريقكم على طول.")}</span>
       </div>
       <a href={wa} target="_blank" rel="noopener noreferrer" className="gs-btn">
         <MessageCircle size={16} aria-hidden />

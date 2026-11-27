@@ -53,7 +53,7 @@ export default function AdminGrowth() {
     <div className="v3 relative">
       <V3Glow />
       <LuxHead kicker={tr("الإدارة")} title={tr("حلقة النمو")} sub={tr("كل أسبوع: كم فريق جديد، من وين، بكم، وكم منهم بدأ فعليًا")} />
-      {err && <p className="lx-card text-[14px] text-[#b8ada2]">{err}</p>}
+      {err && <p className="lx-card text-sm text-ws-muted">{err}</p>}
       {weeks && (
         <section className="lx-card lx-in overflow-x-auto">
           <table className="ag-t">
@@ -82,7 +82,7 @@ export default function AdminGrowth() {
                       <td key={k}>{w.by_source[k] ?? 0}</td>
                     ))}
                     <td>
-                      <b className="text-[#FFC777]">{w.teams ? Math.round((w.first_door / w.teams) * 100) : 0}%</b>
+                      <b className="text-ws-accent3">{w.teams ? Math.round((w.first_door / w.teams) * 100) : 0}%</b>
                     </td>
                     <td>
                       <input className="dc-extra-in w-[90px]" inputMode="numeric" value={spend[w.week] ?? ""} onChange={(e) => setW(w.week, e.target.value.replace(/[^\d.]/g, ""))} aria-label={tr("إنفاق أسبوع {0}", w.week)} />
@@ -93,7 +93,7 @@ export default function AdminGrowth() {
               })}
               {weeks.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="text-[#b8ada2]">
+                  <td colSpan={10} className="text-ws-muted">
                     {tr("ما فيه فرق جديدة بآخر 8 أسابيع.")}
                   </td>
                 </tr>

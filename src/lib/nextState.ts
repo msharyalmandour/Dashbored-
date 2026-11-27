@@ -19,12 +19,12 @@ export function wesyFor(s: NextState, docName: string): { state: WesyState; line
     case "loading":
       return { state: "thinking", line: tr("لحظة، أرتّب أوراقكم…") };
     case "first":
-      return { state: "greet", line: tr("هلا والله! وش موضوع بحثكم؟") };
+      return { state: "greet", line: tr("هلا والله، وش موضوع بحثكم؟") };
     case "waiting":
-      return { state: "wait", line: tr("الكرة عند {0}. ارتاحوا ☕", docName) };
+      return { state: "wait", line: tr("الكرة عند {0}. ارتاحوا", docName) };
     case "done":
       return { state: "success", line: tr("خلصتوا الرحلة كلها. فخور فيكم.") };
     default:
-      return { state: "typing", line: tr("عندي لكم خطوة وحدة اليوم 👇") };
+      return { state: "typing", line: tr("عندي لكم خطوة وحدة اليوم") };
   }
 }

@@ -25,9 +25,9 @@ export default function AgentStreak({ width = 300, height = 52, level, className
       <defs>
         <linearGradient id={`sg${id}`} x1="0" x2="1">
           <stop offset="0" stopColor="#FF5A0A" stopOpacity="0" />
-          <stop offset=".35" stopColor="#FF8A2A" />
+          <stop offset=".35" stopColor="#FF8A24" />
           <stop offset=".55" stopColor="#FFF1DE" />
-          <stop offset=".75" stopColor="#FF7A1A" />
+          <stop offset=".75" stopColor="#FF8A24" />
           <stop offset="1" stopColor="#FF5A0A" stopOpacity="0" />
         </linearGradient>
         <filter id={`sb${id}`} x="-20%" y="-80%" width="140%" height="260%">

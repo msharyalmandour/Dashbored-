@@ -209,7 +209,7 @@ export default function Proposal() {
 
   const threadCard = (title: string, en: string, body: string, variant: "plain" | "gap" | "aim", emptyText: string) => (
     <div
-      className={`min-w-0 rounded-[18px] px-3.5 py-3 ${variant === "aim" ? "v3-glow" : ""}`}
+      className={`min-w-0 rounded-2xl px-3.5 py-3 ${variant === "aim" ? "v3-glow" : ""}`}
       style={
         variant === "gap"
           ? { border: "1px solid rgba(255,180,68,.5)", background: "linear-gradient(180deg,rgba(255,150,40,.16),rgba(255,150,40,.04))" }
@@ -220,7 +220,7 @@ export default function Proposal() {
     >
       <div className="text-sm font-bold">{title}</div>
       {!isEn && <div className="v3-en">{en}</div>}
-      <p className="mt-1.5 line-clamp-4 text-[13px] leading-relaxed" dir="auto" style={{ color: body ? "var(--ws-c-text)" : variant === "aim" ? "var(--ws-c-muted)" : "var(--ws-c-muted)" }}>
+      <p className="mt-1.5 line-clamp-4 text-sm leading-relaxed" dir="auto" style={{ color: body ? "var(--ws-c-text)" : variant === "aim" ? "var(--ws-c-muted)" : "var(--ws-c-muted)" }}>
         {body || emptyText}
       </p>
     </div>
@@ -420,7 +420,7 @@ export default function Proposal() {
                       typing.names.length > 0 ? (
                         <> · {typing.names.length === 1 ? tr("{0} يكتب الحين", typing.names[0]) : tr("{0} يكتبون الحين", typing.names.join(tr(" و")))}</>
                       ) : savedAt ? (
-                        <span className="text-[#FFC777]"> ✓</span>
+                        <span className="text-ws-accent3"> ✓</span>
                       ) : null
                     }
                   />
@@ -451,7 +451,7 @@ export default function Proposal() {
                 <AlertCircle size={22} color="#FF8A7A" className="shrink-0" />
                 <div className="min-w-[200px] flex-1">
                   <div className="font-bold">{tr("الهدف لازم يطلع من الفجوة")}</div>
-                  <div className="text-sm text-[#b8ada2]">{tr("الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة. صيغوا الفجوة بشكل نهائي أول، وبعدها اكتبوا الهدف منها.")}</div>
+                  <div className="text-sm text-ws-muted">{tr("الفجوة البحثية لسا ما ترتبط بوضوح بهدف الدراسة. صيغوا الفجوة بشكل نهائي أول، وبعدها اكتبوا الهدف منها.")}</div>
                 </div>
                 {active?.key !== "gap" && (
                   <button type="button" className="wf-gb" onClick={() => setActiveKey("gap")}>
@@ -465,11 +465,11 @@ export default function Proposal() {
               {/* الملخص */}
               <section className="hg-card flex flex-col" style={rise(4)} aria-labelledby="abs-title">
                 <div className="flex items-baseline gap-2">
-                  <h3 id="abs-title" className="m-0 text-[18px] font-extrabold">
+                  <h3 id="abs-title" className="m-0 text-lg font-extrabold">
                     {tr("الملخص")}
                   </h3>
-                  {!isEn && <span className="text-xs text-[#b8ada2]" dir="ltr">Abstract</span>}
-                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#FFC777" : "#b8ada2" }}>
+                  {!isEn && <span className="text-xs text-ws-muted" dir="ltr">Abstract</span>}
+                  <span className="ms-auto text-xs" style={{ color: abstractWords >= 150 && abstractWords <= 250 ? "#FFB547" : "#ABA095" }}>
                     {abstractWords > 0 && (
                       <>
                         <span className="wf-num">{abstractWords}</span> /{" "}
@@ -478,7 +478,7 @@ export default function Proposal() {
                     <span className="wf-num">150–250</span> {tr("كلمة")}
                   </span>
                 </div>
-                <div className="mt-0.5 text-[13px] text-[#b8ada2]">{tr("نكتبه آخر شي، بعد ما تخلص الأقسام.")}</div>
+                <div className="mt-0.5 text-sm text-ws-muted">{tr("نكتبه آخر شي، بعد ما تخلص الأقسام.")}</div>
                 <AutoSaveTextarea
                   label={tr("الملخص")}
                   value={project?.abstract ?? ""}
@@ -493,11 +493,11 @@ export default function Proposal() {
               {/* معلومات البحث */}
               <section className="hg-card flex flex-col" style={rise(5)} aria-labelledby="info-title" data-learn="topic">
                 <div className="flex items-center">
-                  <h3 id="info-title" className="m-0 text-[18px] font-extrabold">
+                  <h3 id="info-title" className="m-0 text-lg font-extrabold">
                     {tr("معلومات البحث")}
                   </h3>
                   {canWrite && (
-                    <button type="button" className="ms-auto min-h-[44px] px-1 text-[13px] font-bold text-[#FFC777]" onClick={() => setEditInfo((v) => !v)} aria-expanded={editInfo}>
+                    <button type="button" className="ms-auto min-h-[44px] px-1 text-sm font-bold text-ws-accent3" onClick={() => setEditInfo((v) => !v)} aria-expanded={editInfo}>
                       {editInfo ? tr("تم") : tr("عدّل")}
                     </button>
                   )}
@@ -509,7 +509,7 @@ export default function Proposal() {
                       {project?.title?.trim() ? (
                         <b dir="auto">{project.title}</b>
                       ) : canWrite ? (
-                        <button type="button" className="min-h-[44px] text-[13px] font-bold text-[#FFC777]" onClick={() => setEditInfo(true)}>
+                        <button type="button" className="min-h-[44px] text-sm font-bold text-ws-accent3" onClick={() => setEditInfo(true)}>
                           {tr("اكتبوا عنوان البحث")}
                         </button>
                       ) : (

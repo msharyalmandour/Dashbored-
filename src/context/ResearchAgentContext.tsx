@@ -198,7 +198,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
         >
           <span
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${
-              running ? "bg-brand-500" : "bg-[#FFC777]"
+              running ? "bg-brand-500" : "bg-ws-accent3"
             }`}
           >
             {running ? <WSpin size={16} /> : <Check size={16} />}
@@ -207,7 +207,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
             <span className="block truncate">
               {running ? tr("جاري البحث: {0}", pillLabel[pillTarget]) : tr("جاهزة: {0} — اضغطوا للعرض", pillLabel[pillTarget])}
             </span>
-            {running && <span className="block truncate text-[12px] font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
+            {running && <span className="block truncate text-xs font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
           </span>
           {!running && <Search size={14} className="shrink-0 text-brand-950/40" />}
         </Link>

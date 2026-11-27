@@ -91,7 +91,7 @@ export default function PaperQA({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-brand-600 hover:bg-surface-muted"
+        className="flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold text-brand-600 hover:bg-surface-muted"
       >
         <MessageCircleQuestion size={13} />{tr("اسألوا عن هذي الدراسة")}</button>
     );
@@ -101,7 +101,7 @@ export default function PaperQA({
     <div className="mt-2 w-full space-y-2.5 rounded-2xl border border-brand-100 bg-surface-muted/60 p-3">
       <div className="flex items-center justify-between">
         <p className="text-xs font-extrabold text-brand-950/70">{tr("اسألوا عن الدراسة")}</p>
-        <button onClick={() => setOpen(false)} className="rounded-md p-1 text-brand-950/40 hover:bg-paper">
+        <button onClick={() => setOpen(false)} className="rounded-xl p-1 text-brand-950/40 hover:bg-paper">
           <X size={14} />
         </button>
       </div>
@@ -111,7 +111,7 @@ export default function PaperQA({
           <p className="ms-auto w-fit max-w-[92%] rounded-2xl bg-brand-500 px-3 py-1.5 text-xs text-white">{a.q}</p>
           <p className="max-w-[96%] whitespace-pre-wrap rounded-2xl bg-paper px-3 py-2 text-xs leading-relaxed text-brand-950/80">
             {a.a}
-            <span className="mt-1.5 block text-[12px] text-brand-950/35">
+            <span className="mt-1.5 block text-xs text-brand-950/35">
               {a.usedPdf ? tr("من ملف الـ PDF") : tr("من ملخص الدراسة فقط")}
             </span>
           </p>
@@ -119,7 +119,7 @@ export default function PaperQA({
       ))}
 
       {!hasMaterial && (
-        <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-[12px] font-semibold text-amber-accent-700">{tr("ما فيه ملخص محفوظ لهذي الدراسة — ارفعوا ملف PDF لها وأجاوب منه.")}</p>
+        <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-xs font-semibold text-amber-accent-700">{tr("ما فيه ملخص محفوظ لهذي الدراسة — ارفعوا ملف PDF لها وأجاوب منه.")}</p>
       )}
 
       <div className="flex flex-wrap gap-1.5">
@@ -128,7 +128,7 @@ export default function PaperQA({
             key={q}
             onClick={() => send(q)}
             disabled={busy || !hasMaterial}
-            className="rounded-full border border-brand-100 bg-paper px-2.5 py-1 text-[12px] font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-40"
+            className="rounded-full border border-brand-100 bg-paper px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-40"
           >
             {q}
           </button>
@@ -164,13 +164,13 @@ export default function PaperQA({
         </button>
       </div>
       {pdf && (
-        <p className="flex items-center gap-1.5 text-[12px] font-semibold text-brand-950/55">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-brand-950/55">
           <FileUp size={11} />
           {pdf.name}
           <button onClick={() => setPdf(null)} className="text-rose-500 hover:underline">{tr("إزالة")}</button>
         </p>
       )}
-      {error && <p className="text-[12px] font-semibold text-rose-600">{error}</p>}
+      {error && <p className="text-xs font-semibold text-rose-600">{error}</p>}
     </div>
   );
 }

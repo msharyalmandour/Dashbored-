@@ -6,7 +6,7 @@ import type { WesyState } from "../vendor/wesy-real";
 import WLogo from "../components/brand/WLogo";
 import LangToggle from "../components/ui/LangToggle";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
-import { BEST_PLAN, PLAN_OPTIONS, TRIAL_DAYS, perMonth, planOf, planSaving, type BillingPeriod } from "../lib/plans";
+import { BEST_PLAN, PLAN_OPTIONS, TIER_PRICES, TRIAL_DAYS, perMonth, planOf, planSaving, type BillingPeriod } from "../lib/plans";
 import { tr } from "../lib/i18n";
 import shotOverview from "../assets/landing/overview.webp";
 import shotTasks from "../assets/landing/tasks.webp";
@@ -343,16 +343,16 @@ function Price() {
           </div>
           <p className="l3-price-k">{tr("لكل شخص · كل شي داخل")}</p>
           <p className="l3-price-n">
-            <b>{plan.price}</b> {tr("ريال")}
+            <b>{TIER_PRICES.team[period]}</b> {tr("ريال")}
           </p>
           <p className="l3-price-s">
             {period === "month"
-              ? tr("بالشهر — يعني نص ريال باليوم.")
+              ? tr("بالشهر.")
               : tr("{0} شهور — يعني {1} بالشهر، وتوفّر {2} ريال.", plan.months, perMonth(period), planSaving(period))}
           </p>
           <ul>
             {[
-              tr("كل أدوات البحث والفريق + ويسي المساعد الذكي"),
+              tr("كل أدوات البحث والفريق + ويسي الوكيل"),
               tr("الدكتورة مجانًا دايمًا"),
               tr("{0} يوم مجانًا بدون بطاقة", TRIAL_DAYS),
               tr("ادفع حصتك بنفسك، أو عن صاحبك، أو عن الفريق كامل"),

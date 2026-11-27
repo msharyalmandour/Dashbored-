@@ -12,9 +12,9 @@ export default function AppSplash() {
     return () => clearInterval(t);
   }, []);
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-10 bg-[#080808] text-[#F4F0EC]" role="status" aria-live="polite">
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-10 bg-[#080808] text-ws-text" role="status" aria-live="polite">
       <WLogo size={96} state="loading" />
-      <p key={i} className="app-splash__line font-kufi text-base font-bold text-[#B8ADA2]">
+      <p key={i} className="app-splash__line font-kufi text-base font-bold text-ws-muted">
         {LINES[i]}
       </p>
     </div>

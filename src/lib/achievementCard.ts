@@ -2,7 +2,7 @@ import { tr } from "./i18n";
 import { CATCHPHRASE } from "./sound";
 import { drawBrandLockup } from "./brandCanvas";
 import type { DoorId } from "./doors";
-import "../vendor/wesy-real.js";
+import wesyFace from "../assets/wesy/wesy-face.webp";
 
 /* بطاقة الإنجاز للستوري (1080×1920) — فكرة Spotify Wrapped: الطالب يتباهى بإنجازه هو، والاسم يوصل معه.
    بدون عنوان البحث ولا أسماء الفريق (بحثهم ما انشر، وخصوصيتهم أول) — بس الإنجاز ورحلتهم من 10. */
@@ -34,33 +34,19 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
 /** رابط البطاقة بكود الفريق (حلقة النمو): wesyncapp.com/?r=CODE */
 export const shareLink = (code?: string | null) => (code ? `wesyncapp.com/?r=${code}` : "wesyncapp.com");
 
-/** راس ويسي (SVG من WesyReal) كصورة للكانفس — رسمي بدون غمزة، بشماغ الهوية */
-async function wesyHead(px: number): Promise<HTMLImageElement | null> {
-  if (typeof window === "undefined" || !window.WesyReal) return null;
-  const host = document.createElement("div");
-  host.style.cssText = `position:fixed;left:-9999px;top:0;width:${px}px;height:${px}px;`;
-  document.body.appendChild(host);
+/** راس ويسي (الرسمة الكرتونية البسيطة) كصورة للكانفس */
+async function wesyHead(_px: number): Promise<HTMLImageElement | null> {
+  if (typeof window === "undefined") return null;
   try {
-    const w = new window.WesyReal(host, { shemagh: "#FF6A00", confetti: false, state: "success", crop: "head", formal: true, shadow: false });
-    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const svg = host.querySelector("svg");
-    if (!svg) return null;
-    if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", String(px));
-    svg.setAttribute("height", String(px));
-    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }));
-    w.destroy();
     const img = new Image();
     await new Promise<void>((ok, bad) => {
       img.onload = () => ok();
       img.onerror = () => bad(new Error("wesy"));
-      img.src = url;
+      img.src = wesyFace;
     });
     return img;
   } catch {
     return null;
-  } finally {
-    host.remove();
   }
 }
 
@@ -108,7 +94,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
     ctx.roundRect(W / 2 - tw / 2, 246, tw, 62, 31);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = "#FFC777";
+    ctx.fillStyle = "#FFB547";
     ctx.fillText(t, W / 2, 289);
   }
 
@@ -117,7 +103,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   const cy = 600;
   const seal = ctx.createRadialGradient(cx - 50, cy - 60, 20, cx, cy, 190);
   seal.addColorStop(0, "#FFF0C2");
-  seal.addColorStop(0.45, "#FFC777");
+  seal.addColorStop(0.45, "#FFB547");
   seal.addColorStop(1, "#C9822A");
   ctx.fillStyle = seal;
   ctx.beginPath();
@@ -139,12 +125,12 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.stroke();
 
   // الكيكر
-  ctx.fillStyle = "#FFC777";
+  ctx.fillStyle = "#FFB547";
   ctx.font = "800 44px Tajawal, sans-serif";
   ctx.fillText(tr("إنجاز جديد"), W / 2, 930);
 
   // العنوان (سطرين بالكثير)
-  ctx.fillStyle = "#f4f0ec";
+  ctx.fillStyle = "#F2EBE3";
   ctx.font = "800 96px Tajawal, sans-serif";
   const lines = wrap(ctx, title, W - 180).slice(0, 2);
   lines.forEach((l, i) => ctx.fillText(l, W / 2, 1060 + i * 120));
@@ -163,12 +149,12 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
     for (let i = 0; i < 10; i++) {
       // RTL: أول خطوة على اليمين
       const x = W / 2 + total / 2 - (i + 1) * segW - i * gap;
-      ctx.fillStyle = i < step ? "#FFC777" : "rgba(255,255,255,0.10)";
+      ctx.fillStyle = i < step ? "#FFB547" : "rgba(255,255,255,0.10)";
       ctx.beginPath();
       ctx.roundRect(x, y, segW, 10, 5);
       ctx.fill();
     }
-    ctx.fillStyle = "#b8ada2";
+    ctx.fillStyle = "#ABA095";
     ctx.font = "500 40px Tajawal, sans-serif";
     ctx.fillText(tr("الخطوة {0} من {1}", step, 10), W / 2, y + 80);
   }
@@ -185,19 +171,26 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.beginPath();
   ctx.roundRect(right - 120, by - 60, 120, 120, 34);
   ctx.fill();
-  ctx.strokeStyle = "#FFC777";
+  ctx.strokeStyle = "#FFB547";
   ctx.lineWidth = 3;
   ctx.stroke();
-  if (head) ctx.drawImage(head, right - 120, by - 60, 120, 120);
-  ctx.fillStyle = "#f4f0ec";
+  if (head) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(right - 120, by - 60, 120, 120, 34);
+    ctx.clip();
+    ctx.drawImage(head, right - 120, by - 60, 120, 120);
+    ctx.restore();
+  }
+  ctx.fillStyle = "#F2EBE3";
   ctx.textAlign = "right";
   ctx.fillText(label, right - 144, by + 14);
   ctx.textAlign = "center";
 
-  ctx.fillStyle = "#FFC777";
+  ctx.fillStyle = "#FFB547";
   ctx.font = "700 42px Tajawal, sans-serif";
   ctx.fillText(tr(CATCHPHRASE), W / 2, H - 190);
-  ctx.fillStyle = "#FF9A3C";
+  ctx.fillStyle = "#FF8A24";
   ctx.font = "700 40px Tajawal, sans-serif";
   ctx.direction = "ltr";
   ctx.fillText(shareLink(refCode), W / 2, H - 120);

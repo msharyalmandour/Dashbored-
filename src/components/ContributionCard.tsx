@@ -54,7 +54,7 @@ export default function ContributionCard({ roster, tasks }: { roster: TeamMember
         title={tr("مساهمة الأعضاء")}
         subtitle="Contribution"
         action={
-          <button onClick={copy} className="flex items-center gap-1.5 rounded-lg border border-brand-200 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-50">
+          <button onClick={copy} className="flex items-center gap-1.5 rounded-xl border border-brand-200 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-50">
             {copied ? <Check size={13} /> : <Copy size={13} />}
             {copied ? tr("تم النسخ") : tr("نسخ")}
           </button>
@@ -87,7 +87,7 @@ export default function ContributionCard({ roster, tasks }: { roster: TeamMember
       {summary.idleIds.length > 0 && (
         <p className="mt-2 rounded-xl bg-amber-50 p-2.5 text-xs font-semibold text-amber-800">{trx("ما سجّل إنجاز لحد الحين: {0}. يمكن يحتاج مهمة أوضح أو مساعدة — اسألوه/ا بدل ما تفترضون.", summary.idleIds.map(name).join(tr("، ")))}</p>
       )}
-      <p className="mt-3 flex items-start gap-1.5 text-[12px] leading-relaxed text-brand-950/45">
+      <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-brand-950/45">
         <Info size={12} className="mt-0.5 shrink-0" />{tr("الحصة محسوبة من المهام المكتملة بس (العالية 3 نقاط، المتوسطة 2، المنخفضة 1). ما تقيس القراءة والاجتماعات والكتابة اللي ما تنسجّل كمهام، فاستخدموها للنقاش بين الفريق مو كتقييم.")}</p>
     </Card>
   );

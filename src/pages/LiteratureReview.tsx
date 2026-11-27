@@ -62,12 +62,12 @@ export default function LiteratureReview() {
         }
       />
       <div className="h-1.5 max-w-md overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] transition-all duration-700" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent transition-all duration-700" style={{ width: `${pct}%` }} />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
         <div>
-          <p className="mb-3 text-sm text-[#B8ADA2]">{tre("المحاور")}</p>
+          <p className="mb-3 text-sm text-ws-muted">{tre("المحاور")}</p>
           <div className="space-y-3">
             {themes.map(({ theme, studies }, i) => {
               const on = theme === current.theme;
@@ -80,21 +80,21 @@ export default function LiteratureReview() {
                   className={clsx(
                     "flex w-full items-center gap-3.5 rounded-2xl border px-4 py-3.5 text-start transition-colors",
                     on
-                      ? "border-[#FF8A24]/70 bg-[#ff6a00]/[0.12]"
-                      : "border-[rgba(255,107,0,.2)] bg-[rgba(24,16,8,.88)] hover:border-[#FF8A24]/50",
+                      ? "border-ws-accent2/70 bg-ws-accent/[0.12]"
+                      : "border-[rgba(255,107,0,.2)] bg-[rgba(24,16,8,.88)] hover:border-ws-accent2/50",
                   )}
                 >
                   <span
                     className={clsx(
                       "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold",
-                      on ? "border-[#ffb547] text-[#ffb547]" : "border-white/25 text-[#B8ADA2]",
+                      on ? "border-ws-accent3 text-ws-accent3" : "border-white/20 text-ws-muted",
                     )}
                   >
                     {arDigit(i + 1)}
                   </span>
                   <span className="min-w-0">
-                    <span className="block font-bold text-[#F4F0EC]">{themeLabelAr[theme]}</span>
-                    <span className="block text-xs text-[#B8ADA2]">
+                    <span className="block font-bold text-ws-text">{themeLabelAr[theme]}</span>
+                    <span className="block text-xs text-ws-muted">
                       {arDigit(studies.length)} {studies.length === 1 ? tre("دراسة") : tre("دراسات")} · {statusOf(studies)}
                     </span>
                   </span>
@@ -106,9 +106,9 @@ export default function LiteratureReview() {
 
         <section className={clsx(glassCard, "space-y-5 p-6 md:p-7")}>
           <div>
-            <p className="text-sm text-[#ffb547]">{trxe("المحور {0}", arDigit(themes.indexOf(current) + 1))}</p>
+            <p className="text-sm text-ws-accent3">{trxe("المحور {0}", arDigit(themes.indexOf(current) + 1))}</p>
             <h2 className="mt-1 font-kufi text-3xl font-extrabold leading-tight">{themeLabelAr[current.theme]}</h2>
-            <p className="mt-1.5 text-sm text-[#B8ADA2]">
+            <p className="mt-1.5 text-sm text-ws-muted">
               {arDigit(current.studies.length)} {current.studies.length === 1 ? tre("دراسة") : tre("دراسات")} · {statusOf(current.studies)}
             </p>
           </div>
@@ -121,36 +121,36 @@ export default function LiteratureReview() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <SourceTag label={sourceFromLink(study.link)} />
-                      <span className={clsx("text-xs font-semibold", done ? "text-[#FFC777]" : "text-[#ffb547]")}>
+                      <span className={clsx("text-xs font-semibold", done ? "text-ws-accent3" : "text-ws-accent3")}>
                         {done ? tre("✓ تمت مراجعتها") : tre("تم جمعها")}
                       </span>
                     </div>
-                    <span className="text-sm text-[#B8ADA2]">{study.year}</span>
+                    <span className="text-sm text-ws-muted">{study.year}</span>
                   </div>
-                  <h3 className="mt-3 text-[17px] font-bold leading-snug" dir="auto">
+                  <h3 className="mt-3 text-lg font-bold leading-snug" dir="auto">
                     {study.title}
                   </h3>
-                  <p className="mt-1 text-xs text-[#B8ADA2]" dir="auto">
+                  <p className="mt-1 text-xs text-ws-muted" dir="auto">
                     {[study.authors, study.studyDesign].filter(Boolean).join(" · ")}
                   </p>
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[12px] font-bold text-[#B8ADA2]">{tre("أهم النتائج")}</p>
+                    <div className="rounded-2xl bg-white/[0.04] p-3.5">
+                      <p className="text-xs font-bold text-ws-muted">{tre("أهم النتائج")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.keyFinding || "—"}</p>
                     </div>
-                    <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[12px] font-bold text-[#B8ADA2]">{tre("الصلة بالبحث")}</p>
+                    <div className="rounded-2xl bg-white/[0.04] p-3.5">
+                      <p className="text-xs font-bold text-ws-muted">{tre("الصلة بالبحث")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.relevance || "—"}</p>
                     </div>
                   </div>
 
                   <div className="mt-3 text-sm">
                     {study.link ? (
-                      <a href={study.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
+                      <a href={study.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-ws-muted hover:text-ws-text">
                         <ExternalLink size={13} />{tre("الأصل")}</a>
                     ) : (
-                      <span className="text-[#B8ADA2]/60">{tre("لا يوجد رابط مرفق")}</span>
+                      <span className="text-ws-muted/60">{tre("لا يوجد رابط مرفق")}</span>
                     )}
                   </div>
                 </article>

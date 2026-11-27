@@ -43,13 +43,13 @@ export function LiveSummaryCard({ s, updatedAt, collapsed, onToggle }: { s: Live
   if (collapsed) {
     return (
       <button type="button" className="ci-sum-line" onClick={onToggle} aria-expanded={false}>
-        <span className="text-[#FFC777]">
+        <span className="text-ws-accent3">
           <Spark />
         </span>
         <span className="min-w-0 flex-1 truncate text-start">
           <b>{tr("الخلاصة:")}</b> {[tr("{0} قرارات", s.decided.length), tr("{0} سؤال مفتوح", s.open.length), tr("{0} مهام", tasks)].join(" · ")}
         </span>
-        <span className="text-[#b8ada2]">
+        <span className="text-ws-muted">
           <Chev open={false} />
         </span>
       </button>
@@ -57,27 +57,27 @@ export function LiveSummaryCard({ s, updatedAt, collapsed, onToggle }: { s: Live
   }
   const col = (title: string, items: string[]) => (
     <div className="min-w-0 flex-1">
-      <div className="mb-1 text-[12px] font-bold text-[#ffb547]">{title}</div>
+      <div className="mb-1 text-xs font-bold text-ws-accent3">{title}</div>
       {items.length ? (
         items.map((x, i) => (
-          <div key={i} className="py-[3px] text-[13px] leading-[1.5] text-[#f4f0ec]" dir="auto">
+          <div key={i} className="py-[3px] text-sm leading-[1.5] text-ws-text" dir="auto">
             {x}
           </div>
         ))
       ) : (
-        <div className="py-[3px] text-[13px] text-[#b8ada2]">—</div>
+        <div className="py-[3px] text-sm text-ws-muted">—</div>
       )}
     </div>
   );
   return (
     <section className="ci-sum" aria-label={tr("الخلاصة الحيّة")}>
       <div className="flex items-center gap-2">
-        <span className="text-[#FFC777]">
+        <span className="text-ws-accent3">
           <Spark />
         </span>
-        <b className="flex-1 text-[14px]">{tr("الخلاصة الحيّة")}</b>
-        {updatedAt && <span className="text-[12px] text-[#b8ada2]">{ago(updatedAt)}</span>}
-        <button type="button" aria-label={tr("اطووها")} aria-expanded onClick={onToggle} className="flex h-9 w-11 items-center justify-center border-0 bg-transparent text-[#b8ada2]">
+        <b className="flex-1 text-sm">{tr("الخلاصة الحيّة")}</b>
+        {updatedAt && <span className="text-xs text-ws-muted">{ago(updatedAt)}</span>}
+        <button type="button" aria-label={tr("اطووها")} aria-expanded onClick={onToggle} className="flex h-9 w-11 items-center justify-center border-0 bg-transparent text-ws-muted">
           <Chev open />
         </button>
       </div>
@@ -115,13 +115,13 @@ export function OrphanStrip({
 }) {
   return (
     <div className="ci-orphan" role="note">
-      <div className="flex items-center gap-2 text-[12px] font-bold text-[#FFC777]">
+      <div className="flex items-center gap-2 text-xs font-bold text-ws-accent3">
         <Q />
         {knower ? tr("ينتظر جواب من {0} ساعة · يعرفه {1}؟", hours, knower) : tr("ينتظر جواب من {0} ساعة", hours)}
       </div>
       <div className="mt-1.5 flex items-center gap-2">
         <Avatar initials="" name={asker.name} avatar={asker.avatar ?? undefined} px={26} ring="#1A120E" />
-        <span className="min-w-0 flex-1 text-[14px] text-[#f4f0ec]" dir="auto">
+        <span className="min-w-0 flex-1 text-sm text-ws-text" dir="auto">
           «{body}»
         </span>
       </div>
@@ -156,11 +156,11 @@ export function CatchupSheet({ away, lines, onClose, onJump }: { away: string; l
       <div aria-hidden className="ci-scrim" onClick={onClose} />
       <section role="dialog" aria-modal="true" aria-labelledby="ci-catch-h" className="ci-catch">
         <div className="flex items-center gap-3">
-          <div className="sup-obj" role="img" aria-label={tr("كروت زجاج وخيط ذهبي")} style={{ width: 84, height: 84, flex: "none" }}>
+          <div className="sup-obj h-[84px] w-[84px] flex-none" role="img" aria-label={tr("كروت زجاج وخيط ذهبي")}>
             <img src="/sup/glass.jpg" alt="" width={84} height={84} />
           </div>
           <div>
-            <div className="text-[12px] font-bold text-[#ffb547]">{away}</div>
+            <div className="text-xs font-bold text-ws-accent3">{away}</div>
             <h2 id="ci-catch-h" className="m-0 bg-gradient-to-b from-[#FFF6EC] to-[#E9C9A0] bg-clip-text text-[24px] font-extrabold text-transparent">
               {tr("اللي فاتك ويخصك")}
             </h2>
@@ -168,20 +168,20 @@ export function CatchupSheet({ away, lines, onClose, onJump }: { away: string; l
         </div>
         <ol className="m-0 list-none p-0">
           {lines.map((l, i) => (
-            <li key={i} className="flex items-start gap-2.5 py-2.5" style={{ borderTop: i ? "1px solid rgba(255,255,255,.06)" : 0 }}>
-              <b className="flex h-6 w-6 flex-none items-center justify-center rounded-lg text-[12px] text-[#FFB65C]" style={{ background: "rgba(255,154,60,.16)" }}>
+            <li key={i} className={`flex items-start gap-2.5 py-2.5${i ? " border-t border-white/10" : ""}`}>
+              <b className="flex h-6 w-6 flex-none items-center justify-center rounded-xl bg-ws-accent/15 text-xs text-ws-accent3">
                 {i + 1}
               </b>
-              <span className="text-[15px] leading-[1.6] text-[#f4f0ec]" dir="auto">
+              <span className="text-base leading-[1.6] text-ws-text" dir="auto">
                 {boldParts(l).map((p, k) => (p.b ? <b key={k}>{p.t}</b> : <span key={k}>{p.t}</span>))}
               </span>
             </li>
           ))}
         </ol>
-        <button ref={ok} type="button" className="sup-btn-cream mt-2.5 w-full" style={{ height: 50, fontSize: 15 }} onClick={onClose}>
+        <button ref={ok} type="button" className="ws-btn-primary mt-2.5 w-full" onClick={onClose}>
           {tr("وصلت")}
         </button>
-        <button type="button" className="flex min-h-[44px] w-full items-center justify-center border-0 bg-transparent font-[inherit] text-[13px] text-[#f4f0ec]" onClick={onJump}>
+        <button type="button" className="flex min-h-[44px] w-full items-center justify-center border-0 bg-transparent font-[inherit] text-sm text-ws-text" onClick={onJump}>
           {tr("ودّوني لأول رسالة ما قريتها")}
         </button>
       </section>
@@ -202,10 +202,10 @@ export function FocusPanel({ active, onPick, onEnd }: { active: FocusChoice | nu
   return (
     <section className="sup-glass" aria-labelledby="ci-focus-h">
       <div className="flex items-center gap-2.5">
-        <span className="sup-ic text-[#FFC777]">
+        <span className="sup-ic text-ws-accent3">
           <Moon size={16} />
         </span>
-        <b id="ci-focus-h" className="flex-1 text-[17px]">
+        <b id="ci-focus-h" className="flex-1 text-lg">
           {tr("وقت تركيز")}
         </b>
         {active && (
@@ -221,7 +221,7 @@ export function FocusPanel({ active, onPick, onEnd }: { active: FocusChoice | nu
           </button>
         ))}
       </div>
-      <p className="m-0 mt-2.5 text-[13px] leading-[1.7] text-[#E9D3B8]">{tr("الإشعارات تتجمع، إلا لو أحد أشار لك أو الرسالة من الدكتورة. ويطلع لك ملخص لما يخلص الوقت.")}</p>
+      <p className="m-0 mt-2.5 text-sm leading-[1.7] text-ws-text-accent">{tr("الإشعارات تتجمع، إلا لو أحد أشار لك أو الرسالة من الدكتورة. ويطلع لك ملخص لما يخلص الوقت.")}</p>
     </section>
   );
 }
@@ -249,11 +249,11 @@ export function FocusPill({ until, onClick }: { until: string | null; onClick: (
 export function FocusDone({ count, mentions, doc, onClose }: { count: number; mentions: number; doc: number; onClose: () => void }) {
   return (
     <div className="ci-orphan" role="status">
-      <div className="flex items-center gap-2 text-[12px] font-bold text-[#FFC777]">
+      <div className="flex items-center gap-2 text-xs font-bold text-ws-accent3">
         <Moon />
         {tr("خلص وقت التركيز")}
       </div>
-      <p className="m-0 mt-1 text-[14px] text-[#f4f0ec]">
+      <p className="m-0 mt-1 text-sm text-ws-text">
         {count === 0 ? tr("ما فاتك شي — المحادثة كانت هادية.") : [tr("وصلت {0} رسائل", count), mentions ? tr("{0} منها أشارت لك", mentions) : "", doc ? tr("{0} من الدكتورة", doc) : ""].filter(Boolean).join(" · ")}
       </p>
       <div className="mt-2 flex">

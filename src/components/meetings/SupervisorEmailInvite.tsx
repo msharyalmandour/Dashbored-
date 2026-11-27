@@ -33,7 +33,7 @@ export default function SupervisorEmailInvite({ status, onSent }: { status: Emai
   return (
     <div className="mt-2 rounded-2xl border border-[rgba(255,199,119,.25)] bg-[rgba(255,199,119,.07)] p-3">
       {wrong && (
-        <p className="m-0 mb-2 flex items-start gap-2 text-[13px] font-bold leading-relaxed text-[#FFC777]" role="alert">
+        <p className="m-0 mb-2 flex items-start gap-2 text-sm font-bold leading-relaxed text-ws-accent3" role="alert">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden />
           <span>
             {tr("الإشعارات رايحة لإيميل عضو بالفريق ({0})، مو للمشرف/ة. عشان كذا المحاضر والطلبات ما توصلها.", status!.emailMasked)}
@@ -41,14 +41,14 @@ export default function SupervisorEmailInvite({ status, onSent }: { status: Emai
         </p>
       )}
       {pending && (
-        <p className="m-0 mb-2 flex items-start gap-2 text-[13px] font-bold leading-relaxed text-[#FFC777]" role="alert">
+        <p className="m-0 mb-2 flex items-start gap-2 text-sm font-bold leading-relaxed text-ws-accent3" role="alert">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden />
           <span>{tr("إيميل المشرف/ة ({0}) ينتظر تأكيد ما انضغط، فما يوصلها شي. أضيفوه مرة ثانية من هنا ويتفعّل على طول.", status!.emailMasked)}</span>
         </p>
       )}
       {isLeader ? (
         <>
-          <p className="m-0 mb-2 text-[13px] leading-relaxed text-[#E9D3B8]">{tr("اكتبوا إيميل المشرف/ة ويتفعّل على طول: توصلها المحاضر والأسئلة والمواعيد، وتقدر توقفها بضغطة من أي إيميل.")}</p>
+          <p className="m-0 mb-2 text-sm leading-relaxed text-ws-text-accent">{tr("اكتبوا إيميل المشرف/ة ويتفعّل على طول: توصلها المحاضر والأسئلة والمواعيد، وتقدر توقفها بضغطة من أي إيميل.")}</p>
           <div className="flex flex-wrap gap-2">
             <input
               type="email"
@@ -58,19 +58,19 @@ export default function SupervisorEmailInvite({ status, onSent }: { status: Emai
               placeholder="name@kau.edu.sa"
               aria-label={tr("إيميل المشرف/ة")}
               disabled={!canWrite}
-              className="min-h-[44px] min-w-0 flex-1 basis-full rounded-full border border-[rgba(255,240,225,.14)] sm:basis-auto bg-[rgba(255,245,235,.05)] px-4 text-[15px] text-[#f4f0ec] outline-none focus:border-[rgba(255,199,119,.55)]"
+              className="min-h-[44px] min-w-0 flex-1 basis-full rounded-full border border-[rgba(255,240,225,.14)] sm:basis-auto bg-[rgba(255,245,235,.05)] px-4 text-base text-ws-text outline-none focus:border-[rgba(255,199,119,.55)]"
             />
-            <button type="button" onClick={send} disabled={busy || !canWrite || !/^\S+@\S+\.\S+$/.test(email.trim())} className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#f4f0ec] px-4 text-[14px] font-extrabold text-[#160904] disabled:opacity-50">
+            <button type="button" onClick={send} disabled={busy || !canWrite || !/^\S+@\S+\.\S+$/.test(email.trim())} className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-ws-text px-4 text-sm font-extrabold text-[#160904] disabled:opacity-50">
               {msg?.ok ? <Check size={15} aria-hidden /> : <Mail size={15} aria-hidden />}
               {busy ? tr("لحظة…") : tr("فعّلوا إيميلات المشرف/ة")}
             </button>
           </div>
         </>
       ) : (
-        <p className="m-0 text-[13px] text-[#b8ada2]">{tr("القائد يكتب إيميل المشرف/ة من هنا.")}</p>
+        <p className="m-0 text-sm text-ws-muted">{tr("القائد يكتب إيميل المشرف/ة من هنا.")}</p>
       )}
       {msg && (
-        <p className={`m-0 mt-2 text-[13px] leading-relaxed ${msg.ok ? "text-[#FFC777]" : "text-[#FF8A7A]"}`} role={msg.ok ? "status" : "alert"}>
+        <p className={`m-0 mt-2 text-sm leading-relaxed ${msg.ok ? "text-ws-accent3" : "text-[#FF8A7A]"}`} role={msg.ok ? "status" : "alert"}>
           {msg.text}
         </p>
       )}

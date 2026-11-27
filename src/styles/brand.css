@@ -23,4 +23,4 @@ html[data-reduce-motion="true"] .wl-sync .wl-a, html[data-reduce-motion="true"] 
 /* ويسي */
 .wesy { display: inline-block; flex: none; }
 .wesy > svg { display: block; animation: wl-fade 200ms ease-out both; }
-.wesy-av { display: inline-flex; flex: none; overflow: hidden; border-radius: 28%; background: #F3E9DC; box-shadow: 0 0 0 1.5px #FFC777; }
+.wesy-av { display: inline-flex; flex: none; overflow: hidden; border-radius: 28%; background: #F3E9DC; box-shadow: 0 0 0 1.5px #FFB547; }

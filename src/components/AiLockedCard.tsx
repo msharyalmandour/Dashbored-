@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
 import { Lock, Wand2 } from "lucide-react";
-import { PRICE_PER_PERSON } from "../lib/plans";
+import { TIER_PRICES, tierOf } from "../lib/plans";
+import { useAuth } from "../context/AuthContext";
+import { useTeamRoster } from "../hooks/useTeamRoster";
 import { tr, trx } from "../lib/i18n";
 
 /** بطاقة "المساعد مقفل" — تظهر بدل أدوات الذكاء الاصطناعي لفريق قديم على باقة Basic
     بعد انتهاء التجربة. من 2026-11-19 الاشتراك شامل: أول دفعة تفتح المساعد (الويبهوك يثبّت plan='ai').
     القفل الحقيقي بالسيرفر؛ هذي بس عشان الفريق يفهم كيف يفتحها. */
 export default function AiLockedCard({ feature }: { feature: string }) {
-  const price = PRICE_PER_PERSON;
+  const { team } = useAuth();
+  const { roster } = useTeamRoster();
+  const price = TIER_PRICES[tierOf(roster.length || 1, team?.isFounder ?? false, team?.priceTier)].month;
 
   return (
     <div className="flex flex-col items-center gap-3 rounded-3xl border border-amber-accent-300/40 bg-gradient-to-b from-amber-accent-50/60 to-transparent p-6 text-center">

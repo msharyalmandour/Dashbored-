@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 const BrandBoard = lazyPage(() => import("./pages/BrandBoard"));
 const Stickers = lazyPage(() => import("./pages/Stickers"));
 const LandingV3 = lazyPage(() => import("./pages/LandingV3"));
+const LuxLanding = lazyPage(() => import("./pages/LuxLanding"));
 const MinutesNew = lazyPage(() => import("./pages/MinutesNew"));
 const MinutesLive = lazyPage(() => import("./pages/MinutesLive"));
 const MinutesDoc = lazyPage(() => import("./pages/MinutesDoc"));
@@ -95,7 +96,7 @@ export default function App() {
 
   // الزائر الجديد على «/» ياخذ صفحة الهبوط بس — بدون ما ينزّل التطبيق كامل (Layout وكل اللي فيه)
   if (pathname === "/" && (loading || !currentUser)) {
-    return <Suspense fallback={<AppSplash />}>{loading ? <AppSplash /> : <LandingV3 />}</Suspense>;
+    return <Suspense fallback={<AppSplash />}>{loading ? <AppSplash /> : <LuxLanding />}</Suspense>;
   }
 
   return (
@@ -107,7 +108,8 @@ export default function App() {
       <Route path="/brand" element={<BrandBoard />} />
       <Route path="/legal/:doc" element={<Legal />} />
       {/* نفس صفحة الهبوط اللي على «/» — رابط قديم نخليه شغّال */}
-      <Route path="/welcome" element={<LandingV3 />} />
+      <Route path="/welcome" element={<Suspense fallback={<AppSplash />}><LuxLanding /></Suspense>} />
+      <Route path="/welcome-v3" element={<Suspense fallback={<AppSplash />}><LandingV3 /></Suspense>} />
       <Route path="/survey" element={<Survey />} />
       <Route path="/s/:token" element={<SurveyPublic />} />
       <Route path="/celebration" element={<Celebration />} />

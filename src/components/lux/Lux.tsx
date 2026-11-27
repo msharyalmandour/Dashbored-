@@ -69,9 +69,9 @@ export function ReviewCard({ items, className, limit, moreTo = "/tasks" }: { ite
           {items.length}
         </span>
       </div>
-      <p className="m-0 mt-1 text-[13px] text-[#b8ada2]">{tr("مرتبة من الأهم. كل وحدة لها حل واحد.")}</p>
+      <p className="m-0 mt-1 text-sm text-ws-muted">{tr("مرتبة من الأهم. كل وحدة لها حل واحد.")}</p>
       {items.length === 0 ? (
-        <p className="m-0 mt-4 text-[14px] text-[#E9D3B8]">{tr("ما لقينا شي يضعّف شغلكم ✓")}</p>
+        <p className="m-0 mt-4 text-sm text-ws-text-accent">{tr("ما لقينا شي يضعّف شغلكم ✓")}</p>
       ) : (
         <ol className="m-0 mt-2 list-none p-0">
           {shown.map((it) => {
@@ -87,11 +87,11 @@ export function ReviewCard({ items, className, limit, moreTo = "/tasks" }: { ite
                 </span>
                 {/* الحل تحت النص (مو جنبه) عشان النص ياخذ عرض البطاقة كله حتى بالشاشات الصغيرة */}
                 <div className="min-w-0 flex-1 leading-[1.45]">
-                  <b className="line-clamp-2 block text-[15px] text-[#f4f0ec]" dir="auto">
+                  <b className="line-clamp-2 block text-base text-ws-text" dir="auto">
                     {title}
                   </b>
                   {sub && (
-                    <span className="line-clamp-2 block text-[13px] text-[#b8ada2]" dir="auto">
+                    <span className="line-clamp-2 block text-sm text-ws-muted" dir="auto">
                       {sub}
                     </span>
                   )}
@@ -106,7 +106,7 @@ export function ReviewCard({ items, className, limit, moreTo = "/tasks" }: { ite
         </ol>
       )}
       {more > 0 && (
-        <Link to={moreTo} className="lx-fix mt-1 !min-h-[44px] text-[13px]">
+        <Link to={moreTo} className="lx-fix mt-1 !min-h-[44px] text-sm">
           {tr("شوفوا الباقي ({0})", more)}
           <ChevronLeft size={15} aria-hidden />
         </Link>

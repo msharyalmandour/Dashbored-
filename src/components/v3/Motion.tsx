@@ -29,7 +29,7 @@ export function SavedTick({ at }: { at: number | null }) {
   }, [at]);
   if (!at || hiddenAt === at) return null;
   return (
-    <span key={at} className="v3-saved text-xs font-bold text-[#FFC777]" role="status">
+    <span key={at} className="v3-saved text-xs font-bold text-ws-accent3" role="status">
       {tr("انحفظ")}
       <CheckSvg size={12} />
     </span>

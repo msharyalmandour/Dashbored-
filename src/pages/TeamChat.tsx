@@ -128,7 +128,7 @@ function ChatPushBanner({ userId }: { userId: string }) {
   };
   return (
     <div className="tc-push" role="region" aria-label={tr("إشعارات المحادثة")}>
-      <BellRing size={18} className="shrink-0 text-[#FFC777]" aria-hidden />
+      <BellRing size={18} className="shrink-0 text-ws-accent3" aria-hidden />
       <p className="m-0 min-w-0 flex-1">
         {state === "denied"
           ? tr("الإشعارات محظورة لهذا الموقع. فعّلوها من إعدادات المتصفح عشان توصلكم رسائل الفريق.")
@@ -632,7 +632,7 @@ export default function TeamChat() {
                     </span>
                     {refSub(m.ref) && <span className="tc-ref-s">{refSub(m.ref)}</span>}
                   </span>
-                  <ChevronLeft size={16} className="shrink-0 text-[#b8ada2] rtl:rotate-0" aria-hidden />
+                  <ChevronLeft size={16} className="shrink-0 text-ws-muted rtl:rotate-0" aria-hidden />
                 </Link>
               )}
               {!m.failed && (
@@ -790,7 +790,7 @@ export default function TeamChat() {
                 <Search size={16} aria-hidden />
                 <span className="sr-only">{tr("بحث في المحادثة")}</span>
                 <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr("دوّروا كلمة بالرسائل…")} />
-                {query && <span className="text-[12px]">{tr("{0} نتيجة", shown.length)}</span>}
+                {query && <span className="text-xs">{tr("{0} نتيجة", shown.length)}</span>}
               </label>
             )}
           </header>
@@ -809,7 +809,7 @@ export default function TeamChat() {
                   <span className="tc-skel" style={{ width: w, height: i === 3 ? 64 : 44 }} />
                 </div>
               ))}
-              <p className="m-0 mt-2 text-center text-[13px] text-[#b8ada2]">{tr("نجيب رسائلكم…")}</p>
+              <p className="m-0 mt-2 text-center text-sm text-ws-muted">{tr("نجيب رسائلكم…")}</p>
             </div>
           ) : (
             <div className="tc-list" aria-live="polite">
@@ -836,13 +836,13 @@ export default function TeamChat() {
                           <MessageCircle size={19} aria-hidden />
                           {tr("أرسلوا الدعوة بواتساب")}
                         </a>
-                        <button type="button" className="tc-ghost text-[#FFC777]" onClick={copyLink}>
+                        <button type="button" className="tc-ghost text-ws-accent3" onClick={copyLink}>
                           <Link2 size={16} aria-hidden />
                           {tr("انسخوا الرابط")}
                         </button>
                       </>
                     ) : (
-                      <p className="!text-[13px]">{tr("القائد يرسل رابط الفريق.")}</p>
+                      <p className="!text-sm">{tr("القائد يرسل رابط الفريق.")}</p>
                     )}
                   </div>
                 ) : (
@@ -863,7 +863,7 @@ export default function TeamChat() {
                     </div>
                   </div>
                 ))}
-              {query.trim() && shown.length === 0 && <p className="m-0 py-8 text-center text-[14px] text-[#b8ada2]">{tr("ما لقينا «{0}» بالرسائل.", query.trim())}</p>}
+              {query.trim() && shown.length === 0 && <p className="m-0 py-8 text-center text-sm text-ws-muted">{tr("ما لقينا «{0}» بالرسائل.", query.trim())}</p>}
               {!query.trim() && <TodaySummary messages={messages} openDecisions={meetings.decisions.filter((d) => d.status === "open").length} pendingMinutes={meetings.approvals.filter((a) => a.status === "pending").length} />}
               {rows}
               {agentBusy && (
@@ -871,7 +871,7 @@ export default function TeamChat() {
                   <AgentMark />
                   <div className="tc-bubble agent">
                     <span className="tc-name">{tr("ويسي")}</span>
-                    <span className="tc-text text-[#b8ada2]">{tr("يقرا المحادثة ويجهّز رد…")}</span>
+                    <span className="tc-text text-ws-muted">{tr("يقرا المحادثة ويجهّز رد…")}</span>
                   </div>
                 </div>
               )}
@@ -882,7 +882,7 @@ export default function TeamChat() {
           {!unavailable && (
             <div className="tc-composer" ref={composerRef}>
               <div className="gr-to team">
-                <Lock size={13} aria-hidden />
+                <Lock size={16} aria-hidden />
                 {tr("ترسلون للفريق بس · الدكتورة ما تشوف")}
               </div>
               <div className="tc-typing" aria-live="polite">
@@ -899,7 +899,7 @@ export default function TeamChat() {
                     <button type="button" role="option" aria-selected={false} onMouseDown={(e) => e.preventDefault()} onClick={pickAgent}>
                       <AgentMark />
                       <span>
-                        {tr("ويسي")} <small className="text-[12px] font-medium text-[#b8ada2]">{tr("· يرد بالقروب للكل")}</small>
+                        {tr("ويسي")} <small className="text-xs font-medium text-ws-muted">{tr("· يرد بالقروب للكل")}</small>
                       </span>
                     </button>
                   )}
@@ -1011,7 +1011,7 @@ export default function TeamChat() {
           </section>
           <section className="hg-card !p-4">
             <h2>{tr("انشار له بالمحادثة")}</h2>
-            {refsFeed.length === 0 && <p className="m-0 text-[13px] leading-relaxed text-[#b8ada2]">{tr("لما أحد يشير لمهمة أو قسم أو دراسة بيطلع هنا.")}</p>}
+            {refsFeed.length === 0 && <p className="m-0 text-sm leading-relaxed text-ws-muted">{tr("لما أحد يشير لمهمة أو قسم أو دراسة بيطلع هنا.")}</p>}
             <div className="flex flex-col gap-2">
               {refsFeed.map((m) => {
                 const Icon = refIcon(m.ref!.type);
@@ -1278,7 +1278,7 @@ function ReferenceSheet({ open, onClose, onPick, tasks, sections, papers }: { op
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("دوّروا…")} />
         </label>
         <div className="max-h-[42vh] overflow-y-auto">
-          {items.length === 0 && <p className="m-0 p-4 text-center text-[14px] text-[#b8ada2]">{tr("ما فيه شي هنا للحين.")}</p>}
+          {items.length === 0 && <p className="m-0 p-4 text-center text-sm text-ws-muted">{tr("ما فيه شي هنا للحين.")}</p>}
           {items.map((r) => {
             const Icon = refIcon(r.type);
             const on = chosen?.id === r.id && chosen.type === r.type;
@@ -1293,7 +1293,7 @@ function ReferenceSheet({ open, onClose, onPick, tasks, sections, papers }: { op
                   </span>
                   {r.sub && <span className="tc-pick-s">{r.sub}</span>}
                 </span>
-                {on && <Check size={18} className="shrink-0 text-[#FF9A3C]" aria-hidden />}
+                {on && <Check size={18} className="shrink-0 text-ws-accent2" aria-hidden />}
               </button>
             );
           })}

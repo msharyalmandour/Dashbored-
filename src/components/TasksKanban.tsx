@@ -65,8 +65,8 @@ export default function TasksKanban({
             className={clsx(
               "flex min-h-[160px] flex-col gap-2 rounded-3xl border border-dashed p-3 transition-colors",
               dragOverCol === col.id
-                ? "border-[rgba(255,180,68,.6)] bg-white/[0.06]"
-                : "border-white/10 bg-white/[0.03]",
+                ? "border-[rgba(255,180,68,.6)] bg-white/[0.07]"
+                : "border-white/10 bg-white/[0.04]",
             )}
           >
             <div className="flex items-center justify-between px-1">
@@ -86,7 +86,7 @@ export default function TasksKanban({
                     e.dataTransfer.setData("text/plain", task.id);
                   }}
                   className={clsx(
-                    "space-y-2 rounded-[20px] border border-white/[0.08] bg-white/[0.05] p-3",
+                    "space-y-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3",
                     draggable ? "cursor-grab active:cursor-grabbing" : "opacity-80",
                   )}
                 >

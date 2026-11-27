@@ -83,7 +83,7 @@ export function Segmented<T extends string>({
           {it.badge ? (
             <span
               className={clsx(
-                "rounded-full px-1.5 text-[12px] font-bold",
+                "rounded-full px-1.5 text-xs font-bold",
                 value === it.id ? "bg-black/20" : "bg-brand-500/20 text-amber-accent-400",
               )}
             >
@@ -99,18 +99,18 @@ export function Segmented<T extends string>({
 export type ChipTone = "late" | "active" | "todo" | "done" | "neutral";
 
 const chipTone: Record<ChipTone, string> = {
-  late: "border-[#ff7a6b] text-[#ff7a6b]",
+  late: "border-[#FF8A7A] text-[#FF8A7A]",
   active: "border-amber-accent-400 text-amber-accent-400",
   todo: "border-[#9aa3f0] text-[#9aa3f0]",
-  done: "border-[#FFC777] text-[#FFC777]",
+  done: "border-ws-accent3 text-ws-accent3",
   neutral: "border-brand-950/25 text-brand-950/60",
 };
 
 export const chipDot: Record<ChipTone, string> = {
-  late: "bg-[#ff7a6b]",
+  late: "bg-[#FF8A7A]",
   active: "bg-amber-accent-400",
   todo: "bg-[#9aa3f0]",
-  done: "bg-[#FFC777]",
+  done: "bg-ws-accent3",
   neutral: "bg-brand-950/30",
 };
 
@@ -143,7 +143,7 @@ export function Panel({
   return (
     <section
       className={clsx(
-        "glass-panel rounded-[28px] border border-brand-500/30 bg-paper/55 p-5 backdrop-blur-xl backdrop-saturate-150 sm:p-6",
+        "glass-panel rounded-3xl border border-brand-500/30 bg-paper/55 p-5 backdrop-blur-xl backdrop-saturate-150 sm:p-6",
         className,
       )}
     >
@@ -174,7 +174,7 @@ export function HighlightCard({
   children?: ReactNode;
 }) {
   return (
-    <div className="rounded-[28px] bg-gradient-to-br from-brand-500/60 to-amber-accent-400/35 p-6">
+    <div className="rounded-3xl bg-gradient-to-br from-brand-500/60 to-amber-accent-400/35 p-6">
       <p className="text-sm text-brand-950/80">{kicker}</p>
       <p className="font-display mt-0.5 text-2xl font-bold leading-snug text-brand-950">{title}</p>
       {subtitle && <p className="mt-1 text-sm text-brand-950/80">{subtitle}</p>}
@@ -218,7 +218,7 @@ export function ReadinessPanel({
       {items.length > 0 && (
         <ul className="mt-4 space-y-2.5">
           {items.map((it, i) => (
-            <li key={i} className={clsx("flex items-center gap-3 text-[15px]", !it.done && "text-brand-950/55")}>
+            <li key={i} className={clsx("flex items-center gap-3 text-base", !it.done && "text-brand-950/55")}>
               <span
                 className={clsx(
                   "flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full",

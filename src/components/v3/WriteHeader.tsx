@@ -90,7 +90,7 @@ export default function WriteHeader({ fallbackTitle, style, live }: { fallbackTi
           {typeLabel && <span className="wf-chip">{method ? `${typeLabel} · ${method}` : typeLabel}</span>}
           {supervisor && <span className="wf-chip">{tr("المشرف/ة {0}", supervisor)}</span>}
           {daysLeft !== null && (
-            <span className="wf-chip" style={{ color: daysLeft < 0 ? "#FF8A7A" : "#FFC777" }}>
+            <span className="wf-chip" style={{ color: daysLeft < 0 ? "#FF8A7A" : "#FFB547" }}>
               {daysLeft < 0 ? tr("فات موعد التسليم") : (
                 <>
                   {tr("التسليم بعد")} <span className="wf-num">{daysLeft}</span> {tr("يوم")}
@@ -108,7 +108,7 @@ export default function WriteHeader({ fallbackTitle, style, live }: { fallbackTi
 /** توهّج الخلفية البرتقالي اللي يتحرك ببطء */
 export function V3Glow() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[32px]">
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
       <div className="v3-blob" style={{ width: 700, height: 520, insetInlineEnd: -260, top: -320, background: "#D9380A", opacity: 0.22 }} />
       <div className="v3-blob alt" style={{ width: 420, height: 300, insetInlineEnd: 60, top: -160, background: "#FFD25A", opacity: 0.12, filter: "blur(110px)" }} />
     </div>

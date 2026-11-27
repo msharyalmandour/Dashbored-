@@ -37,7 +37,7 @@ import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
 
-const LandingV3 = lazyPage(() => import("../pages/LandingV3"));
+const LuxLanding = lazyPage(() => import("../pages/LuxLanding"));
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -131,7 +131,7 @@ export default function Layout() {
   if (loading) return <AppSplash />;
 
   if (!currentUser) {
-    if (location.pathname === "/") return <Suspense fallback={<AppSplash />}><LandingV3 /></Suspense>;
+    if (location.pathname === "/") return <Suspense fallback={<AppSplash />}><LuxLanding /></Suspense>;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
@@ -151,7 +151,7 @@ export default function Layout() {
           سكرول موضع، مو بس أعلى الصفحة. النسب المئوية تتكيف تلقائيًا
           مع طول أي صفحة كانت */}
       <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] rounded-full bg-[#D9380A] opacity-[.22] blur-3xl" />
-      <div className="pointer-events-none absolute -left-20 top-[40%] h-96 w-96 rounded-full bg-[#FF8A24] opacity-[.1] blur-3xl" />
+      <div className="pointer-events-none absolute -left-20 top-[40%] h-96 w-96 rounded-full bg-ws-accent2 opacity-[.1] blur-3xl" />
       <div className="pointer-events-none absolute -right-20 top-[80%] h-96 w-96 rounded-full bg-[#D9380A] opacity-[.12] blur-3xl" />
       <DriveNotice />
       <StageCelebration />

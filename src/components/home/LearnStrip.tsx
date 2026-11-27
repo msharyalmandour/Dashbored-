@@ -18,15 +18,15 @@ export default function LearnStrip({ style }: { style?: React.CSSProperties }) {
         <GraduationCap size={18} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-extrabold text-[#f4f0ec]">
-          {tr("تعلّموا Wesync")} <span className="text-[13px] font-bold text-[#b8ada2]" dir="ltr">· {done}/{total}</span>
+        <span className="block text-base font-extrabold text-ws-text">
+          {tr("تعلّموا Wesync")} <span className="text-sm font-bold text-ws-muted" dir="ltr">· {done}/{total}</span>
         </span>
-        <span className="block truncate text-[13px] text-[#b8ada2]">{tr("الدرس الجاي: {0}", next.title)}</span>
+        <span className="block truncate text-sm text-ws-muted">{tr("الدرس الجاي: {0}", next.title)}</span>
         <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10" aria-hidden>
-          <span className="block h-full rounded-full bg-gradient-to-l from-[#FFC777] to-[#FF6A00]" style={{ width: `${Math.max(4, pct)}%` }} />
+          <span className="block h-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent" style={{ width: `${Math.max(4, pct)}%` }} />
         </span>
       </span>
-      <ChevronLeft size={20} className="shrink-0 text-[#b8ada2]" aria-hidden />
+      <ChevronLeft size={20} className="shrink-0 text-ws-muted" aria-hidden />
     </Link>
   );
 }

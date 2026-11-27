@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Camera, Check, ChevronLeft, Download, ExternalLink, FileSearch, Folder, Lock, Paperclip, Sparkles, Undo2, WifiOff } from "lucide-react";
+import { Camera, Check, ChevronLeft, Download, ExternalLink, FileSearch, Folder, Lock, Paperclip, Sparkles, Undo2, WifiOff, ImageOff, RotateCcw, Wand2 } from "lucide-react";
 import Vessel from "../components/drop/Vessel";
 import { DEST_ICON, DestinationSheet, EditSheet, FileIcon, ResultCard } from "../components/drop/DropParts";
 import { useAuth } from "../context/AuthContext";
@@ -230,7 +230,7 @@ export default function Drop() {
     </>
   );
   const toastEl = toast && (
-    <div role="status" className="dr-card dr-in fixed inset-x-4 bottom-24 z-[60] mx-auto max-w-md rounded-2xl px-4 py-3 text-[14px] text-[#f4f0ec] md:bottom-8">
+    <div role="status" className="dr-card dr-in fixed inset-x-4 bottom-24 z-[60] mx-auto max-w-md rounded-2xl px-4 py-3 text-sm text-ws-text md:bottom-8">
       {toast}
     </div>
   );
@@ -246,7 +246,7 @@ export default function Drop() {
       <div className="dr-page mx-auto max-w-md py-10 text-center">
         <Vessel size={220} className="mx-auto" />
         <h1 className="dr-title text-[30px]">{tr("ارموا أي شي")}</h1>
-        <p className="mt-2 text-[15px] text-[#E9D3B8]">{tr("هذي الميزة تشتغل بحساب فريقكم الحقيقي.")}</p>
+        <p className="mt-2 text-base text-ws-text-accent">{tr("هذي الميزة تشتغل بحساب فريقكم الحقيقي.")}</p>
       </div>
     );
 
@@ -254,14 +254,14 @@ export default function Drop() {
   if (errCode) {
     const ext = items.find((i) => i.kind === "file")?.name.match(/\.[a-z0-9]+$/i)?.[0];
     const E: Record<DropError, { icon: ReactNode; title: string; body: string; action: string; run: () => void }> = {
-      unreadable: { icon: <Sparkles size={18} />, title: tr("الصورة مو واضحة"), body: tr("صوّروها أقرب ومع إضاءة أحسن، ونقراها على طول."), action: tr("صوّروها مرة ثانية"), run: () => (again(), camRef.current?.click()) },
+      unreadable: { icon: <ImageOff size={18} />, title: tr("الصورة مو واضحة"), body: tr("صوّروها أقرب ومع إضاءة أحسن، ونقراها على طول."), action: tr("صوّروها مرة ثانية"), run: () => (again(), camRef.current?.click()) },
       unsupported: { icon: <FileSearch size={18} />, title: tr("هذا النوع ما نقراه للحين"), body: ext ? tr("ملف {0} · صدّروه PDF أو Word وارموه.", ext) : tr("صدّروه PDF أو Word وارموه."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
       nothing_found: { icon: <Folder size={18} />, title: tr("ما لقينا شي نرتبه"), body: tr("شكله ملف عادي. نحطه بالملفات؟"), action: tr("حطوه بالملفات"), run: () => void toFiles() },
       offline: { icon: <WifiOff size={18} />, title: tr("النت مفصول"), body: tr("حفظناه عندكم، وأول ما يرجع النت نقراه لحاله."), action: tr("تمام"), run: again },
       ai_limit: { icon: <Lock size={18} />, title: tr("خلصت قراءات هالشهر"), body: tr("باقتكم فيها {0} رمية بالشهر. ترجع {1}، أو كبّروا الباقة.", limitInfo ?? (team?.plan === "ai" ? 150 : 20), formatDateShort(nextMonthIso())), action: tr("شوفوا الباقات"), run: () => navigate("/pricing") },
       too_large: { icon: <FileSearch size={18} />, title: tr("الرمية كبيرة"), body: tr("الحد 10 ملفات و25 ميغا للملف. قسّموها وارموها مرة ثانية."), action: tr("اختاروا ملف ثاني"), run: () => (again(), fileRef.current?.click()) },
       failed: {
-        icon: <Sparkles size={18} />,
+        icon: <RotateCcw size={18} />,
         title: tr("ما زبطت هالمرة"),
         body: tr("صار شي من عندنا. جرّبوا مرة ثانية."),
         action: tr("جرّبوا مرة ثانية"),
@@ -275,15 +275,15 @@ export default function Drop() {
     return (
       <div className="dr-page mx-auto max-w-sm pt-4" role="alert">
         {inputs}
-        <section className="dr-card dr-in flex flex-col items-center rounded-[26px] p-[18px] text-center">
+        <section className="dr-card dr-in flex flex-col items-center rounded-3xl p-[18px] text-center">
           <div className="relative">
             <Vessel size={190} state="dim" scene />
-            <span className="absolute bottom-[18px] left-1/2 -translate-x-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-[#1C130E] text-[#FFC777] shadow-[inset_0_0_0_1px_rgba(255,199,119,0.35)]" aria-hidden>
+            <span className="absolute bottom-[18px] left-1/2 -translate-x-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-[#1C130E] text-ws-accent3 shadow-[inset_0_0_0_1px_rgba(255,199,119,0.35)]" aria-hidden>
               {e.icon}
             </span>
           </div>
-          <b className="mt-2 text-[18px] text-[#f4f0ec]">{e.title}</b>
-          <p className="m-0 mb-3.5 mt-1.5 text-[14px] leading-[1.7] text-[#E9D3B8]">{localErr?.code === "offline" ? localErr.message : e.body}</p>
+          <b className="mt-2 text-lg text-ws-text">{e.title}</b>
+          <p className="m-0 mb-3.5 mt-1.5 text-sm leading-[1.7] text-ws-text-accent">{localErr?.code === "offline" ? localErr.message : e.body}</p>
           <button type="button" className="dr-cream w-full !flex-none" onClick={e.run}>
             {e.action}
           </button>
@@ -309,7 +309,7 @@ export default function Drop() {
                 <span className="dr-ft" dir="ltr">
                   {/^image/.test(mime ?? "") ? "IMG" : /pdf/.test(mime ?? "") || /\.pdf$/i.test(first) ? "PDF" : /^https?:/.test(first) ? "URL" : "TXT"}
                 </span>
-                <span className="text-[12px] font-bold leading-[1.3]" dir="auto">
+                <span className="text-xs font-bold leading-[1.3]" dir="auto">
                   {first.length > 40 ? `${first.slice(0, 40)}…` : first}
                 </span>
               </div>
@@ -318,19 +318,19 @@ export default function Drop() {
           <div className="mt-[70px]">
             <Vessel size={300} state="reading" scene />
           </div>
-          <div className="text-[13px] font-bold tracking-[.04em] text-[#ffb547]">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("1 من 1 · {0}", kindWord(1, mime, first))}</div>
+          <div className="text-sm font-bold tracking-[.04em] text-ws-accent3">{names.length > 1 ? tr("{0} عناصر", names.length) : tr("1 من 1 · {0}", kindWord(1, mime, first))}</div>
           <h1 className="dr-title text-[28px]">{starting ? tr("نرفعها…") : tr("نقرا الملف…")}</h1>
-          <p className="m-0 text-[15px] text-[#E9D3B8]">{tr("نطلّع النقاط، المهام، ومين مسؤول عن وش.")}</p>
+          <p className="m-0 text-base text-ws-text-accent">{tr("نطلّع النقاط، المهام، ومين مسؤول عن وش.")}</p>
           <div className="mt-2.5 flex gap-1.5" aria-hidden>
             {[1, 2, 3, 4].map((i) => (
               <i key={i} className={`dr-dot${i <= step ? " on" : ""}`} />
             ))}
           </div>
-          <section className="dr-card dr-in dr-d3 mt-[18px] flex w-full items-center gap-2.5 rounded-[22px] px-3.5 py-3 text-start">
+          <section className="dr-card dr-in dr-d3 mt-[18px] flex w-full items-center gap-2.5 rounded-2xl px-3.5 py-3 text-start">
             <span className="dr-stamp h-8 w-8" aria-hidden>
-              <Sparkles size={15} />
+              <Wand2 size={15} />
             </span>
-            <span className="flex-1 text-[14px] text-[#f4f0ec]">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("ويسي يقرا ويفرز…"))}</span>
+            <span className="flex-1 text-sm text-ws-text">{drop?.summary || (starting ? tr("نرفع الملفات بأمان…") : tr("ويسي يقرا ويفرز…"))}</span>
           </section>
           <button type="button" className="dr-text dim mt-1" onClick={again}>
             {tr("إلغاء")}
@@ -353,25 +353,25 @@ export default function Drop() {
               <Check size={15} strokeWidth={3} />
             </span>
             <span className="min-w-0 flex-1 leading-[1.35]">
-              <b className="block truncate text-[15px]" dir="auto">
+              <b className="block truncate text-base" dir="auto">
                 {r.title}
               </b>
-              <span className="text-[12px] text-[#b8ada2] lg:text-[13px]">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
+              <span className="text-xs text-ws-muted lg:text-sm">{tr("انحطّت في {0}", DEST_PLACE[r.destination])}</span>
             </span>
-            <span className="hidden text-[13px] lg:inline">{tr("افتحوها")}</span>
-            <ChevronLeft size={18} className="text-[#b8ada2]" aria-hidden />
+            <span className="hidden text-sm lg:inline">{tr("افتحوها")}</span>
+            <ChevronLeft size={18} className="text-ws-muted" aria-hidden />
           </Link>
         ))}
         {waiting.map((r) => (
           <div key={r.id} className="dr-row">
             <span className="dr-ic" aria-hidden>
-              <Sparkles size={15} className="text-[#FFC777]" />
+              <Sparkles size={15} className="text-ws-accent3" />
             </span>
             <span className="min-w-0 flex-1 leading-[1.35]">
-              <b className="block truncate text-[15px]" dir="auto">
+              <b className="block truncate text-base" dir="auto">
                 {r.title}
               </b>
-              <span className="text-[12px] text-[#FFC777]">{r.filed_note === "needs_leader" ? tr("تنتظر القائد — هو اللي يضيف المهام") : tr("ما لقينا نموذج الموافقة — افتحوا صفحة الأخلاقيات أول")}</span>
+              <span className="text-xs text-ws-accent3">{r.filed_note === "needs_leader" ? tr("تنتظر القائد — هو اللي يضيف المهام") : tr("ما لقينا نموذج الموافقة — افتحوا صفحة الأخلاقيات أول")}</span>
             </span>
           </div>
         ))}
@@ -379,7 +379,7 @@ export default function Drop() {
     );
     const buttons = (
       <div className="flex gap-2">
-        <button type="button" className="dr-cream !min-h-[48px] !text-[15px]" onClick={again}>
+        <button type="button" className="dr-cream !min-h-[48px] !text-base" onClick={again}>
           {tr("ارموا شي ثاني")}
         </button>
         <button type="button" className="dr-ghost !min-h-[48px] !flex-none" onClick={() => undo(dropId)}>
@@ -392,11 +392,11 @@ export default function Drop() {
     return (
       <div className="dr-page" role="status">
         <div className="mb-4 hidden lg:block">
-          <div className="text-[18px] text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
+          <div className="text-lg text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
           <h1 className="dr-title text-[52px] leading-[1.1]">{tr("انحطّت {0} أشياء", n)}</h1>
         </div>
         <div className="mx-auto flex max-w-md flex-col gap-3 lg:grid lg:max-w-none lg:grid-cols-[1fr_1.2fr] lg:items-start lg:gap-[18px]">
-          <section className="dr-card dr-in rounded-[28px] px-4 pb-[18px] pt-1.5 text-center lg:order-1">
+          <section className="dr-card dr-in rounded-3xl px-4 pb-[18px] pt-1.5 text-center lg:order-1">
             <div className="-mb-4 flex justify-center">
               <Vessel size={190} state="done" className="lg:!h-[300px] lg:!w-[300px]" scene />
             </div>
@@ -404,9 +404,9 @@ export default function Drop() {
               <Check size={24} strokeWidth={3} />
             </div>
             <h1 className="dr-title text-[30px] lg:hidden">{tr("انحطّت {0} أشياء", n)}</h1>
-            <p className="m-0 mt-1 text-[15px] text-[#E9D3B8] lg:text-[16px]">{tr("كل شي بمكانه، والفريق يشوفه الحين.")}</p>
+            <p className="m-0 mt-1 text-base text-ws-text-accent lg:text-base">{tr("كل شي بمكانه، والفريق يشوفه الحين.")}</p>
           </section>
-          <section className="flex flex-col gap-3 lg:order-2 lg:rounded-[28px] lg:p-[18px] dr-card-lg">
+          <section className="flex flex-col gap-3 lg:order-2 lg:rounded-3xl lg:p-[18px] dr-card-lg">
             {rows}
             {buttons}
           </section>
@@ -457,11 +457,11 @@ export default function Drop() {
           <div className="flex items-center gap-3">
             <Vessel size={84} state="hover" scene={!isDesk} />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-bold text-[#ffb547]" dir="auto">
+              <div className="truncate text-sm font-bold text-ws-accent3" dir="auto">
                 {items.length > 1 ? tr("{0} عناصر رميتوها", items.length) : items[0]?.name}
               </div>
               <h1 className="dr-title text-[24px] leading-[1.3]">{tr("لقينا {0} أشياء", nAll)}</h1>
-              {drop?.summary && <div className="text-[13px] text-[#b8ada2]">{drop.summary}</div>}
+              {drop?.summary && <div className="text-sm text-ws-muted">{drop.summary}</div>}
             </div>
           </div>
           {cards}
@@ -470,22 +470,22 @@ export default function Drop() {
         {/* الديسكتوب */}
         <div className="hidden lg:block">
           <div className="mb-4">
-            <div className="text-[18px] text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
+            <div className="text-lg text-[#E9C9A0]">{tr("ارموا أي شي")}</div>
             <h1 className="dr-title text-[52px] leading-[1.1]">{tr("تأكدوا قبل لا نحطها")}</h1>
           </div>
           <div className="grid grid-cols-[380px_1fr] items-start gap-[18px]">
-            <section className="dr-card dr-in sticky top-4 flex flex-col items-center rounded-[28px] p-[18px] text-center">
+            <section className="dr-card dr-in sticky top-4 flex flex-col items-center rounded-3xl p-[18px] text-center">
               <Vessel size={260} state="hover" scene={isDesk} />
               <h2 className="dr-title -mt-3.5 mb-0.5 text-[28px]">{tr("لقينا {0} أشياء", nAll)}</h2>
-              <p className="m-0 mb-3 text-[14px] text-[#E9D3B8]">{fileCount === 2 ? tr("من ملفين رميتوهم") : fileCount > 2 ? tr("من {0} ملفات رميتوها", fileCount) : drop?.summary || tr("من اللي رميتوه")}</p>
+              <p className="m-0 mb-3 text-sm text-ws-text-accent">{fileCount === 2 ? tr("من ملفين رميتوهم") : fileCount > 2 ? tr("من {0} ملفات رميتوها", fileCount) : drop?.summary || tr("من اللي رميتوه")}</p>
               <div className="flex w-full flex-col gap-1.5">
                 {items.map((it) => (
-                  <div key={it.id} className="flex items-center gap-2.5 rounded-[14px] bg-white/[.035] px-2.5 py-2 text-start">
+                  <div key={it.id} className="flex items-center gap-2.5 rounded-xl bg-white/[.035] px-2.5 py-2 text-start">
                     <FileIcon name={it.name} mime={it.mime} small />
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-bold" dir="auto">
+                    <span className="min-w-0 flex-1 truncate text-sm font-bold" dir="auto">
                       {it.name}
                     </span>
-                    <span className="max-w-[45%] truncate text-[12px] text-[#FFC777]">{perItem(it.id)}</span>
+                    <span className="max-w-[45%] truncate text-xs text-ws-accent3">{perItem(it.id)}</span>
                   </div>
                 ))}
               </div>
@@ -515,10 +515,10 @@ export default function Drop() {
           <Vessel size={110} state="hover" scene />
           <div>
             <h1 className="dr-title text-[26px]">{tr("الصقوا هنا")}</h1>
-            <p className="m-0 mt-0.5 text-[14px] text-[#E9D3B8]">{tr("نص، ملاحظات، أو رابط DOI أو PubMed")}</p>
+            <p className="m-0 mt-0.5 text-sm text-ws-text-accent">{tr("نص، ملاحظات، أو رابط DOI أو PubMed")}</p>
           </div>
         </div>
-        <section className="dr-card dr-in rounded-[26px] p-3.5">
+        <section className="dr-card dr-in rounded-3xl p-3.5">
           <textarea className="dr-paste" value={text} onChange={(e) => setText(e.target.value)} autoFocus aria-label={tr("الصقوا نص أو رابط")} placeholder={tr("مثال: ملاحظات اجتماع، كلام الدكتورة، قائمة مهام، أو رابط دراسة…")} dir="auto" />
           <div className="mt-2.5 flex flex-wrap gap-1.5" aria-live="polite">
             {d.hint && (
@@ -552,7 +552,7 @@ export default function Drop() {
       <b className="truncate" dir="auto">
         {last.items.length > 1 ? tr("{0} عناصر", last.items.length) : last.items[0]?.name ?? last.summary}
       </b>
-      <span className="truncate text-[#b8ada2]">
+      <span className="truncate text-ws-muted">
         ← {last.status === "ready" ? tr("تنتظر مراجعتكم") : lastPlaced.length ? DEST_LABEL[lastPlaced[0].destination] : tr("ما انحط شي")} · {ago(last.created_at)}
       </span>
       {last.status === "ready" ? (
@@ -588,9 +588,9 @@ export default function Drop() {
           <svg className="dp-rings" viewBox="0 0 390 420">
             <defs>
               <linearGradient id="dpm-g" x1="0" x2="1">
-                <stop offset="0" stopColor="#FFC777" stopOpacity="0" />
-                <stop offset=".5" stopColor="#FFC777" stopOpacity=".7" />
-                <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
+                <stop offset="0" stopColor="#FFB547" stopOpacity="0" />
+                <stop offset=".5" stopColor="#FFB547" stopOpacity=".7" />
+                <stop offset="1" stopColor="#FF8A24" stopOpacity="0" />
               </linearGradient>
             </defs>
             <ellipse cx="195" cy="176.4" rx="152" ry="200" fill="none" stroke="rgba(255,199,119,0.07)" />
@@ -604,7 +604,7 @@ export default function Drop() {
             const Icon = DEST_ICON[c.d];
             return (
               <span key={c.d} className="dp-chip dp-chip-m dp-co" style={{ left: c.x, top: c.y, ["--dx" as string]: `${c.dx}px`, ["--dy" as string]: `${c.dy}px`, animationDelay: `${0.25 + i * 0.06}s` }}>
-                <Icon size={14} className="text-[#FFC777]" aria-hidden />
+                <Icon size={14} className="text-ws-accent3" aria-hidden />
                 {tr(c.label)}
               </span>
             );
@@ -647,9 +647,9 @@ export default function Drop() {
             <svg className="dp-rings" viewBox="0 0 1096 560" aria-hidden>
               <defs>
                 <linearGradient id="dp-g" x1="0" x2="1">
-                  <stop offset="0" stopColor="#FFC777" stopOpacity="0" />
-                  <stop offset=".5" stopColor="#FFC777" stopOpacity=".7" />
-                  <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
+                  <stop offset="0" stopColor="#FFB547" stopOpacity="0" />
+                  <stop offset=".5" stopColor="#FFB547" stopOpacity=".7" />
+                  <stop offset="1" stopColor="#FF8A24" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <ellipse cx="548" cy="235.2" rx="473" ry="218" fill="none" stroke="rgba(255,199,119,0.07)" />
@@ -663,7 +663,7 @@ export default function Drop() {
               const Icon = DEST_ICON[c.d];
               return (
                 <span key={c.d} className="dp-chip dp-co" style={{ left: c.x, top: c.y, ["--dx" as string]: `${c.dx}px`, ["--dy" as string]: `${c.dy}px`, animationDelay: `${0.25 + i * 0.06}s` }}>
-                  <Icon size={15} className="text-[#FFC777]" aria-hidden />
+                  <Icon size={15} className="text-ws-accent3" aria-hidden />
                   {tr(c.label)}
                 </span>
               );

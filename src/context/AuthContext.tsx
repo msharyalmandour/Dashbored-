@@ -196,11 +196,12 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
 
         if (team_id) {
           const cols = "id, name, subscription_end_date, monthly_price, plan, is_founder, on_trial, share_token, supervisor_note, supervisor_note_at, referral_code, university, created_at";
-          let teamRes = await supabase!.from("teams").select(`${cols}, first_week_dismissed_at`).eq("id", team_id).single();
-          if (teamRes.error && /first_week_dismissed_at/.test(teamRes.error.message)) {
+          let teamRes = await supabase!.from("teams").select(`${cols}, first_week_dismissed_at, price_tier`).eq("id", team_id).single();
+          // أعمدة جديدة لسا ما انضافت بالقاعدة؟ نرجع للأعمدة الأساسية عشان الدخول ما يوقف
+          if (teamRes.error && /first_week_dismissed_at|price_tier/.test(teamRes.error.message)) {
             teamRes = (await supabase!.from("teams").select(cols).eq("id", team_id).single()) as typeof teamRes;
           }
-          const teamRow = teamRes.data as (typeof teamRes.data & { first_week_dismissed_at?: string | null; created_at?: string }) | null;
+          const teamRow = teamRes.data as (typeof teamRes.data & { first_week_dismissed_at?: string | null; created_at?: string; price_tier?: string | null }) | null;
           if (teamRow) {
             setTeam({
               id: teamRow.id,
@@ -210,6 +211,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
               monthlyPrice: Number(teamRow.monthly_price),
               plan: teamRow.plan === "basic" ? "basic" : "ai",
               isFounder: teamRow.is_founder,
+              priceTier: teamRow.price_tier ?? null,
               isOnTrial: teamRow.on_trial,
               shareToken: teamRow.share_token,
               supervisorNote: teamRow.supervisor_note,

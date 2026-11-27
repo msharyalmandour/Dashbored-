@@ -185,7 +185,7 @@ export default function Collect() {
           <div className="v3-eye">{tr("رحلة البحث · {0}", num(3))}</div>
           <h1 className="v3-k m-0 text-[30px] leading-snug sm:text-[38px]">{tr("أجمع وأحلّل")}</h1>
           {!isEn && <div className="v3-en -mt-1">Collect & Analyze</div>}
-          <p className="v3-mut m-0 mt-1 text-[15px] sm:text-base">
+          <p className="v3-mut m-0 mt-1 text-base sm:text-base">
             {tr("من الأداة للنتيجة في 4 محطات. أنتم الحين في {0}.", stationName(current.key))}
           </p>
         </div>
@@ -230,7 +230,7 @@ export default function Collect() {
               <Link
                 to={meta.to}
                 aria-current={now ? "step" : undefined}
-                className={clsx("v3-g v3-hover v3-rise flex min-w-0 flex-1 flex-col gap-2.5 !rounded-[26px] p-4 sm:p-[18px]", now && "v3-sheen v3-glow")}
+                className={clsx("v3-g v3-hover v3-rise flex min-w-0 flex-1 flex-col gap-2.5 !rounded-3xl p-4 sm:p-[18px]", now && "v3-sheen v3-glow")}
                 style={{
                   ...rise(i + 1),
                   ...(now
@@ -246,19 +246,19 @@ export default function Collect() {
                   <span className={clsx("v3-st", STATE_CLASS[s.state])}>{STATE_LABEL[s.state]}</span>
                 </div>
                 <span
-                  className="grid h-11 w-11 place-items-center rounded-[15px] sm:h-[46px] sm:w-[46px]"
-                  style={now ? { background: "linear-gradient(90deg,#FF6A00,#FF9A3C)", color: "#1A0802" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}
+                  className="grid h-11 w-11 place-items-center rounded-xl sm:h-[46px] sm:w-[46px]"
+                  style={now ? { background: "linear-gradient(90deg,#FF6A00,#FF8A24)", color: "#1A0802" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}
                 >
                   <Icon size={21} aria-hidden />
                 </span>
                 <div>
-                  <div className="v3-k text-[17px] sm:text-[19px]">{meta.ar}</div>
+                  <div className="v3-k text-lg sm:text-lg">{meta.ar}</div>
                   {!isEn && <div className="v3-en">{meta.en}</div>}
                 </div>
-                <div className="line-clamp-2 text-sm font-bold sm:text-[15px]" dir="auto">
+                <div className="line-clamp-2 text-sm font-bold sm:text-base" dir="auto">
                   {lines[s.key][0]}
                 </div>
-                <div className="v3-mut -mt-1.5 text-[13px]">{lines[s.key][1]}</div>
+                <div className="v3-mut -mt-1.5 text-sm">{lines[s.key][1]}</div>
               </Link>
               {i < stations.length - 1 && (
                 <ChevronLeft
@@ -307,8 +307,8 @@ export default function Collect() {
                       style={{
                         ...({ ["--v3-d" as string]: i } as CSSProperties),
                         ...(filled
-                          ? { background: "linear-gradient(135deg,#FF7A10,#FFC85A)", color: "#1A0802" }
-                          : { border: `1.5px dashed ${next ? "rgba(255,180,68,.7)" : "rgba(255,255,255,.2)"}`, color: next ? "#ffb547" : "var(--ws-c-muted)" }),
+                          ? { background: "linear-gradient(135deg,#FF8A24,#FFB547)", color: "#1A0802" }
+                          : { border: `1.5px dashed ${next ? "rgba(255,180,68,.7)" : "rgba(255,255,255,.2)"}`, color: next ? "#FFB547" : "var(--ws-c-muted)" }),
                       }}
                     >
                       {perDot === 1 ? num(i + 1) : ""}
@@ -325,7 +325,7 @@ export default function Collect() {
           ) : responses.length === 0 ? (
             <div className="v3-g2 px-4 py-3.5 text-sm">
               <p className="m-0 font-bold">{loading ? tr("نجيب الردود…") : tr("ما وصل رد للحين")}</p>
-              {!loading && <p className="v3-mut m-0 mt-1 text-[13px]">{tr("افتحوا الاستبيان وشاركوا رابطه، وأول ما يجي رد يطلع هنا.")}</p>}
+              {!loading && <p className="v3-mut m-0 mt-1 text-sm">{tr("افتحوا الاستبيان وشاركوا رابطه، وأول ما يجي رد يطلع هنا.")}</p>}
             </div>
           ) : (
             <>
@@ -343,14 +343,14 @@ export default function Collect() {
                   return (
                     <li
                       key={r.id}
-                      className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-white/[0.07] px-1.5 py-[11px] text-sm sm:grid-cols-[60px_minmax(0,1fr)_100px_110px_110px]"
+                      className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 border-t border-white/10 px-1.5 py-[11px] text-sm sm:grid-cols-[60px_minmax(0,1fr)_100px_110px_110px]"
                     >
-                      <span className="v3-k text-[15px]">R{num(n)}</span>
+                      <span className="v3-k text-base">R{num(n)}</span>
                       <span className="truncate" dir="auto">
                         {main?.title || tr("استبيان بدون عنوان")}
                       </span>
-                      <span className="v3-mut text-[13px] sm:text-sm">{relativeDayLabel(r.createdAt.slice(0, 10))}</span>
-                      <span className="v3-mut col-start-2 text-[13px] sm:col-start-auto sm:text-sm">{qCount ? tr("{0}/{1} سؤال", num(Math.min(answered, qCount)), num(qCount)) : "—"}</span>
+                      <span className="v3-mut text-sm sm:text-sm">{relativeDayLabel(r.createdAt.slice(0, 10))}</span>
+                      <span className="v3-mut col-start-2 text-sm sm:col-start-auto sm:text-sm">{qCount ? tr("{0}/{1} سؤال", num(Math.min(answered, qCount)), num(qCount)) : "—"}</span>
                       <span className={clsx("v3-st w-fit text-xs", complete ? "done" : "doing")}>{complete ? tr("مكتمل") : tr("ناقص")}</span>
                     </li>
                   );
@@ -371,13 +371,13 @@ export default function Collect() {
             <div className="flex items-center gap-2.5">
               <span className="v3-orb h-[30px] w-[30px]" aria-hidden />
               <div>
-                <h2 id="analyst-title" className="v3-k m-0 text-[15px]">
+                <h2 id="analyst-title" className="v3-k m-0 text-base">
                   {tr("المحلل")}
                 </h2>
                 {!isEn && <div className="v3-en">Analyst</div>}
               </div>
             </div>
-            <p className="v3-mut m-0 text-[13px] leading-relaxed">
+            <p className="v3-mut m-0 text-sm leading-relaxed">
               {qual
                 ? tr("لما تلصقون تفريغ مقابلة، أطلع لكم المواضيع الأولية وأقارنها بالمقابلات اللي قبل.")
                 : collected > 0
@@ -403,7 +403,7 @@ export default function Collect() {
           {/* التشبّع (كيفي) أو اكتمال العينة (كمي) */}
           <section className="v3-g v3-hover v3-rise flex flex-col gap-2.5 p-[18px]" style={rise(7)} aria-labelledby="chart-title">
             <div>
-              <h2 id="chart-title" className="v3-k m-0 text-[15px]">
+              <h2 id="chart-title" className="v3-k m-0 text-base">
                 {qual ? tr("التشبّع") : tr("اكتمال العينة")}
               </h2>
               {!isEn && <div className="v3-en">{qual ? "Saturation" : "Sample completion"}</div>}
@@ -419,7 +419,7 @@ export default function Collect() {
                       style={{
                         ...({ ["--v3-i" as string]: i } as CSSProperties),
                         height: `${Math.max(6, (b.n / themeMax) * 100)}%`,
-                        background: i === themeBars.length - 1 ? "linear-gradient(180deg,#FFF0C2,#ff6a00)" : "rgba(255,180,68,.4)",
+                        background: i === themeBars.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6A00)" : "rgba(255,180,68,.4)",
                       }}
                     />
                   ))}
@@ -432,7 +432,7 @@ export default function Collect() {
               <>
                 <div className="flex h-[70px] items-end gap-1.5" aria-hidden>
                   {[100, 70, 55, 40, 30, 18, 12].map((h, i) => (
-                    <div key={i} className="flex-1 rounded-t-md border border-dashed border-white/15" style={{ height: `${h}%` }} />
+                    <div key={i} className="flex-1 rounded-t-xl border border-dashed border-white/20" style={{ height: `${h}%` }} />
                   ))}
                 </div>
                 <p className="v3-mut m-0 text-xs leading-relaxed">
@@ -452,7 +452,7 @@ export default function Collect() {
                       style={{
                         ...({ ["--v3-i" as string]: i } as CSSProperties),
                         height: `${Math.max(6, (c.total / chartMax) * 100)}%`,
-                        background: i === chart.length - 1 ? "linear-gradient(180deg,#FFF0C2,#ff6a00)" : "rgba(255,180,68,.4)",
+                        background: i === chart.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6A00)" : "rgba(255,180,68,.4)",
                       }}
                     />
                   ))}
@@ -477,15 +477,15 @@ export default function Collect() {
         </h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3.5">
           {tools.map((t, i) => (
-            <Link key={t.to} to={t.to} className="v3-g v3-hover v3-rise flex min-h-[44px] flex-col gap-2 !rounded-[22px] p-4" style={rise(8 + i)}>
+            <Link key={t.to} to={t.to} className="v3-g v3-hover v3-rise flex min-h-[44px] flex-col gap-2 !rounded-2xl p-4" style={rise(8 + i)}>
               <span className="grid h-[38px] w-[38px] place-items-center rounded-xl bg-white/[0.07] text-[var(--ws-c-text)]">
                 <t.icon size={19} aria-hidden />
               </span>
               <div>
-                <div className="text-[15px] font-bold">{t.title}</div>
+                <div className="text-base font-bold">{t.title}</div>
                 {!isEn && <div className="v3-en">{t.en}</div>}
               </div>
-              <div className="v3-mut text-[13px] leading-relaxed">{t.desc}</div>
+              <div className="v3-mut text-sm leading-relaxed">{t.desc}</div>
             </Link>
           ))}
         </div>

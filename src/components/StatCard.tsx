@@ -36,9 +36,9 @@ export default function StatCard({
   return (
     <Card tone={tone} className="flex flex-col p-3.5 sm:p-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[12px] font-semibold text-brand-950/45">{label}</span>
+        <span className="text-xs font-semibold text-brand-950/45">{label}</span>
         <span
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${chipClasses[color] ?? chipClasses.brand}`}
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-xl ${chipClasses[color] ?? chipClasses.brand}`}
         >
           <Icon size={12} />
         </span>
@@ -52,7 +52,7 @@ export default function StatCard({
         </div>
       ) : (
         sub && (
-          <p className={`mt-1 text-[12px] font-bold leading-snug ${subTextClasses[color] ?? subTextClasses.brand}`}>
+          <p className={`mt-1 text-xs font-bold leading-snug ${subTextClasses[color] ?? subTextClasses.brand}`}>
             {sub}
           </p>
         )

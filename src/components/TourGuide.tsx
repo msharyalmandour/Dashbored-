@@ -61,7 +61,7 @@ export default function TourGuide() {
       <button
         onClick={close}
         title={tr("إنهاء الجولة")}
-        className="absolute end-5 top-5 z-10 rounded-lg p-1.5 text-white/35 hover:bg-white/10 hover:text-white/70"
+        className="absolute end-5 top-5 z-10 rounded-xl p-1.5 text-white/35 hover:bg-white/10 hover:text-white/70"
       >
         <X size={18} />
       </button>

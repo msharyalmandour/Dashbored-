@@ -37,7 +37,7 @@ export default function AgentOrb({
       {size < 90 ? <WesyAvatar size={size} state={ws} formal={formal} /> : <Wesy size={size} state={ws} formal={formal} shadow={false} />}
       {symbol !== undefined && typeof symbol !== "object" && (
         <span
-          className="absolute -bottom-1 -end-1 flex items-center justify-center rounded-full bg-[#FFC777] font-extrabold text-[#160904] ring-2 ring-[#080808]"
+          className="absolute -bottom-1 -end-1 flex items-center justify-center rounded-full bg-ws-accent3 font-extrabold text-[#160904] ring-2 ring-[#080808]"
           style={{ minWidth: Math.max(22, size * 0.26), height: Math.max(22, size * 0.26), fontSize: Math.max(12, size * 0.14) }}
         >
           {symbol}

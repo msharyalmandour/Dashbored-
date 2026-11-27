@@ -51,7 +51,7 @@ export default function ThreeDotsMenu({ items, buttonClassName }: { items: Three
           setConfirmingIndex(null);
         }}
         aria-label={tr("خيارات إضافية")}
-        className={buttonClassName ?? "flex h-8 w-8 items-center justify-center rounded-lg text-brand-950/35 transition-colors hover:bg-surface-muted hover:text-brand-950/70"}
+        className={buttonClassName ?? "flex h-8 w-8 items-center justify-center rounded-xl text-brand-950/35 transition-colors hover:bg-surface-muted hover:text-brand-950/70"}
       >
         <MoreVertical size={16} />
       </button>

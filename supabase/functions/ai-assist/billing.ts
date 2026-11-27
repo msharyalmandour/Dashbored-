@@ -45,6 +45,8 @@ export interface BillingFactsInput {
   onTrial: boolean;
   plan: "basic" | "ai";
   isFounder: boolean;
+  /** "legacy" = سعرهم القديم ثابت */
+  priceTier?: string | null;
   memberCount: number;
   todayISO: string;
   payments: Array<{ amount: number; createdAtISO: string; byMe: boolean }>;
@@ -57,17 +59,30 @@ function daysBetween(fromISO: string, toISO: string): number {
   return Math.round((b - a) / 86_400_000);
 }
 
-/** السعر لكل شخص (2026-11-27) — نفس src/lib/plans.ts و moyasar-webhook */
-const PLANS: Record<string, { price: number; days: number }> = { month: { price: 15, days: 30 }, semester: { price: 49, days: 120 }, year: { price: 99, days: 270 } };
-export function teamMonthlyTotal(members: number): number {
-  return 15 * Math.max(members, 1);
+/** السعر للطالب (2026-11-27، التسعيرة الثانية) — نفس src/lib/plans.ts و moyasar-webhook */
+const DAYS: Record<string, number> = { month: 30, semester: 120, year: 270 };
+const TIERS: Record<string, Record<string, number>> = {
+  solo: { month: 37, semester: 129, year: 249 },
+  team: { month: 29, semester: 99, year: 199 },
+  founding: { month: 27, semester: 89, year: 179 },
+  legacy: { month: 15, semester: 49, year: 99 },
+};
+export function tierName(members: number, isFounder: boolean, priceTier?: string | null): string {
+  if (priceTier === "legacy") return "legacy";
+  if (members <= 1) return "solo";
+  return isFounder ? "founding" : "team";
+}
+export function teamMonthlyTotal(members: number, isFounder = false, priceTier?: string | null): number {
+  const m = Math.max(members, 1);
+  return TIERS[tierName(m, isFounder, priceTier)].month * m;
 }
 
-/** كم يوم تمدد دفعة — تقدير من المبلغ (الدفعة القديمة ما فيها المدة): نختار أطول مدة يغطيها المبلغ لشخص واحد على الأقل */
-export function daysForPayment(amount: number, members: number): number {
+/** كم يوم تمدد دفعة — تقدير من المبلغ (الدفعة القديمة ما فيها المدة): نختار أطول مدة يغطيها المبلغ لطالب واحد على الأقل */
+export function daysForPayment(amount: number, members: number, isFounder = false, priceTier?: string | null): number {
   const m = Math.max(members, 1);
-  const plan = amount >= PLANS.year.price ? PLANS.year : amount >= PLANS.semester.price ? PLANS.semester : PLANS.month;
-  return Math.max(Math.round((amount * plan.days) / (m * plan.price)), 1);
+  const t = TIERS[tierName(m, isFounder, priceTier)];
+  const period = amount >= t.year ? "year" : amount >= t.semester ? "semester" : "month";
+  return Math.max(Math.round((amount * DAYS[period]) / (m * t[period])), 1);
 }
 
 /** كتلة "معلومات فعلية عن فريقك" — أرقام وتواريخ فقط، بدون أسماء أو نصوص
@@ -91,14 +106,16 @@ export function buildBillingFacts(f: BillingFactsInput): string {
     lines.push("- فريقها من الفرق القديمة اللي كانت على Basic: المساعد الذكي مقفل لهم لين أول دفعة جديدة (الاشتراك صار شامل كل شي وأي دفعة تفتحه).");
   }
   const members = Math.max(f.memberCount, 1);
-  lines.push(`- عدد أعضاء فريقها الحالي ${f.memberCount}: الشهري للفريق كامل ${teamMonthlyTotal(members)} ريال (15 × ${members})، والسنة الدراسية ${99 * members} ريال (99 × ${members}).`);
+  const t = TIERS[tierName(members, f.isFounder, f.priceTier)];
+  const tierLabel = f.priceTier === "legacy" ? "سعرهم القديم الثابت" : members <= 1 ? "سعر الطالب لحاله" : f.isFounder ? "سعر الفرق المؤسِّسة الثابت" : "سعر الفريق";
+  lines.push(`- عدد أعضاء فريقها الحالي ${f.memberCount} (${tierLabel}): الشهري ${t.month} للطالب (${t.month * members} للفريق كامل)، الفصل ${t.semester} للطالب، والسنة الدراسية ${t.year} للطالب (${t.year * members} للفريق).`);
 
   if (f.payments.length === 0) {
     lines.push("- الدفعات المسجّلة بالنظام لفريقها: لا توجد أي دفعة مسجّلة.");
   } else {
     lines.push(`- آخر الدفعات المسجّلة بالنظام لفريقها (الأحدث أولًا، ${f.payments.length}):`);
     for (const p of f.payments) {
-      const days = daysForPayment(p.amount, members);
+      const days = daysForPayment(p.amount, members, f.isFounder, f.priceTier);
       lines.push(`  • ${p.createdAtISO.slice(0, 10)} — ${p.amount} ريال — ${p.byMe ? "دفعتها هي بنفسها" : "دفعها عضو آخر"} — مدّدت الاشتراك حوالي ${days} يوم`);
     }
   }
@@ -123,11 +140,11 @@ export function buildBillingFacts(f: BillingFactsInput): string {
 
 /** دليل ثابت (يُكاش مع موجّه النظام) — كيف يشتغل الاشتراك والدفع فعليًا */
 export const BILLING_GUIDE = `دليل الاشتراك والدفع بـ Wesync (كلها حقائق من الكود الفعلي للموقع):
-- الأسعار (من نهاية نوفمبر 2026) **لكل شخص**، وكل شي داخل — أدوات إدارة البحث والمساعد الذكي (ويسي، والبحث الذكي عن دراسات، وتحسين الصياغة، والقراءة الصوتية الطبيعية): شهري ١٥ ريال (يعني نص ريال باليوم)، فصل دراسي (٤ شهور) ٤٩ ريال، السنة الدراسية (٩ شهور) ٩٩ ريال (يعني ١١ بالشهر وتوفّر ٣٦). خصم الاستمرار: الفريق اللي يستخدم المنصة كل أسبوع ٤ أسابيع متتالية يصير الشهري له ١٢. الفريق حدّه ٥ أعضاء، والمشرف/ة مجاني دايمًا. الفرق الجديدة تبدأ بتجربة مجانية ١٤ يوم كاملة المزايا بدون بطاقة.
+- الأسعار (من ٢٧ نوفمبر 2026) **لكل طالب**، وكل شي داخل — أدوات إدارة البحث والوكيل (ويسي، والبحث الذكي عن دراسات، وتحسين الصياغة، والقراءة الصوتية الطبيعية). ثلاث مدد: شهري، فصل دراسي (٤ شهور)، السنة الدراسية (٩ شهور، الأوفر). الطالب لحاله: ٣٧ / ١٢٩ / ٢٤٩. الطالب في فريق (شخصين أو أكثر): ٢٩ / ٩٩ / ١٩٩. الفرق المؤسِّسة (أول ٥٠ فريق): ٢٧ / ٨٩ / ١٧٩ ثابتة. الفرق اللي دفعت قبل التغيير يبقى لها سعرها القديم (١٥ / ٤٩ / ٩٩) لأن «سعرك ثابت لين تتخرج». خصم الاستمرار: الفريق اللي يستخدم المنصة كل أسبوع ٤ أسابيع متتالية ينقص الشهري له ٣ ريال للطالب. سعر فريق المستخدمة بالضبط مكتوب في «معلومات فعلية عن فريقك» لو موجودة. الفريق حدّه ٥ أعضاء، والمشرف/ة مجاني دايمًا. الفرق الجديدة تبدأ بتجربة مجانية ١٤ يوم كاملة المزايا بدون بطاقة.
 - ضمان أول شهر: إذا طلب الشخص خلال ٣٠ يوم من أول دفعة له، يرجع له المبلغ لنفس وسيلة الدفع (مرة وحدة، والطلب عبر واتساب الدعم). وسعره ثابت لين يتخرج حتى لو تغيّرت الأسعار للفرق الجديدة.
 - صندوق المنح: عند الدفع يقدر يضيف ٥ ريال تروح لطلاب ظروفهم ما تسمح، واللي ظروفه ما تسمح يطلب منحة من صفحة «الاشتراك» عبر واتساب.
 - الدفع: من نافذة «إتمام الاشتراك» (صفحة «الاشتراك» أو بانر التنبيه). يختار المدة (شهري/فصل/السنة الدراسية)، وعن مين يدفع: حصته، أو عن زميل (يوصله إنه انْدفع عنه)، أو الفريق كامل. طرق الدفع: مدى والبطاقات، وApple Pay وSTC Pay لما تكون مفعّلة.
-- التفعيل تلقائي خلال ثوانٍ، والاشتراك أيام للفريق كامل: كل دفعة تمدد الفريق = المبلغ × أيام المدة ÷ (عدد الأعضاء × سعر الشخص). فلو كل الأعضاء دفعوا الشهري يمتد ٣٠ يوم، ولو واحد من ٤ دفع حصته يمتد حوالي أسبوع. والدفعات تتراكم، واللي ما دفع ما ينقفل لحاله — الفريق يكمل بأيام أقل.
+- التفعيل تلقائي خلال ثوانٍ، والاشتراك أيام للفريق كامل: كل دفعة تمدد الفريق = المبلغ × أيام المدة ÷ (عدد الأعضاء × سعر الطالب). فلو كل الأعضاء دفعوا الشهري يمتد ٣٠ يوم، ولو واحد من ٤ دفع حصته يمتد حوالي أسبوع. والدفعات تتراكم، واللي ما دفع ما ينقفل لحاله — الفريق يكمل بأيام أقل.
 - ما فيه تجديد تلقائي ولا اشتراك متكرر: الموقع ما يسحب من أي بطاقة إلا لما عضو بنفسه يفتح نموذج الدفع ويدخل بيانات بطاقته ويضغط دفع. والموقع ما يحفظ بيانات البطاقة؛ تنكتب داخل نموذج Moyasar نفسه، وWesync ما تشوفها.
 - طريقة يدوية لقائدة الفريق: تحويل STC Pay ثم رفع إثبات التحويل، وحسب الموقع يتفعّل الاشتراك خلال ساعة كحد أقصى.
 - إذا انتهى الاشتراك: الفريق يتحول لوضع قراءة فقط (يشوفون كل بياناتهم المحفوظة بدون إضافة أو تعديل) ويرجع كل شي بمجرد التجديد.

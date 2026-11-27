@@ -135,7 +135,7 @@ export default function StuckHelp({ isFemale, supervisorName, projectTitle }: St
                 <h2 className="font-display text-lg font-extrabold text-brand-950">{picked ? picked.label : tr("وين علقت؟")}</h2>
                 {!picked && <p className="mt-0.5 text-xs text-brand-950/55">{trx("العلقة طبيعية بأي بحث — {0} الأقرب لوضعك.", g(isFemale, tr("اختاري"), tr("اختر")))}</p>}
               </div>
-              <button onClick={close} aria-label={tr("إغلاق")} className="rounded-lg p-1.5 text-brand-950/50 hover:bg-surface-muted">
+              <button onClick={close} aria-label={tr("إغلاق")} className="rounded-xl p-1.5 text-brand-950/50 hover:bg-surface-muted">
                 <X size={18} />
               </button>
             </div>

@@ -298,8 +298,8 @@ export function waitingItems(teams: TeamData[], now = Date.now()): WaitItem[] {
 // ───────── حالة الفريق (DocHome2) ─────────
 export type TeamTone = "ok" | "push" | "late";
 export const TEAM_TONE: Record<TeamTone, { label: string; color: string }> = {
-  ok: { label: "ماشين تمام", color: "#FFC777" },
-  push: { label: "يحتاجون دفعة", color: "#FFB65C" },
+  ok: { label: "ماشين تمام", color: "#FFB547" },
+  push: { label: "يحتاجون دفعة", color: "#FFB547" },
   late: { label: "متأخرين شوي", color: "#FF9A7A" },
 };
 

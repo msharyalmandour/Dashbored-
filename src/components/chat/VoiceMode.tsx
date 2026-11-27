@@ -247,8 +247,8 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
           </span>
         ) : (
           <div className="flex-1 text-center leading-[1.3]">
-            <div className="text-[15px] font-extrabold text-[#FFF4EA]">{tr("محادثة الفريق · فويس")}</div>
-            <div className="text-[12px] text-[rgba(255,240,228,.8)]" dir="ltr">
+            <div className="text-base font-extrabold text-[#FFF4EA]">{tr("محادثة الفريق · فويس")}</div>
+            <div className="text-xs text-[rgba(255,240,228,.8)]" dir="ltr">
               {fmtDur(result?.duration ?? elapsed)}
             </div>
           </div>
@@ -259,7 +259,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
             {tr("Wesync · محادثة الفريق")}
           </span>
         ) : (
-          <span style={{ width: 44 }} />
+          <span className="w-11" />
         )}
       </div>
 
@@ -274,7 +274,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
               className="vm-gl vm-card vm-fi"
               style={{ left: `${s.x}%`, top: `${s.y}%`, ["--r" as string]: `${s.r}deg`, ["--ry" as string]: `${s.ry}deg`, animationDelay: `${(i % 5) * 0.1}s`, filter: far ? "blur(1.2px)" : undefined, opacity: far ? 0.85 : undefined }}
             >
-              <div className="text-[14px] font-extrabold leading-[1.3] text-[#FFF4EA]">{kindLabel(it.kind)}</div>
+              <div className="text-sm font-extrabold leading-[1.3] text-[#FFF4EA]">{kindLabel(it.kind)}</div>
               <div className="vm-card-sub">{it.sub || it.title}</div>
               <div aria-hidden className="vm-folder">
                 <i />
@@ -288,7 +288,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
       {phase === "sorting" && result && (
         <div className="vm-sort">
           <div className="vm-fi flex items-center gap-2.5 text-[#FFF4EA]">
-            <span className="text-[#FFC777]">✦</span>
+            <span className="text-ws-accent3">✦</span>
             <b className="text-[20px]">{result.items.length ? tr("طلع من كلامك {0} أشياء", result.items.length) : tr("ما لقطنا مهام من كلامك")}</b>
           </div>
           {result.items.map((it, i) => {
@@ -301,8 +301,8 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
                   <Icon size={19} aria-hidden />
                 </span>
                 <div className="min-w-0 flex-1 leading-[1.35]">
-                  <div className="text-[12px] font-bold text-[#FFD9A8]">{kindLabel(it.kind)}</div>
-                  <div className="text-[15px] font-bold text-[#FFF4EA]" dir="auto">
+                  <div className="text-xs font-bold text-[#FFD9A8]">{kindLabel(it.kind)}</div>
+                  <div className="text-base font-bold text-[#FFF4EA]" dir="auto">
                     {it.title}
                   </div>
                 </div>
@@ -327,14 +327,14 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
               </div>
             );
           })}
-          <div className="vm-gl2 vm-fi" style={{ borderRadius: 24, padding: 12, marginTop: 4, animationDelay: ".5s" }}>
+          <div className="vm-gl2 vm-fi mt-1 rounded-3xl p-3 [animation-delay:.5s]">
             <div className="flex items-center gap-2.5">
               {wave(result.peaks)}
-              <span className="text-[12px] text-[rgba(255,240,228,.8)]" dir="ltr">
+              <span className="text-xs text-[rgba(255,240,228,.8)]" dir="ltr">
                 {fmtDur(result.duration)}
               </span>
             </div>
-            {!result.transcript && <p className="m-0 mt-1.5 text-[13px] text-[rgba(255,240,228,.85)]">{live ? tr("ما وصلنا كلام واضح — تقدرون ترسلون الفويس كذا.") : tr("متصفحك ما يكتب الكلام — الفويس يوصل بدون نص.")}</p>}
+            {!result.transcript && <p className="m-0 mt-1.5 text-sm text-[rgba(255,240,228,.85)]">{live ? tr("ما وصلنا كلام واضح — تقدرون ترسلون الفويس كذا.") : tr("متصفحك ما يكتب الكلام — الفويس يوصل بدون نص.")}</p>}
             {kept > 0 && (
               <button ref={mic} type="button" className="vm-send" disabled={sending} onClick={() => void send(true)}>
                 {tr("أرسلوها للفريق ({0} + الفويس)", kept)}
@@ -352,16 +352,16 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
         <div className="vm-box-wrap">
           <div className="vm-gl2 vm-fi vm-box">
             {phase === "blocked" || phase === "nomic" ? (
-              <div role="alert" className="text-[15px] leading-[1.7] text-[#FFF4EA]">
+              <div role="alert" className="text-base leading-[1.7] text-[#FFF4EA]">
                 <b className="block">{phase === "blocked" ? tr("المايك مقفل") : tr("ما لقينا مايك")}</b>
                 {phase === "blocked" ? tr("فعّلوا المايك من إعدادات المتصفح (رمز القفل جنب الرابط)، وبعدها جرّبوا مرة ثانية.") : tr("وصّلوا مايك أو جرّبوا من الجوال.")}
               </div>
             ) : phase === "thinking" ? (
-              <p className="m-0 text-[16px] font-semibold text-[#FFF4EA]" role="status">
+              <p className="m-0 text-base font-semibold text-[#FFF4EA]" role="status">
                 {tr("نرتّب كلامك…")}
               </p>
             ) : (
-              <p className="m-0 min-h-[52px] text-[16px] font-semibold leading-[1.65] text-[#FFF4EA]" dir="auto" aria-live="polite">
+              <p className="m-0 min-h-[52px] text-base font-semibold leading-[1.65] text-[#FFF4EA]" dir="auto" aria-live="polite">
                 {finalText || interim ? (
                   <>
                     {finalText.length > 150 ? `…${finalText.slice(-150).replace(/^\S*\s/, "")}` : finalText} <span className="vm-fadeend">{interim}</span>
@@ -378,14 +378,14 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
               </button>
               <div className="flex-1 text-center">
                 {wave(phase === "listening" || phase === "paused" ? levels : Array(BARS).fill(0.12), phase === "paused" ? BARS : 0)}
-                <div role="status" className="mt-1 text-[13px] text-[rgba(255,240,228,.85)]">
+                <div role="status" className="mt-1 text-sm text-[rgba(255,240,228,.85)]">
                   {phase === "paused" ? tr("موقّف مؤقت · اضغطوا مسافة للمتابعة") : phase === "listening" ? tr("نسمعك… ونطلّع المهام أول بأول") : phase === "thinking" ? tr("ثواني…") : phase === "starting" ? tr("نشغّل المايك…") : ""}
                   {phase === "listening" && elapsed > MAX_MS - 30_000 && <> · {tr("باقي {0} ثانية", Math.max(0, Math.round((MAX_MS - elapsed) / 1000)))}</>}
                 </div>
               </div>
               {phase === "blocked" || phase === "nomic" ? (
                 <button ref={mic} type="button" className="vm-mic" onClick={() => void start()}>
-                  <span className="text-[13px] font-extrabold">{tr("جرّبوا")}</span>
+                  <span className="text-sm font-extrabold">{tr("جرّبوا")}</span>
                 </button>
               ) : (
                 <button

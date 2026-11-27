@@ -377,10 +377,10 @@ export default function Methodology() {
 
           <div className="grid grid-cols-1 gap-[18px] md:grid-cols-2">
             <section className="hg-card" style={rise(3)} aria-labelledby="m-link-title">
-              <h3 id="m-link-title" className="m-0 text-[18px] font-extrabold">
+              <h3 id="m-link-title" className="m-0 text-lg font-extrabold">
                 {tr("مربوطة بباقي البحث")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-[#b8ada2]">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
+              <div className="mt-0.5 text-sm text-ws-muted">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
               <div className="mt-2.5">
                 <div className="wf-kv">
                   <span>{tr("الأجزاء الجاهزة")}</span>
@@ -393,7 +393,7 @@ export default function Methodology() {
                 <div className="wf-kv">
                   <span>{tr("قسم المقترح")}</span>
                   <b>
-                    <Link to="/proposal?section=methodology" className="text-[#FFC777]">
+                    <Link to="/proposal?section=methodology" className="text-ws-accent3">
                       {tr("القسم")} <span className="wf-num">7</span> · {tr("المنهجية")}
                     </Link>
                   </b>
@@ -401,7 +401,7 @@ export default function Methodology() {
                 <div className="wf-kv">
                   <span>{tr("الموافقة الأخلاقية")}</span>
                   <b>
-                    <Link to="/ethical-approval" className="text-[#FFC777]">
+                    <Link to="/ethical-approval" className="text-ws-accent3">
                       {tr("افتحوها")}
                     </Link>
                   </b>
@@ -411,7 +411,7 @@ export default function Methodology() {
 
             <section className="hg-card" style={rise(4)} aria-labelledby="m-notes-title">
               <div className="flex items-center gap-2">
-                <h3 id="m-notes-title" className="m-0 text-[18px] font-extrabold">
+                <h3 id="m-notes-title" className="m-0 text-lg font-extrabold">
                   {tr("ملاحظات المشرف/ة")}
                 </h3>
                 {notes.length > 0 && (
@@ -421,11 +421,11 @@ export default function Methodology() {
                 )}
               </div>
               {notes.length === 0 ? (
-                <p className="m-0 mt-2 text-[14px] text-[#b8ada2]">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
+                <p className="m-0 mt-2 text-sm text-ws-muted">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
               ) : (
                 <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
                   {notes.slice(0, 2).map((n) => (
-                    <li key={n.id} className="wf-tpl block text-[14px] leading-[1.7]" dir="auto">
+                    <li key={n.id} className="wf-tpl block text-sm leading-[1.7]" dir="auto">
                       «{n.comment}»
                     </li>
                   ))}

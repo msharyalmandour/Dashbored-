@@ -93,7 +93,7 @@ export default function ThemeSwitcher({ up = false }: { up?: boolean } = {}) {
               <span
                 aria-hidden
                 className="relative h-7 w-12 shrink-0 rounded-full transition-colors"
-                style={{ background: calm ? "linear-gradient(90deg,#FF6A00,#FF9A3C)" : "rgba(255,255,255,.14)" }}
+                style={{ background: calm ? "linear-gradient(90deg,#FF6A00,#FF8A24)" : "rgba(255,255,255,.14)" }}
               >
                 <span
                   className="absolute top-[3px] h-[22px] w-[22px] rounded-full bg-white shadow transition-[inset-inline-start]"

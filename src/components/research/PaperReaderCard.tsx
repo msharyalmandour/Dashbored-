@@ -3,7 +3,6 @@ import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
 import { BookOpenCheck, Check, FileUp, X } from "lucide-react";
 import clsx from "clsx";
-import { glassCard } from "../ui/researchUi";
 import { readPaperFiles, type PaperReading } from "../../hooks/useProjectAgent";
 import type { EvidencePaper } from "../../data/types";
 import { sectionLabelAr } from "./sectionLabelAr";
@@ -92,7 +91,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
 
   return (
     <div
-      className={clsx(compact ? "space-y-3 rounded-3xl border border-white/10 bg-white/[0.05] p-4" : clsx(glassCard, "space-y-3 p-5"), dragging && "ring-2 ring-[#FF8A24]/60")}
+      className={clsx(compact ? "ws-card ws-card-m space-y-3" : "ws-card ws-card-l space-y-3", dragging && "ring-2 ring-ws-accent2/60")}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -106,17 +105,17 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="flex items-center gap-2 text-sm font-extrabold text-[#F4F0EC]">
-            <BookOpenCheck size={16} className="text-[#ffb547]" /> {tr("اقرأ لي هذي الورقة")}
+          <p className="flex items-center gap-2 text-base font-extrabold text-ws-text">
+            <BookOpenCheck size={16} className="text-ws-accent3" /> {tr("اقرأ لي هذي الورقة")}
           </p>
-          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى 10 صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
+          <p className="mt-0.5 text-xs text-ws-muted">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى 10 صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
         </div>
         {onClose && !busy && (
-          <button type="button" onClick={onClose} aria-label={tr("إغلاق")} className="rounded-full p-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
+          <button type="button" onClick={onClose} aria-label={tr("إغلاق")} className="rounded-full p-1.5 text-ws-muted hover:text-ws-text">
             <X size={14} />
           </button>
         )}
-        <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#ffb547] transition hover:bg-[#ff6a00]/10 disabled:opacity-50">
+        <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="ws-btn-secondary">
           {busy ? <WSpin size={14} /> : <FileUp size={14} />}
           {busy ? tr("أقرأها…") : tr("ارفعوا PDF أو صور")}
         </button>
@@ -136,48 +135,48 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
       {error && <p className="rounded-xl bg-rose-500/10 p-3 text-xs font-semibold text-rose-300">{error}</p>}
 
       {paper && (
-        <div className="space-y-2.5 rounded-2xl border border-white/[0.12] p-4 text-sm">
-          <p className="font-extrabold text-[#F4F0EC]" dir="auto">
+        <div className="space-y-2.5 rounded-2xl border border-white/10 p-4 text-sm">
+          <p className="font-extrabold text-ws-text" dir="auto">
             {paper.title}
           </p>
-          <p className="text-xs text-[#B8ADA2]" dir="auto">
+          <p className="text-xs text-ws-muted" dir="auto">
             {paper.authors}
             {paper.year ? ` (${paper.year})` : ""}
           </p>
-          <p className="leading-relaxed text-[#E6DBD1]">{paper.summaryAr}</p>
+          <p className="leading-relaxed text-ws-text">{paper.summaryAr}</p>
           <dl className="space-y-1.5">
             {rows
               .filter(([, v]) => v)
               .map(([k, v]) => (
                 <div key={k}>
-                  <dt className="text-[12px] font-bold text-[#B8ADA2]">{k}</dt>
-                  <dd className="text-[13px] text-[#E6DBD1]">{v}</dd>
+                  <dt className="text-xs font-bold text-ws-muted">{k}</dt>
+                  <dd className="text-sm text-ws-text">{v}</dd>
                 </div>
               ))}
           </dl>
-          <p className="text-[12px] text-[#B8ADA2]">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
+          <p className="text-xs text-ws-muted">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             {saved ? (
               <>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ws-accent3">
                   <Check size={15} /> {tr("انضافت للمكتبة وجدول الأدبيات")}
                 </span>
-                <Link to="/literature-review" className="text-xs font-bold text-[#ffb547] hover:underline">
+                <Link to="/literature-review" className="text-xs font-bold text-ws-accent3 hover:underline">
                   {tr("شوفوها بالجدول ←")}
                 </Link>
               </>
             ) : (
               <>
-                <button type="button" onClick={save} className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00]">
+                <button type="button" onClick={save} className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-4 py-1.5 text-xs font-extrabold text-[#1A0F00]">
                   <Check size={14} /> {tr("أضفها للمكتبة")}
                 </button>
-                <button type="button" onClick={() => setPaper(null)} className="flex items-center gap-1 text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">
+                <button type="button" onClick={() => setPaper(null)} className="flex items-center gap-1 text-xs font-semibold text-ws-muted hover:text-ws-text">
                   <X size={12} /> {tr("تجاهل")}
                 </button>
               </>
             )}
           </div>
-          <p className="text-[12px] text-[#B8ADA2]/80">{tr("الملخص من نص الورقة بالذكاء — راجعوا الأرقام بالأصل قبل ما تعتمدونها بالبحث.")}</p>
+          <p className="text-xs text-ws-muted/80">{tr("الملخص من نص الورقة بالذكاء — راجعوا الأرقام بالأصل قبل ما تعتمدونها بالبحث.")}</p>
         </div>
       )}
     </div>

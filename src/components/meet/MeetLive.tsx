@@ -36,7 +36,7 @@ export function MeetLiveStrip({ to = "/meet", shareToken }: { to?: string; share
         <Video size={18} />
       </span>
       <div style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>
-        <b style={{ display: "block", fontSize: 15 }}>{tr("الفريق في اجتماع الحين")}</b>
+        <b style={{ display: "block", fontSize: 16 }}>{tr("الفريق في اجتماع الحين")}</b>
         <span style={{ fontSize: 12, color: "#E9D3B8" }}>{names ? tr("{0} داخلين", names) : tr("{0} داخلين", s.count)}</span>
       </div>
       <Link to={to} className="sup-btn-cream" style={{ display: "flex", alignItems: "center", padding: "0 16px", minHeight: 44, flex: "none" }}>

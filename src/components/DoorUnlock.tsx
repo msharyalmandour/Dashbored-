@@ -65,10 +65,10 @@ export default function DoorUnlock({ door, onDone, onGo, onShare }: { door: Door
       <div className="door-row">
         <WesyAvatar size={44} state="wink" />
         <span className="min-w-0 flex-1 leading-tight">
-          <b className="block text-[15px] text-[#f4f0ec]">
-            {tr("ويسي فتح لكم:")} <span className="text-[#FFC777]">{name}</span>
+          <b className="block text-base text-ws-text">
+            {tr("ويسي فتح لكم:")} <span className="text-ws-accent3">{name}</span>
           </b>
-          <span className="block text-[13px] text-[#E9D3B8]">{d.sub}</span>
+          <span className="block text-sm text-ws-text-accent">{d.sub}</span>
         </span>
         <button type="button" className="door-x" aria-label={tr("إغلاق")} onClick={close}>
           ×

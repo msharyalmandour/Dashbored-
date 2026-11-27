@@ -349,6 +349,9 @@ async function loadBillingFacts(
     ]);
     if (teamRes.error || !teamRes.data) return null;
     const team = teamRes.data as { subscription_end_date: string | null; on_trial: boolean; is_founder: boolean; plan: string };
+    // price_tier عمود جديد — لو ما انضاف لسا نعتبره فاضي
+    const tierRes = await db.from("teams").select("price_tier").eq("id", teamId).maybeSingle();
+    const priceTier = tierRes.error ? null : ((tierRes.data as { price_tier?: string | null } | null)?.price_tier ?? null);
 
     const sk = Deno.env.get("MOYASAR_SECRET_KEY") ?? "";
     const gateway = sk.startsWith("sk_live_") ? "live" : sk.startsWith("sk_test_") ? "test" : "unknown";
@@ -359,6 +362,7 @@ async function loadBillingFacts(
       onTrial: !!team.on_trial,
       plan: team.plan === "basic" ? "basic" : "ai",
       isFounder: !!team.is_founder,
+      priceTier,
       memberCount: membersRes.count ?? 1,
       todayISO: new Date().toISOString().slice(0, 10),
       payments: ((paymentsRes.data ?? []) as Array<{ amount: number | string; created_at: string; profile_id: string | null }>).map(

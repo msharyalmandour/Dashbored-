@@ -42,11 +42,11 @@ export default function Dialog({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className="max-h-[90vh] w-full max-w-[560px] overflow-y-auto rounded-t-[32px] border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.96)] p-6 text-[#F4F0EC] shadow-[0_40px_120px_rgba(0,0,0,.6)] outline-none backdrop-blur-[18px] sm:rounded-[32px]"
+        className="max-h-[90vh] w-full max-w-[560px] overflow-y-auto rounded-t-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.96)] p-6 text-ws-text shadow-[0_40px_120px_rgba(0,0,0,.6)] outline-none backdrop-blur-[18px] sm:rounded-3xl"
       >
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="font-kufi text-xl font-extrabold">{title}</h2>
-          <button onClick={onClose} aria-label={tr("إغلاق")} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 text-[#B8ADA2] hover:text-[#F4F0EC]">
+          <button onClick={onClose} aria-label={tr("إغلاق")} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-ws-muted hover:text-ws-text">
             <X size={16} />
           </button>
         </div>

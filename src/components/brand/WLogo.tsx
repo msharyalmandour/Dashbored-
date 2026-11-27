@@ -24,8 +24,8 @@ export type WLogoState = "idle" | "loading" | "sync";
 /** ألوان كل نوع من brand/logo: cream = مربع كريمي وW حبر (على الداكن) · ink = العكس (على الكريمي) · ember = برتقالي وW أبيض */
 const TONES: Record<Exclude<WLogoTone, "bare">, { bg: string; fg: string; gold: string }> = {
   cream: { bg: W_CREAM, fg: W_INK, gold: "#E39A2E" },
-  ink: { bg: W_INK, fg: W_CREAM, gold: "#FFC777" },
-  ember: { bg: "#E9651F", fg: "#FFFFFF", gold: "#FFC777" },
+  ink: { bg: W_INK, fg: W_CREAM, gold: "#FFB547" },
+  ember: { bg: "#E9651F", fg: "#FFFFFF", gold: "#FFB547" },
 };
 
 export default function WLogo({
@@ -52,7 +52,7 @@ export default function WLogo({
   }, [state, playKey]);
 
   const tile = tone !== "bare";
-  const t = tile ? TONES[tone] : { bg: "none", fg: "currentColor", gold: "#FFC777" };
+  const t = tile ? TONES[tone] : { bg: "none", fg: "currentColor", gold: "#FFB547" };
   const cls = ["wl", state === "loading" && "wl-loading", state === "sync" && "wl-sync", className].filter(Boolean).join(" ");
   const a11y = label ? { role: "img", "aria-label": label } : { "aria-hidden": true as const };
   const moving = state !== "idle";

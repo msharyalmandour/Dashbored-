@@ -57,7 +57,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       type="button"
       onClick={onClick}
       className={`rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors ${
-        active ? "border-amber-400 bg-amber-400/15 text-amber-200" : "border-white/15 bg-white/[0.04] text-white/65 hover:bg-white/10"
+        active ? "border-amber-400 bg-amber-400/15 text-amber-200" : "border-white/20 bg-white/[0.04] text-white/65 hover:bg-white/10"
       }`}
     >
       {children}
@@ -222,7 +222,7 @@ export default function Survey() {
               value={a.notes}
               onChange={(e) => set("notes", e.target.value.slice(0, 800))}
               rows={3}
-              className="mt-3 w-full rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-300/60"
+              className="mt-3 w-full rounded-2xl border border-white/20 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-300/60"
               placeholder={tr("اكتبوا بحريّة…")}
             />
             <label className="mt-4 block text-xs text-white/50">{tr("تبون نخبركم لما تجهز؟ اتركوا بريدكم ")}<span className="text-white/30">{tr("(اختياري)")}</span>
@@ -232,7 +232,7 @@ export default function Survey() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="mt-1.5 w-full rounded-full border border-white/15 bg-white/[0.05] px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-300/60"
+                className="mt-1.5 w-full rounded-full border border-white/20 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-300/60"
               />
             </label>
           </section>

@@ -51,7 +51,7 @@ export function GroupBanner({ group, docName }: { group: Group; docName: string 
         <span>{tr("كل رسالة هنا تشوفها الدكتورة · اكتبوا بأسلوب رسمي ولطيف")}</span>
       </div>
       <span className="gr-pill">
-        <Eye size={14} aria-hidden />
+        <Eye size={16} aria-hidden />
         {tr("تشوف")}
       </span>
     </div>
@@ -65,7 +65,7 @@ export function GroupBanner({ group, docName }: { group: Group; docName: string 
         <span>{tr("أنتم بس. الدكتورة ما تشوف هذا القروب أبد")}</span>
       </div>
       <span className="gr-pill">
-        <Lock size={13} aria-hidden />
+        <Lock size={16} aria-hidden />
         {tr("خاص")}
       </span>
     </div>
@@ -110,7 +110,7 @@ export function GroupsIntro({ docName, onDone }: { docName: string; onDone: () =
               <li>{tr("الملفات اللي تبونها تشوفها")}</li>
             </ul>
             <span className="gr-col-f">
-              <Eye size={14} aria-hidden /> {tr("{0} تشوف كل رسالة", docName)}
+              <Eye size={16} aria-hidden /> {tr("{0} تشوف كل رسالة", docName)}
             </span>
           </section>
           <section className="gr-col team">
@@ -126,7 +126,7 @@ export function GroupsIntro({ docName, onDone }: { docName: string; onDone: () =
               <li>{tr("السوالف والضحك")}</li>
             </ul>
             <span className="gr-col-f">
-              <Lock size={13} aria-hidden /> {tr("الدكتورة ما تشوفه أبد")}
+              <Lock size={16} aria-hidden /> {tr("الدكتورة ما تشوفه أبد")}
             </span>
           </section>
         </div>

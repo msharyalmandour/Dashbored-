@@ -19,7 +19,7 @@ import { tr } from "../lib/i18n";
 /* الدرايف ومين مربوط (DriveD) — مجلد واحد للفريق والمشرف/ة، فيه 6 مجلدات فرعية.
    كل شخص بسطر: الحالة وإجراء واحد (ذكّروه بالواتساب / أضيفوا إيميله / غيّروا الصلاحية). */
 
-const AV = ["#FFC85A", "#FF9A5A", "#FFE3C2", "#ffb547", "#f4f0ec"];
+const AV = ["#FFB547", "#FF8A24", "#FFE3C2", "#FFB547", "#F2EBE3"];
 const EMAIL = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]{2,}$/;
 export const inviteLink = () => `${window.location.origin}/#/drive/join`;
 
@@ -103,7 +103,7 @@ export default function Drive() {
       row: srow,
       profileId: null,
       supervisor: true,
-      color: "#f4f0ec",
+      color: "#F2EBE3",
       blocked: supBlocked,
     });
     return out;
@@ -201,7 +201,7 @@ export default function Drive() {
 
   const list = folders ?? DEFAULT_FOLDERS;
   return (
-    <div className="relative text-[#f4f0ec]">
+    <div className="relative text-ws-text">
       <LuxHead kicker={tr("التقويم والملفات")} title={tr("الدرايف ومين مربوط")} sub={tr("مجلد واحد للفريق والمشرف/ة، وكل شي ينحفظ فيه لحاله")}>
         {status?.folderLink && (
           <a className="lx-ghost" href={status.folderLink} target="_blank" rel="noreferrer">
@@ -219,8 +219,8 @@ export default function Drive() {
             <circle cx="70" cy="70" r="62" fill="none" stroke="url(#dv-ring)" strokeWidth="8" strokeLinecap="round" strokeDasharray={`${pct * 389.6} 389.6`} className="dv-ring" />
             <defs>
               <linearGradient id="dv-ring" x1="0" x2="1">
-                <stop offset="0" stopColor="#FFC777" />
-                <stop offset="1" stopColor="#FF7A1A" />
+                <stop offset="0" stopColor="#FFB547" />
+                <stop offset="1" stopColor="#FF8A24" />
               </linearGradient>
             </defs>
           </svg>
@@ -228,18 +228,18 @@ export default function Drive() {
             <b className="text-[34px] font-extrabold" dir="ltr">
               {linked}/{total}
             </b>
-            <span className="mt-1 text-[12px] text-[#b8ada2]">{tr("مربوطين")}</span>
+            <span className="mt-1 text-xs text-ws-muted">{tr("مربوطين")}</span>
           </span>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-center gap-1.5 text-[12px] font-extrabold text-[#ffb547] md:justify-start">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-extrabold text-ws-accent3 md:justify-start">
             <GoogleDriveLogo size={16} />
             <span dir="auto">
               Wesync · Google Drive{project?.title ? ` — ${project.title}` : ""}
             </span>
           </div>
-          <h2 className="m-0 mt-1 text-[26px] font-extrabold text-[#f4f0ec]">{connected ? tr("{0} من {1} مربوطين", linked, total) : tr("الدرايف مو مربوط")}</h2>
-          <p className="m-0 mt-1 text-[15px] leading-[1.8] text-[#E9D3B8]">{sentence}</p>
+          <h2 className="m-0 mt-1 text-[26px] font-extrabold text-ws-text">{connected ? tr("{0} من {1} مربوطين", linked, total) : tr("الدرايف مو مربوط")}</h2>
+          <p className="m-0 mt-1 text-base leading-[1.8] text-ws-text-accent">{sentence}</p>
         </div>
         {connected ? (
           linked < total && (
@@ -254,7 +254,7 @@ export default function Drive() {
             {tr("اربطوا الدرايف")}
           </button>
         ) : (
-          <span className="text-[14px] text-[#b8ada2]">{tr("القائد يربطه من هنا")}</span>
+          <span className="text-sm text-ws-muted">{tr("القائد يربطه من هنا")}</span>
         )}
       </section>
 
@@ -267,7 +267,7 @@ export default function Drive() {
             <h2 id="dv-who" className="lx-h2 flex-1">
               {tr("مين مربوط")}
             </h2>
-            <span className="flex items-center gap-1.5 text-[12px] text-[#b8ada2]">
+            <span className="flex items-center gap-1.5 text-xs text-ws-muted">
               {syncing && <WSpin size={13} />}
               {tr("نتأكد كل ساعة")}
             </span>
@@ -280,9 +280,9 @@ export default function Drive() {
                 </span>
                 <span className="min-w-0 flex-1 leading-[1.45]">
                   <span className="block truncate">
-                    <b className="text-[16px] text-[#f4f0ec]">{p.name}</b> <span className="text-[13px] text-[#b8ada2]">· {p.role}</span>
+                    <b className="text-base text-ws-text">{p.name}</b> <span className="text-sm text-ws-muted">· {p.role}</span>
                   </span>
-                  <span className="block truncate text-[13px] text-[#E9D3B8]">{p.sub}</span>
+                  <span className="block truncate text-sm text-ws-text-accent">{p.sub}</span>
                 </span>
                 <span className="flex flex-none flex-wrap items-center justify-end gap-2 sm:w-[300px] sm:flex-nowrap">
                   {pill(p)}
@@ -293,7 +293,7 @@ export default function Drive() {
             ))}
           </ul>
           {anyBlocked && (
-            <p className="m-0 mt-3 rounded-[14px] border border-[rgba(255,199,119,.22)] bg-[rgba(255,199,119,.06)] p-3 text-[13px] leading-[1.8] text-[#E9D3B8]">
+            <p className="m-0 mt-3 rounded-xl border border-[rgba(255,199,119,.22)] bg-[rgba(255,199,119,.06)] p-3 text-sm leading-[1.8] text-ws-text-accent">
               {tr("ليش؟ فيه ملفات انرفعت للمجلد من درايف مباشرة، وGoogle ما يخلّي Wesync يشارك مجلد فيه ملفات ما رفعها هو. أضيفوهم مرة وحدة من درايف، وارفعوا ملفاتكم من Wesync عشان ما تتكرر.")}
             </p>
           )}
@@ -308,14 +308,14 @@ export default function Drive() {
               <h2 id="dv-tree" className="lx-h2 flex-1">
                 {tr("ترتيب المجلد")}
               </h2>
-              <span className="text-[12px] text-[#b8ada2]">{lastSyncAt ? tr("نسويها لحاله") : tr("نسويه أول ما تربطون")}</span>
+              <span className="text-xs text-ws-muted">{lastSyncAt ? tr("نسويها لحاله") : tr("نسويه أول ما تربطون")}</span>
             </div>
             <ul className="m-0 list-none p-0">
               {list.map((f) => (
                 <li key={f.key} className="dv-folder">
-                  <Folder size={17} className="text-[#FFC777]" aria-hidden />
-                  <b className="flex-1 text-[15px]">{f.name}</b>
-                  <span className="text-[13px] font-bold text-[#E9D3B8]" dir="ltr">
+                  <Folder size={17} className="text-ws-accent3" aria-hidden />
+                  <b className="flex-1 text-base">{f.name}</b>
+                  <span className="text-sm font-bold text-ws-text-accent" dir="ltr">
                     {folders ? f.count : "—"}
                   </span>
                 </li>
@@ -323,8 +323,8 @@ export default function Drive() {
             </ul>
           </section>
           <section className="lx-card lx-in p-[18px]">
-            <b className="block text-[16px] text-[#f4f0ec]">{tr("ليش الدكتورة «تشوف بس»؟")}</b>
-            <p className="m-0 mt-1.5 text-[14px] leading-[1.8] text-[#E9D3B8]">{tr("تشوف كل الملفات وتعلّق، بس ما تعدّل على شغلكم. تقدرون تغيّرونها.")}</p>
+            <b className="block text-base text-ws-text">{tr("ليش الدكتورة «تشوف بس»؟")}</b>
+            <p className="m-0 mt-1.5 text-sm leading-[1.8] text-ws-text-accent">{tr("تشوف كل الملفات وتعلّق، بس ما تعدّل على شغلكم. تقدرون تغيّرونها.")}</p>
           </section>
           {!connected && !isLeader && (
             <button type="button" className="lx-ghost" onClick={() => navigate("/team")}>
@@ -336,7 +336,7 @@ export default function Drive() {
 
       <Dialog open={!!emailFor} onClose={() => setEmailFor(null)} title={emailFor?.supervisor ? tr("إيميل المشرف/ة") : tr("إيميل {0}", emailFor?.name ?? "")}>
         <div className="flex flex-col gap-3">
-          <p className="m-0 text-[14px] text-[#E9D3B8]">{tr("نشارك مجلد الفريق مع هالإيميل، ويوصله تنبيه من Google.")}</p>
+          <p className="m-0 text-sm text-ws-text-accent">{tr("نشارك مجلد الفريق مع هالإيميل، ويوصله تنبيه من Google.")}</p>
           <input className="v3-select w-full" type="email" dir="ltr" value={emailDraft} onChange={(e) => setEmailDraft(e.target.value)} placeholder="name@example.com" aria-label={tr("الإيميل")} />
           <button type="button" className="lx-go" disabled={busy || !EMAIL.test(emailDraft.trim())} onClick={() => void saveEmail()}>
             {busy ? tr("نحفظ…") : tr("أضيفوه وشاركوا المجلد")}
@@ -355,8 +355,8 @@ export default function Drive() {
             const on = (people.find((p) => p.supervisor)?.row?.role ?? "commenter") === id;
             return (
               <button key={id} type="button" className={clsx("dv-opt", on && "on")} onClick={() => void changeRole(id)} disabled={busy}>
-                <b className="block text-[15px]">{title}</b>
-                <span className="block text-[13px] text-[#b8ada2]">{sub}</span>
+                <b className="block text-base">{title}</b>
+                <span className="block text-sm text-ws-muted">{sub}</span>
               </button>
             );
           })}

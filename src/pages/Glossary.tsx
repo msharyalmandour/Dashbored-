@@ -30,7 +30,7 @@ export default function Glossary() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={tr("ابحثوا: p-value، الثبات، العينة...")}
-            className="w-full rounded-lg border border-brand-100 bg-paper py-2 pe-3 ps-9 text-sm outline-none focus:border-brand-300"
+            className="w-full rounded-xl border border-brand-100 bg-paper py-2 pe-3 ps-9 text-sm outline-none focus:border-brand-300"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -55,9 +55,9 @@ export default function Glossary() {
             <Card key={g.id} className="space-y-1.5">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm font-extrabold text-brand-950">{g.ar}</p>
-                <span className="shrink-0 rounded-full bg-surface-muted px-2 py-0.5 text-[12px] font-bold text-brand-950/45">{tr(g.group)}</span>
+                <span className="shrink-0 rounded-full bg-surface-muted px-2 py-0.5 text-xs font-bold text-brand-950/45">{tr(g.group)}</span>
               </div>
-              <p className="font-mono text-[12px] text-brand-950/40" dir="ltr">
+              <p className="font-mono text-xs text-brand-950/40" dir="ltr">
                 {g.term}
               </p>
               <p className="text-sm leading-relaxed text-brand-950/75">{g.def}</p>

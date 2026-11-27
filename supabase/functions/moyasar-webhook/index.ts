@@ -82,20 +82,33 @@ Deno.serve(async (req: Request) => {
 
   const amount = (amountHalalas ?? 0) / 100;
 
-  // ── السعر لكل شخص (2026-11-27) — نفس src/lib/plans.ts ──
-  //   شهري 15 (30 يوم) · فصل 49 (120 يوم) · السنة الدراسية 99 (270 يوم) · خصم الاستمرار: الشهري 12
-  //   الأيام تنضاف للفريق كامل بالتناسب: المبلغ × أيام المدة ÷ (عدد الأعضاء × سعر الشخص)
-  //   فدفعة الفريق كامل = المدة كاملة، وحصة شخص من 4 = ربعها. الدفعات تتراكم.
-  const PLANS: Record<string, { price: number; days: number }> = {
-    month: { price: 15, days: 30 },
-    semester: { price: 49, days: 120 },
-    year: { price: 99, days: 270 },
+  // ── السعر للطالب (2026-11-27، التسعيرة الثانية) — نفس src/lib/plans.ts (TIER_PRICES) ──
+  //   شرائح: لحالك 37/129/249 · فريق 29/99/199 · المؤسسين (أول 50 فريق) 27/89/179
+  //   legacy (دفعوا قبل التغيير، teams.price_tier) 15/49/99 — وعد «سعرك ثابت لين تتخرجون»
+  //   المدد: شهر 30 يوم · فصل 120 · السنة الدراسية 270 · خصم الاستمرار: الشهري ينقص 3
+  //   الأيام تنضاف للفريق كامل بالتناسب: المبلغ × أيام المدة ÷ (عدد الأعضاء × سعر الطالب)
+  const DAYS: Record<string, number> = { month: 30, semester: 120, year: 270 };
+  const TIERS: Record<string, Record<string, number>> = {
+    solo: { month: 37, semester: 129, year: 249 },
+    team: { month: 29, semester: 99, year: 199 },
+    founding: { month: 27, semester: 89, year: 179 },
+    legacy: { month: 15, semester: 49, year: 99 },
   };
+  // الأعمدة الجديدة (price_tier) ممكن ما تكون انضافت لسا — نرجع للقديمة بدون ما يوقف الدفع
+  let tierRow = (await supabaseAdmin.from("teams").select("is_founder, price_tier").eq("id", teamId).maybeSingle()).data as
+    | { is_founder?: boolean; price_tier?: string | null }
+    | null;
+  if (!tierRow) {
+    tierRow = (await supabaseAdmin.from("teams").select("is_founder").eq("id", teamId).maybeSingle()).data as { is_founder?: boolean } | null;
+  }
   const { count: memberCount } = await supabaseAdmin
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("team_id", teamId);
   const members = Math.max(memberCount ?? 1, 1);
+  const tierName =
+    tierRow?.price_tier === "legacy" ? "legacy" : members <= 1 ? "solo" : tierRow?.is_founder ? "founding" : "team";
+  const PRICES = TIERS[tierName];
 
   // تبرع «مقعد لزميل محتاج» ينطرح قبل الحسبة (حده 50)
   const donation = Math.min(Math.max(Number(metadata?.donation ?? 0) || 0, 0), 50, amount);
@@ -103,18 +116,18 @@ Deno.serve(async (req: Request) => {
   const forTeam = metadata?.mode === "full";
   // قائمة صريحة (مو «in») عشان قيم زي "constructor" ما تمر
   let period = ["month", "semester", "year"].includes(String(metadata?.period)) ? String(metadata?.period) : "month";
-  let unit = PLANS[period].price;
+  let unit = PRICES[period];
   if (period === "month" && metadata?.streak === "1") {
     const { data: streakOk } = await supabaseAdmin.rpc("team_streak_ok", { p_team: teamId });
-    if (streakOk === true) unit = 12;
+    if (streakOk === true) unit = PRICES.month - 3;
   }
   // المبلغ أقل من سعر شخص واحد لهالمدة (أو نقص عن الفريق كامل) → نحسبه شهري بالتناسب، ما نعطي سعر مدة ما انشرت
   const seats = forTeam ? members : 1;
   if (net < unit * seats - 0.5) {
     period = "month";
-    unit = PLANS.month.price;
+    unit = PRICES.month;
   }
-  const daysToAdd = Math.max(Math.round((net * PLANS[period].days) / (members * unit)), 1);
+  const daysToAdd = Math.max(Math.round((net * DAYS[period]) / (members * unit)), 1);
 
   // «ادفع عن صاحبك»: المستفيد لازم يكون من نفس الفريق، وإلا الدفعة تنحسب لصاحبها
   let beneficiary = profileId ?? null;

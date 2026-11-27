@@ -115,7 +115,7 @@ export default function Viva() {
                 <div className="flex items-start gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-extrabold text-white">{i + 1}</span>
                   <div className="min-w-0 flex-1">
-                    {q.category && <p className="text-[12px] font-bold text-brand-600">{q.category}</p>}
+                    {q.category && <p className="text-xs font-bold text-brand-600">{q.category}</p>}
                     <p className="text-sm font-extrabold leading-relaxed text-brand-950">{q.question}</p>
                     {q.why && <p className="mt-1 text-xs text-brand-950/45">{trx("اللجنة تختبر: {0}", q.why)}</p>}
                   </div>
@@ -125,7 +125,7 @@ export default function Viva() {
                   onChange={(e) => setAnswers((p) => ({ ...p, [i]: e.target.value }))}
                   rows={3}
                   placeholder={tr("اكتبوا جوابكم هنا (يبقى عندكم فقط، ما ينحفظ)...")}
-                  className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+                  className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
                 />
                 <div className="flex flex-wrap items-center gap-2">
                   <button
@@ -165,7 +165,7 @@ export default function Viva() {
                       // نسخ يدوي
                     }
                   }}
-                  className="flex items-center gap-1 text-[12px] font-bold text-brand-600 hover:underline"
+                  className="flex items-center gap-1 text-xs font-bold text-brand-600 hover:underline"
                 >
                   {copied ? <Check size={12} /> : <Copy size={12} />}
                   {copied ? tr("تم النسخ") : tr("نسخ المخطط")}
@@ -190,7 +190,7 @@ export default function Viva() {
               </ol>
             </Card>
           )}
-          <p className="flex items-center justify-center gap-1.5 text-center text-[12px] text-brand-950/40">
+          <p className="flex items-center justify-center gap-1.5 text-center text-xs text-brand-950/40">
             <GraduationCap size={13} />{tr("الأسئلة اقتراحات مبنية على مقترحكم، مو أسئلة لجنتكم الفعلية — اسألوا المشرفة عن توقعاتها.")}</p>
         </>
       )}

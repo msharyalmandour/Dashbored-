@@ -124,7 +124,7 @@ export default function FileAttach({
           onClick={() => state !== "uploading" && inputRef.current?.click()}
           disabled={state === "uploading"}
           className={buttonClassName ?? clsx(
-            "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+            "flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all",
             state === "done"
               ? "bg-brand-500 text-white"
               : state === "error"

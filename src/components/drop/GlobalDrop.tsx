@@ -411,12 +411,12 @@ export default function GlobalDrop() {
                 <Vessel size={200} state="hover" />
               </div>
               <h1 className="hd-h1 mt-1 text-[32px]">{tr("لقينا {0} أشياء", nAll)}</h1>
-              <p className="hd-sub m-0 mt-1 text-[14px]">{tr("شوفوا وين بتنحط قبل لا نحطها")}</p>
+              <p className="hd-sub m-0 mt-1 text-sm">{tr("شوفوا وين بتنحط قبل لا نحطها")}</p>
             </div>
             <div className="flex flex-col gap-3">{cards}</div>
           </div>
           <div className="hd-m-dock">
-            <button type="button" className="hd-glass !min-h-[52px] !rounded-[18px]" onClick={reviewOneByOne} disabled={!included.length}>
+            <button type="button" className="hd-glass !min-h-[52px] !rounded-2xl" onClick={reviewOneByOne} disabled={!included.length}>
               {tr("راجعوها")}
             </button>
             <button type="button" className="hd-go flex-1" onClick={file} disabled={!nIncluded || busy || !canWrite}>
@@ -433,7 +433,7 @@ export default function GlobalDrop() {
         </div>
         <div className="hd-tin pointer-events-none flex-none text-center">
           <h1 className="hd-h1 text-[46px]">{tr("لقينا {0} أشياء", nAll)}</h1>
-          <div className="hd-sub mt-0.5 text-[15px]">{tr("شوفوا وين بتنحط · تقدرون تشيلون أي وحدة أو تغيّرون مكانها")}</div>
+          <div className="hd-sub mt-0.5 text-base">{tr("شوفوا وين بتنحط · تقدرون تشيلون أي وحدة أو تغيّرون مكانها")}</div>
         </div>
         <Threads cols={cols} />
         <div className="min-h-0 w-full flex-1 overflow-y-auto pb-6" style={{ scrollbarWidth: "thin" }}>
@@ -446,10 +446,10 @@ export default function GlobalDrop() {
             <Check size={17} strokeWidth={2.6} />
           </span>
           <div className="min-w-0 flex-1 leading-[1.4]">
-            <b className="text-[16px]">{tr("{0} من {1} مختارة", included.length, nAll)}</b>
-            <div className="truncate text-[13px] text-[#b8ada2]">{noteLine}</div>
+            <b className="text-base">{tr("{0} من {1} مختارة", included.length, nAll)}</b>
+            <div className="truncate text-sm text-ws-muted">{noteLine}</div>
           </div>
-          <button type="button" className="hd-glass !min-h-[52px] !rounded-[18px] !text-[15px]" onClick={reviewOneByOne} disabled={!included.length}>
+          <button type="button" className="hd-glass !min-h-[52px] !rounded-2xl !text-base" onClick={reviewOneByOne} disabled={!included.length}>
             {tr("راجعوها وحدة وحدة")}
           </button>
           <button type="button" className="hd-go" onClick={file} disabled={!nIncluded || busy || !canWrite}>
@@ -484,7 +484,7 @@ export default function GlobalDrop() {
               <span className="hd-gold" aria-hidden>
                 <Check size={17} strokeWidth={2.6} />
               </span>
-              <b className="whitespace-nowrap text-[16px]">{tr("انحطت {0} أشياء بأماكنها", landed.n)}</b>
+              <b className="whitespace-nowrap text-base">{tr("انحطت {0} أشياء بأماكنها", landed.n)}</b>
               <span className="hd-places">{landed.places.join(" · ")}</span>
               <button type="button" className="hd-glass !px-4" onClick={undo}>
                 <Undo2 size={16} aria-hidden />
@@ -497,7 +497,7 @@ export default function GlobalDrop() {
       {note &&
         createPortal(
           <div role="status" className="hd-toast !z-[130]">
-            <span className="text-[14px]">{note}</span>
+            <span className="text-sm">{note}</span>
           </div>,
           document.body,
         )}
@@ -515,7 +515,7 @@ function sourceLabel(s?: DropSource) {
 function MTop({ label, onClose }: { label: string; onClose: () => void }) {
   return (
     <div className="hd-m-top">
-      <span className="text-[13px] font-bold text-[#E9D3B8]">{label}</span>
+      <span className="text-sm font-bold text-ws-text-accent">{label}</span>
       <button type="button" className="hd-x end-4 top-2.5" onClick={onClose} aria-label={tr("إغلاق")}>
         <X size={18} />
       </button>
@@ -528,9 +528,9 @@ function Rings() {
     <svg aria-hidden className="hd-orb" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
       <defs>
         <linearGradient id="hd-rgd" x1="0" x2="1">
-          <stop offset="0" stopColor="#FFC777" stopOpacity="0" />
-          <stop offset=".5" stopColor="#FFC777" stopOpacity=".7" />
-          <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
+          <stop offset="0" stopColor="#FFB547" stopOpacity="0" />
+          <stop offset=".5" stopColor="#FFB547" stopOpacity=".7" />
+          <stop offset="1" stopColor="#FF8A24" stopOpacity="0" />
         </linearGradient>
       </defs>
       <ellipse cx="720" cy="430" rx="430" ry="250" fill="none" stroke="rgba(255,199,119,0.10)" vectorEffect="non-scaling-stroke" />
@@ -648,14 +648,14 @@ function Threads({ cols }: { cols: number }) {
       {xs.map((x, i) => (
         <g key={i}>
           <path d={`M500 0 Q ${(x + 500) / 2} 40 ${x} 58`} fill="none" stroke="rgba(255,199,119,0.55)" strokeWidth="1.3" vectorEffect="non-scaling-stroke" style={{ ["--len" as string]: 700, strokeDasharray: 700, animation: `hdDraw .7s cubic-bezier(.2,.8,.2,1) ${0.15 + i * 0.12}s both` } as CSSProperties} />
-          <circle cx={x} cy="61" r="3" fill="#FFC777" />
+          <circle cx={x} cy="61" r="3" fill="#FFB547" />
         </g>
       ))}
     </svg>
   );
 }
 
-const AV_BG = ["#FFE3C2", "#FF9A5A", "#FFC85A", "#FFB2A6", "#E9C9A0"];
+const AV_BG = ["#FFE3C2", "#FF8A24", "#FFB547", "#FF8A7A", "#E9C9A0"];
 
 function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult; i: number; roster: TeamMember[]; isLeader: boolean; onToggle: (v: boolean) => void; onMove: () => void }) {
   const Icon = DEST_ICON[r.destination] ?? FileText;
@@ -687,7 +687,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
           ))}
         </div>
       ) : (
-        <div className="text-[13px] text-[#b8ada2]" dir="auto">
+        <div className="text-sm text-ws-muted" dir="auto">
           {[p.authors, p.year].filter(Boolean).join(" · ")}
         </div>
       );
@@ -718,8 +718,8 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
               </div>
             );
           })}
-          {(p.tasks?.length ?? 0) > 4 && <div className="text-[12px] text-[#b8ada2]">{tr("و{0} غيرها", p.tasks.length - 4)}</div>}
-          {!isLeader && <div className="mt-1 text-[12px] text-[#FFC777]">{tr("تنتظر القائد — هو اللي يضيف المهام")}</div>}
+          {(p.tasks?.length ?? 0) > 4 && <div className="text-xs text-ws-muted">{tr("و{0} غيرها", p.tasks.length - 4)}</div>}
+          {!isLeader && <div className="mt-1 text-xs text-ws-accent3">{tr("تنتظر القائد — هو اللي يضيف المهام")}</div>}
         </div>
       );
       break;
@@ -732,10 +732,10 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
             <b dir="ltr">{ev.date ? parseDate(ev.date).getDate() : "—"}</b>
           </div>
           <div className="min-w-0 leading-[1.5]">
-            <b className="block truncate text-[16px]" dir="auto">
+            <b className="block truncate text-base" dir="auto">
               {ev.title}
             </b>
-            <div className="text-[13px] text-[#b8ada2]">{[ev.time, ev.date ? monthName(ev.date) : ""].filter(Boolean).join(" · ")}</div>
+            <div className="text-sm text-ws-muted">{[ev.time, ev.date ? monthName(ev.date) : ""].filter(Boolean).join(" · ")}</div>
           </div>
         </div>
       ) : null;
@@ -767,7 +767,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
           <div className="hd-card-k">
             {DEST_LABEL[r.destination]}
             {n > 1 && (
-              <b className="text-[12px] text-[#FFC777]" dir="ltr">
+              <b className="text-xs text-ws-accent3" dir="ltr">
                 ×{n}
               </b>
             )}
@@ -840,7 +840,7 @@ function Flights({ ids }: { ids: string[] }) {
   return (
     <svg aria-hidden className="hd-flight" width="100%" height="100%">
       {paths.map((d, i) => (
-        <path key={i} d={d} fill="none" stroke="#FFC777" strokeOpacity=".75" strokeWidth="1.4" style={{ animationDelay: `${i * 0.1}s` }} />
+        <path key={i} d={d} fill="none" stroke="#FFB547" strokeOpacity=".75" strokeWidth="1.4" style={{ animationDelay: `${i * 0.1}s` }} />
       ))}
     </svg>
   );
@@ -863,7 +863,7 @@ function ErrorHero({ code, message, onClose, onRetry, onPricing }: { code: DropE
         <Vessel size={220} state="dim" />
       </div>
       <h1 className="hd-h1 mt-2 text-[34px]">{e.title}</h1>
-      <p className="hd-sub m-0 mt-2 max-w-md text-[15px] leading-[1.7]">{code === "offline" && message ? message : e.body}</p>
+      <p className="hd-sub m-0 mt-2 max-w-md text-base leading-[1.7]">{code === "offline" && message ? message : e.body}</p>
       <div className="mt-5 flex gap-2">
         {e.action && (
           <button type="button" className="dr-cream !min-h-[48px] !px-6" onClick={e.run}>

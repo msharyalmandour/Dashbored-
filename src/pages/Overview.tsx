@@ -358,8 +358,8 @@ function MeetLiveStripHome() {
 function HomeColumn({ label, children }: { label: string; children: ReactNode }) {
   return (
     <section className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]" aria-label={label}>
-      <h2 className="lux-eye m-0 flex items-center gap-2.5 px-1 pt-1 !text-[15px]">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FF8A24]" aria-hidden />
+      <h2 className="lux-eye m-0 flex items-center gap-2.5 px-1 pt-1 !text-base">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ws-accent2" aria-hidden />
         {label}
         <span className="h-px flex-1 bg-gradient-to-l from-white/15 to-transparent" aria-hidden />
       </h2>

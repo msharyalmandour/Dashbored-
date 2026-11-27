@@ -7,24 +7,25 @@ import { tr } from "../../lib/i18n";
    ألوان ثابتة من التصميم — مو من ثيم الموقع — عشان تطلع نفس المرجع بأي ثيم. */
 
 /** بطاقة زجاج داكنة بحدّ برتقالي هادئ */
-export const glassCard =
-  "rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] text-[#F4F0EC] shadow-[inset_0_1px_0_rgba(255,200,120,.12),0_24px_60px_rgba(255,100,0,.08)] backdrop-blur-[18px]";
+export const glassCard = "ws-card rounded-3xl";
 
 /** زر رئيسي كبسولة (تدرّج برتقالي ← ذهبي) */
-export const gradientPill =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] px-6 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#ff6a00] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+export const gradientPill = "ws-btn-primary";
+
+/** زر ثانوي كبسولة (زجاج بحدّ) */
+export const ghostPill = "ws-btn-secondary";
 
 /** حقل بكبسولة زجاجية */
 export const pillField =
-  "w-full rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] px-5 py-2.5 text-sm text-[#F4F0EC] outline-none transition placeholder:text-[#8F8378] focus:border-[#FF8A24] focus:shadow-[0_0_0_4px_rgba(255,138,36,.14)]";
+  "w-full rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.07] px-5 py-2.5 text-sm text-ws-text outline-none transition placeholder:text-[#8F8378] focus:border-ws-accent2 focus:shadow-[0_0_0_4px_rgba(255,138,36,.14)]";
 
 /** عنوان الصفحة مرة وحدة: كبير بخط كوفي، وتحته سطر شرح، والزر الرئيسي بالطرف الثاني */
 export function ResearchHeader({ title, subtitle, action }: { title: string; subtitle?: ReactNode; action?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="font-kufi text-4xl font-extrabold leading-tight text-[#F4F0EC] md:text-5xl">{title}</h1>
-        {subtitle && <p className="mt-2 max-w-[60ch] text-base text-[#B8ADA2]">{subtitle}</p>}
+        <h1 className="font-kufi text-4xl font-extrabold leading-tight text-ws-text md:text-5xl">{title}</h1>
+        {subtitle && <p className="mt-2 max-w-[60ch] text-base text-ws-muted">{subtitle}</p>}
       </div>
       {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
     </div>
@@ -41,8 +42,8 @@ export function FilterPill({ active, count, children, onClick }: { active: boole
       className={clsx(
         "rounded-full border px-4 py-1.5 text-sm transition-colors",
         active
-          ? "border-[#FF8A24]/70 bg-[#ff6a00]/15 text-[#ffb547]"
-          : "border-white/[0.14] text-[#B8ADA2] hover:border-[#FF8A24]/50 hover:text-[#F4F0EC]",
+          ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3"
+          : "border-white/10 text-ws-muted hover:border-ws-accent2/50 hover:text-ws-text",
       )}
     >
       {children}
@@ -53,7 +54,7 @@ export function FilterPill({ active, count, children, onClick }: { active: boole
 
 /** شارة المصدر — كلها بلون الهوية (الذهبي)، والتفريق بالاسم */
 export function SourceBadge({ children }: { children: ReactNode }) {
-  return <span className="rounded-full bg-[#ffb547] px-2.5 py-0.5 text-xs font-bold text-[#1A0F00]">{children}</span>;
+  return <span className="rounded-full bg-ws-accent3 px-2.5 py-0.5 text-xs font-bold text-[#1A0F00]">{children}</span>;
 }
 
 /** نص المصدر من رابط الدراسة (ما عندنا حقل مصدر محفوظ بالمكتبة) */
@@ -83,7 +84,7 @@ export const themeLabelAr: Record<LiteratureTheme, string> = {
 export type SourceName = "pubmed" | "openalex" | "crossref" | "semanticscholar" | "scholar";
 
 export function SourceLogo({ name, size = 22 }: { name: SourceName; size?: number }) {
-  const tile = "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-[#F4F0EC]";
+  const tile = "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ws-text";
   if (name === "scholar")
     return (
       <span className={tile} style={{ width: size, height: size }} aria-hidden>

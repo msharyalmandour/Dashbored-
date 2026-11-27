@@ -131,14 +131,14 @@ export default function WesyNudges() {
   return (
     <div
       role="status"
-      className="fixed bottom-24 end-4 z-[90] w-[min(92vw,360px)] rounded-[22px] border border-amber-accent-400/40 bg-[#160904] p-3 text-[#f4f0ec] shadow-2xl shadow-black/50 animate-[page-in_0.35s_ease-out] md:bottom-6 print:hidden"
+      className="fixed bottom-24 end-4 z-[90] w-[min(92vw,360px)] rounded-2xl border border-amber-accent-400/40 bg-[#160904] p-3 text-ws-text shadow-2xl shadow-black/50 animate-[page-in_0.35s_ease-out] md:bottom-6 print:hidden"
     >
       <div className="flex items-start gap-3 pe-10">
         <WesyAvatar size={48} state="thinking" className="shrink-0" />
         <p className="text-sm font-medium leading-6">{nudge.text}</p>
       </div>
       <div className="mt-2 flex justify-end gap-2">
-        <button onClick={close} className="min-h-11 rounded-full px-4 text-xs font-bold text-[#f4f0ec]/70 hover:text-[#f4f0ec]">
+        <button onClick={close} className="min-h-11 rounded-full px-4 text-xs font-bold text-ws-text/70 hover:text-ws-text">
           {tr("لا، شكرًا")}
         </button>
         <button
@@ -147,12 +147,12 @@ export default function WesyNudges() {
             close();
             run();
           }}
-          className="min-h-11 rounded-full bg-gradient-to-l from-[#FF6A00] to-[#FF9A3C] px-5 text-sm font-bold text-[#160904]"
+          className="min-h-11 rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-5 text-sm font-bold text-[#160904]"
         >
           {nudge.cta}
         </button>
       </div>
-      <button onClick={close} aria-label={tr("إغلاق")} className="absolute end-1 top-1 flex h-11 w-11 items-center justify-center rounded-full text-[#f4f0ec]/60 hover:text-[#f4f0ec]">
+      <button onClick={close} aria-label={tr("إغلاق")} className="absolute end-1 top-1 flex h-11 w-11 items-center justify-center rounded-full text-ws-text/60 hover:text-ws-text">
         <X size={16} />
       </button>
     </div>

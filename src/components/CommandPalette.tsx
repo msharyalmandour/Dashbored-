@@ -175,7 +175,7 @@ export default function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-lg overflow-hidden glass-panel rounded-[1.75rem] border border-brand-100/50 bg-paper/75 backdrop-blur-2xl backdrop-saturate-150"
+        className="w-full max-w-lg overflow-hidden glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 backdrop-blur-2xl backdrop-saturate-150"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2.5 border-b border-brand-100 px-4 py-3">
@@ -188,7 +188,7 @@ export default function CommandPalette() {
             placeholder={tr("ابحث أو اكتب أمر…")}
             className="w-full bg-transparent text-sm text-brand-950 outline-none placeholder:text-brand-950/35"
           />
-          <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[12px] font-bold text-brand-950/40">
+          <kbd className="rounded-xl border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-xs font-bold text-brand-950/40">
             Esc
           </kbd>
         </div>
@@ -207,7 +207,7 @@ export default function CommandPalette() {
                 <item.icon size={16} />
                 <span className="flex-1 text-start">{item.label}</span>
                 {item.action && (
-                  <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
                 )}
               </button>
             </li>

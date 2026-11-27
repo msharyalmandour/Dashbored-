@@ -27,7 +27,7 @@ export default function ImproveWritingButton({
       <Link
         to="/pricing"
         title={tr("تحسين الصياغة داخل الاشتراك")}
-        className="flex items-center gap-1.5 rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs font-bold text-brand-950/50 hover:text-brand-700"
+        className="flex items-center gap-1.5 rounded-xl bg-surface-muted px-2.5 py-1.5 text-xs font-bold text-brand-950/50 hover:text-brand-700"
       >
         <Lock size={12} />{tr("حسّن الصياغة (مع الاشتراك)")}</Link>
     );
@@ -53,7 +53,7 @@ export default function ImproveWritingButton({
       type="button"
       onClick={improve}
       disabled={loading || !value.trim()}
-      className="flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-100 disabled:opacity-50"
+      className="flex items-center gap-1.5 rounded-xl bg-brand-50 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-100 disabled:opacity-50"
     >
       {loading ? <RefreshCw size={12} className="animate-spin" /> : <Wand2 size={12} />}
       {loading ? tr("جارٍ التحسين...") : error ? tr("حاول مرة ثانية") : tr("حسّن الصياغة")}

@@ -37,7 +37,7 @@ export default function AvatarPicker({ open, onClose }: { open: boolean; onClose
       <div className="flex flex-col items-center gap-4">
         <CharacterSvg character={c} size={96} />
         <fieldset className="w-full">
-          <legend className="mb-2 text-[13px] font-bold text-[#b8ada2]">{tr("القطعة")}</legend>
+          <legend className="mb-2 text-sm font-bold text-ws-muted">{tr("القطعة")}</legend>
           <div className="grid grid-cols-5 gap-2">
             {AVATAR_PIECES.map((p) => (
               <button
@@ -47,7 +47,7 @@ export default function AvatarPicker({ open, onClose }: { open: boolean; onClose
                 aria-label={PIECE_LABEL(p)}
                 title={PIECE_LABEL(p)}
                 onClick={() => set({ piece: p })}
-                className={`grid min-h-[56px] place-items-center rounded-2xl ${c.piece === p ? "shadow-[inset_0_0_0_2px_#FFC777]" : "shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}
+                className={`grid min-h-[56px] place-items-center rounded-2xl ${c.piece === p ? "shadow-[inset_0_0_0_2px_#FFB547]" : "shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}
               >
                 <CharacterSvg character={{ ...c, piece: p }} size={44} />
               </button>
@@ -55,20 +55,20 @@ export default function AvatarPicker({ open, onClose }: { open: boolean; onClose
           </div>
         </fieldset>
         <fieldset className="w-full">
-          <legend className="mb-2 text-[13px] font-bold text-[#b8ada2]">{tr("الخلفية")}</legend>
+          <legend className="mb-2 text-sm font-bold text-ws-muted">{tr("الخلفية")}</legend>
           <div className="flex gap-2">
             {AVATAR_BGS.map((bg, i) => (
-              <button key={bg} type="button" aria-pressed={c.bg === i} aria-label={tr("خلفية {0}", i + 1)} onClick={() => set({ bg: i })} className="grid h-11 w-11 place-items-center rounded-full" style={{ background: bg, boxShadow: c.bg === i ? "0 0 0 2px #0A0807, 0 0 0 4px #FFC777" : "none" }}>
+              <button key={bg} type="button" aria-pressed={c.bg === i} aria-label={tr("خلفية {0}", i + 1)} onClick={() => set({ bg: i })} className="grid h-11 w-11 place-items-center rounded-full" style={{ background: bg, boxShadow: c.bg === i ? "0 0 0 2px #0A0807, 0 0 0 4px #FFB547" : "none" }}>
                 {c.bg === i && <Check size={16} className="text-[#1A0B05]" />}
               </button>
             ))}
           </div>
         </fieldset>
         <fieldset className="w-full">
-          <legend className="mb-2 text-[13px] font-bold text-[#b8ada2]">{tr("لون البشرة")}</legend>
+          <legend className="mb-2 text-sm font-bold text-ws-muted">{tr("لون البشرة")}</legend>
           <div className="flex gap-2">
             {AVATAR_SKINS.map((sk, i) => (
-              <button key={sk} type="button" aria-pressed={c.skin === i} aria-label={tr("لون {0}", i + 1)} onClick={() => set({ skin: i })} className="grid h-11 w-11 place-items-center rounded-full" style={{ background: sk, boxShadow: c.skin === i ? "0 0 0 2px #0A0807, 0 0 0 4px #FFC777" : "none" }}>
+              <button key={sk} type="button" aria-pressed={c.skin === i} aria-label={tr("لون {0}", i + 1)} onClick={() => set({ skin: i })} className="grid h-11 w-11 place-items-center rounded-full" style={{ background: sk, boxShadow: c.skin === i ? "0 0 0 2px #0A0807, 0 0 0 4px #FFB547" : "none" }}>
                 {c.skin === i && <Check size={16} className="text-[#1A0B05]" />}
               </button>
             ))}

@@ -196,7 +196,7 @@ export default function SupervisorFeedback() {
       {(messages.length > 0 || isSupabaseConfigured) && (
         <Card tone="paper" className="space-y-3">
           <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <GraduationCap size={18} className="text-[#FFC777]" />{tr("رسائل المشرفة")}</h3>
+            <GraduationCap size={18} className="text-ws-accent3" />{tr("رسائل المشرفة")}</h3>
           {messages.length === 0 ? (
             <p className="text-xs leading-relaxed text-brand-950/55">{tr("لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.")}</p>
           ) : (
@@ -210,7 +210,7 @@ export default function SupervisorFeedback() {
                         fromSup ? "bg-[rgba(255,199,119,.10)] text-brand-950 ring-1 ring-[rgba(255,199,119,.22)]" : "border border-brand-100 bg-surface-muted text-brand-950"
                       }`}
                     >
-                      <p className="text-[12px] font-bold text-brand-950/45">
+                      <p className="text-xs font-bold text-brand-950/45">
                         {fromSup ? m.senderName || tr("المشرفة") : m.senderName ? tr("أنتم — {0}", m.senderName) : tr("أنتم")}
                         <span className="ms-2 font-medium">{formatDateLong(m.createdAt.slice(0, 10))}</span>
                       </p>
@@ -218,7 +218,7 @@ export default function SupervisorFeedback() {
                       {fromSup && (
                         <button
                           onClick={() => toTasks(m.body)}
-                          className="mt-2 flex min-h-[32px] items-center gap-1.5 text-xs font-bold text-[#FF9A3C] underline underline-offset-2 hover:text-[#FFB547]"
+                          className="mt-2 flex min-h-[32px] items-center gap-1.5 text-xs font-bold text-ws-accent2 underline underline-offset-2 hover:text-ws-accent3"
                         >
                           <ClipboardCheck size={12} />{tr("حوّلوها لمهام")}</button>
                       )}
@@ -255,10 +255,10 @@ export default function SupervisorFeedback() {
                 className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-brand-600"
               >
                 <MessageCircle size={14} />{tr("نبّهوها بواتساب")}</a>
-              <button onClick={() => setNudge(false)} className="text-[12px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
+              <button onClick={() => setNudge(false)} className="text-xs font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
             </div>
           )}
-          <p className="text-[12px] text-brand-950/40">
+          <p className="text-xs text-brand-950/40">
             {emailOn
               ? tr("المشرفة مفعّلة الإيميل: يوصلها تنبيه بردّكم (تنبيه واحد كل 10 دقايق بالكثير).")
               : tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}
@@ -277,7 +277,7 @@ export default function SupervisorFeedback() {
           rows={5}
           dir="auto"
           placeholder={tr("مثال: The sample size needs justification. أضيفوا دراسات سعودية. وضّحوا معايير الاستبعاد...")}
-          className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+          className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
         />
         <div className="flex flex-wrap items-center gap-2">
           {aiOk && (
@@ -298,7 +298,7 @@ export default function SupervisorFeedback() {
         </div>
         {splitMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{splitMsg}</p>}
         {!aiOk && isSupabaseConfigured && (
-          <p className="text-[12px] text-brand-950/45">{tr("التقسيم الذكي يفتح مع الاشتراك. التقسيم البسيط مجاني.")}</p>
+          <p className="text-xs text-brand-950/45">{tr("التقسيم الذكي يفتح مع الاشتراك. التقسيم البسيط مجاني.")}</p>
         )}
       </Card>
 
@@ -317,12 +317,12 @@ export default function SupervisorFeedback() {
                 <input
                   value={d.comment}
                   onChange={(e) => setDrafts((p) => p!.map((x, j) => (j === i ? { ...x, comment: e.target.value } : x)))}
-                  className="min-w-[12rem] flex-1 rounded-lg border border-brand-100 bg-paper px-2.5 py-1.5 text-sm outline-none focus:border-brand-300"
+                  className="min-w-[12rem] flex-1 rounded-xl border border-brand-100 bg-paper px-2.5 py-1.5 text-sm outline-none focus:border-brand-300"
                 />
                 <select
                   value={d.sectionKey}
                   onChange={(e) => setDrafts((p) => p!.map((x, j) => (j === i ? { ...x, sectionKey: e.target.value } : x)))}
-                  className="rounded-lg border border-brand-100 bg-paper px-2 py-1.5 text-xs outline-none"
+                  className="rounded-xl border border-brand-100 bg-paper px-2 py-1.5 text-xs outline-none"
                 >
                   {Object.entries(sectionLabels).map(([k, v]) => (
                     <option key={k} value={k}>
@@ -367,12 +367,12 @@ export default function SupervisorFeedback() {
             onChange={(e) => setManual(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addManual()}
             placeholder={tr("أضيفوا ملاحظة يدويًا...")}
-            className="min-w-[12rem] flex-1 rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+            className="min-w-[12rem] flex-1 rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
           />
           <select
             value={manualSection}
             onChange={(e) => setManualSection(e.target.value)}
-            className="rounded-lg border border-brand-100 bg-paper px-2 py-2 text-xs outline-none"
+            className="rounded-xl border border-brand-100 bg-paper px-2 py-2 text-xs outline-none"
           >
             {Object.entries(sectionLabels).map(([k, v]) => (
               <option key={k} value={k}>
@@ -408,7 +408,7 @@ export default function SupervisorFeedback() {
               </button>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-semibold ${i.status === "done" ? "text-brand-950/40 line-through" : "text-brand-950"}`}>{i.comment}</p>
-                <p className="mt-0.5 text-[12px] text-brand-950/45">
+                <p className="mt-0.5 text-xs text-brand-950/45">
                   {sectionLabels[i.sectionKey] ?? tr("أخرى")} · {formatDateLong(i.feedbackDate)}
                   {i.status === "done" && i.resolvedAt ? tr(" · انحلّت {0}", formatDateLong(i.resolvedAt.slice(0, 10))) : ""}
                 </p>
@@ -416,7 +416,7 @@ export default function SupervisorFeedback() {
               <select
                 value={i.assigneeId ?? ""}
                 onChange={(e) => patch(i.id, { assigneeId: e.target.value || null })}
-                className="rounded-lg border border-brand-100 bg-paper px-2 py-1.5 text-xs outline-none"
+                className="rounded-xl border border-brand-100 bg-paper px-2 py-1.5 text-xs outline-none"
                 title={tr("مين مسؤول عنها؟")}
               >
                 <option value="">{tr("بدون مسؤول")}</option>
@@ -427,7 +427,7 @@ export default function SupervisorFeedback() {
                 ))}
               </select>
               {i.assigneeId && memberName(i.assigneeId) && <span className="sr-only">{memberName(i.assigneeId)}</span>}
-              <button onClick={() => remove(i.id)} title={tr("حذف")} className="rounded-lg p-1.5 text-brand-950/30 hover:bg-rose-50 hover:text-rose-600">
+              <button onClick={() => remove(i.id)} title={tr("حذف")} className="rounded-xl p-1.5 text-brand-950/30 hover:bg-rose-50 hover:text-rose-600">
                 <Trash2 size={15} />
               </button>
             </Card>
@@ -454,7 +454,7 @@ export default function SupervisorFeedback() {
                 value={mailText}
                 onChange={(e) => setMailText(e.target.value)}
                 rows={7}
-                className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
+                className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
               />
               <button
                 onClick={async () => {

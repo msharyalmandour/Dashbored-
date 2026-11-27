@@ -48,12 +48,12 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
     <div className="ach-scrim" onClick={onClose}>
       <div className="ach-sheet" role="dialog" aria-modal="true" aria-label={tr("بطاقة الإنجاز")} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-2">
-          <b className="flex-1 text-[17px] text-[#f4f0ec]">{tr("شاركوا إنجازكم")}</b>
+          <b className="flex-1 text-lg text-ws-text">{tr("شاركوا إنجازكم")}</b>
           <button type="button" className="door-x" aria-label={tr("إغلاق")} onClick={onClose}>
             <X size={18} />
           </button>
         </div>
-        <p className="m-0 mt-1 text-[13px] text-[#b8ada2]">{tr("بدون عنوان بحثكم ولا أسماءكم — الإنجاز بس.")}</p>
+        <p className="m-0 mt-1 text-sm text-ws-muted">{tr("بدون عنوان بحثكم ولا أسماءكم — الإنجاز بس.")}</p>
         <div className="ach-prev">{url ? <img src={url} alt={tr("بطاقة الإنجاز: {0}", title)} /> : <span className="sup-skel" style={{ width: "100%", height: "100%" }} />}</div>
         <button type="button" className="ach-go" disabled={!blob} onClick={() => void act()}>
           <Share2 size={18} aria-hidden />
@@ -76,7 +76,7 @@ export default function ShareAchievement({ title, sub, step, onClose }: { title:
           {tr("حمّلوها")}
         </button>
         {note && (
-          <p role="status" className="m-0 mt-2 text-center text-[13px] text-[#FFC777]">
+          <p role="status" className="m-0 mt-2 text-center text-sm text-ws-accent3">
             {note}
           </p>
         )}

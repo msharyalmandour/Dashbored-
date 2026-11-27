@@ -79,8 +79,8 @@ export default function MinutesDoc() {
   if (failed) {
     return (
       <div className="v3 px-4 py-16 text-center">
-        <p className="text-[15px] text-[#E9D3B8]">{tr("ما لقينا هالمحضر.")}</p>
-        <Link to="/meeting-minutes" className="text-[#FFC777]">
+        <p className="text-base text-ws-text-accent">{tr("ما لقينا هالمحضر.")}</p>
+        <Link to="/meeting-minutes" className="text-ws-accent3">
           {tr("ارجعوا للمحاضر")}
         </Link>
       </div>
@@ -169,7 +169,7 @@ export default function MinutesDoc() {
         <span className="md-num" aria-hidden>
           {n}
         </span>
-        <h2 id={`md-h-${n}`} className="m-0 text-[24px] font-extrabold text-[#f4f0ec]">
+        <h2 id={`md-h-${n}`} className="m-0 text-[24px] font-extrabold text-ws-text">
           {head}
         </h2>
       </div>
@@ -184,15 +184,15 @@ export default function MinutesDoc() {
           <img src="/sup/seal.jpg" alt="" width={150} height={150} />
         </div>
       </div>
-      <div className="-mt-1 text-[12px] font-bold text-[#ffb547]">{tr("معتمد من المشرف/ة")}</div>
-      <div className="mt-1 text-[24px] font-extrabold text-[#f4f0ec]">{approval?.supervisorName || project?.supervisorName || tr("المشرف/ة")}</div>
-      <div className="mt-2 w-full border-t border-white/10 pt-2 text-[12px] text-[#E9D3B8]">{approval?.resolvedAt ? `${formatDateFull(approval.resolvedAt.slice(0, 10))} · ${hhmm(approval.resolvedAt)}` : ""}</div>
+      <div className="-mt-1 text-xs font-bold text-ws-accent3">{tr("معتمد من المشرف/ة")}</div>
+      <div className="mt-1 text-[24px] font-extrabold text-ws-text">{approval?.supervisorName || project?.supervisorName || tr("المشرف/ة")}</div>
+      <div className="mt-2 w-full border-t border-white/10 pt-2 text-xs text-ws-text-accent">{approval?.resolvedAt ? `${formatDateFull(approval.resolvedAt.slice(0, 10))} · ${hhmm(approval.resolvedAt)}` : ""}</div>
     </section>
   ) : (
     <section className="sup-glass" aria-label={tr("اعتماد المحضر")}>
-      <b className="block text-[16px]">{approval ? (approval.status === "changes_requested" ? tr("المشرف/ة طلب/ت تعديل") : tr("بانتظار اعتماد المشرف/ة")) : tr("لسا ما انرسل للاعتماد")}</b>
-      {approval?.note && <p className="m-0 mt-1 text-[13px] text-[#E9D3B8]" dir="auto">«{approval.note}»</p>}
-      <p className="m-0 mt-1 text-[13px] text-[#b8ada2]">{tr("لما يعتمده ينطبع عليه الختم ويوصله إيصال.")}</p>
+      <b className="block text-base">{approval ? (approval.status === "changes_requested" ? tr("المشرف/ة طلب/ت تعديل") : tr("بانتظار اعتماد المشرف/ة")) : tr("لسا ما انرسل للاعتماد")}</b>
+      {approval?.note && <p className="m-0 mt-1 text-sm text-ws-text-accent" dir="auto">«{approval.note}»</p>}
+      <p className="m-0 mt-1 text-sm text-ws-muted">{tr("لما يعتمده ينطبع عليه الختم ويوصله إيصال.")}</p>
       {(!approval || approval.status === "changes_requested") && canWrite && (
         <button type="button" className="sup-btn-primary mt-3 w-full" disabled={busy === "send"} onClick={() => void sendToDoc()}>
           {tr("أرسلوه للدكتورة")}
@@ -222,22 +222,22 @@ export default function MinutesDoc() {
   const roll = att.length > 0 && (
     <section className="sup-glass" aria-labelledby="md-att">
       <div className="flex items-center">
-        <b id="md-att" className="flex-1 text-[16px]">
+        <b id="md-att" className="flex-1 text-base">
           {tr("الحضور")}
         </b>
-        <span className="text-[12px] font-bold text-[#FFC777]">
+        <span className="text-xs font-bold text-ws-accent3">
           {sum.minutes ? tr("{0} من {1} · {2} دقيقة", sum.came, sum.total, sum.minutes) : tr("{0} من {1}", sum.came, sum.total)}
         </span>
       </div>
       {att.map((a) => (
         <div key={a.id} className="sup-row">
           {a.role === "supervisor" ? <DocAvatar name={a.name} px={28} /> : <Avatar initials="" name={a.name} avatar={who(a.id)?.avatar ?? undefined} px={28} ring="#1A120E" />}
-          <span className="min-w-0 flex-1 text-[14px] font-bold">
+          <span className="min-w-0 flex-1 text-sm font-bold">
             {a.role === "supervisor" ? a.name : a.name.split(/\s+/)[0]}
-            {a.id === row.created_by && <small className="ms-1 text-[12px] font-normal text-[#b8ada2]">{tr("· كاتب المحضر")}</small>}
-            {a.role === "supervisor" && <small className="ms-1 text-[12px] font-normal text-[#b8ada2]">{tr("· المشرف/ة")}</small>}
+            {a.id === row.created_by && <small className="ms-1 text-xs font-normal text-ws-muted">{tr("· كاتب المحضر")}</small>}
+            {a.role === "supervisor" && <small className="ms-1 text-xs font-normal text-ws-muted">{tr("· المشرف/ة")}</small>}
           </span>
-          <span className="text-[12px] text-[#E9D3B8]" dir="ltr">
+          <span className="text-xs text-ws-text-accent" dir="ltr">
             {a.joinedAt && a.joinedAt !== "pending" ? hhmm(a.joinedAt) : tr("غاب")}
           </span>
         </div>
@@ -251,15 +251,15 @@ export default function MinutesDoc() {
         <button type="button" className="tc-round" aria-label={tr("رجوع")} onClick={() => navigate("/meeting-minutes")}>
           <ChevronLeft size={18} className="rtl:rotate-180" />
         </button>
-        <span className="flex-1 text-center text-[13px] text-[#b8ada2]">{tr("المحاضر · {0} من {1}", number, two(all.length || 1))}</span>
+        <span className="flex-1 text-center text-sm text-ws-muted">{tr("المحاضر · {0} من {1}", number, two(all.length || 1))}</span>
         <span style={{ width: 44 }} />
       </div>
       <header className="md-hero">
         <img src="/sup/pen_hero.jpg" alt="" aria-hidden className="md-hero-img" />
         <div className="md-hero-in">
-          <div className="text-[13px] font-bold text-[#ffb547]">{tr("محضر اجتماع · رقم {0}", number)}</div>
+          <div className="text-sm font-bold text-ws-accent3">{tr("محضر اجتماع · رقم {0}", number)}</div>
           <h1 className="md-title">{title}</h1>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[14px] text-[#E9D3B8]">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ws-text-accent">
             <span>{formatDateFull(row.meeting_date)}</span>
             {timeRange && <span dir="ltr">{timeRange}</span>}
             {row.room && <span>{row.room}</span>}
@@ -273,7 +273,7 @@ export default function MinutesDoc() {
                   </span>
                 ))}
               </div>
-              <span className="text-[13px] text-[#f4f0ec]">{tr("{0}/{1} حاضرين", sum.came, sum.total)}</span>
+              <span className="text-sm text-ws-text">{tr("{0}/{1} حاضرين", sum.came, sum.total)}</span>
             </div>
           )}
         </div>
@@ -285,13 +285,13 @@ export default function MinutesDoc() {
             "01",
             tr("النقاش"),
             discussion.length ? (
-              <ul className="m-0 list-disc space-y-2 ps-5 text-[16px] leading-[1.8] text-[#E9D3B8]">
+              <ul className="m-0 list-disc space-y-2 ps-5 text-base leading-[1.8] text-ws-text-accent">
                 {discussion.map((x, i) => (
                   <li key={i} dir="auto">{x}</li>
                 ))}
               </ul>
             ) : (
-              <p className="m-0 text-[14px] text-[#b8ada2]">—</p>
+              <p className="m-0 text-sm text-ws-muted">—</p>
             ),
             0,
           )}
@@ -306,14 +306,14 @@ export default function MinutesDoc() {
                       {SupIcons.check}
                     </span>
                     <div className="min-w-0">
-                      <b className="block text-[16px] text-[#f4f0ec]" dir="auto">{x}</b>
-                      {proposer(x) && <span className="text-[12px] text-[#b8ada2]">{proposer(x)}</span>}
+                      <b className="block text-base text-ws-text" dir="auto">{x}</b>
+                      {proposer(x) && <span className="text-xs text-ws-muted">{proposer(x)}</span>}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="m-0 text-[14px] text-[#b8ada2]">—</p>
+              <p className="m-0 text-sm text-ws-muted">—</p>
             ),
             1,
           )}
@@ -334,12 +334,12 @@ export default function MinutesDoc() {
                   const place = placeByKey(t?.sectionKey ?? inferPlace(a.text));
                   return (
                     <div key={a.id} role="row" className="md-tr">
-                      <b role="cell" className="text-[15px] text-[#f4f0ec]" dir="auto">{a.text}</b>
-                      <span role="cell" className="flex items-center gap-2 text-[14px]">
+                      <b role="cell" className="text-base text-ws-text" dir="auto">{a.text}</b>
+                      <span role="cell" className="flex items-center gap-2 text-sm">
                         {p && <Avatar initials="" name={p.name} avatar={p.avatar ?? undefined} px={26} ring="#1A120E" />}
                         {p?.name.split(/\s+/)[0] ?? "—"}
                       </span>
-                      <span role="cell" className="text-[14px] text-[#E9D3B8]">{dueLabel(a.dueDate ?? t?.dueDate ?? null)}</span>
+                      <span role="cell" className="text-sm text-ws-text-accent">{dueLabel(a.dueDate ?? t?.dueDate ?? null)}</span>
                       <span role="cell">
                         {place && (
                           <Link to={place.route} className="md-place">
@@ -353,9 +353,9 @@ export default function MinutesDoc() {
                 })}
               </div>
             ) : legacyActions.length ? (
-              <ul className="m-0 list-disc space-y-2 ps-5 text-[15px] text-[#E9D3B8]">{legacyActions.map((x, i) => <li key={i} dir="auto">{x}</li>)}</ul>
+              <ul className="m-0 list-disc space-y-2 ps-5 text-base text-ws-text-accent">{legacyActions.map((x, i) => <li key={i} dir="auto">{x}</li>)}</ul>
             ) : (
-              <p className="m-0 text-[14px] text-[#b8ada2]">—</p>
+              <p className="m-0 text-sm text-ws-muted">—</p>
             ),
             2,
           )}
@@ -365,14 +365,14 @@ export default function MinutesDoc() {
             open.length ? (
               <div className="flex flex-col gap-2">
                 {open.map((x, i) => (
-                  <div key={i} className="flex items-center gap-2 text-[15px] text-[#f4f0ec]">
-                    <CircleHelp size={16} aria-hidden className="flex-none text-[#FFC777]" />
+                  <div key={i} className="flex items-center gap-2 text-base text-ws-text">
+                    <CircleHelp size={16} aria-hidden className="flex-none text-ws-accent3" />
                     <span dir="auto">{x}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="m-0 text-[14px] text-[#b8ada2]">{tr("لا شي — كل شي انحسم ✓")}</p>
+              <p className="m-0 text-sm text-ws-muted">{tr("لا شي — كل شي انحسم ✓")}</p>
             ),
             3,
           )}

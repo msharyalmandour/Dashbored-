@@ -21,7 +21,7 @@ export default function ThinkingLine({ className, steps }: { className?: string;
   return (
     <span className={className ?? "inline-flex items-center gap-3"} role="status" aria-live="polite">
       <AgentOrb size={26} state="thinking" />
-      <span key={i} className="st-fade text-sm text-[#B8ADA2]">
+      <span key={i} className="st-fade text-sm text-ws-muted">
         {lines[i % lines.length]}
         <Typing />
       </span>

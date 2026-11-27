@@ -72,7 +72,7 @@ export default function Surveys() {
                       {canWrite && (
                         <button
                           onClick={() => window.confirm(tr("تحذفون هذا الاستبيان وكل ردوده؟ ما ينرجع.")) && remove(s.id)}
-                          className="rounded-lg p-1.5 text-brand-950/35 hover:bg-rose-500/10 hover:text-rose-500"
+                          className="rounded-xl p-1.5 text-brand-950/35 hover:bg-rose-500/10 hover:text-rose-500"
                           title={tr("حذف")}
                         >
                           <Trash2 size={14} />
@@ -83,7 +83,7 @@ export default function Surveys() {
                 </div>
               </Panel>
             )}
-            <p className="text-[12px] leading-relaxed text-brand-950/40">{trx("حد الفريق {0} استبيانات. الردود مجهولة، وتنحفظ عندنا بحيث تشوفها أنتم بس. لازم يراجع الاستبيان المشرف/ـة و", MAX_SURVEYS)}<Term id="irb">{tr("لجنة الأخلاقيات")}</Term>{tr(" بجهتكم قبل النشر.")}</p>
+            <p className="text-xs leading-relaxed text-brand-950/40">{trx("حد الفريق {0} استبيانات. الردود مجهولة، وتنحفظ عندنا بحيث تشوفها أنتم بس. لازم يراجع الاستبيان المشرف/ـة و", MAX_SURVEYS)}<Term id="irb">{tr("لجنة الأخلاقيات")}</Term>{tr(" بجهتكم قبل النشر.")}</p>
           </>
         }
       />

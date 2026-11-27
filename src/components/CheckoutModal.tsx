@@ -7,12 +7,12 @@ import { useTeamPayments } from "../hooks/useTeamPayments";
 import { supabase } from "../lib/supabaseClient";
 import MoyasarPayment from "./MoyasarPayment";
 import { tr, trx } from "../lib/i18n";
-import { BEST_PLAN, GRANT_DONATION, PLAN_OPTIONS, perMonth, personPrice, planSaving, type BillingPeriod } from "../lib/plans";
+import { BEST_PLAN, GRANT_DONATION, PLAN_OPTIONS, perMonth, personPrice, planSaving, tierOf, type BillingPeriod } from "../lib/plans";
 
 /** نافذة الدفع (2026-11-27 — السعر لكل شخص):
-    ١) المدة: شهري 15 · فصل 49 · ⭐ السنة الدراسية 99 (الأوفر، مختارة افتراضيًا)
+    ١) المدة: شهري · فصل · ⭐ السنة الدراسية (الأوفر، مختارة افتراضيًا) — السعر حسب شريحة الفريق (lib/plans TIER_PRICES)
     ٢) عن مين: حصتي · صاحبي (أي عضو ما دفع) · الفريق كامل
-    ٣) «مقعد لزميل محتاج» +5 اختياري · خصم الاستمرار (الشهري 12) لو الفريق يستاهله — السيرفر يتحقق من كل شي.
+    ٣) «مقعد لزميل محتاج» +5 اختياري · خصم الاستمرار (الشهري ينقص STREAK_DISCOUNT) لو الفريق يستاهله — السيرفر يتحقق من كل شي.
     التحقق الحقيقي وتفعيل الاشتراك بالكامل عند moyasar-webhook. */
 
 type Who = "me" | "friend" | "team";
@@ -66,7 +66,8 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
   const unpaidFriends = friends.filter((m) => !paidProfileIds.has(m.id));
   const friend = friends.find((m) => m.id === friendId) ?? unpaidFriends[0] ?? friends[0];
   const seats = who === "team" ? memberCount : 1;
-  const unit = personPrice(period, streak);
+  const tier = tierOf(memberCount, team.isFounder, team.priceTier);
+  const unit = personPrice(period, streak, tier);
   const donation = donate ? GRANT_DONATION : 0;
   const total = unit * seats + donation;
   const forId = who === "friend" ? friend?.id : undefined;
@@ -75,7 +76,7 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
   return createPortal(
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-2xl shadow-black/25"
+        className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-3xl bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-2xl shadow-black/25"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper">
@@ -84,7 +85,7 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
               <Wand2 size={15} className="text-amber-accent-500" />
               {paid ? tr("تم الدفع بنجاح") : tr("إتمام الاشتراك")}
             </p>
-            <button onClick={onClose} aria-label={tr("إغلاق")} className="relative flex h-11 w-11 items-center justify-center rounded-lg text-brand-950/40 hover:bg-surface-muted">
+            <button onClick={onClose} aria-label={tr("إغلاق")} className="relative flex h-11 w-11 items-center justify-center rounded-xl text-brand-950/40 hover:bg-surface-muted">
               <X size={18} />
             </button>
           </div>
@@ -109,7 +110,7 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
                   {PLAN_OPTIONS.map((p) => {
                     const on = period === p.id;
                     const best = p.id === BEST_PLAN;
-                    const price = personPrice(p.id, streak);
+                    const price = personPrice(p.id, streak, tier);
                     return (
                       <button
                         key={p.id}
@@ -124,19 +125,19 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
                         <span>
                           <span className="block text-sm font-extrabold text-brand-950">
                             {PLAN_LABEL[p.id]()}
-                            {best && <span className="ms-2 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[12px] font-extrabold text-amber-accent-700">{tr("الأوفر")}</span>}
+                            {best && <span className="ms-2 rounded-full bg-amber-accent-100 px-2 py-0.5 text-xs font-extrabold text-amber-accent-700">{tr("الأوفر")}</span>}
                           </span>
-                          <span className="block text-[12px] text-brand-950/50">
+                          <span className="block text-xs text-brand-950/50">
                             {p.id === "month"
                               ? streak
                                 ? tr("خصم الاستمرار: فريقكم اشتغل كل أسبوع 🔥")
                                 : PLAN_SPAN.month()
-                              : trx("{0} · يعني {1} بالشهر · توفّر {2} ريال", PLAN_SPAN[p.id](), perMonth(p.id), planSaving(p.id))}
+                              : trx("{0} · يعني {1} بالشهر · توفّر {2} ريال", PLAN_SPAN[p.id](), perMonth(p.id, tier), planSaving(p.id, tier))}
                           </span>
                         </span>
                         <span className="shrink-0 text-end">
                           <b className="font-display text-xl font-extrabold text-brand-950">{price}</b>
-                          <span className="ms-1 text-[12px] text-brand-950/50">{tr("ريال للشخص")}</span>
+                          <span className="ms-1 text-xs text-brand-950/50">{tr("ريال للشخص")}</span>
                         </span>
                       </button>
                     );
@@ -187,13 +188,13 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
                   </label>
                 )}
                 {who === "friend" && friend && (
-                  <p className="mt-1.5 text-[12px] text-brand-950/50">{friend.gender === "female" ? tr("بيوصلها إنك دفعت عنها 💛") : tr("بيوصله إنك دفعت عنه 💛")}</p>
+                  <p className="mt-1.5 text-xs text-brand-950/50">{friend.gender === "female" ? tr("بيوصلها إنك دفعت عنها 💛") : tr("بيوصله إنك دفعت عنه 💛")}</p>
                 )}
               </fieldset>
 
               {/* ٣) صندوق المنح */}
               <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-brand-100 p-3">
-                <input type="checkbox" className="mt-1 h-5 w-5 accent-[#FF6A00]" checked={donate} onChange={(e) => setDonate(e.target.checked)} />
+                <input type="checkbox" className="mt-1 h-5 w-5 accent-ws-accent" checked={donate} onChange={(e) => setDonate(e.target.checked)} />
                 <span className="text-sm text-brand-950/75">
                   <span className="flex items-center gap-1.5 font-bold text-brand-950">
                     <HeartHandshake size={15} className="text-amber-accent-600" />
@@ -222,12 +223,12 @@ export default function CheckoutModal({ onClose, forProfileId }: { onClose: () =
                   </span>
                   <span className="font-display text-lg font-extrabold text-brand-700">{trx("{0} ريال", total)}</span>
                 </div>
-                <p className="mt-2 text-[12px] text-brand-950/45">
+                <p className="mt-2 text-xs text-brand-950/45">
                   {who === "team"
                     ? trx("يغطي الفريق كامل {0}.", PLAN_SPAN[period]())
                     : tr("دفعتك تمدد اشتراك الفريق بنصيبك — كل عضو يدفع يزيد الأيام، بدون انتظار البقية.")}
                 </p>
-                <p className="mt-1 text-[12px] font-semibold text-brand-950/50">{tr("سعرك ثابت لين تتخرجون · ضمان أول شهر: ما عجبكم؟ نرجّع فلوسكم")}</p>
+                <p className="mt-1 text-xs font-semibold text-brand-950/50">{tr("سعرك ثابت لين تتخرجون · ضمان أول شهر: ما عجبكم؟ نرجّع فلوسكم")}</p>
               </div>
 
               <MoyasarPayment

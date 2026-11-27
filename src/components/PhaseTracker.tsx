@@ -45,7 +45,7 @@ export default function PhaseTracker({ stages }: { stages: PhaseTrackerStage[] }
               </p>
               <p
                 className={clsx(
-                  "text-[12px]",
+                  "text-xs",
                   stage.status === "upcoming" ? "text-brand-950/25" : "text-brand-950/40",
                 )}
               >

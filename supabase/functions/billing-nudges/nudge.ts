@@ -68,19 +68,19 @@ export function nudgeMessage(i: NudgeInput): NudgeMessage {
     case "pre7":
       return {
         title: `${i.onTrial ? "تجربتكم" : "اشتراككم"} ينتهي بعد أسبوع`,
-        body: `هلا ${i.firstName} 👋 ${what} ${team} ينتهي ${i.endLabel}. حصتك 15 ريال — يعني نص ريال باليوم.`,
+        body: `هلا ${i.firstName} 👋 ${what} ${team} ينتهي ${i.endLabel}. ${g("ادفعي", "ادفع")} حصتك بضغطتين والفريق يكمل.`,
       };
     case "payday":
       return {
         title: "نزلت المكافأة؟ 🎉",
-        body: `${i.firstName}، ${g("جدّدي", "جدّد")} حصتك بضغطتين، أو ${g("خذي", "خذ")} السنة الدراسية بـ 99 ${g("ووفّري", "ووفّر")} 36 ريال.`,
+        body: `${i.firstName}، ${g("جدّدي", "جدّد")} حصتك بضغطتين، أو ${g("خذي", "خذ")} السنة الدراسية ${g("ووفّري", "ووفّر")} أكثر.`,
       };
     case "day0":
       return {
         title: `${what} ${team} ينتهي اليوم`,
         body: social
           ? `${i.firstName}، ${social}باقي حصتك عشان الفريق يكمل بكامل أيامه.`
-          : `${i.firstName}، حصتك 15 ريال والفريق يكمل بدون توقف.`,
+          : `${i.firstName}، ${g("ادفعي", "ادفع")} حصتك والفريق يكمل بدون توقف.`,
       };
     case "post3":
       return {

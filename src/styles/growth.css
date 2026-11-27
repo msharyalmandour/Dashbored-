@@ -1,12 +1,12 @@
 /* ═══ النمو: شريط «مقاعد فريقكم» (InviteSeats) — كريمي، مو برتقالي (البرتقالي للزر الأساسي بالصفحة) ═══ */
-.gs-seats { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; margin-bottom: 18px; border-radius: 22px; background: linear-gradient(90deg, rgba(255,154,60,.10), rgba(255,245,235,.04)); border: 1px solid rgba(255,199,119,.22); }
+.gs-seats { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; margin-bottom: 18px; border-radius: var(--ws-r-m); background: linear-gradient(90deg, rgba(255,154,60,.10), rgba(255,245,235,.04)); border: 1px solid rgba(255,199,119,.22); }
 .gs-faces { display: flex; align-items: center; padding-inline-start: 10px; }
 .gs-faces > * { margin-inline-start: -10px; }
 .gs-slot { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; color: #E9C9A0; background: #120C09; border: 1.5px dashed rgba(255,214,170,.4); }
-.gs-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 22px; font-size: 14px; font-weight: 800; color: #160904; background: #f4f0ec; }
+.gs-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: var(--ws-r-m); font-size: 14px; font-weight: 800; color: #160904; background: #F2EBE3; }
 .gs-btn:hover { background: #fff; }
-.gs-icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; color: #b8ada2; }
-.gs-icon:hover { color: #f4f0ec; background: rgba(255,245,235,.06); }
+.gs-icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; color: #ABA095; }
+.gs-icon:hover { color: #F2EBE3; background: rgba(255,245,235,.06); }
 @media (max-width: 640px) {
   .gs-seats > div { flex-basis: calc(100% - 140px); }
   .gs-btn { flex: 1; justify-content: center; }

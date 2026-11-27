@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Bell, BookOpen, Coffee, GraduationCap, Image as ImageIcon, KeyRound, ScrollText, Stamp, type LucideIcon } from "lucide-react";
 import { useAcademy } from "../../hooks/useAcademy";
 import { itemLesson, officeItemIds, type OfficeItemId } from "../../data/wesyNeeds";
-import Wesy from "../brand/Wesy";
+import { WesyFigure } from "../brand/Wesy";
 import WLogo from "../brand/WLogo";
 import NextCard from "./NextCard";
 import ShareAchievement from "../ShareAchievement";
@@ -20,7 +20,7 @@ import { useAcademicCalendar } from "../../hooks/useAcademicCalendar";
 import type { NextStep } from "../../lib/nextSteps";
 import { tr } from "../../lib/i18n";
 
-/* مكتب ويسي (CeoHomeD / CeoHomeM): الرئيس التنفيذي جالس قدام لابتوبه، وراه شباك فيه غروب الرياض وبرج المملكة،
+/* مكتب ويسي (CeoHomeD / CeoHomeM): الرئيس التنفيذي (الرسمة الكرتونية البسيطة) واقف يسلّم ورا لابتوبه، وراه شباك فيه غروب الرياض وبرج المملكة،
    مكتبة كتب بألوان الهوية (كمبيوتر بس)، هالة لمبة دافية، ومكتب خشب داكن عليه لوحة ذهبية.
    كرت «الجاي لكم» فوق المشهد بخلفية صلبة #100906 (يسار المشهد بالكمبيوتر، وتحته بالجوال).
    ويسي يتحرك مرة وحدة لما تنفتح الصفحة ويهدى (settleAfter)، وحالته حسب حالة الكرت. */
@@ -32,12 +32,12 @@ function Skyline() {
         <linearGradient id="wo-dusk" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2A0E05" />
           <stop offset=".55" stopColor="#B4430B" />
-          <stop offset=".85" stopColor="#FF7A1A" />
+          <stop offset=".85" stopColor="#FF8A24" />
           <stop offset="1" stopColor="#FFB547" />
         </linearGradient>
       </defs>
       <rect width="400" height="260" fill="url(#wo-dusk)" />
-      <circle cx="300" cy="215" r="34" fill="#FFC777" opacity=".55" />
+      <circle cx="300" cy="215" r="34" fill="#FFB547" opacity=".55" />
       <g fill="#140805">
         <rect x="0" y="200" width="40" height="60" />
         <rect x="34" y="176" width="26" height="84" />
@@ -64,7 +64,7 @@ const ITEM_ICON: Record<OfficeItemId, LucideIcon> = {
   papers: ScrollText,
   cap: GraduationCap,
 };
-const BOOKS = ["#E9651F", "#FFC777", "#7A2E1C", "#f4f0ec", "#B4430B", "#FFB547", "#3A1504"];
+const BOOKS = ["#E9651F", "#FFB547", "#7A2E1C", "#F2EBE3", "#B4430B", "#FFB547", "#3A1504"];
 
 /** رف ويسي: كل ما ساعدوه بشي (درس من الأكاديمية) تنحط قطعة على الرف مكان كتاب.
     القطعة الجديدة تطلع بحركة وحدة بس (مرة)، والباقي ثابت. */
@@ -187,7 +187,9 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
         <div className="wo-lamp" />
         <div className="wo-desk" />
         <div className="wo-wesy">
-          <Wesy state={w.state} outfit={outfit} size={300} shadow={false} label={tr("ويسي، الرئيس التنفيذي")} />
+          <div className="wo-wesy-cut">
+            <WesyFigure label={tr("ويسي، الرئيس التنفيذي")} playKey={`${w.state}-${outfit}`} />
+          </div>
           <div className="wo-laptop">
             <WLogo tone="bare" size={64} className="wo-w" />
           </div>

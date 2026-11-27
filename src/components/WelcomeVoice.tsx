@@ -114,7 +114,7 @@ export default function WelcomeVoice({ className = "" }: { className?: string })
         onClick={toggle}
         aria-label={tr("اسمعوا الترحيب")}
         title={tr("اسمعوا الترحيب")}
-        className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-amber-200 backdrop-blur-md transition-colors hover:bg-white/10 ${
+        className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.07] text-amber-200 backdrop-blur-md transition-colors hover:bg-white/10 ${
           playing ? "animate-pulse" : ""
         }`}
       >

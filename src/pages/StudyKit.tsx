@@ -130,7 +130,7 @@ export default function StudyKit() {
                   }`}
                 >
                   <span className="block text-sm font-bold text-brand-950">{templateMeta[id].label}</span>
-                  <span className="block text-[12px] text-brand-950/45">{templateMeta[id].hint}</span>
+                  <span className="block text-xs text-brand-950/45">{templateMeta[id].hint}</span>
                 </button>
               ))}
             </Card>
@@ -145,15 +145,15 @@ export default function StudyKit() {
                 ] as const
               ).map(([label, val, set]) => (
                 <label key={label} className="block">
-                  <span className="mb-1 block text-[12px] font-bold text-brand-950/50">{label}</span>
+                  <span className="mb-1 block text-xs font-bold text-brand-950/50">{label}</span>
                   <input
                     value={val}
                     onChange={(e) => set(e.target.value)}
-                    className="w-full rounded-lg border border-brand-100 bg-paper px-2.5 py-1.5 text-sm outline-none focus:border-brand-300"
+                    className="w-full rounded-xl border border-brand-100 bg-paper px-2.5 py-1.5 text-sm outline-none focus:border-brand-300"
                   />
                 </label>
               ))}
-              <p className="text-[12px] text-brand-950/40">{tr("العنوان والمشرفة والفريق والفئة تنسحب تلقائيًا من بيانات مشروعكم.")}</p>
+              <p className="text-xs text-brand-950/40">{tr("العنوان والمشرفة والفريق والفئة تنسحب تلقائيًا من بيانات مشروعكم.")}</p>
             </Card>
           </div>
 
@@ -188,9 +188,9 @@ export default function StudyKit() {
               onChange={(e) => setText(e.target.value)}
               rows={22}
               dir={meta.rtl ? "rtl" : "ltr"}
-              className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
+              className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm leading-relaxed outline-none focus:border-brand-300"
             />
-            <p className="text-[12px] leading-relaxed text-brand-950/45">{tr("هذا قالب بداية مبني على عناصر الموافقة المستنيرة المعتمدة (الطوعية، حق الانسحاب، السرية). ما بين [أقواس] لازم تعبّونه. لجنة أخلاقيات الجهة والمشرفة لهم الكلمة النهائية — لو عندهم نموذج رسمي استخدموه. تنبيه: تعديلاتكم اليدوية على النص تنمسح لو غيّرتوا النموذج أو الحقول الجانبية — انسخوا أو نزّلوا قبلها.")}</p>
+            <p className="text-xs leading-relaxed text-brand-950/45">{tr("هذا قالب بداية مبني على عناصر الموافقة المستنيرة المعتمدة (الطوعية، حق الانسحاب، السرية). ما بين [أقواس] لازم تعبّونه. لجنة أخلاقيات الجهة والمشرفة لهم الكلمة النهائية — لو عندهم نموذج رسمي استخدموه. تنبيه: تعديلاتكم اليدوية على النص تنمسح لو غيّرتوا النموذج أو الحقول الجانبية — انسخوا أو نزّلوا قبلها.")}</p>
           </Card>
         </div>
       )}

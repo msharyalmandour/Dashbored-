@@ -38,8 +38,8 @@ export default function GiftNotice() {
         <HeartHandshake size={16} />
       </span>
       <div className="min-w-0 flex-1">
-        <b className="block text-[15px] text-[#f4f0ec]">{tr("حصتك مدفوعة من {0} 💛", payer?.name?.split(" ")[0] ?? tr("زميلك"))}</b>
-        <span className="block text-[13px] text-[#b8ada2]">{tr("اشتراك الفريق تمدد بنصيبك. الشكر بالمحادثة يفرق 🙏")}</span>
+        <b className="block text-base text-ws-text">{tr("حصتك مدفوعة من {0} 💛", payer?.name?.split(" ")[0] ?? tr("زميلك"))}</b>
+        <span className="block text-sm text-ws-muted">{tr("اشتراك الفريق تمدد بنصيبك. الشكر بالمحادثة يفرق 🙏")}</span>
       </div>
       <button type="button" className="gs-icon" onClick={close} aria-label={tr("إغلاق")}>
         <X size={16} aria-hidden />

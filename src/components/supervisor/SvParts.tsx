@@ -27,7 +27,7 @@ export function relTime(iso: string | null | undefined): string {
   return formatDateShort(iso.slice(0, 10));
 }
 
-const AV_BG = ["linear-gradient(135deg,#FFD9A8,#FF9A3C)", "linear-gradient(135deg,#FFE7C2,#FFB547)", "linear-gradient(135deg,#F7C9A8,#E9774A)", "linear-gradient(135deg,#f4f0ec,#C9B8A6)"];
+const AV_BG = ["linear-gradient(135deg,#FFD9A8,#FF8A24)", "linear-gradient(135deg,#FFE7C2,#FFB547)", "linear-gradient(135deg,#F7C9A8,#E9774A)", "linear-gradient(135deg,#F2EBE3,#C9B8A6)"];
 export function SvAvatar({ name, initials, i, active, sm }: { name: string; initials?: string; i: number; active?: boolean | null; sm?: boolean }) {
   const letter = avatarLetter(name || initials);
   return (
@@ -128,19 +128,19 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
             </button>
             {open[m.id] && (
               <div className="sv-detail">
-                {m.attendees.length > 0 && <div className="text-[13px] text-[#b8ada2]">{trx("الحاضرون: {0}", m.attendees.join(tr("، ")))}</div>}
-                {m.agenda && <div className="mt-1 text-[13px] text-[#b8ada2]">{m.agenda}</div>}
+                {m.attendees.length > 0 && <div className="text-sm text-ws-muted">{trx("الحاضرون: {0}", m.attendees.join(tr("، ")))}</div>}
+                {m.agenda && <div className="mt-1 text-sm text-ws-muted">{m.agenda}</div>}
                 <div className="mt-2">{m.discussion}</div>
                 {m.decisions && (
                   <div className="mt-2">
-                    <b className="text-[#f4f0ec]">{tr("القرارات:")}</b> {m.decisions}
+                    <b className="text-ws-text">{tr("القرارات:")}</b> {m.decisions}
                   </div>
                 )}
                 {m.actions.length > 0 && (
                   <ul className="m-0 mt-2 list-none space-y-1 p-0">
                     {m.actions.map((a, i) => (
                       <li key={i}>
-                        • {a.text} <span className="text-[12px] text-[#b8ada2]">— {a.assigneeName ?? "—"}{a.dueDate ? ` · ${formatDateShort(a.dueDate)}` : ""}</span>
+                        • {a.text} <span className="text-xs text-ws-muted">— {a.assigneeName ?? "—"}{a.dueDate ? ` · ${formatDateShort(a.dueDate)}` : ""}</span>
                       </li>
                     ))}
                   </ul>
@@ -308,9 +308,9 @@ function DigestChoice({ token }: { token: string }) {
             ["weekly", tr("ملخص الخميس بس"), tr("إيميل واحد مرتب كل أسبوع")],
           ] as const
         ).map(([k, t, d]) => (
-          <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-[#f4f0ec] text-[#160904]" : "bg-white/[.04] text-[#f4f0ec] shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>
-            <span className="block text-[14px] font-extrabold">{t}</span>
-            <span className={`block text-[12px] ${mode === k ? "text-[#4A3A2E]" : "text-[#b8ada2]"}`}>{d}</span>
+          <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-ws-text text-[#160904]" : "bg-white/[0.04] text-ws-text shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>
+            <span className="block text-sm font-extrabold">{t}</span>
+            <span className={`block text-xs ${mode === k ? "text-[#4A3A2E]" : "text-ws-muted"}`}>{d}</span>
           </button>
         ))}
       </div>
@@ -391,7 +391,7 @@ export function SvSetupSheet({
             <p className="sv-sd m-0">{tr("حدّدوها مرة وحدة، والفريق يحجز منها بضغطة بدل رسائل الأخذ والرد. ما ينحجز شي خارجها.")}</p>
             <ul className="m-0 mt-2.5 list-none space-y-2 p-0">
               {windows.map((w) => (
-                <li key={w.key} className="grid grid-cols-[1fr_1fr_44px] items-center gap-1.5 rounded-2xl bg-white/[.03] p-1.5">
+                <li key={w.key} className="grid grid-cols-[1fr_1fr_44px] items-center gap-1.5 rounded-2xl bg-white/[0.04] p-1.5">
                   <select value={w.weekday} onChange={(e) => setWindows((x) => x.map((y) => (y.key === w.key ? { ...y, weekday: Number(e.target.value) } : y)))} aria-label={tr("يوم الأسبوع")} className="sv-in col-span-2 !px-2.5">
                     {WEEKDAY_NAMES.map((n, i) => (
                       <option key={n} value={i}>
@@ -399,7 +399,7 @@ export function SvSetupSheet({
                       </option>
                     ))}
                   </select>
-                  <button onClick={() => setWindows((x) => x.filter((y) => y.key !== w.key))} aria-label={tr("حذف")} className="grid h-11 w-11 place-items-center rounded-full text-[#b8ada2] hover:text-[#FF9A8A]">
+                  <button onClick={() => setWindows((x) => x.filter((y) => y.key !== w.key))} aria-label={tr("حذف")} className="grid h-11 w-11 place-items-center rounded-full text-ws-muted hover:text-[#FF8A7A]">
                     <Trash2 size={16} />
                   </button>
                   <input type="time" value={w.start} onChange={(e) => setWindows((x) => x.map((y) => (y.key === w.key ? { ...y, start: e.target.value } : y)))} aria-label={tr("من")} className="sv-in !px-2.5" />
@@ -412,7 +412,7 @@ export function SvSetupSheet({
               {tr("أضيفوا وقت")}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <label className="text-[13px] font-bold text-[#b8ada2]">
+              <label className="text-sm font-bold text-ws-muted">
                 {tr("مدة الاجتماع")}
                 <select value={slot} onChange={(e) => setSlot(Number(e.target.value))} className="sv-in mt-1">
                   {[15, 20, 30, 45, 60].map((m) => (
@@ -422,15 +422,15 @@ export function SvSetupSheet({
                   ))}
                 </select>
               </label>
-              <label className="text-[13px] font-bold text-[#b8ada2]">
+              <label className="text-sm font-bold text-ws-muted">
                 {tr("أرد عادةً خلال (أيام)")}
                 <input type="number" min={1} max={30} value={replyDays} onChange={(e) => setReplyDays(e.target.value)} placeholder={tr("مثال: 3")} className="sv-in mt-1" />
               </label>
             </div>
-            <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-[14px]">
-              <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="mt-1 h-4 w-4 accent-[#FF9A3C]" />
+            <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm">
+              <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="mt-1 h-4 w-4 accent-ws-accent2" />
               <span>
-                <b>{tr("أكّد الحجز تلقائيًا")}</b> <span className="text-[13px] text-[#b8ada2]">{tr("— لو اختار الفريق وقت من أوقاتكم يتأكد على طول.")}</span>
+                <b>{tr("أكّد الحجز تلقائيًا")}</b> <span className="text-sm text-ws-muted">{tr("— لو اختار الفريق وقت من أوقاتكم يتأكد على طول.")}</span>
               </span>
             </label>
             <input value={avNote} onChange={(e) => setAvNote(e.target.value)} maxLength={300} placeholder={tr("ملاحظة للفريق (اختياري): مثل «أفضّل الرسائل الصباحية»")} aria-label={tr("ملاحظة للفريق")} className="sv-in mt-3" />

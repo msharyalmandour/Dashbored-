@@ -159,7 +159,7 @@ export default function AgentKickstart() {
 
   const Approve = ({ section, onClick, label, disabled }: { section: Section; onClick: () => void; label: string; disabled?: boolean }) =>
     done[section] ? (
-      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ws-accent3">
         <CheckCircle2 size={16} />{tr(" تم")}</span>
     ) : (
       <button onClick={onClick} disabled={!canWrite || disabled || applying !== null} className={primaryBtn}>
@@ -245,7 +245,7 @@ export default function AgentKickstart() {
                 </div>
               </div>
               {result.gap.gapStatement && <p className="mt-2 rounded-2xl bg-black/25 px-4 py-3 text-sm text-brand-950/80">{result.gap.gapStatement}</p>}
-              <p className="mt-1.5 text-[12px] text-brand-950/40">{tr("مسودة مبنية على ملخصات الدراسات فقط — اقرأوا الدراسات كاملة وناقشوها مع المشرف/ة قبل ما تعتمدونها.")}</p>
+              <p className="mt-1.5 text-xs text-brand-950/40">{tr("مسودة مبنية على ملخصات الدراسات فقط — اقرأوا الدراسات كاملة وناقشوها مع المشرف/ة قبل ما تعتمدونها.")}</p>
             </section>
           )}
 
@@ -260,7 +260,7 @@ export default function AgentKickstart() {
                 <li key={i} className={clsx(rowSurface, "flex gap-3", skipQuestion[i] && "opacity-50")}>
                   <Toggle on={!skipQuestion[i]} onChange={() => setSkipQuestion((s) => ({ ...s, [i]: !s[i] }))} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-semibold leading-relaxed text-brand-950">{q.question}</p>
+                    <p className="text-base font-semibold leading-relaxed text-brand-950">{q.question}</p>
                     {q.why && <p className="mt-0.5 text-sm text-brand-950/60">{q.why}</p>}
                     <p className="mt-0.5 text-xs text-brand-950/45">{[q.type, q.design, q.variables && tr("المتغيرات: {0}", q.variables)].filter(Boolean).join(" · ")}</p>
                     <SourceList papers={result.papers} sources={q.sources} />

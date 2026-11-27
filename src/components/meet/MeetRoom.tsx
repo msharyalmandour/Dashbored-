@@ -275,10 +275,10 @@ function MeetRoomInner({
                   {cam ? <Video size={20} aria-hidden /> : <VideoOff size={20} aria-hidden />}
                 </button>
               </div>
-              {preview.denied && cam && <p className="mt-hint" style={{ textAlign: "center", color: "#FFB2A6" }}>{tr("المتصفح ما سمح بالكاميرا. اسمحوا لها من إعدادات الموقع، أو ادخلوا بدون كاميرا.")}</p>}
+              {preview.denied && cam && <p className="mt-hint" style={{ textAlign: "center", color: "#FF8A7A" }}>{tr("المتصفح ما سمح بالكاميرا. اسمحوا لها من إعدادات الموقع، أو ادخلوا بدون كاميرا.")}</p>}
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#ffb547" }}>{tr("اجتماع الفريق")}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{tr("اجتماع الفريق")}</div>
               <h1 className="sd-ttl" style={{ fontSize: 30, margin: "2px 0 0", lineHeight: 1.25 }}>
                 {tr("جاهزين تدخلون؟")}
               </h1>
@@ -299,7 +299,7 @@ function MeetRoomInner({
                   {busy ? tr("ندخلكم…") : tr("ادخلوا الاجتماع")}
                 </button>
               )}
-              {room.state === "error" && <p className="mt-hint" style={{ color: "#FFB2A6" }}>{tr("ما قدرنا نوصل للاجتماع — تأكدوا من النت وجرّبوا مرة ثانية.")}</p>}
+              {room.state === "error" && <p className="mt-hint" style={{ color: "#FF8A7A" }}>{tr("ما قدرنا نوصل للاجتماع — تأكدوا من النت وجرّبوا مرة ثانية.")}</p>}
               <p className="mt-hint">{tr("ما ينسجل فيديو ولا صوت. تقدرون تشغّلون «النص» داخل الاجتماع، وويسي يكتب منه المحضر.")}</p>
             </div>
           </div>
@@ -337,7 +337,7 @@ function MeetRoomInner({
       )}
       {txOn && (
         <div className="mt-banner" role="status">
-          <Captions size={18} aria-hidden style={{ flex: "none", color: "#FFC777" }} />
+          <Captions size={18} aria-hidden style={{ flex: "none", color: "#FFB547" }} />
           <span style={{ flex: 1, minWidth: 0 }}>
             {room.optOut
               ? tr("النص شغّال، وكلامكم ما ينكتب.")
@@ -426,7 +426,7 @@ function MeetRoomInner({
               {!txOn && lines.length === 0 && (
                 <p className="mt-hint">{tr("شغّلوا النص، وكل واحد ينكتب كلامه من جهازه ويوصل للكل. ما ينسجل صوت، وبعد الاجتماع ويسي يكتب المحضر من النص.")}</p>
               )}
-              {room.txUnsupported && <p className="mt-hint" style={{ color: "#FFB2A6" }}>{tr("متصفحكم ما يكتب الكلام، فكلامكم ما بينكتب. بس تشوفون كلام الباقين.")}</p>}
+              {room.txUnsupported && <p className="mt-hint" style={{ color: "#FF8A7A" }}>{tr("متصفحكم ما يكتب الكلام، فكلامكم ما بينكتب. بس تشوفون كلام الباقين.")}</p>}
               <TxList lines={lines} interim={txOn && !room.optOut ? room.myInterim : ""} me={me || name} />
             </div>
             <div style={{ display: "flex", gap: 8, padding: 10, borderTop: "1px solid rgba(255,255,255,.06)" }}>
@@ -459,7 +459,7 @@ function MeetRoomInner({
         </button>
         <button type="button" className="mt-btn" aria-pressed={panel === "tx"} aria-label={txOn ? tr("نص الاجتماع (شغّال)") : tr("نص الاجتماع")} onClick={() => setPanel(panel === "tx" ? null : "tx")}>
           <Captions size={20} aria-hidden />
-          {txOn && panel !== "tx" && <span className="dot" aria-hidden style={{ minWidth: 10, width: 10, height: 10, padding: 0, background: "#FFC777" }} />}
+          {txOn && panel !== "tx" && <span className="dot" aria-hidden style={{ minWidth: 10, width: 10, height: 10, padding: 0, background: "#FFB547" }} />}
         </button>
         <button type="button" className="mt-btn" aria-pressed={chatOpen} aria-label={tr("محادثة الاجتماع")} onClick={() => setPanel(chatOpen ? null : "chat")}>
           <MessageSquare size={20} aria-hidden />

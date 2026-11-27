@@ -3,14 +3,17 @@ import { BadgeCheck, Building2, CalendarClock, Check, CreditCard, HeartHandshake
 import {
   BEST_PLAN,
   GRANT_DONATION,
+  FOUNDING_TEAMS,
   MAX_TEAM_MEMBERS,
   PLAN_OPTIONS,
-  PRICE_PER_PERSON,
+  STREAK_DISCOUNT,
+  TIER_PRICES,
   TRIAL_DAYS,
   aiFeatures,
   basicHighlights,
   perMonth,
   planSaving,
+  tierOf,
   type BillingPeriod,
 } from "../lib/plans";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
@@ -46,6 +49,8 @@ export default function Pricing() {
   const state = getTeamSubscriptionState(team?.subscriptionEndDate);
   const daysLeft = team?.subscriptionEndDate ? daysUntil(team.subscriptionEndDate) : 0;
   const memberCount = roster.length || 1;
+  const tier = tierOf(memberCount, team?.isFounder ?? false, team?.priceTier);
+  const prices = TIER_PRICES[tier];
   const isActive = state === "active";
   const iPaid = currentUser ? paidProfileIds.has(currentUser.id) : false;
   const paidCount = roster.filter((m) => paidProfileIds.has(m.id)).length;
@@ -57,13 +62,13 @@ export default function Pricing() {
   return (
     <div className="space-y-5">
       {/* Hero */}
-      <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
+      <div className="rounded-3xl bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-gradient-to-b from-brand-50 to-paper px-6 py-10 text-center sm:px-10">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-[blob-drift_11s_ease-in-out_3] rounded-full bg-amber-accent-200/40 blur-3xl motion-reduce:animate-none" />
           <div className="pointer-events-none absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-brand-200/30 blur-3xl" />
 
-          <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
+          <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
             <Wand2 size={12} />
             Wesync Premium
           </span>
@@ -71,7 +76,7 @@ export default function Pricing() {
           <h1 className="relative mt-4 font-display text-2xl font-extrabold leading-snug text-brand-950 sm:text-3xl">{tr("بحثكم يستحق مساحة تواكبه")}<br />
             <span className="bg-gradient-to-l from-brand-600 to-amber-accent-600 bg-clip-text text-transparent">{tr("من أول فكرة، لآخر صفحة")}</span>
           </h1>
-          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("{0} ريال للشخص بالشهر — يعني نص ريال باليوم. كل شي داخل، حتى ويسي المساعد الذكي، والدكتورة مجانًا دايمًا 🌱 (الفريق حتى {1} أعضاء)", PRICE_PER_PERSON, MAX_TEAM_MEMBERS)}</p>
+          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("{0} ريال للطالب بالشهر. كل شي داخل، حتى ويسي الوكيل، والدكتورة مجانًا دايمًا (الفريق حتى {1} أعضاء).", prices.month, MAX_TEAM_MEMBERS)}</p>
 
           <div className="relative mx-auto mt-7 flex w-fit items-center justify-center">
             <GrowingPlant className="h-32 w-32 opacity-95 sm:h-40 sm:w-40" />
@@ -86,22 +91,22 @@ export default function Pricing() {
           return (
             <div
               key={p.id}
-              className={`relative flex flex-col rounded-[1.5rem] p-[1.5px] ${best ? "bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 shadow-lg shadow-brand-950/10" : "bg-brand-100/60"}`}
+              className={`relative flex flex-col rounded-3xl p-[1.5px] ${best ? "bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 shadow-lg shadow-brand-950/10" : "bg-brand-100/60"}`}
             >
               <div className="flex h-full flex-col rounded-[calc(1.5rem-1.5px)] bg-paper p-5">
                 {best && (
-                  <span className="mb-2 w-fit rounded-full bg-amber-accent-100 px-3 py-1 text-[12px] font-extrabold text-amber-accent-700">{tr("الأوفر · الأكثر اختيارًا")}</span>
+                  <span className="mb-2 w-fit rounded-full bg-amber-accent-100 px-3 py-1 text-xs font-extrabold text-amber-accent-700">{tr("الأوفر · الأكثر اختيارًا")}</span>
                 )}
                 <p className="font-display text-lg font-extrabold text-brand-950">{PLAN_NAME[p.id]()}</p>
                 <p className="text-xs text-brand-950/50">{PLAN_SPAN[p.id]()}</p>
                 <div className="mt-3 flex items-baseline gap-1.5">
-                  <span className="font-display text-4xl font-extrabold text-brand-950">{p.price}</span>
-                  <span className="text-sm font-semibold text-brand-950/50">{tr("ريال للشخص")}</span>
+                  <span className="font-display text-4xl font-extrabold text-brand-950">{prices[p.id]}</span>
+                  <span className="text-sm font-semibold text-brand-950/50">{tr("ريال للطالب")}</span>
                 </div>
-                <p className="mt-1 text-[12px] font-semibold text-brand-950/50">
-                  {p.id === "month" ? tr("نص ريال باليوم") : trx("يعني {0} بالشهر · توفّر {1} ريال", perMonth(p.id), planSaving(p.id))}
+                <p className="mt-1 text-xs font-semibold text-brand-950/50">
+                  {p.id === "month" ? tr("تدفعون شهر بشهر") : trx("يعني {0} بالشهر · توفّر {1} ريال", perMonth(p.id, tier), planSaving(p.id, tier))}
                 </p>
-                <p className="mt-1 text-[12px] text-brand-950/40">{trx("فريق من {0}: {1} ريال", memberCount, p.price * memberCount)}</p>
+                <p className="mt-1 text-xs text-brand-950/40">{trx("فريق من {0}: {1} ريال", memberCount, prices[p.id] * memberCount)}</p>
               </div>
             </div>
           );
@@ -109,14 +114,14 @@ export default function Pricing() {
       </div>
 
       {/* الحالة + زر الدفع */}
-      <div className="rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
+      <div className="rounded-3xl bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper p-6 sm:p-8">
           <p className="flex items-center gap-1.5 text-xs font-bold text-brand-950/50">
             <BadgeCheck size={14} className="text-brand-500" />
             {trx("حالة الاشتراك: {0}", subscriptionStateLabel[state])}
           </p>
           <p className="mt-2 font-display text-xl font-extrabold text-brand-950">
-            {iPaid ? tr("حصتك مدفوعة ✓") : trx("حصتك من {0} ريال بس", PRICE_PER_PERSON)}
+            {iPaid ? tr("حصتك مدفوعة ✓") : trx("حصتك من {0} ريال بس", prices.month)}
           </p>
           {memberCount > 1 && <p className="mt-1 text-xs text-brand-950/50">{trx("{0} من {1} بفريقكم دفعوا حصتهم", paidCount, memberCount)}</p>}
 
@@ -137,8 +142,8 @@ export default function Pricing() {
             {iPaid ? tr("مدّدوا أو ادفعوا عن زميل") : tr("ادفعوا حصتكم الآن")}
           </button>
 
-          <p className="mt-3 text-center text-[12px] text-brand-950/40">{trx("{0} يوم تجربة مجانية بدون بطاقة · بدون تجديد تلقائي · Apple Pay وSTC Pay ومدى", TRIAL_DAYS)}</p>
-          <div className="mt-4 grid gap-2 text-[12px] font-semibold text-brand-950/60 sm:grid-cols-2">
+          <p className="mt-3 text-center text-xs text-brand-950/40">{trx("{0} يوم تجربة مجانية بدون بطاقة · بدون تجديد تلقائي · Apple Pay وSTC Pay ومدى", TRIAL_DAYS)}</p>
+          <div className="mt-4 grid gap-2 text-xs font-semibold text-brand-950/60 sm:grid-cols-2">
             <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-brand-500" />{tr("ضمان أول شهر: ما عجبكم؟ نرجّع فلوسكم")}</span>
             <span className="flex items-center gap-1.5"><BadgeCheck size={14} className="text-brand-500" />{tr("سعرك ثابت لين تتخرجون")}</span>
           </div>
@@ -159,14 +164,14 @@ export default function Pricing() {
                   <span className="truncate text-sm font-semibold text-brand-950">{me ? tr("أنت") : member.name}</span>
                 </div>
                 {hasPaid ? (
-                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand-100 px-2.5 py-1 text-[12px] font-bold text-brand-700">
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-700">
                     <Check size={12} />
                     {tr("مدفوعة")}
                   </span>
                 ) : me ? (
-                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[12px] font-bold text-brand-950/40">{tr("لسا")}</span>
+                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-brand-950/40">{tr("لسا")}</span>
                 ) : (
-                  <button type="button" onClick={() => openCheckout(member.id)} className="flex min-h-11 shrink-0 items-center gap-1 rounded-full border border-brand-200 bg-paper px-3 text-[12px] font-bold text-brand-700">
+                  <button type="button" onClick={() => openCheckout(member.id)} className="flex min-h-11 shrink-0 items-center gap-1 rounded-full border border-brand-200 bg-paper px-3 text-xs font-bold text-brand-700">
                     <HeartHandshake size={13} />
                     {member.gender === "female" ? tr("ادفع عنها") : tr("ادفع عنه")}
                   </button>
@@ -204,7 +209,7 @@ export default function Pricing() {
       </Card>
 
       {/* اشتراك القسم */}
-      <div className="flex flex-col gap-3 rounded-[1.5rem] border border-brand-100 bg-paper p-5 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-3xl border border-brand-100 bg-paper p-5 sm:flex-row sm:items-center">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-50 text-amber-accent-700">
           <Building2 size={20} />
         </span>
@@ -227,7 +232,7 @@ export default function Pricing() {
         <div className="space-y-4 text-sm">
           <div>
             <p className="font-bold text-brand-950">{tr("كم السعر؟")}</p>
-            <p className="mt-1 text-brand-950/55">{trx("{0} ريال للشخص بالشهر، أو فصل (4 شهور) بـ 49، أو السنة الدراسية (9 شهور) بـ 99 — يعني 11 بالشهر. كل شي داخل حتى المساعد الذكي، والدكتورة مجانًا ولا تنحسب.", PRICE_PER_PERSON)}</p>
+            <p className="mt-1 text-brand-950/55">{trx("للطالب بالشهر: لحالك {0}، وفي فريق {1}، وأول {2} فريق {3}. وفيه فصل (4 شهور) وسنة دراسية (9 شهور) أوفر. كل شي داخل حتى الوكيل، والدكتورة مجانًا ولا تنحسب.", TIER_PRICES.solo.month, TIER_PRICES.team.month, FOUNDING_TEAMS, TIER_PRICES.founding.month)}</p>
           </div>
           <div>
             <p className="font-bold text-brand-950">{tr("لو واحد بالفريق ما دفع؟")}</p>
@@ -243,7 +248,7 @@ export default function Pricing() {
           </div>
           <div>
             <p className="font-bold text-brand-950">{tr("خصم الاستمرار؟")}</p>
-            <p className="mt-1 text-brand-950/55">{trx("الفريق اللي يشتغل على Wesync كل أسبوع لمدة 4 أسابيع، يصير الشهري له بـ 12 بدل {0}. يطلع لكم تلقائيًا بنافذة الدفع.", PRICE_PER_PERSON)}</p>
+            <p className="mt-1 text-brand-950/55">{trx("الفريق اللي يشتغل على Wesync كل أسبوع لمدة 4 أسابيع، ينقص الشهري له {0} ريال للطالب. يطلع لكم تلقائيًا بنافذة الدفع.", STREAK_DISCOUNT)}</p>
           </div>
           <div>
             <p className="font-bold text-brand-950">{tr("وش طرق الدفع؟")}</p>

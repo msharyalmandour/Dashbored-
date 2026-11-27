@@ -46,7 +46,7 @@ export default function IdeaButton() {
             <div className="flex items-center justify-between">
               <p className="flex items-center gap-2 text-base font-extrabold text-brand-950">
                 <Lightbulb size={18} className="text-brand-500" />{tr(" وش أصعب شي ببحثكم؟")}</p>
-              <button onClick={() => setOpen(false)} className="rounded-lg p-1.5 text-brand-950/40 hover:bg-surface-muted">
+              <button onClick={() => setOpen(false)} className="rounded-xl p-1.5 text-brand-950/40 hover:bg-surface-muted">
                 <X size={18} />
               </button>
             </div>
@@ -57,7 +57,7 @@ export default function IdeaButton() {
               rows={4}
               maxLength={600}
               autoFocus
-              className="w-full rounded-lg border border-brand-100 bg-surface-muted px-3 py-2 text-sm outline-none focus:border-brand-300 focus:bg-paper"
+              className="w-full rounded-xl border border-brand-100 bg-surface-muted px-3 py-2 text-sm outline-none focus:border-brand-300 focus:bg-paper"
             />
             <button
               onClick={send}

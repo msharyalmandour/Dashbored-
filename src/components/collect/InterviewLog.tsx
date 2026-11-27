@@ -66,7 +66,7 @@ export default function InterviewLog({
       {interviews.length === 0 ? (
         <div className="v3-g2 px-4 py-3.5 text-sm">
           <p className="m-0 font-bold">{tr("ما فيه مقابلات بالسجل للحين")}</p>
-          <p className="v3-mut m-0 mt-1 text-[13px]">{tr("سجّلوا كل مقابلة برمز المشارك (P1، P2…) بدل اسمه، وعدد المواضيع الجديدة اللي طلعت فيها عشان تعرفون متى توصلون للتشبّع.")}</p>
+          <p className="v3-mut m-0 mt-1 text-sm">{tr("سجّلوا كل مقابلة برمز المشارك (P1، P2…) بدل اسمه، وعدد المواضيع الجديدة اللي طلعت فيها عشان تعرفون متى توصلون للتشبّع.")}</p>
         </div>
       ) : (
         <>
@@ -83,14 +83,14 @@ export default function InterviewLog({
             {interviews.map((i) => (
               <li
                 key={i.id}
-                className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 border-t border-white/[0.07] px-1.5 py-[11px] text-sm sm:grid-cols-[56px_minmax(0,1fr)_80px_80px_120px_70px_44px]"
+                className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 border-t border-white/10 px-1.5 py-[11px] text-sm sm:grid-cols-[56px_minmax(0,1fr)_80px_80px_120px_70px_44px]"
               >
-                <span className="v3-k text-[15px]" dir="ltr">
+                <span className="v3-k text-base" dir="ltr">
                   {i.code}
                 </span>
-                <span className="v3-mut text-[13px] sm:text-sm">{i.date ? relativeDayLabel(i.date) : "—"}</span>
-                <span className="v3-mut text-[13px] sm:text-sm">{i.durationMin ? tr("{0} د", num(i.durationMin)) : "—"}</span>
-                <span className="v3-mut col-start-2 text-[13px] sm:col-start-auto sm:text-sm">{MODE_LABEL[i.mode]}</span>
+                <span className="v3-mut text-sm sm:text-sm">{i.date ? relativeDayLabel(i.date) : "—"}</span>
+                <span className="v3-mut text-sm sm:text-sm">{i.durationMin ? tr("{0} د", num(i.durationMin)) : "—"}</span>
+                <span className="v3-mut col-start-2 text-sm sm:col-start-auto sm:text-sm">{MODE_LABEL[i.mode]}</span>
                 {canWrite ? (
                   <select
                     value={i.status}
@@ -107,7 +107,7 @@ export default function InterviewLog({
                 ) : (
                   <span className={clsx("v3-st w-fit text-xs", STATUS_CLASS[i.status])}>{STATUS_LABEL[i.status]}</span>
                 )}
-                <span className="text-[13px] sm:text-sm">{i.newThemes ?? "—"}</span>
+                <span className="text-sm sm:text-sm">{i.newThemes ?? "—"}</span>
                 {canWrite ? (
                   <button type="button" onClick={() => confirmRemove(i)} className="grid h-11 w-11 place-items-center rounded-full text-[var(--ws-c-muted)] hover:bg-white/[0.07] hover:text-[var(--ws-c-text)]" aria-label={tr("احذف مقابلة {0}", i.code)}>
                     <Trash2 size={15} aria-hidden />

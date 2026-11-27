@@ -25,7 +25,7 @@
 
 /* ── الورقة شغّالة ── */
 .ws-write.is-paper {
-  border-radius: 14px !important;
+  border-radius: var(--ws-r-s) !important;
   border-color: transparent !important;
   background: #EADBBE !important;
   backdrop-filter: none !important;
@@ -45,14 +45,14 @@
 .ws-write.is-paper.v3-g.v3-hover:hover { transform: none; }
 
 /* العناوين: نسخ عريض 34px، والإنجليزي تحته Georgia مائل */
-.ws-write.is-paper h2, .ws-write.is-paper h3 { font-family: "Noto Naskh Arabic", "Amiri", serif; font-weight: 700; font-size: 34px; line-height: 1.4; color: var(--ws-paper-head); }
-.ws-write.is-paper .v3-en { font-family: Georgia, "Times New Roman", serif; font-style: italic; color: var(--ws-paper-en); font-size: 13px; }
+.ws-write.is-paper h2, .ws-write.is-paper h3 { font-family: "Tajawal", sans-serif; font-weight: 700; font-size: 34px; line-height: 1.4; color: var(--ws-paper-head); }
+.ws-write.is-paper .v3-en { font-family: Georgia, "Times New Roman", serif; font-style: italic; color: var(--ws-paper-en); font-size: 14px; }
 .ws-write.is-paper .v3-eye, .ws-write.is-paper .v3-mut { color: #7A6246; }
 .ws-write.is-paper label > span, .ws-write.is-paper summary { color: #4A3424; }
 
 /* الكتابة: نسخ 20px، مسافة أسطر 2.05، سطر ≤ 60ch، حبر بني، مؤشر بني محمر */
 .ws-write.is-paper .v3-field {
-  font-family: "Noto Naskh Arabic", "Amiri", serif;
+  font-family: "Tajawal", sans-serif;
   font-size: 20px; line-height: 2.05; max-width: 60ch;
   color: var(--ws-paper-ink); caret-color: var(--ws-paper-caret);
   background: transparent; border: 0; border-radius: 0; padding: 0; box-shadow: none;
@@ -64,7 +64,7 @@
 .ws-write.is-paper .v3-select { background: rgba(120, 85, 45, .08); border-color: rgba(120, 85, 45, .3); color: var(--ws-paper-ink); }
 
 /* شرايح بني شفاف فوق النص */
-.ws-paper-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 12px; border-radius: 999px; background: rgba(120, 85, 45, .12); color: #6B4E33; border: 1px solid rgba(120, 85, 45, .2); }
+.ws-paper-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 4px 12px; border-radius: 999px; background: rgba(120, 85, 45, .12); color: #6B4E33; border: 1px solid rgba(120, 85, 45, .2); }
 .ws-paper-chip.warn { background: rgba(176, 74, 30, .12); color: #8A3A16; font-weight: 700; border-color: rgba(176, 74, 30, .25); }
 
 /* أزرار الورقة: «اكتب لي مسودة» بإطار بني، و«علّمه خلص» بني غامق */

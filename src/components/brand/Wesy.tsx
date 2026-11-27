@@ -1,16 +1,15 @@
-import { useEffect, useRef } from "react";
-import "../../vendor/wesy-real.js";
+import { useRef, useState } from "react";
 import type { WesyInstance, WesyOutfit, WesyState } from "../../vendor/wesy-real";
+import wesyFace from "../../assets/wesy/wesy-face.webp";
+import wesyBody from "../../assets/wesy/wesy-wave-body.webp";
+import wesyHand from "../../assets/wesy/wesy-wave-hand.webp";
 
-/* ويسي — الشخصية من brand/wesy-real.js (منسوخة بدون تعديل في src/vendor).
-   الإعداد الرسمي داخل التطبيق: شماغ برتقالي الهوية، بدون كونفيتي، ويهدأ بعد 8 ثواني بدون تفاعل ويصحى مع أي لمس أو كتابة.
-   جهة الدكتورة دايمًا formal (ما يغمز ولا يضحك). تقليل الحركة: يطلع ثابت (أول إطار) بتلاشي 200ms. */
+/* ويسي — الرسمة الكرتونية البسيطة (minimalist cartoon) بدل الشخصية القديمة من brand/wesy-real.js.
+   وجهه (للأفاتار) يهزّ راسه، وجسمه واقف ويده تسلّم (اليد طبقة منفصلة تتحرك).
+   الحركة تصير مرة وحدة: أول ما يظهر، ولما تتغيّر حالته، ولما تمرّون عليه أو تضغطون. ما فيه حركة لا نهائية.
+   خلّينا نفس الـprops عشان كل الأماكن اللي تستخدمه تشتغل بدون تعديل؛ الحالة والزي يروحون data-attributes بس. */
 
 export const WESY_APP = { shemagh: "#FF6A00", confetti: false, settleAfter: 8000 } as const;
-
-const reduced = () =>
-  typeof window !== "undefined" &&
-  (document.documentElement.dataset.reduceMotion === "true" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
 
 export interface WesyProps {
   state?: WesyState;
@@ -35,68 +34,66 @@ export interface WesyProps {
   onReady?: (w: WesyInstance) => void;
 }
 
-export default function Wesy({ state = "idle", size = 220, head, formal, outfit = "normal", stage = 0, follow, shadow = !head, level, excited, label, className, shemagh, onReady }: WesyProps) {
-  const host = useRef<HTMLDivElement>(null);
-  const inst = useRef<WesyInstance | null>(null);
-  // الدكتورة: ما فيه غمزة ولا ضحكة
-  const safe: WesyState = formal && (state === "wink" || state === "laugh") ? "success" : state;
+/** يشغّل الحركة مرة: أول ما يظهر + كل ما تغيّر key، ويرجع يشغلها بالمرور/الضغط */
+function usePlayOnce(key: unknown) {
+  const [on, setOn] = useState(true);
+  const [seen, setSeen] = useState(key);
+  if (seen !== key) {
+    setSeen(key);
+    setOn(true);
+  }
+  return {
+    on,
+    replay: () => setOn(true),
+    done: () => setOn(false),
+  };
+}
 
-  // إنشاء من جديد لما يتغيّر شي ينبني مرة وحدة (القص، الزي، المرحلة، الرسمية)
-  useEffect(() => {
-    if (!host.current || typeof window === "undefined" || !window.WesyReal) return;
-    const w = new window.WesyReal(host.current, {
-      ...WESY_APP,
-      // اليوم الوطني: الشماغ الأخضر حق المكتبة (الاستثناء الوحيد للأخضر)
-      ...(outfit === "national" ? { shemagh: undefined } : {}),
-      ...(shemagh ? { shemagh } : {}),
-      state: safe,
-      crop: head ? "head" : undefined,
-      formal: !!formal,
-      outfit,
-      stage,
-      follow: !!follow,
-      shadow,
-    });
-    inst.current = w;
-    onReady?.(w);
-    let freeze = 0;
-    if (reduced()) freeze = requestAnimationFrame(() => requestAnimationFrame(() => cancelAnimationFrame(w.raf)));
-    // يصحى مع أي تفاعل بالصفحة (settleAfter يوقفه بعد 8 ثواني هدوء)
-    const wake = () => !reduced() && w.wake();
-    addEventListener("pointerdown", wake);
-    addEventListener("keydown", wake);
-    return () => {
-      cancelAnimationFrame(freeze);
-      removeEventListener("pointerdown", wake);
-      removeEventListener("keydown", wake);
-      w.destroy();
-      inst.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [head, formal, outfit, stage, follow, shadow, shemagh]);
+/** ويسي واقف يسلّم: جسم + يد تتحرك من الرسغ */
+export function WesyFigure({ className, label, playKey }: { className?: string; label?: string; playKey?: unknown }) {
+  const p = usePlayOnce(playKey);
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div
+      ref={ref}
+      className={["wesy-fig", p.on ? "is-waving" : "", className].filter(Boolean).join(" ")}
+      onPointerEnter={p.replay}
+      onClick={p.replay}
+      onAnimationEnd={(e) => e.target === ref.current?.lastElementChild && p.done()}
+      {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
+    >
+      <img className="wesy-fig-body" src={wesyBody} alt="" draggable={false} />
+      <img className="wesy-fig-hand" src={wesyHand} alt="" draggable={false} />
+    </div>
+  );
+}
 
-  useEffect(() => {
-    const w = inst.current;
-    if (!w) return;
-    w.set(safe);
-    if (reduced()) requestAnimationFrame(() => requestAnimationFrame(() => cancelAnimationFrame(w.raf)));
-  }, [safe]);
-
-  useEffect(() => {
-    if (level !== undefined) inst.current?.level(level);
-  }, [level]);
-  useEffect(() => {
-    if (excited !== undefined) inst.current?.excited(excited);
-  }, [excited]);
-
+export default function Wesy(props: WesyProps) {
+  const { state = "idle", size = 220, head, outfit = "normal", label, className } = props;
+  const p = usePlayOnce(state);
   const h = head ? size : Math.round(size * (500 / 520));
   return (
     <div
-      ref={host}
-      className={["wesy", className].filter(Boolean).join(" ")}
-      style={{ width: size, height: h }}
+      className={["wesy", head ? "wesy-head" : "wesy-body", className].filter(Boolean).join(" ")}
+      style={{ width: size, height: h, position: "relative", overflow: "hidden" }}
+      data-state={state}
+      data-outfit={outfit}
       {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
-    />
+    >
+      {head ? (
+        <img
+          className={["wesy-face", p.on ? "is-nodding" : ""].filter(Boolean).join(" ")}
+          src={wesyFace}
+          alt=""
+          draggable={false}
+          onAnimationEnd={p.done}
+          onPointerEnter={p.replay}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+      ) : (
+        <WesyFigure className="wesy-fig-fit" playKey={state} />
+      )}
+    </div>
   );
 }
 

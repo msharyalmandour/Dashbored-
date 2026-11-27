@@ -329,8 +329,8 @@ export default function EthicalApprovalPage() {
                     const val = ea.principles[k];
                     return (
                       <li key={k} className="flex flex-col gap-2.5 border-t py-3 sm:flex-row sm:items-center sm:gap-3.5" style={{ borderColor: "rgba(255,255,255,.07)" }}>
-                        <span className="wf-num w-6 shrink-0 text-[13px] text-ws-muted">{n}</span>
-                        <p className="m-0 flex-1 text-[15px] leading-relaxed" id={`q-${k}`}>
+                        <span className="wf-num w-6 shrink-0 text-sm text-ws-muted">{n}</span>
+                        <p className="m-0 flex-1 text-base leading-relaxed" id={`q-${k}`}>
                           {tr(QUESTION[k])}
                         </p>
                         <div role="radiogroup" aria-labelledby={`q-${k}`} className="flex shrink-0 flex-wrap gap-1.5">
@@ -350,7 +350,7 @@ export default function EthicalApprovalPage() {
               {stop.step === 4 && (
                 <>
                   <div>
-                    <div className="wf-lbl mb-1.5 text-[13px] font-bold text-ws-muted">
+                    <div className="wf-lbl mb-1.5 text-sm font-bold text-ws-muted">
                       {tr("المرفقات المطلوبة")} {!isEn && <span className="font-normal">· Attachments</span>}
                     </div>
                     <ul className="m-0 list-none p-0">
@@ -365,7 +365,7 @@ export default function EthicalApprovalPage() {
                             />
                             {tr(item.label)}
                           </label>
-                          <Link to={item.to} className="text-[13px] font-bold text-ws-accent3">
+                          <Link to={item.to} className="text-sm font-bold text-ws-accent3">
                             {tr("جهّزه من هنا ←")}
                           </Link>
                         </li>
@@ -400,7 +400,7 @@ export default function EthicalApprovalPage() {
                         }}
                       />
                     )}
-                    <Link to="/files" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-ws-accent3">
+                    <Link to="/files" className="inline-flex items-center gap-1.5 text-sm font-bold text-ws-accent3">
                       <ExternalLink size={12} />
                       {tr("شوف كل الملفات")}
                     </Link>
@@ -410,7 +410,7 @@ export default function EthicalApprovalPage() {
             </div>
 
             <div className="ws-write-foot flex flex-wrap items-center gap-2.5">
-              <span className="text-[13px] text-ws-muted">{tr("ينحفظ تلقائيًا")}</span>
+              <span className="text-sm text-ws-muted">{tr("ينحفظ تلقائيًا")}</span>
               <span className="flex-1" />
               <button type="button" className="wf-gb" onClick={() => openAgent(tr("ساعدني أعبّي «{0}» في نموذج الموافقة الأخلاقية", label))}>
                 <AgentWave size={15} />
@@ -436,10 +436,10 @@ export default function EthicalApprovalPage() {
 
           <div className="grid grid-cols-1 gap-[18px] md:grid-cols-2">
             <section className="hg-card" style={rise(3)} aria-labelledby="e-tpl-title">
-              <h3 id="e-tpl-title" className="m-0 text-[18px] font-extrabold">
+              <h3 id="e-tpl-title" className="m-0 text-lg font-extrabold">
                 {tr("القوالب الجاهزة")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-ws-muted">{tr("نماذج الموافقة والإذن في حقيبة الاستبيان، تتعبّى ببيانات بحثكم.")}</div>
+              <div className="mt-0.5 text-sm text-ws-muted">{tr("نماذج الموافقة والإذن في حقيبة الاستبيان، تتعبّى ببيانات بحثكم.")}</div>
               <div className="mt-3 grid gap-2">
                 {[
                   { t: tr("نموذج الموافقة المستنيرة"), d: tr("للمشاركين قبل البدء") },
@@ -460,11 +460,11 @@ export default function EthicalApprovalPage() {
             </section>
 
             <section className="hg-card" style={rise(4)} aria-labelledby="e-ready-title">
-              <h3 id="e-ready-title" className="m-0 text-[18px] font-extrabold">
+              <h3 id="e-ready-title" className="m-0 text-lg font-extrabold">
                 {tr("جاهزية التقديم للجنة")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-ws-muted">{tr("لما تكتمل الأقسام والمرفقات، نزّلوا النموذج الرسمي وقدّموه.")}</div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/[0.08]" role="progressbar" aria-valuemin={0} aria-valuemax={STOPS.length} aria-valuenow={doneStops} aria-label={tr("جاهزية التقديم")}>
+              <div className="mt-0.5 text-sm text-ws-muted">{tr("لما تكتمل الأقسام والمرفقات، نزّلوا النموذج الرسمي وقدّموه.")}</div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/[0.07]" role="progressbar" aria-valuemin={0} aria-valuemax={STOPS.length} aria-valuenow={doneStops} aria-label={tr("جاهزية التقديم")}>
                 <div className="h-full rounded-full" style={{ width: `${(doneStops / STOPS.length) * 100}%`, background: "linear-gradient(90deg,#FF6A00,#FFB547)" }} />
               </div>
               <div className="mt-2.5">

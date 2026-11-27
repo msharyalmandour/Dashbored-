@@ -183,7 +183,7 @@ export default function MinutesNew() {
                     onClick={() => setMeetingDate(p.value)}
                     className={clsx(
                       "rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors",
-                      meetingDate === p.value ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/[0.14] text-ws-muted hover:text-ws-text",
+                      meetingDate === p.value ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/10 text-ws-muted hover:text-ws-text",
                     )}
                   >
                     {p.label}
@@ -212,10 +212,10 @@ export default function MinutesNew() {
                       onClick={() => setAttendeeIds((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id]))}
                       className={clsx(
                         "flex items-center gap-2 rounded-full border py-1.5 ps-1.5 pe-4 text-sm transition-colors",
-                        on ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/[0.14] text-ws-muted hover:text-ws-text",
+                        on ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/10 text-ws-muted hover:text-ws-text",
                       )}
                     >
-                      <span className={clsx("flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold", on ? "border-ws-accent3" : "border-white/25")}>{m.name.trim().charAt(0)}</span>
+                      <span className={clsx("flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold", on ? "border-ws-accent3" : "border-white/20")}>{m.name.trim().charAt(0)}</span>
                       {m.name.split(" ")[0]}
                     </button>
                   );
@@ -304,11 +304,11 @@ export default function MinutesNew() {
 
         <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-5">
           {step > 1 ? (
-            <button type="button" onClick={() => setStep((s) => s - 1)} className="rounded-full border border-white/[0.14] px-5 py-2.5 text-sm font-semibold text-ws-muted hover:text-ws-text">{tr("السابق")}</button>
+            <button type="button" onClick={() => setStep((s) => s - 1)} className="rounded-full border border-white/10 px-5 py-2.5 text-sm font-semibold text-ws-muted hover:text-ws-text">{tr("السابق")}</button>
           ) : (
             <span />
           )}
-          <span className={clsx("text-[12px] text-ws-muted transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
+          <span className={clsx("text-xs text-ws-muted transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
           {step < 3 ? (
             <button
               type="button"

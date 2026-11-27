@@ -93,7 +93,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
             {ext.taskTitle}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 14 }}>
-            <span className="sup-av" style={{ width: 26, height: 26, background: "#FF9A5A" }} aria-hidden>
+            <span className="sup-av" style={{ width: 26, height: 26, background: "#FF8A24" }} aria-hidden>
               {avatarLetter(ext.requestedBy)}
             </span>
             <span>
@@ -113,7 +113,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
         <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
           {mode === "counter" && (
             <label className="sd-field">
-              <span style={{ fontSize: 13, color: "#ABA095" }}>{tr("الموعد الجديد")}</span>
+              <span style={{ fontSize: 14, color: "#ABA095" }}>{tr("الموعد الجديد")}</span>
               <input type="date" value={date} min={ext.currentDue ?? undefined} onChange={(e) => setDate(e.target.value)} />
             </label>
           )}
@@ -123,7 +123,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
         </div>
       )}
       {err && (
-        <p role="alert" style={{ margin: "10px 0 0", fontSize: 13, color: "#FFB2A6" }}>
+        <p role="alert" style={{ margin: "10px 0 0", fontSize: 14, color: "#FF8A7A" }}>
           {err}
         </p>
       )}
@@ -186,8 +186,8 @@ const LOG_DOT: Record<string, string> = { requested: "#FF8A24", approved: "#FFB5
 export function TimeLog({ log, title = tr("السجل"), limit = 8, showTeam }: { log: (DashLog & { team?: string })[]; title?: string; limit?: number; showTeam?: boolean }) {
   return (
     <section className="sd-glass" style={{ borderRadius: 26 }}>
-      <b style={{ fontSize: 17 }}>{title}</b>
-      {log.length === 0 && <p style={{ margin: "8px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("ما فيه حركة على المواعيد بعد. كل طلب ورد ينحفظ هنا ويشوفه الطرفين.")}</p>}
+      <b style={{ fontSize: 18 }}>{title}</b>
+      {log.length === 0 && <p style={{ margin: "8px 0 0", fontSize: 14, color: "#ABA095" }}>{tr("ما فيه حركة على المواعيد بعد. كل طلب ورد ينحفظ هنا ويشوفه الطرفين.")}</p>}
       <div style={{ marginTop: 6 }}>
         {log.slice(0, limit).map((l) => (
           <div key={l.id} className="sd-log">
@@ -251,7 +251,7 @@ export function DeadlinesSheet({ token, team, dash, name, onClose, onSaved }: { 
           </div>
         </div>
       </div>
-      <p style={{ margin: "8px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("أي تغيير يوصل الفريق برسالة وينحفظ بالسجل.")}</p>
+      <p style={{ margin: "8px 0 0", fontSize: 14, color: "#ABA095" }}>{tr("أي تغيير يوصل الفريق برسالة وينحفظ بالسجل.")}</p>
 
       <div className="sup-sec" style={{ marginTop: 14 }}>
         {tr("التسليم النهائي للبحث")}
@@ -268,12 +268,12 @@ export function DeadlinesSheet({ token, team, dash, name, onClose, onSaved }: { 
       <div className="sup-sec" style={{ marginTop: 16 }}>
         {tr("مواعيد المهام المفتوحة ({0})", open.length)}
       </div>
-      {open.length === 0 && <p style={{ margin: 0, fontSize: 13, color: "#ABA095" }}>{tr("ما فيه مهام مفتوحة.")}</p>}
+      {open.length === 0 && <p style={{ margin: 0, fontSize: 14, color: "#ABA095" }}>{tr("ما فيه مهام مفتوحة.")}</p>}
       {open.map((t) => (
         <div key={t.id} className="sup-row" style={{ alignItems: "center" }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 700 }}>{t.title}</div>
-            <div style={{ fontSize: 12, color: t.dueDate && t.dueDate < dash.today ? "#FFB2A6" : "#ABA095" }}>{t.assigneeName ?? ""}</div>
+            <div style={{ fontSize: 12, color: t.dueDate && t.dueDate < dash.today ? "#FF8A7A" : "#ABA095" }}>{t.assigneeName ?? ""}</div>
           </div>
           <label className="sd-field" style={{ flex: "none", width: 168, minHeight: 44 }}>
             <input
@@ -288,7 +288,7 @@ export function DeadlinesSheet({ token, team, dash, name, onClose, onSaved }: { 
         </div>
       ))}
       {err && (
-        <p role="alert" style={{ margin: "10px 0 0", fontSize: 13, color: "#FFB2A6" }}>
+        <p role="alert" style={{ margin: "10px 0 0", fontSize: 14, color: "#FF8A7A" }}>
           {err}
         </p>
       )}
@@ -401,7 +401,7 @@ export function AwaySheet({
         <Switch on={message} onChange={setMessage} label={tr("رسالة للطلاب")} />
       </div>
       {err && (
-        <p role="alert" style={{ margin: "8px 0 0", fontSize: 13, color: "#FFB2A6" }}>
+        <p role="alert" style={{ margin: "8px 0 0", fontSize: 14, color: "#FF8A7A" }}>
           {err}
         </p>
       )}
@@ -451,7 +451,7 @@ export function SvTimePanel({ token, name, openTarget, primary, onToast }: { tok
         ))}
         <div className="sd-glass" style={{ display: "flex", alignItems: "center", gap: 12, borderRadius: 22 }}>
           <div style={{ flex: 1, lineHeight: 1.4 }}>
-            <b style={{ fontSize: 15 }}>{dash.project?.deadline ? tr("التسليم النهائي {0}", dayLabel(dash.project.deadline)) : tr("ما فيه موعد تسليم نهائي")}</b>
+            <b style={{ fontSize: 16 }}>{dash.project?.deadline ? tr("التسليم النهائي {0}", dayLabel(dash.project.deadline)) : tr("ما فيه موعد تسليم نهائي")}</b>
             <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("تقدرون تغيّرون موعد التسليم أو أي مهمة، ويوصلهم التغيير.")}</div>
           </div>
           <button type="button" className="sup-btn-cream" style={{ flex: "none", padding: "0 18px" }} onClick={() => setSheet(true)}>

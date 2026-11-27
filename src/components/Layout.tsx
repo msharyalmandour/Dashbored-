@@ -7,7 +7,7 @@ import { AlertTriangle, CreditCard } from "lucide-react";
 import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import Landing from "../pages/Landing";
+import LuxLanding from "../pages/LuxLanding";
 import SectionTabs from "./SectionTabs";
 import { PageHelpButton } from "./help/PageHelp";
 import PaymentProofUpload from "./PaymentProofUpload";
@@ -118,7 +118,7 @@ export default function Layout() {
   if (loading) return <AppSplash />;
 
   if (!currentUser) {
-    if (location.pathname === "/") return <Landing />;
+    if (location.pathname === "/") return <LuxLanding />;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 

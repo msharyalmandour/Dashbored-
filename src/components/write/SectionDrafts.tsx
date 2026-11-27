@@ -42,12 +42,12 @@ export default function SectionDrafts({ sectionKey, content, onApply }: { sectio
   return (
     <div className="flex flex-col gap-2">
       {drafts.map((d) => (
-        <div key={d.id} className="dr-card rounded-[20px] p-3">
-          <div className="flex items-center gap-2 text-[13px] font-bold text-ws-accent3">
+        <div key={d.id} className="dr-card rounded-2xl p-3">
+          <div className="flex items-center gap-2 text-sm font-bold text-ws-accent3">
             <Download size={14} aria-hidden />
             {tr("مسودة لهالقسم من رمية · {0}", formatDateShort(d.created_at.slice(0, 10)))}
           </div>
-          <p className={`m-0 mt-1.5 whitespace-pre-line text-[14px] leading-[1.75] text-ws-text-accent ${open === d.id ? "" : "line-clamp-3"}`} dir="auto">
+          <p className={`m-0 mt-1.5 whitespace-pre-line text-sm leading-[1.75] text-ws-text-accent ${open === d.id ? "" : "line-clamp-3"}`} dir="auto">
             {d.content}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">

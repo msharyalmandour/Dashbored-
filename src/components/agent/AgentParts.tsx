@@ -46,8 +46,8 @@ export function NeedsList({ needs, onGo, busy }: { needs: NeedCard[]; onGo: (n: 
                   <Icon size={18} />
                 </span>
                 <div className="min-w-0 flex-1 leading-[1.5]">
-                  <b className="block text-[16px] text-ws-text">{n.title}</b>
-                  <span className="ag-need-sub line-clamp-2 block text-[14px] text-ws-text-accent">{n.sub}</span>
+                  <b className="block text-base text-ws-text">{n.title}</b>
+                  <span className="ag-need-sub line-clamp-2 block text-sm text-ws-text-accent">{n.sub}</span>
                 </div>
               </div>
               <div className="ag-need-foot">
@@ -97,7 +97,7 @@ export function PlanCard({
   return (
     <section className="ag-plan ag-rise" aria-label={tr("الخطة")}>
       <div className="flex items-center gap-2">
-        <span className="text-[13px] font-extrabold text-ws-accent3">{allTasks ? tr("الخطة · {0} مهام", rows.length) : tr("الخطة · {0} خطوات", rows.length)}</span>
+        <span className="text-sm font-extrabold text-ws-accent3">{allTasks ? tr("الخطة · {0} مهام", rows.length) : tr("الخطة · {0} خطوات", rows.length)}</span>
         <span className="flex-1" />
         <span className="ag-pill dim">{tr("ما انحفظ شي للحين")}</span>
       </div>
@@ -119,10 +119,10 @@ export function PlanCard({
                 <i aria-hidden />
               </button>
               <div className="min-w-0 flex-1 leading-[1.45]">
-                <b className="line-clamp-2 block text-[15px] text-ws-text" dir="auto">
+                <b className="line-clamp-2 block text-base text-ws-text" dir="auto">
                   {r.title}
                 </b>
-                <span className="block text-[12px] text-ws-muted">{r.allowed ? r.sub : r.blockedWhy}</span>
+                <span className="block text-xs text-ws-muted">{r.allowed ? r.sub : r.blockedWhy}</span>
                 {edit && r.allowed && (r.action.type === "add_task" || r.action.type === "add_event") && (
                   <span className="mt-2 flex flex-wrap gap-2">
                     {r.action.type === "add_task" && (
@@ -148,7 +148,7 @@ export function PlanCard({
           <b>{tr("ليش كذا؟")}</b> {why}
         </p>
       )}
-      {blocked.length > 0 && blocked.length === rows.length && <p className="m-0 mt-2 text-[13px] text-[#FF8A7A]">{tr("ما تقدرون توافقون على هالخطة: {0}. اطلبوها من القائد.", blocked[0].blockedWhy)}</p>}
+      {blocked.length > 0 && blocked.length === rows.length && <p className="m-0 mt-2 text-sm text-[#FF8A7A]">{tr("ما تقدرون توافقون على هالخطة: {0}. اطلبوها من القائد.", blocked[0].blockedWhy)}</p>}
       <div className="mt-3 flex items-stretch gap-2">
         <button type="button" className="ag-btn glass" disabled={running || !rows.some((r) => r.allowed)} aria-pressed={edit} onClick={() => setEdit((e) => !e)}>
           {edit ? tr("خلاص") : tr("عدّلوا")}
@@ -185,8 +185,8 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
           {undone ? <Undo2 size={18} /> : <Check size={20} strokeWidth={3} />}
         </span>
         <div className="min-w-0 flex-1 leading-[1.35]">
-          <b className="block text-[18px] text-ws-text">{undone ? tr("تراجعنا عنها") : tr("سوّيتها")}</b>
-          <span className="text-[12px] text-ws-muted">{tr("{0} · بموافقة {1}", agoLabel(r.createdAt), r.approvedByName)}</span>
+          <b className="block text-lg text-ws-text">{undone ? tr("تراجعنا عنها") : tr("سوّيتها")}</b>
+          <span className="text-xs text-ws-muted">{tr("{0} · بموافقة {1}", agoLabel(r.createdAt), r.approvedByName)}</span>
         </div>
         {canUndo(r) && (
           <button type="button" className="ag-btn glass" disabled={undoing} onClick={onUndo} title={tr("تقدرون تتراجعون خلال 24 ساعة")}>
@@ -202,7 +202,7 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
             <span className="ag-tick" aria-hidden>
               <Check size={12} strokeWidth={3} />
             </span>
-            <span className={clsx("min-w-0 flex-1 truncate text-[14px] font-bold text-ws-text", undone && "line-through opacity-60")} dir="auto">
+            <span className={clsx("min-w-0 flex-1 truncate text-sm font-bold text-ws-text", undone && "line-through opacity-60")} dir="auto">
               {l.label}
             </span>
             {!undone && (
@@ -213,7 +213,7 @@ export function ReceiptCard({ r, failed, onUndo, undoing }: { r: Receipt; failed
             )}
           </li>
         ))}
-        {failed > 0 && <li className="ag-drow text-[13px] text-[#FF8A7A]">{tr("{0} ما انسوت. جرّبوها مرة ثانية من الخطة.", failed)}</li>}
+        {failed > 0 && <li className="ag-drow text-sm text-[#FF8A7A]">{tr("{0} ما انسوت. جرّبوها مرة ثانية من الخطة.", failed)}</li>}
       </ul>
     </section>
   );
@@ -223,7 +223,7 @@ export function NextList({ items, onPick }: { items: string[]; onPick: (s: strin
   if (!items.length) return null;
   return (
     <div className="ag-rise">
-      <div className="mb-2 text-[12px] font-extrabold text-ws-accent3">{tr("اللي بعده؟")}</div>
+      <div className="mb-2 text-xs font-extrabold text-ws-accent3">{tr("اللي بعده؟")}</div>
       <div className="flex flex-col gap-2">
         {items.map((s) => (
           <button key={s} type="button" className="ag-next" onClick={() => onPick(s)}>
@@ -334,7 +334,7 @@ export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; o
       </span>
       <p className="ag-transcript" aria-live="polite" dir="auto">
         {err ? (
-          <span className="text-[16px] font-medium text-ws-text">{err}</span>
+          <span className="text-base font-medium text-ws-text">{err}</span>
         ) : !hasText ? (
           <span>{serverOnly ? tr("تكلّموا، وإذا خلصتوا اضغطوا إرسال ونكتب كلامكم.") : tr("تكلّموا… مثل «وزّع مهام الأسبوع على الفريق»")}</span>
         ) : (
@@ -371,7 +371,7 @@ export function ListenView({ onClose, onSend, teamId }: { onClose: () => void; o
           {working ? <WSpin size={18} /> : <Send size={18} className="ltr:rotate-0 rtl:-scale-x-100" aria-hidden />}
         </button>
       </div>
-      <p className="m-0 -mt-2 text-[12px] text-[rgba(255,236,220,.6)] max-md:hidden">{tr("Enter = أرسلوا · مسافة = وقّفوا")}</p>
+      <p className="m-0 -mt-2 text-xs text-[rgba(255,236,220,.6)] max-md:hidden">{tr("Enter = أرسلوا · مسافة = وقّفوا")}</p>
     </div>
   );
 }

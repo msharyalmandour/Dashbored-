@@ -44,7 +44,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-2xl shadow-black/25"
+        className="w-full max-w-md rounded-3xl bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-2xl shadow-black/25"
         onClick={(e) => e.stopPropagation()}
       >
       <div className="overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper">
@@ -56,7 +56,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
           </p>
           <button
             onClick={onClose}
-            className="relative rounded-lg p-1.5 text-brand-950/40 hover:bg-surface-muted"
+            className="relative rounded-xl p-1.5 text-brand-950/40 hover:bg-surface-muted"
           >
             <X size={18} />
           </button>
@@ -119,7 +119,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
                 <span className="font-display text-lg font-extrabold text-brand-700">{trx("{0} ريال", total)}</span>
               </div>
               {mode === "share" && (
-                <p className="mt-3 text-[12px] text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
+                <p className="mt-3 text-xs text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
               )}
             </div>
             <MoyasarPayment mode={mode} />

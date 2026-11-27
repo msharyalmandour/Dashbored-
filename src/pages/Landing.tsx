@@ -6,31 +6,26 @@ import HeroVideo from "../components/HeroVideo";
 import WelcomeVoice from "../components/WelcomeVoice";
 import InstallAppButton from "../components/InstallAppButton";
 import { FaqV2, FeaturesBento, Integrations, PricingV2, Problems, useWhatsAppAvoid } from "../components/landing/LandingV2";
-import {
-  DUO_PRICE,
-  MAX_TEAM_MEMBERS,
-  SOLO_PRICE,
-  TEAM_PRICE,
-  TRIAL_DAYS,
-} from "../lib/plans";
+import { TEAM_PRICE, TRIAL_DAYS } from "../lib/plans";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import LangToggle from "../components/ui/LangToggle";
 import { tr, trx } from "../lib/i18n";
 import { publicBase } from "../lib/publicUrl";
+import { faqs } from "./landingFaqs";
 
 
 const font = "font-display";
 /** خصائص حركة الظهور: يضاف لها كلاس ld-fx وتتأخر بالمللي ثانية للتتابع */
 const fx = (d = 0) => ({ "data-fx": "", style: { ["--d" as string]: `${d}ms` } as React.CSSProperties });
 const rise = (d: number) => ({ style: { ["--d" as string]: `${d}ms` } as React.CSSProperties });
-const glassBtn = "ld-btn ld-glass rounded-full border border-white/20 bg-white/[0.08] px-7 py-3.5 text-[17px] text-white";
+const glassBtn = "ld-btn ld-glass rounded-full border border-white/20 bg-white/[0.07] px-7 py-3.5 text-lg text-white";
 /** الزر الأبيض الدافئ بدائرة سهم — الزر الرئيسي بكل الصفحة */
 function CtaButton({ children, big = false }: { children: React.ReactNode; big?: boolean }) {
   return (
     <Link
       to="/login?signup=1"
       className={`ld-btn ld-sheen inline-flex items-center gap-3.5 rounded-full bg-[#F6F1EC] font-semibold text-[#1A0F00] shadow-[0_18px_50px_rgba(255,120,0,0.35)] ${
-        big ? "py-2 ps-7 pe-2 text-lg" : "py-2 ps-6 pe-2 text-[17px]"
+        big ? "py-2 ps-7 pe-2 text-lg" : "py-2 ps-6 pe-2 text-lg"
       }`}
     >
       {children}
@@ -74,36 +69,7 @@ function ShareSiteRow() {
 }
 
 
-const faqs = [
-  {
-    q: tr("شنو لو ما نعرف نستخدم برامج تقنية؟"),
-    a: tr("التطبيق بسيط وبالعربي بالكامل، ودليل الطالب داخل التطبيق يمشي وياكم خطوة بخطوة من أول يوم."),
-  },
-  {
-    q: tr("لو حبينا نوقف الاشتراك بالإجازة أو بعد التسليم؟"),
-    a: tr("ما فيه تجديد تلقائي أصلًا ولا نسحب من بطاقتكم. إذا ما دفعتم يتجمّد الفريق مجانًا (قراءة فقط) وبياناتكم محفوظة لين ترجعون."),
-  },
-  {
-    q: tr("هل بيانات وملفات فريقنا آمنة؟"),
-    a: tr("بياناتكم خاصة بفريقكم فقط، ومحمية بنظام صلاحيات — كل عضو يشوف اللي يخصه حسب دوره في الفريق."),
-  },
-  {
-    q: tr("ينفع لو فريقنا أقل من 5 أعضاء؟"),
-    a: tr("أكيد. السعر للفريق كامل مو لكل شخص: لحالك {0} ريال، شخصين {1}، ومن 3 إلى {2} أعضاء {3} ريال بالشهر. والمشرفة مجانًا دايمًا وما تنحسب.", SOLO_PRICE, DUO_PRICE, MAX_TEAM_MEMBERS, TEAM_PRICE),
-  },
-  {
-    q: tr("هل الذكاء الاصطناعي يكتب البحث عنّا؟"),
-    a: tr("لا. المساعد يرتّب ويشرح ويقترح، والكتابة منكم — عشان بحثكم يطلع من شغلكم، وتدافعون عنه بالمناقشة وأنتم واثقين."),
-  },
-  {
-    q: tr("ظروفي ما تسمح بالدفع؟"),
-    a: tr("عندنا منحة لعدد محدود من الطلاب. راسلونا واتساب (الزر الأخضر تحت) وقولوا لنا عن وضعكم، بدون إحراج."),
-  },
-  {
-    q: tr("لو واجهنا مشكلة أو سؤال، كيف الدعم؟"),
-    a: tr("تراسلوننا مباشرة من داخل التطبيق أو عبر التواصل المتاح، ونرد عليكم خلال نفس اليوم غالبًا."),
-  },
-];
+
 
 
 /** يضيف كلاس الظهور لأي عنصر فيه data-fx أول ما يدخل الشاشة، ويحدّث --sy (للبارالاكس) أثناء التمرير */
@@ -212,7 +178,7 @@ export default function Landing() {
             <Logo size={38} />
             Wesync
           </div>
-          <div className="ld-glass hidden gap-1 rounded-full border border-white/[0.14] bg-white/[0.07] p-[5px] text-[15px] md:flex">
+          <div className="ld-glass hidden gap-1 rounded-full border border-white/10 bg-white/[0.07] p-[5px] text-base md:flex">
             <a href="#how" className="rounded-full bg-white/[0.12] px-5 py-2">{tr("المنصّة")}</a>
             <a href="#supervisor" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">{tr("المشرف/ة")}</a>
             <a href="#pricing" className="rounded-full px-5 py-2 text-[#D9CFC6] hover:text-white">{tr("الباقات")}</a>
@@ -223,17 +189,17 @@ export default function Landing() {
             <span className="hidden lg:inline-flex">
               <InstallAppButton />
             </span>
-            <LangToggle className="border-white/20 bg-white/[0.08] text-ws-text hover:bg-white/[0.14]" />
-            <Link to="/login" className="px-4 py-2.5 text-[15px] text-[#D9CFC6] hover:text-white">{tr("دخول")}</Link>
-            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-[15px] font-semibold text-[#1A0F00]">{tr("ابدأوا")}</Link>
+            <LangToggle className="border-white/20 bg-white/[0.07] text-ws-text hover:bg-white/[0.14]" />
+            <Link to="/login" className="px-4 py-2.5 text-base text-[#D9CFC6] hover:text-white">{tr("دخول")}</Link>
+            <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-base font-semibold text-[#1A0F00]">{tr("ابدأوا")}</Link>
           </div>
         </nav>
 
         <div className="relative z-[3] mx-auto max-w-[1280px] px-6 pt-20 sm:px-9 md:pt-[130px]">
           <div className="max-w-[600px]">
-            <div {...rise(150)} className="ld-rise ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">{tr("لفِرَق بحوث التخرّج")}</div>
+            <div {...rise(150)} className="ld-rise ld-glass inline-block rounded-full border border-white/20 bg-white/[0.07] px-[18px] py-[7px] text-sm text-[#F1D9C4]">{tr("لفِرَق بحوث التخرّج")}</div>
             <h1 {...rise(300)} className={`ld-rise ${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>{tr("بحثكم يخلص")}<br />
-              <span className="bg-gradient-to-l from-[#FFE3A3] to-ws-accent3 bg-clip-text text-transparent">{tr("بوقته، مو بآخر ليلة")}</span>
+              <span className="bg-gradient-to-l from-ws-accent3 to-ws-accent bg-clip-text text-transparent">{tr("بوقته، مو بآخر ليلة")}</span>
             </h1>
             <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-ws-text [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">{tr("قروب واتساب ضايع، وواحد شايل الشغل كله، وملاحظات المشرفة محد يدري عنها؟ Wesync يجمع فريقكم ومشرفكم وكل مراحل البحث بمكان واحد — كل واحد يعرف وش عليه، ومتى.")}</p>
             <div {...rise(700)} className="ld-rise mt-9 flex flex-wrap items-center gap-3">
@@ -259,7 +225,7 @@ export default function Landing() {
         <div className="flex flex-wrap gap-6">
           {pillars.map((p, i) => (
             <div key={p.n} {...fx(i * 160)} className="ld-fx min-w-[280px] flex-1 border-t border-ws-accent3/40 pt-[26px]">
-              <div className={`${font} text-[15px] font-extrabold text-ws-accent3`}>{p.n} — {p.k}</div>
+              <div className={`${font} text-base font-extrabold text-ws-accent3`}>{p.n} — {p.k}</div>
               <h3 className={`${font} mb-2 mt-3 text-[26px] font-semibold leading-[1.45]`}>{p.t}</h3>
               <p className="text-[#BDAFA3]">{p.d}</p>
             </div>
@@ -285,7 +251,7 @@ export default function Landing() {
       {/* ================= SUPERVISOR ================= */}
       <section id="supervisor" className="relative mx-auto max-w-[1280px] scroll-mt-4 px-6 pb-24 pt-14 sm:px-9">
         <div
-          className="relative flex min-h-[520px] items-center overflow-hidden rounded-[40px] p-8 md:p-[60px]"
+          className="relative flex min-h-[520px] items-center overflow-hidden rounded-3xl p-8 md:p-[60px]"
           style={{ background: "radial-gradient(ellipse at 30% 60%,#FFD27A 0,#FF8A1F 28%,#C2400A 58%,#3A1204 100%)" }}
         >
           <div aria-hidden className="absolute top-1/2 h-[360px] w-[360px] -translate-y-1/2 rounded-full bg-[#FFE7A8] opacity-70 blur-[80px] start-[12%]" />
@@ -293,12 +259,12 @@ export default function Landing() {
             <div {...fx()} className="ld-fx min-w-[280px] flex-[1_1_420px]">
               <div className="text-sm font-semibold tracking-[0.3px] text-[#2A0E04]">{tr("ما لا تلقونه عند غيرنا")}</div>
               <h2 className={`${font} mb-3.5 mt-2.5 text-[38px] font-extrabold leading-[1.3] text-[#1A0F00] md:text-[48px]`}>{tr("مشرفكم معكم،")}<br />{tr("بلا حسابات.")}</h2>
-              <p className="max-w-[42ch] text-[19px] text-[#2A0E04]">{tr("رابط واحد يفتح له تقدّم الفريق ومحاضر الاجتماعات، فيعتمد ويعلّق ويجاوب على أسئلتكم بضغطة.")}</p>
+              <p className="max-w-[42ch] text-lg text-[#2A0E04]">{tr("رابط واحد يفتح له تقدّم الفريق ومحاضر الاجتماعات، فيعتمد ويعلّق ويجاوب على أسئلتكم بضغطة.")}</p>
             </div>
             <div {...fx(200)} className="ld-fx flex min-w-[280px] flex-[1_1_380px] flex-col gap-3.5">
-              <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">{tr("تقدّم الفريق")}</span><span className="flex gap-1.5">●●●<span className="opacity-35">●●</span></span><span className="font-bold">{tr("مثال")}</span></div>
-              <div className="ld-glass flex items-center justify-between rounded-full border border-white/35 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">{tr("محضر الاجتماع")}</span><span className="rounded-full bg-[#1A0F00] px-3.5 py-1 text-sm text-[#F6F1EC]">{tr("اعتمد")}</span></div>
-              <div className="ld-glass rounded-[28px] border border-white/20 bg-[#1A0F00]/55 px-[22px] py-[18px] text-[#F6F1EC]"><div className="text-[13px] text-[#F1D9C4]">{tr("ملاحظة المشرف/ة")}</div><div className="mt-0.5 text-lg">{tr("«ركّزوا على المحاور قبل الاجتماع القادم.»")}</div></div>
+              <div className="ld-glass flex items-center justify-between rounded-full border border-white/20 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">{tr("تقدّم الفريق")}</span><span className="flex gap-1.5">●●●<span className="opacity-35">●●</span></span><span className="font-bold">{tr("مثال")}</span></div>
+              <div className="ld-glass flex items-center justify-between rounded-full border border-white/20 bg-white/[0.18] px-[22px] py-3.5 text-[#1A0F00]"><span className="font-semibold">{tr("محضر الاجتماع")}</span><span className="rounded-full bg-[#1A0F00] px-3.5 py-1 text-sm text-[#F6F1EC]">{tr("اعتمد")}</span></div>
+              <div className="ld-glass rounded-3xl border border-white/20 bg-[#1A0F00]/55 px-[22px] py-[18px] text-[#F6F1EC]"><div className="text-sm text-[#F1D9C4]">{tr("ملاحظة المشرف/ة")}</div><div className="mt-0.5 text-lg">{tr("«ركّزوا على المحاور قبل الاجتماع القادم.»")}</div></div>
             </div>
           </div>
         </div>
@@ -313,7 +279,7 @@ export default function Landing() {
       {/* ================= FINAL CTA ================= */}
       <section className="relative overflow-hidden px-6 pb-[200px] pt-[140px] text-center sm:px-9">
         <div aria-hidden className="ld-breath absolute -bottom-[360px] start-1/2 h-[620px] w-[1300px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-75 blur-[90px]" />
-        <div aria-hidden className="absolute -bottom-[220px] start-1/2 h-[360px] w-[900px] -translate-x-1/2 rounded-full bg-[#FFC85A] blur-[80px]" />
+        <div aria-hidden className="absolute -bottom-[220px] start-1/2 h-[360px] w-[900px] -translate-x-1/2 rounded-full bg-[#FFB547] blur-[80px]" />
         <div {...fx()} className="ld-fx relative">
           <h2 className={`${font} text-[38px] font-extrabold leading-[1.3] md:text-[60px]`}>{tr("الليلة الأخيرة قبل التسليم؟")}<br />
             <span className="font-normal">{tr("خلّوها ليلة عادية.")}</span>

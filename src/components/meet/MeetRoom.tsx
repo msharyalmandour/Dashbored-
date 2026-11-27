@@ -208,7 +208,7 @@ function MeetRoomInner({
                   {cam ? <Video size={20} aria-hidden /> : <VideoOff size={20} aria-hidden />}
                 </button>
               </div>
-              {preview.denied && cam && <p className="mt-hint" style={{ textAlign: "center", color: "#FFB2A6" }}>{tr("المتصفح ما سمح بالكاميرا. اسمحوا لها من إعدادات الموقع، أو ادخلوا بدون كاميرا.")}</p>}
+              {preview.denied && cam && <p className="mt-hint" style={{ textAlign: "center", color: "#FF8A7A" }}>{tr("المتصفح ما سمح بالكاميرا. اسمحوا لها من إعدادات الموقع، أو ادخلوا بدون كاميرا.")}</p>}
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{tr("اجتماع الفريق")}</div>
@@ -232,7 +232,7 @@ function MeetRoomInner({
                   {busy ? tr("ندخلكم…") : tr("ادخلوا الاجتماع")}
                 </button>
               )}
-              {room.state === "error" && <p className="mt-hint" style={{ color: "#FFB2A6" }}>{tr("ما قدرنا نوصل للاجتماع — تأكدوا من النت وجرّبوا مرة ثانية.")}</p>}
+              {room.state === "error" && <p className="mt-hint" style={{ color: "#FF8A7A" }}>{tr("ما قدرنا نوصل للاجتماع — تأكدوا من النت وجرّبوا مرة ثانية.")}</p>}
               <p className="mt-hint">{tr("ما ينسجل فيديو. الكلام يبقى بينكم.")}</p>
             </div>
           </div>

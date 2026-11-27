@@ -82,10 +82,10 @@ export function AwayStrip({ away, pending = 0, to = "/feedback" }: { away: DashA
     <section className="sd-strip sd-in" aria-label={tr("{0} مو متاح/ة", who)}>
       <Hourglass px={64} />
       <div style={{ flex: 1, lineHeight: 1.45, minWidth: 0 }}>
-        <b style={{ display: "block", fontSize: 15, color: "#F2EBE3" }}>{tr("{0} مو متاح/ة لين {1}", who, formatDateShort(away.to))}</b>
+        <b style={{ display: "block", fontSize: 16, color: "#F2EBE3" }}>{tr("{0} مو متاح/ة لين {1}", who, formatDateShort(away.to))}</b>
         {bits.length > 0 && <span style={{ fontSize: 12, color: "#E9D3B8" }}>{bits.join(" · ")}</span>}
       </div>
-      <Link to={to} style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#F2EBE3" }}>
+      <Link to={to} style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 4, fontSize: 14, fontWeight: 700, color: "#F2EBE3" }}>
         {tr("التفاصيل")}
         <Chev size={14} aria-hidden />
       </Link>
@@ -160,8 +160,8 @@ export function ExtensionSheet({
       </div>
       <div style={{ marginTop: 12, padding: 12, borderRadius: 16, background: "rgba(255,255,255,0.05)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}>
         <div style={{ fontSize: 12, color: "#ABA095" }}>{tr("المهمة")}</div>
-        <b style={{ fontSize: 15 }}>{task.title}</b>
-        <div style={{ fontSize: 12, color: "#FFB2A6" }}>
+        <b style={{ fontSize: 16 }}>{task.title}</b>
+        <div style={{ fontSize: 12, color: "#FF8A7A" }}>
           {task.dueDate ? tr("موعدها {0}", dayLabel(task.dueDate)) : tr("بدون موعد")}
           {fromSupervisor ? ` · ${tr("طلب من المشرف/ة")}` : ""}
         </div>
@@ -171,7 +171,7 @@ export function ExtensionSheet({
         <p style={{ margin: "14px 0 0", fontSize: 14, color: "#E9D3B8" }}>{tr("فيه طلب معلّق لين {0} — ينتظر رد المشرف/ة.", dayLabel(pendingFor.requested_due))}</p>
       ) : (
         <>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#ABA095", margin: "12px 0 6px" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#ABA095", margin: "12px 0 6px" }}>
             {tr("الموعد الجديد")}
             {n && n > 0 ? (
               <>
@@ -214,7 +214,7 @@ export function ExtensionSheet({
             </label>
           </div>
 
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#ABA095", margin: "12px 0 6px" }}>{tr("ليش؟")}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#ABA095", margin: "12px 0 6px" }}>{tr("ليش؟")}</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {REASONS.map((r) => (
               <button key={r.key} type="button" className="sd-chipbtn" aria-pressed={reason === r.key} onClick={() => setReason(r.key)}>
@@ -226,7 +226,7 @@ export function ExtensionSheet({
             <input value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} placeholder={tr("كلمتين توضح السبب (يشوفها المشرف/ة)")} aria-label={tr("ملاحظة")} />
           </label>
           {err && (
-            <p role="alert" style={{ margin: "10px 0 0", fontSize: 13, color: "#FFB2A6" }}>
+            <p role="alert" style={{ margin: "10px 0 0", fontSize: 14, color: "#FF8A7A" }}>
               {err}
             </p>
           )}
@@ -258,7 +258,7 @@ export function TeamTimeCard({ titleOf }: { titleOf: (taskId: string) => string 
       <AwayStrip away={away} pending={pending.length} to="#time" />
       {pending.length > 0 && (
         <section id="time" className="sd-glass">
-          <b style={{ fontSize: 17 }}>{tr("طلبات الوقت")}</b>
+          <b style={{ fontSize: 18 }}>{tr("طلبات الوقت")}</b>
           {pending.map((e) => (
             <div key={e.id} className="sup-row">
               <div style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>

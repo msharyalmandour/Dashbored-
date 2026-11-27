@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { WSpin } from "../brand/WLogo";
 import { Check, Users } from "lucide-react";
-import Card from "../ui/Card";
+import SuggestCard from "../agent/SuggestCard";
 import { useAuth } from "../../context/AuthContext";
 import { useTasksData } from "../../hooks/useTasksData";
 import { useTeamRoster } from "../../hooks/useTeamRoster";
@@ -42,19 +42,17 @@ export default function SplitKeywordsCard({ terms }: { terms: string[] }) {
   };
 
   return (
-    <Card className="space-y-3" data-agent="split-keywords">
-      <div>
-        <p className="flex items-center gap-2 text-sm font-extrabold text-brand-950">
-          <Users size={16} className="text-brand-500" />
-          {tr("وزّعوا البحث على الفريق")}
-        </p>
-        <p className="mt-0.5 text-xs text-brand-950/55">{tr("كل عضو ياخذ مجموعة كلمات مختلفة ويبحث بها في {0}، ويضيف أقرب الدراسات لمكتبة الأدلة. تنفتح له مهمة بصفحة «مهامي» موعدها بعد أسبوع.", DATABASES.join(" و"))}</p>
-      </div>
+    <SuggestCard
+      data-agent="split-keywords"
+      icon={Users}
+      title={tr("وزّعوا البحث على الفريق")}
+      body={tr("كل عضو ياخذ مجموعة كلمات مختلفة ويبحث بها في {0}، ويضيف أقرب الدراسات لمكتبة الأدلة. تنفتح له مهمة بصفحة «مهامي» موعدها بعد أسبوع.", DATABASES.join(" و"))}
+    >
       <ul className="space-y-1.5">
         {groups.map((g) => (
           <li key={g.memberId} className="rounded-xl bg-surface-muted px-3 py-2 text-xs">
             <b className="text-brand-950">{g.memberId === currentUser?.id ? tr("{0} (أنت)", nameOf(g.memberId)) : nameOf(g.memberId)}</b>
-            <span dir="ltr" className="mt-0.5 block text-start font-mono text-[12px] text-brand-950/70">
+            <span dir="ltr" className="mt-0.5 block text-start font-mono text-xs text-brand-950/70">
               {g.terms.join(" · ")}
             </span>
           </li>
@@ -66,11 +64,11 @@ export default function SplitKeywordsCard({ terms }: { terms: string[] }) {
           {error && <span className="text-xs text-rose-600">{tr(" (بعضها ما انحفظ — جرّبوا مرة ثانية)")}</span>}
         </p>
       ) : (
-        <button type="button" onClick={create} disabled={busy} className="inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2 text-sm font-bold text-white disabled:opacity-50">
+        <button type="button" onClick={create} disabled={busy} className="ws-btn-primary">
           {busy && <WSpin size={14} />}
           {tr("وافقوا وأنشئوا المهام")}
         </button>
       )}
-    </Card>
+    </SuggestCard>
   );
 }

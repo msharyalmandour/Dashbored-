@@ -28,12 +28,27 @@
   --ws-c-warn: #FFB547;
   --ws-glow-opacity: 0.22;
 
+  /* الحواف: ثلاث قيم بس */
+  --ws-r-s: 12px;
+  --ws-r-m: 20px;
+  --ws-r-l: 28px;
+
+  /* الحدود: اثنتين بس (عادي وبارز) + حدّ الكرت البرتقالي */
+  --ws-line: rgba(255, 255, 255, 0.10);
+  --ws-line-strong: rgba(255, 255, 255, 0.20);
+  --ws-card-line: rgba(255, 106, 0, 0.3);
+  --ws-card-bg: rgba(24, 16, 8, 0.72);
+
+  /* الزر الأساسي: تدرّج واحد */
+  --ws-grad-primary: linear-gradient(to left, #FFB547, #FF6A00);
+
   /* الخط */
   --ws-font: "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --ws-fs-body: 16px;
   --ws-lh-body: 1.7;
-  --ws-fs-label: 13px;
+  --ws-fs-label: 14px;
   --ws-fs-min: 12px;
+  /* أحجام النص: أربعة مستويات بس — 12 (تسمية) 14 (ثانوي) 16 (أساسي) 18 (عنوان صغير)، وما فوقها عناوين */
 
   /* الحركة */
   --ws-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -70,6 +85,11 @@
   --color-ws-done: #FFB547;
   --color-ws-warn: #FFB547;
   --ease-ws: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* الحواف: rounded-xl صغير، rounded-2xl وسط، rounded-3xl كبير */
+  --radius-xl: 12px;
+  --radius-2xl: 20px;
+  --radius-3xl: 28px;
 
   /* أحمر وأصفر تحذيري: درجتين بس لكل واحد (فاتح للنص، غامق للخلفية الصلبة) — دلالة مو هوية */
   --color-rose-50: #3A1714;

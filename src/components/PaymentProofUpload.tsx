@@ -62,7 +62,7 @@ export default function PaymentProofUpload() {
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2.5">
-      <label className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-accent-500 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-amber-accent-600">
+      <label className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-accent-500 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-amber-accent-600">
         {uploading ? (
           <UploadCloud size={14} className="animate-pulse" />
         ) : (

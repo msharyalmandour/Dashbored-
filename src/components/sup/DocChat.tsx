@@ -11,7 +11,7 @@ import type { TeamData } from "../../lib/supervisorDash";
 /* محادثات الدكتورة (DocChat): قائمة على اليمين (محادثة لكل فريق + «كل فرقي (إعلان)») والمحادثة على اليسار.
    الكتابة بأربع أوضاع: رسالة · طلب = مهمة · موعد · اعتماد. الدكتورة تدخل برمز الرابط (بدون حساب)، فنحدّث كل 10 ثواني بدل Realtime. */
 
-const AV = ["#FFC85A", "#FFB547", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFB547", "#FFB547", "#FFE3C2", "#FF8A24"];
 type Mode = "text" | "request" | "meeting" | "approval";
 const ALL = "__all__";
 
@@ -124,8 +124,8 @@ function Broadcast({ teams, name, onBack, onSent }: { teams: TeamData[]; name: s
           <ChevronLeft size={18} className="rotate-180 ltr:rotate-0" aria-hidden />
         </button>
         <div style={{ flex: 1 }}>
-          <b style={{ fontSize: 19 }}>{tr("كل فرقي (إعلان)")}</b>
-          <div style={{ fontSize: 13, color: "#ABA095" }}>{tr("توصل لـ {0} فرق، كل فريق بمحادثته", teams.length)}</div>
+          <b style={{ fontSize: 18 }}>{tr("كل فرقي (إعلان)")}</b>
+          <div style={{ fontSize: 14, color: "#ABA095" }}>{tr("توصل لـ {0} فرق، كل فريق بمحادثته", teams.length)}</div>
         </div>
       </header>
       <div style={{ flex: 1 }} />
@@ -215,8 +215,8 @@ function Thread({ team, msgs, name, onBack, onSent, onOpenTeam }: { team: TeamDa
           ))}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <b style={{ fontSize: 19 }}>{team.name}</b>
-          <div style={{ fontSize: 13, color: "#ABA095" }}>{typingHint}</div>
+          <b style={{ fontSize: 18 }}>{team.name}</b>
+          <div style={{ fontSize: 14, color: "#ABA095" }}>{typingHint}</div>
         </div>
         <button type="button" className="dc-chip" onClick={() => setMode("meeting")}>
           <CalendarDays size={15} aria-hidden />
@@ -337,7 +337,7 @@ function Thread({ team, msgs, name, onBack, onSent, onOpenTeam }: { team: TeamDa
                 ))}
               </select>
             ) : (
-              <span style={{ fontSize: 13, color: "#ABA095" }}>{tr("ما فيه محاضر تنتظر اعتمادكم.")}</span>
+              <span style={{ fontSize: 14, color: "#ABA095" }}>{tr("ما فيه محاضر تنتظر اعتمادكم.")}</span>
             )}
           </div>
         )}
@@ -395,7 +395,7 @@ export function MeetingCard({ m, members, actions }: { m: DocMsg; members: { id:
         </span>
         <div style={{ minWidth: 0 }}>
           <span style={{ fontSize: 12, fontWeight: 800, color: "#FFB547" }}>{tr("موعد اجتماع")}</span>
-          <b style={{ display: "block", fontSize: 15 }}>
+          <b style={{ display: "block", fontSize: 16 }}>
             <span dir="ltr">{p.time}</span>
             {p.place ? ` · ${p.place}` : ""}
           </b>

@@ -133,7 +133,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
       <nextItem.icon size={18} strokeWidth={1.8} aria-hidden />
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate">{nextItem.label}</span>
-        <span className="block truncate text-[12px] font-medium text-ws-muted">{DOOR_HINT[sideNext]}</span>
+        <span className="block truncate text-xs font-medium text-ws-muted">{DOOR_HINT[sideNext]}</span>
       </span>
       <Lock size={14} className="flex-none text-ws-accent3" aria-hidden />
     </div>
@@ -206,8 +206,8 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
           <div className="lx-me" ref={menuRef}>
             <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
             <div className="min-w-0 flex-1 leading-[1.35]">
-              <div className="truncate text-[14px] font-bold text-ws-text">{currentUser.name}</div>
-              <div className="truncate text-[12px] text-ws-muted">{isLeader ? tr("قائد الفريق") : tr("عضو الفريق")}</div>
+              <div className="truncate text-sm font-bold text-ws-text">{currentUser.name}</div>
+              <div className="truncate text-xs text-ws-muted">{isLeader ? tr("قائد الفريق") : tr("عضو الفريق")}</div>
             </div>
             <div className="lx-tools">
               <NotificationsBell up />
@@ -245,7 +245,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                 <button type="button" role="menuitemcheckbox" aria-checked={syncOn} className="lx-mi" onClick={() => (setSyncSoundOn(!syncOn), setSyncOn(!syncOn))}>
                   {syncOn ? <Volume2 size={16} aria-hidden /> : <VolumeX size={16} aria-hidden />}
                   <span className="flex-1">{tr("صوت المزامنة")}</span>
-                  <span className="text-[12px] text-ws-muted">{syncOn ? tr("شغّال") : tr("مطفي")}</span>
+                  <span className="text-xs text-ws-muted">{syncOn ? tr("شغّال") : tr("مطفي")}</span>
                 </button>
                 <NavLink role="menuitem" to="/stickers" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Smile size={16} aria-hidden />

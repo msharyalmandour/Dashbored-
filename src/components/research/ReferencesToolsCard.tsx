@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { AlertTriangle, Check, Download, FileUp, ListChecks } from "lucide-react";
-import clsx from "clsx";
-import { glassCard } from "../ui/researchUi";
+import SuggestCard from "../agent/SuggestCard";
 import { useAuth } from "../../context/AuthContext";
 import { useProposal } from "../../hooks/useProposal";
 import type { EvidencePaper } from "../../data/types";
@@ -83,14 +82,16 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
   };
 
   const runCheck = () => setCheck(checkCitations(sections.map((s) => s.content ?? ""), papers));
-  const btn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text disabled:opacity-40";
+  const btn = "ws-btn-secondary";
 
   return (
-    <div className={clsx(glassCard, "space-y-3 p-5")} data-agent="references-tools">
-      <div>
-        <p className="text-sm font-extrabold text-ws-text">{tr("المراجع: استيراد وتصدير وفحص")}</p>
-        <p className="mt-0.5 text-xs text-ws-muted">{tr("تستخدمون Zotero أو Mendeley؟ استوردوا مراجعكم بملف BibTeX/RIS بدل الكتابة من جديد، وصدّروا مكتبتكم لهم، وافحصوا إن كل استشهاد بنصكم له مرجع.")}</p>
-      </div>
+    <SuggestCard
+      data-agent="references-tools"
+      icon={ListChecks}
+      review={false}
+      title={tr("المراجع: استيراد وتصدير وفحص")}
+      body={tr("تستخدمون Zotero أو Mendeley؟ استوردوا مراجعكم بملف BibTeX/RIS بدل الكتابة من جديد، وصدّروا مكتبتكم لهم، وافحصوا إن كل استشهاد بنصكم له مرجع.")}
+    >
 
       <div className="flex flex-wrap gap-2">
         <button type="button" disabled={!canWrite} onClick={() => fileRef.current?.click()} className={btn}>
@@ -108,7 +109,7 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
         </button>
       </div>
 
-      <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} onBlur={() => pasted.trim().length > 20 && parse(pasted)} rows={2} dir="ltr" placeholder={tr("أو الصقوا محتوى BibTeX/RIS هنا")} className="w-full rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2 text-xs text-ws-text outline-none placeholder:text-ws-muted/60 focus:border-ws-accent2/60" />
+      <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} onBlur={() => pasted.trim().length > 20 && parse(pasted)} rows={2} dir="ltr" placeholder={tr("أو الصقوا محتوى BibTeX/RIS هنا")} className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-ws-text outline-none placeholder:text-ws-muted/60 focus:border-ws-accent2/60" />
 
       {msg && <p className="text-xs text-ws-text">{msg}</p>}
 
@@ -135,7 +136,7 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
       )}
 
       {check && (
-        <div className="space-y-2 rounded-2xl border border-white/[0.12] p-3 text-xs">
+        <div className="space-y-2 rounded-2xl border border-white/10 p-3 text-xs">
           <p className="flex items-center gap-1.5 font-bold text-ws-text">
             {check.missing.length === 0 ? <Check size={14} className="text-ws-accent3" /> : <AlertTriangle size={14} className="text-ws-accent3" />}
             {tr("{0} استشهاد مطابق لمكتبتكم", check.matched)}
@@ -152,9 +153,9 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
               <p dir="ltr" className="text-start text-ws-text">{check.uncited.map((p) => `${p.authors.split(",")[0]} (${p.year})`).join(" · ")}</p>
             </div>
           )}
-          <p className="text-[12px] text-ws-muted/80">{tr("الفحص يقرأ صيغة APA بالنص (Devon, 2010) و(Devon et al., 2010) ويطابق أول مؤلف والسنة. مراجعتكم النهائية تبقى مع المشرف/ة.")}</p>
+          <p className="text-xs text-ws-muted/80">{tr("الفحص يقرأ صيغة APA بالنص (Devon, 2010) و(Devon et al., 2010) ويطابق أول مؤلف والسنة. مراجعتكم النهائية تبقى مع المشرف/ة.")}</p>
         </div>
       )}
-    </div>
+    </SuggestCard>
   );
 }

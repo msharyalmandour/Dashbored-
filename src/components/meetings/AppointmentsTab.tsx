@@ -26,7 +26,7 @@ const STATUS: Record<MeetingBookingRow["status"], { label: string; cls: string; 
   confirmed: { label: tr("مؤكد"), cls: "border-ws-accent3/40 bg-ws-accent3/10 text-ws-accent3", icon: CalendarCheck },
   pending: { label: tr("بانتظار تأكيد المشرف/ة"), cls: "border-ws-accent3/40 bg-ws-accent3/10 text-ws-accent3", icon: Clock },
   declined: { label: tr("اعتذرت، اقترحوا غيره"), cls: "border-rose-400/40 bg-rose-500/10 text-rose-300", icon: CalendarX },
-  cancelled: { label: tr("ملغي"), cls: "border-white/15 bg-white/[0.04] text-ws-muted", icon: CalendarX },
+  cancelled: { label: tr("ملغي"), cls: "border-white/20 bg-white/[0.04] text-ws-muted", icon: CalendarX },
 };
 
 /** أوقات المشرف/ة المتاحة (تحددها مرة وحدة من رابطها) والحجز منها بضغطة، مع تأكيد تلقائي لو فعّلته. */
@@ -97,11 +97,11 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     }}
                     className={clsx(
                       "shrink-0 rounded-2xl border px-4 py-2 text-start transition-colors",
-                      d.date === activeDate ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/[0.14] text-ws-muted hover:text-ws-text",
+                      d.date === activeDate ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/10 text-ws-muted hover:text-ws-text",
                     )}
                   >
                     <span className="block text-xs font-extrabold">{formatDateShort(d.date)}</span>
-                    <span className="block text-[12px] opacity-70">{relativeDayLabel(d.date)}</span>
+                    <span className="block text-xs opacity-70">{relativeDayLabel(d.date)}</span>
                   </button>
                 ))}
               </div>
@@ -113,7 +113,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     aria-pressed={pickedTime === t}
                     className={clsx(
                       "rounded-2xl border py-3 text-sm font-bold tabular-nums transition-colors",
-                      pickedTime === t ? "border-transparent bg-gradient-to-l from-ws-accent3 to-ws-accent text-[#1A0F00]" : "border-white/[0.14] text-ws-text hover:border-ws-accent2/60",
+                      pickedTime === t ? "border-transparent bg-gradient-to-l from-ws-accent3 to-ws-accent text-[#1A0F00]" : "border-white/10 text-ws-text hover:border-ws-accent2/60",
                     )}
                   >
                     {t}
@@ -185,12 +185,12 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     {b.supervisorNote && <p className="mt-1 text-xs text-ws-text">{trx("ملاحظة المشرف/ة: {0}", b.supervisorNote)}</p>}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[12px] font-bold ${st.cls}`}>
+                    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-bold ${st.cls}`}>
                       <Icon size={12} />
                       {st.label}
                     </span>
                     {b.status === "pending" && supervisorUrl && (
-                      <a href={whatsappUrl(bookingRequestMessage(formatDateFull(b.date), b.time, supervisorUrl))} target="_blank" rel="noreferrer" aria-label={tr("تذكير بواتساب")} className="grid h-8 w-8 place-items-center rounded-full border border-white/[0.14] text-ws-muted hover:text-ws-text">
+                      <a href={whatsappUrl(bookingRequestMessage(formatDateFull(b.date), b.time, supervisorUrl))} target="_blank" rel="noreferrer" aria-label={tr("تذكير بواتساب")} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-ws-muted hover:text-ws-text">
                         <MessageCircle size={14} />
                       </a>
                     )}

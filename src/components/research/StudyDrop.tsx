@@ -169,7 +169,7 @@ export function PageDropOverlay({ show }: { show: boolean }) {
       <div className="sd-overlay-box">
         <Upload size={34} />
         <p className="m-0 text-[22px] font-extrabold text-ws-text">{tr("ارموها هنا")}</p>
-        <p className="m-0 text-[14px] text-ws-text-accent">{tr("نقراها ونعبّي جدول الأدبيات عنكم")}</p>
+        <p className="m-0 text-sm text-ws-text-accent">{tr("نقراها ونعبّي جدول الأدبيات عنكم")}</p>
       </div>
     </div>
   );
@@ -235,7 +235,7 @@ export function StudyDropCard({
           <h2 id="sd-h" className={clsx("m-0 font-extrabold text-ws-text", hero ? "sd-hero-h" : "text-[24px]")}>
             {hero ? tr("ارموا دراساتكم") : tr("ارموا الدراسة هنا")}
           </h2>
-          <p className={clsx("m-0 mt-1 text-ws-text-accent", hero ? "text-[18px]" : "text-[15px]")}>{tr("ونعبّي الجدول لحاله")}</p>
+          <p className={clsx("m-0 mt-1 text-ws-text-accent", hero ? "text-lg" : "text-base")}>{tr("ونعبّي الجدول لحاله")}</p>
         </div>
         <div className={clsx("flex shrink-0 flex-wrap items-center gap-2.5", hero && "justify-center")}>
           <button type="button" className="sdz-glass" onClick={onImport}>

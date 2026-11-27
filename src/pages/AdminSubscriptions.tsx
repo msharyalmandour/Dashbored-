@@ -158,11 +158,11 @@ export default function AdminSubscriptions() {
                   <p className="flex items-center gap-1.5 truncate font-semibold text-brand-950">
                     {team.name}
                     {team.isFounder && (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[12px] font-bold text-amber-accent-700">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-xs font-bold text-amber-accent-700">
                         <Trophy size={11} />{tr("مؤسس")}</span>
                     )}
                     {team.isOnTrial && (state === "active" || state === "expiring-soon") && (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-sky-accent-100 px-2 py-0.5 text-[12px] font-bold text-sky-accent-700">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-sky-accent-100 px-2 py-0.5 text-xs font-bold text-sky-accent-700">
                         <Gift size={11} />{tr("تجربة مجانية")}</span>
                     )}
                   </p>
@@ -244,7 +244,7 @@ export default function AdminSubscriptions() {
                             <p className="truncate text-sm font-semibold text-brand-950">
                               {member.name}{" "}
                               {member.role === "leader" && (
-                                <span className="text-[12px] font-bold text-amber-accent-600">{tr("(قائد)")}</span>
+                                <span className="text-xs font-bold text-amber-accent-600">{tr("(قائد)")}</span>
                               )}
                             </p>
                             <p className="truncate text-xs text-brand-950/45">{member.email}</p>
@@ -254,7 +254,7 @@ export default function AdminSubscriptions() {
                             onChange={(e) =>
                               setMoveTarget((prev) => ({ ...prev, [member.id]: e.target.value }))
                             }
-                            className="rounded-lg border border-brand-100 px-2 py-1.5 text-xs font-semibold text-brand-950/70 outline-none focus:border-brand-300"
+                            className="rounded-xl border border-brand-100 px-2 py-1.5 text-xs font-semibold text-brand-950/70 outline-none focus:border-brand-300"
                           >
                             <option value="">{tr("نقل لفريق...")}</option>
                             {teams
@@ -268,7 +268,7 @@ export default function AdminSubscriptions() {
                           <button
                             onClick={() => handleMoveMember(member.id, team.id)}
                             disabled={!moveTarget[member.id] || movingMemberId === member.id}
-                            className="flex items-center gap-1 rounded-lg bg-brand-100 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-200 disabled:opacity-50"
+                            className="flex items-center gap-1 rounded-xl bg-brand-100 px-2.5 py-1.5 text-xs font-bold text-brand-700 hover:bg-brand-200 disabled:opacity-50"
                           >{trx("{0}نقل", movingMemberId === member.id ? (
                               <RefreshCw size={12} className="animate-spin" />
                             ) : (

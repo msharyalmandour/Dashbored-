@@ -344,7 +344,7 @@ export default function Tasks() {
     if (!r) return null;
     const when = r.dueDate === today ? tr("تذكير اليوم") : r.dueDate === tomorrow ? tr("تذكير بكرة") : tr("تذكير {0}", formatDateShort(r.dueDate));
     return (
-      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-xs text-ws-accent3">
+      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.07] px-2 py-0.5 text-xs text-ws-accent3">
         <Bell size={11} aria-hidden />
         {when}
       </span>
@@ -397,8 +397,8 @@ export default function Tasks() {
         id={`task-${task.id}`}
         role="listitem"
         className={clsx(
-          "scroll-mt-24 flex min-h-[64px] flex-col justify-center rounded-[18px] px-3 py-1.5 transition-colors sm:px-3.5",
-          late || (task.status === "done" && proof?.met === false) ? "bg-[rgba(255,199,119,.035)] shadow-[inset_0_0_0_1px_rgba(255,199,119,.14)]" : "hover:bg-white/[0.03]",
+          "scroll-mt-24 flex min-h-[64px] flex-col justify-center rounded-2xl px-3 py-1.5 transition-colors sm:px-3.5",
+          late || (task.status === "done" && proof?.met === false) ? "bg-[rgba(255,199,119,.035)] shadow-[inset_0_0_0_1px_rgba(255,199,119,.14)]" : "hover:bg-white/[0.04]",
           isExpanded && !late && "bg-white/[0.04]",
         )}
       >
@@ -413,7 +413,7 @@ export default function Tasks() {
             className={clsx("v3-tap -m-2 grid h-11 w-11 place-items-center rounded-full", canToggle ? "cursor-pointer" : "cursor-default opacity-60")}
           >
             <span
-              className="grid h-[26px] w-[26px] place-items-center rounded-[9px] transition-colors"
+              className="grid h-[26px] w-[26px] place-items-center rounded-xl transition-colors"
               style={
                 task.status === "done"
                   ? proof?.met === false
@@ -425,7 +425,7 @@ export default function Tasks() {
               }
             >
               {task.status === "done" && <Check size={14} strokeWidth={3} />}
-              {task.status === "in-progress" && <i className="block h-2.5 w-2.5 rounded-[3px] bg-ws-accent2" />}
+              {task.status === "in-progress" && <i className="block h-2.5 w-2.5 rounded-xl bg-ws-accent2" />}
             </span>
           </button>
 
@@ -436,7 +436,7 @@ export default function Tasks() {
               aria-expanded={isExpanded}
               className="flex min-h-[28px] w-full flex-wrap items-center gap-x-2 gap-y-1 text-start"
             >
-              <span className={clsx("min-w-0 max-w-full truncate text-[15px] font-bold", task.status === "done" && "text-[var(--ws-c-muted)] line-through decoration-white/30")} dir="auto" title={task.title}>
+              <span className={clsx("min-w-0 max-w-full truncate text-base font-bold", task.status === "done" && "text-[var(--ws-c-muted)] line-through decoration-white/30")} dir="auto" title={task.title}>
                 {task.title}
               </span>
               {task.priority === "high" && task.status !== "done" && <span className="v3-st late text-xs">{tr("أولوية عالية")}</span>}
@@ -477,12 +477,12 @@ export default function Tasks() {
               </div>
             )}
             {sub && (
-              <div className="v3-mut mt-0.5 truncate text-[13px]" dir="auto">
+              <div className="v3-mut mt-0.5 truncate text-sm" dir="auto">
                 {sub}
               </div>
             )}
             {/* الجوال: مين · الموعد · الحالة تحت العنوان */}
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] md:hidden">
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm md:hidden">
               <span className="flex items-center gap-1.5">
                 <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
                 {firstName(task.assigneeId)}
@@ -494,9 +494,9 @@ export default function Tasks() {
 
           <div className="hidden min-w-0 items-center gap-2 md:flex">
             <Avatar initials={assignee.initials} color={assignee.color} size="sm" />
-            <span className="truncate text-[13px]">{firstName(task.assigneeId)}</span>
+            <span className="truncate text-sm">{firstName(task.assigneeId)}</span>
           </div>
-          <div className="hidden text-[13px] md:block">{dueText(task)}</div>
+          <div className="hidden text-sm md:block">{dueText(task)}</div>
           <div className="hidden md:block">{statusChip(task)}</div>
           <ThreeDotsMenu
             items={menu}
@@ -505,7 +505,7 @@ export default function Tasks() {
         </div>
 
         {isExpanded && (
-          <div className="mt-3 flex flex-col gap-3 border-t border-white/[0.07] pt-3 md:ms-10">
+          <div className="mt-3 flex flex-col gap-3 border-t border-white/10 pt-3 md:ms-10">
             {task.commitmentId && <ReceiptProof task={task} />}
             {task.description && (
               <p className="m-0 whitespace-pre-wrap text-sm leading-7 text-[var(--ws-c-text)]" dir="auto">
@@ -513,7 +513,7 @@ export default function Tasks() {
               </p>
             )}
             {reminders.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 text-[13px]">
+              <div className="flex flex-wrap items-center gap-2 text-sm">
                 <Bell size={14} className="text-ws-accent3" aria-hidden />
                 <span className="v3-mut">{tr("تذكيرات هالمهمة:")}</span>
                 {reminders.map((r) => (
@@ -524,7 +524,7 @@ export default function Tasks() {
               </div>
             )}
             {isLeader && canWrite && task.status !== "done" && (
-              <label className="flex flex-wrap items-center gap-2 text-[13px]">
+              <label className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="v3-mut">{tr("المسؤول:")}</span>
                 <select value={task.assigneeId} onChange={(e) => reassign(task, e.target.value)} className="v3-select !min-h-[40px] !w-auto !py-1.5 [color-scheme:dark]" aria-label={tr("انقل المهمة لعضو ثاني")}>
                   {roster.map((m) => (
@@ -537,12 +537,12 @@ export default function Tasks() {
             )}
             <div className="flex flex-wrap items-center gap-3">
               {taskAttachments[task.id] ? (
-                <span className="flex items-center gap-1.5 text-[13px] text-[var(--ws-c-muted)]">
+                <span className="flex items-center gap-1.5 text-sm text-[var(--ws-c-muted)]">
                   <FileText size={14} />
                   <bdi className="truncate">{taskAttachments[task.id].name}</bdi>
                 </span>
               ) : canToggle ? (
-                <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} buttonClassName="v3-bd !min-h-[40px] !px-4 !text-[13px]" />
+                <FileAttach compact onAttach={(meta) => attachToTask(task.id, meta)} buttonClassName="v3-bd !min-h-[40px] !px-4 !text-sm" />
               ) : null}
             </div>
             <TaskComments
@@ -677,12 +677,12 @@ export default function Tasks() {
               <b className="text-[23px] font-extrabold text-ws-text" dir="ltr">
                 {num(doneCount)}/{num(visible.length)}
               </b>
-              <span className="mt-1 text-[12px] text-ws-muted">{tr("خلصت")}</span>
+              <span className="mt-1 text-xs text-ws-muted">{tr("خلصت")}</span>
             </div>
           </div>
           <div className="leading-[1.4]">
-            <b className="text-[18px]">{visible.length && doneCount === visible.length ? tr("خلصتوا كل المهام") : tr("{0} باقية", num(visible.length - doneCount))}</b>
-            <div className="text-[13px] font-bold text-ws-accent3">
+            <b className="text-lg">{visible.length && doneCount === visible.length ? tr("خلصتوا كل المهام") : tr("{0} باقية", num(visible.length - doneCount))}</b>
+            <div className="text-sm font-bold text-ws-accent3">
               {unprovenCount > 0 ? tr("بس {0} منها بدون دليل", num(unprovenCount)) : doneCount ? tr("كلها بدليل ✓") : tr("ابدأوا بأقرب موعد")}
             </div>
           </div>
@@ -732,8 +732,8 @@ export default function Tasks() {
             <div className="relative overflow-hidden px-2 py-6">
               <ul aria-hidden className="m-0 flex list-none flex-col gap-2.5 p-0 opacity-50 blur-[1.5px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]">
                 {[tr("جمع 5 دراسات عن الموضوع"), tr("صياغة سؤال البحث بصيغة PICO"), tr("حجز موعد مع المشرفة"), tr("تصميم الاستبيان")].map((t, i) => (
-                  <li key={i} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5">
-                    <span className="h-5 w-5 shrink-0 rounded-md border-2 border-white/25" />
+                  <li key={i} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
+                    <span className="h-5 w-5 shrink-0 rounded-xl border-2 border-white/20" />
                     <span className="truncate text-sm">{t}</span>
                     <span className="ms-auto h-7 w-7 shrink-0 rounded-full bg-white/10" />
                   </li>
@@ -815,7 +815,7 @@ export default function Tasks() {
               ))
             )}
             {imbalanced && handOff ? (
-              <div className="v3-g2 flex gap-2 !rounded-2xl px-3 py-2.5 text-[13px] leading-relaxed">
+              <div className="v3-g2 flex gap-2 !rounded-2xl px-3 py-2.5 text-sm leading-relaxed">
                 <span className="v3-orb mt-0.5 h-4 w-4" aria-hidden />
                 <span>
                   {most.member.id === currentUser?.id
@@ -824,7 +824,7 @@ export default function Tasks() {
                 </span>
               </div>
             ) : (
-              load.length > 1 && <p className="v3-mut m-0 text-[13px]">{tr("الحمل متقارب بينكم ✓")}</p>
+              load.length > 1 && <p className="v3-mut m-0 text-sm">{tr("الحمل متقارب بينكم ✓")}</p>
             )}
             {isLeader && canWrite && load.length > 1 && (
               <button type="button" className="v3-bd !text-sm" onClick={() => setBalanceOpen(true)}>
@@ -841,10 +841,10 @@ export default function Tasks() {
       <Dialog open={!!strict} onClose={() => setStrict(null)} title={tr("متأكدين إنها خلصت؟")}>
         {strict && (
           <div className="space-y-3">
-            <p className="m-0 text-[15px] leading-relaxed" dir="auto">
+            <p className="m-0 text-base leading-relaxed" dir="auto">
               {tr("مهمة «{0}» تطلب {1}، والموجود فعلًا {2}.", strict.task.title, num(strict.proof.need), strict.proof.label)}
             </p>
-            <p className="m-0 text-[13px] text-ws-muted">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
+            <p className="m-0 text-sm text-ws-muted">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
             <div className="flex flex-wrap gap-2 pt-1">
               <button
                 type="button"
@@ -887,7 +887,7 @@ export default function Tasks() {
       )}
       <Dialog open={balanceOpen} onClose={() => setBalanceOpen(false)} title={tr("وزّعها بالتساوي")}>
         {balanceMoves.length === 0 ? (
-          <p className="m-0 text-[15px]">{tr("الحمل متقارب بينكم، ما فيه شي يحتاج ينتقل ✓")}</p>
+          <p className="m-0 text-base">{tr("الحمل متقارب بينكم، ما فيه شي يحتاج ينتقل ✓")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             <p className="v3-mut m-0 text-sm">{tr("هذا الاقتراح، وما يتغيّر شي إلا لما توافقون. المتأخرة واللي «قيد التنفيذ» تبقى عند أصحابها.")}</p>

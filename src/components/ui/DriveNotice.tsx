@@ -30,7 +30,7 @@ export default function DriveNotice() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-3 z-[250] flex justify-center px-4" role="status" aria-live="polite">
-      <div className="drive-notice pointer-events-auto w-full max-w-[420px] overflow-hidden rounded-[28px] border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.95)] p-4 text-ws-text shadow-[0_24px_70px_rgba(0,0,0,.6)] backdrop-blur-[18px]">
+      <div className="drive-notice pointer-events-auto w-full max-w-[420px] overflow-hidden rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.95)] p-4 text-ws-text shadow-[0_24px_70px_rgba(0,0,0,.6)] backdrop-blur-[18px]">
         <div className="flex items-center gap-4">
           {/* مسار الطيران: الملف يمين ← درايف يسار (اتجاه ثابت بغض النظر عن RTL) */}
           <div dir="ltr" className="relative flex h-12 w-28 shrink-0 items-center justify-between">
@@ -40,7 +40,7 @@ export default function DriveNotice() {
             >
               <FileText size={20} />
             </span>
-            <span className="ml-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.08] ring-1 ring-white/15">
+            <span className="ml-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.07] ring-1 ring-white/15">
               {done ? (
                 <span className="drive-notice__check flex h-9 w-9 items-center justify-center rounded-full bg-ws-accent3 text-[#1A0802]">
                   <Check size={20} strokeWidth={3.2} />

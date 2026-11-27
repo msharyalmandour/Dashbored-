@@ -62,13 +62,13 @@ export default function Pricing() {
   return (
     <div className="space-y-5">
       {/* Hero */}
-      <div className="rounded-[2rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
+      <div className="rounded-3xl bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(2rem-1.5px)] bg-gradient-to-b from-brand-50 to-paper px-6 py-10 text-center sm:px-10">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-[blob-drift_11s_ease-in-out_3] rounded-full bg-amber-accent-200/40 blur-3xl motion-reduce:animate-none" />
           <div className="pointer-events-none absolute -left-16 bottom-0 h-52 w-52 rounded-full bg-brand-200/30 blur-3xl" />
 
-          <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
+          <span className="relative inline-flex items-center gap-1.5 rounded-full border border-amber-accent-300/60 bg-white/60 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-[0.18em] text-amber-accent-700 backdrop-blur-sm">
             <Wand2 size={12} />
             Wesync Premium
           </span>
@@ -76,7 +76,7 @@ export default function Pricing() {
           <h1 className="relative mt-4 font-display text-2xl font-extrabold leading-snug text-brand-950 sm:text-3xl">{tr("بحثكم يستحق مساحة تواكبه")}<br />
             <span className="bg-gradient-to-l from-brand-600 to-amber-accent-600 bg-clip-text text-transparent">{tr("من أول فكرة، لآخر صفحة")}</span>
           </h1>
-          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("اشتراك واحد لفريقكم كامل (حتى {0} أعضاء) بسعر الإطلاق — والمساعد الذكي إضافة اختيارية. المشرفة تدخل مجانًا دايمًا 🌱", MAX_TEAM_MEMBERS)}</p>
+          <p className="relative mx-auto mt-3 max-w-md text-sm text-brand-950/55">{trx("اشتراك واحد لفريقكم كامل (حتى {0} أعضاء) بسعر الإطلاق — والوكيل إضافة اختيارية. المشرفة تدخل مجانًا دايمًا 🌱", MAX_TEAM_MEMBERS)}</p>
 
           <div className="relative mx-auto mt-7 flex w-fit items-center justify-center">
             <GrowingPlant className="h-32 w-32 opacity-95 sm:h-40 sm:w-40" />
@@ -93,7 +93,7 @@ export default function Pricing() {
           return (
             <div
               key={plan}
-              className={`relative flex flex-col rounded-[1.75rem] p-[1.5px] ${
+              className={`relative flex flex-col rounded-3xl p-[1.5px] ${
                 isAi
                   ? "bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 shadow-lg shadow-brand-950/10"
                   : "bg-brand-100/60"
@@ -101,11 +101,11 @@ export default function Pricing() {
             >
               <div className="glass-panel relative flex h-full flex-col overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper/80 p-6 backdrop-blur-xl">
                 {isAi && (
-                  <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[12px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
+                  <span className="absolute end-5 top-5 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-xs font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
                     <Wand2 size={11} />{tr("الأكثر قيمة")}</span>
                 )}
                 <p className="font-display text-lg font-extrabold text-brand-950">
-                  {isAi ? tr("الفريق + المساعد الذكي") : tr("اشتراك الفريق")}
+                  {isAi ? tr("الفريق + الوكيل") : tr("اشتراك الفريق")}
                 </p>
                 <p className="mt-0.5 text-xs text-brand-950/50">
                   {isAi ? tr("كل شي بالإضافة للذكاء الاصطناعي") : tr("كل أدوات إدارة البحث")}
@@ -114,13 +114,13 @@ export default function Pricing() {
                   <span className="font-display text-4xl font-extrabold text-brand-950">{price}</span>
                   <span className="text-sm font-semibold text-brand-950/50">{tr("ريال / شهريًا للفريق كامل")}</span>
                 </div>
-                <p className="mt-1 text-[12px] font-semibold text-brand-950/45">
+                <p className="mt-1 text-xs font-semibold text-brand-950/45">
                   {memberCount > 1
                     ? trx("يعني {0} ريال لكل عضو من {1}", memberShare(price, memberCount), memberCount)
                     : tr("سعر الباحث لحاله — ينزل نصيب كل واحد كل ما زاد فريقكم")}
                 </p>
                 {isAi && isFounder && memberCount > 1 && (
-                  <p className="mt-1 text-[12px] font-bold text-amber-accent-700">{trx("سعر المؤسسين — المساعد بـ{0} ريال بدل {1}، ثابت مدى اشتراككم", AI_ADDON_FOUNDER, AI_ADDON_TEAM)}</p>
+                  <p className="mt-1 text-xs font-bold text-amber-accent-700">{trx("سعر المؤسسين — المساعد بـ{0} ريال بدل {1}، ثابت مدى اشتراككم", AI_ADDON_FOUNDER, AI_ADDON_TEAM)}</p>
                 )}
 
                 <ul className="mt-5 flex-1 space-y-2.5">
@@ -146,7 +146,7 @@ export default function Pricing() {
                     ))
                   ) : (
                     <li className="flex items-start gap-2.5 text-sm text-brand-950/40">
-                      <Lock size={15} className="mt-0.5 shrink-0" />{tr("بدون المساعد الذكي وويسي للبحث وتحسين الصياغة")}</li>
+                      <Lock size={15} className="mt-0.5 shrink-0" />{tr("بدون الوكيل وويسي للبحث وتحسين الصياغة")}</li>
                   )}
                 </ul>
 
@@ -185,12 +185,12 @@ export default function Pricing() {
       )}
 
       {/* Price card */}
-      <div className="rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
+      <div className="rounded-3xl bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-lg shadow-brand-950/10">
         <div className="relative overflow-hidden rounded-[calc(1.75rem-1.5px)] bg-paper p-6 sm:p-8">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-950/10 to-transparent" />
           <div className="pointer-events-none absolute -left-16 -top-16 h-40 w-40 rounded-full bg-amber-accent-100/70 blur-3xl" />
-          <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-[12px] font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
-            {currentPlan === "ai" ? tr("الفريق + المساعد الذكي") : tr("اشتراك الفريق")}
+          <span className="absolute end-6 top-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-accent-400 to-amber-accent-500 px-3 py-1 text-xs font-extrabold text-white shadow-sm shadow-amber-accent-400/30">
+            {currentPlan === "ai" ? tr("الفريق + الوكيل") : tr("اشتراك الفريق")}
           </span>
 
           <div className="relative flex flex-col items-start gap-1">
@@ -223,7 +223,7 @@ export default function Pricing() {
             {isActive ? tr("اشتراككم مفعّل ✓") : tr("ادفعوا حصتكم الآن")}
           </button>
 
-          <p className="mt-3 text-center text-[12px] text-brand-950/40">{trx("{0} يوم تجربة مجانية بدون بطاقة · بدون تجديد تلقائي · Apple Pay وSTC Pay ومدى عبر Moyasar", TRIAL_DAYS)}</p>
+          <p className="mt-3 text-center text-xs text-brand-950/40">{trx("{0} يوم تجربة مجانية بدون بطاقة · بدون تجديد تلقائي · Apple Pay وSTC Pay ومدى عبر Moyasar", TRIAL_DAYS)}</p>
         </div>
       </div>
 
@@ -245,10 +245,10 @@ export default function Pricing() {
                   </span>
                 </div>
                 {hasPaid ? (
-                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2.5 py-1 text-[12px] font-bold text-white shadow-sm shadow-brand-500/30">
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brand-500 to-brand-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm shadow-brand-500/30">
                     <Check size={12} />{tr("دفع حصته")}</span>
                 ) : (
-                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[12px] font-bold text-brand-950/40">{tr("لسا")}</span>
+                  <span className="shrink-0 rounded-full bg-paper px-2.5 py-1 text-xs font-bold text-brand-950/40">{tr("لسا")}</span>
                 )}
               </li>
             );
@@ -262,7 +262,7 @@ export default function Pricing() {
         <div className="space-y-4 text-sm">
           <div>
             <p className="font-bold text-brand-950">{tr("السعر لكل شخص ولا للفريق؟")}</p>
-            <p className="mt-1 text-brand-950/55">{tr("للفريق كامل: باحث لحاله 19 ريال، شخصين 39، ومن 3 إلى 5 أعضاء 49 ريال بالشهر. المساعد الذكي إضافة اختيارية (+39 للفريق، +19 للباحث لحاله). المشرفة مجانًا دايمًا ولا تنحسب.")}</p>
+            <p className="mt-1 text-brand-950/55">{tr("للفريق كامل: باحث لحاله 19 ريال، شخصين 39، ومن 3 إلى 5 أعضاء 49 ريال بالشهر. الوكيل إضافة اختيارية (+39 للفريق، +19 للباحث لحاله). المشرفة مجانًا دايمًا ولا تنحسب.")}</p>
           </div>
           <div>
             <p className="font-bold text-brand-950">{tr("لازم قائد الفريق يدفع، ولا أي عضو يقدر؟")}</p>

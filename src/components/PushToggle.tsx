@@ -74,7 +74,7 @@ function Spinner({ light = false }: { light?: boolean }) {
 /** كرة Wesync تتنفس + 3 نقاط تنط — لما التفعيل ياخذ أكثر من ثانية */
 function Preparing() {
   return (
-    <div className="mt-2.5 flex items-center gap-2.5 ps-12 text-[13px]" role="status">
+    <div className="mt-2.5 flex items-center gap-2.5 ps-12 text-sm" role="status">
       <span className="wsa-orb h-5 w-5 shrink-0" aria-hidden="true" />
       <span>{tr("نجهّز تنبيهاتك")}</span>
       <span className="wsa-dots inline-flex gap-1" aria-hidden="true">
@@ -105,7 +105,7 @@ function BigLoader() {
 function SkeletonRows() {
   const row = (w1: string, w2: string, btn: string) => (
     <div className="flex items-center gap-3">
-      <div className="wsa-skel h-9 w-9 shrink-0 rounded-[11px]" />
+      <div className="wsa-skel h-9 w-9 shrink-0 rounded-xl" />
       <div className="grid flex-1 gap-[7px]">
         <div className="wsa-skel h-3" style={{ width: w1 }} />
         <div className="wsa-skel h-2.5" style={{ width: w2 }} />
@@ -169,15 +169,15 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
               <span className="flex h-10 w-10 items-center justify-center rounded-full" style={{ border: "2px solid #FF8A24", color: "#FF8A24", boxShadow: "0 0 0 6px rgba(255,138,36,.2)" }}>
                 <ShareIcon size={20} />
               </span>
-              <span className="h-4 w-4 rounded-[3px] border-2" style={{ borderColor: "#8F857C" }} />
+              <span className="h-4 w-4 rounded-xl border-2" style={{ borderColor: "#8F857C" }} />
             </div>
           </Phone>
           <Phone caption={tr("2 «إضافة إلى الشاشة الرئيسية»")}>
-            <div className="absolute inset-x-0 bottom-0 rounded-t-[18px] p-3" style={{ background: "rgba(36,34,34,.97)" }}>
+            <div className="absolute inset-x-0 bottom-0 rounded-t-2xl p-3" style={{ background: "rgba(36,34,34,.97)" }}>
               <div className="border-b px-1.5 py-2 text-xs" style={{ borderColor: "rgba(255,255,255,.08)", color: "#ccc" }}>
                 {tr("نسخ")}
               </div>
-              <div className="flex items-center justify-between rounded-[10px] px-2 py-2 text-xs font-bold" style={{ background: "rgba(255,138,36,.16)", border: "1px solid #FF8A24", color: "#fff" }}>
+              <div className="flex items-center justify-between rounded-xl px-2 py-2 text-xs font-bold" style={{ background: "rgba(255,138,36,.16)", border: "1px solid #FF8A24", color: "#fff" }}>
                 <span>{tr("إضافة إلى الشاشة الرئيسية")}</span>
                 <AddHomeIcon size={16} color="#FF8A24" />
               </div>
@@ -189,11 +189,11 @@ function IosStepsModal({ onClose }: { onClose: () => void }) {
           <Phone caption={tr("3 افتحوه من الأيقونة وفعّلوا")}>
             <div className="absolute inset-x-0 top-14 grid grid-cols-4 gap-x-1 gap-y-2.5 px-2">
               {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="mx-auto h-8 w-8 rounded-[9px]" style={{ background: "rgba(255,255,255,.1)" }} />
+                <div key={i} className="mx-auto h-8 w-8 rounded-xl" style={{ background: "rgba(255,255,255,.1)" }} />
               ))}
               <div className="text-center">
-                <div className="mx-auto h-8 w-8 rounded-[9px]" style={{ background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)", boxShadow: "0 0 0 3px #FF8A24,0 0 20px rgba(255,138,36,.7)" }} />
-                <div className="mt-1 text-[12px]">Wesync</div>
+                <div className="mx-auto h-8 w-8 rounded-xl" style={{ background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFB547 22%,#FF8A24 55%,#C2400A 82%,#5A1A04 100%)", boxShadow: "0 0 0 3px #FF8A24,0 0 20px rgba(255,138,36,.7)" }} />
+                <div className="mt-1 text-xs">Wesync</div>
               </div>
             </div>
           </Phone>
@@ -337,7 +337,7 @@ export default function AlertsCard() {
       {preview && (
         <div className="pointer-events-none absolute inset-x-3 top-3 z-10">
           <div className="wsa-drop flex items-start gap-2 rounded-2xl px-3 py-2.5 shadow-2xl" style={{ background: "rgba(40,36,34,.96)", backdropFilter: "blur(12px)" }} aria-hidden="true">
-            <span className="h-[26px] w-[26px] shrink-0 rounded-[7px]" style={{ background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFC85A 22%,#FF7A10 55%,#C2400A 82%,#5A1A04 100%)" }} />
+            <span className="h-[26px] w-[26px] shrink-0 rounded-xl" style={{ background: "radial-gradient(circle at 50% 60%,#FFF0C2 0,#FFB547 22%,#FF8A24 55%,#C2400A 82%,#5A1A04 100%)" }} />
             <span className="text-xs leading-relaxed">
               <span className="flex justify-between gap-3">
                 <b>Wesync</b>

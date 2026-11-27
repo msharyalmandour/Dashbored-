@@ -15,11 +15,11 @@ const CHIPS = [
 export default function DropEntry({ style }: { style?: React.CSSProperties }) {
   return (
     <>
-      <Link to="/drop" className="dr-card dr-in dr-d1 mb-2.5 flex min-h-[84px] items-center gap-3 overflow-hidden rounded-[24px] py-1 pe-3.5 ps-1.5 text-ws-text no-underline lg:hidden" style={style} data-learn="drop-entry">
+      <Link to="/drop" className="dr-card dr-in dr-d1 mb-2.5 flex min-h-[84px] items-center gap-3 overflow-hidden rounded-3xl py-1 pe-3.5 ps-1.5 text-ws-text no-underline lg:hidden" style={style} data-learn="drop-entry">
         <Vessel size={88} className="-my-2" scene />
         <span className="min-w-0 flex-1 leading-[1.4]">
-          <b className="block text-[17px]">{tr("ارموا أي شي")}</b>
-          <span className="text-[13px] text-ws-text-accent">{tr("ملف، صورة، رسالة المشرف/ة… ونرتبها")}</span>
+          <b className="block text-lg">{tr("ارموا أي شي")}</b>
+          <span className="text-sm text-ws-text-accent">{tr("ملف، صورة، رسالة المشرف/ة… ونرتبها")}</span>
         </span>
         <ChevronLeft size={20} className="shrink-0 text-ws-muted ltr:rotate-180" aria-hidden />
       </Link>
@@ -29,7 +29,7 @@ export default function DropEntry({ style }: { style?: React.CSSProperties }) {
           <Vessel size={210} style={{ filter: "brightness(1.05)" }} />
         </span>
         <span className="relative min-w-0 flex-1">
-          <span className="block text-[12px] font-extrabold text-ws-accent3">{tr("أسرع طريقة تبدون فيها")}</span>
+          <span className="block text-xs font-extrabold text-ws-accent3">{tr("أسرع طريقة تبدون فيها")}</span>
           <span className="lx-h1 block !m-0 !text-[34px] !leading-[1.15]">{tr("ارموا أي شي")}</span>
           <span className="mt-2.5 flex flex-wrap gap-1.5">
             {CHIPS.map((c) => (
@@ -41,9 +41,9 @@ export default function DropEntry({ style }: { style?: React.CSSProperties }) {
           </span>
         </span>
         <span className="relative border-s border-[rgba(255,199,119,.18)] ps-[22px] text-center leading-[1.5]">
-          <span className="block text-[14px] font-extrabold text-ws-text">{tr("اسحبوها لأي مكان بالموقع")}</span>
-          <span className="block text-[12px] text-ws-muted">
-            {tr("أو اضغطوا هنا")} · <kbd className="rounded-md bg-white/[.08] px-[7px] py-px font-[inherit]" dir="ltr">Ctrl V</kbd> {tr("للصق")}
+          <span className="block text-sm font-extrabold text-ws-text">{tr("اسحبوها لأي مكان بالموقع")}</span>
+          <span className="block text-xs text-ws-muted">
+            {tr("أو اضغطوا هنا")} · <kbd className="rounded-xl bg-white/[0.07] px-[7px] py-px font-[inherit]" dir="ltr">Ctrl V</kbd> {tr("للصق")}
           </span>
         </span>
       </Link>

@@ -137,7 +137,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
     <div className="space-y-5 text-ws-text">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3.5">
-          <LogoTile active={waiting} className="h-12 w-12 rounded-2xl bg-white/[0.06] ring-1 ring-white/15">
+          <LogoTile active={waiting} className="h-12 w-12 rounded-2xl bg-white/[0.07] ring-1 ring-white/15">
             <GoogleDriveLogo size={28} />
           </LogoTile>
           <p className="text-sm text-ws-muted">{tr("محاضر الاجتماعات مرتبة بمكان واحد يشوفه الكل")}</p>
@@ -145,8 +145,8 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         <div className="flex items-center gap-2">
           <span
             className={clsx(
-              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[12px] font-bold",
-              connected ? "border-ws-accent3/40 bg-ws-accent3/10 text-ws-accent3" : "border-white/15 bg-white/[0.04] text-ws-muted",
+              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-bold",
+              connected ? "border-ws-accent3/40 bg-ws-accent3/10 text-ws-accent3" : "border-white/20 bg-white/[0.04] text-ws-muted",
             )}
           >
             <span className={clsx("h-1.5 w-1.5 rounded-full", connected ? "bg-ws-accent3 shadow-[0_0_8px] shadow-ws-accent3/80" : "bg-white/30")} />
@@ -193,7 +193,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-4">
             <div className="min-w-0">
-              <p className="text-[12px] font-bold text-ws-muted">{tr("مربوط بحساب")}</p>
+              <p className="text-xs font-bold text-ws-muted">{tr("مربوط بحساب")}</p>
               <p dir="ltr" className="truncate text-start text-sm font-bold">{status.googleEmail}</p>
               {status.connectedByName && <p className="mt-0.5 text-xs text-ws-muted">{trx("ربطه {0}", status.connectedByName)}</p>}
             </div>

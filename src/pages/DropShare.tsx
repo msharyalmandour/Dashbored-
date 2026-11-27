@@ -45,7 +45,7 @@ export default function DropShare() {
     <div className="dr-page mx-auto flex max-w-md flex-col gap-3 pt-1">
       <div className="flex items-center gap-2.5">
         <WLogo size={32} />
-        <b className="text-[17px]">Wesync</b>
+        <b className="text-lg">Wesync</b>
         <span className="flex-1" />
         <button type="button" className="dr-card flex h-11 w-11 items-center justify-center rounded-full text-ws-text" aria-label={tr("إغلاق")} onClick={() => navigate("/")}>
           <X size={18} />
@@ -54,36 +54,36 @@ export default function DropShare() {
       <div className="flex items-center gap-3">
         <Vessel size={96} state="hover" scene />
         <div>
-          <div className="text-[13px] font-bold text-ws-accent3">{fromWa ? tr("جاية من واتساب") : tr("جاية من تطبيق ثاني")}</div>
+          <div className="text-sm font-bold text-ws-accent3">{fromWa ? tr("جاية من واتساب") : tr("جاية من تطبيق ثاني")}</div>
           <h1 className="dr-title text-[24px] leading-[1.3]">{tr("ارموها لـ Wesync")}</h1>
         </div>
       </div>
 
       {shared === undefined ? null : nothing ? (
-        <section className="dr-card rounded-[26px] p-4 text-center">
-          <p className="m-0 text-[15px] text-ws-text-accent">{tr("ما وصلنا شي من المشاركة. جرّبوا تشاركونه مرة ثانية، أو ارموه من صفحة «ارموا أي شي».")}</p>
+        <section className="dr-card rounded-3xl p-4 text-center">
+          <p className="m-0 text-base text-ws-text-accent">{tr("ما وصلنا شي من المشاركة. جرّبوا تشاركونه مرة ثانية، أو ارموه من صفحة «ارموا أي شي».")}</p>
           <button type="button" className="dr-cream mt-3 w-full" onClick={() => navigate("/drop")}>
             {tr("افتحوا «ارموا أي شي»")}
           </button>
         </section>
       ) : (
         <>
-          <section className="dr-card dr-in rounded-[26px] p-3">
-            <div className="rounded-[18px] bg-[#0B141A] p-2.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+          <section className="dr-card dr-in rounded-3xl p-3">
+            <div className="rounded-2xl bg-[#0B141A] p-2.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
               {previews.length > 0 && (
                 <div className={`grid gap-1.5 ${previews.length > 1 ? "grid-cols-2" : ""}`}>
                   {previews.map((u) => (
-                    <img key={u} src={u} alt={tr("الصورة المشاركة")} className="max-h-[260px] w-full rounded-[10px] object-cover" />
+                    <img key={u} src={u} alt={tr("الصورة المشاركة")} className="max-h-[260px] w-full rounded-xl object-cover" />
                   ))}
                 </div>
               )}
               {text && (
-                <div className={`rounded-[10px_10px_10px_2px] bg-[#1F2C33] px-2.5 py-2 text-[13px] leading-[1.6] text-[#E9EDEF] ${previews.length ? "mt-2" : ""}`} dir="auto">
+                <div className={`rounded-[10px_10px_10px_2px] bg-[#1F2C33] px-2.5 py-2 text-sm leading-[1.6] text-[#E9EDEF] ${previews.length ? "mt-2" : ""}`} dir="auto">
                   {text.length > 600 ? `${text.slice(0, 600)}…` : text}
                 </div>
               )}
               {!previews.length && !text && (
-                <div className="text-[13px] text-[#E9EDEF]" dir="auto">
+                <div className="text-sm text-[#E9EDEF]" dir="auto">
                   {shared!.files.map((f) => f.name).join("، ")}
                 </div>
               )}
@@ -99,26 +99,26 @@ export default function DropShare() {
               {shared!.files.length > images.length && <span className="dr-chip">{tr("ملفات · {0}", shared!.files.length - images.length)}</span>}
             </div>
           </section>
-          <section className="dr-card rounded-[22px] px-3.5 py-3">
-            <div className="mb-1.5 text-[13px] text-ws-muted">{tr("للفريق")}</div>
+          <section className="dr-card rounded-2xl px-3.5 py-3">
+            <div className="mb-1.5 text-sm text-ws-muted">{tr("للفريق")}</div>
             <div className="flex items-center gap-2.5">
               <span className="dr-ic" aria-hidden>
                 <Users size={16} />
               </span>
-              <b className="flex-1 truncate text-[15px]" dir="auto">
+              <b className="flex-1 truncate text-base" dir="auto">
                 {project?.title?.trim() || team?.name || tr("فريقكم")}
               </b>
               <ChevronLeft size={18} className="text-ws-muted ltr:rotate-180" aria-hidden />
             </div>
           </section>
-          <label className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-black/25 px-3.5 text-[14px] text-ws-muted shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+          <label className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-black/25 px-3.5 text-sm text-ws-muted shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
             <PenLine size={16} aria-hidden />
             <input className="min-w-0 flex-1 border-0 bg-transparent text-ws-text outline-none placeholder:text-ws-muted" placeholder={tr("كلمة للفريق (اختياري)")} value={note} onChange={(e) => setNote(e.target.value)} dir="auto" />
           </label>
           <button type="button" className="dr-primary mt-1" onClick={go}>
             {tr("ارموها")}
           </button>
-          <p className="m-0 text-center text-[12px] text-ws-muted">{tr("بنقراها ونوريكم وين بتنحط قبل لا نحطها.")}</p>
+          <p className="m-0 text-center text-xs text-ws-muted">{tr("بنقراها ونوريكم وين بتنحط قبل لا نحطها.")}</p>
         </>
       )}
     </div>

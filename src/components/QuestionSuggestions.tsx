@@ -99,7 +99,7 @@ export default function QuestionSuggestions({
                     ))}
                   </span>
                 </div>
-                <p className="mt-2 text-[15px] font-semibold leading-relaxed text-brand-950">{q.question}</p>
+                <p className="mt-2 text-base font-semibold leading-relaxed text-brand-950">{q.question}</p>
                 {q.why && <p className="mt-1 text-sm text-brand-950/60">{q.why}</p>}
                 <SourceList papers={result.papers} sources={q.sources} />
                 {(q.design || q.variables) && (
@@ -144,7 +144,7 @@ export default function QuestionSuggestions({
         </details>
       )}
       {result?.noveltyNote && <p className="mt-3 text-xs text-brand-950/55">💡 {result.noveltyNote}</p>}
-      <p className="mt-2 text-[12px] text-brand-950/40">{tre("اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.")}</p>
+      <p className="mt-2 text-xs text-brand-950/40">{tre("اقتراحات مساعدة فقط — اعرضوها على المشرف/ة قبل اعتماد أي سؤال.")}</p>
     </div>
   );
 }

@@ -311,8 +311,8 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
             <header className="ag-head">
               <AgentOrb size={44} state={busy ? "thinking" : "idle"} />
               <div className="min-w-0 flex-1 leading-[1.35]">
-                <b className="block text-[19px]">{tr("ويسي")}</b>
-                <span className="ag-head-sub block truncate text-[13px]">{tr("يعرف بحثكم · ما يسوي شي بدون موافقتكم")}</span>
+                <b className="block text-lg">{tr("ويسي")}</b>
+                <span className="ag-head-sub block text-xs leading-snug">{tr("يعرف بحثكم · ما يسوي شي بدون موافقتكم")}</span>
               </div>
               <button type="button" className="ag-x" onClick={onClose} aria-label={tr("إغلاق")}>
                 <X size={18} />
@@ -339,17 +339,17 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
                   ) : !started ? (
                     <>
                       <div className="ag-m-only ag-hello">
-                        <span className="text-[16px] font-bold">{tr("هلا {0}", hello)}</span>
+                        <span className="text-base font-bold">{tr("هلا {0}", hello)}</span>
                         <h2 className="ag-h1">{tr("وش نخلّص اليوم؟")}</h2>
                       </div>
                       {needs.length > 0 ? (
                         <NeedsList needs={needs} onGo={goNeed} busy={busy} />
                       ) : (
-                        <p className="m-0 text-[14px] text-ws-text-accent">{tr("ما فيه شي يحتاجكم الحين. اطلبوا أي شي تحت.")}</p>
+                        <p className="m-0 text-sm text-ws-text-accent">{tr("ما فيه شي يحتاجكم الحين. اطلبوا أي شي تحت.")}</p>
                       )}
                       {lastUndoable && (
                         <div className="ag-last">
-                          <span className="min-w-0 flex-1 truncate text-[13px] text-ws-text-accent">{tr("آخر شي سوّيته: {0}", lastUndoable.summary)}</span>
+                          <span className="min-w-0 flex-1 truncate text-sm text-ws-text-accent">{tr("آخر شي سوّيته: {0}", lastUndoable.summary)}</span>
                           <button type="button" className="ag-link" disabled={!!undoing} onClick={() => void undoReceipt(lastUndoable)}>
                             {tr("تراجع")}
                           </button>

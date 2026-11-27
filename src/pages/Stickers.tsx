@@ -48,11 +48,11 @@ export default function Stickers() {
           <div key={k} className="lx-card flex flex-col items-center gap-2 p-4 text-center">
             <img src={url(k)} alt={tr("ستيكر ويسي: {0}", tr(cap))} width={160} height={160} loading="lazy" className="h-40 w-40 object-contain" />
             <div className="flex w-full flex-col gap-2">
-              <a href={url(k)} download={`wesy-${k}.webp`} className="lx-ghost flex min-h-[44px] flex-1 items-center justify-center gap-1.5 !px-2 text-[13px]">
+              <a href={url(k)} download={`wesy-${k}.webp`} className="lx-ghost flex min-h-[44px] flex-1 items-center justify-center gap-1.5 !px-2 text-sm">
                 <Download size={15} aria-hidden />
                 {tr("حمّلوها")}
               </a>
-              <button type="button" onClick={() => void shareToWhatsApp(k)} className="lx-ghost flex min-h-[44px] flex-1 items-center justify-center gap-1.5 !px-2 text-[13px]">
+              <button type="button" onClick={() => void shareToWhatsApp(k)} className="lx-ghost flex min-h-[44px] flex-1 items-center justify-center gap-1.5 !px-2 text-sm">
                 <WhatsAppLogo size={16} />
                 {tr("أضيفوها للواتساب")}
               </button>

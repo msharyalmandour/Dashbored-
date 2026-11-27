@@ -194,9 +194,9 @@ export default function Login() {
   const clearValidity = (e: React.ChangeEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity("");
 
   const inputClass =
-    "w-full rounded-2xl border border-white/[0.12] bg-white/[0.04] px-[18px] py-3.5 text-[15px] text-white outline-none transition-[border-color,box-shadow] placeholder:text-[#8F8378] focus:border-ws-accent2/70 focus:shadow-[0_0_0_4px_rgba(255,138,36,0.14)]";
+    "w-full rounded-2xl border border-white/10 bg-white/[0.04] px-[18px] py-3.5 text-base text-white outline-none transition-[border-color,box-shadow] placeholder:text-[#8F8378] focus:border-ws-accent2/70 focus:shadow-[0_0_0_4px_rgba(255,138,36,0.14)]";
   const glowButtonClass =
-    "w-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent py-4 text-[17px] font-bold text-[#1a0f00] shadow-[0_14px_40px_rgba(255,107,0,0.35)] transition hover:brightness-110 disabled:opacity-60";
+    "w-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent py-4 text-lg font-bold text-[#1a0f00] shadow-[0_14px_40px_rgba(255,107,0,0.35)] transition hover:brightness-110 disabled:opacity-60";
   // في النسخة التجريبية (mock) ما فيه إنشاء حساب، فعنوان الإنشاء يطلع بس بالوضع الحقيقي
   const signUpView = isSignUp && mode === "supabase";
 
@@ -218,7 +218,7 @@ export default function Login() {
 
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
         <main className="flex w-full flex-1 flex-col items-center justify-center py-6">
-            <div className="w-full max-w-[500px] animate-[panel-in_0.5s_ease-out] rounded-[40px] border border-[rgba(255,220,180,.25)] bg-[rgba(20,8,4,.55)] p-7 text-[#F6F1EC] shadow-[0_60px_140px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,240,220,.25)] backdrop-blur-[30px] backdrop-saturate-150 sm:p-10">
+            <div className="w-full max-w-[500px] animate-[panel-in_0.5s_ease-out] rounded-3xl border border-[rgba(255,220,180,.25)] bg-[rgba(20,8,4,.55)] p-7 text-[#F6F1EC] shadow-[0_60px_140px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,240,220,.25)] backdrop-blur-[30px] backdrop-saturate-150 sm:p-10">
               <div className="mb-7 space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <Link to="/" aria-label={tr("Wesync — الصفحة الرئيسية")} className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
@@ -244,7 +244,7 @@ export default function Login() {
                       )}
                     </button>
                   )}
-                    <LangToggle className="border-white/20 bg-white/[0.08] text-ws-text hover:bg-white/[0.14]" />
+                    <LangToggle className="border-white/20 bg-white/[0.07] text-ws-text hover:bg-white/[0.14]" />
                   </div>
                 </div>
                 <div>
@@ -341,7 +341,7 @@ export default function Login() {
                     {isSignUp && (
                       <div className="text-sm">
                         <span className="mb-2 block font-semibold">{tr("نخاطبك بـ")}</span>
-                        <div className="flex rounded-full border border-white/[0.12] bg-white/[0.04] p-1">
+                        <div className="flex rounded-full border border-white/10 bg-white/[0.04] p-1">
                           {(
                             [
                               ["female", tr("أنتِ")],
@@ -512,7 +512,7 @@ export default function Login() {
                   </button>
 
                   {showDemoCreds && (
-                    <div className="mt-3 space-y-1.5 rounded-xl bg-white/5 p-3">
+                    <div className="mt-3 space-y-1.5 rounded-xl bg-white/[0.04] p-3">
                       {demoCredentials.map((c) => {
                         const member = teamMembers.find((m) => m.id === c.memberId)!;
                         return (
@@ -524,7 +524,7 @@ export default function Login() {
                               setMockPassword(c.password);
                               setMockError(null);
                             }}
-                            className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-white/10"
+                            className="flex w-full items-center justify-between rounded-xl px-2 py-1.5 text-xs hover:bg-white/10"
                           >
                             <span className="font-semibold text-white/70">
                               {member.name}
@@ -547,7 +547,7 @@ export default function Login() {
             </div>
         </main>
 
-        <footer className="pb-1 text-center text-[12px] tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
+        <footer className="pb-1 text-center text-xs tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
       </div>
     </div>
   );

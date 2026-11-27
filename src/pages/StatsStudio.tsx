@@ -50,7 +50,7 @@ function CopyButton({ text, label = tre("نسخ") }: { text: string; label?: str
           // نسخ يدوي لو الحافظة غير متاحة
         }
       }}
-      className="flex items-center gap-1 text-[12px] font-bold text-brand-600 hover:underline"
+      className="flex items-center gap-1 text-xs font-bold text-brand-600 hover:underline"
     >
       {done ? <Check size={12} /> : <Copy size={12} />}
       {done ? tre("تم النسخ") : label}
@@ -82,11 +82,11 @@ function NumberField({
           value={Number.isFinite(value) ? value : ""}
           step={step}
           onChange={(e) => onChange(e.target.value === "" ? NaN : Number(e.target.value))}
-          className="w-full rounded-lg border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
+          className="w-full rounded-xl border border-brand-100 px-3 py-2 text-sm outline-none focus:border-brand-300"
         />
         {suffix && <span className="shrink-0 text-xs text-brand-950/50">{suffix}</span>}
       </div>
-      {hint && <span className="mt-1 block text-[12px] leading-snug text-brand-950/45">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs leading-snug text-brand-950/45">{hint}</span>}
     </label>
   );
 }
@@ -105,7 +105,7 @@ function ResultBox({ result, note }: { result: SampleSizeResult | null; note?: s
         <p className="mt-2 text-sm font-semibold text-brand-950/75">{tre("مع تعويض الانسحاب: وزّعوا استبيانات على ")}<b className="text-brand-600">{result.withAttrition.toLocaleString("en-GB")}</b>
         </p>
       )}
-      <p className="mt-3 text-[12px] leading-relaxed text-brand-950/50">{result.formula}</p>
+      <p className="mt-3 text-xs leading-relaxed text-brand-950/50">{result.formula}</p>
     </div>
   );
 }
@@ -362,7 +362,7 @@ function ChooserTab({ goToAnalyze }: { goToAnalyze: () => void }) {
               <Opt v={true} cur={normal} set={setNormal}>{tre("إيه / ما أدري")}</Opt>
               <Opt v={false} cur={normal} set={setNormal}>{tre("لا (ملتوية أو رتبية أو عينة صغيرة)")}</Opt>
             </div>
-            <p className="mt-1.5 text-[12px] text-brand-950/45">{tre("مقياس ليكرت بفقرة واحدة يُعتبر رتبيًا — اختاروا «لا».")}</p>
+            <p className="mt-1.5 text-xs text-brand-950/45">{tre("مقياس ليكرت بفقرة واحدة يُعتبر رتبيًا — اختاروا «لا».")}</p>
           </div>
         )}
       </Card>
@@ -417,7 +417,7 @@ function ColumnSelect({
       <select
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
+        className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300"
       >
         <option value={-1}>{tre("— اختاروا عمود —")}</option>
         {cols.map((c, i) =>
@@ -549,7 +549,7 @@ function AnalyzeTab({ data, setData }: { data: Dataset; setData: (d: Dataset) =>
                 />
               </div>
             ))}
-          <p className="text-[12px] text-brand-950/45">{tre("استخدموا المتوسط ± الانحراف للمتغيرات الرقمية، والتكرار والنسبة للفئوية. لو الوسيط بعيد عن المتوسط فالبيانات ملتوية.")}</p>
+          <p className="text-xs text-brand-950/45">{tre("استخدموا المتوسط ± الانحراف للمتغيرات الرقمية، والتكرار والنسبة للفئوية. لو الوسيط بعيد عن المتوسط فالبيانات ملتوية.")}</p>
         </div>
       );
     }
@@ -725,7 +725,7 @@ function AnalyzeTab({ data, setData }: { data: Dataset; setData: (d: Dataset) =>
           rows={6}
           dir="auto"
           placeholder={tre("الجنس\tالعمر\tالدرجة\nأنثى\t25\t34\nذكر\t28\t29")}
-          className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 font-mono text-xs outline-none focus:border-brand-300"
+          className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 font-mono text-xs outline-none focus:border-brand-300"
         />
         <div className="flex flex-wrap items-center gap-2">
           <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" onChange={onFile} className="hidden" />
@@ -817,7 +817,7 @@ export default function StatsStudio() {
       {tab === "choose" && <ChooserTab goToAnalyze={() => setTab("analyze")} />}
       {tab === "analyze" && <AnalyzeTab data={data} setData={setData} />}
 
-      <p className="text-center text-[12px] text-brand-950/40">{tre("الحسابات تعمل بمتصفحكم وتمّ التحقق منها بقيم مرجعية معروفة، لكنها أداة مساعدة: راجعوا نتائجكم النهائية مع المشرفة أو برنامج معتمد.")}</p>
+      <p className="text-center text-xs text-brand-950/40">{tre("الحسابات تعمل بمتصفحكم وتمّ التحقق منها بقيم مرجعية معروفة، لكنها أداة مساعدة: راجعوا نتائجكم النهائية مع المشرفة أو برنامج معتمد.")}</p>
     </div>
   );
 }

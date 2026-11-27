@@ -32,7 +32,7 @@ function Skyline() {
         <linearGradient id="wo-dusk" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2A0E05" />
           <stop offset=".55" stopColor="#B4430B" />
-          <stop offset=".85" stopColor="#FF7A1A" />
+          <stop offset=".85" stopColor="#FF8A24" />
           <stop offset="1" stopColor="#FFB547" />
         </linearGradient>
       </defs>

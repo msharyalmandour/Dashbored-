@@ -104,7 +104,7 @@ export default function BottomNav() {
           <div className="md:hidden">
             <div className="dr-scrim" onClick={() => setMenu(false)} aria-hidden />
             <div role="menu" aria-label={tr("من الكرة")} className="dr-menu dr-sh">
-              <div className="px-2.5 pb-1 pt-1.5 text-[12px] font-bold text-ws-accent3">{tr("ضغطة طويلة على الكرة")}</div>
+              <div className="px-2.5 pb-1 pt-1.5 text-xs font-bold text-ws-accent3">{tr("ضغطة طويلة على الكرة")}</div>
               <button
                 ref={firstItem}
                 type="button"

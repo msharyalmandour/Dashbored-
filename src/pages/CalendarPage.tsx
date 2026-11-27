@@ -29,7 +29,7 @@ const typeColor: Record<CalendarEventType, string> = {
   meeting: "bg-brand-500/15 text-amber-accent-400",
   review: "bg-ws-accent3/15 text-ws-accent3",
   fieldwork: "bg-amber-accent-400/15 text-amber-accent-400",
-  deadline: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
+  deadline: "bg-[#FF8A7A]/15 text-[#FF8A7A]",
 };
 
 const typeLabel: Record<CalendarEventType, string> = {
@@ -123,7 +123,7 @@ export default function CalendarPage() {
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
+                className="w-full rounded-xl border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
                 placeholder={tr("مثال: الموعد النهائي لتسليم الفصل الرابع")}
               />
             </label>
@@ -133,7 +133,7 @@ export default function CalendarPage() {
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
+                className="w-full rounded-xl border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
               />
             </label>
             <label className="block text-sm">
@@ -142,7 +142,7 @@ export default function CalendarPage() {
                 type="time"
                 value={form.time}
                 onChange={(e) => setForm({ ...form, time: e.target.value })}
-                className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
+                className="w-full rounded-xl border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
               />
             </label>
             <label className="block text-sm">
@@ -150,7 +150,7 @@ export default function CalendarPage() {
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as CalendarEventType })}
-                className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
+                className="w-full rounded-xl border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
               >
                 <option value="deadline">{tr("موعد نهائي")}</option>
                 <option value="meeting">{tr("اجتماع")}</option>
@@ -163,7 +163,7 @@ export default function CalendarPage() {
               <input
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
-                className="w-full rounded-lg border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
+                className="w-full rounded-xl border border-brand-100 px-3 py-2 outline-none focus:border-brand-300"
                 placeholder={tr("مثال: البوابة الإلكترونية")}
               />
             </label>
@@ -210,7 +210,7 @@ export default function CalendarPage() {
                   const Icon = typeIcon[event.type];
                   return (
                     <li key={event.id} className={clsx(rowSurface, "flex items-start gap-3")}>
-                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${typeColor[event.type]}`}>
+                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${typeColor[event.type]}`}>
                         <Icon size={16} />
                       </span>
                       <div className="min-w-0 flex-1">

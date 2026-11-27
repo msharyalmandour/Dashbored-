@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { WSpin } from "../brand/WLogo";
 import { Check, ExternalLink, Plus } from "lucide-react";
-import Card from "../ui/Card";
+import SuggestCard from "../agent/SuggestCard";
 import { useAuth } from "../../context/AuthContext";
 import { useEvidencePapers } from "../../hooks/useEvidencePapers";
 import { useSearchLog } from "../../hooks/useSearchLog";
@@ -89,18 +89,20 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
   const chips = useMemo(() => suggestions.filter(Boolean).slice(0, 4), [suggestions]);
 
   return (
-    <Card className="space-y-4" data-agent="scholar-bridge">
-      <div>
-        <p className="text-sm font-extrabold text-brand-950">{tr("قوقل سكولار — ابحثوا وسجّلوا هنا")}</p>
-        <p className="mt-0.5 text-xs text-brand-950/55">{tr("قوقل ما يسمح بالبحث فيه من موقعنا، فنفتحه لكم جاهز بجملة البحث. بعد ما تبحثون: سجّلوا كم طلع وكم اخترتم (ويسي يشوف سجلكم)، وألصقوا DOI أو عناوين الدراسات المختارة ونضيفها لمكتبتكم.")}</p>
-      </div>
+    <SuggestCard
+      data-agent="scholar-bridge"
+      className="space-y-4"
+      icon={ExternalLink}
+      title={tr("قوقل سكولار — ابحثوا وسجّلوا هنا")}
+      body={tr("قوقل ما يسمح بالبحث فيه من موقعنا، فنفتحه لكم جاهز بجملة البحث. بعد ما تبحثون: سجّلوا كم طلع وكم اخترتم (ويسي يشوف سجلكم)، وألصقوا DOI أو عناوين الدراسات المختارة ونضيفها لمكتبتكم.")}
+    >
 
       <div className="space-y-2">
         <p className="text-xs font-bold text-brand-950/70">{tr("1) جملة البحث")}</p>
         {chips.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {chips.map((c) => (
-              <button key={c} type="button" onClick={() => setQuery(c)} className="max-w-full truncate rounded-full border border-brand-200 px-3 py-1 text-[12px] font-semibold text-brand-800 hover:bg-surface-muted" dir="ltr" title={c}>
+              <button key={c} type="button" onClick={() => setQuery(c)} className="max-w-full truncate rounded-full border border-brand-200 px-3 py-1 text-xs font-semibold text-brand-800 hover:bg-surface-muted" dir="ltr" title={c}>
                 {c}
               </button>
             ))}
@@ -136,7 +138,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           {logMsg && <span className="text-xs text-brand-950/60">{logMsg}</span>}
         </div>
         {rows.length > 0 && (
-          <ul className="space-y-1 text-[12px] text-brand-950/60">
+          <ul className="space-y-1 text-xs text-brand-950/60">
             {rows.slice(0, 5).map((r) => (
               <li key={r.id} className="truncate">
                 <b className="text-brand-950/80">{r.database}</b> · {r.results ?? "؟"} → {r.selected ?? "؟"} · {nameOf(r.by)} · <span dir="ltr">{r.query}</span>
@@ -149,7 +151,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
       <div className="space-y-2">
         <p className="text-xs font-bold text-brand-950/70">{tr("3) ألصقوا الدراسات اللي اخترتوها")}</p>
         <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={4} dir="ltr" className={field} placeholder={"https://doi.org/10.1016/j.ijnurstu.2019.103456\nKnowledge and practice of nurses toward early delirium detection"} />
-        <p className="text-[12px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
+        <p className="text-xs text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
         <button type="button" onClick={convert} disabled={busy || pasted.trim().length < 10} className="inline-flex items-center gap-1.5 rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
           {busy && <WSpin size={13} />}
           {tr("تعرّف عليها")}
@@ -181,6 +183,6 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           </p>
         )}
       </div>
-    </Card>
+    </SuggestCard>
   );
 }

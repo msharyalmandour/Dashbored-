@@ -7,7 +7,7 @@ import { tr } from "../lib/i18n";
 type Variant = "dark" | "light";
 
 const btn: Record<Variant, string> = {
-  dark: "border-white/15 bg-white/[0.06] text-white/85 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10",
+  dark: "border-white/20 bg-white/[0.07] text-white/85 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] backdrop-blur-md hover:bg-white/10",
   light: "border-brand-200 bg-paper text-brand-800 hover:bg-surface-muted",
 };
 
@@ -49,7 +49,7 @@ export default function InstallAppButton({ variant = "dark", className = "" }: {
             <div
               dir="rtl"
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm animate-[panel-in_0.3s_ease-out] rounded-[2rem] border border-white/15 bg-[#0b1116] p-6 shadow-2xl"
+              className="w-full max-w-sm animate-[panel-in_0.3s_ease-out] rounded-3xl border border-white/20 bg-[#0b1116] p-6 shadow-2xl"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

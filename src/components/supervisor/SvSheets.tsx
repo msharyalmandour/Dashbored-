@@ -113,25 +113,25 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
       {mine.length > 0 && (
         <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
           {mine.map((c) => (
-            <li key={c.id} className="rounded-[14px] bg-[rgba(255,199,119,.07)] px-3 py-2 text-[13px] leading-relaxed text-ws-text-accent">
-              {c.quote && <span className="mb-1 block border-s-[3px] border-ws-accent3 ps-2 text-[12px] text-ws-muted">«{c.quote}»</span>}
+            <li key={c.id} className="rounded-xl bg-[rgba(255,199,119,.07)] px-3 py-2 text-sm leading-relaxed text-ws-text-accent">
+              {c.quote && <span className="mb-1 block border-s-[3px] border-ws-accent3 ps-2 text-xs text-ws-muted">«{c.quote}»</span>}
               {c.body}
-              <span className="ms-2 text-[12px] text-ws-muted">{c.resolvedAt ? tr("· اتعدّلت ✓") : tr("· {0}", relTime(c.createdAt))}</span>
+              <span className="ms-2 text-xs text-ws-muted">{c.resolvedAt ? tr("· اتعدّلت ✓") : tr("· {0}", relTime(c.createdAt))}</span>
             </li>
           ))}
         </ul>
       )}
       {!open ? (
-        <button type="button" className="sv-btn ghost !min-h-[44px] !px-3.5 !text-[13px]" onPointerDown={(e) => e.preventDefault()} onClick={start}>
+        <button type="button" className="sv-btn ghost !min-h-[44px] !px-3.5 !text-sm" onPointerDown={(e) => e.preventDefault()} onClick={start}>
           <MessageSquarePlus size={15} aria-hidden />
           {done ? tr("انرسلت ✓ — ملاحظة ثانية") : tr("علّقوا على جملة")}
         </button>
       ) : (
-        <div className="rounded-[18px] border border-[rgba(255,240,225,.12)] bg-[rgba(0,0,0,.22)] p-3">
+        <div className="rounded-2xl border border-[rgba(255,240,225,.12)] bg-[rgba(0,0,0,.22)] p-3">
           {quote ? (
-            <p className="m-0 mb-2 border-s-[3px] border-ws-accent3 ps-2 text-[13px] leading-relaxed text-[#D9CFC5]">«{quote}»</p>
+            <p className="m-0 mb-2 border-s-[3px] border-ws-accent3 ps-2 text-sm leading-relaxed text-[#D9CFC5]">«{quote}»</p>
           ) : (
-            <p className="m-0 mb-2 text-[12px] text-ws-muted">{tr("ملاحظة على القسم كامل. (لو تبون جملة محددة: حدّدوها من النص فوق ثم اضغطوا «علّقوا على جملة».)")}</p>
+            <p className="m-0 mb-2 text-xs text-ws-muted">{tr("ملاحظة على القسم كامل. (لو تبون جملة محددة: حدّدوها من النص فوق ثم اضغطوا «علّقوا على جملة».)")}</p>
           )}
           <textarea
             value={body}
@@ -140,12 +140,12 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
             autoFocus
             aria-label={tr("ملاحظتكم على «{0}»", label)}
             placeholder={tr("وش يعدّلون؟")}
-            className="min-h-[80px] w-full resize-y rounded-[14px] border border-[rgba(255,240,225,.12)] bg-[rgba(255,245,235,.05)] p-3 text-[15px] leading-relaxed text-ws-text outline-none focus:border-[rgba(255,199,119,.55)]"
+            className="min-h-[80px] w-full resize-y rounded-xl border border-[rgba(255,240,225,.12)] bg-[rgba(255,245,235,.05)] p-3 text-base leading-relaxed text-ws-text outline-none focus:border-[rgba(255,199,119,.55)]"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
               type="button"
-              className="sv-btn pri !min-h-[44px] !text-[14px]"
+              className="sv-btn pri !min-h-[44px] !text-sm"
               disabled={busy || !body.trim()}
               onClick={async () => {
                 setBusy(true);
@@ -162,11 +162,11 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
               {busy && <WSpin size={14} />}
               {tr("أرسلوا الملاحظة")}
             </button>
-            <button type="button" className="sv-btn ghost !min-h-[44px] !text-[14px]" onClick={() => setOpen(false)}>
+            <button type="button" className="sv-btn ghost !min-h-[44px] !text-sm" onClick={() => setOpen(false)}>
               {tr("إلغاء")}
             </button>
           </div>
-          <p className="m-0 mt-2 text-[12px] text-ws-muted">{tr("تصير مهمة على اللي كتب القسم، وتوصل الفريق بالمحادثة.")}</p>
+          <p className="m-0 mt-2 text-xs text-ws-muted">{tr("تصير مهمة على اللي كتب القسم، وتوصل الفريق بالمحادثة.")}</p>
         </div>
       )}
     </div>
@@ -204,13 +204,13 @@ export function SvDocSheet({
             <div className="flex items-center gap-2">
               <span className="min-w-0 flex-1">
                 <span className="sv-st">{r.label}</span>
-                {r.en && <span className="mx-2 text-[12px] text-[#8F857C]" dir="ltr">{r.en}</span>}
+                {r.en && <span className="mx-2 text-xs text-[#8F857C]" dir="ltr">{r.en}</span>}
               </span>
               {r.status === "done" && !!r.content?.trim() && onApprove &&
                 (approved?.includes(r.key) ? (
                   <span className="sv-badge soon !text-ws-accent3 !bg-[rgba(255,199,119,.12)]">{tr("معتمد ✓")}</span>
                 ) : (
-                  <button className="sv-btn ghost !min-h-[38px] !px-3.5 !text-[13px]" disabled={approvingKey === r.key} onClick={() => onApprove(r.key, r.label)}>
+                  <button className="sv-btn ghost !min-h-[38px] !px-3.5 !text-sm" disabled={approvingKey === r.key} onClick={() => onApprove(r.key, r.label)}>
                     {approvingKey === r.key && <WSpin size={13} />}
                     {tr("اعتمد القسم")}
                   </button>
@@ -218,11 +218,11 @@ export function SvDocSheet({
               {r.status && r.status !== "done" && <span className="sv-badge soon !text-ws-muted !bg-[rgba(255,255,255,.06)]">{r.status === "in-progress" ? tr("قيد الكتابة") : tr("ما بدأ")}</span>}
             </div>
             {r.content ? (
-              <p id={`sv-sec-${r.key}`} className="m-0 mt-1.5 whitespace-pre-wrap text-[14px] leading-[1.9] text-[#D9D0C6]">
+              <p id={`sv-sec-${r.key}`} className="m-0 mt-1.5 whitespace-pre-wrap text-sm leading-[1.9] text-[#D9D0C6]">
                 {r.content}
               </p>
             ) : (
-              <p className="m-0 mt-1.5 text-[13px] text-ws-muted">{tr("لم يُكتب بعد")}</p>
+              <p className="m-0 mt-1.5 text-sm text-ws-muted">{tr("لم يُكتب بعد")}</p>
             )}
             {r.content && onComment && <CommentBox sectionKey={r.key} label={r.label} comments={comments} onComment={onComment} />}
           </div>

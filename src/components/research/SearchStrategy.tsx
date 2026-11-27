@@ -23,12 +23,12 @@ function CopyBlock({ label, text }: { label: string; text: string }) {
     <div className="rounded-2xl bg-surface-muted p-3">
       <div className="mb-1.5 flex items-center justify-between">
         <p className="text-xs font-extrabold text-brand-950/70">{label}</p>
-        <button onClick={copy} className="flex items-center gap-1 text-[12px] font-bold text-brand-600 hover:underline">
+        <button onClick={copy} className="flex items-center gap-1 text-xs font-bold text-brand-600 hover:underline">
           {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? tr("تم النسخ") : tr("نسخ")}
         </button>
       </div>
-      <p dir="ltr" className="break-words text-start font-mono text-[12px] leading-relaxed text-brand-950/75">
+      <p dir="ltr" className="break-words text-start font-mono text-xs leading-relaxed text-brand-950/75">
         {text}
       </p>
     </div>
@@ -44,7 +44,7 @@ function ListBlock({ title, items, tone }: { title: string; items?: string[]; to
         {items.map((it) => (
           <li
             key={it}
-            className={`rounded-lg px-2.5 py-1.5 text-xs ${
+            className={`rounded-xl px-2.5 py-1.5 text-xs ${
               tone === "amber" ? "bg-amber-accent-50 text-amber-accent-700" : "bg-brand-50 text-brand-700"
             }`}
           >
@@ -89,7 +89,7 @@ export default function SearchStrategy() {
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && run()}
             placeholder={tr("عنوان بحث التخرج...")}
-            className="w-full rounded-lg border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
+            className="w-full rounded-xl border border-brand-100 px-3 py-2.5 text-sm outline-none focus:border-brand-300"
           />
           <button
             onClick={run}
@@ -116,7 +116,7 @@ export default function SearchStrategy() {
           {pico && (
             <Card>
               <p className="text-sm font-extrabold text-brand-950">{tr("إطار ")}<Term id="pico">PICO</Term></p>
-              <p className="mb-3 text-[12px] text-brand-950/45">{tr("طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.")}</p>
+              <p className="mb-3 text-xs text-brand-950/45">{tr("طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.")}</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(
                   [
@@ -127,7 +127,7 @@ export default function SearchStrategy() {
                   ] as const
                 ).map(([label, value]) => (
                   <div key={label} className="rounded-xl bg-surface-muted p-2.5">
-                    <p className="text-[12px] font-bold text-brand-950/40">{label}</p>
+                    <p className="text-xs font-bold text-brand-950/40">{label}</p>
                     <p className="mt-0.5 text-xs text-brand-950/75">{value || "—"}</p>
                   </div>
                 ))}
@@ -141,7 +141,7 @@ export default function SearchStrategy() {
             {strategy.searchStrings?.pubmed && <CopyBlock label="PubMed" text={strategy.searchStrings.pubmed} />}
             {strategy.searchStrings?.cinahl && <CopyBlock label="CINAHL" text={strategy.searchStrings.cinahl} />}
             {strategy.searchStrings?.scopus && <CopyBlock label="Scopus" text={strategy.searchStrings.scopus} />}
-            <p className="text-[12px] text-brand-950/45">{tr("هذي جمل مقترحة من الذكاء الاصطناعي: جرّبوها وعدّلوها حسب عدد النتائج، وتأكدوا من مصطلحات MeSH في MeSH Browser قبل اعتمادها.")}</p>
+            <p className="text-xs text-brand-950/45">{tr("هذي جمل مقترحة من الذكاء الاصطناعي: جرّبوها وعدّلوها حسب عدد النتائج، وتأكدوا من مصطلحات MeSH في MeSH Browser قبل اعتمادها.")}</p>
           </Card>
 
           <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">

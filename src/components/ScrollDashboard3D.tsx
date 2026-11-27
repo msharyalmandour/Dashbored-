@@ -76,11 +76,11 @@ function Frame({ src, alt, chip }: { src: string; alt: string; chip?: string }) 
 function PlanCards() {
   return (
     <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-      <div className="rounded-3xl border border-white/15 bg-neutral-900/85 p-5 backdrop-blur-xl" style={{ transform: "translateZ(30px)" }}>
+      <div className="rounded-3xl border border-white/20 bg-neutral-900/85 p-5 backdrop-blur-xl" style={{ transform: "translateZ(30px)" }}>
         <p className="font-display text-base font-extrabold text-white">Basic</p>
         <p className="mt-1 flex items-baseline gap-1.5 text-white">
           <span className="font-display text-3xl font-extrabold">{BASIC_PRICE}</span>
-          <span className="text-[12px] font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
+          <span className="text-xs font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/65">
           {[tr("لوحة الفريق والمهام والتنبيهات"), tr("المقترح والمنهجية والإحصاء"), tr("محادثة المشرفة + تقويم الجوال")].map((t) => (
@@ -95,12 +95,12 @@ function PlanCards() {
         className="relative rounded-3xl border border-amber-400/50 bg-neutral-900/90 p-5 shadow-[0_0_70px_-20px_rgba(251,191,36,0.6)] backdrop-blur-xl"
         style={{ transform: "translateZ(70px)" }}
       >
-        <span className="absolute end-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-2.5 py-0.5 text-[12px] font-extrabold text-neutral-950">
+        <span className="absolute end-4 top-4 inline-flex items-center gap-1 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-2.5 py-0.5 text-xs font-extrabold text-neutral-950">
           <Wand2 size={10} />{tr("الأكثر قيمة")}</span>
         <p className="font-display text-base font-extrabold text-amber-200">AI</p>
         <p className="mt-1 flex items-baseline gap-1.5 text-white">
           <span className="font-display text-3xl font-extrabold">{AI_PRICE}</span>
-          <span className="text-[12px] font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
+          <span className="text-xs font-semibold text-white/55">{tr("ريال / شهريًا للفريق كامل")}</span>
         </p>
         <ul className="mt-3 space-y-1.5 text-xs text-white/75">
           {[tr("كل مزايا Basic"), tr("كوتش يعرف بحثكم وينصحكم بالأولويات"), tr("ويسي للبحث + تدريب مناقشة + تحسين الصياغة")].map((t) => (
@@ -110,7 +110,7 @@ function PlanCards() {
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[12px] font-bold text-amber-300">{trx("أول 15 فريق: المساعد بـ{0} ريال بس", AI_ADDON_FOUNDER)}</p>
+        <p className="mt-2 text-xs font-bold text-amber-300">{trx("أول 15 فريق: المساعد بـ{0} ريال بس", AI_ADDON_FOUNDER)}</p>
       </div>
     </div>
   );
@@ -279,8 +279,8 @@ export default function ScrollDashboard3D() {
                 />
               ))}
             </div>
-            <p className="mt-5 hidden items-center gap-1.5 text-[12px] font-semibold text-white/35 lg:flex">
-              <span className="inline-block h-4 w-2.5 rounded-full border border-white/25 after:mx-auto after:mt-0.5 after:block after:h-1 after:w-1 after:animate-bounce after:rounded-full after:bg-white/50 motion-reduce:after:animate-none" />{tr("كمّلوا التمرير")}</p>
+            <p className="mt-5 hidden items-center gap-1.5 text-xs font-semibold text-white/35 lg:flex">
+              <span className="inline-block h-4 w-2.5 rounded-full border border-white/20 after:mx-auto after:mt-0.5 after:block after:h-1 after:w-1 after:animate-bounce after:rounded-full after:bg-white/50 motion-reduce:after:animate-none" />{tr("كمّلوا التمرير")}</p>
           </div>
 
           {/* المشهد ثلاثي الأبعاد */}
@@ -310,7 +310,7 @@ export default function ScrollDashboard3D() {
         </div>
 
         {/* شريط تقدّم التمرير */}
-        <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/5">
+        <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/[0.04]">
           <div ref={barRef} className="h-full origin-right bg-gradient-to-l from-amber-300 to-amber-500" style={{ transform: "scaleX(0)" }} />
         </div>
       </div>

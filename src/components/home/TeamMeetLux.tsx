@@ -24,9 +24,9 @@ const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 /** لون كل عضو (تدرج الأفاتار + هالة الضوء) — ثابت حسب ترتيبه بالفريق */
 export const PALETTE = [
   { from: "#FFE08A", to: "#FFB547", tint: "rgba(255,190,80,.7)" },
-  { from: "#FFC27A", to: "#FF8A2A", tint: "rgba(255,130,40,.6)" },
+  { from: "#FFC27A", to: "#FF8A24", tint: "rgba(255,130,40,.6)" },
   { from: "#FFF3E2", to: "#E7D3BC", tint: "rgba(255,225,190,.45)" },
-  { from: "#FF9A5A", to: "#D9500A", tint: "rgba(230,80,20,.6)" },
+  { from: "#FF8A24", to: "#D9500A", tint: "rgba(230,80,20,.6)" },
   { from: "#F6DDBF", to: "#D9AE82", tint: "rgba(240,190,140,.5)" },
   { from: "#FFD3A0", to: "#E07A2E", tint: "rgba(255,160,80,.55)" },
 ];
@@ -74,7 +74,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
           <h2 id="lux-team-title" className="lux-k2 m-0">
             {tr("الفريق مع بعض")}
           </h2>
-          <p className="v3-mut m-0 text-[15px]">{tr("وش يشتغل عليه كل واحد هالأسبوع")}</p>
+          <p className="v3-mut m-0 text-base">{tr("وش يشتغل عليه كل واحد هالأسبوع")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3.5">
           {teamTotal > 0 && (
@@ -89,7 +89,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
       </div>
 
       {cards.length === 0 ? (
-        <p className="v3-mut m-0 py-4 text-[15px]">{tr("أول ما ينضم أعضاء الفريق، يطلعون هنا مع بعض.")}</p>
+        <p className="v3-mut m-0 py-4 text-base">{tr("أول ما ينضم أعضاء الفريق، يطلعون هنا مع بعض.")}</p>
       ) : (
         <ul className="lux-team m-0 list-none p-0" style={{ ["--lux-n" as string]: cards.length }}>
           {cards.map(({ m, i, now, isCurrent, open, done, pct, on, me }, idx) => {
@@ -106,7 +106,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                   <div className="relative">
                     <div
                       className="lux-ring"
-                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#FFB547" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
+                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#FFB547" : "#FFB547", ["--lux-glow" as string]: pal.tint }}
                       role="img"
                       aria-label={tr("{0}٪ من المهام خلصت", num(pct))}
                     >
@@ -229,7 +229,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
       <section className="lux-meet v3-rise flex flex-col gap-5" style={style} aria-label={tr("الاجتماع الجاي")}>
         {head}
         <div className="flex flex-wrap items-center gap-4">
-          <span className="grid h-[72px] w-[72px] place-items-center rounded-[22px] bg-[rgba(255,140,40,.14)] text-ws-accent2" aria-hidden>
+          <span className="grid h-[72px] w-[72px] place-items-center rounded-2xl bg-[rgba(255,140,40,.14)] text-ws-accent2" aria-hidden>
             <CalendarClock size={32} />
           </span>
           <div className="min-w-[180px] flex-1">
@@ -292,7 +292,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
                   </span>
                 ))}
               </div>
-              <span className="v3-mut text-[13px]">
+              <span className="v3-mut text-sm">
                 {next.fromBooking && next.where !== tr("بانتظار تأكيد المشرف/ة") ? tr("الموعد مؤكد · الفريق ({0})", num(roster.length)) : tr("الفريق ({0})", num(roster.length))}
               </span>
             </div>
@@ -300,8 +300,8 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
         </div>
       </div>
 
-      <div className="rounded-[18px] border border-white/[0.06] bg-black/[0.22] px-4 py-3.5">
-        <div className="mb-2 flex items-center gap-2 text-[13px] font-extrabold">
+      <div className="rounded-2xl border border-white/10 bg-black/[0.22] px-4 py-3.5">
+        <div className="mb-2 flex items-center gap-2 text-sm font-extrabold">
           <ListOrdered size={15} aria-hidden />
           {tr("الأجندة")}
         </div>
@@ -309,7 +309,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
           <ol className="m-0 list-none p-0">
             {next.agenda.slice(0, 5).map((a, i) => (
               <li key={i} className="flex gap-2.5 py-1 text-sm">
-                <span className="v3-mut w-4 text-[13px]">{num(i + 1)}</span>
+                <span className="v3-mut w-4 text-sm">{num(i + 1)}</span>
                 <span dir="auto">{a}</span>
               </li>
             ))}
@@ -378,7 +378,7 @@ export function WeekLuxCard({ today, now, style }: { today: string; now: Date; s
         </span>
       </div>
       {items.length === 0 ? (
-        <p className="v3-mut m-0 py-6 text-[15px]">{tr("أسبوعكم فاضي من المواعيد. أضيفوا اجتماع أو موعد تسليم من التقويم.")}</p>
+        <p className="v3-mut m-0 py-6 text-base">{tr("أسبوعكم فاضي من المواعيد. أضيفوا اجتماع أو موعد تسليم من التقويم.")}</p>
       ) : (
         <div className="lux-tl">
           {days.map((day) => {
@@ -400,7 +400,7 @@ export function WeekLuxCard({ today, now, style }: { today: string; now: Date; s
                       </span>
                       <div className="lux-card">
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-[15px] font-bold" dir="auto">
+                          <div className="truncate text-base font-bold" dir="auto">
                             {e.title}
                           </div>
                           <div className="v3-mut truncate text-xs" dir="auto">
@@ -468,7 +468,7 @@ export function TeamMini({ tasks, today, style }: { tasks: Task[]; today: string
                 >
                   <span className="relative shrink-0">
                     <span
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold text-[#2A1206]"
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-base font-extrabold text-[#2A1206]"
                       style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}
                       aria-hidden
                     >
@@ -482,11 +482,11 @@ export function TeamMini({ tasks, today, style }: { tasks: Task[]; today: string
                     />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-bold leading-tight">
+                    <span className="block text-base font-bold leading-tight">
                       {m.name.split(" ")[0]}
                       {me && <span className="v3-mut ms-1.5 text-xs font-medium">{tr("(أنت)")}</span>}
                     </span>
-                    <span className="v3-mut block truncate text-[13px]" dir="auto">
+                    <span className="v3-mut block truncate text-sm" dir="auto">
                       {now ? now.title : tr("ما عليه شي مفتوح")}
                     </span>
                   </span>

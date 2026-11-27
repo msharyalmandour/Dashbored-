@@ -128,8 +128,8 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
             </button>
             {open[m.id] && (
               <div className="sv-detail">
-                {m.attendees.length > 0 && <div className="text-[13px] text-ws-muted">{trx("الحاضرون: {0}", m.attendees.join(tr("، ")))}</div>}
-                {m.agenda && <div className="mt-1 text-[13px] text-ws-muted">{m.agenda}</div>}
+                {m.attendees.length > 0 && <div className="text-sm text-ws-muted">{trx("الحاضرون: {0}", m.attendees.join(tr("، ")))}</div>}
+                {m.agenda && <div className="mt-1 text-sm text-ws-muted">{m.agenda}</div>}
                 <div className="mt-2">{m.discussion}</div>
                 {m.decisions && (
                   <div className="mt-2">
@@ -140,7 +140,7 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
                   <ul className="m-0 mt-2 list-none space-y-1 p-0">
                     {m.actions.map((a, i) => (
                       <li key={i}>
-                        • {a.text} <span className="text-[12px] text-ws-muted">— {a.assigneeName ?? "—"}{a.dueDate ? ` · ${formatDateShort(a.dueDate)}` : ""}</span>
+                        • {a.text} <span className="text-xs text-ws-muted">— {a.assigneeName ?? "—"}{a.dueDate ? ` · ${formatDateShort(a.dueDate)}` : ""}</span>
                       </li>
                     ))}
                   </ul>
@@ -308,9 +308,9 @@ function DigestChoice({ token }: { token: string }) {
             ["weekly", tr("ملخص الأحد بس"), tr("إيميل واحد مرتب كل أسبوع")],
           ] as const
         ).map(([k, t, d]) => (
-          <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-ws-text text-[#160904]" : "bg-white/[.04] text-ws-text shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>
-            <span className="block text-[14px] font-extrabold">{t}</span>
-            <span className={`block text-[12px] ${mode === k ? "text-[#4A3A2E]" : "text-ws-muted"}`}>{d}</span>
+          <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-ws-text text-[#160904]" : "bg-white/[0.04] text-ws-text shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>
+            <span className="block text-sm font-extrabold">{t}</span>
+            <span className={`block text-xs ${mode === k ? "text-[#4A3A2E]" : "text-ws-muted"}`}>{d}</span>
           </button>
         ))}
       </div>
@@ -391,7 +391,7 @@ export function SvSetupSheet({
             <p className="sv-sd m-0">{tr("حدّدوها مرة وحدة، والفريق يحجز منها بضغطة بدل رسائل الأخذ والرد. ما ينحجز شي خارجها.")}</p>
             <ul className="m-0 mt-2.5 list-none space-y-2 p-0">
               {windows.map((w) => (
-                <li key={w.key} className="grid grid-cols-[1fr_1fr_44px] items-center gap-1.5 rounded-2xl bg-white/[.03] p-1.5">
+                <li key={w.key} className="grid grid-cols-[1fr_1fr_44px] items-center gap-1.5 rounded-2xl bg-white/[0.04] p-1.5">
                   <select value={w.weekday} onChange={(e) => setWindows((x) => x.map((y) => (y.key === w.key ? { ...y, weekday: Number(e.target.value) } : y)))} aria-label={tr("يوم الأسبوع")} className="sv-in col-span-2 !px-2.5">
                     {WEEKDAY_NAMES.map((n, i) => (
                       <option key={n} value={i}>
@@ -399,7 +399,7 @@ export function SvSetupSheet({
                       </option>
                     ))}
                   </select>
-                  <button onClick={() => setWindows((x) => x.filter((y) => y.key !== w.key))} aria-label={tr("حذف")} className="grid h-11 w-11 place-items-center rounded-full text-ws-muted hover:text-[#FF9A8A]">
+                  <button onClick={() => setWindows((x) => x.filter((y) => y.key !== w.key))} aria-label={tr("حذف")} className="grid h-11 w-11 place-items-center rounded-full text-ws-muted hover:text-[#FF8A7A]">
                     <Trash2 size={16} />
                   </button>
                   <input type="time" value={w.start} onChange={(e) => setWindows((x) => x.map((y) => (y.key === w.key ? { ...y, start: e.target.value } : y)))} aria-label={tr("من")} className="sv-in !px-2.5" />
@@ -412,7 +412,7 @@ export function SvSetupSheet({
               {tr("أضيفوا وقت")}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <label className="text-[13px] font-bold text-ws-muted">
+              <label className="text-sm font-bold text-ws-muted">
                 {tr("مدة الاجتماع")}
                 <select value={slot} onChange={(e) => setSlot(Number(e.target.value))} className="sv-in mt-1">
                   {[15, 20, 30, 45, 60].map((m) => (
@@ -422,15 +422,15 @@ export function SvSetupSheet({
                   ))}
                 </select>
               </label>
-              <label className="text-[13px] font-bold text-ws-muted">
+              <label className="text-sm font-bold text-ws-muted">
                 {tr("أرد عادةً خلال (أيام)")}
                 <input type="number" min={1} max={30} value={replyDays} onChange={(e) => setReplyDays(e.target.value)} placeholder={tr("مثال: 3")} className="sv-in mt-1" />
               </label>
             </div>
-            <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-[14px]">
+            <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm">
               <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} className="mt-1 h-4 w-4 accent-ws-accent2" />
               <span>
-                <b>{tr("أكّد الحجز تلقائيًا")}</b> <span className="text-[13px] text-ws-muted">{tr("— لو اختار الفريق وقت من أوقاتكم يتأكد على طول.")}</span>
+                <b>{tr("أكّد الحجز تلقائيًا")}</b> <span className="text-sm text-ws-muted">{tr("— لو اختار الفريق وقت من أوقاتكم يتأكد على طول.")}</span>
               </span>
             </label>
             <input value={avNote} onChange={(e) => setAvNote(e.target.value)} maxLength={300} placeholder={tr("ملاحظة للفريق (اختياري): مثل «أفضّل الرسائل الصباحية»")} aria-label={tr("ملاحظة للفريق")} className="sv-in mt-3" />

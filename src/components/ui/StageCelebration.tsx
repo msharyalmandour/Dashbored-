@@ -31,7 +31,7 @@ export default function StageCelebration() {
   const share = tr("خلّصنا مرحلة «{0}» ببحثنا على Wesync 🎉", c.title);
   return (
     <div className="fixed inset-0 z-[260] flex items-center justify-center bg-black/75 p-6 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && stageCelebration.hide()}>
-      <div role="dialog" aria-modal="true" aria-label={tr("خلصتوا {0}", c.title)} className="celebrate-card relative w-full max-w-[420px] rounded-[36px] border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.95)] px-8 py-10 text-center text-ws-text shadow-[0_40px_120px_rgba(0,0,0,.6)]">
+      <div role="dialog" aria-modal="true" aria-label={tr("خلصتوا {0}", c.title)} className="celebrate-card relative w-full max-w-[420px] rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.95)] px-8 py-10 text-center text-ws-text shadow-[0_40px_120px_rgba(0,0,0,.6)]">
         <div className="relative mx-auto flex h-32 w-32 items-center justify-center">
           {SPARKS.map((s, i) => (
             <span key={i} aria-hidden className="spark" style={{ ["--x" as string]: `${s.x}px`, ["--y" as string]: `${s.y}px`, ["--s" as string]: `${s.s}px`, ["--d" as string]: `${s.d}s`, ["--c" as string]: s.c }} />

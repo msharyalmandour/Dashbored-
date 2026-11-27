@@ -393,7 +393,7 @@ export default function SvTeam({
           <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-[rgba(255,138,122,.12)] text-[#FF8A7A]">
             <AlertTriangle size={22} />
           </span>
-          <p className="m-0 text-[15px] font-bold text-ws-text-accent">{error}</p>
+          <p className="m-0 text-base font-bold text-ws-text-accent">{error}</p>
         </section>
       </div>
     );
@@ -498,7 +498,7 @@ export default function SvTeam({
       <section className="sd-glass sv-team-head" aria-labelledby="sv-team-h">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <p className="m-0 text-[13px] font-bold text-ws-accent3">
+            <p className="m-0 text-sm font-bold text-ws-accent3">
               {leaderFirst ? trx("فريق {0} · {1}", <bdi key="l">{leaderFirst}</bdi>, studentsLabel(snapshot.members.length)) : studentsLabel(snapshot.members.length)}
             </p>
             <h1 id="sv-team-h" className="m-0 text-[26px] font-extrabold leading-snug text-ws-text">
@@ -547,11 +547,11 @@ export default function SvTeam({
         {digest && digest.length > 0 && (
           <section className="sd-glass">
             <p className="sv-kind m-0">{trx("من زيارتكم الأخيرة ({0})", formatDateShort(seenBefore!.at))}</p>
-            <ul className="m-0 mt-2 list-none space-y-1 p-0 text-[14px] text-[#D9D0C6]">
+            <ul className="m-0 mt-2 list-none space-y-1 p-0 text-sm text-[#D9D0C6]">
               {digest.slice(0, 5).map((line, k) => (
                 <li key={k}>• {line}</li>
               ))}
-              {digest.length > 5 && <li className="text-[12px] text-ws-muted">{tr("و{0} تغييرات ثانية", digest.length - 5)}</li>}
+              {digest.length > 5 && <li className="text-xs text-ws-muted">{tr("و{0} تغييرات ثانية", digest.length - 5)}</li>}
             </ul>
             <button className="sv-more" onClick={markSeen}>
               <Check size={14} />
@@ -573,7 +573,7 @@ export default function SvTeam({
             {tr("تنتظركم")}
             {waitingCount > 0 && <span className="sv-count">{waitingCount}</span>}
           </h2>
-          {board ? <SvWaiting board={board} busy={busy} error={boardError} leaving={leaving} respond={respond} /> : <div className="h-12 animate-pulse rounded-2xl bg-white/5" />}
+          {board ? <SvWaiting board={board} busy={busy} error={boardError} leaving={leaving} respond={respond} /> : <div className="h-12 animate-pulse rounded-2xl bg-white/[0.04]" />}
         </section>
 
 
@@ -600,7 +600,7 @@ export default function SvTeam({
             ))}
           </div>
           <div className="sd-glass !py-1.5">
-            {shown.length === 0 && <p className="m-0 py-5 text-center text-[14px] text-ws-muted">{filter === "late" ? tr("ما فيه مهام متأخرة ✓") : filter === "done" ? tr("ما خلصت مهام للحين") : tr("ما فيه مهام جاية")}</p>}
+            {shown.length === 0 && <p className="m-0 py-5 text-center text-sm text-ws-muted">{filter === "late" ? tr("ما فيه مهام متأخرة ✓") : filter === "done" ? tr("ما خلصت مهام للحين") : tr("ما فيه مهام جاية")}</p>}
             {shown.map((t, k) => {
               const lateT = isLate(t);
               const d = t.dueDate ? daysUntil(t.dueDate) : null;
@@ -784,7 +784,7 @@ function SvMeetCard({ token }: { token: string }) {
         <Video size={16} />
       </span>
       <div style={{ flex: 1, minWidth: 0, lineHeight: 1.4 }}>
-        <b style={{ display: "block", fontSize: 15 }}>{live ? tr("الفريق في اجتماع الحين") : tr("اجتماع فيديو مع الفريق")}</b>
+        <b style={{ display: "block", fontSize: 16 }}>{live ? tr("الفريق في اجتماع الحين") : tr("اجتماع فيديو مع الفريق")}</b>
         <span style={{ fontSize: 12, color: "#E9D3B8" }}>{live ? tr("{0} داخلين", s!.names.filter(Boolean).slice(0, 3).join(tr("، ")) || s!.count) : tr("تدخلون برابطكم بدون حساب، وما ينسجل فيديو.")}</span>
       </div>
       <Link to={`/supervisor/${token}/meet`} className="sup-btn-cream" style={{ display: "flex", alignItems: "center", padding: "0 16px", minHeight: 44, flex: "none" }}>

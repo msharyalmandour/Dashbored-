@@ -8,7 +8,7 @@ export type PlanId = "basic" | "ai";
 export const SOLO_PRICE = 19;
 export const DUO_PRICE = 39;
 export const TEAM_PRICE = 49;
-/** المساعد الذكي إضافة على اشتراك الفريق */
+/** الوكيل إضافة على اشتراك الفريق */
 export const AI_ADDON_SOLO = 19;
 export const AI_ADDON_TEAM = 39;
 /** الفرق المؤسسة (أول 15 فريق) — إضافة المساعد عليهم أرخص مدى اشتراكهم */
@@ -100,7 +100,7 @@ export const planComparison: CompareGroup[] = [
     ],
   },
   {
-    title: tr("الذكاء الاصطناعي"),
+    title: tr("الوكيل"),
     rows: [
       { label: tr("كوتش الفريق — يعرف مهامكم ومراحلكم وينصحكم بالأولويات"), basic: false, ai: tr("7 رسائل يوميًا") },
       { label: tr("ويسي للبحث العلمي — دراسات حقيقية قريبة من عنوانكم"), basic: false, ai: tr("عمليتين بحث شهريًا") },

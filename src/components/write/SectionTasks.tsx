@@ -38,7 +38,7 @@ export default function SectionTasks({ sectionKey, ownerId, onOwner }: { section
       <div className="flex flex-wrap items-center gap-2">
         <UserRound size={15} className="text-ws-accent3" aria-hidden />
         {isLeader && canWrite ? (
-          <label className="flex items-center gap-2 text-[13px]">
+          <label className="flex items-center gap-2 text-sm">
             <span className="text-ws-muted">{tr("مسؤول القسم:")}</span>
             <select value={ownerId} onChange={(e) => onOwner(e.target.value || null)} className={`st-owner${ownerId ? "" : " empty"}`} aria-label={tr("مسؤول القسم")}>
               <option value="">{tr("ما أحد (اختاروا)")}</option>
@@ -50,9 +50,9 @@ export default function SectionTasks({ sectionKey, ownerId, onOwner }: { section
             </select>
           </label>
         ) : (
-          <span className="text-[13px] text-ws-text-accent">{owner ? tr("مسؤول القسم: {0}", owner.name) : tr("القسم بدون مسؤول، القائد يحدده")}</span>
+          <span className="text-sm text-ws-text-accent">{owner ? tr("مسؤول القسم: {0}", owner.name) : tr("القسم بدون مسؤول، القائد يحدده")}</span>
         )}
-        <span className="ms-auto text-[13px] text-ws-muted">{mine.length ? tr("{0} مهام · {1} مفتوحة", mine.length, open.length) : tr("ما فيه مهام لهالقسم")}</span>
+        <span className="ms-auto text-sm text-ws-muted">{mine.length ? tr("{0} مهام · {1} مفتوحة", mine.length, open.length) : tr("ما فيه مهام لهالقسم")}</span>
       </div>
       {mine.length > 0 && (
         <ul className="m-0 mt-2 flex list-none flex-wrap gap-1.5 p-0">

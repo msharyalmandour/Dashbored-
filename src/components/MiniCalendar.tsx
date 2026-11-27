@@ -73,14 +73,14 @@ export default function MiniCalendar({
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
             aria-label={tr("الشهر السابق")}
-            className="rounded-lg p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
+            className="rounded-xl p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
           >
             <ChevronRight size={16} />
           </button>
           <button
             onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
             aria-label={tr("الشهر التالي")}
-            className="rounded-lg p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
+            className="rounded-xl p-2 text-brand-950/40 hover:bg-surface-muted hover:text-brand-700"
           >
             <ChevronLeft size={16} />
           </button>
@@ -89,7 +89,7 @@ export default function MiniCalendar({
 
       <div className="grid grid-cols-7 gap-y-1 text-center">
         {arabicWeekdaysShort.map((day) => (
-          <div key={day} className="pb-1 text-[12px] font-semibold text-brand-950/35">
+          <div key={day} className="pb-1 text-xs font-semibold text-brand-950/35">
             {day}
           </div>
         ))}

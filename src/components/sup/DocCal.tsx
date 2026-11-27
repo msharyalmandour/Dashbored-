@@ -204,8 +204,8 @@ export default function DocCal({ teams, today, name, onOpenTeam, onToast, onChan
           </section>
         ) : (
           <section className="sd-glass sd-in sd-d2">
-            <b style={{ fontSize: 17 }}>{tr("ما فيه طلبات مواعيد")}</b>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("الطلاب يحجزون من ساعات مكتبكم، ويوصلكم الطلب هنا.")}</p>
+            <b style={{ fontSize: 18 }}>{tr("ما فيه طلبات مواعيد")}</b>
+            <p style={{ margin: "4px 0 0", fontSize: 14, color: "#ABA095" }}>{tr("الطلاب يحجزون من ساعات مكتبكم، ويوصلكم الطلب هنا.")}</p>
           </section>
         )}
 
@@ -216,12 +216,12 @@ export default function DocCal({ teams, today, name, onOpenTeam, onToast, onChan
             </span>
             <b id="cal-due-h">{tr("التسليمات الجاية")}</b>
           </div>
-          {upcoming.length === 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#ABA095" }}>{tr("ما فيه تسليمات قريبة.")}</p>}
+          {upcoming.length === 0 && <p style={{ margin: "6px 0 0", fontSize: 14, color: "#ABA095" }}>{tr("ما فيه تسليمات قريبة.")}</p>}
           {upcoming.map(({ x, t }) => (
             <button key={x.id} type="button" className="cal-due-row" onClick={() => onOpenTeam(t.token)}>
               <b className="d">{formatWeekday(x.dueDate!)}</b>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <b style={{ display: "block", fontSize: 15 }}>{x.title}</b>
+                <b style={{ display: "block", fontSize: 16 }}>{x.title}</b>
                 <span style={{ fontSize: 12, color: "#ABA095" }}>
                   {t.name}
                   {x.assigneeName ? ` · ${x.assigneeName}` : ""}
@@ -232,8 +232,8 @@ export default function DocCal({ teams, today, name, onOpenTeam, onToast, onChan
         </section>
 
         <section className="sd-glass sd-in sd-d4">
-          <b style={{ fontSize: 15 }}>{tr("ساعات مكتبك")}</b>
-          <p style={{ margin: "4px 0 8px", fontSize: 13, color: "#ABA095" }}>{tr("الطلاب يشوفون الأوقات الفاضية ويحجزون منها.")}</p>
+          <b style={{ fontSize: 16 }}>{tr("ساعات مكتبك")}</b>
+          <p style={{ margin: "4px 0 8px", fontSize: 14, color: "#ABA095" }}>{tr("الطلاب يشوفون الأوقات الفاضية ويحجزون منها.")}</p>
           {teams[0] && (
             <button type="button" className="dh-link" style={{ padding: 0 }} onClick={() => onOpenTeam(teams[0].token, "setup:0")}>
               {tr("عدّلوها")}

@@ -33,7 +33,7 @@ const kindIcon: Record<Kind, typeof FileText> = {
 };
 
 const kindColor: Record<Kind, string> = {
-  pdf: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
+  pdf: "bg-[#FF8A7A]/15 text-[#FF8A7A]",
   doc: "bg-brand-500/15 text-amber-accent-400",
   sheet: "bg-ws-accent3/15 text-ws-accent3",
   image: "bg-amber-accent-400/15 text-amber-accent-400",
@@ -177,7 +177,7 @@ export default function Files() {
                   <button type="button" onClick={organize} disabled={organizing} className="rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
                     {organizing ? tr("أرتّب…") : tr("رتّب ملفات درايف")}
                   </button>
-                  <span className="text-[12px] text-brand-950/55">{organizeMsg ?? tr("ينقل الملفات القديمة لمجلداتها حسب النوع ويضيف التاريخ لاسمها.")}</span>
+                  <span className="text-xs text-brand-950/55">{organizeMsg ?? tr("ينقل الملفات القديمة لمجلداتها حسب النوع ويضيف التاريخ لاسمها.")}</span>
                 </div>
               )}
             </Panel>

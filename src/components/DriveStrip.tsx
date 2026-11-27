@@ -32,10 +32,10 @@ export default function DriveStrip({ className = "" }: { className?: string }) {
     <Link to="/drive" className={`dv-strip lx-in ${className}`}>
       <GoogleDriveLogo size={22} />
       <span className="min-w-0 flex-1 leading-[1.45]">
-        <b className="block text-[15px]">{status?.connected ? tr("الدرايف: {0} من {1} مربوطين", info.linked, info.total) : tr("درايف الفريق مو مربوط")}</b>
-        <span className="block truncate text-[13px] text-ws-text-accent">{status?.connected ? tr("باقي: {0}", info.missing.join(tr("، "))) : tr("اربطوه عشان كل ملف ينحفظ بمجلد الفريق")}</span>
+        <b className="block text-base">{status?.connected ? tr("الدرايف: {0} من {1} مربوطين", info.linked, info.total) : tr("درايف الفريق مو مربوط")}</b>
+        <span className="block truncate text-sm text-ws-text-accent">{status?.connected ? tr("باقي: {0}", info.missing.join(tr("، "))) : tr("اربطوه عشان كل ملف ينحفظ بمجلد الفريق")}</span>
       </span>
-      <span className="text-[13px] font-extrabold text-ws-accent3">{tr("كمّلوا الربط")}</span>
+      <span className="text-sm font-extrabold text-ws-accent3">{tr("كمّلوا الربط")}</span>
       <ChevronLeft size={16} className="text-ws-accent3 ltr:rotate-180" aria-hidden />
     </Link>
   );

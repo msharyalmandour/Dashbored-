@@ -11,8 +11,8 @@ export default function NotFound() {
           404
         </div>
         <h1 className="m-0 mt-3 pt-[.2em] text-[32px] font-extrabold md:text-[40px]">{tr("الصفحة ضاعت…")}</h1>
-        <p className="m-0 mt-1 text-[16px] text-ws-text-accent">{tr("زي المرجع اللي ما لقيناه. بس ويسي يدوّر عليها.")}</p>
-        <Link to="/" className="mt-5 inline-flex min-h-[48px] items-center rounded-full bg-gradient-to-l from-ws-accent to-ws-accent2 px-7 text-[16px] font-extrabold text-[#160904]">
+        <p className="m-0 mt-1 text-base text-ws-text-accent">{tr("زي المرجع اللي ما لقيناه. بس ويسي يدوّر عليها.")}</p>
+        <Link to="/" className="mt-5 inline-flex min-h-[48px] items-center rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-7 text-base font-extrabold text-[#160904]">
           {tr("ارجع للرئيسية")}
         </Link>
       </div>

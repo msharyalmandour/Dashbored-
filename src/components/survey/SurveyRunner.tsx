@@ -54,7 +54,7 @@ export default function SurveyRunner({
 
   const box = "rounded-3xl border border-white/10 bg-white/[0.04] p-5 sm:p-6";
   const chip = (on: boolean) =>
-    `rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors ${on ? "border-amber-400 bg-amber-400/15 text-amber-200" : "border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10"}`;
+    `rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors ${on ? "border-amber-400 bg-amber-400/15 text-amber-200" : "border-white/20 bg-white/[0.04] text-white/70 hover:bg-white/10"}`;
 
   if (done) {
     return (
@@ -100,7 +100,7 @@ export default function SurveyRunner({
         return (
           <section id={`q-${q.id}`} key={q.id} className={`${box} ${missing.includes(q.id) ? "!border-rose-400/60" : ""}`}>
             <h2 className="flex items-start gap-3 text-base font-bold leading-relaxed text-white">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-[12px] text-amber-300">{i + 1}</span>
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs text-amber-300">{i + 1}</span>
               <span>
                 {q.text}
                 {q.required && <span className="ms-1 text-rose-300">*</span>}
@@ -129,7 +129,7 @@ export default function SurveyRunner({
                   inputMode="decimal"
                   value={(val as number | undefined) ?? ""}
                   onChange={(e) => set(q.id, e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-40 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2.5 text-sm text-white outline-none focus:border-amber-300/60"
+                  className="w-40 rounded-full border border-white/20 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none focus:border-amber-300/60"
                 />
               )}
               {q.type === "text" && (
@@ -138,7 +138,7 @@ export default function SurveyRunner({
                   maxLength={1000}
                   value={(val as string | undefined) ?? ""}
                   onChange={(e) => set(q.id, e.target.value)}
-                  className="w-full rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none focus:border-amber-300/60"
+                  className="w-full rounded-2xl border border-white/20 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none focus:border-amber-300/60"
                 />
               )}
             </div>

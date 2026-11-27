@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Quote, Search, Sparkles, Table2, Trash2 } from "lucide-react";
+import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Quote, Search, Table2, Trash2, Wand2 } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import { useLocation } from "react-router-dom";
 import { openAgent } from "../lib/agentBus";
@@ -143,7 +143,7 @@ export default function EvidenceLibrary() {
   const countFor = (id: "all" | EvidenceSection) => (id === "all" ? papers.length : papers.filter((p) => p.section === id).length);
   const fieldBox = `${pillField} !rounded-2xl`;
   const toolBtn =
-    "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text";
+    "flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text";
   const segBtn = (on: boolean) =>
     clsx(
       "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
@@ -166,7 +166,7 @@ export default function EvidenceLibrary() {
         </>
       ) : (
         <div className="sd-card flex flex-wrap items-center justify-between gap-3">
-          <p className="m-0 text-[15px] font-bold text-ws-text">{tr("ارموا الدراسة هنا")}</p>
+          <p className="m-0 text-base font-bold text-ws-text">{tr("ارموا الدراسة هنا")}</p>
           <button type="button" className="sdz-glass" onClick={() => setImportOpen(true)}>
             {tr("استيراد Zotero")}
           </button>
@@ -202,7 +202,7 @@ export default function EvidenceLibrary() {
       {showForm && (
         <div className={clsx(glassCard, "p-5")}>
           {form.link && (
-            <p className="mb-3 truncate text-[13px] font-semibold text-ws-muted" dir="ltr">
+            <p className="mb-3 truncate text-sm font-semibold text-ws-muted" dir="ltr">
               🔗 {form.link}
             </p>
           )}
@@ -303,14 +303,14 @@ export default function EvidenceLibrary() {
 
       {papers.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] p-1">
+          <div className="inline-flex items-center gap-1 rounded-full border border-white/10 p-1">
             {(["apa", "vancouver"] as CitationStyle[]).map((s) => (
               <button key={s} onClick={() => setCitationStyle(s)} className={segBtn(citationStyle === s)}>
                 {s === "apa" ? "APA" : "Vancouver"}
               </button>
             ))}
           </div>
-          <div className="inline-flex items-center gap-1 rounded-full border border-white/[0.14] p-1">
+          <div className="inline-flex items-center gap-1 rounded-full border border-white/10 p-1">
             {(
               [
                 ["cards", tr("بطاقات"), LayoutGrid],
@@ -381,7 +381,7 @@ export default function EvidenceLibrary() {
           const menu = [
             { label: copiedId === paper.id ? tr("تم النسخ") : tr("نسخ الاقتباس"), icon: Quote, onClick: () => copyCitation(paper) },
             { label: reviewed ? tr("رجّعوها غير مراجَعة") : tr("علّموها مراجَعة"), icon: Check, onClick: () => updateReviewStatus(paper.id, reviewed ? "collected" : "reviewed") },
-            ...(canAsk ? [{ label: tr("اسألوا ويسي عنها"), icon: Sparkles, onClick: () => openAgent(tr("عن الدراسة «{0}»: ", paper.title)) }] : []),
+            ...(canAsk ? [{ label: tr("اسألوا ويسي عنها"), icon: Wand2, onClick: () => openAgent(tr("عن الدراسة «{0}»: ", paper.title)) }] : []),
             ...(paper.link ? [{ label: tr("افتحوا الأصل"), icon: ExternalLink, onClick: () => window.open(paper.link, "_blank", "noopener") }] : []),
             ...(isLeader || paper.addedById === currentUser?.id
               ? [{ label: tr("حذف الدراسة"), confirmLabel: tr("تأكيد الحذف؟"), icon: Trash2, tone: "danger" as const, onClick: () => deletePaper(paper.id) }]
@@ -392,7 +392,7 @@ export default function EvidenceLibrary() {
               <div className="flex items-center gap-2">
                 <span className="lb-axis">{(() => { const f = sectionFilters.find((x) => x.id === paper.section); return f?.short ?? f?.label ?? themeLabelAr[paper.theme] ?? tr("أخرى"); })()}</span>
                 <span className="flex-1" />
-                <span className="text-[13px] font-bold text-ws-muted" dir="ltr">
+                <span className="text-sm font-bold text-ws-muted" dir="ltr">
                   {paper.year}
                 </span>
                 <ThreeDotsMenu items={menu} />

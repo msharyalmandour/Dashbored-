@@ -46,15 +46,15 @@ export default function DriveJoin() {
       <span aria-hidden className="st-glow !top-[-80px]" />
       <div className="relative flex items-center justify-center gap-4 pt-8">
         <WLogo size={64} />
-        <span className="h-[2px] w-10 bg-gradient-to-l from-ws-accent3 to-[#FF7A1A]" aria-hidden />
+        <span className="h-[2px] w-10 bg-gradient-to-l from-ws-accent3 to-ws-accent" aria-hidden />
         <span className="dj-tile" aria-hidden>
           <GoogleDriveLogo size={34} />
         </span>
       </div>
       <div className="relative mt-6 text-center">
-        {inviter && <div className="text-[13px] font-extrabold text-ws-accent3">{tr("{0} يدعوك", inviter)}</div>}
+        {inviter && <div className="text-sm font-extrabold text-ws-accent3">{tr("{0} يدعوك", inviter)}</div>}
         <h1 className="lx-h1 !text-[32px]">{tr("اربط درايفك بالفريق")}</h1>
-        <p className="m-0 mt-2 text-[15px] leading-[1.8] text-ws-text-accent">
+        <p className="m-0 mt-2 text-base leading-[1.8] text-ws-text-accent">
           {tr("عشان ملفاتك تنحفظ بمجلد الفريق، والدكتورة تشوفها.")}
           <br />
           {tr("ما نشوف ملفاتك الثانية.")}
@@ -72,7 +72,7 @@ export default function DriveJoin() {
       </ul>
       <span className="min-h-8 flex-1 md:flex-none" />
       {err && (
-        <p className="m-0 mb-3 text-center text-[14px] text-[#FF8A7A]" role="alert">
+        <p className="m-0 mb-3 text-center text-sm text-[#FF8A7A]" role="alert">
           {err}
         </p>
       )}
@@ -87,7 +87,7 @@ export default function DriveJoin() {
           {busy ? tr("نفتح Google…") : tr("اربط بحساب Google")}
         </button>
       )}
-      {status && !status.connected && <p className="m-0 mt-3 text-center text-[13px] text-ws-muted">{tr("القائد لسه ما ربط درايف الفريق.")}</p>}
+      {status && !status.connected && <p className="m-0 mt-3 text-center text-sm text-ws-muted">{tr("القائد لسه ما ربط درايف الفريق.")}</p>}
     </div>
   );
 }

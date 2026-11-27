@@ -37,7 +37,7 @@ export function GlassHeader({ firstName, now, aside }: { firstName: string; now:
       <div className="min-w-0 flex-1">
         <div className="hg-hello">{now.getHours() < 12 ? tr("صباح الخير يا") : tr("مساء الخير يا")}</div>
         <h1 className="hg-name m-0">{firstName}</h1>
-        <p className="m-0 mt-1 text-[15px] text-ws-muted">{tr("{0} · هذي نظرة على بحثكم", dateLine)}</p>
+        <p className="m-0 mt-1 text-base text-ws-muted">{tr("{0} · هذي نظرة على بحثكم", dateLine)}</p>
       </div>
       {aside}
     </header>
@@ -145,7 +145,7 @@ export function TodoCard({
           <div className="hg-tr" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-label={tr("إنجاز اليوم")}>
             <i style={{ width: `${pct}%` }} />
           </div>
-          <span className="whitespace-nowrap text-[13px] text-ws-muted">
+          <span className="whitespace-nowrap text-sm text-ws-muted">
             {tr("{0} من {1} خلصت", "§0", "§1")
               .split(/(§0|§1)/)
               .map((part, i) =>
@@ -165,7 +165,7 @@ export function TodoCard({
         </div>
       )}
       <ul className="relative z-[1] m-0 mt-2.5 list-none p-0">
-        {items.length === 0 && <li className="px-3 py-4 text-[15px] text-ws-muted">{tr("ولا شي متأخر ولا شي موعده اليوم. يوم هادي ☕")}</li>}
+        {items.length === 0 && <li className="px-3 py-4 text-base text-ws-muted">{tr("ولا شي متأخر ولا شي موعده اليوم. يوم هادي ☕")}</li>}
         {items.map(({ task: t, kind }) => {
           const isDone = t.status === "done";
           const shownKind: TodoKind = isDone ? "done" : kind === "done" ? (isLate(t, today) ? "late" : t.dueDate === today ? "today" : "next") : kind;
@@ -258,7 +258,7 @@ export function GaugeSvg({ pct }: { pct: number }) {
         </linearGradient>
         <radialGradient id="hg-gi" cx=".5" cy=".9" r=".9">
           <stop offset="0" stopColor="#FF5A00" />
-          <stop offset=".7" stopColor="#FF7A1A" />
+          <stop offset=".7" stopColor="#FF8A24" />
           <stop offset="1" stopColor="#FF9A45" />
         </radialGradient>
       </defs>
@@ -293,13 +293,13 @@ export function ProgressCard({ pct, stagesDone, stagesTotal, note, style, classN
           {isEn ? "↗" : "↖"}
         </span>
       </div>
-      <div className="mt-1.5 text-[12px] font-bold text-[#3A1504]">
+      <div className="mt-1.5 text-xs font-bold text-[#3A1504]">
         ● {tr("فريقكم")} · {tr("{0} من {1} مراحل خلصت", num(stagesDone), num(stagesTotal))}
       </div>
       <div className="mx-1.5 my-auto lg:mx-0">
         <GaugeSvg pct={pct} />
       </div>
-      <div className="-mt-0.5 text-center text-[13px] font-bold text-[#2A0E02] lg:text-sm">{note}</div>
+      <div className="-mt-0.5 text-center text-sm font-bold text-[#2A0E02] lg:text-sm">{note}</div>
     </Link>
   );
 }
@@ -360,8 +360,8 @@ export function DeadlineCard({
               <Flag size={22} />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[17px] font-extrabold">{tr("حدّدوا موعد التسليم")}</div>
-              <div className="text-[13px] text-ws-muted">{tr("ونحسب لكم كم يوم باقي")}</div>
+              <div className="text-lg font-extrabold">{tr("حدّدوا موعد التسليم")}</div>
+              <div className="text-sm text-ws-muted">{tr("ونحسب لكم كم يوم باقي")}</div>
             </div>
           </div>
           {canWrite && (
@@ -384,7 +384,7 @@ export function DeadlineCard({
               </span>
               <span className="hg-bar" aria-hidden>
                 {latePct > 0 && <i style={{ width: `${Math.max(4, latePct)}%`, background: "#FF5A4A", animationDelay: `${0.4 + i * 0.06}s` }} />}
-                {donePct > 0 && <i style={{ width: `${donePct}%`, background: "linear-gradient(90deg,#FF7A1A,#FFB547)", animationDelay: `${0.52 + i * 0.06}s` }} />}
+                {donePct > 0 && <i style={{ width: `${donePct}%`, background: "linear-gradient(90deg,#FF8A24,#FFB547)", animationDelay: `${0.52 + i * 0.06}s` }} />}
               </span>
               <span className="hg-num w-10 text-sm text-ws-text" aria-hidden>
                 {b.total ? `${b.done}/${b.total}` : "—"}
@@ -442,7 +442,7 @@ export function MobileTiles({
             <div className="text-xs text-ws-accent2">{isEn ? formatDateShort(deadline) : `${weekdayAr(d)} ${dayMonth(deadline)}`}</div>
           </>
         ) : canWrite ? (
-          <button type="button" className="mt-2 min-h-[44px] text-start text-[15px] font-extrabold text-ws-accent2" onClick={onSetDeadline}>
+          <button type="button" className="mt-2 min-h-[44px] text-start text-base font-extrabold text-ws-accent2" onClick={onSetDeadline}>
             {tr("حدّدوا الموعد ←")}
           </button>
         ) : (
@@ -492,7 +492,7 @@ export function JourneyCard({ steps, headerNote, style, className }: { steps: Jo
         <h2 id="hg-journey-title" className="m-0 text-[inherit] font-bold">
           {tr("رحلة البحث")}
         </h2>
-        <span className="text-[13px] font-medium text-ws-muted lg:ms-2">
+        <span className="text-sm font-medium text-ws-muted lg:ms-2">
           <span className="hidden lg:inline">{tr("من الموضوع للتسليم")}</span>
         </span>
         <span className="ms-auto text-xs font-medium text-ws-muted lg:hidden">{headerNote}</span>
@@ -510,7 +510,7 @@ export function JourneyCard({ steps, headerNote, style, className }: { steps: Jo
             </filter>
             <linearGradient id="hg-fb" x1={isEn ? 0 : 1} x2={isEn ? 1 : 0}>
               <stop offset="0" stopColor="#FFB15C" />
-              <stop offset={curOff * 0.6} stopColor="#FF7A1A" />
+              <stop offset={curOff * 0.6} stopColor="#FF8A24" />
               <stop offset={curOff} stopColor="#C2400A" stopOpacity=".55" />
               <stop offset="1" stopColor="#5A1A05" stopOpacity=".2" />
             </linearGradient>
@@ -566,7 +566,7 @@ export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; lon
           </filter>
           <linearGradient id={`${uid}mfb`} x1={isEn ? 0 : 1} x2={isEn ? 1 : 0}>
             <stop offset="0" stopColor="#FFB15C" />
-            <stop offset={curOff * 0.6} stopColor="#FF7A1A" />
+            <stop offset={curOff * 0.6} stopColor="#FF8A24" />
             <stop offset={curOff} stopColor="#C2400A" stopOpacity=".5" />
             <stop offset="1" stopColor="#5A1A05" stopOpacity=".2" />
           </linearGradient>
@@ -662,8 +662,8 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
       <svg viewBox={`0 0 ${W} 174`} className="mt-2.5 block w-full" role="img" aria-label={tr("مهام خلصت بآخر {0} أسابيع، هالأسبوع {1}", num(weeks), num(last?.done ?? 0))}>
         <defs>
           <linearGradient id="hg-ar" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#FF7A1A" stopOpacity=".55" />
-            <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
+            <stop offset="0" stopColor="#FF8A24" stopOpacity=".55" />
+            <stop offset="1" stopColor="#FF8A24" stopOpacity="0" />
           </linearGradient>
         </defs>
         {[0, top / 2, top].map((v) => (
@@ -677,7 +677,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
         <polygon points={`${x(0).toFixed(1)},150 ${donePts} ${x(weeks - 1).toFixed(1)},150`} fill="url(#hg-ar)" />
         <polyline points={planPts} fill="none" stroke="#E9C9A0" strokeWidth="1.5" strokeDasharray="4 5" opacity=".7" />
         <polyline key={weeks} className="hg-draw" points={donePts} fill="none" stroke="#FF8A24" strokeWidth="2.5" strokeLinejoin="round" pathLength={1} />
-        {last && <circle cx={x(weeks - 1)} cy={y(last.done)} r="9" fill="#FF7A1A" stroke="#FFE7CF" strokeWidth="2.5" />}
+        {last && <circle cx={x(weeks - 1)} cy={y(last.done)} r="9" fill="#FF8A24" stroke="#FFE7CF" strokeWidth="2.5" />}
         {series.map((_, i) =>
           i % labelEvery === 0 || i === weeks - 1 ? (
             <text key={i} x={x(i)} y="170" textAnchor="middle" fontSize="10" fill="#8F857C" fontFamily="Tajawal">
@@ -739,7 +739,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
         </div>
       ))}
       <div className={clsx("relative z-[2] lg:absolute lg:top-10 lg:w-[330px]", isEn ? "lg:right-[34px]" : "lg:left-[34px]")}>
-        <div className="text-xs font-extrabold tracking-[.12em] text-[rgba(255,235,220,.75)] lg:text-[13px]">{tr("ويسي")}</div>
+        <div className="text-xs font-extrabold tracking-[.12em] text-[rgba(255,235,220,.75)] lg:text-sm">{tr("ويسي")}</div>
         <h2 id="hg-ai-title" className="m-0 mt-1 text-[22px] font-extrabold leading-[1.3] text-[#FFF3E8] lg:mt-1.5 lg:text-[34px] lg:leading-[1.25]">
           <span className="lg:hidden">{tr("اسألوه، يعرف بحثكم كامل")}</span>
           <span className="hidden lg:inline">
@@ -748,7 +748,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
             {tr("هو يعرفه كامل")}
           </span>
         </h2>
-        <p className="m-0 mt-2 hidden text-[15px] leading-[1.8] text-[rgba(255,235,220,.75)] lg:block">{tr("الأقسام، الملفات، الدراسات، وملاحظات المشرف/ة. اكتبوا سؤالكم وهو يجاوب.")}</p>
+        <p className="m-0 mt-2 hidden text-base leading-[1.8] text-[rgba(255,235,220,.75)] lg:block">{tr("الأقسام، الملفات، الدراسات، وملاحظات المشرف/ة. اكتبوا سؤالكم وهو يجاوب.")}</p>
       </div>
       <form className="hg-prompt" onSubmit={send}>
         <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر 3 دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل ويسي")} />
@@ -777,7 +777,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
                 </div>
               ))}
             </div>
-            <span className="text-[13px] text-[rgba(255,235,220,.7)] lg:text-[15px]">{tr("اكتبوا واضغطوا Enter")}</span>
+            <span className="text-sm text-[rgba(255,235,220,.7)] lg:text-base">{tr("اكتبوا واضغطوا Enter")}</span>
           </div>
           <button type="submit" className="hg-pbtn" aria-label={tr("أرسل لويسي")}>
             <ArrowUp size={22} aria-hidden />

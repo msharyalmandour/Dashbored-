@@ -53,7 +53,7 @@ export default function AdminGrowth() {
     <div className="v3 relative">
       <V3Glow />
       <LuxHead kicker={tr("الإدارة")} title={tr("حلقة النمو")} sub={tr("كل أسبوع: كم فريق جديد، من وين، بكم، وكم منهم بدأ فعليًا")} />
-      {err && <p className="lx-card text-[14px] text-ws-muted">{err}</p>}
+      {err && <p className="lx-card text-sm text-ws-muted">{err}</p>}
       {weeks && (
         <section className="lx-card lx-in overflow-x-auto">
           <table className="ag-t">

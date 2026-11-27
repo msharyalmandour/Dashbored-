@@ -37,15 +37,15 @@ export default function SupervisorEmailAction() {
       </div>
       {state === "ask" && (
         <>
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.06] text-ws-accent3 ring-1 ring-white/10">{stop ? <BellOff size={26} /> : <MailCheck size={26} />}</span>
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.07] text-ws-accent3 ring-1 ring-white/10">{stop ? <BellOff size={26} /> : <MailCheck size={26} />}</span>
           <h1 className="m-0 max-w-sm text-[20px] font-extrabold leading-snug">{stop ? tr("توقفون إيميلات Wesync؟") : tr("تأكدون استلام إيميلات الفريق؟")}</h1>
-          <p className="m-0 max-w-sm text-[14px] leading-relaxed text-ws-text-accent">
+          <p className="m-0 max-w-sm text-sm leading-relaxed text-ws-text-accent">
             {stop ? tr("ما يوصلكم إيميل عن طلبات الفريق بعدها. صفحتكم تبقى شغالة، وتقدرون ترجعون الإشعارات منها.") : tr("يوصلكم إيميل لما الفريق يرسل لكم طلب أو رد.")}
           </p>
           <button
             type="button"
             onClick={() => void go()}
-            className="min-h-[48px] rounded-full bg-gradient-to-l from-ws-accent to-ws-accent2 px-7 text-[15px] font-extrabold text-[#1A0802] shadow-[0_10px_30px_-10px_rgba(255,106,0,.7)]"
+            className="min-h-[48px] rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-7 text-base font-extrabold text-[#1A0802] shadow-[0_10px_30px_-10px_rgba(255,106,0,.7)]"
           >
             {stop ? tr("أوقفوا الإشعارات") : tr("أكّدوا الاشتراك")}
           </button>
@@ -55,7 +55,7 @@ export default function SupervisorEmailAction() {
       {state === "ok" && <CheckCircle2 size={36} className="text-ws-accent3" />}
       {state === "error" && <XCircle size={36} className="text-[#FF8A7A]" />}
       {(state === "ok" || state === "error") && (
-        <p role="status" className="m-0 max-w-sm text-[15px] font-semibold text-ws-text-accent">
+        <p role="status" className="m-0 max-w-sm text-base font-semibold text-ws-text-accent">
           {message}
         </p>
       )}

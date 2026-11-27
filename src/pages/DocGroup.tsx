@@ -187,7 +187,7 @@ function Row({ m, me, docName, roster, myRsvp, now, onRsvp, onRemove }: { m: Sup
               </span>
               <div style={{ minWidth: 0 }}>
                 <span style={{ fontSize: 12, fontWeight: 800, color: "#FFB547" }}>{tr("موعد اجتماع")}</span>
-                <b style={{ display: "block", fontSize: 15 }}>
+                <b style={{ display: "block", fontSize: 16 }}>
                   <span dir="ltr">{String(p.time ?? "")}</span>
                   {p.place ? ` · ${p.place}` : ""}
                 </b>

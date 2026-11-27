@@ -120,7 +120,7 @@ function SearchProgress() {
   const stage = sec < 6 ? 0 : sec < 13 ? 1 : 2;
   const steps = [tr("نبحث في PubMed وOpenAlex وCrossref"), tr("نختار أقرب الدراسات لموضوعكم"), tr("نلخّصها لكم بالعربي")];
   return (
-    <div className="mt-4 rounded-2xl bg-white/[0.05] p-4 text-start" role="status" aria-live="polite">
+    <div className="mt-4 rounded-2xl bg-white/[0.04] p-4 text-start" role="status" aria-live="polite">
       <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
           className="h-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent transition-all duration-1000"
@@ -140,7 +140,7 @@ function SearchProgress() {
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[12px] text-ws-muted">{tr("ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
+      <p className="mt-3 text-xs text-ws-muted">{tr("ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
     </div>
   );
 }
@@ -202,17 +202,17 @@ function ResultCard({
           </SourceBadge>
           <span
             title={peer ? tr("منشورة بمجلة علمية محكّمة") : tr("مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه")}
-            className={`text-[12px] font-semibold ${peer ? "text-ws-accent3" : "text-ws-accent3"}`}
+            className={`text-xs font-semibold ${peer ? "text-ws-accent3" : "text-ws-accent3"}`}
           >
             {peer ? tr("✓ دراسة محكّمة") : result.sourceType === "general" ? tr("مصدر عام — تأكدوا منه") : tr("مصدر غير مصنّف")}
           </span>
-          {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[12px] text-ws-muted">{result.studyDesign}</span>}
-          {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[12px] text-ws-muted">{result.sampleSize}</span>}
+          {result.studyDesign && <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-ws-muted">{result.studyDesign}</span>}
+          {result.sampleSize && <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-ws-muted">{result.sampleSize}</span>}
         </div>
         <span className="text-sm text-ws-muted">{result.year ?? ""}</span>
       </div>
 
-      <a href={result.url} target="_blank" rel="noreferrer" dir="auto" className="block text-[17px] font-bold leading-snug hover:text-ws-accent3">
+      <a href={result.url} target="_blank" rel="noreferrer" dir="auto" className="block text-lg font-bold leading-snug hover:text-ws-accent3">
         <span className="me-2 text-sm font-semibold text-ws-muted">{index + 1}.</span>
         {result.title}
       </a>
@@ -222,8 +222,8 @@ function ResultCard({
         </p>
       )}
 
-      <p className="text-[15px] leading-relaxed text-ws-muted">{result.summaryAr}</p>
-      <p className="rounded-2xl bg-white/[0.05] px-4 py-2.5 text-xs leading-relaxed text-ws-muted">
+      <p className="text-base leading-relaxed text-ws-muted">{result.summaryAr}</p>
+      <p className="rounded-2xl bg-white/[0.04] px-4 py-2.5 text-xs leading-relaxed text-ws-muted">
         <b className="font-bold text-ws-text">{tr("ليش تهمّكم؟ ")}</b>
         {result.relevanceReason}
       </p>
@@ -232,7 +232,7 @@ function ResultCard({
         <button
           onClick={handleAdd}
           disabled={adding || added}
-          className="flex items-center gap-1.5 font-bold text-ws-accent3 hover:text-[#FFC85A] disabled:opacity-70"
+          className="flex items-center gap-1.5 font-bold text-ws-accent3 hover:text-[#FFB547] disabled:opacity-70"
         >
           {adding ? <WSpin size={14} /> : added ? <Check size={14} /> : <Library size={14} />}
           {added ? tr("انضافت للمكتبة") : tr("+ أضف للمكتبة")}
@@ -254,12 +254,12 @@ function ResultCard({
             </div>
           )}
           <label className="block">
-            <span className="mb-1 block text-[12px] font-bold text-ws-muted">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
+            <span className="mb-1 block text-xs font-bold text-ws-muted">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as LiteratureTheme)}
               disabled={added}
-              className="rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] px-3 py-1.5 text-xs text-ws-text outline-none focus:border-ws-accent2 disabled:opacity-50"
+              className="rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.07] px-3 py-1.5 text-xs text-ws-text outline-none focus:border-ws-accent2 disabled:opacity-50"
             >
               {themeOptions.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -268,7 +268,7 @@ function ResultCard({
               ))}
             </select>
           </label>
-          <div className="flex flex-wrap items-center gap-3 text-[12px] font-semibold text-ws-muted">
+          <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-ws-muted">
             <a
               href={`https://scholar.google.com/scholar?q=${encodeURIComponent(`"${result.title}"`)}`}
               target="_blank"
@@ -334,7 +334,7 @@ export default function ResearchSearch() {
 
   const activeTab = tabs.find((t) => t.id === st.tab) ?? tabs[0];
   const fieldPill =
-    "min-w-0 flex-1 bg-transparent text-base text-ws-text outline-none placeholder:text-[#8F8378] md:text-[17px]";
+    "min-w-0 flex-1 bg-transparent text-base text-ws-text outline-none placeholder:text-[#8F8378] md:text-lg";
 
   return (
     <div className="space-y-6">
@@ -368,7 +368,7 @@ export default function ResearchSearch() {
       )}
 
       {aiOk && st.tab === "papers" && (
-        <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-ws-text sm:px-8 md:py-12">
+        <section className="relative isolate overflow-hidden rounded-3xl border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-ws-text sm:px-8 md:py-12">
           <div aria-hidden className="pointer-events-none absolute left-1/2 -top-[160px] -z-10 h-[360px] w-[560px] -translate-x-1/2 rounded-full bg-[#E8400A] opacity-40 blur-[100px]" />
           <div className="mx-auto flex max-w-[720px] flex-col items-center gap-4">
             <h1 className="font-kufi text-3xl font-extrabold leading-tight md:text-5xl">{tr("عن وش تدوّرون؟")}</h1>
@@ -379,7 +379,7 @@ export default function ResearchSearch() {
                 e.preventDefault();
                 st.startSearch();
               }}
-              className="mt-2 flex w-full items-center gap-3 rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.06] py-2 ps-2 pe-6 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-[22px]"
+              className="mt-2 flex w-full items-center gap-3 rounded-full border border-[rgba(255,200,130,.4)] bg-white/[0.07] py-2 ps-2 pe-6 shadow-[0_20px_60px_rgba(0,0,0,.45)] backdrop-blur-[22px]"
             >
               <input
                 value={st.topic}
@@ -414,23 +414,23 @@ export default function ResearchSearch() {
                 aria-disabled={!scholarTerms}
                 onClick={(e) => !scholarTerms && e.preventDefault()}
                 title={scholarTerms ? tr("يفتح Google Scholar بكلمات البحث بالإنجليزي بنافذة جديدة: {0}", scholarTerms) : tr("اكتبوا موضوعكم أول")}
-                className={`flex items-center gap-2 rounded-full border border-dashed border-white/25 py-1 ps-3.5 pe-1.5 text-ws-text transition hover:border-ws-accent2/60 ${scholarTerms ? "" : "pointer-events-none opacity-50"}`}
+                className={`flex items-center gap-2 rounded-full border border-dashed border-white/20 py-1 ps-3.5 pe-1.5 text-ws-text transition hover:border-ws-accent2/60 ${scholarTerms ? "" : "pointer-events-none opacity-50"}`}
               >
                 <ExternalLink size={12} />
                 Google Scholar
                 <SourceLogo name="scholar" />
               </a>
             </div>
-            <p className="-mt-1 text-[12px] text-ws-muted/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
+            <p className="-mt-1 text-xs text-ws-muted/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
 
             {!st.topic.trim() && !st.searching && (
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="text-[12px] font-bold text-ws-muted/70">{tr("جرّبوا مثلًا:")}</span>
+                <span className="text-xs font-bold text-ws-muted/70">{tr("جرّبوا مثلًا:")}</span>
                 {exampleTopics.map((ex) => (
                   <button
                     key={ex}
                     onClick={() => st.setTopic(ex)}
-                    className="rounded-full border border-white/[0.14] px-3.5 py-1 text-xs text-ws-text transition hover:border-ws-accent2/60 hover:bg-ws-accent/10"
+                    className="rounded-full border border-white/10 px-3.5 py-1 text-xs text-ws-text transition hover:border-ws-accent2/60 hover:bg-ws-accent/10"
                   >
                     {ex}
                   </button>
@@ -441,7 +441,7 @@ export default function ResearchSearch() {
             {st.searching && <div className="w-full"><SearchProgress /></div>}
 
             {!st.searching && (
-              <p className="text-[12px] text-ws-muted/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
+              <p className="text-xs text-ws-muted/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
             )}
 
             {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
@@ -479,7 +479,7 @@ export default function ResearchSearch() {
               <div>
                 <p className="text-sm font-bold">{tr("وش يميّز بحثكم عن اللي انكتب؟")}</p>
                 <p className="mt-1 text-sm leading-relaxed text-ws-muted">{st.activeResult.noveltyNote}</p>
-                <p className="mt-1.5 text-[12px] text-ws-muted/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
+                <p className="mt-1.5 text-xs text-ws-muted/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
               </div>
             </div>
           )}

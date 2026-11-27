@@ -19,16 +19,16 @@ export default function AiLockedCard({ feature }: { feature: string }) {
         <Lock size={18} />
       </span>
       <p className="font-display text-base font-extrabold text-brand-950">{trx("{0} ضمن باقة AI", feature)}</p>
-      <p className="max-w-sm text-sm text-brand-950/55">{trx("فريقكم الحين بدون المساعد الذكي. إضافته بـ{0} ريال شهريًا للفريق كامل تفتح المساعد البحثي وويسي للبحث العلمي وتحسين الصياغة والصوت الطبيعي.", price)}</p>
+      <p className="max-w-sm text-sm text-brand-950/55">{trx("فريقكم الحين بدون الوكيل. إضافته بـ{0} ريال شهريًا للفريق كامل تفتح المساعد البحثي وويسي للبحث العلمي وتحسين الصياغة والصوت الطبيعي.", price)}</p>
       <Link
         to="/pricing"
         className="inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600"
       >
         <Wand2 size={14} />
-        {isLeader ? tr("أضيفوا المساعد الذكي") : tr("شوفوا الباقات")}
+        {isLeader ? tr("أضيفوا الوكيل") : tr("شوفوا الباقات")}
       </Link>
       {!isLeader && (
-        <p className="text-[12px] text-brand-950/40">{tr("تغيير الباقة من قائدة الفريق فقط.")}</p>
+        <p className="text-xs text-brand-950/40">{tr("تغيير الباقة من قائدة الفريق فقط.")}</p>
       )}
     </div>
   );

@@ -87,7 +87,7 @@ export default function LiteratureReview() {
                   <span
                     className={clsx(
                       "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold",
-                      on ? "border-ws-accent3 text-ws-accent3" : "border-white/25 text-ws-muted",
+                      on ? "border-ws-accent3 text-ws-accent3" : "border-white/20 text-ws-muted",
                     )}
                   >
                     {arDigit(i + 1)}
@@ -127,7 +127,7 @@ export default function LiteratureReview() {
                     </div>
                     <span className="text-sm text-ws-muted">{study.year}</span>
                   </div>
-                  <h3 className="mt-3 text-[17px] font-bold leading-snug" dir="auto">
+                  <h3 className="mt-3 text-lg font-bold leading-snug" dir="auto">
                     {study.title}
                   </h3>
                   <p className="mt-1 text-xs text-ws-muted" dir="auto">
@@ -135,12 +135,12 @@ export default function LiteratureReview() {
                   </p>
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[12px] font-bold text-ws-muted">{tre("أهم النتائج")}</p>
+                    <div className="rounded-2xl bg-white/[0.04] p-3.5">
+                      <p className="text-xs font-bold text-ws-muted">{tre("أهم النتائج")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.keyFinding || "—"}</p>
                     </div>
-                    <div className="rounded-2xl bg-white/[0.05] p-3.5">
-                      <p className="text-[12px] font-bold text-ws-muted">{tre("الصلة بالبحث")}</p>
+                    <div className="rounded-2xl bg-white/[0.04] p-3.5">
+                      <p className="text-xs font-bold text-ws-muted">{tre("الصلة بالبحث")}</p>
                       <p className="mt-1 text-sm leading-relaxed">{study.relevance || "—"}</p>
                     </div>
                   </div>

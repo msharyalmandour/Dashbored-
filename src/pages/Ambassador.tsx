@@ -51,7 +51,7 @@ export default function Ambassador() {
     <div className="v3 relative">
       <V3Glow />
       <LuxHead kicker={tr("سفراء Wesync")} title={tr("كودكم")} sub={tr("كل فريق يبدأ فعليًا من كودكم = شهر مجاني لكم وله")} />
-      {state === "soon" && <p className="lx-card text-[14px] text-ws-muted">{tr("برنامج السفراء ينفتح قريب.")}</p>}
+      {state === "soon" && <p className="lx-card text-sm text-ws-muted">{tr("برنامج السفراء ينفتح قريب.")}</p>}
       {state === "ok" && code && (
         <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
           <section className="am-code lx-in" aria-labelledby="am-h">
@@ -94,26 +94,26 @@ export default function Ambassador() {
                 <b dir="ltr">{stats?.activated ?? 0}</b>
                 <span>{tr("أشهر مجانية ربحتوها")}</span>
               </div>
-              <p className="col-span-2 m-0 text-[12px] text-ws-muted">{tr("الشهر ينحسب لما الفريق الجديد يفتح أول باب، مو بس يسجّل.")}</p>
+              <p className="col-span-2 m-0 text-xs text-ws-muted">{tr("الشهر ينحسب لما الفريق الجديد يفتح أول باب، مو بس يسجّل.")}</p>
             </section>
             <section className="lx-card lx-in" aria-labelledby="am-col-h">
               <div className="flex items-center gap-2">
                 <Trophy size={17} className="text-ws-accent3" aria-hidden />
-                <b id="am-col-h" className="text-[17px]">
+                <b id="am-col-h" className="text-lg">
                   {tr("ترتيب الكليات هالشهر")}
                 </b>
               </div>
-              {(stats?.colleges ?? []).length === 0 && <p className="m-0 mt-2 text-[13px] text-ws-muted">{tr("أول فريق يسجّل يحط كليته فوق.")}</p>}
+              {(stats?.colleges ?? []).length === 0 && <p className="m-0 mt-2 text-sm text-ws-muted">{tr("أول فريق يسجّل يحط كليته فوق.")}</p>}
               <ol className="m-0 mt-2 list-none p-0">
                 {(stats?.colleges ?? []).map((c, i) => (
-                  <li key={c.college} className="flex min-h-[44px] items-center gap-3 border-t border-white/[0.07] first:border-0">
-                    <span className="w-6 text-[13px] font-extrabold text-ws-accent3" dir="ltr">
+                  <li key={c.college} className="flex min-h-[44px] items-center gap-3 border-t border-white/10 first:border-0">
+                    <span className="w-6 text-sm font-extrabold text-ws-accent3" dir="ltr">
                       {i + 1}
                     </span>
-                    <span className="flex-1 text-[14px] font-bold" dir="auto">
+                    <span className="flex-1 text-sm font-bold" dir="auto">
                       {c.college}
                     </span>
-                    <span className="text-[13px] text-ws-muted">{tr("{0} فرق", c.teams)}</span>
+                    <span className="text-sm text-ws-muted">{tr("{0} فرق", c.teams)}</span>
                   </li>
                 ))}
               </ol>

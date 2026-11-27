@@ -228,7 +228,7 @@ export default function HomeToasts() {
   if (current.kind === "supervisor" && latest) {
     body = (
       <>
-        <div className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-[#FFC85A] text-[19px] font-extrabold text-[#1A0A02]" aria-hidden>
+        <div className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-[#FFB547] text-lg font-extrabold text-[#1A0A02]" aria-hidden>
           {initial(supName)}
         </div>
         <div className="min-w-0 flex-1">
@@ -242,7 +242,7 @@ export default function HomeToasts() {
         </div>
         <button
           type="button"
-          className="v3-bw shrink-0 !min-h-[40px] !px-[18px] !text-[13px]"
+          className="v3-bw shrink-0 !min-h-[40px] !px-[18px] !text-sm"
           onClick={() => {
             addDismissed(uid, current.key);
             navigate("/feedback");
@@ -255,7 +255,7 @@ export default function HomeToasts() {
   } else if (current.kind === "drive") {
     body = (
       <>
-        <span className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] bg-white shadow-[0_8px_18px_rgba(0,0,0,.35)]" aria-hidden>
+        <span className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-xl bg-white shadow-[0_8px_18px_rgba(0,0,0,.35)]" aria-hidden>
           <GoogleDriveLogo size={26} />
         </span>
         <div className="min-w-0 flex-1">
@@ -264,18 +264,18 @@ export default function HomeToasts() {
         </div>
         <div className="flex min-w-[120px] shrink-0 items-center justify-end gap-2" aria-live="polite">
           {driveState === "idle" || driveState === "error" ? (
-            <button type="button" className="v3-bd !min-h-[40px] !px-4 !text-[13px]" onClick={connectDrive}>
+            <button type="button" className="v3-bd !min-h-[40px] !px-4 !text-sm" onClick={connectDrive}>
               {driveState === "error" ? tr("جرّبوا مرة ثانية") : tr("اربطوه")}
             </button>
           ) : driveState === "connecting" ? (
             <>
-              <span className="text-[13px] text-[var(--ws-c-warn)]">{tr("جاري الربط")}</span>
+              <span className="text-sm text-[var(--ws-c-warn)]">{tr("جاري الربط")}</span>
               <Dots />
               <span className="ws-spin" aria-hidden />
             </>
           ) : (
             <>
-              <span className="text-[13px] font-bold text-[var(--ws-c-done)]">{tr("انربط")}</span>
+              <span className="text-sm font-bold text-[var(--ws-c-done)]">{tr("انربط")}</span>
               <span className="ws-ok" aria-hidden>
                 ✓
               </span>
@@ -288,7 +288,7 @@ export default function HomeToasts() {
     const on = emailState === "saving" || emailState === "on";
     body = (
       <>
-        <span className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] bg-white shadow-[0_8px_18px_rgba(0,0,0,.35)]" aria-hidden>
+        <span className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-xl bg-white shadow-[0_8px_18px_rgba(0,0,0,.35)]" aria-hidden>
           <GmailLogo size={26} />
         </span>
         <div className="min-w-0 flex-1">
@@ -300,7 +300,7 @@ export default function HomeToasts() {
         <div className="flex min-w-[110px] shrink-0 items-center justify-end gap-2" aria-live="polite">
           {emailState === "on" ? (
             <>
-              <span className="text-[13px] font-bold text-[var(--ws-c-done)]">{tr("شغّالة")}</span>
+              <span className="text-sm font-bold text-[var(--ws-c-done)]">{tr("شغّالة")}</span>
               <span className="ws-ok" aria-hidden>
                 ✓
               </span>
@@ -328,7 +328,7 @@ export default function HomeToasts() {
     <div className="pointer-events-none fixed inset-x-0 top-[84px] z-[45] flex justify-center px-4" role="region" aria-label={tr("إشعارات")}>
       <div
         key={current.key}
-        className={clsx("ws-toast pointer-events-auto relative w-full max-w-[600px] overflow-hidden rounded-[24px] px-4 pb-4 pt-3.5", leaving && "out")}
+        className={clsx("ws-toast pointer-events-auto relative w-full max-w-[600px] overflow-hidden rounded-3xl px-4 pb-4 pt-3.5", leaving && "out")}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onPointerDown={() => setPinned(true)}
@@ -342,7 +342,7 @@ export default function HomeToasts() {
           </button>
         </div>
         <div className="flex items-center gap-3.5">{body}</div>
-        <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/[0.08]" aria-hidden>
+        <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/[0.07]" aria-hidden>
           <i className="ws-life" style={{ animationPlayState: paused || pinned || leaving ? "paused" : "running" }} />
         </div>
       </div>

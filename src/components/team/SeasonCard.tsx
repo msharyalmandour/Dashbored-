@@ -28,17 +28,17 @@ export default function SeasonCard() {
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/[0.07] text-ws-accent3" aria-hidden>
           <CalendarRange size={17} />
         </span>
-        <b id="season-h" className="flex-1 text-[18px]">
+        <b id="season-h" className="flex-1 text-lg">
           {tr("مواسم الكلية")}
         </b>
       </div>
-      <p className="m-0 mt-1 text-[13px] text-ws-muted">{s.line ?? tr("حطوا الاختبارات والتدريب والتسليمات، وويسي يرتب الضغط حسبها.")}</p>
+      <p className="m-0 mt-1 text-sm text-ws-muted">{s.line ?? tr("حطوا الاختبارات والتدريب والتسليمات، وويسي يرتب الضغط حسبها.")}</p>
       <ul className="m-0 mt-3 list-none space-y-1.5 p-0">
         {events.map((e) => (
           <li key={e.id} className="flex min-h-[44px] items-center gap-3 rounded-2xl bg-black/20 px-3">
-            <span className="text-[12px] font-extrabold text-ws-accent3">{KINDS.find((x) => x.k === e.kind)?.label}</span>
-            <span className="min-w-0 flex-1 truncate text-[14px] font-bold">{e.title}</span>
-            <span className="text-[12px] text-ws-muted">
+            <span className="text-xs font-extrabold text-ws-accent3">{KINDS.find((x) => x.k === e.kind)?.label}</span>
+            <span className="min-w-0 flex-1 truncate text-sm font-bold">{e.title}</span>
+            <span className="text-xs text-ws-muted">
               {formatDateShort(e.startsOn)}
               {e.endsOn ? ` – ${formatDateShort(e.endsOn)}` : ""}
             </span>

@@ -131,7 +131,7 @@ export default function WesyNudges() {
   return (
     <div
       role="status"
-      className="fixed bottom-24 end-4 z-[90] w-[min(92vw,360px)] rounded-[22px] border border-amber-accent-400/40 bg-[#160904] p-3 text-ws-text shadow-2xl shadow-black/50 animate-[page-in_0.35s_ease-out] md:bottom-6 print:hidden"
+      className="fixed bottom-24 end-4 z-[90] w-[min(92vw,360px)] rounded-2xl border border-amber-accent-400/40 bg-[#160904] p-3 text-ws-text shadow-2xl shadow-black/50 animate-[page-in_0.35s_ease-out] md:bottom-6 print:hidden"
     >
       <div className="flex items-start gap-3 pe-10">
         <WesyAvatar size={48} state="thinking" className="shrink-0" />
@@ -147,7 +147,7 @@ export default function WesyNudges() {
             close();
             run();
           }}
-          className="min-h-11 rounded-full bg-gradient-to-l from-ws-accent to-ws-accent2 px-5 text-sm font-bold text-[#160904]"
+          className="min-h-11 rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-5 text-sm font-bold text-[#160904]"
         >
           {nudge.cta}
         </button>

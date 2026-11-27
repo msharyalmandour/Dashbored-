@@ -85,7 +85,7 @@ export default function Celebration() {
 
           <div className="mt-5 rounded-2xl border border-brand-100 bg-surface-muted p-4 text-start">
             <p className="text-xs font-semibold uppercase tracking-wide text-brand-950/40">{tr("شهادة إنجاز بحث")}</p>
-            <p className="mt-1 flex items-center gap-2 text-[15px] font-extrabold text-[#E39A2E]">
+            <p className="mt-1 flex items-center gap-2 text-base font-extrabold text-[#E39A2E]">
               <WLogo size={24} tone="ink" state="sync" />
               {tr("على نفس الموجة لين النهاية")}
             </p>

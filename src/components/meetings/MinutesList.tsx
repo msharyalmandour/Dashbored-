@@ -34,7 +34,7 @@ interface MinutesListProps {
 /** أرقام غربية 0–9 بكل مكان */
 const arDigit = (n: number) => String(n);
 const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean).length;
-const toolBtn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text disabled:opacity-50";
+const toolBtn = "flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text disabled:opacity-50";
 
 /** المحاضر السابقة: صفوف هادئة (رقم + تاريخ + عدد القرارات والبنود + حالة)، والتفاصيل والأدوات بنافذة */
 export default function MinutesList(props: MinutesListProps) {
@@ -78,15 +78,15 @@ export default function MinutesList(props: MinutesListProps) {
                   {String(n).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-[1.4] leading-[1.4]">
-                  <b className="block truncate text-[16px] text-ws-text" dir="auto">
+                  <b className="block truncate text-base text-ws-text" dir="auto">
                     {title}
                   </b>
-                  <span className="flex items-center gap-2 text-[13px] text-ws-muted">
+                  <span className="flex items-center gap-2 text-sm text-ws-muted">
                     {formatDateShort(x.meetingDate)}
                     {x.attendees.length > 0 && (
                       <span className="mt-avs" aria-label={tr("{0} حضروا", x.attendees.length)}>
                         {x.attendees.slice(0, 4).map((a, k) => (
-                          <i key={k} style={{ background: ["#FFC85A", "#FF9A5A", "#FFE3C2", "#FFB2A6"][k % 4] }} title={a}>
+                          <i key={k} style={{ background: ["#FFB547", "#FF8A24", "#FFE3C2", "#FF8A7A"][k % 4] }} title={a}>
                             {a.trim().charAt(0)}
                           </i>
                         ))}
@@ -94,7 +94,7 @@ export default function MinutesList(props: MinutesListProps) {
                     )}
                   </span>
                 </span>
-                <span className="hidden flex-1 text-[13px] text-ws-text-accent sm:block">
+                <span className="hidden flex-1 text-sm text-ws-text-accent sm:block">
                   {decisionCount > 0 ? `${arDigit(decisionCount)} ${decisionCount === 1 ? tr("قرار") : tr("قرارات")}` : tr("بدون قرارات")} · {items > 0 ? `${arDigit(items)} ${items === 1 ? tr("مهمة") : tr("مهام")}` : tr("بدون بنود")}
                 </span>
                 <ApprovalBadge status={st} />
@@ -136,7 +136,7 @@ export default function MinutesList(props: MinutesListProps) {
 
             {prog.total > 0 && (
               <div>
-                <div className="mb-1 flex items-center justify-between text-[12px] font-bold text-ws-muted">
+                <div className="mb-1 flex items-center justify-between text-xs font-bold text-ws-muted">
                   <span>{tr("إنجاز بنود هذا الاجتماع")}</span>
                   <span>{trx("{0} من {1}", prog.done, prog.total)}</span>
                 </div>

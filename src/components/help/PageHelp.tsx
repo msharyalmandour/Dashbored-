@@ -82,7 +82,7 @@ export function PageHelpButton({ className }: { className?: string }) {
             <div className="ph-scrim" aria-hidden onClick={() => setOpen(false)} />
             <div ref={panel} className="ph-sheet" role="dialog" aria-modal="true" aria-labelledby="ph-title" tabIndex={-1}>
               <div className="flex items-start justify-between gap-3">
-                <span className="pt-3 text-[13px] font-extrabold text-ws-accent3">{tr("وش هذي الصفحة؟")}</span>
+                <span className="pt-3 text-sm font-extrabold text-ws-accent3">{tr("وش هذي الصفحة؟")}</span>
                 <button type="button" className="ph-x" onClick={() => setOpen(false)} aria-label={tr("إغلاق")}>
                   <X size={18} />
                 </button>
@@ -90,7 +90,7 @@ export function PageHelpButton({ className }: { className?: string }) {
               <h2 id="ph-title" className="lx-h1 !mt-3 !text-[44px]">
                 {help.name}
               </h2>
-              <p className="m-0 mt-3 text-[15px] leading-[1.9] text-ws-text-accent">{rich(help.lead)}</p>
+              <p className="m-0 mt-3 text-base leading-[1.9] text-ws-text-accent">{rich(help.lead)}</p>
               <ol className="m-0 mt-4 flex list-none flex-col gap-2.5 p-0">
                 {help.symbols.slice(0, 3).map((s, i) => (
                   <li key={i} className="ph-row">
@@ -98,8 +98,8 @@ export function PageHelpButton({ className }: { className?: string }) {
                       {i + 1}
                     </span>
                     <span className="min-w-0 flex-1 leading-[1.5]">
-                      <b className="block text-[15px] text-ws-text">{s.title}</b>
-                      <span className="block text-[13px] text-ws-muted">{s.sub}</span>
+                      <b className="block text-base text-ws-text">{s.title}</b>
+                      <span className="block text-sm text-ws-muted">{s.sub}</span>
                     </span>
                   </li>
                 ))}
@@ -109,7 +109,7 @@ export function PageHelpButton({ className }: { className?: string }) {
                 <Play size={15} aria-hidden />
                 {tr("ورّوني بنفسي (30 ثانية)")}
               </button>
-              <p className="m-0 mt-3 text-center text-[12px] text-ws-muted">{tr("علامة ؟ فوق كل صفحة تفتح هذا")}</p>
+              <p className="m-0 mt-3 text-center text-xs text-ws-muted">{tr("علامة ؟ فوق كل صفحة تفتح هذا")}</p>
             </div>
           </>,
           document.body,

@@ -74,15 +74,15 @@ export default function Planner() {
       <Card tone="cream" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <label className="block">
           <span className="mb-1 block text-xs font-bold text-brand-950/70">{tr("موعد التسليم النهائي")}</span>
-          <input type="date" value={endISO} onChange={(e) => setEndISO(e.target.value)} className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300" />
+          <input type="date" value={endISO} onChange={(e) => setEndISO(e.target.value)} className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300" />
         </label>
         <label className="block">
           <span className="mb-1 block text-xs font-bold text-brand-950/70">{tr("نبدأ الحساب من")}</span>
-          <input type="date" value={startISO} onChange={(e) => setStartISO(e.target.value)} className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300" />
+          <input type="date" value={startISO} onChange={(e) => setStartISO(e.target.value)} className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300" />
         </label>
         <label className="block">
           <span className="mb-1 block text-xs font-bold text-brand-950/70">{tr("هامش الأمان")}</span>
-          <select value={bufferPct} onChange={(e) => setBufferPct(Number(e.target.value))} className="w-full rounded-lg border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300">
+          <select value={bufferPct} onChange={(e) => setBufferPct(Number(e.target.value))} className="w-full rounded-xl border border-brand-100 bg-paper px-3 py-2 text-sm outline-none focus:border-brand-300">
             <option value={8}>{tr("8% (مشدود)")}</option>
             <option value={12}>{tr("12% (موصى به)")}</option>
             <option value={20}>{tr("20% (مريح)")}</option>
@@ -163,7 +163,7 @@ export default function Planner() {
               disabled={applying || !canWrite}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
             >{trx("{0}طبّقوا هذا الجدول على مراحل البحث", applying && <WSpin size={15} />)}</button>
-            <p className="text-[12px] text-brand-950/45">{tr("يحدّث مواعيد المراحل غير المنتهية بصفحة «الجدول الزمني» (المراحل المنتهية ما تتغير). اتفقوا مع المشرفة قبل التطبيق.")}</p>
+            <p className="text-xs text-brand-950/45">{tr("يحدّث مواعيد المراحل غير المنتهية بصفحة «الجدول الزمني» (المراحل المنتهية ما تتغير). اتفقوا مع المشرفة قبل التطبيق.")}</p>
           </div>
         </Card>
       )}

@@ -115,14 +115,14 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               <div className="flex items-start justify-between gap-2">
                 <p className="font-bold">{d.question}</p>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ws-accent3/40 bg-ws-accent3/10 px-2.5 py-1 text-[12px] font-bold text-ws-accent3">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ws-accent3/40 bg-ws-accent3/10 px-2.5 py-1 text-xs font-bold text-ws-accent3">
                     <Clock size={12} />{tr("بانتظار القرار")}</span>
                   {canWrite && <ThreeDotsMenu items={[{ label: tr("إلغاء الطلب"), confirmLabel: tr("تأكيد الإلغاء؟"), icon: Trash2, tone: "danger", onClick: () => onCancel(d.id) }]} />}
                 </div>
               </div>
               <ul className="flex flex-wrap gap-2">
                 {d.options.map((o) => (
-                  <li key={o} className="rounded-full border border-white/[0.14] px-3.5 py-1 text-xs font-semibold text-ws-text">{o}</li>
+                  <li key={o} className="rounded-full border border-white/10 px-3.5 py-1 text-xs font-semibold text-ws-text">{o}</li>
                 ))}
               </ul>
               <div className="flex flex-wrap items-center gap-2 text-xs text-ws-muted">
@@ -130,7 +130,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
                 {overdue(d) && <span className="rounded-full bg-ws-accent3/15 px-2 py-0.5 font-bold text-ws-accent3">{tr("تجاوز المدة المتوقعة، ذكّروا بلطف")}</span>}
                 <span className="flex-1" />
                 {supervisorUrl && (
-                  <a href={whatsappUrl(decisionRequestMessage(d.question, supervisorUrl))} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 font-bold text-ws-muted hover:border-ws-accent2/50 hover:text-ws-text">
+                  <a href={whatsappUrl(decisionRequestMessage(d.question, supervisorUrl))} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 font-bold text-ws-muted hover:border-ws-accent2/50 hover:text-ws-text">
                     <MessageCircle size={12} />{tr("بواتساب")}</a>
                 )}
               </div>
@@ -140,7 +140,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
             <div key={d.id} className={clsx(glassCard, "space-y-2.5 p-5")}>
               <div className="flex items-start justify-between gap-2">
                 <p className="font-bold">{d.question}</p>
-                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ws-accent3/40 bg-ws-accent3/10 px-2.5 py-1 text-[12px] font-bold text-ws-accent3">
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ws-accent3/40 bg-ws-accent3/10 px-2.5 py-1 text-xs font-bold text-ws-accent3">
                   <CheckCircle2 size={12} />{tr("تم القرار")}</span>
               </div>
               <ul className="flex flex-wrap gap-2">

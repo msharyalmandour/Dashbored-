@@ -64,7 +64,7 @@ const demoJourney: JourneyStep[] = [
 function DemoTodo() {
   const rows = [
     { t: tr("أسئلة البحث"), kind: "done", due: tr("خلصت ✓"), c: "#FFB547", av: tr("م"), bg: "linear-gradient(160deg,#FFE08A,#FFB547)" },
-    { t: tr("صياغة هدف الدراسة"), kind: "late", due: tr("متأخرة يومين"), c: "#FF8A7A", av: tr("أ"), bg: "linear-gradient(160deg,#FFC27A,#FF8A2A)" },
+    { t: tr("صياغة هدف الدراسة"), kind: "late", due: tr("متأخرة يومين"), c: "#FF8A7A", av: tr("أ"), bg: "linear-gradient(160deg,#FFC27A,#FF8A24)" },
     { t: tr("كتابة خلفية البحث"), kind: "today", due: tr("اليوم"), c: "#FFB547", av: tr("س"), bg: "linear-gradient(160deg,#FFF3E2,#E7D3BC)" },
   ];
   return (
@@ -73,7 +73,7 @@ function DemoTodo() {
         <div className="hg-tr">
           <i style={{ width: "33%" }} />
         </div>
-        <span className="whitespace-nowrap text-[13px] text-ws-muted">
+        <span className="whitespace-nowrap text-sm text-ws-muted">
           <b className="hg-num text-ws-text">1</b> {tr("من")} <b className="hg-num text-ws-text">3</b> {tr("خلصت")}
         </span>
       </div>
@@ -106,11 +106,11 @@ export function FeaturesBento() {
         <div {...fx(0)} className="ld-fx lv-glass lv-bcard lv-b-2x2 md:min-h-[440px] lg:min-h-0">
           <div className="lv-bk">{tr("لوحة الفريق")}</div>
           <div className="lv-bt">{tr("كل شي بنظرة وحدة")}</div>
-          <p className="m-0 mt-2 max-w-[38ch] text-[15px] leading-[1.7] text-ws-muted">{tr("وين وصلتوا، مين عليه وش، وكم باقي على التسليم — أول ما تفتحون.")}</p>
+          <p className="m-0 mt-2 max-w-[38ch] text-base leading-[1.7] text-ws-muted">{tr("وين وصلتوا، مين عليه وش، وكم باقي على التسليم — أول ما تفتحون.")}</p>
           <div className="lv-gauge hg-orange" aria-hidden>
             {/* بالجوال الكرت البرتقالي لحاله والعنوان داخله (نفس لوحة MLanding) */}
-            <div className="flex items-center gap-2.5 text-[16px] font-bold text-[#2A0E02]">
-              <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-white/30">
+            <div className="flex items-center gap-2.5 text-base font-bold text-[#2A0E02]">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-white/30">
                 <Gauge size={16} strokeWidth={1.8} />
               </span>
               <span className="hidden md:inline">{tr("تقدّم البحث")}</span>
@@ -137,7 +137,7 @@ export function FeaturesBento() {
                 <span className="lv-num text-[64px] text-[#F7EFE6] lg:text-[84px]">24</span>
                 <span className="text-[20px] font-extrabold">{tr("يوم")}</span>
               </div>
-              <div className="mt-1 text-[13px] font-bold text-ws-accent2">{tr("الأحد 21 نوفمبر")}</div>
+              <div className="mt-1 text-sm font-bold text-ws-accent2">{tr("الأحد 21 نوفمبر")}</div>
             </div>
           </div>
 
@@ -162,14 +162,14 @@ export function FeaturesBento() {
         </div>
 
         {/* الكوتش الذكي */}
-        <div {...fx(200)} className="ld-fx lv-coach lv-bcard lv-b-2x1 relative overflow-hidden rounded-[26px] md:rounded-[30px]">
-          <div className="flex items-center gap-2 text-[13px] font-bold text-[#FFD9A8]">
+        <div {...fx(200)} className="ld-fx lv-coach lv-bcard lv-b-2x1 relative overflow-hidden rounded-3xl md:rounded-3xl">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#FFD9A8]">
             <AgentWave size={16} /> {tr("الكوتش الذكي · باقة AI")}
           </div>
           <div className="lv-bt !text-[#FFF3E8]">{tr("يقول لكم وش تسوون الحين")}</div>
           <div className="lv-coach-box" aria-hidden>
-            <div className="text-[14px] font-semibold text-[#FFEBDD]">{tr("وش أهم شي نسويه هالأسبوع؟")}</div>
-            <div className="mt-2 text-[14px] leading-[1.7] text-[rgba(255,235,220,.82)]">{tr("خلّصوا «هدف الدراسة» أول لأنه متأخر يومين — سارة تقدر تساعد أحمد. بعدها ابدأوا الأدبيات.")}</div>
+            <div className="text-sm font-semibold text-[#FFEBDD]">{tr("وش أهم شي نسويه هالأسبوع؟")}</div>
+            <div className="mt-2 text-sm leading-[1.7] text-[rgba(255,235,220,.82)]">{tr("خلّصوا «هدف الدراسة» أول لأنه متأخر يومين — سارة تقدر تساعد أحمد. بعدها ابدأوا الأدبيات.")}</div>
           </div>
         </div>
       </div>
@@ -246,7 +246,7 @@ export function Integrations() {
       <SectionHead badge={tr("يشتغل مع أدواتكم")} title={tr("ما تغيّرون عاداتكم")} desc={tr("Wesync يتصل باللي تستخدمونه أصلًا. فعّلوها مرة وحدة من الإعدادات وخلاص.")} />
 
       {/* كمبيوتر: كرة بالنص وخطوط منقطة للبطاقات */}
-      <div {...fx(100)} className="ld-fx lv-glass lv-int-map mt-12 hidden !rounded-[36px] lg:block">
+      <div {...fx(100)} className="ld-fx lv-glass lv-int-map mt-12 hidden !rounded-3xl lg:block">
         <div aria-hidden className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(closest-side, rgba(255,110,20,.22), transparent)" }} />
         <svg className="absolute inset-0 h-full w-full" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
           {ys.flatMap((y, i) => [
@@ -364,16 +364,16 @@ export function PricingV2() {
       </SectionHead>
 
       <div className="mt-10 grid items-start gap-5 md:grid-cols-2 md:gap-[22px]">
-        {/* الفريق + المساعد الذكي (أول بالجوال) */}
+        {/* الفريق + الوكيل (أول بالجوال) */}
         <div {...fx(260)} className="ld-fx lv-ai-card order-1 md:order-2">
           <span className="lv-popular">{tr("الأكثر اختيارًا")}</span>
-          <div className="text-[24px] font-extrabold">{tr("الفريق + المساعد الذكي")}</div>
-          <div className="text-[15px] text-ws-text">{tr("مساعد يرتّب ويشرح ويقترح — مو بديل عنكم")}</div>
+          <div className="text-[24px] font-extrabold">{tr("الفريق + الوكيل")}</div>
+          <div className="text-base text-ws-text">{tr("مساعد يرتّب ويشرح ويقترح — مو بديل عنكم")}</div>
           <div className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1">
             <span className="lv-price lv-gold-num" aria-live="polite">
               {aiPrice}
             </span>
-            <span className="pb-2 text-[15px] leading-snug text-ws-text">
+            <span className="pb-2 text-base leading-snug text-ws-text">
               {tr("ريال شهريًا")}
               <br />
               <span className="text-ws-muted">{tr("للفريق كامل")}</span>
@@ -381,26 +381,26 @@ export function PricingV2() {
           </div>
           <div className="lv-founders mt-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <b className="text-[15px] text-[#FFD9A8]">{trx("سعر المؤسسين: المساعد بـ{0} بس", AI_ADDON_FOUNDER)}</b>
-              <span className="text-[13px] text-ws-muted">{trx("لأول {0} فريق", FOUNDER_SEATS)}</span>
+              <b className="text-base text-[#FFD9A8]">{trx("سعر المؤسسين: المساعد بـ{0} بس", AI_ADDON_FOUNDER)}</b>
+              <span className="text-sm text-ws-muted">{trx("لأول {0} فريق", FOUNDER_SEATS)}</span>
             </div>
             {seats !== null && (
               <div className="mt-2.5">
                 <div className="lv-fbar" role="progressbar" aria-valuemin={0} aria-valuemax={FOUNDER_SEATS} aria-valuenow={seats} aria-label={tr("مقاعد المؤسسين")}>
                   <i style={{ width: `${(seats / FOUNDER_SEATS) * 100}%` }} />
                 </div>
-                <div className="mt-1.5 text-[12px] text-ws-muted">
+                <div className="mt-1.5 text-xs text-ws-muted">
                   {seatsFull ? tr("اكتملت مقاعد المؤسسين") : trx("انحجز {0} من {1} — باقي {2}", seats, FOUNDER_SEATS, FOUNDER_SEATS - seats)}
                 </div>
               </div>
             )}
-            <div className="mt-2 text-[13px] text-ws-text">{trx("اشتراك الفريق + المساعد بـ{0} ريال (لحالك +{1})", AI_ADDON_TEAM, AI_ADDON_SOLO)}</div>
+            <div className="mt-2 text-sm text-ws-text">{trx("اشتراك الفريق + المساعد بـ{0} ريال (لحالك +{1})", AI_ADDON_TEAM, AI_ADDON_SOLO)}</div>
           </div>
           <Link to="/login?signup=1" data-wa-avoid className="lv-cream-btn mt-6">
             {tr("جرّبوا المساعد مجانًا")}
           </Link>
-          <ul className="m-0 mt-6 list-none space-y-3 border-t border-white/[0.12] p-0 pt-6">
-            <li className="text-[15px] text-[#FFD9A8]">{tr("كل اللي باشتراك الفريق، وفوقه:")}</li>
+          <ul className="m-0 mt-6 list-none space-y-3 border-t border-white/10 p-0 pt-6">
+            <li className="text-base text-[#FFD9A8]">{tr("كل اللي باشتراك الفريق، وفوقه:")}</li>
             {aiFeatures.map((f) => (
               <li key={f.title} className="lv-feat">
                 <i aria-hidden>
@@ -415,14 +415,14 @@ export function PricingV2() {
         </div>
 
         {/* اشتراك الفريق */}
-        <div {...fx(120)} className="ld-fx lv-glass lv-price-card order-2 md:order-1 md:!rounded-[34px]">
+        <div {...fx(120)} className="ld-fx lv-glass lv-price-card order-2 md:order-1 md:!rounded-3xl">
           <div className="text-[24px] font-extrabold">{tr("اشتراك الفريق")}</div>
-          <div className="text-[15px] text-ws-muted">{tr("كل أدوات تنظيم البحث للفريق كامل")}</div>
+          <div className="text-base text-ws-muted">{tr("كل أدوات تنظيم البحث للفريق كامل")}</div>
           <div className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1">
             <span className="lv-price text-[#F7EFE6]" aria-live="polite">
               {teamPrice}
             </span>
-            <span className="pb-2 text-[15px] leading-snug text-ws-text">
+            <span className="pb-2 text-base leading-snug text-ws-text">
               {tr("ريال شهريًا")}
               <br />
               <span className="text-ws-muted">{size === 1 ? tr("لك لحالك") : tr("للفريق كامل")}</span>
@@ -435,7 +435,7 @@ export function PricingV2() {
           <Link to="/login?signup=1" data-wa-avoid className="lv-ghost-btn mt-6">
             {trx("ابدأوا {0} يوم مجانًا", TRIAL_DAYS)}
           </Link>
-          <ul className="m-0 mt-6 list-none space-y-3 border-t border-white/[0.1] p-0 pt-6">
+          <ul className="m-0 mt-6 list-none space-y-3 border-t border-white/10 p-0 pt-6">
             {basicHighlights.map((item) => (
               <li key={item} className="lv-feat">
                 <i aria-hidden>
@@ -453,12 +453,12 @@ export function PricingV2() {
           <ShieldCheck size={20} />
         </span>
         <div className="min-w-0 flex-1">
-          <b className="block text-[17px] text-[#FFE2B0]">{tr("المشرفة مجانًا، دايمًا")}</b>
-          <span className="text-[14px] text-ws-muted">{tr("رابط واحد تشوف فيه تقدّمكم وتعتمد وتعلّق، بدون حساب ولا اشتراك.")}</span>
+          <b className="block text-lg text-[#FFE2B0]">{tr("المشرفة مجانًا، دايمًا")}</b>
+          <span className="text-sm text-ws-muted">{tr("رابط واحد تشوف فيه تقدّمكم وتعتمد وتعلّق، بدون حساب ولا اشتراك.")}</span>
         </div>
       </div>
 
-      <ul className="m-0 mt-5 flex list-none flex-wrap justify-center gap-x-6 gap-y-2 p-0 text-[14px] text-ws-text">
+      <ul className="m-0 mt-5 flex list-none flex-wrap justify-center gap-x-6 gap-y-2 p-0 text-sm text-ws-text">
         {[
           { icon: Check, t: trx("{0} يوم تجربة بدون بطاقة", TRIAL_DAYS) },
           { icon: Check, t: tr("توقفون أي وقت") },
@@ -472,9 +472,9 @@ export function PricingV2() {
         ))}
       </ul>
 
-      <details className="ld-faq mx-auto mt-10 max-w-3xl rounded-[24px] bg-[#140E0B] px-6 py-4 shadow-[inset_0_0_0_1px_rgba(255,240,225,.07)]">
+      <details className="ld-faq mx-auto mt-10 max-w-3xl rounded-3xl bg-[#140E0B] px-6 py-4 shadow-[inset_0_0_0_1px_rgba(255,240,225,.07)]">
         <summary className="flex min-h-[44px] items-center justify-between gap-3 font-semibold">
-          {tr("وش يضيف المساعد الذكي بالتفصيل؟")}
+          {tr("وش يضيف الوكيل بالتفصيل؟")}
           <span className="lv-plus !h-[22px] !w-[22px]" aria-hidden />
         </summary>
         <div className="mt-5">
@@ -488,7 +488,7 @@ export function PricingV2() {
           { k: tr("ادعوا فريق ثاني"), v: tr("أول ما يشتركون: شهر مجاني لكم ولهم.") },
           { k: tr("ظروفك ما تسمح؟"), v: tr("عندنا منحة محدودة — اطلبوها واتساب بدون إحراج.") },
         ].map((perk) => (
-          <div key={perk.k} className="rounded-[20px] bg-[#140E0B] px-5 py-4 text-start shadow-[inset_0_0_0_1px_rgba(255,240,225,.07)]">
+          <div key={perk.k} className="rounded-2xl bg-[#140E0B] px-5 py-4 text-start shadow-[inset_0_0_0_1px_rgba(255,240,225,.07)]">
             <div className="text-sm font-bold text-ws-accent3">{perk.k}</div>
             <div className="mt-1 text-sm text-ws-muted">{perk.v}</div>
           </div>
@@ -506,7 +506,7 @@ export function FaqV2({ faqs }: { faqs: { q: string; a: string }[] }) {
     <section id="faq" className="lv-sec mx-auto max-w-[1100px] scroll-mt-4 px-4 sm:px-9">
       <div {...fx()} className="ld-fx flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-10">
         <h2 className="lv-faq-word m-0">{tr("أسئلة")}</h2>
-        <p className="m-0 hidden max-w-[34ch] pb-3 text-[17px] leading-[1.7] text-ws-muted md:block">
+        <p className="m-0 hidden max-w-[34ch] pb-3 text-lg leading-[1.7] text-ws-muted md:block">
           {tr("اللي يسألونه كل الفرق قبل ما يبدون. ما لقيت سؤالك؟")}{" "}
           <a href={`https://wa.me/${SUPPORT_WHATSAPP}`} target="_blank" rel="noreferrer" className="inline-block px-1 py-2 font-bold text-ws-accent3 underline underline-offset-4">
             {tr("كلّمنا")}
@@ -531,7 +531,7 @@ export function FaqV2({ faqs }: { faqs: { q: string; a: string }[] }) {
           );
         })}
       </div>
-      <p className="mt-6 text-center text-[15px] text-ws-muted md:hidden">
+      <p className="mt-6 text-center text-base text-ws-muted md:hidden">
         {tr("ما لقيت سؤالك؟")}{" "}
         <a href={`https://wa.me/${SUPPORT_WHATSAPP}`} target="_blank" rel="noreferrer" className="inline-block px-1 py-2 font-bold text-ws-accent3 underline underline-offset-4">
           {tr("كلّمنا")}

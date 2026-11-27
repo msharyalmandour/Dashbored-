@@ -59,23 +59,23 @@ export default function VoiceBubble({ meta }: { meta: VoiceMeta }) {
             <i key={i} style={{ height: Math.max(5, Math.round(v * 26)), background: i < done ? "#FFB547" : "rgba(255,244,234,.75)" }} />
           ))}
         </div>
-        <span className="whitespace-nowrap text-[12px] text-ws-text-accent" dir="ltr">
+        <span className="whitespace-nowrap text-xs text-ws-text-accent" dir="ltr">
           {fmtDur(playing || pos ? pos : total)}
         </span>
         <button type="button" className="vb-rate" aria-label={tr("السرعة")} onClick={nextRate} dir="ltr">
           {rate}×
         </button>
       </div>
-      {failed && <p className="m-0 mt-1 text-[12px] text-ws-muted">{meta.path ? tr("ما قدرنا نشغّله الحين — جرّبوا بعد شوي.") : tr("الفويس لسا يرفع…")}</p>}
+      {failed && <p className="m-0 mt-1 text-xs text-ws-muted">{meta.path ? tr("ما قدرنا نشغّله الحين — جرّبوا بعد شوي.") : tr("الفويس لسا يرفع…")}</p>}
       {meta.gist && (
-        <div className="mt-2 text-[14px] leading-[1.6] text-ws-text" dir="auto">
+        <div className="mt-2 text-sm leading-[1.6] text-ws-text" dir="auto">
           <span className="font-bold text-ws-accent3">✦ {tr("الزبدة:")}</span> {meta.gist}
         </div>
       )}
       {meta.transcript && (
         <details className="mt-1.5">
-          <summary className="flex min-h-[36px] cursor-pointer items-center text-[13px] font-bold text-ws-text">{tr("النص كامل")}</summary>
-          <p className="m-0 whitespace-pre-wrap text-[14px] leading-[1.7] text-ws-text-accent" dir="auto">
+          <summary className="flex min-h-[36px] cursor-pointer items-center text-sm font-bold text-ws-text">{tr("النص كامل")}</summary>
+          <p className="m-0 whitespace-pre-wrap text-sm leading-[1.7] text-ws-text-accent" dir="auto">
             {meta.transcript}
           </p>
         </details>
@@ -84,7 +84,7 @@ export default function VoiceBubble({ meta }: { meta: VoiceMeta }) {
         <div className="mt-1 flex flex-wrap gap-1.5">
           {meta.items.map((it, i) => (
             <span key={i} className={`sup-chip${it.kind === "task" ? " gold" : ""}`}>
-              {it.kind === "task" && <Check size={12} aria-hidden />}
+              {it.kind === "task" && <Check size={16} aria-hidden />}
               {it.kind === "task" && it.who ? tr("مهمة لـ{0}", it.who) : it.sub ? `${kindLabel(it.kind)} · ${it.sub.split(" · ").pop()}` : kindLabel(it.kind)}
             </span>
           ))}

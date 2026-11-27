@@ -20,7 +20,7 @@ import { lastActivity, loadTeam, proofProgress, radarOf, requestChips, teamStatu
 
 type View = "home" | "chat" | "teams" | "requests" | "meetings" | "reports" | "settings";
 const NAME_KEY = "wesync-supervisor-name";
-const AV = ["#FFC85A", "#FFB547", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFB547", "#FFB547", "#FFE3C2", "#FF8A24"];
 const dateFmt = new Intl.DateTimeFormat(isEn ? "en-GB" : "ar-u-ca-gregory-nu-latn", { weekday: "long", day: "numeric", month: "long" });
 const todayISO = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
 
@@ -217,7 +217,7 @@ export default function SupervisorDash() {
           <Users size={16} aria-hidden />
         </span>
         <b id="sd-teams-h">{tr("فرقك")}</b>
-        <span style={{ fontSize: 13, color: "#ABA095" }}>{tr("مرتبة حسب اللي يحتاجك")}</span>
+        <span style={{ fontSize: 14, color: "#ABA095" }}>{tr("مرتبة حسب اللي يحتاجك")}</span>
       </div>
       {rows.length === 0 && teams.every((t) => t.state !== "loading") && <p style={{ margin: 0, fontSize: 14, color: "#ABA095" }}>{tr("ما فيه فرق بعد. الصقوا رابط المتابعة اللي أرسله لكم الفريق:")}</p>}
       {teams.some((t) => t.state === "loading") && rows.length === 0 && (
@@ -240,7 +240,7 @@ export default function SupervisorDash() {
         {rows.map(({ t, prog, radar, chips, last }) => (
           <div key={t.token} className="sd-tgrid sd-trow">
             <div style={{ minWidth: 0 }}>
-              <b style={{ fontSize: 15 }}>{t.name || tr("فريق بدون اسم")}</b>
+              <b style={{ fontSize: 16 }}>{t.name || tr("فريق بدون اسم")}</b>
               {avatars(t)}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -258,7 +258,7 @@ export default function SupervisorDash() {
               {!chips.waiting && !chips.doing && !chips.done && <span style={{ fontSize: 12, color: "#ABA095" }}>—</span>}
             </div>
             <div style={{ lineHeight: 1.35 }}>
-              {t.dash?.project?.deadline ? <b style={{ fontSize: 14 }}>{formatDateShort(t.dash.project.deadline)}</b> : <span style={{ fontSize: 13, color: "#ABA095" }}>{tr("بدون موعد")}</span>}
+              {t.dash?.project?.deadline ? <b style={{ fontSize: 14 }}>{formatDateShort(t.dash.project.deadline)}</b> : <span style={{ fontSize: 14, color: "#ABA095" }}>{tr("بدون موعد")}</span>}
               {radar && (
                 <div className={`sd-risk ${toneCls(radar.tone)}`}>
                   <i />
@@ -266,7 +266,7 @@ export default function SupervisorDash() {
                 </div>
               )}
             </div>
-            <span style={{ fontSize: 13, color: "#E9D3B8" }}>{last ? relTime(last) : "—"}</span>
+            <span style={{ fontSize: 14, color: "#E9D3B8" }}>{last ? relTime(last) : "—"}</span>
             <div style={{ display: "grid", gap: 6 }}>
               <button type="button" className="sd-open" onClick={() => openTeam(t.token)}>
                 {tr("افتحوا")}
@@ -294,7 +294,7 @@ export default function SupervisorDash() {
                 )}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-                <b style={{ fontSize: 15 }} dir="ltr">
+                <b style={{ fontSize: 16 }} dir="ltr">
                   {prog ? `${prog.pct}%` : "—"}
                 </b>
                 <span className="sd-bar">
@@ -328,7 +328,7 @@ export default function SupervisorDash() {
             .filter((t) => t.state === "error")
             .map((t) => (
               <div key={t.token} className="sup-row sup-dim">
-                <span style={{ flex: 1, fontSize: 13 }}>{tr("{0} — الرابط ما عاد يشتغل", t.name || tr("فريق"))}</span>
+                <span style={{ flex: 1, fontSize: 14 }}>{tr("{0} — الرابط ما عاد يشتغل", t.name || tr("فريق"))}</span>
                 <button type="button" className="sup-star" aria-label={tr("إزالة من القائمة")} onClick={() => (forgetTeam(t.token), setTeams((p) => p.filter((x) => x.token !== t.token)))}>
                   <X size={16} aria-hidden />
                 </button>
@@ -358,7 +358,7 @@ export default function SupervisorDash() {
           <i style={{ width: 2, height: 10, background: "#F2EBE3" }} /> {tr("الموعد")}
         </span>
       </div>
-      {rows.filter((r) => r.radar).length === 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#ABA095" }}>{needsSql ? tr("الرادار يشتغل بعد تحديث قاعدة البيانات.") : tr("ما فيه بيانات كفاية بعد.")}</p>}
+      {rows.filter((r) => r.radar).length === 0 && <p style={{ margin: "6px 0 0", fontSize: 14, color: "#ABA095" }}>{needsSql ? tr("الرادار يشتغل بعد تحديث قاعدة البيانات.") : tr("ما فيه بيانات كفاية بعد.")}</p>}
       {rows
         .filter((r) => r.radar)
         .map(({ t, radar }, i) => {
@@ -367,13 +367,13 @@ export default function SupervisorDash() {
           const f = r.pos.finish;
           return (
             <div key={t.token} style={{ padding: "10px 0", borderTop: i ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 13 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 14 }}>
                 <b>{t.name}</b>
                 <span style={{ color, fontWeight: 800 }}>{r.label}</span>
               </div>
               <div className="sd-radar" role="img" aria-label={`${t.name}: ${r.label}`}>
                 <span style={{ top: 9, insetInline: 0, height: 4, borderRadius: 99, background: "rgba(255,255,255,0.07)" }} />
-                <span style={{ top: 9, insetInlineStart: 0, width: `${r.pos.today}%`, height: 4, borderRadius: 99, background: "linear-gradient(90deg,#FFB547,#FF7A1A)" }} />
+                <span style={{ top: 9, insetInlineStart: 0, width: `${r.pos.today}%`, height: 4, borderRadius: 99, background: "linear-gradient(90deg,#FFB547,#FF8A24)" }} />
                 {f !== null && f > r.pos.today && <span style={{ top: 9, insetInlineStart: `${r.pos.today}%`, width: `${f - r.pos.today}%`, height: 4, background: `repeating-linear-gradient(90deg, ${color} 0 6px, transparent 6px 10px)`, opacity: 0.8 }} />}
                 {r.pos.deadline !== null && <span title={tr("الموعد")} style={{ top: 0, insetInlineStart: `${r.pos.deadline}%`, width: 2, height: 22, background: "#F2EBE3" }} />}
                 {f !== null && <span style={{ top: 4, insetInlineStart: `calc(${f}% - 7px)`, width: 14, height: 14, borderRadius: "50%", background: color, boxShadow: "0 0 0 4px rgba(0,0,0,.4)" }} />}
@@ -404,7 +404,7 @@ export default function SupervisorDash() {
         <p className="si-msg" dir="auto">
           {inviteMsg}
         </p>
-        {docJoined > 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#FFB547", fontWeight: 800 }}>{docJoined === 1 ? tr("فريق سجّل من رابطكم ✓") : tr("{0} فرق سجّلت من رابطكم ✓", docJoined)}</p>}
+        {docJoined > 0 && <p style={{ margin: "6px 0 0", fontSize: 14, color: "#FFB547", fontWeight: 800 }}>{docJoined === 1 ? tr("فريق سجّل من رابطكم ✓") : tr("{0} فرق سجّلت من رابطكم ✓", docJoined)}</p>}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
           <a className="dc-send" style={{ textDecoration: "none" }} href={`https://wa.me/?text=${encodeURIComponent(inviteMsg)}`} target="_blank" rel="noreferrer">
             <MessageCircle size={16} aria-hidden />
@@ -461,7 +461,7 @@ export default function SupervisorDash() {
         <div style={{ display: "grid", gap: 18 }}>
           {pendingExt.length === 0 && !needsSql && (
             <section className="sd-glass">
-              <b style={{ fontSize: 17 }}>{tr("طلبات الوقت")}</b>
+              <b style={{ fontSize: 18 }}>{tr("طلبات الوقت")}</b>
               <p style={{ margin: "6px 0 0", fontSize: 14, color: "#ABA095" }}>{tr("ما فيه طلبات تمديد معلّقة.")}</p>
             </section>
           )}
@@ -484,7 +484,7 @@ export default function SupervisorDash() {
         </span>
         <b>{tr("التقارير")}</b>
       </div>
-      <p style={{ margin: "4px 0 6px", fontSize: 13, color: "#ABA095" }}>{tr("تقرير شهري لكل فريق، جاهز للطباعة أو PDF.")}</p>
+      <p style={{ margin: "4px 0 6px", fontSize: 14, color: "#ABA095" }}>{tr("تقرير شهري لكل فريق، جاهز للطباعة أو PDF.")}</p>
       {ok.map((t) => (
         <div key={t.token} className="sup-row">
           <span style={{ flex: 1, fontSize: 14, fontWeight: 700 }}>{t.name}</span>

@@ -40,7 +40,9 @@ export default defineConfig(({ mode }) => ({
                 },
               ],
               // مكتبة الاجتماعات كبيرة وما يحتاجها إلا اللي يدخل اجتماع: ما نخزّنها مسبقًا
-              globIgnores: ['**/livekit-client*.js'],
+              // index.html ما يتخزّن مسبقًا: لو تخزّن، الصفحة تطلع من المخزّن قبل النت (نسخة قديمة لين تتحدث الخدمة).
+              // كذا كل فتح يجيب الصفحة من النت (NetworkFirst تحت)، والمخزّن بس لما ما فيه نت.
+              globIgnores: ['**/livekit-client*.js', 'index.html'],
             },
             manifest: {
               name: 'Wesync — منصة إدارة أبحاث التخرج',

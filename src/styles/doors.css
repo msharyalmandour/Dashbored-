@@ -110,6 +110,8 @@ html[data-reduce-motion="true"] .nx-body, html[data-reduce-motion="true"] .nx-do
 html[dir="ltr"] .wo-lamp { transform: translateX(-50%); }
 .wo-desk { position: absolute; inset-inline: 0; bottom: 0; height: 92px; background: linear-gradient(180deg, #3A1D0E, #241108 40%, #170A05); box-shadow: inset 0 2px 0 rgba(255,199,119,.25); }
 .wo-wesy { position: absolute; bottom: 40px; inset-inline-start: 19.5%; width: 300px; }
+.wo-wesy-cut { position: relative; width: 236px; height: 300px; margin-inline: auto; overflow: hidden; }
+.wo-wesy-cut img { position: absolute; top: 0; left: 50%; width: 236px; height: auto; transform: translateX(-50%); user-select: none; pointer-events: none; }
 .wo-laptop { position: absolute; bottom: -6px; left: 50%; width: 150px; height: 96px; margin-left: -75px; border-radius: 12px; background: #F2EBE3; display: grid; place-items: center; box-shadow: 0 12px 30px rgba(0,0,0,.45); }
 .wo-laptop .wo-w { color: #E9651F; }
 .wo-cup { position: absolute; bottom: 4px; inset-inline-start: 2px; width: 16px; height: 20px; border-radius: 2px 2px 5px 5px; background: #F2EBE3; }
@@ -126,6 +128,8 @@ html[dir="ltr"] .wo-plaque { transform: translateX(-50%); }
   .wo-window { inset-inline-start: 12%; width: 76%; height: 190px; top: 22px; }
   .wo-wesy { width: 220px; inset-inline-start: 50%; margin-inline-start: -110px; bottom: 30px; }
   .wo-wesy .wesy { width: 220px !important; height: 212px !important; }
+  .wo-wesy-cut { width: 176px; height: 214px; }
+  .wo-wesy-cut img { width: 176px; }
   .wo-laptop { width: 112px; height: 70px; margin-left: -56px; }
   .wo-desk { height: 70px; }
   .wo-plaque { bottom: 14px; font-size: 12px; inset-inline-start: 50%; }

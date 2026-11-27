@@ -2,7 +2,7 @@ import { tr } from "./i18n";
 import { CATCHPHRASE } from "./sound";
 import { drawBrandLockup } from "./brandCanvas";
 import type { DoorId } from "./doors";
-import "../vendor/wesy-real.js";
+import wesyFace from "../assets/wesy/wesy-face.webp";
 
 /* بطاقة الإنجاز للستوري (1080×1920) — فكرة Spotify Wrapped: الطالب يتباهى بإنجازه هو، والاسم يوصل معه.
    بدون عنوان البحث ولا أسماء الفريق (بحثهم ما انشر، وخصوصيتهم أول) — بس الإنجاز ورحلتهم من 10. */
@@ -34,33 +34,19 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
 /** رابط البطاقة بكود الفريق (حلقة النمو): wesyncapp.com/?r=CODE */
 export const shareLink = (code?: string | null) => (code ? `wesyncapp.com/?r=${code}` : "wesyncapp.com");
 
-/** راس ويسي (SVG من WesyReal) كصورة للكانفس — رسمي بدون غمزة، بشماغ الهوية */
-async function wesyHead(px: number): Promise<HTMLImageElement | null> {
-  if (typeof window === "undefined" || !window.WesyReal) return null;
-  const host = document.createElement("div");
-  host.style.cssText = `position:fixed;left:-9999px;top:0;width:${px}px;height:${px}px;`;
-  document.body.appendChild(host);
+/** راس ويسي (الرسمة الكرتونية البسيطة) كصورة للكانفس */
+async function wesyHead(_px: number): Promise<HTMLImageElement | null> {
+  if (typeof window === "undefined") return null;
   try {
-    const w = new window.WesyReal(host, { shemagh: "#FF6A00", confetti: false, state: "success", crop: "head", formal: true, shadow: false });
-    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const svg = host.querySelector("svg");
-    if (!svg) return null;
-    if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    svg.setAttribute("width", String(px));
-    svg.setAttribute("height", String(px));
-    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }));
-    w.destroy();
     const img = new Image();
     await new Promise<void>((ok, bad) => {
       img.onload = () => ok();
       img.onerror = () => bad(new Error("wesy"));
-      img.src = url;
+      img.src = wesyFace;
     });
     return img;
   } catch {
     return null;
-  } finally {
-    host.remove();
   }
 }
 
@@ -188,7 +174,14 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.strokeStyle = "#FFC777";
   ctx.lineWidth = 3;
   ctx.stroke();
-  if (head) ctx.drawImage(head, right - 120, by - 60, 120, 120);
+  if (head) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(right - 120, by - 60, 120, 120, 34);
+    ctx.clip();
+    ctx.drawImage(head, right - 120, by - 60, 120, 120);
+    ctx.restore();
+  }
   ctx.fillStyle = "#F2EBE3";
   ctx.textAlign = "right";
   ctx.fillText(label, right - 144, by + 14);

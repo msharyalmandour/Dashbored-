@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Bell, BookOpen, Coffee, GraduationCap, Image as ImageIcon, KeyRound, ScrollText, Stamp, type LucideIcon } from "lucide-react";
 import { useAcademy } from "../../hooks/useAcademy";
 import { itemLesson, officeItemIds, type OfficeItemId } from "../../data/wesyNeeds";
-import Wesy from "../brand/Wesy";
+import wesyWave from "../../assets/wesy/wesy-wave.webp";
 import WLogo from "../brand/WLogo";
 import NextCard from "./NextCard";
 import ShareAchievement from "../ShareAchievement";
@@ -20,7 +20,7 @@ import { useAcademicCalendar } from "../../hooks/useAcademicCalendar";
 import type { NextStep } from "../../lib/nextSteps";
 import { tr } from "../../lib/i18n";
 
-/* مكتب ويسي (CeoHomeD / CeoHomeM): الرئيس التنفيذي جالس قدام لابتوبه، وراه شباك فيه غروب الرياض وبرج المملكة،
+/* مكتب ويسي (CeoHomeD / CeoHomeM): الرئيس التنفيذي (الرسمة الكرتونية البسيطة) واقف يسلّم ورا لابتوبه، وراه شباك فيه غروب الرياض وبرج المملكة،
    مكتبة كتب بألوان الهوية (كمبيوتر بس)، هالة لمبة دافية، ومكتب خشب داكن عليه لوحة ذهبية.
    كرت «الجاي لكم» فوق المشهد بخلفية صلبة #100906 (يسار المشهد بالكمبيوتر، وتحته بالجوال).
    ويسي يتحرك مرة وحدة لما تنفتح الصفحة ويهدى (settleAfter)، وحالته حسب حالة الكرت. */
@@ -187,7 +187,9 @@ export default function WesyOffice({ urgent, fallback }: { urgent?: NextStep; fa
         <div className="wo-lamp" />
         <div className="wo-desk" />
         <div className="wo-wesy">
-          <Wesy state={w.state} outfit={outfit} size={300} shadow={false} label={tr("ويسي، الرئيس التنفيذي")} />
+          <div className="wo-wesy-cut">
+            <img src={wesyWave} alt={tr("ويسي، الرئيس التنفيذي")} data-state={w.state} data-outfit={outfit} draggable={false} />
+          </div>
           <div className="wo-laptop">
             <WLogo tone="bare" size={64} className="wo-w" />
           </div>

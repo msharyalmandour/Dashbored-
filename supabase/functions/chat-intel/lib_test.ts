@@ -34,3 +34,9 @@ Deno.test("transcript keeps the newest lines under the limit", () => {
   assertEquals(t.endsWith("رسالة 49"), true);
   assertEquals(t.includes("رسالة 0"), false);
 });
+
+Deno.test("meeting minutes keep up to the given number of items", () => {
+  const items = Array.from({ length: 20 }, (_, i) => ({ kind: "note", title: `نقطة رقم ${i}`, sub: "", assignee: "", due: "" }));
+  assertEquals(normalizeVoice({ gist: "", items }, [], "2026-11-27").items.length, 6);
+  assertEquals(normalizeVoice({ gist: "", items }, [], "2026-11-27", 14).items.length, 14);
+});

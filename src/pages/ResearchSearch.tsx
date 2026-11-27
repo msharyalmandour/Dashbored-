@@ -232,7 +232,7 @@ function ResultCard({
         <button
           onClick={handleAdd}
           disabled={adding || added}
-          className="flex items-center gap-1.5 font-bold text-ws-accent3 hover:text-[#FFB547] disabled:opacity-70"
+          className="flex items-center gap-1.5 font-bold text-ws-accent3 hover:text-ws-accent3 disabled:opacity-70"
         >
           {adding ? <WSpin size={14} /> : added ? <Check size={14} /> : <Library size={14} />}
           {added ? tr("انضافت للمكتبة") : tr("+ أضف للمكتبة")}

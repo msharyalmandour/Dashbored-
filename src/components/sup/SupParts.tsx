@@ -200,7 +200,7 @@ export function RequestCard({
               {first(owner.name)}
             </span>
           )}
-          <span className={s.tone === "gold" ? "font-bold text-ws-accent3" : s.tone === "warm" ? "font-bold text-[#FFB547]" : "font-bold text-ws-muted"}>{s.text}</span>
+          <span className={s.tone === "gold" ? "font-bold text-ws-accent3" : s.tone === "warm" ? "font-bold text-ws-accent3" : "font-bold text-ws-muted"}>{s.text}</span>
           <span className="flex-1" />
           {c.created_task_id && (
             <Link to={`/tasks?task=${c.created_task_id}`} className="inline-flex min-h-[44px] items-center font-bold text-ws-accent3">

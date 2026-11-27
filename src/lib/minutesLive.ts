@@ -30,6 +30,10 @@ export interface LiveDraft {
   startedAt: string | null;
   attendance: Attendee[];
   captures: Capture[];
+  /** اجتماع فيديو خلص: وقت النهاية ثابت (الساعة ما تكمّل) */
+  endedAt?: string | null;
+  /** «video» = المسودة طلعت من نص اجتماع Wesync Meet */
+  source?: "video" | null;
 }
 
 export const emptyDraft = (): LiveDraft => ({ title: "", room: "", planned: 30, agenda: [], current: 0, startedAt: null, attendance: [], captures: [] });

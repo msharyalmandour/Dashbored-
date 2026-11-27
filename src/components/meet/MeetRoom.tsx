@@ -1,12 +1,62 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import WLogo from "../brand/WLogo";
 import { createPortal } from "react-dom";
-import { Hand, LogOut, MessageSquare, Mic, MicOff, MonitorUp, Send, Video, VideoOff, Volume2 } from "lucide-react";
+import { Captions, Download, Hand, LogOut, MessageSquare, Mic, MicOff, MonitorUp, Send, Video, VideoOff, Volume2 } from "lucide-react";
 import { tr } from "../../lib/i18n";
 import { track } from "../../lib/analytics";
 import { fmtClock, gridCols, type MeetJoin, type MeetStatus } from "../../lib/meet";
 import { attachVideo, useMeetRoom, type Tile } from "../../hooks/useMeetRoom";
 import type { VideoTrack } from "livekit-client";
+import { demoLines } from "./demo";
+import { bySpeaker, transcriptFile, type TxLine } from "../../lib/meetTranscript";
+
+/** اللي يحتاجه «بعد الاجتماع» (محضر ويسي) */
+export interface MeetEndInfo {
+  lines: TxLine[];
+  startedAt: number | null;
+  endedAt: number;
+  people: { identity: string; name: string; role: string }[];
+}
+
+function downloadTranscript(lines: TxLine[], title: string, startedAt: number | null) {
+  const blob = new Blob([transcriptFile(lines, title, startedAt)], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `wesync-meeting-${new Date(startedAt ?? Date.now()).toISOString().slice(0, 10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/** نص الاجتماع: فقرة لكل متكلم */
+function TxList({ lines, interim, me }: { lines: TxLine[]; interim: string; me: string }) {
+  const end = useRef<HTMLDivElement>(null);
+  const paras = bySpeaker(lines);
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: "end" });
+  }, [lines.length, interim]);
+  return (
+    <>
+      {paras.map((p, i) => (
+        <div key={`${p.who}-${p.at}-${i}`} className="mt-tx">
+          <b className={p.role === "supervisor" ? "sup" : ""}>
+            {p.name}
+            {p.role === "supervisor" ? ` · ${tr("المشرف/ة")}` : ""}
+          </b>
+          <span dir="auto">{p.text}</span>
+        </div>
+      ))}
+      {interim && (
+        <div className="mt-tx now">
+          <b>{me}</b>
+          <span dir="auto">{interim}…</span>
+        </div>
+      )}
+      <div ref={end} />
+    </>
+  );
+}
 
 /** Wesync Meet: قبل الدخول → الغرفة → انتهى. نفس الواجهة للطلاب والمشرف/ة (ضيف برابطه) */
 
@@ -102,17 +152,19 @@ function MeetRoomInner({
   status?: MeetStatus | null;
   onExit: () => void;
   /** أزرار بعد ما يخلص (مثل «اكتبوا المحضر») */
-  afterEnd?: ReactNode;
+  afterEnd?: ReactNode | ((info: MeetEndInfo) => ReactNode);
   /** عرض تجريبي للصور (بدون اتصال) */
   demo?: Tile[];
 }) {
-  const room = useMeetRoom();
+  const room = useMeetRoom({ liveStt: !guest });
   const [mic, setMic] = useState(true);
   const [cam, setCam] = useState(true);
   const [name, setName] = useState(me);
   const [busy, setBusy] = useState(false);
   const [notReady, setNotReady] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [panel, setPanel] = useState<null | "chat" | "tx">(null);
+  const chatOpen = panel === "chat";
+  const [endedAt, setEndedAt] = useState<number | null>(null);
   const [seen, setSeen] = useState(0);
   const [draft, setDraft] = useState("");
   const [now, setNow] = useState(() => Date.now());
@@ -148,9 +200,17 @@ function MeetRoomInner({
   };
 
   const tiles = demo ?? room.tiles;
+  const [demoTx] = useState(() => (demo ? demoLines(Date.now()) : []));
+  const lines = demo ? demoTx : room.lines;
+  const txOn = demo ? true : room.txOn;
   const sharer = tiles.find((t) => t.screen);
   const cols = gridCols(tiles.length, wide);
   const unread = room.chat.length - seen;
+  useEffect(() => {
+    if (room.state === "ended" && !endedAt) setEndedAt(Date.now());
+  }, [room.state, endedAt]);
+  // الترجمة الحيّة تحت: آخر كلام بآخر 7 ثواني
+  const recent = lines.filter((l) => now - l.at < 7000).slice(-2);
   const meTile = tiles.find((t) => t.isLocal);
 
   // ───────── انتهى ─────────
@@ -162,9 +222,16 @@ function MeetRoomInner({
             <div className="sd-ttl" style={{ fontSize: 26 }}>
               {tr("انتهى الاجتماع")}
             </div>
-            <p className="mt-hint">{room.startedAt ? tr("مدة الاجتماع {0}", fmtClock(Date.now() - room.startedAt)) : ""}</p>
+            <p className="mt-hint">{room.startedAt ? tr("مدة الاجتماع {0}", fmtClock((endedAt ?? Date.now()) - room.startedAt)) : ""}</p>
+            {lines.length > 0 && <p className="mt-hint">{tr("انكتب من الاجتماع {0} سطر", lines.length)}</p>}
             <div style={{ display: "grid", gap: 8, marginTop: 16 }}>
-              {afterEnd}
+              {typeof afterEnd === "function" ? afterEnd({ lines: lines, startedAt: room.startedAt, endedAt: endedAt ?? Date.now(), people: room.people() }) : afterEnd}
+              {lines.length > 0 && (
+                <button type="button" className="sup-btn-ghost" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} onClick={() => downloadTranscript(lines, title, room.startedAt)}>
+                  <Download size={18} aria-hidden />
+                  {tr("نزّلوا نص الاجتماع")}
+                </button>
+              )}
               <button type="button" className="sup-btn-ghost" style={{ width: "100%" }} onClick={onExit}>
                 {tr("رجوع")}
               </button>
@@ -233,7 +300,7 @@ function MeetRoomInner({
                 </button>
               )}
               {room.state === "error" && <p className="mt-hint" style={{ color: "#FF8A7A" }}>{tr("ما قدرنا نوصل للاجتماع — تأكدوا من النت وجرّبوا مرة ثانية.")}</p>}
-              <p className="mt-hint">{tr("ما ينسجل فيديو. الكلام يبقى بينكم.")}</p>
+              <p className="mt-hint">{tr("ما ينسجل فيديو ولا صوت. تقدرون تشغّلون «النص» داخل الاجتماع، وويسي يكتب منه المحضر.")}</p>
             </div>
           </div>
         </div>
@@ -268,6 +335,21 @@ function MeetRoomInner({
           {tr("المتصفح وقّف الصوت — اضغطوا هنا عشان تسمعون الباقين")}
         </button>
       )}
+      {txOn && (
+        <div className="mt-banner" role="status">
+          <Captions size={18} aria-hidden style={{ flex: "none", color: "#FFB547" }} />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            {room.optOut
+              ? tr("النص شغّال، وكلامكم ما ينكتب.")
+              : room.txBy
+                ? tr("النص شغّال ({0} شغّله) · الكلام ينكتب بدون تسجيل صوت", room.txBy)
+                : tr("النص شغّال · الكلام ينكتب بدون تسجيل صوت")}
+          </span>
+          <button type="button" className="sup-btn-ghost" style={{ minHeight: 44, flex: "none" }} onClick={() => room.setOptOut(!room.optOut)}>
+            {room.optOut ? tr("اكتبوا كلامي") : tr("لا تكتبون كلامي")}
+          </button>
+        </div>
+      )}
       <div className="mt-body">
         <div className="mt-stage">
           {sharer ? (
@@ -286,12 +368,26 @@ function MeetRoomInner({
           ) : (
             grid(tiles)
           )}
+          {txOn && panel !== "tx" && (recent.length > 0 || room.myInterim) && (
+            <div className="mt-cap" aria-hidden>
+              {recent.map((l) => (
+                <p key={l.id}>
+                  <b>{l.name}:</b> <span dir="auto">{l.text}</span>
+                </p>
+              ))}
+              {room.myInterim && !recent.some((l) => l.mine) && (
+                <p>
+                  <b>{me}:</b> <span dir="auto">{room.myInterim}…</span>
+                </p>
+              )}
+            </div>
+          )}
         </div>
         {chatOpen && (
           <aside className="mt-chat" aria-label={tr("محادثة الاجتماع")}>
             <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
               <b style={{ flex: 1, fontSize: 16 }}>{tr("محادثة الاجتماع")}</b>
-              <button type="button" className="sup-btn-ghost" style={{ minHeight: 44 }} onClick={() => setChatOpen(false)}>
+              <button type="button" className="sup-btn-ghost" style={{ minHeight: 44 }} onClick={() => setPanel(null)}>
                 {tr("إغلاق")}
               </button>
             </div>
@@ -318,6 +414,33 @@ function MeetRoomInner({
             </form>
           </aside>
         )}
+        {panel === "tx" && (
+          <aside className="mt-chat" aria-label={tr("نص الاجتماع")}>
+            <div style={{ display: "flex", alignItems: "center", padding: "12px 14px", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
+              <b style={{ flex: 1, fontSize: 16 }}>{tr("نص الاجتماع")}</b>
+              <button type="button" className="sup-btn-ghost" style={{ minHeight: 44 }} onClick={() => setPanel(null)}>
+                {tr("إغلاق")}
+              </button>
+            </div>
+            <div className="mt-chat-list" aria-live="polite">
+              {!txOn && lines.length === 0 && (
+                <p className="mt-hint">{tr("شغّلوا النص، وكل واحد ينكتب كلامه من جهازه ويوصل للكل. ما ينسجل صوت، وبعد الاجتماع ويسي يكتب المحضر من النص.")}</p>
+              )}
+              {room.txUnsupported && <p className="mt-hint" style={{ color: "#FF8A7A" }}>{tr("متصفحكم ما يكتب الكلام، فكلامكم ما بينكتب. بس تشوفون كلام الباقين.")}</p>}
+              <TxList lines={lines} interim={txOn && !room.optOut ? room.myInterim : ""} me={me || name} />
+            </div>
+            <div style={{ display: "flex", gap: 8, padding: 10, borderTop: "1px solid rgba(255,255,255,.06)" }}>
+              <button type="button" className={txOn ? "sup-btn-ghost" : "sup-btn-cream"} style={{ flex: 1, minHeight: 44 }} onClick={() => void room.toggleTx()}>
+                {txOn ? tr("وقّفوا النص للكل") : tr("شغّلوا النص للكل")}
+              </button>
+              {lines.length > 0 && (
+                <button type="button" className="mt-btn" style={{ width: 44, height: 44 }} aria-label={tr("نزّلوا نص الاجتماع")} onClick={() => downloadTranscript(lines, title, room.startedAt)}>
+                  <Download size={18} aria-hidden />
+                </button>
+              )}
+            </div>
+          </aside>
+        )}
       </div>
       <nav className="mt-bar" aria-label={tr("أزرار الاجتماع")}>
         <button type="button" className={`mt-btn${meTile?.mic === false ? " off" : ""}`} aria-label={meTile?.mic === false ? tr("افتحوا المايك") : tr("اقفلوا المايك")} onClick={room.toggleMic}>
@@ -334,7 +457,11 @@ function MeetRoomInner({
         <button type="button" className="mt-btn" aria-pressed={room.myHand} aria-label={room.myHand ? tr("نزّلوا اليد") : tr("ارفعوا اليد")} onClick={room.toggleHand}>
           <Hand size={20} aria-hidden />
         </button>
-        <button type="button" className="mt-btn" aria-pressed={chatOpen} aria-label={tr("محادثة الاجتماع")} onClick={() => setChatOpen(!chatOpen)}>
+        <button type="button" className="mt-btn" aria-pressed={panel === "tx"} aria-label={txOn ? tr("نص الاجتماع (شغّال)") : tr("نص الاجتماع")} onClick={() => setPanel(panel === "tx" ? null : "tx")}>
+          <Captions size={20} aria-hidden />
+          {txOn && panel !== "tx" && <span className="dot" aria-hidden style={{ minWidth: 10, width: 10, height: 10, padding: 0, background: "#FFB547" }} />}
+        </button>
+        <button type="button" className="mt-btn" aria-pressed={chatOpen} aria-label={tr("محادثة الاجتماع")} onClick={() => setPanel(chatOpen ? null : "chat")}>
           <MessageSquare size={20} aria-hidden />
           {unread > 0 && !chatOpen && <span className="dot">{unread}</span>}
         </button>

@@ -1,4 +1,4 @@
-import { FOUNDING_TEAMS, FOUNDING_TEAM_MONTHLY, PER_MEMBER_MONTHLY, RESEARCH_MONTHS, TEAM_MONTHLY } from "../lib/pricingV2";
+import { FOUNDING_TEAMS, FOUNDING_TEAM_MONTHLY, PER_MEMBER_MONTHLY, RESEARCH_MONTHS, TEAM_MONTHLY } from "../lib/plans";
 import { tr } from "../lib/i18n";
 
 /** أسئلة صفحة الهبوط (مشتركة بين النسختين) */

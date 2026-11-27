@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import MoyasarPayment from "./MoyasarPayment";
 import { tr, trx } from "../lib/i18n";
-import { memberShare, teamMonthlyTotal } from "../lib/plans";
+import { RESEARCH_MONTHS, teamMonthlyTotal, teamResearchTotal, type BillingPeriod } from "../lib/plans";
 
 /** نافذة دفع منبثقة تلخّص الطلب قبل تضمين نموذج Moyasar الفعلي، وتعرض حالة
     نجاح واضحة لما يرجع المستخدم بعد الدفع (Moyasar يرجّعه بـ ?status=paid
@@ -17,6 +17,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   // أي عضو يدفع حصته بشكل افتراضي — دفع الفاتورة كاملة اختيار إضافي لقائد
   // الفريق فقط (قرار يخص الفريق كله، مو كل عضو يقدر يسويه بالعفوية)
   const [mode, setMode] = useState<"share" | "full">("share");
+  const [period, setPeriod] = useState<BillingPeriod>("monthly");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -34,8 +35,8 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
   if (!team) return null;
 
   const memberCount = roster.length || 1;
-  const teamTotal = teamMonthlyTotal(team.plan, team.isFounder, memberCount);
-  const share = memberShare(teamTotal, memberCount);
+  const teamTotal = period === "research" ? teamResearchTotal(team.isFounder, memberCount) : teamMonthlyTotal(team.plan, team.isFounder, memberCount);
+  const share = Math.round(teamTotal / memberCount);
   const total = mode === "full" ? teamTotal : share;
 
   return (
@@ -73,7 +74,7 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
             >
               <CheckCircle2 size={30} />
             </span>
-            <p className="font-display text-lg font-extrabold text-brand-950">{tr("تفعّل اشتراككم 🎉")}</p>
+            <p className="font-display text-lg font-extrabold text-brand-950">{tr("تفعّل اشتراككم")}</p>
             <p className="text-sm text-brand-950/55">{tr("شكرًا لكم! فريقكم رجع يقدر يضيف مهام ويعدّل عليها بكل حرية.")}</p>
             <button
               onClick={onClose}
@@ -82,6 +83,20 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div className="p-5">
+            <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl bg-surface-muted p-1">
+              <button
+                onClick={() => setPeriod("monthly")}
+                className={`min-h-11 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                  period === "monthly" ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
+                }`}
+              >{tr("شهري")}</button>
+              <button
+                onClick={() => setPeriod("research")}
+                className={`min-h-11 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                  period === "research" ? "bg-paper text-brand-700 shadow-sm" : "text-brand-950/50"
+                }`}
+              >{trx("البحث كامل ({0} شهور)", RESEARCH_MONTHS)}</button>
+            </div>
             {isLeader && (
               <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-surface-muted p-1">
                 <button
@@ -114,15 +129,15 @@ export default function CheckoutModal({ onClose }: { onClose: () => void }) {
               <div className="mt-3 flex items-center justify-between border-t border-brand-100 pt-3">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-950">
                   <CreditCard size={14} />
-                  {mode === "full" ? tr("الإجمالي شهريًا") : tr("المبلغ الآن")}
+                  {mode === "full" ? (period === "research" ? tr("الإجمالي للبحث كامل") : tr("الإجمالي شهريًا")) : tr("المبلغ الآن")}
                 </span>
                 <span className="font-display text-lg font-extrabold text-brand-700">{trx("{0} ريال", total)}</span>
               </div>
               {mode === "share" && (
-                <p className="mt-3 text-xs text-brand-950/45">{tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
+                <p className="mt-3 text-xs text-brand-950/45">{period === "research" ? trx("دفعتك تغطي حصتك من {0} شهور للفريق، وكل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا.", RESEARCH_MONTHS) : tr("دفعتك تمدد اشتراك الفريق بمقدار حصتك من الشهر — كل عضو يدفع نصيبه يزيد رصيد الأيام تلقائيًا، بدون انتظار البقية.")}</p>
               )}
             </div>
-            <MoyasarPayment mode={mode} />
+            <MoyasarPayment mode={mode} period={period} />
           </div>
         )}
       </div>

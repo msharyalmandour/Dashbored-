@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, MessageCircle } from "lucide-react";
-import { useWhatsAppAvoid } from "../components/landing/LandingV2";
+import { useWhatsAppAvoid } from "../hooks/useWhatsAppAvoid";
 import { SUPPORT_WHATSAPP } from "../lib/legal";
 import { faqs } from "./landingFaqs";
-import { MAX_TEAM_MEMBERS, TRIAL_DAYS } from "../lib/plans";
-import { FOUNDING_TEAMS, FOUNDING_TEAM_MONTHLY, PER_MEMBER_MONTHLY, RESEARCH_MONTHS, TEAM_MONTHLY, monthlyFor, researchFor, researchSaving } from "../lib/pricingV2";
+import { FOUNDING_TEAMS, FOUNDING_TEAM_MONTHLY, MAX_TEAM_MEMBERS, PER_MEMBER_MONTHLY, RESEARCH_MONTHS, TEAM_MONTHLY, TRIAL_DAYS, perMemberMonthly as monthlyFor, perMemberResearch as researchFor, researchSaving } from "../lib/plans";
 import LangToggle from "../components/ui/LangToggle";
 import { tr, trx } from "../lib/i18n";
 import "../styles/lux-landing.css";

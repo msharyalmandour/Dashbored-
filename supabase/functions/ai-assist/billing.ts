@@ -57,11 +57,18 @@ function daysBetween(fromISO: string, toISO: string): number {
   return Math.round((b - a) / 86_400_000);
 }
 
-/** اشتراك الفريق الشهري كامل (سعر الإطلاق) — نفس public.team_monthly_total وmoyasar-webhook */
-export function teamMonthlyTotal(plan: "basic" | "ai", isFounder: boolean, members: number): number {
-  const base = members <= 1 ? 19 : members === 2 ? 39 : 49;
-  const addon = plan === "ai" ? (members <= 1 ? 19 : isFounder ? 19 : 39) : 0;
-  return base + addon;
+/** اشتراك الفريق الشهري كامل (2026-11-27: للطالب والوكيل داخل السعر) — نفس public.team_monthly_total وmoyasar-webhook */
+export function teamMonthlyTotal(_plan: "basic" | "ai", isFounder: boolean, members: number): number {
+  const m = Math.max(members, 1);
+  const per = m <= 1 ? 37 : isFounder ? 27 : 29;
+  return per * m;
+}
+
+/** باقة البحث كامل (8 شهور) للفريق — نفس public.team_research_total */
+export function teamResearchTotal(isFounder: boolean, members: number): number {
+  const m = Math.max(members, 1);
+  const per = m <= 1 ? 249 : isFounder ? 179 : 199;
+  return per * m;
 }
 
 /** كم يوم تمدد دفعة بهذا المبلغ — نفس معادلة moyasar-webhook بالضبط */
@@ -86,16 +93,19 @@ export function buildBillingFacts(f: BillingFactsInput): string {
       );
     }
   }
-  lines.push(`- باقة فريقها: ${f.plan === "ai" ? "AI (كل المزايا مع الذكاء الاصطناعي)" : "Basic (بدون ميزات الذكاء الاصطناعي)"}${f.onTrial ? " — وهي الآن بفترة التجربة كاملة المزايا" : ""}.`);
+  lines.push(`- الاشتراك: باقة وحدة والوكيل داخلها${f.isFounder ? " — فريقها من الفرق المؤسِّسة (سعر ثابت)" : ""}${f.onTrial ? " — وهي الآن بفترة التجربة كاملة المزايا" : ""}.`);
   const total = teamMonthlyTotal(f.plan, f.isFounder, f.memberCount);
-  lines.push(`- اشتراك فريقها الشهري: ${total} ريال للفريق كامل (عدد الأعضاء الحالي ${f.memberCount})، ولو كل عضو دفع نصيبه لحاله فالنصيب ${Math.ceil(total / Math.max(f.memberCount, 1))} ريال.`);
+  const research = teamResearchTotal(f.isFounder, f.memberCount);
+  lines.push(`- اشتراك فريقها الشهري: ${total} ريال للفريق كامل (عدد الأعضاء الحالي ${f.memberCount})، يعني ${Math.round(total / Math.max(f.memberCount, 1))} ريال للطالب. وباقة البحث كامل (8 شهور): ${research} ريال للفريق، يعني ${Math.round(research / Math.max(f.memberCount, 1))} للطالب.`);
 
   if (f.payments.length === 0) {
     lines.push("- الدفعات المسجّلة بالنظام لفريقها: لا توجد أي دفعة مسجّلة.");
   } else {
     lines.push(`- آخر الدفعات المسجّلة بالنظام لفريقها (الأحدث أولًا، ${f.payments.length}):`);
     for (const p of f.payments) {
-      const days = daysForPayment(p.amount, total);
+      // دفعة بحجم نصيب طالب من باقة البحث كامل أو أكثر غالبًا كانت للباقة (نفس شرط moyasar-webhook)
+      const perResearch = research / Math.max(f.memberCount, 1);
+      const days = p.amount >= perResearch ? Math.max(Math.round((p.amount / research) * 240), 1) : daysForPayment(p.amount, total);
       lines.push(`  • ${p.createdAtISO.slice(0, 10)} — ${p.amount} ريال — ${p.byMe ? "دفعتها هي بنفسها" : "دفعها عضو آخر"} — مدّدت الاشتراك حوالي ${days} يوم`);
     }
   }

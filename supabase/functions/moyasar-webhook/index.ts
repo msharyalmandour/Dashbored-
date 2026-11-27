@@ -112,20 +112,27 @@ Deno.serve(async (req: Request) => {
     return new Response("error", { status: 500, headers: corsHeaders });
   }
 
-  // السعر للفريق كامل (سعر الإطلاق، نفس public.team_monthly_total): باحث لحاله 19، شخصين 39،
-  // ٣–٥ أعضاء 49، والمساعد الذكي +19 للباحث لحاله، +39 للفريق (+19 للمؤسسين).
-  // كل عضو يقدر يدفع نصيبه لحاله، فنمدد بالتناسب: (المبلغ ÷ اشتراك الفريق) × ٣٠ يوم —
-  // الدفعات تتراكم، ودفعة الفريق كامل تمدد شهر كامل.
+  // التسعيرة (2026-11-27، نفس public.team_monthly_total / team_research_total ولازم تطابق src/lib/plans.ts):
+  // للطالب والوكيل داخل السعر — لحالك 37 بالشهر، فريق 29 للطالب (المؤسسين 27).
+  // باقة البحث كامل: 249 لحالك، 199 للطالب في فريق (المؤسسين 179)، وتغطي 8 شهور.
+  // كل عضو يقدر يدفع نصيبه لحاله، فنمدد بالتناسب: (المبلغ ÷ إجمالي الفريق) × المدة — الدفعات تتراكم.
   const { count: memberCount } = await supabaseAdmin
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("team_id", teamId);
   const members = Math.max(memberCount ?? 1, 1);
-  const basePrice = members <= 1 ? 19 : members === 2 ? 39 : 49;
-  const addon = team.plan === "ai" ? (members <= 1 ? 19 : team.is_founder ? 19 : 39) : 0;
-  const totalMonthlyCost = basePrice + addon;
-  const daysToAdd =
-    totalMonthlyCost > 0 ? Math.max(Math.round((amount / totalMonthlyCost) * 30), 1) : 30;
+  const founder = Boolean(team.is_founder);
+  const perMonthly = members <= 1 ? 37 : founder ? 27 : 29;
+  const perResearch = members <= 1 ? 249 : founder ? 179 : 199;
+  const RESEARCH_DAYS = 8 * 30;
+  const totalMonthlyCost = perMonthly * members;
+  // سعر الباقة ينحسب بس لو الدفعة تغطي نصيب طالب كامل منها على الأقل؛ غير كذا نحسبها بالسعر الشهري
+  const isResearch = metadata?.period === "research" && amount >= perResearch;
+  const daysToAdd = isResearch
+    ? Math.max(Math.round((amount / (perResearch * members)) * RESEARCH_DAYS), 1)
+    : totalMonthlyCost > 0
+      ? Math.max(Math.round((amount / totalMonthlyCost) * 30), 1)
+      : 30;
 
   const currentEnd = team.subscription_end_date
     ? new Date(team.subscription_end_date as string)

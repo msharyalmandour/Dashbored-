@@ -3,34 +3,49 @@ import { tr } from "./i18n";
 
 export type PlanId = "basic" | "ai";
 
-/** سعر الإطلاق (2026-10-27): السعر للفريق كامل بالشهر مو لكل عضو.
-    لازم يطابق public.team_monthly_total() بقاعدة البيانات وحسبة moyasar-webhook. */
-export const SOLO_PRICE = 19;
-export const DUO_PRICE = 39;
-export const TEAM_PRICE = 49;
-/** الوكيل إضافة على اشتراك الفريق */
-export const AI_ADDON_SOLO = 19;
-export const AI_ADDON_TEAM = 39;
-/** الفرق المؤسسة (أول 15 فريق) — إضافة المساعد عليهم أرخص مدى اشتراكهم */
-export const AI_ADDON_FOUNDER = 19;
+/** التسعيرة (قرار المالك 2026-11-27): السعر للطالب، والوكيل داخل السعر (ما فيه باقة بدون وكيل).
+    - لحالك: PER_MEMBER_MONTHLY بالشهر.
+    - فريق (عضوين أو أكثر): TEAM_MONTHLY للطالب، والفرق المؤسِّسة (أول FOUNDING_TEAMS فريق) FOUNDING_TEAM_MONTHLY ثابت.
+    - باقة البحث كامل: دفعة وحدة للطالب تغطي RESEARCH_MONTHS شهور.
+    لازم يطابق public.team_monthly_total() / public.team_research_total() بقاعدة البيانات وحسبة moyasar-webhook و ai-assist/billing.ts. */
+export const PER_MEMBER_MONTHLY = 37;
+export const TEAM_MONTHLY = 29;
+export const FOUNDING_TEAM_MONTHLY = 27;
+export const FOUNDING_TEAMS = 50;
+export const RESEARCH_MONTHS = 8;
+export const PER_MEMBER_RESEARCH = 249;
+export const TEAM_RESEARCH = 199;
+export const FOUNDING_TEAM_RESEARCH = 179;
 export const MAX_TEAM_MEMBERS = 5;
 export const TRIAL_DAYS = 14;
 
-/** للعرض بالصفحة الرئيسية: فريق 3–5 أعضاء بدون/مع المساعد */
-export const BASIC_PRICE = TEAM_PRICE;
-export const AI_PRICE = TEAM_PRICE + AI_ADDON_TEAM;
+export type BillingPeriod = "monthly" | "research";
 
-export function basePrice(members: number): number {
-  return members <= 1 ? SOLO_PRICE : members === 2 ? DUO_PRICE : TEAM_PRICE;
+/** سعر الطالب الواحد بالشهر */
+export function perMemberMonthly(members: number, isFounder: boolean): number {
+  if (members <= 1) return PER_MEMBER_MONTHLY;
+  return isFounder ? FOUNDING_TEAM_MONTHLY : TEAM_MONTHLY;
 }
 
-export function aiAddonPrice(members: number, isFounder: boolean): number {
-  return members <= 1 ? AI_ADDON_SOLO : isFounder ? AI_ADDON_FOUNDER : AI_ADDON_TEAM;
+/** سعر الطالب الواحد لباقة البحث كامل */
+export function perMemberResearch(members: number, isFounder: boolean): number {
+  if (members <= 1) return PER_MEMBER_RESEARCH;
+  return isFounder ? FOUNDING_TEAM_RESEARCH : TEAM_RESEARCH;
 }
 
-/** إجمالي اشتراك الفريق بالشهر */
-export function teamMonthlyTotal(plan: PlanId, isFounder: boolean, members: number): number {
-  return basePrice(members) + (plan === "ai" ? aiAddonPrice(members, isFounder) : 0);
+/** إجمالي اشتراك الفريق بالشهر (plan باقي للتوافق، وما يغيّر السعر) */
+export function teamMonthlyTotal(_plan: PlanId, isFounder: boolean, members: number): number {
+  return perMemberMonthly(members, isFounder) * Math.max(members, 1);
+}
+
+/** إجمالي باقة البحث كامل للفريق */
+export function teamResearchTotal(isFounder: boolean, members: number): number {
+  return perMemberResearch(members, isFounder) * Math.max(members, 1);
+}
+
+/** التوفير بالباقة مقارنة بالدفع الشهري طول مدة البحث، للطالب */
+export function researchSaving(members: number, isFounder: boolean): number {
+  return perMemberMonthly(members, isFounder) * RESEARCH_MONTHS - perMemberResearch(members, isFounder);
 }
 
 /** نصيب العضو لما كل واحد يدفع لحاله — يتقرّب لفوق عشان يغطي رسوم الدفع الإضافية */

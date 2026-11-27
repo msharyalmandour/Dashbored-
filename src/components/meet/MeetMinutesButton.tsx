@@ -12,7 +12,7 @@ import type { MeetEndInfo } from "./MeetRoom";
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 /** بعد الاجتماع: ويسي يكتب المحضر من النص ← «وضع الاجتماع» للمراجعة والحفظ (ولا شي ينحفظ بدون الفريق) */
-export default function MeetMinutesButton({ info, title }: { info: MeetEndInfo; title: string }) {
+export default function MeetMinutesButton({ info, title, apologies = [] }: { info: MeetEndInfo; title: string; apologies?: { name: string; reason: string }[] }) {
   const { team } = useAuth();
   const { roster } = useTeamRoster();
   const nav = useNavigate();
@@ -63,6 +63,7 @@ export default function MeetMinutesButton({ info, title }: { info: MeetEndInfo; 
         roster: roster.map((m) => ({ id: m.id, name: m.name })),
         present: info.people,
         supervisorName: tr("الدكتورة"),
+        apologies,
         existing: loadDraft(team.id),
       },
       uid,

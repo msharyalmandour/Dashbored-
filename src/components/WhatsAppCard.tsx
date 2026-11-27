@@ -14,6 +14,8 @@ interface LinkRow {
   linked_at: string | null;
   paused: boolean;
   morning_hour: number;
+  /** «ويسي يتصل علي بالجوال لو غبت عن اجتماع» (بعد SQL wesy_calls) */
+  call_me?: boolean;
 }
 
 const HOURS = [6, 7, 8, 9, 10, 11];
@@ -29,11 +31,13 @@ export default function WhatsAppCard() {
 
   const load = useCallback(async () => {
     if (!supabase || !currentUser) return null;
-    const { data } = await supabase
+    let { data, error } = await supabase
       .from("whatsapp_links")
-      .select("phone, linked_at, paused, morning_hour")
+      .select("phone, linked_at, paused, morning_hour, call_me")
       .eq("profile_id", currentUser.id)
       .maybeSingle();
+    // قبل ما ينضاف عمود الاتصال
+    if (error) ({ data } = await supabase.from("whatsapp_links").select("phone, linked_at, paused, morning_hour").eq("profile_id", currentUser.id).maybeSingle());
     setRow((data as LinkRow | null) ?? null);
     setLoaded(true);
     return (data as LinkRow | null) ?? null;
@@ -72,6 +76,15 @@ export default function WhatsAppCard() {
         setWaiting(false);
       }
     }, 4000);
+  };
+
+  const setCallMe = async (on: boolean) => {
+    if (!supabase) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("meet_set_call_me", { p_on: on });
+    setBusy(false);
+    if (error) return setErr(tr("ما انحفظ — جرّبوا بعد شوي."));
+    setRow((r) => (r ? { ...r, call_me: on } : r));
   };
 
   const setPrefs = async (paused: boolean | null, hour: number | null) => {
@@ -148,6 +161,11 @@ export default function WhatsAppCard() {
             <button type="button" className="wsa-lnk" disabled={busy} onClick={() => void setPrefs(!row.paused, null)}>
               {row.paused ? tr("رجّع رسالة الصباح") : tr("وقّف رسالة الصباح")}
             </button>
+            {row.call_me !== undefined && (
+              <button type="button" className="wsa-lnk" disabled={busy} aria-pressed={row.call_me} onClick={() => void setCallMe(!row.call_me)}>
+                {row.call_me ? tr("📞 ويسي يتصل عليك لو غبت عن اجتماع · وقّفه") : tr("📞 خلّ ويسي يتصل عليك لو غبت عن اجتماع")}
+              </button>
+            )}
             <button type="button" className="wsa-lnk" disabled={busy} onClick={unlink}>
               {tr("فك الربط")}
             </button>

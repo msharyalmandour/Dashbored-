@@ -33,6 +33,7 @@ import { tr, trx } from "../lib/i18n";
 import StudToast from "./notify/StudToast";
 import InviteSeats from "./growth/InviteSeats";
 import GiftNotice from "./growth/GiftNotice";
+import WesyCall from "./meet/WesyCall";
 import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
@@ -238,6 +239,7 @@ export default function Layout() {
         </main>
       </div>
       <StudToast />
+      <WesyCall />
       {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
     </ResearchAgentProvider>

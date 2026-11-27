@@ -78,6 +78,8 @@ export function draftFromMeeting(
     /** مين دخل الاجتماع (هوية + دور) */
     present: { identity: string; role: string; name: string }[];
     supervisorName: string;
+    /** «ما أقدر» من مكالمة ويسي — تنكتب بالمحضر كاعتذار */
+    apologies?: { name: string; reason: string }[];
     existing?: LiveDraft | null;
   },
   uid: () => string,
@@ -93,6 +95,7 @@ export function draftFromMeeting(
   const captures: Capture[] = [];
   const at = (i: number) => new Date(ctx.startedAt + Math.round(((ctx.endedAt - ctx.startedAt) * (i + 1)) / (ai.items.length + 2))).toISOString();
   if (ai.gist.trim()) captures.push({ id: uid(), at: startIso, by: null, tag: "point", text: ai.gist.trim(), auto: true });
+  for (const a of ctx.apologies ?? []) captures.push({ id: uid(), at: startIso, by: null, tag: "point", text: a.reason ? `اعتذار: ${a.name} (${a.reason})` : `اعتذار: ${a.name}`, auto: true });
   ai.items.forEach((it, i) => {
     const text = it.sub && !it.title.includes(it.sub) ? `${it.title} (${it.sub})` : it.title;
     captures.push({ id: uid(), at: at(i), by: it.assignee_id, tag: tagFromKind(it.kind), text: text.slice(0, 400), auto: true, dueDate: it.due });

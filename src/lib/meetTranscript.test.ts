@@ -46,6 +46,7 @@ describe("meetTranscript", () => {
         roster: [{ id: "r1", name: "ريان" }, { id: "k1", name: "خالد" }],
         present: [{ identity: "r1", role: "student", name: "ريان" }, { identity: "sup-1", role: "supervisor", name: "د. إسراء" }],
         supervisorName: "الدكتورة",
+        apologies: [{ name: "خالد", reason: "عندي محاضرة" }],
       },
       () => `c${n++}`,
     );
@@ -54,8 +55,9 @@ describe("meetTranscript", () => {
     expect(d.endedAt).toBe("2026-11-27T10:30:00.000Z");
     expect(d.attendance.filter((a) => a.joinedAt).map((a) => a.id)).toEqual(["r1", "supervisor"]);
     expect(d.attendance.find((a) => a.id === "supervisor")?.name).toBe("د. إسراء");
-    expect(d.captures.map((c) => c.tag)).toEqual(["point", "decision", "task"]);
-    expect(d.captures[2]).toMatchObject({ by: "r1", dueDate: "2026-12-03", text: "ريان يعدّل الاستبيان (الخميس)", auto: true });
+    expect(d.captures.map((c) => c.tag)).toEqual(["point", "point", "decision", "task"]);
+    expect(d.captures[1].text).toBe("اعتذار: خالد (عندي محاضرة)");
+    expect(d.captures[3]).toMatchObject({ by: "r1", dueDate: "2026-12-03", text: "ريان يعدّل الاستبيان (الخميس)", auto: true });
   });
 
   it("adds to a running minutes draft instead of replacing it", () => {

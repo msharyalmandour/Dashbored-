@@ -144,6 +144,10 @@ function MeetRoomInner({
   onExit,
   afterEnd,
   demo,
+  preJoinExtra,
+  onJoined,
+  roomExtra,
+  barExtra,
 }: {
   title: string;
   me: string;
@@ -155,6 +159,14 @@ function MeetRoomInner({
   afterEnd?: ReactNode | ((info: MeetEndInfo) => ReactNode);
   /** عرض تجريبي للصور (بدون اتصال) */
   demo?: Tile[];
+  /** تحت زر الدخول (مثل «ويسي يتصل على الفريق») */
+  preJoinExtra?: ReactNode;
+  /** أول ما يدخل */
+  onJoined?: () => void;
+  /** فوق الشبكة داخل الغرفة (ردود الفريق على المكالمة) */
+  roomExtra?: ReactNode;
+  /** زر إضافي بشريط الأزرار */
+  barExtra?: ReactNode;
 }) {
   const room = useMeetRoom({ liveStt: !guest });
   const [mic, setMic] = useState(true);
@@ -196,6 +208,7 @@ function MeetRoomInner({
     }
     await room.connect(j.url, j.token, { mic, cam });
     track("meet_join", { guest: !!guest });
+    onJoined?.();
     setBusy(false);
   };
 
@@ -299,6 +312,7 @@ function MeetRoomInner({
                   {busy ? tr("ندخلكم…") : tr("ادخلوا الاجتماع")}
                 </button>
               )}
+              {!notReady && preJoinExtra}
               {room.state === "error" && <p className="mt-hint" style={{ color: "#FF8A7A" }}>{tr("ما قدرنا نوصل للاجتماع — تأكدوا من النت وجرّبوا مرة ثانية.")}</p>}
               <p className="mt-hint">{tr("ما ينسجل فيديو ولا صوت. تقدرون تشغّلون «النص» داخل الاجتماع، وويسي يكتب منه المحضر.")}</p>
             </div>
@@ -350,6 +364,7 @@ function MeetRoomInner({
           </button>
         </div>
       )}
+      {roomExtra}
       <div className="mt-body">
         <div className="mt-stage">
           {sharer ? (
@@ -465,6 +480,7 @@ function MeetRoomInner({
           <MessageSquare size={20} aria-hidden />
           {unread > 0 && !chatOpen && <span className="dot">{unread}</span>}
         </button>
+        {barExtra}
         <button type="button" className="mt-btn leave" onClick={room.leave} aria-label={tr("اطلعوا")}>
           <LogOut size={18} aria-hidden />
           <span className="lbl">{tr("اطلعوا")}</span>

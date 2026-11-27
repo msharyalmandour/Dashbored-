@@ -101,7 +101,8 @@ Deno.serve(async (req: Request) => {
   const donation = Math.min(Math.max(Number(metadata?.donation ?? 0) || 0, 0), 50, amount);
   const net = amount - donation;
   const forTeam = metadata?.mode === "full";
-  let period = typeof metadata?.period === "string" && metadata.period in PLANS ? (metadata.period as string) : "month";
+  // قائمة صريحة (مو «in») عشان قيم زي "constructor" ما تمر
+  let period = ["month", "semester", "year"].includes(String(metadata?.period)) ? String(metadata?.period) : "month";
   let unit = PLANS[period].price;
   if (period === "month" && metadata?.streak === "1") {
     const { data: streakOk } = await supabaseAdmin.rpc("team_streak_ok", { p_team: teamId });

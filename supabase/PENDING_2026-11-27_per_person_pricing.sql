@@ -51,6 +51,7 @@ as $$
   select count(distinct floor(extract(epoch from (now() - at)) / 604800)) >= 4 from acts;
 $$;
 revoke execute on function public.team_streak_ok(uuid) from public, anon, authenticated;
+grant execute on function public.team_streak_ok(uuid) to service_role;
 
 create or replace function public.my_streak_ok()
 returns boolean

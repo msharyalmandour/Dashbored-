@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "./brand/WLogo";
 import { useLocation } from "react-router-dom";
-import { Lightbulb, Loader2, Send, X } from "lucide-react";
+import { Lightbulb, Send, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
@@ -62,7 +63,7 @@ export default function IdeaButton() {
               onClick={send}
               disabled={text.trim().length < 3 || sending}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-            >{trx("{0}إرسال", sending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />)}</button>
+            >{trx("{0}إرسال", sending ? <WSpin size={15} /> : <Send size={15} />)}</button>
           </div>
         </div>
       )}

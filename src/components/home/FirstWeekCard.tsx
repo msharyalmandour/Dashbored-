@@ -38,7 +38,7 @@ interface Step {
 }
 
 /** «أول أسبوع»: خمس خطوات توصّل الفريق لأول نجاح حقيقي، كل خطوة محسوبة من بيانات الفريق نفسها (مو من ضغطة).
-    القائد لو لحاله: الدعوة هي الخطوة الحالية مع واتساب، وبعد ٤٨ ساعة من إنشاء الفريق بدون أحد يطلع تذكير لطيف. */
+    القائد لو لحاله: الدعوة هي الخطوة الحالية مع واتساب، وبعد 48 ساعة من إنشاء الفريق بدون أحد يطلع تذكير لطيف. */
 export default function FirstWeekCard({ style }: { style?: CSSProperties }) {
   const { team, currentUser, isLeader, mode, dismissFirstWeek } = useAuth();
   const { roster, loading: rosterLoading } = useTeamRoster();

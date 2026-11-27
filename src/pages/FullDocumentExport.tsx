@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link } from "react-router-dom";
-import { FileDown, FileType2, Loader2, ArrowRight } from "lucide-react";
+import { FileDown, FileType2, ArrowRight } from "lucide-react";
 import Card, { CardHeader } from "../components/ui/Card";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useProposal } from "../hooks/useProposal";
@@ -106,7 +107,7 @@ export default function FullDocumentExport() {
             disabled={exportingWord}
             title={tre("أبيض بنسق الروبريك الرسمي — للتسليم والطباعة ولرفعه على Google Drive")}
             className="flex items-center gap-2 rounded-xl border border-brand-300 bg-paper px-4 py-2.5 text-sm font-bold text-brand-950 hover:bg-surface-muted disabled:opacity-60"
-          >{trxe("{0}Word رسمي (مناسب لدرايف والتسليم)", exportingWord ? <Loader2 size={16} className="animate-spin" /> : <FileType2 size={16} />)}</button>
+          >{trxe("{0}Word رسمي (مناسب لدرايف والتسليم)", exportingWord ? <WSpin size={16} /> : <FileType2 size={16} />)}</button>
           <button
             onClick={() => exportWord("dark")}
             disabled={exportingWord}
@@ -139,18 +140,18 @@ export default function FullDocumentExport() {
         <Narrative text={project?.abstract ?? ""} />
       </Card>
 
-      {/* ١. الخلفية ومراجعة الأدبيات */}
+      {/* 1. الخلفية ومراجعة الأدبيات */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("١. الخلفية ومراجعة الأدبيات")} />
+        <CardHeader title={tre("1. الخلفية ومراجعة الأدبيات")} />
         <div className="space-y-3">
           <Narrative text={sectionContent(sections, "background")} />
           <Narrative text={sectionContent(sections, "literature-review")} />
         </div>
       </Card>
 
-      {/* ٢. مشكلة البحث */}
+      {/* 2. مشكلة البحث */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("٢. مشكلة البحث")} />
+        <CardHeader title={tre("2. مشكلة البحث")} />
         <Narrative text={sectionContent(sections, "problem")} />
         {gap.gapStatement.trim() && (
           <div className="mt-3 rounded-2xl bg-amber-accent-50 p-4">
@@ -160,15 +161,15 @@ export default function FullDocumentExport() {
         )}
       </Card>
 
-      {/* ٣. هدف الدراسة */}
+      {/* 3. هدف الدراسة */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("٣. هدف الدراسة")} />
+        <CardHeader title={tre("3. هدف الدراسة")} />
         <Narrative text={aim.statement} />
       </Card>
 
-      {/* ٤. سؤال البحث */}
+      {/* 4. سؤال البحث */}
       <Card className="print:break-inside-avoid">
-        <CardHeader title={tre("٤. سؤال البحث")} />
+        <CardHeader title={tre("4. سؤال البحث")} />
         {questions.length > 0 ? (
           <ol className="space-y-1.5">
             {questions.map((q) => (
@@ -183,10 +184,10 @@ export default function FullDocumentExport() {
         )}
       </Card>
 
-      {/* ٥. المنهجية */}
+      {/* 5. المنهجية */}
       <div className="space-y-5 print:break-before-page">
         <Card className="print:break-inside-avoid">
-          <CardHeader title={tre("٥. المنهجية")} />
+          <CardHeader title={tre("5. المنهجية")} />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <Field label={tre("أ. تصميم الدراسة — Design")} value={methodology.studyDesign} />
             <Field label={tre("ب. مكان الدراسة — Setting")} value={methodology.studySetting} />

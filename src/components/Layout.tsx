@@ -1,31 +1,43 @@
 import { applyReduceMotion, getReduceMotion, setReduceMotion } from "../lib/motionPref";
 import { storePaperMode } from "../lib/paperMode";
 import { loadProfilePrefs } from "../lib/profilePrefs";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { lazyPage } from "../lib/lazyPage";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, CreditCard } from "lucide-react";
 import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import Landing from "../pages/Landing";
 import SectionTabs from "./SectionTabs";
+import { PageHelpButton } from "./help/PageHelp";
 import PaymentProofUpload from "./PaymentProofUpload";
 import CheckoutModal from "./CheckoutModal";
 import { AlertCard } from "./ui/cards";
 import CommandPalette from "./CommandPalette";
-import AiAssistant from "./AiAssistant";
+import AgentPanel from "./agent/AgentPanel";
 import { ResearchAgentProvider } from "../context/ResearchAgentContext";
 import TourGuide from "./TourGuide";
 import AcademyCoach from "./AcademyCoach";
+import WesyNudges from "./onboarding/WesyNudges";
+import PendingTaskRedirect from "./onboarding/PendingTaskRedirect";
 import GlobalDrop from "./drop/GlobalDrop";
 import BottomNav from "./BottomNav";
 import AppSplash from "./ui/AppSplash";
+import RouteFallback from "./ui/RouteFallback";
 import DriveNotice from "./ui/DriveNotice";
 import StageCelebration from "./ui/StageCelebration";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
+import StudToast from "./notify/StudToast";
+import InviteSeats from "./growth/InviteSeats";
+import GiftNotice from "./growth/GiftNotice";
+import SideHandle, { useSideHidden } from "./SideHandle";
+import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
+import { supabase } from "../lib/supabaseClient";
+
+const LandingV3 = lazyPage(() => import("../pages/LandingV3"));
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -33,7 +45,7 @@ const titles: Record<string, string> = {
   "/literature-review": tr("مراجعة الأدبيات"),
   "/methodology": tr("المنهجية"),
   "/ethical-approval": tr("الموافقة الأخلاقية"),
-  "/research-search": tr("وكيل البحث العلمي"),
+  "/research-search": tr("البحث عن دراسات"),
   "/stats": tr("استوديو الإحصاء"),
   "/feedback": tr("ملاحظات المشرف"),
   "/study-kit": tr("الاستبيانات والموافقات"),
@@ -56,7 +68,7 @@ const titles: Record<string, string> = {
   "/guide": tr("دليل الطالب"),
   "/learn": tr("تعلّموا Wesync"),
   "/drop": tr("ارموا أي شي"),
-  "/pricing": tr("الباقات والاشتراك"),
+  "/pricing": tr("الاشتراك"),
   "/admin/subscriptions": tr("إدارة الاشتراكات"),
 };
 
@@ -83,8 +95,25 @@ export default function Layout() {
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  // الكمبيوتر: القائمة تنسحب وتختفي والداش ياخذ الشاشة كاملة
+  const [sideHidden, setSideHidden] = useSideHidden();
   // «قلّل الحركة» و«وضع الورقة»: الجهاز فورًا، وبعدها الحساب يغلب لو المستخدم اختار من جهاز ثاني
   const userId = currentUser?.id;
+  // بعد التسجيل: نربط الفريق بكود الدكتورة (/j/:code) أو كود السفير (?ref=MSHARY-KAU) — مرة وحدة
+  useEffect(() => {
+    if (mode !== "supabase" || !team?.id || !supabase) return;
+    const doc = storedDocCode();
+    if (doc) void supabase.rpc("join_doc_code", { p_code: doc }).then(() => clearDocCode(), () => undefined);
+    const ref = storedSignupRef();
+    const code = parseRef(ref).code;
+    if (code && code.includes("-")) void supabase.rpc("claim_referral", { p_code: code }).then(() => clearSignupRef(), () => undefined);
+  }, [mode, team?.id]);
+
+  // صفحة جديدة تبدأ من فوق (قبل: تنفتح من نص الصفحة لو كنتوا نازلين بالصفحة اللي قبلها)
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [location.pathname]);
+
   useEffect(() => {
     if (!userId) return;
     applyReduceMotion(getReduceMotion(userId));
@@ -102,11 +131,12 @@ export default function Layout() {
   if (loading) return <AppSplash />;
 
   if (!currentUser) {
-    if (location.pathname === "/") return <Landing />;
+    if (location.pathname === "/") return <Suspense fallback={<AppSplash />}><LandingV3 /></Suspense>;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  const title = titles[location.pathname] ?? "Wesync";
+  // FixList 12: الشعار بالقائمة بس — الصفحات بدون عنوان ما تكرر «Wesync» بالشريط العلوي
+  const title = titles[location.pathname] ?? "";
   const showReadOnlyBanner = mode === "supabase" && !canWrite;
   const showTrialBanner =
     mode === "supabase" && canWrite && team?.isOnTrial && subscriptionState === "expiring-soon";
@@ -114,7 +144,7 @@ export default function Layout() {
 
   return (
     <ResearchAgentProvider>
-    <div className="relative flex min-h-screen overflow-hidden bg-surface">
+    <div className="relative flex min-h-screen overflow-x-clip bg-surface">
       {/* فقاعات ضوء موزّعة على طول الصفحة كاملة (absolute على الحاوية
           الخارجية اللي طولها = طول المحتوى الفعلي، مو fixed على الشاشة
           فقط) — عشان تأثير الزجاج (backdrop-blur) بالبطاقات يبين بأي
@@ -126,13 +156,18 @@ export default function Layout() {
       <DriveNotice />
       <StageCelebration />
       <CommandPalette />
-      <AiAssistant />
+      <AgentPanel />
       <TourGuide />
       <AcademyCoach />
+      <WesyNudges />
+      <PendingTaskRedirect />
       <GlobalDrop />
       <BottomNav />
       <Sidebar open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+      <SideHandle hidden={sideHidden} setHidden={setSideHidden} />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        {/* «؟» وش هذي الصفحة — بالديسكتوب فوق زاوية المحتوى (بالجوال بالشريط العلوي) */}
+        <PageHelpButton className="absolute end-6 top-6 z-20 !hidden md:!inline-flex print:!hidden" />
         <Header
           title={title}
           onMenuClick={() => setMobileNavOpen(true)}
@@ -140,7 +175,7 @@ export default function Layout() {
           hideTitle={titleInPageRoutes.has(location.pathname)}
           homeMode={location.pathname === "/"}
         />
-        <main className="flex-1 px-4 py-6 pb-32 sm:px-8 md:pb-6">
+        <main className="flex-1 px-4 py-6 pb-32 sm:px-8 md:px-6 md:pb-6">
           <div className="space-y-6">
             {showTrialBanner && (
               <AlertCard
@@ -155,7 +190,7 @@ export default function Layout() {
                     {isLeader ? tr("فعّلوا الاشتراك الآن") : tr("ادفعوا حصتكم")}
                   </button>
                 }
-              >{trx("أنتم بفترة التجربة المجانية 🎉 — باقي {0}. أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو ", trialDaysLeft <= 0 ? tr("أقل من يوم") : `${trialDaysLeft} ${trialDaysLeft === 1 ? tr("يوم") : tr("أيام")}`)}<Link to="/pricing" className="underline underline-offset-2">{tr("شوفوا الباقات")}</Link>
+              >{trx("أنتم بفترة التجربة المجانية 🎉 — باقي {0}. أي عضو يقدر يدفع حصته وتزيد أيام الاشتراك مباشرة، أو ", trialDaysLeft <= 0 ? tr("أقل من يوم") : `${trialDaysLeft} ${trialDaysLeft === 1 ? tr("يوم") : tr("أيام")}`)}<Link to="/pricing" className="underline underline-offset-2">{tr("شوفوا الاشتراك")}</Link>
                 .
               </AlertCard>
             )}
@@ -193,11 +228,16 @@ export default function Layout() {
               className="animate-[page-in_0.35s_ease-out]"
             >
               <SectionTabs />
-              <Outlet />
+              <GiftNotice />
+              <InviteSeats />
+              <Suspense fallback={<RouteFallback />}>
+                <Outlet />
+              </Suspense>
             </div>
           </div>
         </main>
       </div>
+      <StudToast />
       {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>
     </ResearchAgentProvider>

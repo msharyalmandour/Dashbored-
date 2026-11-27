@@ -16,6 +16,8 @@ self.addEventListener("push", (event) => {
       dir: "rtl",
       lang: "ar",
       data: { url: data.url || "/" },
+      // أزرار الإشعار (نحضر ✓ / أضيفوه للتقويم / ردّوا) — كلها تفتح قروب الدكتورة
+      actions: Array.isArray(data.actions) ? data.actions.slice(0, 2) : [],
     }),
   );
 });

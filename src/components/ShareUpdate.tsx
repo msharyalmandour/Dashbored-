@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { drawBrandLockup } from "../lib/brandCanvas";
 import { Check, Copy, ImageDown, MessageCircle, Share2 } from "lucide-react";
 import { projectMeta, recentActivity, teamMembers } from "../data/mockData";
 import { formatDateLong } from "../lib/date";
@@ -57,9 +58,9 @@ async function makeProgressCard(percent: number, stageAr: string | null): Promis
   ctx.fillRect(0, 0, W, H);
   ctx.textAlign = "center";
   ctx.direction = "rtl";
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
-  ctx.font = "700 30px Tajawal, sans-serif";
-  ctx.fillText("W E S Y N C  ∞", W / 2, 120);
+  drawBrandLockup(ctx, W / 2, 110, 56);
+  ctx.textAlign = "center";
+  ctx.direction = "rtl";
   ctx.fillStyle = "#f59e0b";
   ctx.font = "900 330px Tajawal, sans-serif";
   ctx.fillText(`${percent}%`, W / 2, 700);

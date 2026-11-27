@@ -55,7 +55,7 @@ export function backwardPlan(opts: {
   const usable = total - bufferDays - finalDays;
   const wSum = regular.reduce((s, r) => s + (STAGE_WEIGHTS[r.stageKey] ?? 5), 0) || 1;
 
-  // توزيع نسبي بحد أدنى ٣ أيام لكل مرحلة، ثم نضبط الفرق على أكبر مرحلة
+  // توزيع نسبي بحد أدنى 3 أيام لكل مرحلة، ثم نضبط الفرق على أكبر مرحلة
   const raw = regular.map((s) => Math.max(3, Math.round((usable * (STAGE_WEIGHTS[s.stageKey] ?? 5)) / wSum)));
   let drift = usable - raw.reduce((a, b) => a + b, 0);
   if (raw.length) {
@@ -94,9 +94,9 @@ export function backwardPlan(opts: {
     });
   }
 
-  if (total < 8 * 7) warnings.push(tr("الوقت المتبقي أقل من ٨ أسابيع — ضيق جدًا لبحث تخرج كامل. ناقشوا مع المشرفة تقليص النطاق أو تمديد الموعد."));
+  if (total < 8 * 7) warnings.push(tr("الوقت المتبقي أقل من 8 أسابيع — ضيق جدًا لبحث تخرج كامل. ناقشوا مع المشرفة تقليص النطاق أو تمديد الموعد."));
   const dc = rows.find((r) => r.stageKey === "data-collection");
-  if (dc && dc.days < 14) warnings.push(tr("جمع البيانات ياخذ {0} يوم فقط — غالبًا ما يكفي (المتوقع ٣ أسابيع فأكثر مع الموافقات).", dc.days));
+  if (dc && dc.days < 14) warnings.push(tr("جمع البيانات ياخذ {0} يوم فقط — غالبًا ما يكفي (المتوقع 3 أسابيع فأكثر مع الموافقات).", dc.days));
   const lit = rows.find((r) => r.stageKey === "literature-review");
   if (lit && lit.days < 10) warnings.push(tr("مراجعة الأدبيات {0} أيام فقط — قليلة.", lit.days));
   return { rows, totalDays: total, bufferDays, warnings };

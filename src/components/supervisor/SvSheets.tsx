@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2, MessageSquarePlus } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, MessageSquarePlus } from "lucide-react";
 import { SvSheet, relTime } from "./SvParts";
 import { tr } from "../../lib/i18n";
 
@@ -33,7 +34,7 @@ function Composer({ placeholder, send, cta }: { placeholder: string; send: (body
           }
         }}
       >
-        {busy ? <Loader2 size={15} className="animate-spin" /> : sent ? <Check size={15} /> : null}
+        {busy ? <WSpin size={15} /> : sent ? <Check size={15} /> : null}
         {sent ? tr("انرسلت") : cta}
       </button>
     </div>
@@ -158,7 +159,7 @@ function CommentBox({ sectionKey, label, comments, onComment }: { sectionKey: st
                 }
               }}
             >
-              {busy && <Loader2 size={14} className="animate-spin" />}
+              {busy && <WSpin size={14} />}
               {tr("أرسلوا الملاحظة")}
             </button>
             <button type="button" className="sv-btn ghost !min-h-[44px] !text-[14px]" onClick={() => setOpen(false)}>
@@ -205,12 +206,12 @@ export function SvDocSheet({
                 <span className="sv-st">{r.label}</span>
                 {r.en && <span className="mx-2 text-[12px] text-[#8F857C]" dir="ltr">{r.en}</span>}
               </span>
-              {r.status === "done" && onApprove &&
+              {r.status === "done" && !!r.content?.trim() && onApprove &&
                 (approved?.includes(r.key) ? (
-                  <span className="sv-badge soon !text-[#7FE0A6] !bg-[rgba(127,224,166,.12)]">{tr("معتمد ✓")}</span>
+                  <span className="sv-badge soon !text-[#FFC777] !bg-[rgba(255,199,119,.12)]">{tr("معتمد ✓")}</span>
                 ) : (
                   <button className="sv-btn ghost !min-h-[38px] !px-3.5 !text-[13px]" disabled={approvingKey === r.key} onClick={() => onApprove(r.key, r.label)}>
-                    {approvingKey === r.key && <Loader2 size={13} className="animate-spin" />}
+                    {approvingKey === r.key && <WSpin size={13} />}
                     {tr("اعتمد القسم")}
                   </button>
                 ))}

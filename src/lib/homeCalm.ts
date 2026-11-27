@@ -47,7 +47,7 @@ export interface Pace<T extends CalmTask = CalmTask> {
   doneThisWeek: number;
   late: number;
   open: number;
-  /** مهام هالأسبوع المقترحة (الأقرب موعد، بعدد perWeek وبحد أقصى ٣) */
+  /** مهام هالأسبوع المقترحة (الأقرب موعد، بعدد perWeek وبحد أقصى 3) */
   thisWeek: T[];
 }
 
@@ -62,7 +62,7 @@ export function paceStatus<T extends CalmTask>(tasks: T[], today: string, daysLe
   return { onTrack, perWeek, doneThisWeek, late, open: open.length, thisWeek: open.slice(0, Math.min(3, Math.max(perWeek, 1))) };
 }
 
-/** «وش علينا اليوم؟»: المتأخر أول ثم اللي موعده اليوم — ٣ بالكثير */
+/** «وش علينا اليوم؟»: المتأخر أول ثم اللي موعده اليوم — 3 بالكثير */
 export function todayList<T extends CalmTask>(tasks: T[], today: string, limit = 3): T[] {
   const open = tasks.filter((t) => t.status !== "done");
   const late = open.filter((t) => isLate(t, today)).sort((a, b) => a.dueDate.localeCompare(b.dueDate));

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link, useNavigate } from "react-router-dom";
-import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Loader2, Mic, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
+import { AlarmClock, BarChart3, CalendarPlus, Download, FileUp, Mic, NotebookPen, SendToBack, BellRing, BookOpen, Check, CheckSquare, ChevronLeft, CircleAlert, CircleCheck, Copy, CornerUpLeft, FileText, Link2, MessageCircle, MoreHorizontal, Pencil, Plus, Search, SendHorizontal, Trash2, X } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import Avatar from "../components/ui/Avatar";
 import { V3Glow } from "../components/v3/WriteHeader";
@@ -19,7 +20,12 @@ import { notifySupervisor } from "../lib/supervisorNotify";
 import { DocBubble, Ledger, RequestCard, SideThread, SupState, Thread, ThreadExplainer, type LedgerRow } from "../components/sup/SupParts";
 import { createPortal } from "react-dom";
 import { useCommitments } from "../hooks/useCommitments";
+import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
+import { GroupBanner, GroupTabs, GroupsIntro, MoveToDoc, useGroupsIntro } from "../components/chat/Groups";
+import { Lock } from "lucide-react";
 import { useChatIntel } from "../hooks/useChatIntel";
+import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
+import { MeetLiveStrip } from "../components/meet/MeetLive";
 import { CatchupSheet, FocusDone, FocusPanel, FocusPill, LiveSummaryCard, OrphanStrip } from "../components/chat/ChatIntel";
 import { guessKnower } from "../lib/chatIntel";
 import VoiceMode, { type VoiceResult } from "../components/chat/VoiceMode";
@@ -199,6 +205,7 @@ export default function TeamChat() {
 
   // آخر قراءة لي قبل ما نعلّم المحادثة مقروءة (لـ «اللي فاتك ويخصك»)
   const intel = useChatIntel(messages, loaded, myPrevRead);
+  const teamTime = useTeamTime();
   const [focusSheet, setFocusSheet] = useState(false);
   const [voiceOn, setVoiceOn] = useState(false);
   // فويس انحفظ بدون نت: يرتفع وينرسل لحاله لما يرجع النت (والنص يطلع بعدين)
@@ -233,7 +240,7 @@ export default function TeamChat() {
   );
 
   const people = useMemo(() => new Map(roster.map((m) => [m.id, m])), [roster]);
-  const names = useMemo(() => [...roster.map((m) => firstName(m.name)), tr("وكيل")].filter(Boolean), [roster]);
+  const names = useMemo(() => [...roster.map((m) => firstName(m.name)), tr("ويسي")].filter(Boolean), [roster]);
   const onlineIds = new Set(online.map((u) => u.id));
   const byId = useMemo(() => new Map(messages.map((m) => [m.id, m])), [messages]);
 
@@ -257,7 +264,7 @@ export default function TeamChat() {
     if (el.scrollHeight - (window.scrollY + window.innerHeight) < 240) window.scrollTo({ top: el.scrollHeight });
   }, [composerH]);
 
-  // يكبر مع الكتابة لين ٥ أسطر
+  // يكبر مع الكتابة لين 5 أسطر
   useEffect(() => {
     const el = inputRef.current;
     if (!el) return;
@@ -280,6 +287,9 @@ export default function TeamChat() {
     for (const c of commitments) if (c.source_message_id) map.set(c.source_message_id, [...(map.get(c.source_message_id) ?? []), c]);
     return map;
   }, [commitments]);
+  const docThread = useSupervisorMessages();
+  const [introOpen, closeIntro] = useGroupsIntro(currentUser?.id);
+  const [moveDoc, setMoveDoc] = useState<ChatMessage | null>(null);
   const docName = useMemo(() => {
     const ev = [...messages].reverse().find((x) => x.kind === "event" && x.meta?.type === "supervisor_message" && x.meta.by);
     return String(ev?.meta?.by ?? "").trim() || tr("المشرف/ة");
@@ -389,8 +399,8 @@ export default function TeamChat() {
       const sending = send(body, { replyTo: replyTo?.id ?? null, ref: attach, mentions: mentionedIds(body, roster, currentUser.id) });
       setReplyTo(null);
       setAttach(null);
-      // «@وكيل …»: الوكيل يرد بالقروب للكل، من سياق المحادثة
-      if (/@وكيل|@الوكيل|@agent/i.test(body)) void askAgent(body, sending);
+      // «@ويسي …»: ويسي يرد بالقروب للكل، من سياق المحادثة
+      if (/@ويسي|@وكيل|@الوكيل|@agent/i.test(body)) void askAgent(body, sending);
     }
     setText("");
     setMentionQ(null);
@@ -405,14 +415,14 @@ export default function TeamChat() {
       .filter((m) => !m.deletedAt && m.kind !== "event")
       .slice(-12)
       .map((m) => ({ role: m.kind === "agent" ? ("agent" as const) : ("user" as const), text: m.kind === "agent" ? m.body : `${nameOf(m.authorId)}: ${m.body}` }));
-    const r = await askProjectAgent(question.replace(/@(وكيل|الوكيل|agent)/gi, "").trim() || question, history);
+    const r = await askProjectAgent(question.replace(/@(ويسي|وكيل|الوكيل|agent)/gi, "").trim() || question, history);
     setAgentBusy(false);
     const last = [...messages].reverse().find((m) => m.authorId === currentUser.id && !m.pending);
     const out = await post("agent", r.data?.answer ?? r.message ?? tr("ما وصل الرد — حاولوا مرة ثانية."), { askedBy: currentUser.id }, last?.id ?? null);
-    if (out.error) showToast({ title: tr("رد الوكيل ما انحفظ بالمحادثة — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
+    if (out.error) showToast({ title: tr("رد ويسي ما انحفظ بالمحادثة — شغّلوا ملف التحديث الأخير."), icon: CircleAlert });
   };
 
-  // «حوّلوا المحادثة لمحضر»: الوكيل يلخّص رسائل اليوم (أو آخر ٤٠) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
+  // «حوّلوا المحادثة لمحضر»: ويسي يلخّص رسائل اليوم (أو آخر 40) للمناقشة والقرارات، وتنفتح صفحة محضر جديد معبّاة
   const chatToMinutes = async () => {
     if (minutesBusy) return;
     const today = toISODate(new Date());
@@ -420,15 +430,15 @@ export default function TeamChat() {
     if (pool.length < 4) pool = messages.filter((m) => !m.deletedAt && m.kind !== "event").slice(-40);
     if (pool.length === 0) return;
     setMinutesBusy(true);
-    const transcript = pool.map((m) => `${m.kind === "agent" ? tr("الوكيل") : nameOf(m.authorId)}: ${m.body}`).join("\n");
+    const transcript = pool.map((m) => `${m.kind === "agent" ? tr("ويسي") : nameOf(m.authorId)}: ${m.body}`).join("\n");
     const r = await askProjectAgent(
-      // تعليمات للوكيل (مو نص يظهر للمستخدم) — العناوين ثابتة عشان نقسّم الرد
+      // تعليمات لويسي (مو نص يظهر للمستخدم) — العناوين ثابتة عشان نقسّم الرد
       `لخّص محادثة الفريق هذي كمحضر اجتماع مختصر. اكتب بالضبط بهذا الشكل بدون أي مقدمة:\nالمناقشة:\n- …\nالقرارات:\n- …\n\nالمحادثة:\n${transcript}`,
       [],
     );
     setMinutesBusy(false);
     if (!r.data) {
-      showToast({ title: r.message ?? tr("الوكيل غير متاح الحين — جرّبوا بعد شوي."), icon: CircleAlert });
+      showToast({ title: r.message ?? tr("ويسي غير متاح الحين — جرّبوا بعد شوي."), icon: CircleAlert });
       return;
     }
     const txt = r.data.answer;
@@ -447,11 +457,11 @@ export default function TeamChat() {
   };
 
   const mentionList = mentionQ === null ? [] : others.filter((m) => fold(firstName(m.name)).startsWith(fold(mentionQ))).slice(0, 5);
-  const agentMatch = mentionQ !== null && fold(tr("وكيل")).startsWith(fold(mentionQ));
+  const agentMatch = mentionQ !== null && fold(tr("ويسي")).startsWith(fold(mentionQ));
   const pickAgent = () => {
     const el = inputRef.current;
     const caret = el?.selectionStart ?? text.length;
-    const before = text.slice(0, caret).replace(/@(\S*)$/, `@${tr("وكيل")} `);
+    const before = text.slice(0, caret).replace(/@(\S*)$/, `@${tr("ويسي")} `);
     setText(before + text.slice(caret));
     setMentionQ(null);
     requestAnimationFrame(() => el?.focus());
@@ -540,7 +550,7 @@ export default function TeamChat() {
     }
     const isAgent = m.kind === "agent";
     const isPoll = m.kind === "poll";
-    // رد الوكيل ينحفظ باسم اللي سأل، بس يطلع بجهة الباقين كـ«الوكيل»
+    // رد ويسي ينحفظ باسم اللي سأل، بس يطلع بجهة الباقين كـ«ويسي»
     const mine = m.authorId === currentUser.id && !isAgent;
     const prev = shown[idx - 1];
     const next = shown[idx + 1];
@@ -559,7 +569,7 @@ export default function TeamChat() {
         <div
           role="group"
           tabIndex={gone || m.pending ? -1 : 0}
-          aria-label={tr("رسالة من {0}", mine ? tr("أنت") : isAgent ? tr("الوكيل") : nameOf(m.authorId))}
+          aria-label={tr("رسالة من {0}", mine ? tr("أنت") : isAgent ? tr("ويسي") : nameOf(m.authorId))}
           className={`tc-bubble${isAgent ? " agent" : ""}${m.pending ? " pending" : ""}${m.failed ? " failed" : ""}${gone ? " gone" : ""}${flash === m.id ? " flash" : ""}`}
           onPointerDown={(e) => !gone && !m.pending && !m.failed && pressStart(m.id, e)}
           onPointerUp={pressEnd}
@@ -584,7 +594,7 @@ export default function TeamChat() {
             </>
           ) : (
             <>
-              {!mine && firstOfRun && <span className="tc-name">{isAgent ? tr("الوكيل · رد على {0}", nameOf(m.authorId)) : nameOf(m.authorId)}</span>}
+              {!mine && firstOfRun && <span className="tc-name">{isAgent ? tr("ويسي · رد على {0}", nameOf(m.authorId)) : nameOf(m.authorId)}</span>}
               {quoted && (
                 <button type="button" className="tc-quote" onClick={() => jumpTo(quoted.id)}>
                   <b>{nameOf(quoted.authorId)}</b>
@@ -622,7 +632,7 @@ export default function TeamChat() {
                     </span>
                     {refSub(m.ref) && <span className="tc-ref-s">{refSub(m.ref)}</span>}
                   </span>
-                  <ChevronLeft size={16} className="shrink-0 text-[#ABA095] rtl:rotate-0 ltr:rotate-180" aria-hidden />
+                  <ChevronLeft size={16} className="shrink-0 text-[#ABA095] rtl:rotate-0" aria-hidden />
                 </Link>
               )}
               {!m.failed && (
@@ -677,7 +687,7 @@ export default function TeamChat() {
             </>
           )}
           {canWrite && !isPoll && m.body.trim().length >= 12 && (
-            <button role="menuitem" onClick={() => { setSelected(null); queueDrop([], "chat", m.body); navigate("/drop"); }}>
+            <button role="menuitem" onClick={() => { setSelected(null); queueDrop([], "chat", m.body); }}>
               <Download size={19} aria-hidden />
               {tr("ارموها: رتّبوها بمكانها")}
             </button>
@@ -686,6 +696,12 @@ export default function TeamChat() {
             <AlarmClock size={19} aria-hidden />
             {tr("ذكّروني")}
           </button>
+          {canWrite && !isAgent && !isPoll && (
+            <button role="menuitem" onClick={() => { setMoveDoc(m); setSelected(null); }}>
+              <SendToBack size={19} aria-hidden />
+              {tr("انقلوها للدكتورة")}
+            </button>
+          )}
           <button role="menuitem" onClick={() => { void navigator.clipboard?.writeText(m.body); setSelected(null); showToast({ title: tr("انتسخت"), icon: CircleCheck }); }}>
             <Copy size={19} aria-hidden />
             {tr("نسخ")}
@@ -742,6 +758,8 @@ export default function TeamChat() {
       <div className="tc-shell">
         <div className="tc-wrap relative" style={{ "--tc-h": `${composerH}px` } as CSSProperties}>
           <header>
+            <GroupTabs active="team" docName={docName} unreadDoc={docThread.unread} unreadTeam={0} />
+            <GroupBanner group="team" docName={docName} />
             <div className="tc-head">
               <div className="min-w-0 flex-1">
                 <h1 className="tc-title">{tr("محادثة الفريق")}</h1>
@@ -759,7 +777,7 @@ export default function TeamChat() {
               </div>
               {messages.length > 0 && canWrite && (
                 <button type="button" className="tc-round" aria-label={tr("حوّلوا المحادثة لمحضر")} title={tr("حوّلوا المحادثة لمحضر")} onClick={chatToMinutes} disabled={minutesBusy}>
-                  {minutesBusy ? <Loader2 size={18} className="animate-spin motion-reduce:animate-none" /> : <NotebookPen size={18} />}
+                  {minutesBusy ? <WSpin size={18} /> : <NotebookPen size={18} />}
                 </button>
               )}
               <FocusPill until={intel.focus?.until ?? null} onClick={() => setFocusSheet(true)} />
@@ -796,6 +814,8 @@ export default function TeamChat() {
           ) : (
             <div className="tc-list" aria-live="polite">
               {intel.focusDone && <FocusDone {...intel.focusDone} onClose={intel.closeFocusDone} />}
+              {!query.trim() && <MeetLiveStrip />}
+              {teamTime.away && !query.trim() && <AwayStrip away={teamTime.away} pending={teamTime.extensions.filter((e) => e.status === "pending").length} />}
               {intel.summary?.summary && !query.trim() && <LiveSummaryCard s={intel.summary.summary} updatedAt={intel.summary.updatedAt} collapsed={intel.collapsed} onToggle={intel.toggleSummary} />}
               {messages.length === 0 &&
                 (solo ? (
@@ -850,7 +870,7 @@ export default function TeamChat() {
                 <div className="tc-row">
                   <AgentMark />
                   <div className="tc-bubble agent">
-                    <span className="tc-name">{tr("الوكيل")}</span>
+                    <span className="tc-name">{tr("ويسي")}</span>
                     <span className="tc-text text-[#ABA095]">{tr("يقرا المحادثة ويجهّز رد…")}</span>
                   </div>
                 </div>
@@ -861,6 +881,10 @@ export default function TeamChat() {
 
           {!unavailable && (
             <div className="tc-composer" ref={composerRef}>
+              <div className="gr-to team">
+                <Lock size={13} aria-hidden />
+                {tr("ترسلون للفريق بس · الدكتورة ما تشوف")}
+              </div>
               <div className="tc-typing" aria-live="polite">
                 {typingPeople.length > 0 && (
                   <>
@@ -875,7 +899,7 @@ export default function TeamChat() {
                     <button type="button" role="option" aria-selected={false} onMouseDown={(e) => e.preventDefault()} onClick={pickAgent}>
                       <AgentMark />
                       <span>
-                        {tr("الوكيل")} <small className="text-[12px] font-medium text-[#ABA095]">{tr("· يرد بالقروب للكل")}</small>
+                        {tr("ويسي")} <small className="text-[12px] font-medium text-[#ABA095]">{tr("· يرد بالقروب للكل")}</small>
                       </span>
                     </button>
                   )}
@@ -1026,7 +1050,7 @@ export default function TeamChat() {
           e.target.value = "";
           if (!files.length) return;
           queueDrop(files, "chat");
-          navigate("/drop");
+          // هيرو «ارموا» يقراها فوق الصفحة نفسها
         }}
       />
       <Dialog open={plusOpen} onClose={() => setPlusOpen(false)} title={tr("أضيفوا للمحادثة")}>
@@ -1035,7 +1059,7 @@ export default function TeamChat() {
             [
               [BookOpen, tr("أشيروا لشي بالبحث"), tr("مهمة، قسم بالمقترح، أو دراسة بالمكتبة"), () => setRefOpen(true)],
               [Download, tr("ارموها: رتّبوها بمكانها"), tr("أي ملف أو صورة أو سكرين شوت، ونوريكم وين ينحط قبل لا نحطه"), () => dropPick.current?.click()],
-              [FileUp, tr("ارموا دراسة"), tr("PDF أو صور صفحاتها، والوكيل يقرأها ويحطها بالمكتبة وجدول الأدبيات"), () => setStudyOpen(true)],
+              [FileUp, tr("ارموا دراسة"), tr("PDF أو صور صفحاتها، وويسي يقرأها ويحطها بالمكتبة وجدول الأدبيات"), () => setStudyOpen(true)],
               [BarChart3, tr("تصويت سريع"), tr("سؤال بخيارات، والنتيجة تصير قرار"), () => setPollOpen(true)],
             ] as const
           ).map(([Icon, title, sub, go]) => (
@@ -1135,6 +1159,20 @@ export default function TeamChat() {
         </>,
         document.body,
       )}
+      {introOpen && <GroupsIntro docName={docName} onDone={closeIntro} />}
+      {moveDoc && (
+        <MoveToDoc
+          docName={docName}
+          text={moveDoc.body}
+          onClose={() => setMoveDoc(null)}
+          onSend={async () => {
+            const body = moveDoc.body;
+            setMoveDoc(null);
+            const r = await docThread.reply(body);
+            showToast(r.error ? { title: r.error, icon: CircleAlert } : { title: tr("انرسلت لقروب الدكتورة ✓"), icon: CircleCheck });
+          }}
+        />
+      )}
       {toSupervisor && (
         <SupervisorQuestionSheet
           msg={toSupervisor}
@@ -1212,7 +1250,7 @@ export default function TeamChat() {
 
 type PickItem = ChatRef & { sub: string };
 
-/** «أشيروا لشي بالبحث»: ٣ تبويبات بعدادها، بحث، والمختار يتحط كرت بالرسالة */
+/** «أشيروا لشي بالبحث»: 3 تبويبات بعدادها، بحث، والمختار يتحط كرت بالرسالة */
 function ReferenceSheet({ open, onClose, onPick, tasks, sections, papers }: { open: boolean; onClose: () => void; onPick: (r: ChatRef) => void; tasks: PickItem[]; sections: PickItem[]; papers: PickItem[] }) {
   const [tab, setTab] = useState<ChatRef["type"]>("task");
   const [q, setQ] = useState("");

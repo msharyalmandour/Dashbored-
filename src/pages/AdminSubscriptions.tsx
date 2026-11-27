@@ -98,7 +98,7 @@ export default function AdminSubscriptions() {
     return s === "expired" || s === "none";
   }).length;
   const monthlyRevenue = activeTeams.reduce(
-    (sum, t) => sum + teamMonthlyTotal(t.plan, t.isFounder, t.memberCount),
+    (sum, t) => sum + teamMonthlyTotal(t.memberCount),
     0,
   );
 
@@ -110,7 +110,7 @@ export default function AdminSubscriptions() {
         </span>
         <div>
           <h1 className="font-display text-xl font-extrabold text-brand-950">{tr("إدارة الاشتراكات")}</h1>
-          <p className="text-sm text-brand-950/55">{tr("سعر الإطلاق للفريق كامل: ١٩ لحاله، ٣٩ لشخصين، ٤٩ من ٣–٥، والمساعد +٣٩ (+١٩ للمؤسسين ولحاله). فعّلي اشتراك أي فريق بعد ما تتأكدين من التحويل.")}</p>
+          <p className="text-sm text-brand-950/55">{tr("سعر الإطلاق للفريق كامل: 19 لحاله، 39 لشخصين، 49 من 3–5، والمساعد +39 (+19 للمؤسسين ولحاله). فعّلي اشتراك أي فريق بعد ما تتأكدين من التحويل.")}</p>
         </div>
       </Card>
 
@@ -158,11 +158,11 @@ export default function AdminSubscriptions() {
                   <p className="flex items-center gap-1.5 truncate font-semibold text-brand-950">
                     {team.name}
                     {team.isFounder && (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[11px] font-bold text-amber-accent-700">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-accent-100 px-2 py-0.5 text-[12px] font-bold text-amber-accent-700">
                         <Trophy size={11} />{tr("مؤسس")}</span>
                     )}
                     {team.isOnTrial && (state === "active" || state === "expiring-soon") && (
-                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-sky-accent-100 px-2 py-0.5 text-[11px] font-bold text-sky-accent-700">
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-sky-accent-100 px-2 py-0.5 text-[12px] font-bold text-sky-accent-700">
                         <Gift size={11} />{tr("تجربة مجانية")}</span>
                     )}
                   </p>
@@ -172,7 +172,7 @@ export default function AdminSubscriptions() {
                     <span className="rounded-full bg-surface-muted px-2 py-0.5 font-bold text-brand-700">
                       {team.plan === "ai" ? tr("باقة AI") : tr("باقة Basic")}
                     </span>
-                    <span><span className="font-bold text-brand-700">{trx("{0} ريال/شهر", teamMonthlyTotal(team.plan, team.isFounder, team.memberCount))}</span>
+                    <span><span className="font-bold text-brand-700">{trx("{0} ريال/شهر", teamMonthlyTotal(team.memberCount))}</span>
                     </span>
                     {team.university && (
                       <span className="flex items-center gap-1.5">
@@ -244,7 +244,7 @@ export default function AdminSubscriptions() {
                             <p className="truncate text-sm font-semibold text-brand-950">
                               {member.name}{" "}
                               {member.role === "leader" && (
-                                <span className="text-[11px] font-bold text-amber-accent-600">{tr("(قائد)")}</span>
+                                <span className="text-[12px] font-bold text-amber-accent-600">{tr("(قائد)")}</span>
                               )}
                             </p>
                             <p className="truncate text-xs text-brand-950/45">{member.email}</p>

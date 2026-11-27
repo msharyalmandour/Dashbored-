@@ -1,11 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { Gift, Infinity as InfinityIcon, Users } from "lucide-react";
+import { Gift, Users } from "lucide-react";
+import WLogo from "../components/brand/WLogo";
 import { useAuth } from "../context/AuthContext";
 import { demoCredentials, teamMembers } from "../data/mockData";
 import Logo from "../components/Logo";
 import LangToggle from "../components/ui/LangToggle";
 import { tr } from "../lib/i18n";
+import { clearSignupRef, parseRef, storedSignupRef } from "../lib/signupSource";
 
 /** اقتراحات جاهزة بخانة "الجامعة" وقت التسجيل — الحقل نص حر أصلًا
     (datalist)، فأي جامعة مو بالقائمة تُكتب يدويًا بدون أي قيد */
@@ -51,7 +53,19 @@ export default function Login() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const inviteTeamId = searchParams.get("team");
-  const referralCode = searchParams.get("ref");
+  // رابط دعوة على مهمة محددة (?task=) — نحفظها، وبعد الدخول يوصل عليها مباشرة (PendingTaskRedirect)
+  const inviteTaskId = searchParams.get("task");
+  useEffect(() => {
+    if (!inviteTaskId) return;
+    try {
+      localStorage.setItem("wesync.pendingTask", inviteTaskId);
+    } catch {
+      /* تخزين غير متاح */
+    }
+  }, [inviteTaskId]);
+  // ?ref= بالرابط أو المحفوظ من أول فتح للموقع (رابط المشرفة يوصل للرئيسية قبل الـ #)
+  const refRaw = searchParams.get("ref") ?? storedSignupRef();
+  const { code: referralCode, source: signupSource } = parseRef(refRaw);
 
   // نلتقط هل المستخدمة كانت مسجلة دخولها أصلًا وقت أول تحميل للصفحة (زي
   // استرجاع جلسة محفوظة) — عشان ما نشغّل حركة الاحتفال إلا لما تسجّل دخول
@@ -72,7 +86,7 @@ export default function Login() {
     return () => clearTimeout(t);
   }, [celebrating]);
 
-  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode || searchParams.has("signup"));
+  const [isSignUp, setIsSignUp] = useState(!!inviteTeamId || !!referralCode || !!signupSource || searchParams.has("signup"));
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -130,14 +144,16 @@ export default function Login() {
           name,
           gender,
           effectiveTeamId,
-          referralCode ?? undefined,
+          referralCode,
           effectiveTeamId ? undefined : university || undefined,
+          signupSource,
         )
       : await signInWithPassword(email, password);
 
     setSubmitting(false);
     if (result.error) setError(result.error);
     else if (isSignUp) {
+      clearSignupRef();
       setError(tr("تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل دخولك."));
     }
   };
@@ -206,9 +222,7 @@ export default function Login() {
               <div className="mb-7 space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <Link to="/" aria-label={tr("Wesync — الصفحة الرئيسية")} className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
-                    <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full border-[1.5px] border-[#FFB444] text-[#FFB444]">
-                      <InfinityIcon size={18} strokeWidth={2.25} />
-                    </span>
+                    <WLogo size={32} />
                     Wesync
                   </Link>
                   <div className="flex items-center gap-3">
@@ -244,7 +258,7 @@ export default function Login() {
                     )}
                   </h1>
                   {signUpView && !isForgotPassword && (
-                    <p className="mt-2 font-light text-[#B8ADA2]">{tr("١٤ يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
+                    <p className="mt-2 font-light text-[#B8ADA2]">{tr("14 يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
                   )}
                   {inviteTeamId && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
@@ -252,7 +266,7 @@ export default function Login() {
                   )}
                   {!inviteTeamId && referralCode && mode === "supabase" && (
                     <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
-                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة ١٤ يوم مجانية، وتاخذون شهر هدية أنتم وهم أول ما تشتركون 🎉")}</span>
+                      <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة 14 يوم مجانية. لما تبدأون فعليًا تاخذون أسبوعين هدية أنتم وهم، ولما تشتركون شهر 🎉")}</span>
                   )}
                 </div>
               </div>
@@ -385,7 +399,7 @@ export default function Login() {
                         }}
                         onInvalid={arabicInvalidHandler(
                           tr("كلمة المرور مطلوبة"),
-                          tr("كلمة المرور لازم تكون ٦ أحرف على الأقل"),
+                          tr("كلمة المرور لازم تكون 6 أحرف على الأقل"),
                         )}
                         className={inputClass}
                         placeholder="••••••••"
@@ -533,7 +547,7 @@ export default function Login() {
             </div>
         </main>
 
-        <footer className="pb-1 text-center text-[11px] tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
+        <footer className="pb-1 text-center text-[12px] tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
       </div>
     </div>
   );

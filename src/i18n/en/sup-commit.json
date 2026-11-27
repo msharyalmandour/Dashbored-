@@ -55,7 +55,7 @@
   "الاعتماد للقائد بس.": "Only the leader can approve.",
   "الاشتراك منتهي — الفريق يقدر يشوف بس.": "Subscription ended — the team can only view.",
   "ما انحفظ — جرّبوا مرة ثانية.": "Not saved — try again.",
-  "الحد ٢٥ ميغا للملف.": "Max file size is 25 MB.",
+  "الحد 25 ميغا للملف.": "Max file size is 25 MB.",
   "ما قدرنا نرفع الملف — جرّبوا مرة ثانية.": "Couldn't upload the file — try again.",
   "ينتظر اعتماد": "Awaiting approval",
   "ينتظر": "Waiting",
@@ -70,5 +70,8 @@
   "فات موعده": "Overdue",
   "متبقي يومين": "2 days left",
   "متبقي {0} أيام": "{0} days left",
-  "صارت مهمة لـ {0} · مكتوب عليها «من الدكتورة»": "Now a task for {0} · tagged “From supervisor”"
+  "صارت مهمة لـ {0} · مكتوب عليها «من الدكتورة»": "Now a task for {0} · tagged “From supervisor”",
+  "طلباتكم من الفرق ووعودكم لهم بتتجمع هنا": "Your requests to teams and your promises to them will gather here",
+  "طلباتكم من الفريق": "Your requests to the team",
+  "وعودكم للفريق": "Your promises to the team"
 }

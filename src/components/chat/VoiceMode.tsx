@@ -26,7 +26,7 @@ interface Member {
 
 const BARS = 28;
 const KIND_ICON: Record<VoiceKind, typeof Check> = { task: Check, decision: FileText, question: CircleHelp, date: CalendarDays, note: PenLine };
-// أماكن الكروت الطايرة (٪ من الشاشة) — الجوال والديسكتوب، والبعيدة (٣ و٤) مغبّشة 1.2px
+// أماكن الكروت الطايرة (٪ من الشاشة) — الجوال والديسكتوب، والبعيدة (3 و4) مغبّشة 1.2px
 const SLOTS_M = [
   { x: 62, y: 18, r: -9, ry: 0 },
   { x: 2, y: 10, r: 7, ry: 10 },
@@ -79,16 +79,24 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
       cb.current.onOffline({ ...out, path: null, transcript: text, gist: "", items: [] });
       return;
     }
-    // نرفع الملف، ولو التفريغ بالسيرفر مفعّل ناخذ نصه (أدق من كتابة المتصفح)
-    const path = out.blob.size ? await uploadVoice(teamId, out.blob) : null;
-    if (path) text = (await transcribeServer(path)) || text;
-    const ex = text ? await extractVoice(text) : null;
+    // الكلام انكتب حي (ElevenLabs/المتصفح): نرفع الملف ونطلّع المهام بنفس الوقت — أسرع.
+    // ما انكتب شي: نرفع ونفرّغ بالسيرفر أول.
+    const upload = out.blob.size ? uploadVoice(teamId, out.blob) : Promise.resolve(null);
+    let path: string | null;
+    let ex: Awaited<ReturnType<typeof extractVoice>> = null;
+    if (text) {
+      [path, ex] = await Promise.all([upload, extractVoice(text)]);
+    } else {
+      path = await upload;
+      if (path) text = (await transcribeServer(path)) || text;
+      ex = text ? await extractVoice(text) : null;
+    }
     if (ex) {
       gist = ex.gist;
       found = ex.items;
     }
-    // «نرتّب كلامك…» ثانيتين على الأقل عشان ما تومض الشاشة
-    const wait = 1600 - (Date.now() - t0);
+    // «نرتّب كلامك…» لحظة قصيرة بس عشان ما تومض الشاشة
+    const wait = 600 - (Date.now() - t0);
     if (wait > 0) await new Promise((res) => setTimeout(res, wait));
     setItems(found);
     setResult({ blob: out.blob, path, duration: out.duration, peaks: out.peaks, transcript: text, gist, items: found });
@@ -100,7 +108,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
     setPhase("starting");
     const r = new VoiceRecorder({
       onLevel: (lv) => {
-        // نحدّث الأعمدة ~١٢ مرة بالثانية من مستوى الصوت الحقيقي
+        // نحدّث الأعمدة ~12 مرة بالثانية من مستوى الصوت الحقيقي
         const now = performance.now();
         if (now - lastLevel.current < 80) return;
         lastLevel.current = now;
@@ -134,7 +142,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // العدّاد + استخراج المهام كل ~٥ ثواني على النص المتراكم
+  // العدّاد + استخراج المهام كل ~5 ثواني على النص المتراكم
   useEffect(() => {
     if (phase !== "listening" && phase !== "paused") return;
     const t = setInterval(() => {

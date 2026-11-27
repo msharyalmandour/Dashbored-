@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import clsx from "clsx";
-import { CalendarCheck, CalendarClock, CalendarX, Check, Clock, Loader2, MessageCircle, Send, Trash2 } from "lucide-react";
+import { CalendarCheck, CalendarClock, CalendarX, Check, Clock, MessageCircle, Send, Trash2 } from "lucide-react";
 import LoadingButton from "../ui/LoadingButton";
 import { glassCard, gradientPill, pillField } from "../ui/researchUi";
 import EmptyState from "../ui/EmptyState";
@@ -22,7 +23,7 @@ interface AppointmentsTabProps {
 }
 
 const STATUS: Record<MeetingBookingRow["status"], { label: string; cls: string; icon: typeof Clock }> = {
-  confirmed: { label: tr("مؤكد"), cls: "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]", icon: CalendarCheck },
+  confirmed: { label: tr("مؤكد"), cls: "border-[#FFC777]/40 bg-[#FFC777]/10 text-[#FFC777]", icon: CalendarCheck },
   pending: { label: tr("بانتظار تأكيد المشرف/ة"), cls: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]", icon: Clock },
   declined: { label: tr("اعتذرت، اقترحوا غيره"), cls: "border-rose-400/40 bg-rose-500/10 text-rose-300", icon: CalendarX },
   cancelled: { label: tr("ملغي"), cls: "border-white/15 bg-white/[0.04] text-[#B8ADA2]", icon: CalendarX },
@@ -81,7 +82,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
           </div>
 
           {days.length === 0 ? (
-            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm text-[#B8ADA2]">{tr("ما فيه أوقات متاحة خلال ٣ أسابيع. أرسلوا لها واتساب تفتح أوقاتًا جديدة.")}</p>
+            <p className="rounded-2xl bg-white/[0.04] px-4 py-3 text-sm text-[#B8ADA2]">{tr("ما فيه أوقات متاحة خلال 3 أسابيع. أرسلوا لها واتساب تفتح أوقاتًا جديدة.")}</p>
           ) : (
             <>
               <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist" aria-label={tr("الأيام المتاحة")}>
@@ -100,7 +101,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     )}
                   >
                     <span className="block text-xs font-extrabold">{formatDateShort(d.date)}</span>
-                    <span className="block text-[11px] opacity-70">{relativeDayLabel(d.date)}</span>
+                    <span className="block text-[12px] opacity-70">{relativeDayLabel(d.date)}</span>
                   </button>
                 ))}
               </div>
@@ -151,7 +152,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
               <div className="flex flex-wrap gap-2">
                 <input type="date" min={today} value={manualDate} onChange={(e) => setManualDate(e.target.value)} aria-label={tr("تاريخ الاقتراح")} className={clsx(pillField, "!w-auto")} />
                 <input type="time" value={manualTime} onChange={(e) => setManualTime(e.target.value)} aria-label={tr("وقت الاقتراح")} className={clsx(pillField, "!w-auto")} />
-                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />)}</button>
+                <button onClick={() => manualDate && book(manualDate, manualTime)} disabled={busy || !manualDate} className="flex items-center gap-2 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-50">{trx("{0}اقترحوا الموعد", busy ? <WSpin size={14} /> : <Send size={14} />)}</button>
               </div>
               {error && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{error}</p>}
             </div>
@@ -184,7 +185,7 @@ export default function AppointmentsTab({ availability, bookings, supervisorUrl,
                     {b.supervisorNote && <p className="mt-1 text-xs text-[#E6DBD1]">{trx("ملاحظة المشرف/ة: {0}", b.supervisorNote)}</p>}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold ${st.cls}`}>
+                    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[12px] font-bold ${st.cls}`}>
                       <Icon size={12} />
                       {st.label}
                     </span>

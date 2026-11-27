@@ -18,7 +18,7 @@
 }
 /* ظل داخلي على الأطراف */
 .ws-write .ws-paper-layer::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 80px rgba(120, 80, 30, .22); }
-/* خط الهامش الأحمر الباهت: ٤٠px من بداية السطر */
+/* خط الهامش الأحمر الباهت: 40px من بداية السطر */
 .ws-write .ws-paper-margin { position: absolute; top: 0; bottom: 0; inset-inline-start: 40px; width: 1px; background: var(--ws-paper-margin); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
 .ws-write > .ws-paper-content { position: relative; }
 .ws-paper-only { display: none; }

@@ -1,14 +1,11 @@
-import { useState } from "react";
 import clsx from "clsx";
-import { Menu, Search, Volume2, VolumeX } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Avatar from "./ui/Avatar";
-import ThemeSwitcher from "./ThemeSwitcher";
 import PresenceStack from "./PresenceStack";
 import NotificationsBell from "./NotificationsBell";
 import SubscriptionBadge from "./SubscriptionBadge";
-import { isSoundEnabled, setSoundEnabled } from "../lib/sound";
-import LangToggle from "./ui/LangToggle";
+import { PageHelpButton } from "./help/PageHelp";
 import { tr } from "../lib/i18n";
 
 export default function Header({
@@ -28,10 +25,9 @@ export default function Header({
   homeMode?: boolean;
 }) {
   const { currentUser } = useAuth();
-  const [soundOn, setSoundOn] = useState(isSoundEnabled);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-amber-accent-400/20 bg-paper/45 px-4 py-4 backdrop-blur-2xl backdrop-saturate-150 print:hidden sm:gap-4 sm:px-8">
+    <header className="sticky top-0 z-10 flex md:hidden items-center justify-between gap-3 border-b border-amber-accent-400/20 bg-paper/45 px-4 py-4 backdrop-blur-2xl backdrop-saturate-150 print:hidden sm:gap-4 sm:px-8">
       <div className="flex min-w-0 items-center gap-2">
         <button
           onClick={onMenuClick}
@@ -40,7 +36,7 @@ export default function Header({
         >
           <Menu size={18} />
         </button>
-        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden", hideTitle && "hidden")}>{title}</p>
+        <p className={clsx("font-display truncate text-lg font-bold text-brand-950 sm:text-xl", hideTitleOnDesktop && "md:hidden", (hideTitle || !title) && "hidden")}>{title}</p>
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
@@ -59,22 +55,8 @@ export default function Header({
 
         <SubscriptionBadge />
 
-        <button
-          onClick={() => {
-            const next = !soundOn;
-            setSoundEnabled(next);
-            setSoundOn(next);
-          }}
-          title={soundOn ? tr("إيقاف أصوات التفاعل") : tr("تشغيل أصوات التفاعل")}
-          className="rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted"
-        >
-          {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
-        </button>
-
-        <LangToggle />
-
-        <ThemeSwitcher />
-
+        {/* الألوان واللغة والأصوات بقائمة الحساب (تحت القائمة الجانبية) — الرأس يبقى خفيف */}
+        <PageHelpButton />
         <div className={clsx(homeMode && "md:hidden")}>
           <NotificationsBell />
         </div>

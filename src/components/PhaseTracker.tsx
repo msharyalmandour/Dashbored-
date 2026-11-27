@@ -21,7 +21,7 @@ export default function PhaseTracker({ stages }: { stages: PhaseTrackerStage[] }
                 stage.status === "done" &&
                   "border-brand-500 bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-[0_0_12px_-1px_rgba(255,106,0,0.55)]",
                 stage.status === "active" &&
-                  "border-brand-500 bg-gradient-to-br from-paper to-brand-50 text-brand-600 [animation:orb-pulse_2.4s_ease-in-out_infinite] motion-reduce:animate-none",
+                  "border-brand-500 bg-gradient-to-br from-paper to-brand-50 text-brand-600 [animation:orb-pulse_2.4s_ease-in-out_3] motion-reduce:animate-none",
                 stage.status === "upcoming" &&
                   "border-brand-100/70 bg-paper text-brand-950/25",
               )}
@@ -45,7 +45,7 @@ export default function PhaseTracker({ stages }: { stages: PhaseTrackerStage[] }
               </p>
               <p
                 className={clsx(
-                  "text-[10px]",
+                  "text-[12px]",
                   stage.status === "upcoming" ? "text-brand-950/25" : "text-brand-950/40",
                 )}
               >

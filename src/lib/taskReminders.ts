@@ -1,4 +1,4 @@
-/** مهام «تذكير: …» (يضيفها الوكيل كمتابعة لمهمة ثانية) ما تنعرض كمهمة لحالها بصفحة «مهامي»:
+/** مهام «تذكير: …» (يضيفها ويسي كمتابعة لمهمة ثانية) ما تنعرض كمهمة لحالها بصفحة «مهامي»:
     تنربط بالمهمة الأصلية من العنوان وتطلع شارة جرس عليها. العرض بس — البيانات نفسها ما تتغير ولا تنحذف. */
 
 export interface ReminderLike {
@@ -48,7 +48,7 @@ export function splitReminders<T extends ReminderLike>(tasks: T[]): SplitReminde
     if (!key) continue;
     const target =
       byNorm.get(key) ??
-      // تطابق جزئي: «تذكير: كتابة الخلفية» مع «كتابة الخلفية والمراجع» — نشترط ٦ حروف على الأقل عشان ما يلتقط كلمة عامة
+      // تطابق جزئي: «تذكير: كتابة الخلفية» مع «كتابة الخلفية والمراجع» — نشترط 6 حروف على الأقل عشان ما يلتقط كلمة عامة
       (key.length >= 6 ? originals.find((o) => norm(o.title).includes(key) || (norm(o.title).length >= 6 && key.includes(norm(o.title)))) : undefined);
     if (!target) continue;
     linked.push(r);

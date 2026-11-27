@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { BellRing, Loader2, Mail } from "lucide-react";
+import { WSpin } from "./brand/WLogo";
+import { BellRing, Mail } from "lucide-react";
 import { errorText, getSupervisorEmailStatus, subscribeSupervisor, type EmailStatus } from "../lib/supervisorEmail";
 import { tr } from "../lib/i18n";
 
@@ -76,7 +77,7 @@ export default function SupervisorEmailCard({ token, onChanged, embedded = false
               className={glass ? "sv-in min-w-0 flex-1" : "min-w-0 flex-1 rounded-xl border border-brand-100 bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-brand-300"}
             />
             <button disabled={busy || !email.trim()} className={glass ? "sv-btn pri" : "flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"}>
-              {busy && <Loader2 size={14} className="animate-spin" />}
+              {busy && <WSpin size={14} />}
               {pending ? tr("أعيدوا إرسال التأكيد") : tr("فعّلوا الإشعارات")}
             </button>
           </form>

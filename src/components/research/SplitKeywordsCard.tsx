@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Check, Loader2, Users } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, Users } from "lucide-react";
 import Card from "../ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import { useTasksData } from "../../hooks/useTasksData";
@@ -53,20 +54,20 @@ export default function SplitKeywordsCard({ terms }: { terms: string[] }) {
         {groups.map((g) => (
           <li key={g.memberId} className="rounded-xl bg-surface-muted px-3 py-2 text-xs">
             <b className="text-brand-950">{g.memberId === currentUser?.id ? tr("{0} (أنت)", nameOf(g.memberId)) : nameOf(g.memberId)}</b>
-            <span dir="ltr" className="mt-0.5 block text-start font-mono text-[11px] text-brand-950/70">
+            <span dir="ltr" className="mt-0.5 block text-start font-mono text-[12px] text-brand-950/70">
               {g.terms.join(" · ")}
             </span>
           </li>
         ))}
       </ul>
       {done !== null ? (
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
           <Check size={15} /> {tr("انفتحت {0} مهام بصفحة مهامي.", done)}
           {error && <span className="text-xs text-rose-600">{tr(" (بعضها ما انحفظ — جرّبوا مرة ثانية)")}</span>}
         </p>
       ) : (
         <button type="button" onClick={create} disabled={busy} className="inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2 text-sm font-bold text-white disabled:opacity-50">
-          {busy && <Loader2 size={14} className="animate-spin" />}
+          {busy && <WSpin size={14} />}
           {tr("وافقوا وأنشئوا المهام")}
         </button>
       )}

@@ -33,7 +33,7 @@ export interface NavSection {
   stages?: StageKey[];
 }
 
-/** القائمة الرئيسية: ٧ أبواب بدل ٢٥ صفحة. كل المسارات القديمة تبقى شغالة (روابط، بحث سريع، إشعارات). */
+/** القائمة الرئيسية: 7 أبواب بدل 25 صفحة. كل المسارات القديمة تبقى شغالة (روابط، بحث سريع، إشعارات). */
 export const journeySections: NavSection[] = [
   {
     id: "search",
@@ -41,8 +41,7 @@ export const journeySections: NavSection[] = [
     icon: Search,
     stages: ["topic", "literature-review"],
     pages: [
-      { to: "/research-search", label: tr("الوكيل") },
-      { to: "/research-search?tab=studies", label: tr("البحث عن دراسات") },
+      { to: "/research-search", label: tr("البحث عن دراسات") },
       { to: "/evidence", label: tr("مكتبة الأدلة") },
       { to: "/literature-review", label: tr("مراجعة الأدبيات") },
     ],
@@ -67,8 +66,6 @@ export const journeySections: NavSection[] = [
       { to: "/collect", label: tr("المحطات") },
       { to: "/study-kit", label: tr("الاستبيانات والموافقات") },
       { to: "/surveys", label: tr("منشئ الاستبيان") },
-      { to: "/tools-library", label: tr("أدوات القياس") },
-      { to: "/fieldwork", label: tr("الميدان") },
       { to: "/stats", label: tr("الإحصاء") },
     ],
   },
@@ -88,7 +85,6 @@ export const workSections: NavSection[] = [
     pages: [
       { to: "/tasks", label: tr("مهامي") },
       { to: "/team", label: tr("الفريق") },
-      { to: "/timeline", label: tr("الجدول الزمني") },
     ],
   },
   {
@@ -97,6 +93,7 @@ export const workSections: NavSection[] = [
     icon: NotebookPen,
     pages: [
       { to: "/meeting-minutes", label: tr("الاجتماعات والقرارات") },
+      { to: "/meet", label: tr("اجتماع فيديو") },
       { to: "/feedback", label: tr("ملاحظات المشرف/ة") },
     ],
   },
@@ -107,6 +104,7 @@ export const workSections: NavSection[] = [
     pages: [
       { to: "/calendar", label: tr("التقويم") },
       { to: "/files", label: tr("الملفات") },
+      { to: "/drive", label: tr("الدرايف") },
     ],
   },
 ];
@@ -120,7 +118,7 @@ export const morePages: { to: string; label: string; icon: LucideIcon; /** مخ�
   { hideInNav: true, to: "/proposal/export", label: tr("تصدير المقترح"), icon: FileDown },
   { hideInNav: true, to: "/glossary", label: tr("قاموس المصطلحات"), icon: BookA },
   { hideInNav: true, to: "/story", label: tr("قصة بحثك"), icon: Flag },
-  { to: "/pricing", label: tr("الباقات والاشتراك"), icon: CreditCard },
+  { to: "/pricing", label: tr("الاشتراك"), icon: CreditCard },
 ];
 
 export const allSections = [...journeySections, ...workSections];

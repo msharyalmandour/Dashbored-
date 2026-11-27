@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Copy, GraduationCap, Lightbulb, Loader2, Presentation, Wand2 } from "lucide-react";
+import { WSpin } from "../components/brand/WLogo";
+import { Check, Copy, GraduationCap, Lightbulb, Presentation, Wand2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import AiLockedCard from "../components/AiLockedCard";
 import { useAuth } from "../context/AuthContext";
@@ -86,14 +87,14 @@ export default function Viva() {
 
       {aiOk && (
         <Card tone="cream" className="space-y-3">
-          <p className="text-sm text-brand-950/70">{tr("الأفضل تكتبون مقترحكم ومنهجيتكم أولًا (كل ما كانوا أوضح كانت الأسئلة أدق). المتاح ٣ جلسات بالشهر لكل فريق.")}</p>
+          <p className="text-sm text-brand-950/70">{tr("الأفضل تكتبون مقترحكم ومنهجيتكم أولًا (كل ما كانوا أوضح كانت الأسئلة أدق). المتاح 3 جلسات بالشهر لكل فريق.")}</p>
           <button
             onClick={generate}
             disabled={busy}
             className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-            {busy ? tr("اللجنة تقرأ مقترحكم... (حوالي ٣٠ ثانية)") : result ? tr("جلسة جديدة") : tr("ابدأوا التدريب")}
+            {busy ? <WSpin size={16} /> : <Wand2 size={16} />}
+            {busy ? tr("اللجنة تقرأ مقترحكم... (حوالي 30 ثانية)") : result ? tr("جلسة جديدة") : tr("ابدأوا التدريب")}
           </button>
           {message && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{message}</p>}
         </Card>
@@ -114,7 +115,7 @@ export default function Viva() {
                 <div className="flex items-start gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-extrabold text-white">{i + 1}</span>
                   <div className="min-w-0 flex-1">
-                    {q.category && <p className="text-[11px] font-bold text-brand-600">{q.category}</p>}
+                    {q.category && <p className="text-[12px] font-bold text-brand-600">{q.category}</p>}
                     <p className="text-sm font-extrabold leading-relaxed text-brand-950">{q.question}</p>
                     {q.why && <p className="mt-1 text-xs text-brand-950/45">{trx("اللجنة تختبر: {0}", q.why)}</p>}
                   </div>
@@ -164,7 +165,7 @@ export default function Viva() {
                       // نسخ يدوي
                     }
                   }}
-                  className="flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:underline"
+                  className="flex items-center gap-1 text-[12px] font-bold text-brand-600 hover:underline"
                 >
                   {copied ? <Check size={12} /> : <Copy size={12} />}
                   {copied ? tr("تم النسخ") : tr("نسخ المخطط")}
@@ -189,7 +190,7 @@ export default function Viva() {
               </ol>
             </Card>
           )}
-          <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-brand-950/40">
+          <p className="flex items-center justify-center gap-1.5 text-center text-[12px] text-brand-950/40">
             <GraduationCap size={13} />{tr("الأسئلة اقتراحات مبنية على مقترحكم، مو أسئلة لجنتكم الفعلية — اسألوا المشرفة عن توقعاتها.")}</p>
         </>
       )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, Copy, ListTree, Loader2, Wand2 } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, Copy, ListTree, Wand2 } from "lucide-react";
 import Card from "../ui/Card";
 import Term from "../Term";
 import SplitKeywordsCard from "./SplitKeywordsCard";
@@ -22,12 +23,12 @@ function CopyBlock({ label, text }: { label: string; text: string }) {
     <div className="rounded-2xl bg-surface-muted p-3">
       <div className="mb-1.5 flex items-center justify-between">
         <p className="text-xs font-extrabold text-brand-950/70">{label}</p>
-        <button onClick={copy} className="flex items-center gap-1 text-[11px] font-bold text-brand-600 hover:underline">
+        <button onClick={copy} className="flex items-center gap-1 text-[12px] font-bold text-brand-600 hover:underline">
           {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? tr("تم النسخ") : tr("نسخ")}
         </button>
       </div>
-      <p dir="ltr" className="break-words text-start font-mono text-[11px] leading-relaxed text-brand-950/75">
+      <p dir="ltr" className="break-words text-start font-mono text-[12px] leading-relaxed text-brand-950/75">
         {text}
       </p>
     </div>
@@ -95,13 +96,13 @@ export default function SearchStrategy() {
             disabled={busy || !topic.trim()}
             className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+            {busy ? <WSpin size={16} /> : <Wand2 size={16} />}
             {busy ? tr("جاري البناء...") : tr("ابنوا الخطة")}
           </button>
         </div>
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />{tr("نجهّز لكم الخطة — ياخذ حوالي ١٠ ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
+            <WSpin size={13} />{tr("نجهّز لكم الخطة — ياخذ حوالي 10 ثواني. تقدرون تتنقلون لقسم ثاني وننبّهكم لما تجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
@@ -115,7 +116,7 @@ export default function SearchStrategy() {
           {pico && (
             <Card>
               <p className="text-sm font-extrabold text-brand-950">{tr("إطار ")}<Term id="pico">PICO</Term></p>
-              <p className="mb-3 text-[11px] text-brand-950/45">{tr("طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.")}</p>
+              <p className="mb-3 text-[12px] text-brand-950/45">{tr("طريقة تقسّمون فيها سؤالكم لأربعة أجزاء عشان يسهل البحث عنه.")}</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(
                   [
@@ -126,7 +127,7 @@ export default function SearchStrategy() {
                   ] as const
                 ).map(([label, value]) => (
                   <div key={label} className="rounded-xl bg-surface-muted p-2.5">
-                    <p className="text-[11px] font-bold text-brand-950/40">{label}</p>
+                    <p className="text-[12px] font-bold text-brand-950/40">{label}</p>
                     <p className="mt-0.5 text-xs text-brand-950/75">{value || "—"}</p>
                   </div>
                 ))}
@@ -140,7 +141,7 @@ export default function SearchStrategy() {
             {strategy.searchStrings?.pubmed && <CopyBlock label="PubMed" text={strategy.searchStrings.pubmed} />}
             {strategy.searchStrings?.cinahl && <CopyBlock label="CINAHL" text={strategy.searchStrings.cinahl} />}
             {strategy.searchStrings?.scopus && <CopyBlock label="Scopus" text={strategy.searchStrings.scopus} />}
-            <p className="text-[11px] text-brand-950/45">{tr("هذي جمل مقترحة من الذكاء الاصطناعي: جرّبوها وعدّلوها حسب عدد النتائج، وتأكدوا من مصطلحات MeSH في MeSH Browser قبل اعتمادها.")}</p>
+            <p className="text-[12px] text-brand-950/45">{tr("هذي جمل مقترحة من الذكاء الاصطناعي: جرّبوها وعدّلوها حسب عدد النتائج، وتأكدوا من مصطلحات MeSH في MeSH Browser قبل اعتمادها.")}</p>
           </Card>
 
           <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { WSpin } from "./brand/WLogo";
 import clsx from "clsx";
-import { Check, ExternalLink, RefreshCw, HardDrive, Loader2, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
+import { Check, ExternalLink, RefreshCw, HardDrive, Mail, ShieldCheck, Unplug, Users } from "lucide-react";
 import { pillField } from "./ui/researchUi";
 import { GoogleDriveLogo, LogoTile } from "./ui/BrandLogos";
 import ThreeDotsMenu from "./ui/ThreeDotsMenu";
@@ -33,7 +34,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
   const connectedRef = useRef(status.connected);
   connectedRef.current = status.connected;
 
-  // بعد ما نفتح نافذة قوقل: نتابع الحالة كل ٣ ثواني (لين ٥ دقايق) ونكمل لحالنا لما يتم الربط
+  // بعد ما نفتح نافذة قوقل: نتابع الحالة كل 3 ثواني (لين 5 دقايق) ونكمل لحالنا لما يتم الربط
   useEffect(() => {
     if (!waiting) return;
     if (status.connected) {
@@ -144,11 +145,11 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         <div className="flex items-center gap-2">
           <span
             className={clsx(
-              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-bold",
-              connected ? "border-[#7fd6a0]/40 bg-[#7fd6a0]/10 text-[#7fd6a0]" : "border-white/15 bg-white/[0.04] text-[#B8ADA2]",
+              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[12px] font-bold",
+              connected ? "border-[#FFC777]/40 bg-[#FFC777]/10 text-[#FFC777]" : "border-white/15 bg-white/[0.04] text-[#B8ADA2]",
             )}
           >
-            <span className={clsx("h-1.5 w-1.5 rounded-full", connected ? "bg-[#7fd6a0] shadow-[0_0_8px] shadow-[#7fd6a0]/80" : "bg-white/30")} />
+            <span className={clsx("h-1.5 w-1.5 rounded-full", connected ? "bg-[#FFC777] shadow-[0_0_8px] shadow-[#FFC777]/80" : "bg-white/30")} />
             {connected ? tr("مربوط") : tr("غير مربوط")}
           </span>
           {connected && status.isLeader && (
@@ -181,7 +182,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
               disabled={busy === "connect"}
               className="flex w-full items-center justify-center gap-2.5 rounded-full bg-[#F6F1EC] px-6 py-3.5 text-sm font-bold text-[#1A0F00] shadow-[0_12px_32px_rgba(0,0,0,.35)] transition hover:brightness-95 disabled:opacity-60"
             >
-              {busy === "connect" ? <Loader2 size={16} className="animate-spin" /> : <GoogleDriveLogo size={20} />}
+              {busy === "connect" ? <WSpin size={16} /> : <GoogleDriveLogo size={20} />}
               {waiting ? tr("ننتظر موافقتكم بقوقل…") : tr("اربطوا Google Drive")}
             </button>
           ) : (
@@ -192,7 +193,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.04] p-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("مربوط بحساب")}</p>
+              <p className="text-[12px] font-bold text-[#B8ADA2]">{tr("مربوط بحساب")}</p>
               <p dir="ltr" className="truncate text-start text-sm font-bold">{status.googleEmail}</p>
               {status.connectedByName && <p className="mt-0.5 text-xs text-[#B8ADA2]">{trx("ربطه {0}", status.connectedByName)}</p>}
             </div>
@@ -224,7 +225,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
                   onClick={share}
                   disabled={busy === "share"}
                   className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-5 py-2.5 text-sm font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50"
-                >{trx("{0}شاركوا الآن", busy === "share" ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />)}</button>
+                >{trx("{0}شاركوا الآن", busy === "share" ? <WSpin size={14} /> : <Check size={14} />)}</button>
               </div>
             </div>
           )}
@@ -233,7 +234,7 @@ export default function DriveCard({ status, onChanged }: DriveCardProps) {
 
       {waiting && (
         <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-[#FF6B00]/10 px-4 py-3 text-sm">
-          <Loader2 size={14} className="animate-spin" />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">{tr("إلغاء")}</button>
+          <WSpin size={14} />{tr("أكملوا الموافقة بنافذة قوقل، وهنا يتحدّث الربط لحاله. لو ما انفتحت نافذة، اسمحوا بالنوافذ المنبثقة وجرّبوا مرة ثانية.")}<button onClick={cancelWaiting} className="font-bold text-[#FFB444] underline underline-offset-2">{tr("إلغاء")}</button>
         </p>
       )}
       {msg && <p role="alert" className="rounded-2xl bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-300">{msg}</p>}

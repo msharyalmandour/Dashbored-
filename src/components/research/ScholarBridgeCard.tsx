@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Check, ExternalLink, Loader2, Plus } from "lucide-react";
+import { WSpin } from "../brand/WLogo";
+import { Check, ExternalLink, Plus } from "lucide-react";
 import Card from "../ui/Card";
 import { useAuth } from "../../context/AuthContext";
 import { useEvidencePapers } from "../../hooks/useEvidencePapers";
@@ -8,7 +9,7 @@ import { useTeamRoster } from "../../hooks/useTeamRoster";
 import { SEARCH_DATABASES, extractDois, extractTitleLines, resolveDoi, resolveTitle, scholarUrl, type ResolvedPaper } from "../../lib/scholarBridge";
 import { tr } from "../../lib/i18n";
 
-/** جسر قوقل سكولار: ما نقدر نبحث فيه من الموقع، لكن نفتحه لكم جاهز، نسجّل وش بحثتوا (والوكيل يعرفه)،
+/** جسر قوقل سكولار: ما نقدر نبحث فيه من الموقع، لكن نفتحه لكم جاهز، نسجّل وش بحثتوا (وويسي يعرفه)،
     وأي DOI أو عنوان تلصقونه يتحول لدراسة كاملة تنضاف للمكتبة. */
 export default function ScholarBridgeCard({ suggestions }: { suggestions: string[] }) {
   const { currentUser, canWrite } = useAuth();
@@ -91,15 +92,15 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
     <Card className="space-y-4" data-agent="scholar-bridge">
       <div>
         <p className="text-sm font-extrabold text-brand-950">{tr("قوقل سكولار — ابحثوا وسجّلوا هنا")}</p>
-        <p className="mt-0.5 text-xs text-brand-950/55">{tr("قوقل ما يسمح بالبحث فيه من موقعنا، فنفتحه لكم جاهز بجملة البحث. بعد ما تبحثون: سجّلوا كم طلع وكم اخترتم (الوكيل يشوف سجلكم)، وألصقوا DOI أو عناوين الدراسات المختارة ونضيفها لمكتبتكم.")}</p>
+        <p className="mt-0.5 text-xs text-brand-950/55">{tr("قوقل ما يسمح بالبحث فيه من موقعنا، فنفتحه لكم جاهز بجملة البحث. بعد ما تبحثون: سجّلوا كم طلع وكم اخترتم (ويسي يشوف سجلكم)، وألصقوا DOI أو عناوين الدراسات المختارة ونضيفها لمكتبتكم.")}</p>
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-brand-950/70">{tr("١) جملة البحث")}</p>
+        <p className="text-xs font-bold text-brand-950/70">{tr("1) جملة البحث")}</p>
         {chips.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {chips.map((c) => (
-              <button key={c} type="button" onClick={() => setQuery(c)} className="max-w-full truncate rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold text-brand-800 hover:bg-surface-muted" dir="ltr" title={c}>
+              <button key={c} type="button" onClick={() => setQuery(c)} className="max-w-full truncate rounded-full border border-brand-200 px-3 py-1 text-[12px] font-semibold text-brand-800 hover:bg-surface-muted" dir="ltr" title={c}>
                 {c}
               </button>
             ))}
@@ -113,12 +114,12 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           aria-disabled={!query.trim()}
           className="inline-flex items-center gap-1.5 rounded-full bg-brand-500 px-4 py-2 text-xs font-bold text-white aria-disabled:pointer-events-none aria-disabled:opacity-40"
         >
-          <ExternalLink size={13} /> {tr("افتحوه بقوقل سكولار (من ٢٠١٥)")}
+          <ExternalLink size={13} /> {tr("افتحوه بقوقل سكولار (من 2015)")}
         </a>
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-brand-950/70">{tr("٢) سجّلوا بحثكم")}</p>
+        <p className="text-xs font-bold text-brand-950/70">{tr("2) سجّلوا بحثكم")}</p>
         <div className="grid grid-cols-3 gap-2">
           <select value={db} onChange={(e) => setDb(e.target.value)} className={field} aria-label={tr("القاعدة")}>
             {SEARCH_DATABASES.map((d) => (
@@ -135,7 +136,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           {logMsg && <span className="text-xs text-brand-950/60">{logMsg}</span>}
         </div>
         {rows.length > 0 && (
-          <ul className="space-y-1 text-[11px] text-brand-950/60">
+          <ul className="space-y-1 text-[12px] text-brand-950/60">
             {rows.slice(0, 5).map((r) => (
               <li key={r.id} className="truncate">
                 <b className="text-brand-950/80">{r.database}</b> · {r.results ?? "؟"} → {r.selected ?? "؟"} · {nameOf(r.by)} · <span dir="ltr">{r.query}</span>
@@ -146,11 +147,11 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-bold text-brand-950/70">{tr("٣) ألصقوا الدراسات اللي اخترتوها")}</p>
+        <p className="text-xs font-bold text-brand-950/70">{tr("3) ألصقوا الدراسات اللي اخترتوها")}</p>
         <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} rows={4} dir="ltr" className={field} placeholder={"https://doi.org/10.1016/j.ijnurstu.2019.103456\nKnowledge and practice of nurses toward early delirium detection"} />
-        <p className="text-[11px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى ١٠).")}</p>
+        <p className="text-[12px] text-brand-950/45">{tr("من نتيجة قوقل سكولار: افتحوا الدراسة وانسخوا رابطها أو DOI، أو انسخوا عنوانها. سطر لكل دراسة (حتى 10).")}</p>
         <button type="button" onClick={convert} disabled={busy || pasted.trim().length < 10} className="inline-flex items-center gap-1.5 rounded-full border border-brand-300 px-4 py-1.5 text-xs font-bold text-brand-800 hover:bg-surface-muted disabled:opacity-50">
-          {busy && <Loader2 size={13} className="animate-spin" />}
+          {busy && <WSpin size={13} />}
           {tr("تعرّف عليها")}
         </button>
         {note && <p className="text-xs text-brand-950/60">{note}</p>}
@@ -175,7 +176,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           </div>
         )}
         {saved !== null && (
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
             <Check size={15} /> {tr("انضافت {0} دراسة لمكتبتكم. كمّلوا بياناتها (العينة، الهدف…) برفع الورقة أو يدويًا.", saved)}
           </p>
         )}

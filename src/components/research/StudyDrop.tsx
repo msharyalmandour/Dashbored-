@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
-import { Check, FileUp, Loader2, PenLine, RotateCcw, Upload, X } from "lucide-react";
+import { Check, Download, RotateCcw, Upload, X } from "lucide-react";
+import Vessel from "../drop/Vessel";
 import clsx from "clsx";
 import { readPaperFiles, type PaperReading } from "../../hooks/useProjectAgent";
 import type { NewEvidencePaper } from "../../hooks/useEvidencePapers";
@@ -8,7 +10,7 @@ import type { EvidencePaper } from "../../data/types";
 import { sectionLabelAr } from "./sectionLabelAr";
 import { tr } from "../../lib/i18n";
 
-/* «ارموا الدراسة»: ترمون PDF (أو صور صفحاتها) بأي مكان بمكتبة الأدلة، الوكيل يقراها،
+/* «ارموا الدراسة»: ترمون PDF (أو صور صفحاتها) بأي مكان بمكتبة الأدلة، ويسي يقراها،
    وتنضاف على طول للمكتبة وجدول الأدبيات بكل خاناتها (الدولة، الهدف، التصميم، العينة، جمع البيانات، النتيجة، الصلة).
    كذا ملف PDF مرة وحدة = كذا دراسة بالدور. الصور كلها مع بعض = دراسة وحدة (صفحاتها). وفيه «تراجع» لكل وحدة. */
 
@@ -188,14 +190,18 @@ export function StudyDropCard({
   onFiles,
   onUndo,
   onDismiss,
-  onManual,
+  onImport,
   pickRef,
+  hero,
 }: {
   items: DropItem[];
   onFiles: (f: FileList | null) => void;
   onUndo: (it: DropItem) => void;
   onDismiss: (key: string) => void;
-  onManual: () => void;
+  /** «استيراد Zotero»: يفتح الاستيراد (BibTeX/RIS) والكتابة اليدوية بشيت */
+  onImport: () => void;
+  /** المكتبة فاضية: الهيرو الكبير (LibEmpty) بدل الشريط */
+  hero?: boolean;
   /** زر «أضف دراسة» فوق يفتح نفس اختيار الملفات */
   pickRef?: React.MutableRefObject<(() => void) | null>;
 }) {
@@ -208,7 +214,7 @@ export function StudyDropCard({
   return (
     <section className="sd-card" aria-labelledby="sd-h">
       <div
-        className={clsx("sd-zone", hot && "hot")}
+        className={clsx("sd-zone", hot && "hot", hero && "sd-hero")}
         onDragOver={(e) => {
           e.preventDefault();
           setHot(true);
@@ -221,22 +227,23 @@ export function StudyDropCard({
           onFiles(e.dataTransfer.files);
         }}
       >
-        <span className="sd-ic" aria-hidden>
-          <FileUp size={22} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h2 id="sd-h" className="m-0 text-[17px] font-extrabold text-[#F2EBE3]">
-            {tr("ارموا الدراسة هنا")}
-          </h2>
-          <p className="m-0 mt-1 text-[14px] leading-relaxed text-[#E9D3B8]">{tr("PDF أو صور صفحاتها. نقراها ونحطها بالمكتبة وجدول الأدبيات بكل تفاصيلها. تقدرون ترمون كذا ملف مرة وحدة.")}</p>
+        {/* LibLux: شريط 120px — وعاء 140، سطرين، «استيراد Zotero» زجاج و«اختاروا PDF» البرتقالي الوحيد */}
+        <div className="sd-vessel" aria-hidden>
+          <Vessel size={hero ? 320 : 140} state="hover" />
         </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <button type="button" className="sd-pick" onClick={() => inputRef.current?.click()}>
-            {tr("اختاروا ملف")}
+        <div className={clsx("min-w-0", hero ? "text-center" : "flex-1")}>
+          <h2 id="sd-h" className={clsx("m-0 font-extrabold text-[#F2EBE3]", hero ? "sd-hero-h" : "text-[24px]")}>
+            {hero ? tr("ارموا دراساتكم") : tr("ارموا الدراسة هنا")}
+          </h2>
+          <p className={clsx("m-0 mt-1 text-[#E9D3B8]", hero ? "text-[18px]" : "text-[15px]")}>{tr("ونعبّي الجدول لحاله")}</p>
+        </div>
+        <div className={clsx("flex shrink-0 flex-wrap items-center gap-2.5", hero && "justify-center")}>
+          <button type="button" className="sdz-glass" onClick={onImport}>
+            {tr("استيراد Zotero")}
           </button>
-          <button type="button" className="sd-manual" onClick={onManual}>
-            <PenLine size={15} aria-hidden />
-            {tr("أو اكتبوها يدوي")}
+          <button type="button" className="sd-pick" onClick={() => inputRef.current?.click()}>
+            <Download size={18} aria-hidden />
+            {tr("اختاروا PDF")}
           </button>
         </div>
         <input
@@ -260,7 +267,7 @@ export function StudyDropCard({
             return (
               <li key={it.key} className={clsx("sd-item", it.status)}>
                 <span className="sd-dot" aria-hidden>
-                  {it.status === "reading" || it.status === "saving" ? <Loader2 size={16} className="animate-spin" /> : it.status === "added" ? <Check size={16} strokeWidth={3} /> : it.status === "removed" ? <RotateCcw size={15} /> : <X size={15} />}
+                  {it.status === "reading" || it.status === "saving" ? <WSpin size={16} /> : it.status === "added" ? <Check size={16} strokeWidth={3} /> : it.status === "removed" ? <RotateCcw size={15} /> : <X size={15} />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="sd-title" dir="auto">

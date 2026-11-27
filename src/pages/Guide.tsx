@@ -166,24 +166,24 @@ export default function Guide() {
           {isLeader ? (
             <ol className="space-y-3 text-sm text-brand-950/70">
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("١.")}</span>{tr("افتح صفحة ")}<b>{tr("مهامي")}</b>{tr(" من القائمة الجانبية.")}</li>
+                <span className="font-bold text-brand-600">{tr("1.")}</span>{tr("افتح صفحة ")}<b>{tr("مهامي")}</b>{tr(" من القائمة الجانبية.")}</li>
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("٢.")}</span>{tr("اضغط زر ")}<b>{tr("«إسناد مهمة جديدة»")}</b>{tr(" أعلى الصفحة (يظهر لك فقط بصفتك قائدة الفريق).")}</li>
+                <span className="font-bold text-brand-600">{tr("2.")}</span>{tr("اضغط زر ")}<b>{tr("«إسناد مهمة جديدة»")}</b>{tr(" أعلى الصفحة (يظهر لك فقط بصفتك قائدة الفريق).")}</li>
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("٣.")}</span>{tr("اكتب عنوان المهمة ووصفها، واختر الباحث المسؤول وتاريخ التسليم والأولوية.")}</li>
+                <span className="font-bold text-brand-600">{tr("3.")}</span>{tr("اكتب عنوان المهمة ووصفها، واختر الباحث المسؤول وتاريخ التسليم والأولوية.")}</li>
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("٤.")}</span>{tr("اضغط ")}<b>{tr("«إسناد المهمة»")}</b>{tr(" — المهمة تظهر فورًا في قائمة الباحث وفي «مهامي القادمة» بالرئيسية.")}</li>
+                <span className="font-bold text-brand-600">{tr("4.")}</span>{tr("اضغط ")}<b>{tr("«إسناد المهمة»")}</b>{tr(" — المهمة تظهر فورًا في قائمة الباحث وفي «مهامي القادمة» بالرئيسية.")}</li>
             </ol>
           ) : (
             <ol className="space-y-3 text-sm text-brand-950/70">
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("١.")}</span>{tr("افتح صفحة ")}<b>{tr("مهامي")}</b>{tr(" واضغط تبويب ")}<b>{tr("«مهامي»")}</b>{tr(" عشان تشوف اللي مسندة لك بس.")}</li>
+                <span className="font-bold text-brand-600">{tr("1.")}</span>{tr("افتح صفحة ")}<b>{tr("مهامي")}</b>{tr(" واضغط تبويب ")}<b>{tr("«مهامي»")}</b>{tr(" عشان تشوف اللي مسندة لك بس.")}</li>
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("٢.")}</span>{tr("راجع تاريخ التسليم والأولوية — المهام المتأخرة تظهر باللون الأحمر.")}</li>
+                <span className="font-bold text-brand-600">{tr("2.")}</span>{tr("راجع تاريخ التسليم والأولوية — المهام المتأخرة تظهر باللون الأحمر.")}</li>
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("٣.")}</span>{tr("لما تخلّص المهمة أخبر قائدة الفريق حتى تحدّث حالتها إلى «مكتملة».")}</li>
+                <span className="font-bold text-brand-600">{tr("3.")}</span>{tr("لما تخلّص المهمة أخبر قائدة الفريق حتى تحدّث حالتها إلى «مكتملة».")}</li>
               <li className="flex gap-2">
-                <span className="font-bold text-brand-600">{tr("٤.")}</span>{tr("تقدر تشوف تقدمك العام في صفحة ")}<b>{tr("الفريق")}</b>.
+                <span className="font-bold text-brand-600">{tr("4.")}</span>{tr("تقدر تشوف تقدمك العام في صفحة ")}<b>{tr("الفريق")}</b>.
               </li>
             </ol>
           )}

@@ -19,7 +19,7 @@ import { ACESFilmicToneMapping, AdditiveBlending, DoubleSide, SRGBColorSpace } f
 import { Sprite } from "three/src/objects/Sprite.js";
 import { SpriteMaterial } from "three/src/materials/SpriteMaterial.js";
 
-/** قارئ GLB صغير لهذا الملف بالذات (٣ أجزاء: مواقع + فهارس، بدون نسيج ولا حركة) — بدل GLTFLoader الكامل */
+/** قارئ GLB صغير لهذا الملف بالذات (3 أجزاء: مواقع + فهارس، بدون نسيج ولا حركة) — بدل GLTFLoader الكامل */
 async function loadVesselGlb(url: string): Promise<{ name: string; geometry: BufferGeometry }[]> {
   const buf = await (await fetch(url)).arrayBuffer();
   const dv = new DataView(buf);
@@ -294,7 +294,7 @@ export class VesselScene {
     if (this.disposed) return;
     const raw = now - this.last;
     const dt = Math.min(0.05, raw / 1000);
-    // نقيس أول ٣٠ إطار وهو يرسم بشكل متواصل؛ لو المتوسط فوق ٥٠ms نوقف الـ 3D
+    // نقيس أول 30 إطار وهو يرسم بشكل متواصل؛ لو المتوسط فوق 50ms نوقف الـ 3D
     if (this.onSlow && raw > 0 && raw < 1000) {
       this.slowSamples.push(raw);
       if (this.slowSamples.length === 30) {
@@ -306,7 +306,7 @@ export class VesselScene {
       }
     }
     this.last = now;
-    // يقرا: ٣ نبضات .6 ↔ 1 (٠٫٨ث لكل نبضة) وبعدها يثبت على .8
+    // يقرا: 3 نبضات .6 ↔ 1 (0٫8ث لكل نبضة) وبعدها يثبت على .8
     let target = this.target;
     let pulsing = false;
     if (this.state === "reading") {

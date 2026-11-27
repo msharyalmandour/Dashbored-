@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import clsx from "clsx";
-import { CalendarClock, Check, Loader2, MapPin, Users2, Flag, ClipboardCheck, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Check, MapPin, Users2, Flag, ClipboardCheck, Plus, Trash2, X } from "lucide-react";
 import { HighlightCard, PageColumns, PageHeader, Panel, primaryBtn, rowSurface } from "../components/ui/page";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
@@ -26,7 +27,7 @@ const typeIcon: Record<CalendarEventType, typeof Users2> = {
 
 const typeColor: Record<CalendarEventType, string> = {
   meeting: "bg-brand-500/15 text-amber-accent-400",
-  review: "bg-[#7fd6a0]/15 text-[#7fd6a0]",
+  review: "bg-[#FFC777]/15 text-[#FFC777]",
   fieldwork: "bg-amber-accent-400/15 text-amber-accent-400",
   deadline: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
 };
@@ -171,7 +172,7 @@ export default function CalendarPage() {
             onClick={handleAdd}
             disabled={saving || !form.title.trim()}
             className={clsx(primaryBtn, "mt-4")}
-          >{trx("{0}إضافة", saving && <Loader2 size={15} className="animate-spin" />)}</button>
+          >{trx("{0}إضافة", saving && <WSpin size={15} />)}</button>
           <p className="mt-3 text-xs text-brand-950/40">
             {isSupabaseConfigured
               ? tr("الموعد يظهر لكل أعضاء الفريق وبالرئيسية، ويتحدّث مباشرة.")

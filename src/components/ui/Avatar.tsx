@@ -99,7 +99,7 @@ export default function Avatar({ initials, color = "brand", size = "md", name, a
         {online && (
           <span
             className="absolute rounded-full"
-            style={{ width: dot, height: dot, bottom: -1, insetInlineEnd: -1, background: "#7FE0A6", boxShadow: `0 0 0 2px ${ring}` }}
+            style={{ width: dot, height: dot, bottom: -1, insetInlineEnd: -1, background: "#FFC777", boxShadow: `0 0 0 2px ${ring}` }}
           />
         )}
       </span>

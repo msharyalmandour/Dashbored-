@@ -39,7 +39,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 const mockItems: FeedbackItem[] = [
   { id: "m1", comment: tr("وضّحوا معايير الاشتمال والاستبعاد بشكل أدق"), sectionKey: "methodology", status: "open", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: null },
-  { id: "m2", comment: tr("أضيفوا ٣ دراسات سعودية حديثة لمراجعة الأدبيات"), sectionKey: "literature-review", status: "done", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: today() },
+  { id: "m2", comment: tr("أضيفوا 3 دراسات سعودية حديثة لمراجعة الأدبيات"), sectionKey: "literature-review", status: "done", assigneeId: null, feedbackDate: today(), createdAt: today(), resolvedAt: today() },
 ];
 
 /** ملاحظات المشرف كقائمة مهام صغيرة يتتبعها الفريق. وضع العرض التجريبي: بيانات محلية بالذاكرة. */
@@ -72,11 +72,12 @@ export function useSupervisorFeedback() {
     projectId: string | null,
   ) => {
     const clean = list.map((i) => ({ ...i, comment: i.comment.trim() })).filter((i) => i.comment);
-    if (clean.length === 0) return { error: undefined as string | undefined };
+    if (clean.length === 0) return { error: undefined as string | undefined, ids: [] as string[] };
     if (!isSupabaseConfigured) {
+      const stamp = Date.now();
       setItems((prev) => [
         ...clean.map((i, k) => ({
-          id: `local-${Date.now()}-${k}`,
+          id: `local-${stamp}-${k}`,
           comment: i.comment,
           sectionKey: i.sectionKey,
           status: "open" as const,
@@ -87,20 +88,23 @@ export function useSupervisorFeedback() {
         })),
         ...prev,
       ]);
-      return { error: undefined as string | undefined };
+      return { error: undefined as string | undefined, ids: clean.map((_, k) => `local-${stamp}-${k}`) };
     }
-    if (!projectId) return { error: tr("ما فيه مشروع بحثي للفريق") };
-    const { error } = await supabase!.from("supervisor_feedback").insert(
-      clean.map((i) => ({
-        research_project_id: projectId,
-        comment: i.comment,
-        section_key: i.sectionKey,
-        assignee_id: i.assigneeId ?? null,
-        created_by: createdById,
-      })),
-    );
+    if (!projectId) return { error: tr("ما فيه مشروع بحثي للفريق"), ids: [] as string[] };
+    const { data, error } = await supabase!
+      .from("supervisor_feedback")
+      .insert(
+        clean.map((i) => ({
+          research_project_id: projectId,
+          comment: i.comment,
+          section_key: i.sectionKey,
+          assignee_id: i.assigneeId ?? null,
+          created_by: createdById,
+        })),
+      )
+      .select("id");
     if (!error) await load();
-    return { error: error?.message };
+    return { error: error?.message, ids: ((data ?? []) as { id: string }[]).map((r) => r.id) };
   };
 
   const patch = async (id: string, updates: Partial<Pick<FeedbackItem, "status" | "assigneeId" | "comment">>) => {

@@ -12,8 +12,8 @@ import { isSupabaseConfigured } from "../../lib/supabaseClient";
 import { num } from "../v3/WriteHeader";
 import { tr } from "../../lib/i18n";
 
-/* إشعارات الرئيسية: تنزل وحدة ورا الثانية بوسط الشاشة، كل وحدة ٥ ثواني.
-   ١) رسالة المشرفة الجديدة  ٢) ربط Google Drive (لو مو مربوط)  ٣) تذكيرات الإيميل (لو مطفية)
+/* إشعارات الرئيسية: تنزل وحدة ورا الثانية بوسط الشاشة، كل وحدة 5 ثواني.
+   1) رسالة المشرفة الجديدة  2) ربط Google Drive (لو مو مربوط)  3) تذكيرات الإيميل (لو مطفية)
    - مرة وحدة بكل جلسة. اللي يقفله المستخدم ما يرجع إلا بتحديث جديد (رسالة جديدة).
    - الماوس فوق الإشعار يوقف العدّاد، والضغط عليه يثبّته لين يقفله.
    - إشعار التفعيل يختفي نهائيًا بعد ما يتفعّل (لأن شرطه ما يعود يتحقق). */
@@ -81,7 +81,7 @@ export default function HomeToasts() {
 
   const latest = useMemo(() => [...messages].reverse().find((m) => m.sender === "supervisor") ?? null, [messages]);
 
-  // ── نبني الطابور مرة وحدة بعد ما توصل البيانات (أو بعد ٣ ثواني كحد أقصى) ──
+  // ── نبني الطابور مرة وحدة بعد ما توصل البيانات (أو بعد 3 ثواني كحد أقصى) ──
   const [queue, setQueue] = useState<ToastItem[] | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -140,7 +140,7 @@ export default function HomeToasts() {
     }, 400);
   }, []);
 
-  // عمر الإشعار: ٥ ثواني، يوقف مع الماوس أو بعد الضغط
+  // عمر الإشعار: 5 ثواني، يوقف مع الماوس أو بعد الضغط
   useEffect(() => {
     if (!current || leaving || paused || pinned) return;
     startedAt.current = Date.now();
@@ -179,7 +179,7 @@ export default function HomeToasts() {
     setDriveState("error");
     setDriveMsg(driveErrorMessage(r.error));
   };
-  // نتابع حالة الربط كل ٣ ثواني لين ينربط أو تنقفل نافذة قوقل
+  // نتابع حالة الربط كل 3 ثواني لين ينربط أو تنقفل نافذة قوقل
   useEffect(() => {
     if (driveState !== "connecting" || demo) return;
     const started = Date.now();
@@ -325,7 +325,7 @@ export default function HomeToasts() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-[84px] z-[45] flex justify-center px-4" role="region" aria-label={tr("إشعارات")}>
+    <div className="pointer-events-none fixed inset-x-0 top-[64px] z-[45] md:inset-x-auto md:top-auto md:bottom-6 md:left-6 md:w-[600px] md:max-w-[calc(100vw-360px)] flex justify-center px-4" role="region" aria-label={tr("إشعارات")}>
       <div
         key={current.key}
         className={clsx("ws-toast pointer-events-auto relative w-full max-w-[600px] overflow-hidden rounded-[24px] px-4 pb-4 pt-3.5", leaving && "out")}

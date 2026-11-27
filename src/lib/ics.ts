@@ -1,3 +1,4 @@
+import { tr } from "./i18n";
 import type { CalendarEvent } from "../data/types";
 
 function pad(n: number): string {
@@ -58,4 +59,18 @@ export function downloadICS(events: CalendarEvent[], filename = "nursync-calenda
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+/** ملف .ics للموعد (يفتح بتقويم الجوال أو قوقل) */
+export function downloadIcs(date: string, time: string, minutes: number, who: string) {
+  const [h, m] = (time || "00:00").split(":").map(Number);
+  const [y, mo, d] = date.split("-").map(Number);
+  const start = new Date(y, mo - 1, d, h || 0, m || 0);
+  const end = new Date(start.getTime() + (minutes || 30) * 60000);
+  const z = (t: Date) => t.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Wesync//AR", "BEGIN:VEVENT", `UID:${z(start)}@wesyncapp.com`, `DTSTAMP:${z(new Date())}`, `DTSTART:${z(start)}`, `DTEND:${z(end)}`, `SUMMARY:${who ? tr("اجتماع مع {0}", who) : tr("اجتماع المشرف/ة")}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+  const el = Object.assign(document.createElement("a"), { href: url, download: "wesync-meeting.ics" });
+  el.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }

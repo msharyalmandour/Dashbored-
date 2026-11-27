@@ -7,7 +7,7 @@ export interface MemoryNote {
   createdAt: string;
 }
 
-/** ذاكرة المشروع: قرارات الفريق وحقائقه اللي يطلب من الوكيل يتذكرها. الجدول جديد — لو ما انشأ بعد، القائمة فاضية بدون أخطاء. */
+/** ذاكرة المشروع: قرارات الفريق وحقائقه اللي يطلب من ويسي يتذكرها. الجدول جديد — لو ما انشأ بعد، القائمة فاضية بدون أخطاء. */
 export function useProjectMemory() {
   const [notes, setNotes] = useState<MemoryNote[]>([]);
 

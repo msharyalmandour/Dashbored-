@@ -4,7 +4,7 @@
 //  confirm / unsubscribe : برمز التأكيد اللي بالإيميل نفسه
 //  notify     : عضو فريق مسجّل دخول (JWT) — يرسل إشعار «رد جديد» للمشرفة المؤكَّدة فقط، بحد زمني
 //  set_digest : برمز رابط المشرفة — تختار «فوري» أو «ملخص أسبوعي بس»
-//  weekly     : (من pg_cron بسر الجدولة) ملخص الأحد: وش ينتظرها بأزرار، وش خلّص الفريق، والجاي
+//  weekly     : (من pg_cron بسر الجدولة) ملخص الخميس 16:00 الرياض: تقدّم الفريق بالنسبة وتغيّره هالأسبوع، وش ينتظرها بأزرار، والجاي
 //  receipt    : (من القاعدة بسر الجدولة لما يخلص طلبها) إيصال إنجاز «طلبك خلص ✓» — مرة وحدة لكل طلب
 //  receipt_file : برمز رابطها — رابط مؤقت لملف الإثبات
 // الإرسال عبر Resend. أسرار لازمة: RESEND_API_KEY، EMAIL_FROM (مثل «Wesync <noreply@نطاقكم>»)، وSITE_URL اختياري.
@@ -39,7 +39,7 @@ function layout(title: string, bodyHtml: string, ctaUrl?: string, ctaLabel?: str
 <tr><td height="4" bgcolor="#FF6A00" style="height:4px;line-height:4px;font-size:0;background:#FF6A00;background-image:linear-gradient(90deg,#FF6A00,#FF8A24,#FFB547)">&nbsp;</td></tr>
 <tr><td style="padding:26px 28px 6px;font-family:${FONT};direction:rtl;text-align:right">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-<td width="34" height="34" align="center" valign="middle" bgcolor="#FF6A00" style="width:34px;height:34px;border-radius:17px;background:#FF6A00;background-image:radial-gradient(circle at 50% 38%,#FFF0C2,#FFB547 30%,#FF6A00 65%,#C2400A);color:#1A0802;font-size:18px;font-weight:800;line-height:34px">∞</td>
+<td width="34" height="34" valign="middle" style="width:34px;height:34px"><img src="https://wesyncapp.com/icons/email-mark.png" width="34" height="34" alt="Wesync" style="display:block;width:34px;height:34px;border:0;border-radius:8px"></td>
 <td style="padding-right:10px;font-family:${FONT};font-size:17px;font-weight:800;color:#F7EFE6;letter-spacing:.3px">Wesync</td>
 </tr></table>
 </td></tr>
@@ -196,7 +196,7 @@ Deno.serve(async (req: Request) => {
     // المحاضر اللي عدّت ٤٨ ساعة تنحسب معتمدة تلقائيًا، فما نعدّها
     const { count: pendingMinutes } = await admin.from("minutes_approvals").select("minutes_id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "pending").gte("requested_at", new Date(Date.now() - 48 * 3600e3).toISOString());
     const { count: openDecisions } = await admin.from("decision_requests").select("id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "open");
-    const { count: pendingBookings } = await admin.from("meeting_bookings").select("id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "pending");
+    const { count: pendingBookings } = await admin.from("meeting_bookings").select("id", { count: "exact", head: true }).eq("team_id", team.id).eq("status", "pending").gte("booking_date", new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10));
     const waiting = [
       pendingMinutes ? `${pendingMinutes} محضر اجتماع بانتظار اعتمادكم` : "",
       openDecisions ? `${openDecisions} سؤال بانتظار قراركم` : "",
@@ -212,7 +212,7 @@ Deno.serve(async (req: Request) => {
       `<p>أضافكم ${esc(leader)} كمشرف/ة للفريق${topic ? ` على بحث <b>${esc(topic)}</b>` : ""}.</p>` +
       `<p>من الحين توصلكم هنا: محاضر الاجتماعات للاعتماد، أسئلة الفريق، واقتراحات المواعيد. وكل شي تردّون عليه بضغطة من رابطكم، بدون حساب ولا كلمة مرور.</p>` +
       (waiting.length ? `<p style="${EMAIL_BOX}"><b>ينتظركم الحين:</b><br>${waiting.map(esc).join("<br>")}</p>` : "") +
-      `<p style="font-size:13px;color:#ABA095">تقدرون من صفحتكم تختارون «ملخص الأحد بس» بدل الإيميلات أول بأول.</p>`;
+      `<p style="font-size:13px;color:#ABA095">تقدرون من صفحتكم تختارون «ملخص الخميس بس» بدل الإيميلات أول بأول.</p>`;
     const sent = await sendEmail(
       email,
       title,
@@ -266,7 +266,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
     if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
-    // اختارت الملخص الأسبوعي بس: الرد يطلع لها بالأحد
+    // اختارت الملخص الأسبوعي بس: الرد يطلع لها بملخص الخميس
     if (sub.digest === "weekly") return json(200, { sent: false, reason: "weekly_digest" });
     if (sub.last_notified_at && Date.now() - new Date(sub.last_notified_at).getTime() < NOTIFY_COOLDOWN_MINUTES * 60_000) {
       return json(200, { sent: false, reason: "cooldown" });
@@ -312,13 +312,16 @@ Deno.serve(async (req: Request) => {
     if (!profile?.team_id) return json(403, { error: "no_team" });
     const kind = String(body.kind ?? "");
     const refId = String(body.refId ?? "");
-    if (!["minutes", "decision", "booking"].includes(kind) || !UUID.test(refId)) return json(400, { error: "bad_request" });
+    if (!["minutes", "decision", "booking", "extension"].includes(kind) || !UUID.test(refId)) return json(400, { error: "bad_request" });
 
     const { data: sub } = await admin.from("supervisor_email_subscriptions").select("*").eq("team_id", profile.team_id).maybeSingle();
     if (!sub || !sub.confirmed_at || sub.unsubscribed_at) return json(200, { sent: false, reason: "not_subscribed" });
     if (sub.digest === "weekly") return json(200, { sent: false, reason: "weekly_digest" });
-    // دقيقتين بين إيميلات الطلبات حتى ما نغرق المشرفة (كلها تنعرض لها بصفحتها بأي حال)
-    if (sub.last_notified_at && Date.now() - new Date(sub.last_notified_at).getTime() < 2 * 60_000) return json(200, { sent: false, reason: "cooldown" });
+    // كل طلب جديد له إيميله (قبل: مهلة دقيقتين عامة كانت تبلع الطلب الثاني — محضر وبعده موعد = إيميل واحد بس).
+    // الحماية من الإغراق: الطلب لازم يكون جديد (آخر 30 دقيقة)، ومرة وحدة لكل طلب، وحد يومي للفريق.
+    const mailKey = `sv-mail:${kind}:${refId}`;
+    const { count: today } = await admin.from("agent_runs").select("id", { count: "exact", head: true }).eq("team_id", profile.team_id).like("action", "sv-mail:%").gte("created_at", new Date(Date.now() - 864e5).toISOString());
+    if ((today ?? 0) >= 20) return json(200, { sent: false, reason: "daily_cap" });
 
     const { data: team } = await admin.from("teams").select("name, share_token").eq("id", profile.team_id).maybeSingle();
     if (!team) return json(200, { sent: false, reason: "no_team" });
@@ -326,27 +329,50 @@ Deno.serve(async (req: Request) => {
     let title = "";
     let inner = "";
     let plain = "";
+    let askedAt = "";
     if (kind === "minutes") {
       const { data: m } = await admin.from("meeting_minutes").select("meeting_date, discussion, decisions, research_project_id").eq("id", refId).maybeSingle();
       const { data: proj } = m ? await admin.from("research_projects").select("team_id").eq("id", m.research_project_id).maybeSingle() : { data: null };
       if (!m || proj?.team_id !== profile.team_id) return json(404, { error: "not_found" });
+      const { data: ap } = await admin.from("minutes_approvals").select("status, requested_at").eq("minutes_id", refId).maybeSingle();
+      if (!ap || ap.status !== "pending") return json(200, { sent: false, reason: "not_pending" });
+      askedAt = ap.requested_at;
       const ex = m.discussion.length > 350 ? `${m.discussion.slice(0, 350)}…` : m.discussion;
       title = `محضر اجتماع بانتظار اعتمادكم — فريق «${team.name}»`;
       inner = `<p>أرسل الفريق محضر اجتماع <b>${esc(String(m.meeting_date))}</b> للاعتماد.</p><p style="${EMAIL_BOX};white-space:pre-wrap">${esc(ex)}</p><p style="font-size:13px;color:#ABA095">تعتمدونه أو تطلبون تعديلًا بضغطة، بدون تسجيل دخول. ولو ما وصل رد خلال 48 ساعة يُحسب معتمدًا.</p>`;
       plain = `أرسل فريق «${team.name}» محضر اجتماع ${m.meeting_date} للاعتماد:\n\n${ex}`;
     } else if (kind === "decision") {
-      const { data: d } = await admin.from("decision_requests").select("question, options").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
+      const { data: d } = await admin.from("decision_requests").select("question, options, status, created_at").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
       if (!d) return json(404, { error: "not_found" });
+      if (d.status !== "open") return json(200, { sent: false, reason: "not_pending" });
+      askedAt = d.created_at;
       title = `سؤال بانتظار قراركم — فريق «${team.name}»`;
       inner = `<p><b>${esc(d.question)}</b></p><p style="font-size:13px;color:#ABA095">الخيارات: ${d.options.map((o: string) => esc(o)).join(" · ")}</p><p style="font-size:13px;color:#ABA095">تجاوبون بضغطة وحدة من رابطكم.</p>`;
       plain = `سؤال بانتظار قراركم من فريق «${team.name}»:\n${d.question}\nالخيارات: ${d.options.join(" · ")}`;
+    } else if (kind === "extension") {
+      const { data: r } = await admin.from("extension_requests").select("task_id, current_due, requested_due, reason, note, status, requested_by, created_at").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
+      if (!r || r.status !== "pending") return json(200, { sent: false, reason: "not_pending" });
+      askedAt = r.created_at;
+      const { data: t } = await admin.from("tasks").select("title").eq("id", r.task_id).maybeSingle();
+      const { data: who } = await admin.from("profiles").select("name").eq("id", r.requested_by).maybeSingle();
+      const why: Record<string, string> = { waiting_hospital: "ننتظر المستشفى", exams: "اختبارات", sick: "مرض", other: "سبب ثاني" };
+      title = `طلب تمديد — فريق «${team.name}»`;
+      inner = `<p><b>${esc(who?.name ?? "")}</b> يطلب تمديد <b>«${esc(t?.title ?? "")}»</b> من <b>${esc(String(r.current_due ?? "—"))}</b> إلى <b>${esc(String(r.requested_due))}</b>.</p><p style="${EMAIL_BOX};white-space:pre-wrap">السبب: ${esc(why[r.reason] ?? r.reason)}${r.note ? ` · ${esc(r.note)}` : ""}</p><p style="font-size:13px;color:#ABA095">توافقون أو تعرضون موعدًا ثانيًا أو ترفضون بضغطة وحدة، وكل رد ينحفظ بسجل يشوفه الطرفين.</p>`;
+      plain = `${who?.name ?? ""} يطلب تمديد «${t?.title ?? ""}» من ${r.current_due ?? "—"} إلى ${r.requested_due}. السبب: ${why[r.reason] ?? r.reason}${r.note ? ` · ${r.note}` : ""}`;
     } else {
-      const { data: b } = await admin.from("meeting_bookings").select("booking_date, booking_time, note, status").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
+      const { data: b } = await admin.from("meeting_bookings").select("booking_date, booking_time, note, status, created_at").eq("id", refId).eq("team_id", profile.team_id).maybeSingle();
       if (!b || b.status !== "pending") return json(200, { sent: false, reason: "not_pending" });
+      askedAt = b.created_at;
       title = `اقتراح موعد اجتماع — فريق «${team.name}»`;
       inner = `<p>اقترح الفريق اجتماعًا يوم <b>${esc(String(b.booking_date))}</b> الساعة <b>${esc(b.booking_time)}</b>.</p>${b.note ? `<p style="${EMAIL_BOX};white-space:pre-wrap">${esc(b.note)}</p>` : ""}<p style="font-size:13px;color:#ABA095">تؤكدونه أو تعتذرون بضغطة وحدة.</p>`;
       plain = `اقترح فريق «${team.name}» اجتماعًا يوم ${b.booking_date} الساعة ${b.booking_time}.`;
     }
+
+    // طلب قديم (أكثر من 30 دقيقة) ما نرسل له الحين — يطلع لها بصفحتها وبالملخص
+    if (!askedAt || Date.now() - new Date(askedAt).getTime() > 30 * 60_000) return json(200, { sent: false, reason: "stale" });
+    // مرة وحدة لكل طلب (المحضر لو انطلب اعتماده من جديد، له إيميل جديد)
+    const { count: before } = await admin.from("agent_runs").select("id", { count: "exact", head: true }).eq("team_id", profile.team_id).eq("action", mailKey).gte("created_at", askedAt);
+    if ((before ?? 0) > 0) return json(200, { sent: false, reason: "already_sent" });
 
     // يفتح صفحتها على الطلب نفسه، والاعتماد بضغطة وحدة هناك (ما نعتمد من رابط الإيميل مباشرة عشان فاحصات الروابط ما تعتمد بدالها)
     const link = `${site}/#/supervisor/${team.share_token}?open=${kind}:${refId}`;
@@ -358,6 +384,7 @@ Deno.serve(async (req: Request) => {
       `${plain}\n\nافتحوا: ${link}\n\nلإيقاف الإشعارات: ${unsub}`,
     );
     if (!sent.ok) return json(200, { sent: false, reason: sent.reason });
+    await admin.from("agent_runs").insert({ team_id: profile.team_id, profile_id: userRes.user.id, action: mailKey });
     await admin.from("supervisor_email_subscriptions").update({ last_notified_at: new Date().toISOString() }).eq("team_id", profile.team_id);
     return json(200, { sent: true });
   }
@@ -452,7 +479,7 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
     return json(200, { ok: true });
   }
 
-  // ---------- ملخص الأحد للمشرفات (pg_cron) ----------
+  // ---------- ملخص الخميس للمشرفات (pg_cron) ----------
   if (action === "weekly") {
     const given = req.headers.get("x-digest-secret");
     const { data: okSecret } = given ? await admin.rpc("verify_digest_secret", { p_secret: given }) : { data: false };
@@ -470,14 +497,21 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
       const base = `${site}/#/supervisor/${team.share_token}`;
       const { data: proj } = await admin.from("research_projects").select("id").eq("team_id", sub.team_id).order("created_at").limit(1).maybeSingle();
       const [apprs, decs, books, done, due, papers, msgs] = await Promise.all([
-        admin.from("minutes_approvals").select("minutes_id, requested_at").eq("team_id", sub.team_id).eq("status", "pending"),
+        // اللي عدّى 48 ساعة انحسب معتمد تلقائيًا — ما نقول لها «بانتظار اعتمادكم»
+        admin.from("minutes_approvals").select("minutes_id, requested_at").eq("team_id", sub.team_id).eq("status", "pending").gte("requested_at", new Date(Date.now() - 48 * 3600e3).toISOString()),
         admin.from("decision_requests").select("id, question").eq("team_id", sub.team_id).eq("status", "open"),
-        admin.from("meeting_bookings").select("id, booking_date, booking_time").eq("team_id", sub.team_id).eq("status", "pending"),
+        admin.from("meeting_bookings").select("id, booking_date, booking_time").eq("team_id", sub.team_id).eq("status", "pending").gte("booking_date", today),
         admin.from("tasks").select("title").eq("team_id", sub.team_id).eq("status", "done").gte("completed_at", weekAgo).limit(50),
         admin.from("tasks").select("title, due_date").eq("team_id", sub.team_id).neq("status", "done").gte("due_date", today).lte("due_date", nextWeek).order("due_date").limit(6),
         proj ? admin.from("evidence_papers").select("title").eq("research_project_id", proj.id).gte("created_at", weekAgo).limit(20) : Promise.resolve({ data: [] }),
         admin.from("supervisor_messages").select("id").eq("team_id", sub.team_id).eq("sender", "team").is("read_at", null),
       ]);
+      // التقدّم: المهام اللي خلصت من كل المهام، وكم زاد هالأسبوع
+      const { count: allTasks } = await admin.from("tasks").select("id", { count: "exact", head: true }).eq("team_id", sub.team_id);
+      const { count: doneTasks } = await admin.from("tasks").select("id", { count: "exact", head: true }).eq("team_id", sub.team_id).eq("status", "done");
+      const totalN = allTasks ?? 0;
+      const pct = totalN ? Math.round(((doneTasks ?? 0) / totalN) * 100) : 0;
+      const deltaPct = totalN ? Math.round(((done.data ?? []).length / totalN) * 100) : 0;
       const waiting: string[] = [];
       for (const a of apprs.data ?? []) waiting.push(`<li style="margin:0 0 8px">محضر اجتماع بانتظار اعتمادكم — <a href="${esc(`${base}?open=minutes:${a.minutes_id}`)}" style="color:#FFC777;font-weight:700">افتحوه واعتمدوه</a></li>`);
       for (const d of decs.data ?? []) waiting.push(`<li style="margin:0 0 8px">${esc(d.question)} — <a href="${esc(`${base}?open=decision:${d.id}`)}" style="color:#FFC777;font-weight:700">جاوبوا بضغطة</a></li>`);
@@ -490,7 +524,7 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
       const box = (h: string, inner: string) => `<p style="margin:18px 0 6px;font-size:13px;font-weight:800;color:#FFC777">${h}</p><div style="${EMAIL_BOX}">${inner}</div>`;
       const inner = [
         waiting.length ? box("ينتظركم", `<ul style="margin:0;padding:0 18px 0 0">${waiting.join("")}</ul>`) : `<p>ما فيه شي ينتظركم هالأسبوع ✓</p>`,
-        box("هالأسبوع", `<p style="margin:0">خلّص الفريق <b>${doneN}</b> مهمة${papersN ? ` وأضاف <b>${papersN}</b> دراسة` : ""}.</p>${doneN ? `<p style="margin:6px 0 0;font-size:13px;color:#ABA095">${(done.data ?? []).slice(0, 5).map((t: { title: string }) => esc(t.title)).join(" · ")}</p>` : ""}`),
+        box("هالأسبوع", `<p style="margin:0 0 6px;font-size:22px;font-weight:800;color:#F2EBE3">${pct}% <span style="font-size:14px;color:${deltaPct ? "#FFC777" : "#ABA095"}">${deltaPct ? `+${deltaPct}% هالأسبوع` : "بدون تغيير هالأسبوع"}</span></p><p style="margin:0">خلّص الفريق <b>${doneN}</b> مهمة${papersN ? ` وأضاف <b>${papersN}</b> دراسة` : ""}.</p>${doneN ? `<p style="margin:6px 0 0;font-size:13px;color:#ABA095">${(done.data ?? []).slice(0, 5).map((t: { title: string }) => esc(t.title)).join(" · ")}</p>` : ""}`),
         (due.data ?? []).length ? box("الجاي", `<p style="margin:0;font-size:14px">${(due.data ?? []).map((t: { title: string; due_date: string }) => `${esc(t.title)} <span style="color:#ABA095">(${esc(t.due_date)})</span>`).join("<br>")}</p>`) : "",
       ].join("");
       const title = `ملخص الأسبوع — فريق «${team.name}»`;
@@ -498,8 +532,8 @@ ${c.proof_name ? `<div style="${EMAIL_BOX}"><b dir="auto">${esc(c.proof_name)}</
       const r = await sendEmail(
         sub.email,
         title,
-        layout(title, inner, base, "افتحوا صفحة الفريق", `ملخص كل أحد. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإيميلات</a>`),
-        `${title}\n\nينتظركم: ${waiting.length}\nخلّص الفريق ${doneN} مهمة.\n\n${base}\n\nإيقاف: ${unsub}`,
+        layout(title, inner, base, "افتحوا صفحة الفريق", `ملخص كل خميس. <a href="${esc(unsub)}" style="color:#FFC777">إيقاف الإيميلات</a>`),
+        `${title}\n\nالتقدّم: ${pct}% (+${deltaPct}% هالأسبوع)\nينتظركم: ${waiting.length}\nخلّص الفريق ${doneN} مهمة.\n\n${base}\n\nإيقاف: ${unsub}`,
       );
       if (r.ok) sent++;
       else await admin.from("reminder_log").delete().eq("kind", "sup-weekly").eq("ref_id", sub.team_id).eq("recipient", today);

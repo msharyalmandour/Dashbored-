@@ -39,12 +39,12 @@ export default function Term({ id, children }: { id: string; children?: ReactNod
           role="tooltip"
           className="absolute start-0 top-full z-50 mt-1.5 block w-64 rounded-2xl border border-brand-100/60 bg-paper p-3 text-start text-xs font-normal leading-relaxed text-brand-950/80 shadow-2xl"
         >
-          <span className="block text-[11px] font-extrabold text-brand-600">
+          <span className="block text-[12px] font-extrabold text-brand-600">
             {entry.ar} <span className="font-mono font-semibold text-brand-950/40" dir="ltr">· {entry.term}</span>
           </span>
           <span className="mt-1 block">{entry.def}</span>
           {entry.example && <span className="mt-1.5 block rounded-lg bg-surface-muted px-2 py-1 text-brand-950/60">{entry.example}</span>}
-          <Link to="/glossary" className="mt-2 block text-[11px] font-bold text-brand-600 hover:underline">{tr("كل المصطلحات ←")}</Link>
+          <Link to="/glossary" className="mt-2 block text-[12px] font-bold text-brand-600 hover:underline">{tr("كل المصطلحات ←")}</Link>
         </span>
       )}
     </span>

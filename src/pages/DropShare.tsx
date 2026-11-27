@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import WLogo from "../components/brand/WLogo";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, PenLine, Sparkles, Users, X } from "lucide-react";
 import Vessel from "../components/drop/Vessel";
@@ -43,7 +44,7 @@ export default function DropShare() {
   return (
     <div className="dr-page mx-auto flex max-w-md flex-col gap-3 pt-1">
       <div className="flex items-center gap-2.5">
-        <span aria-hidden className="h-[34px] w-[34px] rounded-full" style={{ background: "radial-gradient(circle at 50% 60%, #FFF0C2 0, #FFC85A 22%, #FF7A10 55%, #C2400A 82%)" }} />
+        <WLogo size={32} />
         <b className="text-[17px]">Wesync</b>
         <span className="flex-1" />
         <button type="button" className="dr-card flex h-11 w-11 items-center justify-center rounded-full text-[#EAE3DC]" aria-label={tr("إغلاق")} onClick={() => navigate("/")}>
@@ -107,7 +108,7 @@ export default function DropShare() {
               <b className="flex-1 truncate text-[15px]" dir="auto">
                 {project?.title?.trim() || team?.name || tr("فريقكم")}
               </b>
-              <ChevronLeft size={18} className="text-[#ABA095] ltr:rotate-180" aria-hidden />
+              <ChevronLeft size={18} className="text-[#ABA095]" aria-hidden />
             </div>
           </section>
           <label className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-black/25 px-3.5 text-[14px] text-[#ABA095] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">

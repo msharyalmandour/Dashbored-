@@ -1,6 +1,8 @@
 import { getSupervisorDigest, setSupervisorDigest, type DigestMode } from "../../lib/supervisorEmail";
+import { WSpin } from "../brand/WLogo";
+import { avatarLetter } from "../../lib/avatarLetter";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { CalendarClock, Check, ChevronDown, Loader2, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Check, ChevronDown, Plus, Trash2, X } from "lucide-react";
 import SupervisorEmailCard from "../SupervisorEmailCard";
 import { formatDateFull, formatDateShort, relativeDayLabel } from "../../lib/date";
 import { WEEKDAY_NAMES } from "../../lib/meetings";
@@ -27,7 +29,7 @@ export function relTime(iso: string | null | undefined): string {
 
 const AV_BG = ["linear-gradient(135deg,#FFD9A8,#FF9A3C)", "linear-gradient(135deg,#FFE7C2,#FFB547)", "linear-gradient(135deg,#F7C9A8,#E9774A)", "linear-gradient(135deg,#F2EBE3,#C9B8A6)"];
 export function SvAvatar({ name, initials, i, active, sm }: { name: string; initials?: string; i: number; active?: boolean | null; sm?: boolean }) {
-  const letter = (initials || name).trim().charAt(0) || "؟";
+  const letter = avatarLetter(name || initials);
   return (
     <span className={`sv-av${sm ? " sm" : ""}`} style={{ background: AV_BG[i % AV_BG.length] }} aria-hidden>
       {letter}
@@ -55,7 +57,7 @@ export function SvSheet({ title, onClose, children }: { title: ReactNode; onClos
   return (
     <>
       <div className="sv-scrim" onClick={onClose} aria-hidden />
-      <div ref={ref} role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} tabIndex={-1} className="sv-sheet sv-sheet-in outline-none" dir="rtl">
+      <div ref={ref} role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} tabIndex={-1} className="sv-sheet sv-sheet-in outline-none">
         <div className="sv-grab" aria-hidden />
         <div className="sv-sh">
           <h2>{title}</h2>
@@ -88,7 +90,7 @@ export function SvWaiting({ board, busy, error, leaving, respond }: WaitingProps
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const { minutes, decisions, bookings } = board.waiting;
   const empty = minutes.length + decisions.length + bookings.length === 0;
-  const spin = (id: string) => busy === id && <Loader2 size={15} className="animate-spin" />;
+  const spin = (id: string) => busy === id && <WSpin size={15} />;
   const back = () => {
     setNoteFor(null);
     setNote("");
@@ -276,7 +278,7 @@ interface WindowRow { key: number; weekday: number; start: string; end: string }
 let winKey = 0;
 
 /** الخطوات الثلاث (الاسم، إيميل التنبيهات، الأوقات) ومعها «أوقاتي وتفضيلاتي» كاملة — كلها داخل نفس الـ sheet */
-/** «كل شي أول بأول» أو «ملخص الأحد بس» */
+/** «كل شي أول بأول» أو «ملخص الخميس بس» */
 function DigestChoice({ token }: { token: string }) {
   const [mode, setMode] = useState<DigestMode | null>(null);
   const [saving, setSaving] = useState(false);
@@ -303,7 +305,7 @@ function DigestChoice({ token }: { token: string }) {
         {(
           [
             ["instant", tr("أول بأول"), tr("مع كل محضر أو سؤال أو موعد")],
-            ["weekly", tr("ملخص الأحد بس"), tr("إيميل واحد مرتب كل أسبوع")],
+            ["weekly", tr("ملخص الخميس بس"), tr("إيميل واحد مرتب كل أسبوع")],
           ] as const
         ).map(([k, t, d]) => (
           <button key={k} type="button" role="radio" aria-checked={mode === k} disabled={mode === null} onClick={() => pick(k)} className={`rounded-2xl p-3 text-start ${mode === k ? "bg-[#F2EBE3] text-[#160904]" : "bg-white/[.04] text-[#F2EBE3] shadow-[inset_0_0_0_1px_rgba(255,240,225,.12)]"}`}>
@@ -444,7 +446,7 @@ export function SvSetupSheet({
                 }
               }}
             >
-              {busy === "availability" ? <Loader2 size={15} className="animate-spin" /> : saved ? <Check size={15} /> : <CalendarClock size={15} />}
+              {busy === "availability" ? <WSpin size={15} /> : saved ? <Check size={15} /> : <CalendarClock size={15} />}
               {saved ? tr("انحفظت") : tr("احفظوا أوقاتكم")}
             </button>
           </div>

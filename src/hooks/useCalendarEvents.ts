@@ -126,21 +126,25 @@ export function useCalendarEvents() {
     };
   }, [teamId, userId, load]);
 
-  const addEvent = async (input: NewCalendarEvent): Promise<{ error?: string }> => {
+  const addEvent = async (input: NewCalendarEvent): Promise<{ error?: string; id?: string }> => {
     if (isSupabaseConfigured) {
       if (!teamId || !userId) return { error: "no_team" };
-      const { error } = await supabase!.from("calendar_events").insert({
-        team_id: teamId,
-        title: input.title,
-        event_date: input.date,
-        event_time: input.time || "09:00",
-        event_type: input.type,
-        location: input.location,
-        created_by: userId,
-      });
+      const { data, error } = await supabase!
+        .from("calendar_events")
+        .insert({
+          team_id: teamId,
+          title: input.title,
+          event_date: input.date,
+          event_time: input.time || "09:00",
+          event_type: input.type,
+          location: input.location,
+          created_by: userId,
+        })
+        .select("id")
+        .single();
       if (error) return { error: error.message };
       await load();
-      return {};
+      return { id: (data as { id: string } | null)?.id };
     }
     const newEvent: CalendarEvent = { ...input, id: `local-${Date.now()}-${idCounter++}` };
     setLocalEvents((prev) => {
@@ -148,7 +152,7 @@ export function useCalendarEvents() {
       localStorage.setItem(LOCAL_EVENTS_KEY, JSON.stringify(updated));
       return updated;
     });
-    return {};
+    return { id: newEvent.id };
   };
 
   const deleteEvent = async (id: string): Promise<{ error?: string }> => {

@@ -44,7 +44,7 @@ const attachmentLabels: { key: keyof EthicalApproval["attachments"]; text: strin
 
 /** يبني نموذج طلب الموافقة الأخلاقية الحقيقي (.docx) بنفس ترتيب وحقول
     نموذج KAU الرسمي بالضبط — نفس أسلوب buildProposalWordDoc بـ wordExport.ts،
-    بخط Times New Roman حجم ١٢ وتباعد سطر ١.٥ (يطابق معيار التنسيق بالروبريك) */
+    بخط Times New Roman حجم 12 وتباعد سطر 1.5 (يطابق معيار التنسيق بالروبريك) */
 async function buildEthicalOfficial(input: EthicalApprovalExportInput): Promise<Blob> {
   const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } = await import("docx");
   const { ethicalApproval: ea } = input;
@@ -163,7 +163,7 @@ async function buildEthicalDark(input: EthicalApprovalExportInput): Promise<Blob
       sub: "Application for Nursing Research Ethical Approval — King Abdulaziz University, Faculty of Nursing",
     }),
 
-    k.heading(tr("بيانات الطلب — Section One"), tr("١")),
+    k.heading(tr("بيانات الطلب — Section One"), tr("1")),
     k.card([
       [tr("تاريخ الطلب"), date(ea.applicationDate)],
       [tr("عنوان الدراسة"), input.projectTitle],
@@ -184,7 +184,7 @@ async function buildEthicalDark(input: EthicalApprovalExportInput): Promise<Blob
       [tr("تفاصيل التمويل"), ea.fundingDetails],
     ]),
 
-    k.heading(tr("المبادئ الأخلاقية — Section Two"), tr("٢")),
+    k.heading(tr("المبادئ الأخلاقية — Section Two"), tr("2")),
     k.card(
       principleLabels.map((p) => [
         p.text,
@@ -193,7 +193,7 @@ async function buildEthicalDark(input: EthicalApprovalExportInput): Promise<Blob
       { labelWidth: 68 },
     ),
 
-    k.heading(tr("المرفقات — Section Three"), tr("٣")),
+    k.heading(tr("المرفقات — Section Three"), tr("3")),
     k.card(
       attachmentLabels.map((a) => [a.text, ea.attachments[a.key] ? tr("مرفق") : tr("غير مرفق")]),
       { labelWidth: 68 },

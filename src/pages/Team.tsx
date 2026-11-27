@@ -1,3 +1,6 @@
+import SeasonCard from "../components/team/SeasonCard";
+import FounderBadge from "../components/team/FounderBadge";
+import { useFounderNumber } from "../hooks/useFounderNumber";
 import { useEffect, useState } from "react";
 import {
   Bell,
@@ -20,11 +23,12 @@ import PeakBar from "../components/ui/PeakBar";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import ContributionCard from "../components/ContributionCard";
 import AlertsCard from "../components/PushToggle";
+import WhatsAppCard from "../components/WhatsAppCard";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useTasksData } from "../hooks/useTasksData";
 import { useReferralStats } from "../hooks/useReferralStats";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { recentActivity, teamMembers } from "../data/mockData";
 import type { Task, TeamMember } from "../data/types";
@@ -49,9 +53,13 @@ function InviteCard() {
   const { team } = useAuth();
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
+  // الزميل يدخل على مهمة محددة بدل الصفحة الرئيسية — يتعلّم المهام من أول ثانية
+  const { tasks } = useTasksData();
+  const [taskId, setTaskId] = useState("");
+  const openTasks = tasks.filter((t) => t.status !== "done").slice(0, 30);
 
   if (!team) return null;
-  const inviteLink = `${publicBase()}#/login?team=${team.id}`;
+  const inviteLink = `${publicBase()}#/login?team=${team.id}${taskId ? `&task=${encodeURIComponent(taskId)}` : ""}`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(inviteLink);
@@ -66,7 +74,7 @@ function InviteCard() {
   };
 
   return (
-    <div data-learn="invite" className="h-full rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
+    <div id="invite" data-learn="invite" className="h-full scroll-mt-24 rounded-[1.75rem] bg-gradient-to-br from-amber-accent-300 via-brand-300 to-amber-accent-400 p-[1.5px] shadow-md shadow-brand-950/5">
       <Card
         tone="cream"
         className="relative flex h-full flex-col overflow-hidden !rounded-[calc(1.75rem-1.5px)] !shadow-none"
@@ -78,19 +86,45 @@ function InviteCard() {
           </span>
           <p className="mt-3 font-bold text-brand-950">{tr("دعوة بقية أعضاء الفريق")}</p>
           <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا هذا الرابط مع بقية الفريق — كل من يسجّل حساب عبره ينضم لنفس فريقكم تلقائيًا.")}</p>
-          <button
-            onClick={copy}
-            className="mt-4 flex items-center justify-center gap-2 self-start rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
-          >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? tr("تم النسخ") : tr("نسخ رابط الدعوة")}
-          </button>
+          {openTasks.length > 0 && (
+            <label className="mt-3 flex flex-col gap-1 text-[13px] font-semibold text-brand-950/60">
+              {tr("يبدأ على مهمة؟ (اختياري)")}
+              <select
+                value={taskId}
+                onChange={(e) => setTaskId(e.target.value)}
+                className="min-h-[44px] w-full max-w-xs rounded-xl border border-brand-200/70 bg-paper/60 px-3 text-sm font-semibold text-brand-950 outline-none focus:border-brand-400"
+              >
+                <option value="">{tr("لا، الصفحة الرئيسية")}</option>
+                {openTasks.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {/* واتساب أول (الطلاب يتواصلون بقروب الدفعة)، والنسخ ثاني */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(tr("انضموا لفريق بحثنا على Wesync عشان نشتغل على البحث مع بعض: {0}", inviteLink))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-4 text-sm font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
+            >
+              <MessageCircle size={15} />
+              {tr("أرسلوا الدعوة بواتساب")}
+            </a>
+            <button onClick={copy} className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-brand-950/70 ring-1 ring-brand-200/70 hover:bg-white/5">
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              {copied ? tr("تم النسخ") : tr("نسخ رابط الدعوة")}
+            </button>
+          </div>
           <button
             onClick={copyCode}
-            className="mt-2 flex items-center gap-1.5 self-start text-xs font-semibold text-brand-950/45 hover:text-brand-700 hover:underline"
+            className="mt-2 flex min-h-[44px] items-center gap-1.5 self-start text-xs font-semibold text-brand-950/45 hover:text-brand-700 hover:underline"
           >
             {codeCopied ? <Check size={12} /> : <Copy size={12} />}
-            {codeCopied ? tr("تم نسخ الرمز") : tr("الرابط ما اشتغل معهم؟ انسخي رمز الفريق")}
+            {codeCopied ? tr("تم نسخ الرمز") : tr("الرابط ما اشتغل معهم؟ انسخوا رمز الفريق")}
           </button>
         </div>
       </Card>
@@ -197,7 +231,7 @@ function SupervisorContactSection() {
               <p className="text-xs text-brand-950/45">Academic Supervisor</p>
             </div>
           </div>
-          <p className="mt-3 text-sm text-brand-950/55">{tr("شاركوه مع مشرفكم بأي وسيلة تناسبكم — يشوف تقدم فريقكم ومهامكم قراءة فقط، بدون تسجيل دخول.")}</p>
+          <p className="mt-3 text-sm text-brand-950/55">{tr("رابط واحد للدكتورة بدون حساب: تشوف تقدّمكم، وتردّ عليكم بقروب «مع الدكتورة»، وتعتمد المحاضر والمواعيد. ولو عندها فرق ثانية، كلها تطلع لها بلوحة وحدة.")}</p>
           <p dir="ltr" className="mt-3 truncate rounded-xl bg-surface-muted px-3 py-2 text-start text-xs text-brand-950/60">
             {shareLink}
           </p>
@@ -206,26 +240,26 @@ function SupervisorContactSection() {
               href={`https://wa.me/?text=${encodeURIComponent(reminderMessage)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <MessageCircle size={13} />{tr("إرسال واتساب")}</a>
             <button
               onClick={copyReminder}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-sky-accent-500 to-sky-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-sky-accent-500/30 hover:from-sky-accent-600 hover:to-sky-accent-700"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {reminderCopied ? <Check size={13} /> : <Bell size={13} />}
               {reminderCopied ? tr("تم النسخ") : tr("نسخ رسالة تذكير")}
             </button>
             <button
               onClick={copy}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-brand-500 to-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
             </button>
             <a
               href={`mailto:?subject=${encodeURIComponent(tr("رابط متابعة فريقنا البحثي على Wesync"))}&body=${encodeURIComponent(reminderMessage)}`}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-brand-100 px-3.5 py-2 text-xs font-bold text-brand-700 hover:bg-surface-muted"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <Mail size={13} />{tr("إرسال بالإيميل")}</a>
           </div>
@@ -234,7 +268,7 @@ function SupervisorContactSection() {
               {tr("تقرير تقدّم الفريق (PDF) — ترسلونه للمشرف/ة أو القسم")}
             </Link>
           )}
-          <p className="mt-2.5 text-[11px] leading-relaxed text-brand-950/50">
+          <p className="mt-2.5 text-[12px] leading-relaxed text-brand-950/50">
             {emailStatus?.isTeamMember
               ? null
               : emailStatus?.state === "active"
@@ -245,11 +279,14 @@ function SupervisorContactSection() {
           </p>
           <SupervisorEmailInvite status={emailStatus} onSent={() => getMyEmailStatus().then(setEmailStatus)} />
           {isLeader && (
-            <p className="mt-3 text-[11px] leading-relaxed text-brand-950/40">{tr("أي شخص عنده الرابط يقدر يشوف تقدمكم ويراسلكم. لو وصل لأحد غير مشرفتكم ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
+            <details className="mt-3 text-[12px] leading-relaxed text-brand-950/40">
+              <summary className="cursor-pointer py-3 font-semibold">{tr("الرابط وصل لأحد غير دكتورتكم؟")}</summary>
+              <p className="mt-2">{tr("تغيير الرابط يعطّل القديم فورًا، وتحتاجون ترسلون الجديد للدكتورة. لا تغيّرونه إلا إذا وصل لأحد ثاني. ")}<button onClick={rotate} disabled={rotating} className="font-bold text-brand-700 underline underline-offset-2 disabled:opacity-50">
                 {rotating ? tr("جاري التغيير...") : tr("غيّروا الرابط")}
               </button>
               .{rotateError && <span className="font-bold text-rose-600">{tr(" تعذّر التغيير — حاولوا مرة ثانية.")}</span>}
             </p>
+            </details>
           )}
         </div>
 
@@ -283,7 +320,7 @@ function ReferralCard() {
 
   if (!team?.referralCode) return null;
   const referralLink = `${publicBase()}#/login?ref=${team.referralCode}`;
-  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة ١٤ يوم مجانية، وأول ما تشتركون ناخذ شهر هدية أنا وأنتم 🎁\n{0}", referralLink);
+  const waMessage = tr("جربوا Wesync — منصة تنظّم بحث التخرج كامل بمكان واحد. سجّلوا من هذا الرابط وابدأوا تجربة 14 يوم مجانية. لما تبدأون فعليًا ناخذ أسبوعين هدية أنا وأنتم، ولما تشتركون شهر 🎁\n{0}", referralLink);
 
   const copy = async () => {
     await navigator.clipboard.writeText(referralLink);
@@ -302,19 +339,19 @@ function ReferralCard() {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-accent-500 text-white">
             <Gift size={19} />
           </span>
-          <p className="mt-3 font-bold text-brand-950">{tr("ادعوا فريق ثاني واربحوا ١٥ يوم مجاني")}</p>
-          <p className="mt-1 text-sm text-brand-950/55">{tr("شاركوا رابط الدعوة — أول ما يفعّلون اشتراكهم تاخذون ١٥ يوم إضافي تلقائيًا.")}</p>
+          <p className="mt-3 font-bold text-brand-950">{tr("أهدوا فريق من دفعتكم أسبوعين")}</p>
+          <p className="mt-1 text-sm text-brand-950/55">{tr("لما يبدأون فعليًا (عضوين وأول قسم بالمقترح) تاخذون أنتم وهم أسبوعين، ولما يشتركون شهر كامل — تلقائيًا.")}</p>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-[#25D366] to-[#1fb959] px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-[#25D366]/30 hover:brightness-105"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               <MessageCircle size={13} />{tr("واتساب")}</a>
             <button
               onClick={copy}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-l from-amber-accent-500 to-amber-accent-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm shadow-amber-accent-500/30 hover:from-amber-accent-600 hover:to-amber-accent-700"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
               {copied ? tr("تم النسخ") : tr("نسخ الرابط")}
@@ -325,17 +362,17 @@ function ReferralCard() {
             <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl bg-paper/70 p-2.5">
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-brand-950">{stats.referredCount}</p>
-                <p className="text-[10px] font-semibold text-brand-950/50">{tr("فرق دعوتوها")}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("فرق دعوتوها")}</p>
               </div>
               <div className="text-center">
-                <p className="font-display text-lg font-extrabold text-brand-950">{stats.rewardedCount}</p>
-                <p className="text-[10px] font-semibold text-brand-950/50">{tr("فعّلوا اشتراكهم")}</p>
+                <p className="font-display text-lg font-extrabold text-brand-950">{stats.activatedCount}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("بدأوا فعليًا")}</p>
               </div>
               <div className="text-center">
                 <p className="font-display text-lg font-extrabold text-amber-accent-600">
                   {stats.bonusDaysEarned}
                 </p>
-                <p className="text-[10px] font-semibold text-brand-950/50">{tr("يوم مجاني ربحتوه")}</p>
+                <p className="text-[12px] font-semibold text-brand-950/50">{tr("يوم مجاني ربحتوه")}</p>
               </div>
             </div>
           )}
@@ -453,6 +490,15 @@ function ActivityLog() {
 }
 
 export default function Team() {
+  // جاي من «ادعوا فريقكم» بالرئيسية: نوديكم على كرت الدعوة مباشرة
+  const [teamParams] = useSearchParams();
+  const wantsInvite = teamParams.get("invite") === "1";
+  useEffect(() => {
+    if (!wantsInvite) return;
+    const t = setTimeout(() => document.getElementById("invite")?.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
+    return () => clearTimeout(t);
+  }, [wantsInvite]);
+  const founderN = useFounderNumber();
   const { roster, removeMember } = useTeamRoster();
   const { tasks } = useTasksData();
   const { isLeader, mode, currentUser } = useAuth();
@@ -461,16 +507,16 @@ export default function Team() {
     <div>
       <div className="mb-6">
         <PageHeader kicker={tr("الفريق")} title={tr("الفريق")} subtitle={tr("ادعوا فريقكم والمشرف/ة، وتابعوا إنجاز كل واحد منكم.")} />
+        <FounderBadge n={founderN} />
       </div>
       {mode === "supabase" && <UniversityField />}
-      {isLeader && mode === "supabase" && (
-        <>
-          <div className="mb-4">
-            <InviteCard />
-          </div>
-          <SupervisorContactSection />
-        </>
+      {/* رابط الفريق يقدر يرسله أي عضو (مو القائد بس) — كل زميل يجيب زميل */}
+      {mode === "supabase" && (
+        <div className="mb-4">
+          <InviteCard />
+        </div>
       )}
+      {isLeader && mode === "supabase" && <SupervisorContactSection />}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {roster.map((member, i) => {
         const memberTasks = tasks.filter((t) => t.assigneeId === member.id);
@@ -543,15 +589,15 @@ export default function Team() {
             <div className="mt-4 grid grid-cols-3 divide-x divide-x-reverse divide-brand-100/15 rounded-2xl bg-black/25 py-3 text-center">
               <div>
                 <p className="text-base font-extrabold text-brand-950">{tasksTotal}</p>
-                <p className="text-[11px] text-brand-950/45">{tr("إجمالي المهام")}</p>
+                <p className="text-[12px] text-brand-950/45">{tr("إجمالي المهام")}</p>
               </div>
               <div>
                 <p className="text-base font-extrabold text-brand-600">{tasksDone}</p>
-                <p className="text-[11px] text-brand-950/45">{tr("مكتملة")}</p>
+                <p className="text-[12px] text-brand-950/45">{tr("مكتملة")}</p>
               </div>
               <div>
                 <p className="text-base font-extrabold text-rose-500">{overdue}</p>
-                <p className="text-[11px] text-brand-950/45">{tr("متأخرة")}</p>
+                <p className="text-[12px] text-brand-950/45">{tr("متأخرة")}</p>
               </div>
             </div>
           </Card>
@@ -561,10 +607,20 @@ export default function Team() {
 
       <WorkloadBalance roster={roster} tasks={tasks} />
       <AlertsCard />
+      <WhatsAppCard />
       {mode === "supabase" && isLeader && <ContributionCard roster={roster} tasks={tasks} />}
       {isLeader && mode === "supabase" && (
         <div className="mt-4">
           <ReferralCard />
+          <SeasonCard />
+          <div className="flex flex-wrap gap-2">
+            <Link to="/receipts" className="lx-ghost">
+              {tr("سجل الرحلة والإيصالات")}
+            </Link>
+            <Link to="/ambassador" className="lx-ghost">
+              {tr("صيروا سفراء Wesync")}
+            </Link>
+          </div>
         </div>
       )}
       {mode === "mock" && <ActivityLog />}

@@ -5,7 +5,7 @@
 @keyframes drFan { from { opacity: 0; transform: translateY(40px) scale(.9) rotateX(18deg); } to { opacity: 1; transform: none; } }
 @keyframes drWarm { from { filter: brightness(.8) saturate(.9); } to { filter: brightness(1.12) saturate(1.1); } }
 @keyframes drPulse3 { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
-/* البلع: قوس — المحور الأفقي يبطّي بالآخر والعمودي يسرّع (السقوط)، يدور ‎-14°→0 ويصغر ١→.25 ويختفي بالوعاء (≈.7s) */
+/* البلع: قوس — المحور الأفقي يبطّي بالآخر والعمودي يسرّع (السقوط)، يدور ‎-14°→0 ويصغر 1→.25 ويختفي بالوعاء (≈.7s) */
 @keyframes drFlyX { from { transform: translateX(var(--sx)); } to { transform: translateX(0); } }
 @keyframes drFlyY { 0% { transform: translateY(var(--sy)) rotate(-14deg) scale(1); opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(0) rotate(0) scale(.25); opacity: 0; } }
 @keyframes drFadeOut { from { opacity: 1; } to { opacity: 0; } }
@@ -19,7 +19,7 @@
 .dr-warm { animation: drWarm .45s cubic-bezier(.2,.8,.2,1) both; }
 .dr-pulse3 { animation: drPulse3 .8s ease-in-out 3 both; }
 
-/* الوعاء (صورة الآن، والمرحلة ٣ تبدله بالـ 3D) */
+/* الوعاء (صورة الآن، والمرحلة 3 تبدله بالـ 3D) */
 .dr-vs { position: relative; isolation: isolate; flex: none; transition: filter .45s cubic-bezier(.2,.8,.2,1); }
 .dr-vs img { display: block; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen; border-radius: 50%; -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%); mask-image: radial-gradient(closest-side, #000 72%, transparent 100%); }
 .dr-vs .dr-halo { position: absolute; inset: -12%; border-radius: 50%; transition: opacity .45s cubic-bezier(.2,.8,.2,1); background: radial-gradient(closest-side, rgba(255,130,20,.32), rgba(255,106,0,0) 70%); z-index: -1; }
@@ -28,7 +28,7 @@
 /* زجاج */
 .dr-card { position: relative; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); }
 @media (min-width: 1024px) { .dr-card-lg { background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.08), 0 30px 70px rgba(0,0,0,.45); } }
-.dr-title { margin: 0; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dr-title { padding-top: .2em; margin: 0; font-weight: 800; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .dr-ic { width: 32px; height: 32px; flex: none; border-radius: 10px; background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: #EAE3DC; }
 .dr-ic.gold { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,199,119,.12); color: #FFC777; }
 
@@ -47,7 +47,7 @@
 .dr-chip.warn { background: rgba(255,138,122,.10); color: #FFB2A6; }
 
 /* أيقونة الملف (PDF / IMG / WA) */
-.dr-file { width: 30px; height: 35px; flex: none; border-radius: 8px; background: linear-gradient(180deg, #F6EFE7, #E2D6C9); color: #3A1A08; font-size: 11px; font-weight: 800; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; box-sizing: border-box; box-shadow: 0 6px 14px rgba(0,0,0,.4); position: relative; }
+.dr-file { width: 30px; height: 35px; flex: none; border-radius: 8px; background: linear-gradient(180deg, #F6EFE7, #E2D6C9); color: #3A1A08; font-size: 12px; font-weight: 800; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; box-sizing: border-box; box-shadow: 0 6px 14px rgba(0,0,0,.4); position: relative; }
 .dr-file i { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: linear-gradient(225deg, #0F0B09 50%, #C9B9A8 50%); border-top-right-radius: 8px; }
 .dr-file.sm { width: 26px; height: 30px; }
 
@@ -83,7 +83,7 @@
 
 /* القراءة */
 .dr-flycard { width: 150px; padding: 12px; border-radius: 16px; background: linear-gradient(180deg, #F6EFE7, #E4D8CB); color: #2A1404; box-shadow: 0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.4) inset; display: flex; gap: 10px; align-items: center; }
-.dr-flycard .dr-ft { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.dr-flycard .dr-ft { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .dr-fly { position: absolute; z-index: 6; pointer-events: none; animation: drFlyX .7s cubic-bezier(.25,.6,.35,1) .2s both; }
 .dr-fly > .dr-flycard { animation: drFlyY .7s cubic-bezier(.6,0,.9,.55) .2s both; transform-origin: 50% 50%; }
 .dr-dot { width: 10px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.14); transition: width .45s cubic-bezier(.2,.8,.2,1), background .45s; }
@@ -104,7 +104,7 @@
 .dr-global { position: fixed; inset: 0; z-index: 130; pointer-events: none; animation: drFade .3s ease-out both; }
 .dr-global-dim { position: absolute; inset: 0; background: rgba(8,6,5,.74); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
 .dr-gcard { position: absolute; z-index: 6; width: 150px; padding: 12px; border-radius: 16px; background: linear-gradient(180deg, #F6EFE7, #E4D8CB); color: #2A1404; box-shadow: 0 24px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.4) inset; display: flex; gap: 10px; align-items: center; text-align: start; }
-.dr-gcard-ic { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.dr-gcard-ic { width: 30px; height: 36px; flex: none; border-radius: 7px; background: #2A1404; color: #FFC777; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 @media (max-width: 767px) { .dr-gcard { display: none; } }
 .dr-global-frame { position: absolute; inset: 24px; border-radius: 32px; border: 2px dashed rgba(255,199,119,.55); box-shadow: inset 0 0 120px rgba(255,120,20,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; }
 
@@ -129,3 +129,67 @@ html[data-reduce-motion="true"] .dr-fly > .dr-flycard { animation: drFadeOut .45
 
 /* وزن النص الأساسي بالتصميم = 500 (العناوين والأزرار لها أوزانها) */
 .dr-page { font-weight: 500; }
+
+/* ═══ صفحة «ارموا أي شي» كمسرح واحد (design-reference/drop2: DropPage · DropPageM) ═══ */
+.dp-d { flex-direction: column; align-items: stretch; min-height: calc(100vh - 48px); justify-content: center; gap: 18px; }
+.dp-stage-wrap { position: relative; width: 100%; margin-top: -10px; }
+.dp-stage { position: absolute; top: 0; left: 50%; width: 1096px; height: 560px; margin-left: -548px; transform-origin: 50% 0; }
+.dp-glow { position: absolute; left: 168px; top: -5px; width: 760px; height: 480px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,110,20,0.32), transparent); filter: blur(10px); pointer-events: none; }
+.dp-d.over .dp-glow { background: radial-gradient(closest-side, rgba(255,130,30,0.5), transparent); }
+.dp-rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.dp-vessel { position: absolute; left: 333px; top: 12px; }
+.dp-chip { position: absolute; width: 124px; height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 800; color: #F4E6D8; background: rgba(255,240,225,0.05); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255,240,225,0.12), inset 0 0 0 1px rgba(255,199,119,0.18); white-space: nowrap; }
+.dp-chip-m { width: 96px; height: 40px; font-size: 13px; }
+.dp-emb { position: absolute; border-radius: 50%; background: radial-gradient(circle, #FFF1C9, #FFB444 50%, transparent 75%); box-shadow: 0 0 10px rgba(255,170,60,.9); opacity: 0; pointer-events: none; }
+.dp-d-text { margin-top: -70px; position: relative; z-index: 2; }
+.dp-h1 { margin: 0; padding-top: .2em; margin-top: -.08em; font-weight: 800; line-height: 1.02; letter-spacing: 0; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 10px 60px rgba(255,120,20,.22); }
+.dp-sub { margin: 4px 0 0; font-size: 22px; font-weight: 700; color: #E9D3B8; }
+.dp-go { height: 60px; padding: 0 34px; border-radius: 22px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-weight: 800; font-size: 18px; box-shadow: 0 12px 30px rgba(255,106,0,0.3); white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.dp-go:disabled { opacity: .5; box-shadow: none; }
+.dp-glass { min-height: 56px; padding: 0 12px; border-radius: 20px; background: rgba(255,255,255,0.07); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10); color: #EAE3DC; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+.dp-glass:disabled { opacity: .5; }
+.dp-go:focus-visible, .dp-glass:focus-visible, .dp-last-btn:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+.dp-hint { margin: 14px 0 0; text-align: center; font-size: 13px; color: #ABA095; }
+.dp-hint kbd { font-family: inherit; padding: 1px 7px; border-radius: 6px; background: rgba(255,255,255,0.08); color: #EAE3DC; }
+.dp-last { display: flex; align-items: center; gap: 12px; height: 56px; max-width: 100%; padding: 0 8px 0 18px; border-radius: 999px; background: linear-gradient(180deg, rgba(255,240,225,0.075), rgba(255,240,225,0.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,0.16), inset 0 0 0 1px rgba(255,240,225,0.08), 0 30px 70px rgba(0,0,0,0.45); font-size: 14px; white-space: nowrap; }
+[dir="rtl"] .dp-last { padding: 0 18px 0 8px; }
+.dp-last-ok { width: 34px; height: 34px; flex: none; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFE7B0, #FFC777 55%, #E09A3A); color: #2A1404; display: flex; align-items: center; justify-content: center; }
+.dp-last b { max-width: 220px; }
+.dp-last-btn { min-height: 44px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,0.06); color: #EAE3DC; font-size: 13px; display: flex; align-items: center; gap: 6px; flex: none; }
+
+/* الجوال */
+.dp-m { flex-direction: column; min-height: calc(100dvh - 90px); }
+.dp-m-stage { position: relative; width: 390px; max-width: 100%; height: 420px; margin: 10px auto 0; }
+.dp-m-glow { position: absolute; left: -185px; top: -64px; width: 760px; height: 480px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,110,20,0.32), transparent); filter: blur(10px); pointer-events: none; }
+.dp-m-vessel { position: absolute; left: 55px; top: 31px; }
+.dp-m-head { margin-top: -50px; position: relative; z-index: 2; text-align: center; }
+.dp-m-head .dp-sub { font-size: 14px; }
+.dp-m-btns { margin-top: auto; padding: 18px 0 calc(92px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+.dp-m-btns .dp-go { height: 58px; font-size: 17px; border-radius: 20px; }
+.dp-m-btns .dp-glass { min-height: 52px; font-size: 14px; }
+
+/* ═══ حركة الدخول (DropEnter) — 1.1 ثانية، مرة وحدة ═══
+   0–300: الوعاء يطلع (60px تحت، .8، blur 10) والحلقة الذهبية ترسم نفسها
+   250–700: الأماكن تطير من جنب الوعاء لمداراتها (60ms بين كل واحد) والخطوط المنقطة تبان
+   700–1100: العنوان يطلع 18px مع blur 6→0، وبعده الأزرار والشريط، والجمر يطلع مرة */
+.dp-enter .dp-vin { animation: dp-vin .3s cubic-bezier(.2,.9,.2,1) both; }
+.dp-enter .dp-ring { animation: dp-ring .3s cubic-bezier(.2,.8,.2,1) backwards; }
+.dp-enter .dp-li { animation: dp-fade .45s cubic-bezier(.2,.8,.2,1) .25s backwards; }
+.dp-enter .dp-co { animation: dp-chip .4s cubic-bezier(.2,.9,.2,1) both; }
+.dp-enter .dp-tin { animation: dp-tin .4s cubic-bezier(.2,.8,.2,1) .7s both; }
+.dp-enter .dp-t2 { animation-delay: .8s; }
+.dp-enter .dp-t3 { animation-delay: .9s; }
+.dp-enter .dp-emb { animation: dp-emb 1.6s ease-out .7s both; }
+.dp-enter .dp-emb.e2 { animation-delay: .78s; }
+.dp-enter .dp-emb.e3 { animation-delay: .86s; }
+.dp-enter .dp-emb.e4 { animation-delay: .94s; }
+@keyframes dp-vin { from { opacity: 0; transform: translateY(60px) scale(.8); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes dp-ring { from { stroke-dasharray: 0 100; } to { stroke-dasharray: 100 0; } }
+@keyframes dp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dp-chip { from { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes dp-tin { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes dp-emb { 0% { transform: translateY(0) scale(.6); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-150px) scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .dp-enter .dp-vin, .dp-enter .dp-ring, .dp-enter .dp-li, .dp-enter .dp-co, .dp-enter .dp-tin, .dp-enter .dp-emb { animation: none; }
+}
+html[data-reduce-motion="true"] .dp-enter :is(.dp-vin, .dp-ring, .dp-li, .dp-co, .dp-tin, .dp-emb) { animation: none; }

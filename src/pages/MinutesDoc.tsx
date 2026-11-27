@@ -160,7 +160,7 @@ export default function MinutesDoc() {
     setBusy("logo");
     const p = await uploadLogo(team.id, f);
     setBusy("");
-    showToast({ title: p ? tr("انرفع الشعار ✓ يطلع بالـPDF") : tr("الشعار لازم صورة أصغر من ٢ ميغا."), icon: p ? CircleCheck : CircleAlert });
+    showToast({ title: p ? tr("انرفع الشعار ✓ يطلع بالـPDF") : tr("الشعار لازم صورة أصغر من 2 ميغا."), icon: p ? CircleCheck : CircleAlert });
   };
 
   const section = (n: string, head: string, body: React.ReactNode, i: number) => (
@@ -344,7 +344,7 @@ export default function MinutesDoc() {
                         {place && (
                           <Link to={place.route} className="md-place">
                             {place.label}
-                            <ChevronLeft size={13} aria-hidden className="ltr:rotate-180" />
+                            <ChevronLeft size={13} aria-hidden />
                           </Link>
                         )}
                       </span>

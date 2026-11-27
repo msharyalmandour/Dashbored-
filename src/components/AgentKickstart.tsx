@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "./brand/WLogo";
 import { Link } from "react-router-dom";
-import { Check, CheckCircle2, Loader2, Wand2 } from "lucide-react";
+import { Check, CheckCircle2, Wand2 } from "lucide-react";
 import clsx from "clsx";
 import AiLockedCard from "./AiLockedCard";
 import SourceList from "./ui/SourceList";
@@ -29,7 +30,7 @@ function load(): AgentResult | null {
   }
 }
 
-/** «جهّزوا لنا البداية»: الوكيل يدوّر بدراسات حقيقية عن عنوانكم ويطلّع لكم دراسات + مسودة فجوة + أسئلة + مهام،
+/** «جهّزوا لنا البداية»: ويسي يدوّر بدراسات حقيقية عن عنوانكم ويطلّع لكم دراسات + مسودة فجوة + أسئلة + مهام،
     كل قسم بطاقة موافقة (احفظوه / تجاهلوه). ما ينحفظ شي قبل ضغطتكم، ولا يكتب البحث بدالكم — هذي نقطة انطلاق للنقاش مع المشرف/ة. */
 export default function AgentKickstart() {
   const { team, currentUser, isLeader, canWrite } = useAuth();
@@ -48,7 +49,7 @@ export default function AgentKickstart() {
   const [skipTask, setSkipTask] = useState<Record<number, boolean>>({});
 
   if (!isSupabaseConfigured) return null;
-  if (!hasAiAccess(team)) return <AiLockedCard feature={tr("تجهيز البداية بالوكيل")} />;
+  if (!hasAiAccess(team)) return <AiLockedCard feature={tr("تجهيز البداية بويسي")} />;
 
   const title = project?.title?.trim() ?? "";
   const existingQs = questions.map((q) => q.text);
@@ -158,11 +159,11 @@ export default function AgentKickstart() {
 
   const Approve = ({ section, onClick, label, disabled }: { section: Section; onClick: () => void; label: string; disabled?: boolean }) =>
     done[section] ? (
-      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fd6a0]">
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
         <CheckCircle2 size={16} />{tr(" تم")}</span>
     ) : (
       <button onClick={onClick} disabled={!canWrite || disabled || applying !== null} className={primaryBtn}>
-        {applying === section ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+        {applying === section ? <WSpin size={15} /> : <Check size={15} />}
         {label}
       </button>
     );
@@ -172,12 +173,12 @@ export default function AgentKickstart() {
   );
 
   return (
-    <Panel title={tr("جهّزوا لنا البداية")} hint={tr("الوكيل يشتغل، وأنتم توافقون")}>
-      <p className="text-sm leading-relaxed text-brand-950/65">{tr("اضغطوا زر واحد وتخلّون الوكيل يدوّر بدراسات منشورة عن عنوانكم، ويرجّع لكم: ")}<b className="text-brand-950">{tr("دراسات")}</b>{tr(" تحفظونها بمكتبتكم، و")}<b className="text-brand-950">{tr("مسودة فجوة بحثية")}</b>{tr("، و")}<b className="text-brand-950">{tr("أسئلة بحث")}</b>{tr(" مبنية على الدراسات، و")}<b className="text-brand-950">{tr("مهام")}</b>{tr(" للخطوة الجاية. ما ينحفظ شي قبل ما توافقون، وكلها نقطة انطلاق تناقشونها مع المشرف/ة — مو بديل عن شغلكم.")}</p>
+    <Panel title={tr("جهّزوا لنا البداية")} hint={tr("ويسي يشتغل، وأنتم توافقون")}>
+      <p className="text-sm leading-relaxed text-brand-950/65">{tr("اضغطوا زر واحد وتخلّون ويسي يدوّر بدراسات منشورة عن عنوانكم، ويرجّع لكم: ")}<b className="text-brand-950">{tr("دراسات")}</b>{tr(" تحفظونها بمكتبتكم، و")}<b className="text-brand-950">{tr("مسودة فجوة بحثية")}</b>{tr("، و")}<b className="text-brand-950">{tr("أسئلة بحث")}</b>{tr(" مبنية على الدراسات، و")}<b className="text-brand-950">{tr("مهام")}</b>{tr(" للخطوة الجاية. ما ينحفظ شي قبل ما توافقون، وكلها نقطة انطلاق تناقشونها مع المشرف/ة — مو بديل عن شغلكم.")}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button onClick={run} disabled={busy || !title || !canWrite} className={primaryBtn}>
-          {busy ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
-          {busy ? tr("الوكيل يدوّر بالدراسات… (حوالي دقيقة)") : result ? tr("جهّزوا من جديد") : tr("جهّزوا لنا البداية")}
+          {busy ? <WSpin size={15} /> : <Wand2 size={15} />}
+          {busy ? tr("ويسي يدوّر بالدراسات… (حوالي دقيقة)") : result ? tr("جهّزوا من جديد") : tr("جهّزوا لنا البداية")}
         </button>
         {!title && <span className="text-sm text-brand-950/50">{tr("اكتبوا عنوان البحث أول (من الرئيسية أو المقترح).")}</span>}
         {title && <span className="text-xs text-brand-950/45" dir="auto">{trx("العنوان: {0}", title)}</span>}
@@ -188,10 +189,10 @@ export default function AgentKickstart() {
         <div className="mt-6 space-y-6">
           {result.noveltyNote && <p className="rounded-2xl bg-black/25 px-4 py-3 text-sm text-brand-950/70">💡 {result.noveltyNote}</p>}
 
-          {/* ١. الدراسات */}
+          {/* 1. الدراسات */}
           <section>
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="font-display text-base font-bold text-brand-950">{trx("١. دراسات قريبة من موضوعكم ({0})", result.papers.length)}</h3>
+              <h3 className="font-display text-base font-bold text-brand-950">{trx("1. دراسات قريبة من موضوعكم ({0})", result.papers.length)}</h3>
               <Approve section="papers" onClick={savePapers} label={tr("احفظوا المختارة بمكتبتكم")} disabled={result.papers.every((_, i) => skipPaper[i])} />
             </div>
             <ul className="space-y-2">
@@ -212,11 +213,11 @@ export default function AgentKickstart() {
             </ul>
           </section>
 
-          {/* ٢. الفجوة */}
+          {/* 2. الفجوة */}
           {result.gap && (result.gap.whatWeKnow.length > 0 || result.gap.whatWeDontKnow.length > 0 || result.gap.gapStatement) && (
             <section>
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-display text-base font-bold text-brand-950">{tr("٢. مسودة الفجوة البحثية")}</h3>
+                <h3 className="font-display text-base font-bold text-brand-950">{tr("2. مسودة الفجوة البحثية")}</h3>
                 <Approve section="gap" onClick={saveGap} label={tr("أضيفوها لقسم الفجوة")} />
               </div>
               <div className="grid gap-3 md:grid-cols-2">
@@ -244,14 +245,14 @@ export default function AgentKickstart() {
                 </div>
               </div>
               {result.gap.gapStatement && <p className="mt-2 rounded-2xl bg-black/25 px-4 py-3 text-sm text-brand-950/80">{result.gap.gapStatement}</p>}
-              <p className="mt-1.5 text-[11px] text-brand-950/40">{tr("مسودة مبنية على ملخصات الدراسات فقط — اقرأوا الدراسات كاملة وناقشوها مع المشرف/ة قبل ما تعتمدونها.")}</p>
+              <p className="mt-1.5 text-[12px] text-brand-950/40">{tr("مسودة مبنية على ملخصات الدراسات فقط — اقرأوا الدراسات كاملة وناقشوها مع المشرف/ة قبل ما تعتمدونها.")}</p>
             </section>
           )}
 
-          {/* ٣. الأسئلة */}
+          {/* 3. الأسئلة */}
           <section>
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="font-display text-base font-bold text-brand-950">{trx("٣. أسئلة بحث مبنية على الدراسات ({0})", result.questions.length)}</h3>
+              <h3 className="font-display text-base font-bold text-brand-950">{trx("3. أسئلة بحث مبنية على الدراسات ({0})", result.questions.length)}</h3>
               <Approve section="questions" onClick={saveQuestions} label={tr("أضيفوا المختارة لأسئلة البحث")} disabled={result.questions.every((_, i) => skipQuestion[i])} />
             </div>
             <ul className="space-y-2">
@@ -269,11 +270,11 @@ export default function AgentKickstart() {
             </ul>
           </section>
 
-          {/* ٤. المهام */}
+          {/* 4. المهام */}
           {result.tasks && result.tasks.length > 0 && (
             <section>
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-display text-base font-bold text-brand-950">{trx("٤. خطواتكم الجاية ({0})", result.tasks.length)}</h3>
+                <h3 className="font-display text-base font-bold text-brand-950">{trx("4. خطواتكم الجاية ({0})", result.tasks.length)}</h3>
                 {isLeader ? (
                   <Approve section="tasks" onClick={saveTasks} label={tr("حوّلوها لمهام")} disabled={result.tasks.every((_, i) => skipTask[i])} />
                 ) : (

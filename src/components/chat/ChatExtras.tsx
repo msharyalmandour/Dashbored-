@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { WesyAvatar } from "../brand/Wesy";
 import { Link } from "react-router-dom";
 import { BellRing, BookOpen, CalendarCheck, CalendarX, CheckCircle2, FileCheck2, FilePen, HelpCircle, MessageSquareQuote, PenLine, Vote } from "lucide-react";
 import Dialog from "../ui/Dialog";
@@ -101,20 +102,9 @@ export function TodaySummary({ messages, openDecisions, pendingMinutes }: { mess
   );
 }
 
-/* ══ رد الوكيل داخل المحادثة ══ */
+/* ══ رد ويسي داخل المحادثة ══ */
 export function AgentMark() {
-  return (
-    <span className="tc-agent-av" aria-hidden>
-      <svg width="16" height="16" viewBox="0 0 26 26">
-        <g fill="#FF9A3C">
-          <rect x="4" y="10" width="3" height="6" rx="1.5" />
-          <rect x="9.2" y="6" width="3" height="14" rx="1.5" />
-          <rect x="14.4" y="3.5" width="3" height="19" rx="1.5" />
-          <rect x="19.6" y="8.5" width="3" height="9" rx="1.5" />
-        </g>
-      </svg>
-    </span>
-  );
+  return <WesyAvatar size={30} className="tc-agent-av" />;
 }
 
 /* ══ تصويت ══ */
@@ -349,8 +339,8 @@ export function ReminderSheet({ msg, onClose, onRemind }: { msg: ChatMessage; on
   };
   const opts = [
     ["hour", tr("بعد ساعة")],
-    ["tonight", tr("الليلة ٩")],
-    ["tomorrow", tr("بكرا ٩ الصبح")],
+    ["tonight", tr("الليلة 9")],
+    ["tomorrow", tr("بكرا 9 الصبح")],
     ["week", tr("بعد أسبوع")],
   ] as const;
   return (
@@ -382,7 +372,7 @@ export function ReminderSheet({ msg, onClose, onRemind }: { msg: ChatMessage; on
   );
 }
 
-/* ══ ارموا دراسة بالمحادثة: الوكيل يقرأها ويحطها بالمكتبة وجدول الأدبيات ══ */
+/* ══ ارموا دراسة بالمحادثة: ويسي يقرأها ويحطها بالمكتبة وجدول الأدبيات ══ */
 export function StudyDropSheet({ open, me, onClose, onSaved }: { open: boolean; me: string; onClose: () => void; onSaved: () => void }) {
   return (
     <Dialog open={open} onClose={onClose} title={tr("ارموا دراسة")}>

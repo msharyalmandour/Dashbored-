@@ -3,6 +3,7 @@
 //  catchup : «اللي فاتك ويخصك» — ٣ أسطر لصاحب الطلب من رسائل غيابه ومهامه
 //  voice   : يطلع من نص الفويس الزبدة والمهام/القرارات/الأسئلة/المواعيد (كل ~٥ ثواني وقت التسجيل، ومرة أخيرة بعد الإيقاف)
 //  stt     : تفريغ ملف الفويس (حاوية drops) — بس لو فيه ELEVENLABS_API_KEY، وإلا not_configured ويكفي نص المتصفح
+//  stt_token: رمز لمرة وحدة (15 دقيقة) للكتابة الحيّة من المتصفح (Scribe v2 Realtime) — المفتاح ما يطلع للمتصفح
 // نموذج سريع واحد بمخطط JSON صارم. المتغيرات: ANTHROPIC_API_KEY، ELEVENLABS_API_KEY (اختياري).
 import Anthropic from "npm:@anthropic-ai/sdk@^0.68.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -15,7 +16,7 @@ const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 // حدود شهرية لكل فريق (عدّاد agent_runs) — سخية، بس تمنع الإسراف
-const MONTHLY: Record<string, number> = { "chat-summary": 900, "chat-catchup": 300, "voice-extract": 3000, "voice-stt": 400 };
+const MONTHLY: Record<string, number> = { "chat-summary": 900, "chat-catchup": 300, "voice-extract": 3000, "voice-stt": 400, "voice-live": 1500 };
 const SUMMARY_EVERY_MS = 2 * 60_000;
 
 const monthStart = () => {
@@ -127,6 +128,21 @@ Deno.serve(async (req: Request) => {
       return json(200, out);
     }
 
+    if (action === "stt_token") {
+      const key = Deno.env.get("ELEVENLABS_API_KEY");
+      if (!key) return json(200, { token: null, reason: "not_configured" });
+      if (!active) return json(200, { token: null, reason: "read_only" });
+      if (!(await underLimit(teamId, "voice-live"))) return json(200, { token: null, reason: "ai_limit" });
+      const r = await fetch("https://api.elevenlabs.io/v1/single-use-token/realtime_scribe", { method: "POST", headers: { "xi-api-key": key } });
+      if (!r.ok) {
+        console.error("chat-intel stt_token:", r.status, (await r.text().catch(() => "")).slice(0, 200));
+        return json(200, { token: null, reason: "token_failed" });
+      }
+      const out = (await r.json()) as { token?: string };
+      await logRun(teamId, me.id, "voice-live");
+      return json(200, { token: out.token ?? null });
+    }
+
     if (action === "stt") {
       const key = Deno.env.get("ELEVENLABS_API_KEY");
       if (!key) return json(200, { text: null, reason: "not_configured" });
@@ -142,7 +158,8 @@ Deno.serve(async (req: Request) => {
       fd.append("file", file, "voice.webm");
       const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", { method: "POST", headers: { "xi-api-key": key }, body: fd });
       if (!r.ok) {
-        console.error("chat-intel stt:", r.status);
+        // سبب الرفض من ElevenLabs (بدون المفتاح): invalid_api_key / missing_permissions / quota…
+        console.error("chat-intel stt:", r.status, (await r.text().catch(() => "")).slice(0, 200));
         return json(200, { text: null, reason: "stt_failed" });
       }
       const out = (await r.json()) as { text?: string };

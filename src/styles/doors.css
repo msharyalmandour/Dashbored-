@@ -1,0 +1,198 @@
+/* ═══ «Wesync يكبر مع بحثكم»: الأبواب اللي تنفتح (docs/DESIGN_BRIEF_UNLOCK.md) ═══ */
+
+/* الباب «الجاي» المقفل: باهت، ما يُضغط، سطر وش يفتحه */
+.door-locked { opacity: .55; cursor: default; min-height: 52px; padding-block: 6px; }
+.door-locked:hover { background: transparent; color: #D9CEC4; }
+
+/* «كل الأبواب» / «رتّبوها حسب مرحلتكم» — رابط هادي */
+.door-all { align-self: flex-start; min-height: 44px; margin-top: 6px; padding: 0 14px; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 700; color: #ABA095; cursor: pointer; border-radius: 999px; }
+.door-all:hover { color: #FFC777; }
+.door-all:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+
+/* ═══ لحظة الانفتاح بالقائمة — 1.4 ثانية بالضبط من DoorMotionSpec ═══
+   0ms القفل يدور ربع لفة (280) · 200ms القفل ينفك ويختفي (280) · 300ms خط ذهبي على الحافة (700)
+   700ms الأيقونة والاسم يكتملون .45→1 (450) · 1100ms نبضة 1→1.03→1 (300) */
+.lx-link.door-new { position: relative; animation: dlPulse 300ms 1100ms cubic-bezier(.3,1.2,.5,1) both; }
+@keyframes dlPulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+.dl-fade { opacity: .45; animation: dlFade 450ms 700ms cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes dlFade { to { opacity: 1; } }
+.dl-edge { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.dl-edge rect { fill: none; stroke: #FFC777; stroke-width: 1.5; stroke-dasharray: 100; stroke-dashoffset: 100; animation: dlEdge 700ms 300ms cubic-bezier(.65,0,.35,1) forwards, dlEdgeRest 600ms 1300ms ease-out forwards; }
+@keyframes dlEdge { to { stroke-dashoffset: 0; } }
+@keyframes dlEdgeRest { to { opacity: .35; } }
+.dl-lock { position: absolute; inset-inline-end: 12px; top: 50%; width: 26px; height: 26px; margin-top: -13px; display: grid; place-items: center; border-radius: 50%; color: #1A0802; background: radial-gradient(circle at 35% 30%, #FFF0C2, #FFC777 55%, #E9A94F); animation: dlTurn 280ms 0ms cubic-bezier(.3,0,.2,1) both, dlOff 280ms 200ms cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes dlTurn { from { transform: rotate(0); } to { transform: rotate(-90deg); } }
+@keyframes dlOff { from { opacity: 1; transform: rotate(-90deg) scale(1); } to { opacity: 0; transform: rotate(-90deg) translateY(-6px) scale(.7); } }
+
+/* كبسولة الإشعار: تنزل translateY(-16px→0) 420ms، وتطلع 260ms */
+@keyframes doorPop { from { opacity: 0; transform: translate(-50%, -16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes doorOut { to { opacity: 0; transform: translate(-50%, -10px); } }
+@keyframes doorTimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.door-pop { position: fixed; z-index: 90; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: min(520px, calc(100vw - 32px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 14px 14px 12px; border-radius: 24px; overflow: hidden; background: linear-gradient(180deg, rgba(40,22,12,.95), rgba(18,10,6,.95)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 1px 0 rgba(255,240,225,.14), inset 0 0 0 1px rgba(255,199,119,.22), 0 24px 60px rgba(0,0,0,.55); animation: doorPop 420ms cubic-bezier(.2,.9,.25,1) both; }
+.door-pop.out { animation: doorOut 260ms ease-in forwards; }
+.door-row { display: flex; align-items: center; gap: 12px; }
+.door-acts { display: flex; gap: 8px; justify-content: flex-end; }
+.door-timer { position: absolute; inset-inline: 14px; bottom: 6px; height: 2px; border-radius: 99px; background: #FFC777; transform-origin: right center; animation-name: doorTimer; animation-timing-function: linear; animation-fill-mode: forwards; }
+[dir="ltr"] .door-timer { transform-origin: left center; }
+.door-timer.paused { animation-play-state: paused; }
+.door-go { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #F2EBE3; color: #160904; font-size: 14px; font-weight: 800; }
+.door-go:focus-visible, .door-x:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+.door-x { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: #ABA095; font-size: 22px; line-height: 1; cursor: pointer; }
+.door-x:hover { color: #F2EBE3; }
+
+/* تقليل الحركة: كل شي يطلع بحالته الأخيرة، والكبسولة بتلاشي بسيط */
+@media (prefers-reduced-motion: reduce) {
+  .lx-link.door-new, .dl-edge rect, .dl-lock, .dl-fade { animation: none; }
+  .dl-fade { opacity: 1; } .dl-lock { display: none; } .dl-edge rect { stroke-dashoffset: 0; opacity: .35; }
+  .door-pop { animation: svFade .2s both; } .door-timer { animation: none; display: none; }
+}
+html[data-reduce-motion="true"] .lx-link.door-new, html[data-reduce-motion="true"] .dl-edge rect, html[data-reduce-motion="true"] .dl-lock, html[data-reduce-motion="true"] .dl-fade { animation: none; }
+html[data-reduce-motion="true"] .dl-fade { opacity: 1; }
+html[data-reduce-motion="true"] .dl-lock, html[data-reduce-motion="true"] .door-timer { display: none; }
+html[data-reduce-motion="true"] .dl-edge rect { stroke-dashoffset: 0; opacity: .35; }
+html[data-reduce-motion="true"] .door-pop { animation: svFade .2s both; }
+
+/* ═══ كرت «الجاي لكم» — أول شي بالرئيسية ═══ */
+@keyframes nxIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes nxNow { 0% { box-shadow: 0 0 0 0 rgba(255,154,60,.6); } 100% { box-shadow: 0 0 0 7px rgba(255,154,60,0); } }
+.nx-card { position: relative; margin-bottom: 18px; padding: 22px 22px 18px; border-radius: 28px; background: radial-gradient(120% 140% at 100% 0%, rgba(255,106,0,.16), transparent 55%), linear-gradient(180deg, rgba(255,240,225,.085), rgba(255,240,225,.03)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,240,225,.09), 0 30px 70px rgba(0,0,0,.45); color: #F2EBE3; overflow: hidden; }
+@media (min-width: 1024px) { .nx-card { padding: 28px 32px 22px; } }
+.nx-kick { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 800; color: #FFC777; }
+.nx-of { font-size: 12px; font-weight: 700; color: #ABA095; }
+.nx-body { animation: nxIn .4s cubic-bezier(.2,.8,.2,1) both; }
+.nx-title { margin: 8px 0 0; padding-top: .1em; font-size: 26px; line-height: 1.35; font-weight: 800; letter-spacing: 0; color: #F2EBE3; }
+@media (min-width: 1024px) { .nx-title { font-size: 32px; } }
+.nx-title.nx-done { color: #FFC777; }
+.nx-why { margin: 4px 0 0; font-size: 15px; color: #ABA095; }
+.nx-go { display: inline-flex; align-items: center; gap: 8px; min-height: 50px; margin-top: 16px; padding: 0 24px; border-radius: 999px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-size: 16px; font-weight: 800; box-shadow: 0 12px 30px rgba(255,106,0,.3); transition: transform .15s; }
+.nx-go:hover { transform: translateY(-1px); }
+.nx-go:focus-visible { outline: 2px solid #FFC777; outline-offset: 3px; }
+.nx-dots { display: flex; gap: 6px; margin-top: 18px; }
+.nx-dots i { flex: 1; height: 4px; border-radius: 99px; background: rgba(255,255,255,.08); }
+.nx-dots i.on { background: #FFC777; }
+.nx-dots i.now { background: #FF9A3C; animation: nxNow 1.2s .4s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { .nx-body, .nx-dots i.now { animation: none; } .nx-go { transition: none; } }
+html[data-reduce-motion="true"] .nx-body, html[data-reduce-motion="true"] .nx-dots i.now { animation: none; }
+
+/* زر برتقالي واحد بالشاشة: لما «الجاي» موجود، زر «أول أسبوع» يصير كريمي */
+.nx-on .fw-orange { background: #F2EBE3; color: #160904; box-shadow: none; }
+
+/* تبويب «أكتب» المقفل (المنهجية قبل أول قسم) */
+.wf-locked { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border-radius: 16px; font-size: 15px; font-weight: 700; color: #ABA095; opacity: .6; white-space: nowrap; cursor: default; }
+.wf-locked svg { color: #FFC777; }
+.wf-locked small { font-size: 12px; font-weight: 500; }
+@media (max-width: 640px) { .wf-locked small { display: none; } }
+
+/* «شاركوها» بالكبسولة: زجاج (البرتقالي الوحيد يبقى بالصفحة نفسها) */
+.door-share { flex: none; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255,240,225,.08); box-shadow: inset 0 0 0 1px rgba(255,199,119,.35); color: #FFC777; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.door-share:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+
+/* نافذة بطاقة الإنجاز */
+.ach-scrim { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: svFade .2s both; }
+.ach-sheet { width: min(380px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; box-sizing: border-box; padding: 16px; border-radius: 28px; background: linear-gradient(180deg, #1E120B, #0F0907); box-shadow: inset 0 1px 0 rgba(255,240,225,.14), inset 0 0 0 1px rgba(255,240,225,.08), 0 40px 90px rgba(0,0,0,.6); }
+.ach-prev { margin-top: 12px; aspect-ratio: 9 / 16; max-height: 52dvh; border-radius: 18px; overflow: hidden; background: #080808; display: grid; place-items: center; }
+.ach-prev img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.ach-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin-top: 14px; border: 0; border-radius: 999px; background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 12px 30px rgba(255,106,0,.3); }
+.ach-dl { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 46px; margin-top: 8px; border: 0; border-radius: 999px; background: rgba(255,240,225,.07); box-shadow: inset 0 0 0 1px rgba(255,240,225,.1); color: #F2EBE3; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.ach-go:disabled, .ach-dl:disabled { opacity: .5; cursor: default; }
+.ach-go:focus-visible, .ach-dl:focus-visible { outline: 2px solid #FFC777; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ach-scrim { animation: none; } }
+
+/* ═══ مكتب ويسي (CeoHomeD / CeoHomeM) ═══ */
+.wo { position: relative; margin-bottom: 18px; border-radius: 32px; overflow: hidden; background: linear-gradient(180deg, #1A0D07 0%, #120805 60%, #0C0604 100%); box-shadow: inset 0 0 0 1px rgba(255,199,119,.14), 0 30px 70px rgba(0,0,0,.45); }
+.wo-scene { position: relative; height: 420px; }
+.wo-window { position: absolute; top: 34px; inset-inline-start: 16%; width: 35%; height: 260px; border-radius: 22px; overflow: hidden; box-shadow: inset 0 0 0 6px #1E0F08, 0 0 0 1px rgba(255,199,119,.12); }
+.wo-sky { width: 100%; height: 100%; display: block; }
+.wo-shelf { position: absolute; top: 34px; inset-inline-start: 2.5%; width: 11%; height: 260px; display: flex; flex-direction: column; gap: 10px; padding: 10px; border-radius: 14px; background: #1A0D07; box-shadow: inset 0 0 0 1px rgba(255,199,119,.08); }
+.wo-row { flex: 1; display: flex; align-items: flex-end; gap: 4px; border-bottom: 3px solid #2A160C; }
+.wo-row i { flex: 1; border-radius: 2px 2px 0 0; opacity: .85; }
+.wo-lamp { position: absolute; top: -120px; inset-inline-start: 33%; width: 520px; height: 420px; transform: translateX(50%); background: radial-gradient(closest-side, rgba(255,160,60,.22), transparent); pointer-events: none; }
+html[dir="ltr"] .wo-lamp { transform: translateX(-50%); }
+.wo-desk { position: absolute; inset-inline: 0; bottom: 0; height: 92px; background: linear-gradient(180deg, #3A1D0E, #241108 40%, #170A05); box-shadow: inset 0 2px 0 rgba(255,199,119,.25); }
+.wo-wesy { position: absolute; bottom: 40px; inset-inline-start: 19.5%; width: 300px; }
+.wo-laptop { position: absolute; bottom: -6px; left: 50%; width: 150px; height: 96px; margin-left: -75px; border-radius: 12px; background: #F2EBE3; display: grid; place-items: center; box-shadow: 0 12px 30px rgba(0,0,0,.45); }
+.wo-laptop .wo-w { color: #E9651F; }
+.wo-cup { position: absolute; bottom: 4px; inset-inline-start: 2px; width: 16px; height: 20px; border-radius: 2px 2px 5px 5px; background: #F2EBE3; }
+.wo-plaque { position: absolute; bottom: 22px; inset-inline-start: calc(19.5% + 150px); transform: translateX(50%); padding: 7px 16px; border-radius: 12px; background: linear-gradient(180deg, #FFE2A8, #E9B05A); color: #2A1404; font-size: 13px; font-weight: 800; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+html[dir="ltr"] .wo-plaque { transform: translateX(-50%); }
+.wo-bubble { position: absolute; top: 64px; inset-inline-start: 37%; z-index: 2; margin: 0; padding: 10px 16px; border-radius: 18px 18px 4px 18px; background: #F2EBE3; color: #160904; font-size: 14px; font-weight: 800; box-shadow: 0 12px 30px rgba(0,0,0,.35); max-width: 280px; }
+.wo-card { position: absolute; z-index: 3; top: 96px; inset-inline-end: 28px; width: min(470px, 42%); }
+.wo-card .nx-card { margin: 0; background: #100906; }
+.wo-card .nx-card.cream { background: #F2EBE3; }
+@media (max-width: 1023px) {
+  .wo { border-radius: 28px; }
+  .wo-scene { height: 300px; }
+  .wo-shelf { display: none; }
+  .wo-window { inset-inline-start: 12%; width: 76%; height: 190px; top: 22px; }
+  .wo-wesy { width: 220px; inset-inline-start: 50%; margin-inline-start: -110px; bottom: 30px; }
+  .wo-wesy .wesy { width: 220px !important; height: 212px !important; }
+  .wo-laptop { width: 112px; height: 70px; margin-left: -56px; }
+  .wo-desk { height: 70px; }
+  .wo-plaque { bottom: 14px; font-size: 12px; inset-inline-start: 50%; }
+  .wo-bubble { top: 16px; inset-inline-start: 16px; max-width: 60%; font-size: 13px; }
+  .wo-card { position: relative; top: auto; inset-inline-end: auto; width: auto; margin: -34px 12px 12px; }
+}
+
+/* حالات الكرت */
+.nx-card.cream { background: #F2EBE3; color: #160904; }
+.nx-card.cream .nx-kick { color: #B5520C; }
+.nx-card.cream .nx-title { color: #160904; }
+.nx-card.cream .nx-why { color: #6B4A33; }
+.nx-card.cream .nx-dots i { background: rgba(22,9,4,.12); }
+.nx-card.cream .nx-dots i.on { background: #E09A3A; }
+.nx-ghost { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; margin-top: 16px; padding: 0 20px; border-radius: 999px; background: rgba(22,9,4,.07); box-shadow: inset 0 0 0 1px rgba(22,9,4,.14); color: #160904; font-size: 15px; font-weight: 800; }
+.nx-topic { display: flex; gap: 10px; margin-top: 16px; }
+.nx-topic input { flex: 1; min-width: 0; min-height: 50px; padding: 0 16px; border-radius: 16px; border: 0; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); color: #F2EBE3; font: inherit; font-size: 15px; outline: none; }
+.nx-topic input:focus-visible { box-shadow: inset 0 0 0 1.5px rgba(255,199,119,.6); }
+.nx-topic .nx-go { margin-top: 0; border: 0; font: inherit; font-weight: 800; cursor: pointer; }
+.nx-go:disabled { opacity: .5; cursor: default; }
+button.nx-go { border: 0; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; }
+.nx-sk { display: block; border-radius: 10px; background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.11) 50%, rgba(255,255,255,.05) 75%); background-size: 200% 100%; animation: nxShimmer 1.4s linear infinite; }
+@keyframes nxShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+/* انتقال الخطوة: cross-fade 400ms والكرت الجديد يرتفع 6px */
+.nx-body { animation: nxSwap .4s cubic-bezier(.4,0,.2,1) both; }
+@keyframes nxSwap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .nx-sk { animation: none; } .nx-body { animation: none; } }
+html[data-reduce-motion="true"] .nx-sk, html[data-reduce-motion="true"] .nx-body { animation: none; }
+
+/* شارة المؤسسين + سجل الرحلة + المكتب المظلم */
+.fb-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,199,119,.1); box-shadow: inset 0 0 0 1px rgba(255,199,119,.45); color: #FFC777; font-size: 13px; font-weight: 800; }
+.fb-badge small { font-size: 11px; font-weight: 600; color: #ABA095; }
+.fb-badge.sm { margin: 0; padding: 3px 10px; font-size: 11px; }
+.wo.dim .wo-window, .wo.dim .wo-shelf { filter: brightness(.45) saturate(.8); transition: filter .6s; }
+.wo.dim .wo-lamp { opacity: .35; }
+.rc-sheet { border-radius: 28px; padding: 22px; background: linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,199,119,.18); }
+.rc-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid rgba(255,199,119,.16); }
+.rc-head .fb-badge { margin: 0; }
+.rc-list { list-style: none; margin: 0; padding: 0; }
+.rc-row { display: flex; align-items: center; gap: 12px; min-height: 64px; border-bottom: 1px dashed rgba(255,199,119,.16); }
+.rc-n { font-size: 13px; font-weight: 800; color: #ABA095; width: 26px; }
+.rc-ic { width: 34px; height: 34px; flex: none; border-radius: 11px; display: grid; place-items: center; background: rgba(255,199,119,.1); color: #FFC777; }
+.rc-ok { font-size: 12px; font-weight: 800; color: #FFC777; }
+.rc-empty { margin: 24px 0; text-align: center; color: #ABA095; font-size: 14px; }
+@media print {
+  body { background: #fff !important; }
+  .rc-noprint, aside, nav, header.lx-head, .lx-side, [data-tour] { display: none !important; }
+  .rc-sheet { box-shadow: none; background: #fff; color: #160904; }
+  .rc-sheet * { color: #160904 !important; }
+  .rc-ok, .fb-badge { color: #9A5A0A !important; }
+}
+.as-seal { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; font-size: 12px; color: #ABA095; } .as-seal b { color: #FFC777; font-weight: 800; }
+.wo-morning { position: relative; z-index: 3; display: flex; align-items: center; gap: 10px; margin: 0 16px 16px; padding: 10px 14px; border-radius: 18px; background: rgba(0,0,0,.35); box-shadow: inset 0 0 0 1px rgba(255,199,119,.2); font-size: 13px; }
+@media (min-width: 1024px) { .wo-morning { position: absolute; bottom: 16px; inset-inline-end: 28px; width: min(470px, 42%); margin: 0; box-sizing: border-box; } }
+.wo-morning-k { flex: none; font-weight: 800; color: #FFC777; }
+.wo-morning-t { flex: 1; min-width: 0; color: #E9D3B8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wo-morning button { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: #ABA095; font-size: 18px; cursor: pointer; }
+.am-code { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 20px; border-radius: 30px; text-align: center; background: radial-gradient(120% 120% at 50% 0%, rgba(255,106,0,.18), transparent 60%), linear-gradient(180deg, rgba(255,240,225,.075), rgba(255,240,225,.025)); box-shadow: inset 0 1px 0 rgba(255,240,225,.16), inset 0 0 0 1px rgba(255,199,119,.25), 0 30px 70px rgba(0,0,0,.45); }
+.am-k { font-size: 13px; font-weight: 800; color: #FFB444; }
+.am-v { font-size: 40px; font-weight: 800; letter-spacing: .04em; color: #F2EBE3; }
+.am-stat { display: flex; flex-direction: column; gap: 2px; padding: 14px; border-radius: 20px; background: rgba(0,0,0,.25); color: #FFC777; }
+.am-stat b { font-size: 34px; line-height: 1.1; color: #F2EBE3; }
+.am-stat span { font-size: 12px; color: #ABA095; }
+.ag-t { width: 100%; border-collapse: collapse; font-size: 14px; } .ag-t th { text-align: start; padding: 8px 10px; font-size: 12px; color: #FFB444; white-space: nowrap; } .ag-t td { padding: 8px 10px; border-top: 1px solid rgba(255,255,255,.07); white-space: nowrap; }
+
+/* رف ويسي: القطع اللي كسبوها من مساعدته (دروس الأكاديمية) */
+.wo-row .wo-item { flex: 1; align-self: flex-end; display: grid; place-items: center; height: 86%; border-radius: 6px 6px 2px 2px; background: rgba(255,199,119,.12); color: #FFC777; box-shadow: inset 0 0 0 1px rgba(255,199,119,.25); }
+.wo-row .wo-item.fresh { animation: wo-item-pop .7s cubic-bezier(.3,1.2,.5,1) .6s both; box-shadow: inset 0 0 0 1px rgba(255,199,119,.6), 0 0 18px rgba(255,138,36,.45); }
+@keyframes wo-item-pop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .wo-row .wo-item.fresh { animation: none; } }

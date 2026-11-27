@@ -115,7 +115,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
               <div className="flex items-start justify-between gap-2">
                 <p className="font-bold">{d.question}</p>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#FFB444]/40 bg-[#FFB444]/10 px-2.5 py-1 text-[11px] font-bold text-[#FFB444]">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#FFB444]/40 bg-[#FFB444]/10 px-2.5 py-1 text-[12px] font-bold text-[#FFB444]">
                     <Clock size={12} />{tr("بانتظار القرار")}</span>
                   {canWrite && <ThreeDotsMenu items={[{ label: tr("إلغاء الطلب"), confirmLabel: tr("تأكيد الإلغاء؟"), icon: Trash2, tone: "danger", onClick: () => onCancel(d.id) }]} />}
                 </div>
@@ -140,7 +140,7 @@ export default function DecisionsTab({ decisions, availability, supervisorUrl, c
             <div key={d.id} className={clsx(glassCard, "space-y-2.5 p-5")}>
               <div className="flex items-start justify-between gap-2">
                 <p className="font-bold">{d.question}</p>
-                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#7fd6a0]/40 bg-[#7fd6a0]/10 px-2.5 py-1 text-[11px] font-bold text-[#7fd6a0]">
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-[#FFC777]/40 bg-[#FFC777]/10 px-2.5 py-1 text-[12px] font-bold text-[#FFC777]">
                   <CheckCircle2 size={12} />{tr("تم القرار")}</span>
               </div>
               <ul className="flex flex-wrap gap-2">

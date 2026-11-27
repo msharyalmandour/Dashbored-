@@ -11,7 +11,7 @@ export interface Achievement {
 
 export const achievements: Achievement[] = [
   { id: "first-task", title: tr("أول مهمة مكتملة"), desc: tr("بداية موفقة 🎯"), icon: Target },
-  { id: "ten-evidence", title: tr("١٠ دراسات مراجَعة"), desc: tr("مكتبة أدلة بتتكوّن 📚"), icon: Library },
+  { id: "ten-evidence", title: tr("10 دراسات مراجَعة"), desc: tr("مكتبة أدلة بتتكوّن 📚"), icon: Library },
   { id: "stage-done", title: tr("مرحلة بحثية كاملة"), desc: tr("خطوة كبيرة للأمام 🏁"), icon: Rocket },
   { id: "no-overdue", title: tr("صفر مهام متأخرة"), desc: tr("الفريق كله مواكب 🔥"), icon: Flame },
   { id: "half-done", title: tr("تجاوزتم نص الطريق"), desc: tr("الأصعب خلفكم الآن 🚀"), icon: Trophy },

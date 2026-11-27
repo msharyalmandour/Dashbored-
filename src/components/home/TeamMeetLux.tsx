@@ -31,7 +31,7 @@ export const PALETTE = [
   { from: "#FFD3A0", to: "#E07A2E", tint: "rgba(255,160,80,.55)" },
 ];
 
-/** الصفر العربي «٠» يبان نقطة، فنكتب الصفر 0 */
+/** الصفر العربي «0» يبان نقطة، فنكتب الصفر 0 */
 const n0 = (n: number) => (n === 0 ? "0" : num(n));
 /** أول حرف من الاسم الأول للأفاتار الكبير */
 export const letter = (name: string) => name.trim().charAt(0) || "؟";
@@ -40,7 +40,7 @@ export const weekdayAr = (d: Date) => `ال${arabicWeekdays[d.getDay()]}`.replac
 const isUrl = (s: string) => /^(https?:\/\/|www\.)/i.test(s.trim());
 const hhmm = (t: string) => (t || "").slice(0, 5);
 
-// ───────────────────────────── ١) الفريق مع بعض ─────────────────────────────
+// ───────────────────────────── 1) الفريق مع بعض ─────────────────────────────
 
 export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string; style?: CSSProperties }) {
   const { currentUser } = useAuth();
@@ -106,13 +106,13 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                   <div className="relative">
                     <div
                       className="lux-ring"
-                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#7FE0A6" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
+                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#FFC777" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
                       role="img"
                       aria-label={tr("{0}٪ من المهام خلصت", num(pct))}
                     >
                       <div style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}>{letter(m.name)}</div>
                     </div>
-                    <span className="lux-pres" role="img" style={{ background: on ? "#7FE0A6" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
+                    <span className="lux-pres" role="img" style={{ background: on ? "#FFC777" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
                     <span className="lux-pct">{n0(pct)}٪</span>
                   </div>
                 </div>
@@ -121,13 +121,13 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     <div className="lux-name">{m.name.split(" ")[0]}</div>
                     <div className="v3-mut mt-0.5 text-xs">
                       {m.role === "leader" ? tr("قائد/ة الفريق") : tr("عضو")} ·{" "}
-                      <span style={{ color: on ? "#7FE0A6" : "var(--ws-c-muted)" }}>{on ? tr("أونلاين الحين") : tr("مو أونلاين")}</span>
+                      <span style={{ color: on ? "#FFC777" : "var(--ws-c-muted)" }}>{on ? tr("أونلاين الحين") : tr("مو أونلاين")}</span>
                     </div>
                   </div>
                   <div className="lux-now">
                     {now ? (
                       <>
-                        <div className="lux-now-k" style={{ color: isCurrent ? "#7FE0A6" : "#E9C9A0" }}>
+                        <div className="lux-now-k" style={{ color: isCurrent ? "#FFC777" : "#E9C9A0" }}>
                           {isCurrent ? tr("الحين") : tr("الجاي")}
                         </div>
                         <Link to={`/tasks?task=${now.id}`} className="mt-0.5 line-clamp-2 block text-sm font-bold leading-[1.5] hover:underline" dir="auto">
@@ -139,11 +139,11 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     )}
                   </div>
                   <div className="lux-split" aria-hidden>
-                    {done > 0 && <i style={{ width: `${pct}%`, background: "linear-gradient(90deg,#9BF0BE,#5FD493)" }} />}
+                    {done > 0 && <i style={{ width: `${pct}%`, background: "linear-gradient(90deg,#FFE2B0,#FFC777)" }} />}
                     {open > 0 && <i style={{ flex: 1, background: "rgba(255,182,92,.35)" }} />}
                   </div>
                   <div className="flex w-full justify-between text-xs">
-                    <span className="font-extrabold text-[#9BF0BE]">{tr("خلّص {0}", n0(done))}</span>
+                    <span className="font-extrabold text-[#FFE2B0]">{tr("خلّص {0}", n0(done))}</span>
                     <span className="v3-mut">{tr("باقي {0}", n0(open))}</span>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
   );
 }
 
-// ───────────────────────────── ٢) الاجتماع الجاي ─────────────────────────────
+// ───────────────────────────── 2) الاجتماع الجاي ─────────────────────────────
 
 interface NextMeeting {
   id: string;
@@ -347,7 +347,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
   );
 }
 
-// ───────────────────────────── ٣) هالأسبوع ─────────────────────────────
+// ───────────────────────────── 3) هالأسبوع ─────────────────────────────
 
 const TYPE_LABEL: Record<CalendarEventType, string> = {
   meeting: tr("اجتماع"),
@@ -416,6 +416,88 @@ export function WeekLuxCard({ today, now, style }: { today: string; now: Date; s
             );
           })}
         </div>
+      )}
+    </section>
+  );
+}
+
+// ───────────────────── الفريق (مختصر) — لعمود الرئيسية الثالث ─────────────────────
+
+/** نسخة مختصرة من «الفريق مع بعض»: سطر لكل عضو — حرفه، اسمه، وش عليه الحين، ونسبته.
+    بدون عناوين فرعية ولا شرح، عشان الرئيسية تبقى خفيفة. */
+export function TeamMini({ tasks, today, style }: { tasks: Task[]; today: string; style?: CSSProperties }) {
+  const { currentUser } = useAuth();
+  const { roster } = useTeamRoster();
+  const online = useTeamPresence();
+  const onlineIds = new Set([...online.map((u) => u.id), ...(currentUser ? [currentUser.id] : [])]);
+  const weekAgo = new Date(Date.parse(`${today}T00:00:00Z`) - 6 * 86400000).toISOString().slice(0, 10);
+  const doneThisWeek = (t: Task) => t.status === "done" && (t.completedAt ? t.completedAt.slice(0, 10) >= weekAgo : !isSupabaseConfigured);
+
+  const rows = roster
+    .map((m, i) => {
+      const mine = tasks.filter((t) => t.assigneeId === m.id);
+      const open = mine.filter((t) => t.status !== "done").sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+      const done = mine.filter(doneThisWeek).length;
+      const now = open.find((t) => t.status === "in-progress") ?? open[0];
+      const pct = done + open.length === 0 ? 0 : Math.round((done / (done + open.length)) * 100);
+      return { m, i, now, pct, on: onlineIds.has(m.id), me: m.id === currentUser?.id };
+    })
+    .sort((a, b) => Number(b.me) - Number(a.me) || a.i - b.i);
+
+  return (
+    <section className="hg-card v3-rise" style={style} aria-labelledby="home-team-mini">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 id="home-team-mini" className="lux-k2 m-0 !text-[22px]">
+          {tr("الفريق")}
+        </h2>
+        <Link to="/team" className="v3-mut text-sm font-bold hover:text-[var(--ws-c-text)]">
+          {tr("الكل ←")}
+        </Link>
+      </div>
+      {rows.length === 0 ? (
+        <p className="v3-mut m-0 py-3 text-sm">{tr("ادعوا زملاءكم من صفحة الفريق.")}</p>
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-1 p-0">
+          {rows.map(({ m, i, now, pct, on, me }) => {
+            const pal = PALETTE[i % PALETTE.length];
+            return (
+              <li key={m.id}>
+                <Link
+                  to={now ? `/tasks?task=${now.id}` : "/team"}
+                  className="flex min-h-[52px] items-center gap-3 rounded-2xl px-2 py-1.5 transition-colors hover:bg-white/[0.04]"
+                >
+                  <span className="relative shrink-0">
+                    <span
+                      className="flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold text-[#2A1206]"
+                      style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}
+                      aria-hidden
+                    >
+                      {letter(m.name)}
+                    </span>
+                    <span
+                      className="absolute -bottom-0.5 -start-0.5 h-3 w-3 rounded-full border-2 border-[#120a06]"
+                      style={{ background: on ? "#FFC777" : "#6E645C" }}
+                      role="img"
+                      aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")}
+                    />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-bold leading-tight">
+                      {m.name.split(" ")[0]}
+                      {me && <span className="v3-mut ms-1.5 text-xs font-medium">{tr("(أنت)")}</span>}
+                    </span>
+                    <span className="v3-mut block truncate text-[13px]" dir="auto">
+                      {now ? now.title : tr("ما عليه شي مفتوح")}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-sm font-extrabold tabular-nums" style={{ color: pct >= 75 ? "#FFC777" : "var(--ws-c-muted)" }}>
+                    {n0(pct)}٪
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </section>
   );

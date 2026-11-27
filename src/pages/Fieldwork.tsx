@@ -25,7 +25,7 @@ const statusLabel = {
 };
 
 const statusChip = {
-  completed: "border border-[#7fd6a0] text-[#7fd6a0]",
+  completed: "border border-[#FFC777] text-[#FFC777]",
   active: "border border-amber-accent-400 text-amber-accent-400",
   "not-started": "border border-brand-950/25 text-brand-950/50",
 };
@@ -53,7 +53,7 @@ function FieldworkDemo() {
               style={{ right: `${site.x}%`, top: `${site.y}%` }}
             >
               <div className="flex flex-col items-center">
-                <span className="mb-1 whitespace-nowrap rounded-lg bg-paper px-2 py-1 text-[11px] font-bold text-brand-950 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                <span className="mb-1 whitespace-nowrap rounded-lg bg-paper px-2 py-1 text-[12px] font-bold text-brand-950 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
                   {site.city} — {site.collected}/{site.target}
                 </span>
                 <MapPin
@@ -164,7 +164,7 @@ function FieldworkReal() {
             <ClipboardList size={20} className="text-brand-500" />
             <div className="min-w-0 flex-1 font-semibold text-brand-950">
               {s.title || tr("استبيان بدون عنوان")}
-              {s.isPilot && <span className="ms-2 rounded-full bg-surface-muted px-2 py-0.5 text-[11px] font-bold text-brand-950/50">{tr("تجريبي")}</span>}
+              {s.isPilot && <span className="ms-2 rounded-full bg-surface-muted px-2 py-0.5 text-[12px] font-bold text-brand-950/50">{tr("تجريبي")}</span>}
             </div>
             <span className="text-sm font-semibold text-brand-950/60">{trx("{0}{1} رد", s.count, s.targetN ? `/${s.targetN}` : "")}</span>
             <span className="rounded-full border border-amber-accent-400 px-3 py-0.5 text-xs font-semibold text-amber-accent-400">{surveyStatus[s.status]}</span>

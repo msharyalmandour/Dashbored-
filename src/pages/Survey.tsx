@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link } from "react-router-dom";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, } from "lucide-react";
 import Logo from "../components/Logo";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { tr, trx } from "../lib/i18n";
@@ -8,7 +9,7 @@ import { tr, trx } from "../lib/i18n";
 const majors = [tr("تمريض"), tr("طب"), tr("صيدلة"), tr("علوم صحية / مختبرات"), tr("هندسة"), tr("حاسب وتقنية"), tr("إدارة أعمال"), tr("تربية وعلم نفس"), tr("علوم"), tr("آداب وعلوم إنسانية"), tr("قانون"), tr("تخصص آخر")];
 const stages = [tr("بكالوريوس"), tr("ماجستير"), tr("دكتوراه"), tr("غير ذلك")];
 const experience = [tr("أعمل على بحث الآن"), tr("سبق وعملت على بحث"), tr("لم أعمل على بحث بعد")];
-const teamSize = [tr("لحالي"), tr("٢–٣"), tr("٤–٥"), tr("أكثر من ٥")];
+const teamSize = [tr("لحالي"), tr("2–3"), tr("4–5"), tr("أكثر من 5")];
 const coordination = [tr("مجموعة واتساب"), tr("قوقل درايف / وورد مشترك"), tr("إيميل"), tr("ورقيًا / اجتماعات فقط"), tr("تطبيق مهام (Trello / Notion...)"), tr("ما فيه ترتيب واضح")];
 const pains = [
   tr("توزيع المهام ومتابعة مين خلّص"),
@@ -22,7 +23,7 @@ const pains = [
   tr("الموافقات وأدوات القياس وجمع البيانات"),
   tr("التجهيز للمناقشة"),
 ];
-const hours = [tr("أقل من ساعة"), tr("١–٢ ساعة"), tr("٣–٥ ساعات"), tr("أكثر من ٥ ساعات")];
+const hours = [tr("أقل من ساعة"), tr("1–2 ساعة"), tr("3–5 ساعات"), tr("أكثر من 5 ساعات")];
 const features = [
   tr("لوحة موحّدة للمهام والتقدم"),
   tr("رابط ومحادثة للمشرف بدون حساب"),
@@ -33,7 +34,7 @@ const features = [
   tr("قوالب الموافقات وقوائم التحقق"),
   tr("التدريب على أسئلة المناقشة"),
 ];
-const prices = [tr("ما أدفع"), tr("أقل من ١٠ ريال"), tr("١٠–٢٠ ريال"), tr("٢٠–٤٠ ريال"), tr("أكثر من ٤٠ ريال")];
+const prices = [tr("ما أدفع"), tr("أقل من 10 ريال"), tr("10–20 ريال"), tr("20–40 ريال"), tr("أكثر من 40 ريال")];
 
 type Answers = {
   major: string;
@@ -184,7 +185,7 @@ export default function Survey() {
               </Chip>
             ))}
           </Q>
-          <Q n={6} title={tr("أكثر شي يتعبكم؟")} hint={tr("اختاروا حتى ٣ (مطلوب)")}>
+          <Q n={6} title={tr("أكثر شي يتعبكم؟")} hint={tr("اختاروا حتى 3 (مطلوب)")}>
             {pains.map((m) => (
               <Chip key={m} active={a.pains.includes(m)} onClick={() => toggle("pains", m, 3)}>
                 {m}
@@ -198,7 +199,7 @@ export default function Survey() {
               </Chip>
             ))}
           </Q>
-          <Q n={8} title={tr("لو فيه منصة تحل هذا، أي ميزات تهمكم أكثر؟")} hint={tr("اختاروا حتى ٣")}>
+          <Q n={8} title={tr("لو فيه منصة تحل هذا، أي ميزات تهمكم أكثر؟")} hint={tr("اختاروا حتى 3")}>
             {features.map((m) => (
               <Chip key={m} active={a.features.includes(m)} onClick={() => toggle("features", m, 3)}>
                 {m}
@@ -243,7 +244,7 @@ export default function Survey() {
           onClick={submit}
           disabled={!ready || busy}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 py-3.5 text-sm font-extrabold text-neutral-950 shadow-[0_12px_30px_-10px_rgba(251,191,36,0.6)] transition-opacity disabled:opacity-40"
-        >{trx("{0}إرسال الإجابات", busy && <Loader2 size={16} className="animate-spin" />)}</button>
+        >{trx("{0}إرسال الإجابات", busy && <WSpin size={16} />)}</button>
         {!ready && <p className="mt-2 text-center text-xs text-white/40">{tr("أجيبوا على التخصص والمرحلة وأكثر ما يتعبكم عشان يتفعّل الإرسال.")}</p>}
       </div>
     </div>

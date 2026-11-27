@@ -27,10 +27,10 @@
   [dir="ltr"] .wf-sec .wf-e { text-align: left; }
   .wf-sec[aria-current="step"] { background: linear-gradient(90deg, rgba(255,150,50,.04), rgba(255,150,50,.14)); box-shadow: inset 0 0 0 1px rgba(255,190,110,.4); }
   .wf-sec[aria-current="step"] .wf-dn { background: #F2EBE3; color: #160904; border-color: #F2EBE3; box-shadow: 0 0 0 4px rgba(255,154,60,.18); }
-  .wf-sec.done .wf-dn { background: #7FE0A6; border-color: #7FE0A6; color: #0b2015; }
+  .wf-sec.done .wf-dn { background: #FFC777; border-color: #FFC777; color: #0b2015; }
   .wf-st { margin-inline-start: auto; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
   .wf-st.now { color: #FFC777; background: rgba(255,180,68,.14); }
-  .wf-st.done { color: #7FE0A6; background: rgba(127,224,166,.12); }
+  .wf-st.done { color: #FFC777; background: rgba(255,199,119,.12); }
 
   /* أزرار */
   .wf-gb { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border-radius: 999px; font-weight: 700; font-size: 14px; background: rgba(255,255,255,.06); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(255,255,255,.1); color: #F2EBE3; transition: background .2s; white-space: nowrap; }

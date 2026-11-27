@@ -1,145 +1,149 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { AlertTriangle, Bell, Clock, GraduationCap } from "lucide-react";
-import { recentActivity, teamMembers } from "../data/mockData";
+import { createPortal } from "react-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Award, Bell, CalendarDays, Check, Clock, MessageSquare, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTasksData } from "../hooks/useTasksData";
 import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { daysUntil } from "../lib/date";
-import Avatar from "./ui/Avatar";
+import { docDisplayName } from "../lib/docThread";
+import { dayBucket, studNotifs, type NotifKind } from "../lib/studNotifs";
+import { DocAv } from "./chat/Groups";
+import { relTime } from "./supervisor/SvParts";
 import { tr } from "../lib/i18n";
 
-const URGENT_WINDOW_DAYS = 2;
+/* مركز التنبيهات (StudNotif): شيت من الجرس، «اليوم» و«أمس»، فلاتر الكل / من الدكتورة / المواعيد.
+   صف الموعد فيه «نحضر ✓»، وصف الرسالة فيه «ردّوا عليها»، وغير المقروء نقطة برتقالية. */
 
-function dueLabel(days: number): string {
-  if (days < 0) return tr("متأخرة");
-  if (days === 0) return tr("مستحقة اليوم");
-  if (days === 1) return tr("مستحقة غدًا");
-  return tr("مستحقة بعد {0} أيام", days);
-}
+type Filter = "all" | "doc" | "meet";
+const KIND_IC: Record<NotifKind, typeof Bell> = { meeting: CalendarDays, message: MessageSquare, request: Check, approval: Award };
 
-export default function NotificationsBell() {
+/** up: موجود للتوافق مع مكان الجرس القديم بالقائمة الجانبية */
+export default function NotificationsBell({ up: _up = false }: { up?: boolean } = {}) {
+  void _up;
   const [open, setOpen] = useState(false);
-  const { currentUser, mode } = useAuth();
+  const [filter, setFilter] = useState<Filter>("all");
+  const nav = useNavigate();
+  const { currentUser } = useAuth();
   const { tasks } = useTasksData();
-  const { messages: supervisorMsgs, unread: unreadSupervisor } = useSupervisorMessages();
-  const latestSupervisorMsg = [...supervisorMsgs].reverse().find((m) => m.sender === "supervisor" && !m.readAt) ?? null;
-  const memberById = (id: string) => teamMembers.find((m) => m.id === id);
-  const activityItems = mode === "mock" ? recentActivity.slice(0, 5) : [];
-
-  const urgentTasks = tasks
+  const { messages, unread, markRead, rsvps, rsvp } = useSupervisorMessages();
+  const docName = docDisplayName(messages);
+  const items = studNotifs(messages, docName);
+  const urgent = tasks
     .filter((t) => t.assigneeId === currentUser?.id && t.status !== "done")
-    .map((t) => ({ task: t, days: daysUntil(t.dueDate) }))
-    .filter(({ days }) => days <= URGENT_WINDOW_DAYS)
+    .map((t) => ({ t, days: daysUntil(t.dueDate) }))
+    .filter(({ days }) => days <= 2)
     .sort((a, b) => a.days - b.days)
-    .slice(0, 4);
-
-  const attention = urgentTasks.length + unreadSupervisor;
-  const badgeCount = attention > 0 ? attention : activityItems.length;
+    .slice(0, 3);
+  const badge = unread + urgent.length;
+  const shown = items.filter((n) => (filter === "meet" ? n.kind === "meeting" : true));
+  const groups: [string, typeof shown][] = [
+    [tr("اليوم"), shown.filter((n) => dayBucket(n.at) === "today")],
+    [tr("أمس"), shown.filter((n) => dayBucket(n.at) === "yesterday")],
+    [tr("قبل"), shown.filter((n) => dayBucket(n.at) === "older")],
+  ];
+  const close = () => setOpen(false);
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        title={tr("التنبيهات")}
-        className="relative rounded-full border border-brand-100/60 bg-paper/40 p-2.5 text-brand-950/60 hover:bg-surface-muted"
-      >
-        <Bell size={18} />
-        {badgeCount > 0 && (
-          <span
-            className={`absolute -top-1 -end-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full text-xs font-bold text-white ${
-              attention > 0 ? "bg-rose-500" : "bg-amber-accent-500"
-            }`}
-          >
-            {badgeCount}
-          </span>
-        )}
+    <>
+      <button type="button" onClick={() => setOpen(true)} aria-label={badge ? tr("التنبيهات: {0} جديدة", badge) : tr("التنبيهات")} className="sn-bell">
+        <Bell size={18} aria-hidden />
+        {badge > 0 && <i className="sn-bell-b">{badge}</i>}
       </button>
-
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute end-0 top-12 z-20 w-80 glass-panel rounded-3xl border border-brand-100/50 bg-paper/75 p-2 backdrop-blur-2xl backdrop-saturate-150">
-            {attention > 0 && (
-              <>
-                <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">{tr("يحتاج انتباهك")}</p>
-                <div className="mb-2 space-y-1">
-                  {latestSupervisorMsg && (
-                    <Link
-                      to="/feedback"
-                      onClick={() => setOpen(false)}
-                      className="flex items-start gap-2.5 rounded-xl bg-violet-50 px-2 py-2 hover:bg-violet-100/70"
-                    >
-                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-violet-500 text-white">
-                        <GraduationCap size={13} />
+      {open &&
+        createPortal(
+          <div className="sn-scrim" onClick={(e) => e.target === e.currentTarget && close()}>
+            <aside className="sn-sheet" role="dialog" aria-modal="true" aria-labelledby="sn-h">
+              <header className="sn-head">
+                <h2 id="sn-h">{tr("التنبيهات")}</h2>
+                {unread > 0 && (
+                  <button type="button" className="sn-mark" onClick={() => void markRead()}>
+                    {tr("علّموها مقروءة")}
+                  </button>
+                )}
+                <button type="button" className="sn-x" onClick={close} aria-label={tr("إغلاق")} autoFocus>
+                  <X size={18} aria-hidden />
+                </button>
+              </header>
+              <div className="sn-filters" role="tablist" aria-label={tr("فلتر التنبيهات")}>
+                {(
+                  [
+                    ["all", tr("الكل")],
+                    ["doc", items.length ? tr("من الدكتورة {0}", items.length) : tr("من الدكتورة")],
+                    ["meet", tr("المواعيد")],
+                  ] as const
+                ).map(([k, l]) => (
+                  <button key={k} type="button" role="tab" aria-selected={filter === k} className="sn-f" onClick={() => setFilter(k)}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <div className="sn-list">
+                {filter === "all" &&
+                  urgent.map(({ t, days }) => (
+                    <Link key={t.id} to={`/tasks?task=${t.id}`} onClick={close} className="sn-row">
+                      <span className="sn-task-ic" aria-hidden>
+                        <Clock size={16} />
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-brand-950">
-                          {unreadSupervisor > 1 ? tr("{0} رسائل جديدة من المشرفة", unreadSupervisor) : tr("رسالة جديدة من المشرفة")}
-                        </p>
-                        <p className="mt-0.5 line-clamp-2 text-xs text-brand-950/55">{latestSupervisorMsg.body}</p>
-                      </div>
-                    </Link>
-                  )}
-                  {urgentTasks.map(({ task, days }) => (
-                    <Link
-                      key={task.id}
-                      to={`/tasks?task=${task.id}`}
-                      onClick={() => setOpen(false)}
-                      className="flex items-start gap-2.5 rounded-xl px-2 py-2 hover:bg-surface-muted"
-                    >
-                      <span
-                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${
-                          days < 0 ? "bg-rose-50 text-rose-500" : "bg-amber-accent-50 text-amber-accent-600"
-                        }`}
-                      >
-                        {days < 0 ? <AlertTriangle size={13} /> : <Clock size={13} />}
+                      <span className="sn-m">
+                        <b>{t.title}</b>
+                        <span style={{ color: days < 0 ? "#FF8A7A" : undefined }}>{days < 0 ? tr("متأخرة") : days === 0 ? tr("مستحقة اليوم") : days === 1 ? tr("مستحقة بكرة") : tr("مستحقة بعد يومين")}</span>
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-brand-950">{task.title}</p>
-                        <p
-                          className={`mt-0.5 text-xs font-semibold ${
-                            days < 0 ? "text-rose-500" : "text-brand-950/45"
-                          }`}
-                        >
-                          {dueLabel(days)}
-                        </p>
-                      </div>
                     </Link>
                   ))}
-                </div>
-              </>
-            )}
-
-            <p className="px-2 py-1.5 text-xs font-bold text-brand-950/45">{tr("آخر تنبيهات الفريق")}</p>
-            <div className="max-h-80 space-y-1 overflow-y-auto">
-              {activityItems.map((activity) => {
-                const member = memberById(activity.memberId);
-                if (!member) return null;
-                return (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-2.5 rounded-xl px-2 py-2 hover:bg-surface-muted"
-                  >
-                    <Avatar initials={member.initials} color={member.color} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-brand-950">
-                        <span className="font-semibold">{member.name.split(" ")[0]}</span>{" "}
-                        {activity.action}{" "}
-                        <span className="font-semibold text-brand-700">"{activity.target}"</span>
-                      </p>
-                      <p className="mt-0.5 text-xs text-brand-950/40">{activity.timeAgo}</p>
-                    </div>
-                  </div>
-                );
-              })}
-              {activityItems.length === 0 && (
-                <p className="px-2 py-4 text-center text-sm text-brand-950/40">{tr("لا توجد تنبيهات جديدة")}</p>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+                {groups.map(([label, list]) =>
+                  list.length ? (
+                    <section key={label}>
+                      <h3 className="sn-day">{label}</h3>
+                      {list.map((n) => {
+                        const Ic = KIND_IC[n.kind];
+                        const going = rsvps[n.id] === "yes";
+                        return (
+                          <div key={n.id} className={n.unread ? "sn-row unread" : "sn-row"}>
+                            <span className="sn-av">
+                              <DocAv name={docName} size={42} />
+                              <i className="sn-kind" aria-hidden>
+                                <Ic size={11} />
+                              </i>
+                            </span>
+                            <span className="sn-m">
+                              <b>{n.title}</b>
+                              <span dir="auto">{n.sub}</span>
+                              {n.kind === "meeting" && (
+                                <span className="sn-acts">
+                                  <button type="button" className={going ? "gr-rsvp on" : "gr-rsvp go"} aria-pressed={going} onClick={() => void rsvp(n.id, "yes")}>
+                                    {going ? tr("بنحضر ✓") : tr("نحضر ✓")}
+                                  </button>
+                                  <button type="button" className="gr-rsvp" onClick={() => (close(), nav("/chat?g=doc"))}>
+                                    {tr("ما نقدر · اقترحوا وقت")}
+                                  </button>
+                                </span>
+                              )}
+                              {n.kind === "message" && (
+                                <span className="sn-acts">
+                                  <button type="button" className="gr-rsvp cream" onClick={() => (close(), nav("/chat?g=doc"))}>
+                                    {tr("ردّوا عليها")}
+                                  </button>
+                                </span>
+                              )}
+                            </span>
+                            <span className="sn-t">
+                              {n.unread && <i className="sn-dot" aria-label={tr("جديد")} />}
+                              {relTime(n.at)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </section>
+                  ) : null,
+                )}
+                {shown.length === 0 && (filter !== "all" || urgent.length === 0) && <p className="sn-empty">{tr("ما فيه تنبيهات جديدة")}</p>}
+              </div>
+              <p className="sn-foot">{tr("رسائل الدكتورة توصلكم تنبيه على الجوال حتى لو الموقع مسكّر")}</p>
+            </aside>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }

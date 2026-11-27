@@ -8,7 +8,8 @@ import { gradientPill } from "./researchUi";
 import { tr, trx } from "../../lib/i18n";
 import { publicOrigin } from "../../lib/publicUrl";
 
-const arDigit = (n: number) => String(n).replace(/\d/g, (d) => tr("٠١٢٣٤٥٦٧٨٩")[Number(d)]);
+/** أرقام غربية 0–9 بكل مكان */
+const arDigit = (n: number) => String(n);
 const SPARKS = Array.from({ length: 28 }, (_, i) => {
   const a = (i / 28) * Math.PI * 2;
   const r = 130 + (i % 4) * 38;

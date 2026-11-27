@@ -45,6 +45,14 @@ describe("next steps", () => {
     expect(computeNextSteps({ ...base, tasks: [late("a")] })[0].to).toBe("/tasks?task=a");
     expect(computeNextSteps({ ...base, tasks: [late("a"), late("b")] })[0].to).toBe("/tasks");
   });
+  it("puts «invite your team» first for a solo team, after own late tasks for two, and not at all for three", () => {
+    const late = (id: string): Task => ({ id, title: id, description: "", assigneeId: "u1", dueDate: "2026-09-01", status: "overdue", priority: "high" }) as Task;
+    const ids = (memberCount: number | undefined) => computeNextSteps({ ...base, tasks: [late("a")], memberCount }).map((x) => x.id);
+    expect(ids(1)[0]).toBe("invite");
+    expect(ids(2).slice(0, 2)).toEqual(["my-late", "invite"]);
+    expect(ids(3)).not.toContain("invite");
+    expect(ids(undefined)).not.toContain("invite");
+  });
 });
 
 describe("data collection", () => {

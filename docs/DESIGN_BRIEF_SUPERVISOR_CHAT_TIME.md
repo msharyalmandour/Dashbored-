@@ -92,10 +92,10 @@
 | الشاشة | الأفكار | مكانها اليوم بالكود |
 |---|---|---|
 | 1. **بطاقة طلب الدكتورة** داخل المحادثة وصفحة المشرف/ة (اعتمدوها / عدّلوا) | أ3، أ9 | `src/pages/SupervisorFeedback.tsx`، `TeamChat.tsx` |
-| 2. **الإيصال**: إيميل وبطاقة في صفحة الدكتورة | أ2، أ6 | `supabase/functions/supervisor-email` (قالب الإيميل)، `SupervisorView.tsx` |
-| 3. **لوحة الدكتورة** (كل الفرق) | أ10، أ1، ج2، ج10 | `SupervisorTeams.tsx`، `SupervisorView.tsx` |
+| 2. **الإيصال**: إيميل وبطاقة في صفحة الدكتورة | أ2، أ6 | `supabase/functions/supervisor-email` (قالب الإيميل)، `SupervisorDash.tsx` + `components/supervisor/SvTeam.tsx` |
+| 3. **لوحة الدكتورة** (كل الفرق) | أ10، أ1، ج2، ج10 | `SupervisorTeams.tsx`، `SupervisorDash.tsx` + `components/supervisor/SvTeam.tsx` |
 | 4. **الملاحظة على الفقرة** ونقاش الفقرة | أ5، ب9 | `Proposal.tsx` |
-| 5. **التسجيل الصوتي** في رابط الدكتورة | أ7 | `SupervisorView.tsx` |
+| 5. **التسجيل الصوتي** في رابط الدكتورة | أ7 | `SupervisorDash.tsx` + `components/supervisor/SvTeam.tsx` |
 | 6. **«نسيتوا شي؟»** بعد حفظ المحضر | أ8 | `MinutesNew.tsx` |
 | 7. **رد الإيميل يصير مهام** (القالب + ظهوره عند الفريق) | أ4 | قالب الإيميل الأسبوعي |
 | 8. **المحادثة**: الخلاصة الحية، السؤال اليتيم، ملخص الرجعة، وقت التركيز | ب1، ب2، ب6، ب10 | `TeamChat.tsx` |

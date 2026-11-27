@@ -10,7 +10,7 @@ export default function GrowingPlant({ className }: { className?: string }) {
   }, []);
 
   const grow = reducedMotion ? "" : "animate-[plant-grow_1.6s_ease-out_both]";
-  const sway = reducedMotion ? "" : "animate-[leaf-sway_5s_ease-in-out_infinite]";
+  const sway = reducedMotion ? "" : "animate-[leaf-sway_5s_ease-in-out_3]";
 
   return (
     <svg viewBox="0 0 120 150" className={className} aria-hidden="true">
@@ -22,7 +22,7 @@ export default function GrowingPlant({ className }: { className?: string }) {
         {/* الساق */}
         <path
           d="M60 116 C 58 96 62 78 60 58"
-          stroke="#34d399"
+          stroke="#FFC777"
           strokeWidth="3.5"
           strokeLinecap="round"
           fill="none"
@@ -35,7 +35,7 @@ export default function GrowingPlant({ className }: { className?: string }) {
         >
           <path
             d="M60 96 C 40 92 26 78 24 62 C 46 64 60 78 60 96 Z"
-            fill="#34d399"
+            fill="#FFC777"
             opacity="0.85"
           />
         </g>
@@ -59,7 +59,7 @@ export default function GrowingPlant({ className }: { className?: string }) {
           r="6"
           fill="var(--color-amber-accent-400)"
           style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          className={reducedMotion ? "" : "animate-[bud-glow_2.8s_ease-in-out_infinite]"}
+          className={reducedMotion ? "" : "animate-[bud-glow_2.8s_ease-in-out_3]"}
         />
       </g>
     </svg>

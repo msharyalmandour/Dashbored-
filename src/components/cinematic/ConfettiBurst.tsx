@@ -1,4 +1,4 @@
-const COLORS = ["#c93f64", "#ec9312", "#1683f5", "#34d399", "#f472b6"];
+const COLORS = ["#c93f64", "#ec9312", "#FFB547", "#FFC777", "#f472b6"];
 const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
   angle: (360 / 14) * i + Math.random() * 20,
   distance: 60 + Math.random() * 50,

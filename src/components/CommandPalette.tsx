@@ -62,7 +62,6 @@ const baseItems: PaletteItem[] = [
   { to: "/ethical-approval", label: tr("الموافقة الأخلاقية"), icon: FileCheck2, keywords: tr("irb ethics اخلاقيات") },
   { to: "/tasks", label: tr("مهامي"), icon: ListChecks, keywords: "tasks" },
   { to: "/evidence", label: tr("مكتبة الأدلة"), icon: Library, keywords: tr("مراجع references papers") },
-  { to: "/research-search", label: tr("وكيل البحث العلمي"), icon: Search, keywords: "agent" },
   { to: "/stats", label: tr("استوديو الإحصاء"), icon: Calculator, keywords: tr("spss احصاء تحليل statistics t-test") },
   { to: "/feedback", label: tr("ملاحظات المشرف"), icon: MessageSquareText },
   { to: "/study-kit", label: tr("الاستبيان والموافقات"), icon: ClipboardList, keywords: tr("consent موافقة استبيان ترجمة") },
@@ -80,7 +79,7 @@ const baseItems: PaletteItem[] = [
   { to: "/calendar", label: tr("التقويم"), icon: CalendarDays },
   { to: "/story", label: tr("قصة بحثك"), icon: Wand2 },
   { to: "/guide", label: tr("دليل الطالب"), icon: Compass },
-  { to: "/pricing", label: tr("الباقات والاشتراك"), icon: CreditCard },
+  { to: "/pricing", label: tr("الاشتراك"), icon: CreditCard },
 ];
 
 export default function CommandPalette() {
@@ -103,16 +102,29 @@ export default function CommandPalette() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((i) => i.label.toLowerCase().includes(q) || (i.keywords ?? "").toLowerCase().includes(q));
+    // يفهم الكلام العادي: «وين أحط الدراسات اللي لقيتها» تلقى «مكتبة الأدلة» حتى لو الجملة كاملة ما تطابق —
+    // نعدّ كم كلمة (حرفين وفوق، بدون «ال») تطابق، ونرتّب بالأكثر
+    const norm = (t: string) => t.toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+    const words = norm(q)
+      .split(/\s+/)
+      .map((w) => w.replace(/^ال/, ""))
+      .filter((w) => w.length >= 2);
+    const scored = items
+      .map((i) => {
+        const hay = norm(`${i.label} ${i.keywords ?? ""}`);
+        if (hay.includes(norm(q))) return { i, score: 100 };
+        return { i, score: words.filter((w) => hay.includes(w)).length };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+    return scored.map((x) => x.i);
   }, [items, query]);
 
   useEffect(() => {
     if (!currentUser) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setOpen((o) => !o);
-      } else if (e.key === "Escape") {
+      // Ctrl K صار لويسي (AgentPanel). البحث السريع يفتح من القائمة
+      if (e.key === "Escape") {
         setOpen(false);
       }
     };
@@ -176,7 +188,7 @@ export default function CommandPalette() {
             placeholder={tr("ابحث أو اكتب أمر…")}
             className="w-full bg-transparent text-sm text-brand-950 outline-none placeholder:text-brand-950/35"
           />
-          <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[10px] font-bold text-brand-950/40">
+          <kbd className="rounded-md border border-brand-100 bg-surface-muted px-1.5 py-0.5 text-[12px] font-bold text-brand-950/40">
             Esc
           </kbd>
         </div>
@@ -195,7 +207,7 @@ export default function CommandPalette() {
                 <item.icon size={16} />
                 <span className="flex-1 text-start">{item.label}</span>
                 {item.action && (
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[12px] font-bold ${i === activeIndex ? "bg-white/20" : "bg-brand-500/15 text-brand-600"}`}>{tr("أمر")}</span>
                 )}
               </button>
             </li>

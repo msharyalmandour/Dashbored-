@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { WSpin } from "../components/brand/WLogo";
 import { Link, useLocation } from "react-router-dom";
-import { Check, Loader2, Search } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
 import { useResearchSearch } from "../hooks/useResearchSearch";
@@ -55,7 +56,7 @@ interface ResearchAgentValue {
 
 const Ctx = createContext<ResearchAgentValue | undefined>(undefined);
 
-/** حالة وكيل البحث تعيش هنا (فوق الصفحات) — عشان التحميل والنتائج ما تختفي
+/** حالة ويسي للبحث تعيش هنا (فوق الصفحات) — عشان التحميل والنتائج ما تختفي
     لما الطالبة تتنقل لقسم ثاني وترجع. الطلب نفسه يكمل بالخلفية، ومؤشر عائم
     يقول "جاري البحث" وبعدها "النتائج جاهزة" بأي صفحة. */
 export function ResearchAgentProvider({ children }: { children: ReactNode }) {
@@ -119,7 +120,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
       return;
     }
     setActiveResult({ results: row.results, noveltyNote: row.noveltyNote, queryText: row.queryText, scholarQuery: row.scholarQuery, scholarInside: row.scholarInside });
-    finished("papers", tr("نتائج البحث جاهزة ✅"), tr("{0} دراسة قريبة من بحثكم — افتحوا وكيل البحث", row.results.length));
+    finished("papers", tr("نتائج البحث جاهزة ✅"), tr("{0} دراسة قريبة من بحثكم — افتحوا ويسي للبحث", row.results.length));
   }, [topic, currentUser, searching, runSearch, finished]);
 
   const showSearch = useCallback((s: ResearchSearchQuery) => {
@@ -188,7 +189,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={value}>
       {children}
-      {/* مؤشر عائم: يبان بأي صفحة غير صفحة الوكيل طول ما فيه بحث شغّال أو نتيجة ما انشافت */}
+      {/* مؤشر عائم: يبان بأي صفحة غير صفحة ويسي طول ما فيه بحث شغّال أو نتيجة ما انشافت */}
       {!onResearchPage && pillTarget && (
         <Link
           to="/research-search?tab=studies"
@@ -197,16 +198,16 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
         >
           <span
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${
-              running ? "bg-brand-500" : "bg-emerald-500"
+              running ? "bg-brand-500" : "bg-[#FFC777]"
             }`}
           >
-            {running ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+            {running ? <WSpin size={16} /> : <Check size={16} />}
           </span>
           <span className="min-w-0">
             <span className="block truncate">
               {running ? tr("جاري البحث: {0}", pillLabel[pillTarget]) : tr("جاهزة: {0} — اضغطوا للعرض", pillLabel[pillTarget])}
             </span>
-            {running && <span className="block truncate text-[11px] font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
+            {running && <span className="block truncate text-[12px] font-medium text-brand-950/50">{tr("تقدرون تكملون شغلكم، نخبركم لما نخلّص")}</span>}
           </span>
           {!running && <Search size={14} className="shrink-0 text-brand-950/40" />}
         </Link>

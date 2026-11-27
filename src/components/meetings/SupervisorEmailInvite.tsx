@@ -70,7 +70,7 @@ export default function SupervisorEmailInvite({ status, onSent }: { status: Emai
         <p className="m-0 text-[13px] text-[#ABA095]">{tr("القائد يكتب إيميل المشرف/ة من هنا.")}</p>
       )}
       {msg && (
-        <p className={`m-0 mt-2 text-[13px] leading-relaxed ${msg.ok ? "text-[#7FE0A6]" : "text-[#FF8A7A]"}`} role={msg.ok ? "status" : "alert"}>
+        <p className={`m-0 mt-2 text-[13px] leading-relaxed ${msg.ok ? "text-[#FFC777]" : "text-[#FF8A7A]"}`} role={msg.ok ? "status" : "alert"}>
           {msg.text}
         </p>
       )}

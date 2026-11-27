@@ -1,0 +1,249 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wesync · Brand Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1E0B05;--cream:#F3E9DC;--ember:#E9651F;--gold:#FFC777;--gd:#E39A2E;--g:#1F7A3A}
+*{box-sizing:border-box}html,body{margin:0;font-family:Tajawal,'IBM Plex Sans Arabic',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;direction:ltr;display:inline-block}
+section{padding:72px 6vw;position:relative}
+.dark{background:#120603;color:var(--cream)}
+h1{font-size:clamp(36px,6vw,76px);line-height:1.15;margin:0;padding-top:.15em;font-weight:800}
+h2{font-size:clamp(26px,3.6vw,42px);margin:6px 0 6px;font-weight:800;line-height:1.3;padding-top:.15em}
+.sub{opacity:.75;margin:0 0 26px;font-size:17px;max-width:720px}
+.num{font-family:'JetBrains Mono';font-size:13px;color:var(--ember);font-weight:500}
+.dark .num{color:var(--gold)}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:#fff;border-radius:24px;padding:18px;box-shadow:0 18px 40px -30px rgba(30,11,5,.5)}
+.dark .card{background:rgba(243,233,220,.06);box-shadow:inset 0 0 0 1px rgba(243,233,220,.1)}
+.card h4{margin:6px 0 2px;font-size:18px}.card p{margin:0;opacity:.75;font-size:14px}
+.fig{width:100%;aspect-ratio:520/500}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.chips button,.btn{min-height:44px;padding:8px 18px;border-radius:999px;border:2px solid currentColor;background:transparent;font:700 15px Tajawal;color:inherit;cursor:pointer}
+.chips button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.dark .chips button.on{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+.btn.main{background:var(--ember);border-color:var(--ember);color:#fff}
+/* hero */
+.hero{min-height:100vh;display:grid;place-items:center;text-align:center;overflow:hidden}
+.hero .glow{position:absolute;inset:0;background:radial-gradient(40% 40% at 50% 45%,rgba(233,101,31,.35),transparent 70%)}
+.hero .logo{width:min(300px,60vw);aspect-ratio:1;margin:0 auto 10px;cursor:pointer;position:relative}
+.lock{display:flex;align-items:center;gap:14px;justify-content:center;direction:ltr}
+.lock .wm{font:800 clamp(40px,7vw,84px)/1 Tajawal;letter-spacing:-.02em}
+.lock .ar{font:800 clamp(26px,4vw,44px)/1.4 Tajawal;opacity:.8;padding-top:.15em}
+.icons{display:flex;gap:16px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.icons div{width:84px;height:84px;border-radius:20px;overflow:hidden}
+.hero .relative{position:relative}
+/* catchphrase */
+.phrase{font:800 clamp(40px,8vw,104px)/1.2 Tajawal;padding-top:.15em;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.phrase .wv{width:clamp(80px,12vw,150px);aspect-ratio:1}
+.uses{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:20px}
+.toast{background:var(--ink);color:var(--cream);border-radius:18px;padding:14px 16px;font-size:15px;display:flex;gap:10px;align-items:center}
+.toast .tw{width:34px;height:34px;flex:none}
+/* sound */
+.sound{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.sound .lg{width:140px;aspect-ratio:1;cursor:pointer}
+.bars{display:flex;gap:4px;align-items:center;height:60px}.bars i{width:6px;border-radius:3px;background:var(--ember);height:10px;transition:height .1s}
+/* stickers */
+.stk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.stk div{background:#E7F3E1;border-radius:22px;padding:8px;aspect-ratio:1;position:relative;overflow:hidden}
+.stk .w{position:absolute;inset:6px 6px 30px}
+.stk b{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:#fff;border:3px solid var(--ink);border-radius:999px;padding:0 12px;font-size:14px;white-space:nowrap}
+/* reels */
+.reel{background:#000;color:#fff;border-radius:26px;aspect-ratio:9/16;max-width:230px;position:relative;overflow:hidden;padding:16px;display:flex;flex-direction:column;justify-content:space-between}
+.reel .w{position:absolute;inset:auto 0 70px 0;height:52%}
+.reel .t{font-weight:800;font-size:17px;line-height:1.4;position:relative}
+.reel .e{position:relative;font-size:13px;opacity:.8}
+.reels{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px}
+.reels .card{flex:none;width:250px;background:transparent;box-shadow:none;padding:0}
+.reels ol{margin:10px 0 0;padding-inline-start:18px;font-size:13px;opacity:.85}
+/* merch */
+.merch svg{width:100%;height:auto}
+/* 404 / cert */
+.e404{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:20px}@media(max-width:780px){.e404{grid-template-columns:1fr}}
+.cert{display:none;margin-top:24px;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:26px;text-align:center;position:relative;box-shadow:10px 10px 0 var(--ink);max-width:560px}
+.cert.on{display:block;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}@keyframes pop{from{transform:scale(.6);opacity:0}}
+.cert h3{font-size:28px;margin:6px 0;padding-top:.15em}.cert .names{font-size:20px;font-weight:700;color:var(--ember)}
+.cert .seal{width:64px;height:64px;margin:0 auto}
+input{font:500 16px Tajawal;padding:10px 14px;border-radius:14px;border:2px solid var(--ink);min-height:44px;width:100%;max-width:420px}
+/* doctor */
+.chat{display:flex;flex-direction:column;gap:10px;max-width:460px}
+.bub{background:var(--cream);color:var(--ink);border-radius:18px 18px 18px 6px;padding:12px 14px;font-size:15px}
+.follow{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center}@media(max-width:780px){.follow{grid-template-columns:1fr}}
+.follow .row{display:flex;gap:12px;flex-wrap:wrap}
+.danger{border-color:#B3261E!important;color:#B3261E}
+.nav{position:sticky;top:0;z-index:5;background:rgba(18,6,3,.92);backdrop-filter:blur(8px);display:flex;gap:6px;overflow-x:auto;padding:10px 6vw}
+.nav a{color:var(--cream);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:999px;white-space:nowrap;background:rgba(243,233,220,.08)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body>
+
+<section class="dark hero" id="logo">
+ <div class="glow"></div>
+ <div class="relative">
+  <span class="mono" style="opacity:.6">Wesync / brand kit</span>
+  <div class="logo" id="heroLogo" title="اضغط وتسمع صوت السينك"></div>
+  <div class="lock"><div class="wm">Wesync</div></div>
+  <div class="lock"><div class="ar">ويسنك</div></div>
+  <p style="opacity:.7;margin:10px 0 18px">الشعار حرف W مبني من فكرة السينك. اختر واحد واضغط عليه.</p>
+  <div class="chips" id="lv" style="justify-content:center"><button data-v="wave">W موجة ★</button><button data-v="link">W حلقتين مربوطة</button><button data-v="loop">W داخل أسهم السينك</button></div>
+  <div class="icons" id="icons"></div>
+ </div>
+</section>
+<nav class="nav"><a href="#p1">١ الجملة</a><a href="#p2">٢ الصوت</a><a href="#p3">٣–٤ الضحكة والغمزة</a><a href="#p5">٥ المزاج</a><a href="#p6">٦ الملابس</a><a href="#p7">٧ التطور</a><a href="#p8">٨ ستيكرات</a><a href="#p9">٩ الستاند</a><a href="#p10">١٠ يوميات</a><a href="#p11">١١ ميرش</a><a href="#p12">١٢ الماوس</a><a href="#p13">١٣ 404</a><a href="#p14">١٤ التخرج</a><a href="#p15">١٥ الدكتورة</a></nav>
+
+<section id="p1"><span class="num">01 · الجملة</span>
+ <div class="phrase">على نفس الموجة <div class="wv" id="phraseLogo"></div></div>
+ <p class="sub">جملة ويسي. تطلع كل ما الفريق خلّص شي، ولين تصير لحالها تذكّر الناس بـWesync.</p>
+ <div class="uses">
+  <div class="toast"><div class="tw" id="t1"></div><div><b>على نفس الموجة 〰️</b><br>الفصل الثاني خلص. كلكم سلّمتوا.</div></div>
+  <div class="toast" style="background:#FFFC00;color:#111"><div class="tw" id="t2"></div><div><b>سناب:</b> «فريقنا على نفس الموجة 〰️ #Wesync»</div></div>
+  <div class="toast" style="background:var(--ember)"><div class="tw" id="t3"></div><div><b>على المج والتيشيرت</b><br>شوف قسم ١١</div></div>
+ </div>
+</section>
+
+<section id="p2" class="dark"><span class="num">02 · الصوت</span><h2>صوت السينك</h2>
+ <p class="sub">نغمتين يبدون مختلفين، وبعدين يتقابلون في نغمة وحدة. نفس فكرة الموجتين، بس صوت. يشتغل مع لحظة ما الشعار يتزامن.</p>
+ <div class="sound"><div class="lg" id="soundLogo"></div><button class="btn main" id="play">▶ اسمع الصوت</button><div class="bars" id="bars"></div></div>
+</section>
+
+<section id="p3"><span class="num">03 · 04 — الضحكة والغمزة</span><h2>حركة التوقيع</h2>
+ <p class="sub">كل فيديو وكل إعلان يخلص بغمزة ويسي مع رفعة الحاجب. والضحكة تصير ستيكر وردّ في الشات.</p>
+ <div class="grid">
+  <div class="card"><div class="fig" id="laugh"></div><h4>الضحكة</h4><p>«ههههه والله إنكم فريق ونعم!»</p></div>
+  <div class="card"><div class="fig" id="wink"></div><h4>الغمزة (التوقيع)</h4><p>آخر ثانية في كل ريلز: يغمز ويرفع حاجب ويأشّر عليك.</p></div>
+ </div>
+</section>
+
+<section id="p5" class="dark"><span class="num">05 · المزاج حسب الوقت</span><h2>ويسي يعرف كم الساعة</h2>
+ <p class="sub">الموقع يختار المزاج حسب وقت الطالب. الحين: <b id="nowMood"></b></p>
+ <div class="grid">
+  <div class="card"><div class="fig" id="m1"></div><h4>الصبح ☕</h4><p>«صباح الخير يا فريق. القهوة جاهزة، نبدأ؟»</p></div>
+  <div class="card"><div class="fig" id="m2"></div><h4>٢ الفجر 🥱</h4><p>«ناموا يا جماعة… وأنا أكمل أدوّر عنكم.»</p></div>
+  <div class="card"><div class="fig" id="m3"></div><h4>ليلة التسليم 😰</h4><p>«باقي ٣ ساعات. أنا معكم، يلا نخلص المراجع.»</p></div>
+ </div>
+</section>
+
+<section id="p6"><span class="num">06 · ملابس المناسبات</span><h2>يلبس على المناسبة</h2>
+ <p class="sub">نفس ويسي، بس يتغير لبسه بالمواسم. هذي اللي يصورها الطلاب وينشرونها.</p>
+ <div class="grid">
+  <div class="card"><div class="fig" id="o1"></div><h4>اليوم الوطني 💚</h4><p>شماغ أخضر وشريطة خضراء على اللابتوب. «دام عزك يا وطن».</p></div>
+  <div class="card"><div class="fig" id="o2"></div><h4>رمضان 🌙</h4><p>فانوس جنبه وتمر بدل القهوة. «رمضان كريم، نخلص قبل الفطور؟»</p></div>
+  <div class="card"><div class="fig" id="o3"></div><h4>التخرج 🎓</h4><p>قبعة تخرج فوق الشماغ، ويرميها لما تسلّمون.</p></div>
+ </div>
+</section>
+
+<section id="p7" class="dark"><span class="num">07 · يتطور معكم</span><h2>ويسي يكبر مع بحثكم</h2>
+ <p class="sub">مكتبه يتغير حسب تقدم الفريق. الطالب يشوف تقدمه في شكل ويسي نفسه.</p>
+ <div class="grid">
+  <div class="card"><div class="fig" id="e1"></div><h4>البداية · ٠–٣٠٪</h4><p>لابتوب بس. «يلا نبدأ».</p></div>
+  <div class="card"><div class="fig" id="e2"></div><h4>النص · ٣٠–٧٠٪</h4><p>كتب ومراجع جنبه، ويكتب أسرع.</p></div>
+  <div class="card"><div class="fig" id="e3"></div><h4>قبل التسليم · ٧٠–١٠٠٪</h4><p>كتب أكثر وكأس ذهبي. قريب يرمي القبعة.</p></div>
+ </div>
+</section>
+
+<section id="p8"><span class="num">08 · ستيكرات واتساب</span><h2>١٢ ستيكر للقروبات</h2>
+ <p class="sub">أسرع شي ينتشر بين الطلاب. الملفات جاهزة بصيغة WebP 512×512 بخلفية شفافة، وأرسلتها لك.</p>
+ <div class="stk" id="stk"></div>
+</section>
+
+<section id="p9" class="dark"><span class="num">09 · ستاند الكلية</span><h2>تصوّر مع ويسي</h2>
+ <p class="sub">ستاند كرتون بطول ١٨٠سم في كلية التمريض، فيه إطار تصوير. اللي ينشر صورته بالهاشتاق ياخذ شهر مجاني.</p>
+ <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end">
+  <div style="width:min(320px,90vw);aspect-ratio:9/16;background:linear-gradient(#2a0f05,#120603);border-radius:20px;border:6px solid var(--gold);position:relative;overflow:hidden;padding:16px;display:flex;flex-direction:column;justify-content:space-between">
+   <div style="text-align:center"><div style="font-weight:800;font-size:26px;padding-top:.15em">تصوّر مع ويسي 📸</div><div class="mono" style="color:var(--gold)">#على_نفس_الموجة</div></div>
+   <div id="stand" style="position:absolute;inset:22% -10% 18%"></div>
+   <div style="position:relative;text-align:center;background:var(--ember);border-radius:14px;padding:10px;font-weight:700">انشرها بالهاشتاق = شهر مجاني</div>
+  </div>
+  <div style="max-width:420px"><h4 style="margin:0 0 6px;font-size:20px">التنفيذ</h4><ol style="margin:0;padding-inline-start:20px;opacity:.85"><li>طباعة فوم بورد ١٨٠×٧٠سم، ويسي قاص بحجم حقيقي.</li><li>مكانه جنب كوفي الكلية أو قاعة البحث.</li><li>كود QR صغير تحت يودّي لصفحة التسجيل مع الكوبون.</li><li>يتغير لبسه بالمواسم (القسم ٦).</li></ol></div>
+ </div>
+</section>
+
+<section id="p10"><span class="num">10 · يوميات ويسي</span><h2>سلسلة ريلز ١٠ ثواني</h2>
+ <p class="sub">مواقف كل طالب بحث عاشها. كل حلقة تبدأ بالموقف، ويسي يتفاعل، وتخلص بالغمزة.</p>
+ <div class="reels" id="reels"></div>
+</section>
+
+<section id="p11" class="dark"><span class="num">11 · ميرش</span><h2>هدايا أول ١٠٠ فريق</h2>
+ <div class="grid merch" id="merch"></div>
+</section>
+
+<section id="p12"><span class="num">12 · يتفاعل معك</span><h2>حرّك الماوس</h2>
+ <div class="follow"><div class="fig" id="follow" style="max-width:460px"></div>
+  <div><p class="sub">عيونه وراسه يلحقون الماوس. قرّب من «سلّم البحث» ويتحمس. قرّب من «احذف الملف» ويرفع حاجبه.</p>
+   <div class="row"><button class="btn main" id="hv1">سلّم البحث</button><button class="btn danger" id="hv2">احذف الملف</button></div></div></div>
+</section>
+
+<section id="p13" class="dark"><span class="num">13 · صفحة 404</span>
+ <div class="e404"><div><div style="font:800 clamp(80px,14vw,160px)/1 'JetBrains Mono';color:var(--gold);direction:ltr">404</div><h2>الصفحة ضاعت…</h2><p class="sub">زي المرجع اللي ما لقيناه. بس ويسي يدوّر عليها.</p><button class="btn main">ارجع للرئيسية</button></div><div class="fig" id="f404"></div></div>
+</section>
+
+<section id="p14"><span class="num">14 · احتفال التسليم</span><h2>سلّمتوا البحث النهائي؟</h2>
+ <p class="sub">أقوى لحظة في Wesync. ويسي يرمي القبعة، يطلع كونفيتي، والفريق ياخذ شهادة يشاركها.</p>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:center">
+  <div class="fig" id="grad" style="max-width:480px"></div>
+  <div><input id="names" value="مشاري، خالد، سارة، نورة"><div style="height:12px"></div><button class="btn main" id="done">🎓 سلّمنا البحث النهائي</button>
+   <div class="cert" id="cert"><div class="seal" id="seal"></div><span class="mono">certificate of sync</span><h3>على نفس الموجة لين النهاية</h3><div class="names" id="certNames"></div><p style="margin:8px 0 0;opacity:.7">سلّمتوا بحث التخرج بإشراف د. إسراء · كلية التمريض · <span id="certDate"></span></p></div></div>
+ </div>
+</section>
+
+<section id="p15" class="dark"><span class="num">15 · ويسي مع الدكتورة</span><h2>نفس الشخصية، بأسلوب أرسم</h2>
+ <p class="sub">مع الدكتورة ما يغمز ولا يضحك بصوت. مبتسم ومحترم، ويخاطبها بصيغة المؤنث.</p>
+ <div class="follow"><div class="fig" id="doc" style="max-width:460px"></div>
+  <div class="chat"><div class="bub">مساء الخير د. إسراء 🌿</div><div class="bub">فرقك الثلاثة جاهزين. فريق «الاحتراق الوظيفي» رفع الفصل الثالث، وينتظر ملاحظاتك.</div><div class="bub">تبين أرتب لك اجتماع معهم الأحد ١٠ص؟</div></div></div>
+</section>
+
+<script src="wesync-logo.js"></script><script src="wesy-line.js"></script><script src="wesy-real.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+/* sound */
+let AC;function chime(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime,m=AC.createGain();m.gain.value=.18;m.connect(AC.destination);
+ [[392,523.25],[466,523.25]].forEach(([a,b],i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(a,t);o.frequency.exponentialRampToValueAtTime(b,t+.35);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.5,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+1.2);o.connect(g);g.connect(m);o.start(t);o.stop(t+1.3)});
+ const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=783.99;g.gain.setValueAtTime(0,t+.34);g.gain.linearRampToValueAtTime(.35,t+.38);g.gain.exponentialRampToValueAtTime(.001,t+1.5);o.connect(g);g.connect(m);o.start(t+.34);o.stop(t+1.6)}catch(e){}
+ const B=[...document.querySelectorAll('#bars i')];let k=0;const iv=setInterval(()=>{B.forEach((b,i)=>b.style.height=(8+Math.abs(Math.sin(k*.5+i*(k<6?.9:.2)))*(k<12?46:46-(k-12)*3))+'px');if(++k>24){clearInterval(iv);B.forEach(b=>b.style.height='10px')}},60)}
+$('bars').innerHTML='<i></i>'.repeat(18);
+/* logo hero */
+let LV=(()=>{try{return localStorage.getItem('wsLogo')}catch(e){return null}})()||'wave',hero,ph=[],sl;
+function drawLogos(){hero&&hero.destroy();ph.forEach(x=>x.destroy());sl&&sl.destroy();
+ hero=new WLogo($('heroLogo'),{variant:LV,color:'#F3E9DC',bg:'#120603',gold:'#FFC777',state:'idle'});setTimeout(()=>hero.set('sync'),700);
+ sl=new WLogo($('soundLogo'),{variant:LV,color:'#F3E9DC',bg:'#120603',gold:'#FFC777'});
+ ph=[['phraseLogo','#1E0B05','#F3E9DC'],['t1','#FFC777','#1E0B05'],['t2','#111','#FFFC00'],['t3','#fff','#E9651F']].map(([id,c,b])=>{const l=new WLogo($(id),{variant:LV,color:c,bg:b,gold:id==='phraseLogo'?'#E39A2E':'#FFC777',state:'loading'});setTimeout(()=>l.set('sync'),900);return l});
+ $('icons').innerHTML=[['#1E0B05','#F3E9DC'],['#F3E9DC','#1E0B05'],['#fff','#E9651F'],['#1E0B05','#FFC777']].map(([c,b])=>'<div>'+WLogo.svg({variant:LV,color:c,bg:b,tile:true,size:84})+'</div>').join('');
+ document.querySelectorAll('#lv button').forEach(b=>b.classList.toggle('on',b.dataset.v===LV));drawMerch()}
+document.querySelectorAll('#lv button').forEach(b=>b.onclick=()=>{LV=b.dataset.v;try{localStorage.setItem('wsLogo',LV)}catch(e){}drawLogos()});
+$('heroLogo').addEventListener('pointerdown',chime);$('soundLogo').addEventListener('pointerdown',chime);
+$('play').onclick=()=>{sl.play();chime()};
+/* characters (lazy: only animate when on screen) */
+const W=(id,o)=>new WesyReal($(id),Object.assign({shadow:false},o));
+W('laugh',{state:'laugh'});W('wink',{state:'wink'});
+W('m1',{outfit:'morning',state:'idle'});W('m2',{state:'yawn'});W('m3',{outfit:'deadline',state:'deadline'});
+W('o1',{outfit:'national',state:'greet'});W('o2',{outfit:'ramadan',state:'idle'});W('o3',{outfit:'grad',state:'celebrate'});
+W('e1',{stage:0,state:'idle'});W('e2',{stage:2,state:'typing'});W('e3',{stage:3,state:'typing'});
+W('stand',{state:'wink'});W('f404',{state:'thinking'});
+const hr=new Date().getHours();$('nowMood').textContent=hr>=5&&hr<11?'الصبح ☕':hr>=0&&hr<5?'سهر الفجر 🥱':'شغل عادي 💻';
+/* stickers */
+const ST=[['laugh','هههههه'],['wink','😉'],['thinking','سلّمت؟'],['greet','يلا اجتماع'],['success','الدكتورة ردّت!'],['sleep','نمت'],['celebrate','على نفس الموجة'],['typing','ثواني أكتب'],['idle','صباح الخير',{outfit:'morning'}],['deadline','قبل التسليم',{outfit:'deadline'}],['celebrate','مبروك التخرج',{outfit:'grad'}],['idle','رمضان كريم',{outfit:'ramadan'}]];
+ST.forEach(([s,c,o],i)=>{const d=document.createElement('div');d.innerHTML='<div class="w"></div><b>'+c+'</b>';$('stk').appendChild(d);new WesyReal(d.querySelector('.w'),Object.assign({state:s,shadow:false,vb:'130 40 340 350'},o||{}))});
+/* reels */
+const R=[['لما الدكتورة تقول: «عدّلوا الفصل الثالث»','error',['يحط يده على جبهته','يبتسم: «ولا يهمكم»','يكتب بسرعة، والموجتين يتزامنون','غمزة']],
+ ['الساعة ٢ الفجر وباقي ٣ مراجع','yawn',['يتثاوب ويمدد يدينه','«ناموا… أنا أدوّر»','الصبح: «لقيتها الثلاث ☕»','غمزة']],
+ ['لما واحد بالقروب يقول «سويت قسمي» وما رفع شي','thinking',['يرفع حاجب واحد','يمسح دقنه','«طيب… وين الملف؟ 😂»','غمزة']],
+ ['أول مرة تفتح SPSS','deadline',['عرق ونظارة','«لا تخاف، ٣ خطوات بس»','يضحك','غمزة']],
+ ['يوم التسليم','celebrate',['يلبس البشت','يرمي القبعة','«على نفس الموجة لين النهاية»','غمزة']]];
+R.forEach(([t,s,steps],i)=>{const c=document.createElement('div');c.className='card';c.innerHTML='<div class="reel"><div class="t">'+t+'</div><div class="w"></div><div class="e">الحلقة '+(i+1)+' · ١٠ ثواني · ينتهي بالغمزة</div></div><ol>'+steps.map(x=>'<li>'+x+'</li>').join('')+'</ol>';$('reels').appendChild(c);
+ new WesyReal(c.querySelector('.w'),{state:s,shadow:false,outfit:s==='celebrate'?'grad':s==='deadline'?'deadline':'normal',vb:'60 40 480 520'})});
+/* merch */
+function drawMerch(){const L=(c,b)=>WLogo.svg({variant:LV,color:c,bg:b,size:100}).replace('<svg ','<svg x="0" y="0" ');
+ $('merch').innerHTML=
+ '<div class="card"><svg viewBox="0 0 300 300"><path d="M90 40 L 60 50 L 20 100 L 56 124 L 74 104 L 74 270 L 226 270 L 226 104 L 244 124 L 280 100 L 240 50 L 210 40 Q 150 80 90 40 Z" fill="#1E0B05" stroke="#000" stroke-width="4" stroke-linejoin="round"/><g transform="translate(110 110) scale(.8)">'+L('#F3E9DC','#1E0B05')+'</g><text x="150" y="232" text-anchor="middle" fill="#FFC777" font-family="Tajawal" font-weight="800" font-size="20">على نفس الموجة</text></svg><h4>تيشيرت الفريق</h4><p>أسود، الشعار بالكريمي، والجملة بالذهبي.</p></div>'+
+ '<div class="card"><svg viewBox="0 0 300 300"><path d="M70 70 L 70 250 Q 70 270 90 270 L 190 270 Q 210 270 210 250 L 210 70 Z" fill="#F3E9DC" stroke="#1E0B05" stroke-width="6"/><path d="M210 110 Q 260 110 260 160 Q 260 210 210 210" fill="none" stroke="#1E0B05" stroke-width="14"/><ellipse cx="140" cy="70" rx="70" ry="10" fill="#1E0B05"/><g transform="translate(100 110) scale(.8)">'+L('#E9651F','#F3E9DC')+'</g><text x="140" y="238" text-anchor="middle" fill="#1E0B05" font-family="Tajawal" font-weight="800" font-size="15">على نفس الموجة</text><path d="M110 50 q 8 -12 0 -24 M140 46 q 8 -12 0 -24" stroke="#1E0B05" stroke-width="4" fill="none" opacity=".4"/></svg><h4>مج القهوة</h4><p>كريمي والشعار برتقالي. هدية أول ١٠٠ فريق.</p></div>'+
+ '<div class="card"><svg viewBox="0 0 300 300"><rect x="30" y="60" width="240" height="160" rx="14" fill="#cfc8bf" stroke="#1E0B05" stroke-width="5"/><path d="M10 230 L 290 230 L 270 250 L 30 250 Z" fill="#b8b0a6" stroke="#1E0B05" stroke-width="5"/><g transform="rotate(-8 150 140)"><rect x="96" y="86" width="108" height="108" rx="26" fill="#F3E9DC" stroke="#fff" stroke-width="6"/><g transform="translate(104 94) scale(.92)">'+L('#1E0B05','#F3E9DC')+'</g></g></svg><h4>ستيكر لابتوب</h4><p>نفس ستيكر لابتوب ويسي. يوزّع في الكلية.</p></div>'}
+/* follow */
+const fw=W('follow',{state:'idle',follow:true});
+$('hv1').onpointerenter=()=>fw.excited(1);$('hv1').onpointerleave=()=>fw.excited(0);$('hv1').onclick=()=>{fw.set('success');setTimeout(()=>fw.set('idle'),2600)};
+$('hv2').onpointerenter=()=>fw.raise();
+/* graduation */
+const gw=W('grad',{outfit:'grad',state:'idle',stage:3});
+$('done').onclick=()=>{gw.set('celebrate');chime();$('certNames').textContent=$('names').value;$('certDate').textContent=new Date().toLocaleDateString('ar-SA-u-nu-latn',{year:'numeric',month:'long',day:'numeric'});
+ $('cert').classList.remove('on');void $('cert').offsetWidth;$('cert').classList.add('on');const s=new WLogo($('seal'),{variant:LV,color:'#1E0B05',gold:'#E39A2E',bg:'#fff',state:'idle'});setTimeout(()=>s.set('sync'),300)};
+/* doctor */
+W('doc',{formal:true,state:'greet'});
+drawLogos();
+</script></body></html>

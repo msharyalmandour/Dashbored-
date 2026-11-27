@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
-import { BookmarkPlus, Check, ExternalLink, Loader2, Ruler, Search, ShieldAlert } from "lucide-react";
+import { BookmarkPlus, Check, ExternalLink, Ruler, Search, ShieldAlert } from "lucide-react";
 import Card from "../ui/Card";
 import EmptyState from "../ui/EmptyState";
 import { useResearchAgentState } from "../../context/ResearchAgentContext";
@@ -22,9 +23,9 @@ function SaveToLibrary({ tool }: { tool: ToolFinding }) {
         const r = await saveToolToLibrary(tool, currentUser.id);
         setState(r.error ? "error" : r.duplicate ? "dup" : "saved");
       }}
-      className="flex items-center gap-1.5 text-[11px] font-bold text-brand-600 hover:underline disabled:opacity-70"
+      className="flex items-center gap-1.5 text-[12px] font-bold text-brand-600 hover:underline disabled:opacity-70"
     >
-      {state === "saving" ? <Loader2 size={12} className="animate-spin" /> : state === "saved" || state === "dup" ? <Check size={12} /> : <BookmarkPlus size={12} />}
+      {state === "saving" ? <WSpin size={12} /> : state === "saved" || state === "dup" ? <Check size={12} /> : <BookmarkPlus size={12} />}
       {state === "saved" ? tr("انحفظت بالمكتبة المشتركة") : state === "dup" ? tr("موجودة بالمكتبة أصلًا") : state === "error" ? tr("تعذّر الحفظ — حاولوا مرة ثانية") : tr("احفظوها بمكتبة الأدوات")}
     </button>
   );
@@ -73,13 +74,13 @@ export default function ToolsFinder() {
             disabled={busy || !construct.trim()}
             className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+            {busy ? <WSpin size={16} /> : <Search size={16} />}
             {busy ? tr("جاري البحث...") : tr("دوّر")}
           </button>
         </div>
         {!construct.trim() && !busy && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bold text-brand-950/40">{tr("جرّبوا مثلًا:")}</span>
+            <span className="text-[12px] font-bold text-brand-950/40">{tr("جرّبوا مثلًا:")}</span>
             {examples.map(([c, p]) => (
               <button
                 key={c}
@@ -93,7 +94,7 @@ export default function ToolsFinder() {
         )}
         {busy && (
           <p className="mt-3 flex items-center gap-2 text-xs text-brand-950/55" role="status">
-            <Loader2 size={13} className="animate-spin" />{tr("نبحث عن دراسات تطوير وتحقق للمقاييس ونستخرج بيانات كل أداة — ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لقسم ثاني وننبّهكم لما يجهز.")}</p>
+            <WSpin size={13} />{tr("نبحث عن دراسات تطوير وتحقق للمقاييس ونستخرج بيانات كل أداة — ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لقسم ثاني وننبّهكم لما يجهز.")}</p>
         )}
         {message && (
           <p className="mt-3 rounded-xl bg-amber-accent-50 px-3 py-2.5 text-sm font-medium text-amber-accent-700">{message}</p>
@@ -109,7 +110,7 @@ export default function ToolsFinder() {
             </p>
           )}
           <p className="rounded-2xl bg-surface-muted px-4 py-3 text-xs leading-relaxed text-brand-950/60">
-            <b className="text-brand-950/80">{tr("كيف تقرأون البطاقة؟ ")}</b>{tr("«الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً ٠٫٧ فأكثر (Cronbach's α). وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.")}</p>
+            <b className="text-brand-950/80">{tr("كيف تقرأون البطاقة؟ ")}</b>{tr("«الفقرات» عدد أسئلة الأداة. «الثبات» يقيس إن الأداة تعطي نتائج متسقة — القيمة المقبولة عادةً 0٫7 فأكثر (Cronbach's α). وتأكدوا إن الأداة تنفع مع فئتكم ولغتكم، واطلبوا موافقة صاحب الأداة على استخدامها لو لزم.")}</p>
           <p className="text-xs text-brand-950/50">{tr("الأدوات اللي تحفظونها تنضاف لـ ")}<Link to="/tools-library" className="font-bold text-brand-600 hover:underline">{tr("مكتبة أدوات القياس")}</Link>{tr(" المشتركة.")}</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {tools.map((t, i) => (
@@ -118,7 +119,7 @@ export default function ToolsFinder() {
                   <p className="text-sm font-extrabold text-brand-950">{t.toolName}</p>
                   {t.measures && <p className="mt-0.5 text-xs text-brand-950/55">{t.measures}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="grid grid-cols-2 gap-2 text-[12px]">
                   {[
                     [tr("الفقرات"), t.items],
                     [tr("الثبات"), t.reliability],
@@ -137,7 +138,7 @@ export default function ToolsFinder() {
                   href={t.sourceUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-start gap-1.5 text-[11px] font-semibold text-brand-600 hover:underline"
+                  className="flex items-start gap-1.5 text-[12px] font-semibold text-brand-600 hover:underline"
                 >
                   <ExternalLink size={12} className="mt-0.5 shrink-0" />
                   <span>

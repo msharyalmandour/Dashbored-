@@ -1,29 +1,28 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Plus, Quote, Table2, Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BookMarked, Check, Copy, ExternalLink, LayoutGrid, Quote, Search, Sparkles, Table2, Trash2 } from "lucide-react";
+import Dialog from "../components/ui/Dialog";
+import { useLocation } from "react-router-dom";
+import { openAgent } from "../lib/agentBus";
 import ReferencesToolsCard from "../components/research/ReferencesToolsCard";
-import PaperQA from "../components/research/PaperQA";
 import { PageDropOverlay, StudyDropCard, usePageDrop, useStudyQueue } from "../components/research/StudyDrop";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { hasAiAccess } from "../lib/plans";
 import clsx from "clsx";
-import { FilterPill, ResearchHeader, SourceTag, glassCard, gradientPill, pillField, sourceFromLink, themeLabelAr } from "../components/ui/researchUi";
-import Avatar from "../components/ui/Avatar";
+import { ResearchHeader, glassCard, gradientPill, pillField, themeLabelAr } from "../components/ui/researchUi";
 import EmptyState from "../components/ui/EmptyState";
 import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
-import { useTeamRoster } from "../hooks/useTeamRoster";
 import type { EvidencePaper, EvidenceSection, LiteratureTheme } from "../data/types";
-import { g, isFemaleUser } from "../lib/gender";
 import { buildReferenceList, toCitation, type CitationStyle } from "../lib/citation";
 import { LITERATURE_COLUMNS, authorCell, buildLiteratureTableDoc, literatureTsv } from "../lib/literatureTable";
 import { downloadWordDoc } from "../lib/wordExport";
-import { tr, trx } from "../lib/i18n";
+import { tr } from "../lib/i18n";
 
-const sectionFilters: { id: "all" | EvidenceSection; label: string }[] = [
+const sectionFilters: { id: "all" | EvidenceSection; label: string; short?: string }[] = [
   { id: "all", label: tr("الكل") },
-  { id: "background", label: tr("خلفية البحث") },
-  { id: "literature-review", label: tr("مراجعة الأدبيات") },
+  { id: "background", label: tr("خلفية البحث"), short: tr("الخلفية") },
+  { id: "literature-review", label: tr("مراجعة الأدبيات"), short: tr("الأدبيات") },
   { id: "gap", label: tr("الفجوة") },
   { id: "methodology", label: tr("المنهجية") },
   { id: "other", label: tr("أخرى") },
@@ -50,25 +49,33 @@ const emptyForm = {
   keyFinding: "",
   relevance: "",
   section: "other" as EvidenceSection,
+  link: undefined as string | undefined,
 };
 
 export default function EvidenceLibrary() {
   const { currentUser, isLeader, team, mode } = useAuth();
-  const isFemale = isFemaleUser(currentUser);
   const { project } = useResearchProject();
   const canAsk = mode === "supabase" && hasAiAccess(team);
   const [view, setView] = useState<"cards" | "table">("cards");
   const [copiedTable, setCopiedTable] = useState(false);
   const { papers, addPaper, updateReviewStatus, deletePaper } = useEvidencePapers();
-  const { roster } = useTeamRoster();
   const [filter, setFilter] = useState<"all" | EvidenceSection>("all");
   const [citationStyle, setCitationStyle] = useState<CitationStyle>("apa");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedList, setCopiedList] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [q, setQ] = useState("");
   const [form, setForm] = useState(emptyForm);
-  const memberById = (id: string) => roster.find((m) => m.id === id);
-  // «ارموا الدراسة»: الوكيل يقراها وتنضاف للمكتبة والجدول بكل خاناتها
+  // ويسي لاحظ رابط دراسة انلصق بخانة ثانية وأرسله هنا (state.link): نفتح النموذج والرابط جاهز
+  const evidenceLocation = useLocation();
+  useEffect(() => {
+    const link = (evidenceLocation.state as { link?: string } | null)?.link;
+    if (!link) return;
+    setShowForm(true);
+    setForm((f) => ({ ...f, link }));
+  }, [evidenceLocation.state]);
+  // «ارموا الدراسة»: ويسي يقراها وتنضاف للمكتبة والجدول بكل خاناتها
   const pickRef = useRef<(() => void) | null>(null);
   const dropOn = canAsk && !!currentUser;
   const drops = useStudyQueue({ add: addPaper, remove: deletePaper, existingTitles: papers.map((p) => p.title), addedById: currentUser?.id ?? "" });
@@ -117,7 +124,6 @@ export default function EvidenceLibrary() {
     }
   };
 
-  const reviewedCount = papers.filter((p) => p.reviewStatus === "reviewed").length;
 
   const filtered = useMemo(
     () =>
@@ -144,41 +150,62 @@ export default function EvidenceLibrary() {
       on ? "bg-[#FF6B00]/20 text-[#FFB444]" : "text-[#B8ADA2] hover:text-[#F4F0EC]",
     );
 
+  const inTable = (p: EvidencePaper) => !!(p.aim?.trim() && p.keyFinding?.trim());
+  const tableCount = papers.filter(inTable).length;
+  const shown = filtered.filter((p) => !q.trim() || `${p.title} ${p.authors} ${p.country ?? ""}`.toLowerCase().includes(q.trim().toLowerCase()));
+  const segs = sectionFilters.filter((f) => f.id === "all" || f.id !== "other" || countFor("other") > 0);
+
   return (
     <div className="space-y-6">
-      <ResearchHeader
-        title={tr("مكتبة الأدلة")}
-        subtitle={
-          papers.length === 0
-            ? tr("دراساتكم المحفوظة تنجمع هنا، مرتبة حسب محاور بحثكم.")
-            : tr("{0} دراسات حفظتوها، مرتبة حسب محاور بحثكم. {1} منها تمت مراجعتها.", papers.length, reviewedCount)
-        }
-        action={
-          <button data-learn="add-paper" onClick={() => (showForm || !dropOn || !pickRef.current ? setShowForm((v) => !v) : pickRef.current())} className={gradientPill}>
-            {showForm ? <X size={16} /> : <Plus size={16} />}
-            {showForm ? tr("إلغاء") : g(isFemale, tr("أضف دراسة"), tr("أضف دراسة"))}
-          </button>
-        }
-      />
+      <ResearchHeader title={tr("مكتبة الأدلة")} subtitle={papers.length ? tr("{0} دراسة · {1} منها بالجدول", papers.length, tableCount) : tr("لسه فاضية")} />
 
-      {dropOn && (
+      {dropOn ? (
         <>
           <PageDropOverlay show={dragging} />
-          <StudyDropCard items={drops.items} onFiles={addFiles} onUndo={drops.undo} onDismiss={drops.dismiss} onManual={() => setShowForm((v) => !v)} pickRef={pickRef} />
+          <StudyDropCard items={drops.items} onFiles={addFiles} onUndo={drops.undo} onDismiss={drops.dismiss} onImport={() => setImportOpen(true)} pickRef={pickRef} hero={papers.length === 0} />
         </>
+      ) : (
+        <div className="sd-card flex flex-wrap items-center justify-between gap-3">
+          <p className="m-0 text-[15px] font-bold text-[#F2EBE3]">{tr("ارموا الدراسة هنا")}</p>
+          <button type="button" className="sdz-glass" onClick={() => setImportOpen(true)}>
+            {tr("استيراد Zotero")}
+          </button>
+        </div>
       )}
-      {currentUser && <ReferencesToolsCard papers={papers} addPaper={addPaper as never} />}
 
-      <div className="flex flex-wrap gap-2">
-        {sectionFilters.map((f) => (
-          <FilterPill key={f.id} active={filter === f.id} count={countFor(f.id)} onClick={() => setFilter(f.id)}>
-            {f.label}
-          </FilterPill>
-        ))}
-      </div>
+      {importOpen && (
+        <Dialog open onClose={() => setImportOpen(false)} title={tr("استيراد Zotero")}>
+          {currentUser && <ReferencesToolsCard papers={papers} addPaper={addPaper as never} />}
+          <button type="button" className="sdz-glass mt-3" onClick={() => (setImportOpen(false), setShowForm(true))}>
+            {tr("أو اكتبوها يدوي")}
+          </button>
+        </Dialog>
+      )}
+
+      {papers.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="lb-seg" role="tablist" aria-label={tr("المحاور")}>
+            {segs.map((f) => (
+              <button key={f.id} type="button" role="tab" aria-selected={filter === f.id} className={clsx("lb-seg-btn", filter === f.id && "on")} onClick={() => setFilter(f.id)}>
+                {f.short ?? f.label}
+                <span className="lb-seg-n">{countFor(f.id)}</span>
+              </button>
+            ))}
+          </div>
+          <label className="lb-search">
+            <Search size={16} aria-hidden />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("ابحثوا…")} aria-label={tr("ابحثوا بالمكتبة")} />
+          </label>
+        </div>
+      )}
 
       {showForm && (
         <div className={clsx(glassCard, "p-5")}>
+          {form.link && (
+            <p className="mb-3 truncate text-[13px] font-semibold text-[#ABA095]" dir="ltr">
+              🔗 {form.link}
+            </p>
+          )}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               value={form.title}
@@ -346,114 +373,54 @@ export default function EvidenceLibrary() {
         </div>
       )}
 
-      <div className={view === "cards" || filtered.length === 0 ? "grid grid-cols-1 gap-4 md:grid-cols-2" : "hidden"}>
-        {filtered.map((paper) => {
-          const addedBy = memberById(paper.addedById);
+      <div className={view === "cards" && papers.length > 0 ? "grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" : "hidden"}>
+        {shown.map((paper) => {
           const reviewed = paper.reviewStatus === "reviewed";
+          const ok = inTable(paper);
+          const meta = [paper.country, paper.sample, paper.studyDesign].map((x) => (x ?? "").trim()).filter(Boolean).join(" · ");
+          const menu = [
+            { label: copiedId === paper.id ? tr("تم النسخ") : tr("نسخ الاقتباس"), icon: Quote, onClick: () => copyCitation(paper) },
+            { label: reviewed ? tr("رجّعوها غير مراجَعة") : tr("علّموها مراجَعة"), icon: Check, onClick: () => updateReviewStatus(paper.id, reviewed ? "collected" : "reviewed") },
+            ...(canAsk ? [{ label: tr("اسألوا ويسي عنها"), icon: Sparkles, onClick: () => openAgent(tr("عن الدراسة «{0}»: ", paper.title)) }] : []),
+            ...(paper.link ? [{ label: tr("افتحوا الأصل"), icon: ExternalLink, onClick: () => window.open(paper.link, "_blank", "noopener") }] : []),
+            ...(isLeader || paper.addedById === currentUser?.id
+              ? [{ label: tr("حذف الدراسة"), confirmLabel: tr("تأكيد الحذف؟"), icon: Trash2, tone: "danger" as const, onClick: () => deletePaper(paper.id) }]
+              : []),
+          ];
           return (
-            <article key={paper.id} className={clsx(glassCard, "flex flex-col p-5")}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <SourceTag label={sourceFromLink(paper.link)} />
-                  {reviewed && <span className="text-[11px] font-semibold text-[#7fd6a0]">{tr("✓ تمت مراجعتها")}</span>}
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-[#B8ADA2]">{paper.year}</span>
-                  {(isLeader || paper.addedById === currentUser?.id) && (
-                    <ThreeDotsMenu
-                      items={[
-                        {
-                          label: tr("حذف الدراسة"),
-                          confirmLabel: tr("تأكيد الحذف؟"),
-                          icon: Trash2,
-                          tone: "danger",
-                          onClick: () => deletePaper(paper.id),
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-              </div>
-
-              <h3 className="mt-3 text-[17px] font-bold leading-snug" dir="auto">
-                {paper.link ? (
-                  <a href={paper.link} target="_blank" rel="noreferrer" className="hover:text-[#FFB444]">
-                    {paper.title}
-                  </a>
-                ) : (
-                  paper.title
-                )}
-              </h3>
-              <p className="mt-2 flex-1 text-[15px] leading-relaxed text-[#B8ADA2]">{paper.keyFinding || paper.relevance || "—"}</p>
-
-              <div className="mt-4 flex items-center justify-between gap-2 border-t border-white/10 pt-3 text-sm">
-                <span className="flex items-center gap-1.5 text-[#FFB444]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FFB444]" />
-                  {themeLabelAr[paper.theme] ?? paper.theme}
+            <article key={paper.id} className="lb-card">
+              <div className="flex items-center gap-2">
+                <span className="lb-axis">{(() => { const f = sectionFilters.find((x) => x.id === paper.section); return f?.short ?? f?.label ?? themeLabelAr[paper.theme] ?? tr("أخرى"); })()}</span>
+                <span className="flex-1" />
+                <span className="text-[13px] font-bold text-[#ABA095]" dir="ltr">
+                  {paper.year}
                 </span>
-                {paper.link && (
-                  <a href={paper.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[#B8ADA2] hover:text-[#F4F0EC]">
-                    <ExternalLink size={13} />{tr("الأصل")}</a>
+                <ThreeDotsMenu items={menu} />
+              </div>
+              <h3 className="lb-title" dir="ltr">
+                {paper.title}
+              </h3>
+              {meta && (
+                <p className="lb-meta" dir="auto">
+                  {meta}
+                </p>
+              )}
+              <div className="mt-auto pt-3">
+                {ok ? (
+                  <span className="lb-ok">
+                    <Check size={14} strokeWidth={3} aria-hidden />
+                    {tr("بالجدول")}
+                  </span>
+                ) : (
+                  <span className="lb-miss">{tr("ناقص ملخّص")}</span>
                 )}
               </div>
-
-              <details className="group mt-3">
-                <summary className="cursor-pointer list-none text-xs font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("تفاصيل وأدوات ")}<span className="inline-block transition-transform group-open:rotate-180">⌄</span>
-                </summary>
-                <div className="mt-3 space-y-3 text-sm">
-                  <p className="text-[#B8ADA2]">
-                    {paper.authors} · {paper.studyDesign}
-                  </p>
-                  {paper.relevance && (
-                    <div className="rounded-2xl bg-white/[0.05] p-3">
-                      <p className="text-[11px] font-bold text-[#B8ADA2]">{tr("الصلة بالبحث")}</p>
-                      <p className="mt-0.5 text-xs leading-relaxed">{paper.relevance}</p>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      onClick={() => updateReviewStatus(paper.id, reviewed ? "collected" : "reviewed")}
-                      className={clsx(
-                        "rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
-                        reviewed ? "border-[#7fd6a0]/60 text-[#7fd6a0]" : "border-[#FF8A24]/60 text-[#FFB444] hover:bg-[#FF6B00]/10",
-                      )}
-                    >
-                      {reviewed ? tr("تمت مراجعتها") : tr("تم جمعها — علّموها مراجَعة")}
-                    </button>
-                    <button onClick={() => copyCitation(paper)} className={toolBtn}>
-                      {copiedId === paper.id ? <Check size={13} /> : <Quote size={13} />}
-                      {copiedId === paper.id ? tr("تم النسخ") : tr("نسخ الاقتباس")}
-                    </button>
-                  </div>
-                  {addedBy && (
-                    <div className="flex items-center gap-1.5 text-xs text-[#B8ADA2]">
-                      <Avatar initials={addedBy.initials} color={addedBy.color} size="sm" />{trx("أضافها {0}", addedBy.name.split(" ")[0])}</div>
-                  )}
-                  {canAsk && (
-                    <PaperQA
-                      title={paper.title}
-                      keyFinding={paper.keyFinding}
-                      relevance={paper.relevance}
-                      projectTitle={project?.title}
-                      allowPdf
-                    />
-                  )}
-                </div>
-              </details>
             </article>
           );
         })}
-        {filtered.length === 0 && (
+        {shown.length === 0 && (
           <div className={clsx(glassCard, "col-span-full p-2")}>
-            <EmptyState
-              icon={BookMarked}
-              title={filter === "all" ? tr("المكتبة لسا فاضية") : tr("لا توجد دراسات بهذا القسم")}
-              desc={
-                filter === "all"
-                  ? tr("أول دراسة تضيفونها هنا تبدأ مكتبة أدلة بحثكم — أضيفوا أول دراسة، أو احفظوها من «البحث عن دراسات».")
-                  : tr("جرّبوا فلتر ثاني، أو أضيفوا دراسة جديدة تحت هذا القسم.")
-              }
-            />
+            <EmptyState icon={BookMarked} title={q.trim() ? tr("ما لقينا شي بهالبحث") : tr("لا توجد دراسات بهذا القسم")} desc={tr("جرّبوا فلتر ثاني.")} />
           </div>
         )}
       </div>

@@ -71,7 +71,7 @@ async function fetchDriveStatus(): Promise<DriveStatus> {
 
 /* دالة الدرايف تقلع ببطء أحيانًا (ثواني)، فبطاقة «ربط درايف الفريق» كانت تطلع متأخر:
    - نحفظ آخر حالة ناجحة بالجهاز (لكل مستخدم) والواجهة تعرضها فورًا مع peekDriveStatus
-   - وطلب واحد مشترك بين الرئيسية وصفحة الاجتماعات بدل طلبين، ونعيد استخدام نتيجته ٦٠ ثانية */
+   - وطلب واحد مشترك بين الرئيسية وصفحة الاجتماعات بدل طلبين، ونعيد استخدام نتيجته 60 ثانية */
 const SNAPSHOT_KEY = (userId: string) => `wesync.driveStatus.${userId}`;
 const REUSE_MS = 60000;
 let inflight: { at: number; promise: Promise<DriveStatus> } | null = null;
@@ -115,6 +115,27 @@ export async function startDriveConnect() {
   return call<{ url: string }>({ action: "start", origin: window.location.origin });
 }
 
+/** عضو يربط درايفه بالفريق (DriveInviteM): drive.file بس، وما نحفظ له أي رمز */
+export async function startMemberJoin() {
+  return call<{ url: string }>({ action: "member_start", origin: window.location.origin });
+}
+
+/** نتأكد من صلاحيات المجلد الحين (الدالة تحدّث drive_members وعدد ملفات المجلدات) */
+export async function syncDriveMembers(force = false) {
+  // blocked: اللي Google رفض يضيفهم تلقائي (profile_id أو "supervisor") — القائد يضيفهم من درايف بنفسه
+  return call<{ ok: boolean; blocked?: string[] }>({ action: "members", force }, 30000);
+}
+
+/** القائد يضيف إيميل عضو (أو المشرف/ة) ناقص، ونشارك المجلد معه */
+export async function setDriveEmail(input: { kind: "member" | "supervisor"; profileId?: string; email: string }) {
+  return call<{ ok: boolean }>({ action: "set_email", ...input }, 30000);
+}
+
+/** صلاحية المشرف/ة على المجلد: commenter (تشوف وتعلّق) هي الافتراضية */
+export async function setSupervisorRole(role: "writer" | "commenter" | "reader") {
+  return call<{ ok: boolean }>({ action: "set_supervisor_role", role }, 30000);
+}
+
 export async function shareDriveFolder(readOnlyEmails: string[] = []) {
   return call<{ shared: number; failed: string[] }>({ action: "share", readOnlyEmails });
 }
@@ -140,7 +161,7 @@ export function driveReturnMessage(reason: string | null): string {
     case "not_leader":
       return tr("الربط لقائد الفريق فقط، وبنفس الحساب اللي مسجّل فيه الدخول لـ Wesync.");
     case "bad_state":
-      return tr("انتهت صلاحية خطوة الربط (١٠ دقايق). ابدأوا من جديد من زر الربط.");
+      return tr("انتهت صلاحية خطوة الربط (10 دقايق). ابدأوا من جديد من زر الربط.");
     case "no_refresh":
       return tr("قوقل ما أعطتنا إذن دائم. افتحوا myaccount.google.com/permissions وأزيلوا Wesync، ثم اربطوا من جديد.");
     case "folder":

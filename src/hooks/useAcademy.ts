@@ -160,7 +160,7 @@ async function load(uid: string, teamId: string | null, avatar: boolean) {
   set({ signals, loaded: true });
 }
 
-/** يحسب الدروس من بيانات المستخدم/ة. refresh(force) يعيد الحساب (بحد أدنى ٤ ثواني بين كل مرة) */
+/** يحسب الدروس من بيانات المستخدم/ة. refresh(force) يعيد الحساب (بحد أدنى 4 ثواني بين كل مرة) */
 export function useAcademy() {
   const { currentUser, team, isLeader } = useAuth();
   const snap = useSyncExternalStore(subscribe, () => state);

@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { Check, ClipboardCheck, Copy, GraduationCap, Loader2, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
+import { TeamTimeCard } from "../components/sup/StudentTime";
+import { WSpin } from "../components/brand/WLogo";
+import { useEffect, useMemo, useState } from "react";
+import { Check, ClipboardCheck, Copy, GraduationCap, Mail, MessageCircle, Plus, Send, Wand2, Trash2 } from "lucide-react";
 import Card from "../components/ui/Card";
 import EmptyState from "../components/ui/EmptyState";
 import AiLockedCard from "../components/AiLockedCard";
@@ -8,13 +10,14 @@ import { useToast } from "../context/ToastContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useCommitments } from "../hooks/useCommitments";
+import { useTasksData } from "../hooks/useTasksData";
 import { Ledger } from "../components/sup/SupParts";
 import { basicSplit, sectionLabels, useSupervisorFeedback } from "../hooks/useSupervisorFeedback";
 import { callStudy } from "../hooks/useStudyTools";
 import { useSupervisorMessages } from "../hooks/useSupervisorMessages";
 import { hasAiAccess } from "../lib/plans";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
-import { notifySupervisor } from "../lib/supervisorEmail";
+import { getMyEmailStatus, notifySupervisor } from "../lib/supervisorEmail";
 import { formatDateLong } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import { publicBase } from "../lib/publicUrl";
@@ -31,6 +34,8 @@ export default function SupervisorFeedback() {
   const { project } = useResearchProject();
   const { roster } = useTeamRoster();
   const { items: commitments } = useCommitments();
+  const { tasks } = useTasksData();
+  const tasksById = useMemo(() => new Map(tasks.map((t) => [t.id, t.title])), [tasks]);
   const supervisorName = project?.supervisorName ?? "";
   const { items, loading, addItems, patch, remove } = useSupervisorFeedback();
   const aiOk = hasAiAccess(team) && isSupabaseConfigured;
@@ -40,6 +45,18 @@ export default function SupervisorFeedback() {
   const [replyErr, setReplyErr] = useState<string | null>(null);
   const [nudge, setNudge] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  // هل المشرفة مفعّلة إيميلات Wesync؟ (عشان ما نقول «ما يجيها إيميل» وهي يجيها)
+  const [emailOn, setEmailOn] = useState(false);
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let alive = true;
+    void getMyEmailStatus().then((st) => {
+      if (alive) setEmailOn(st?.state === "active" && !st.isTeamMember);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const [raw, setRaw] = useState("");
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
@@ -156,6 +173,8 @@ export default function SupervisorFeedback() {
         <p className="mt-1 text-sm leading-relaxed text-brand-950/55">{tr("ملاحظات المشرفة غالبًا تجي بشكل كلام طويل وتضيع. هنا تحوّلونها لقائمة مهام صغيرة، كل وحدة تنحل وتنعلّم، وتشوفون وين وقفتوا.")}</p>
       </div>
 
+      <TeamTimeCard titleOf={(id) => tasksById.get(id) ?? tr("مهمة")} />
+
       {commitments.length > 0 && (
         <Ledger rows={commitments.map((c) => ({ ...c, owner: c.assignee_id ? (roster.find((r) => r.id === c.assignee_id) ?? null) : null }))} docName={supervisorName || tr("الدكتورة")} />
       )}
@@ -177,7 +196,7 @@ export default function SupervisorFeedback() {
       {(messages.length > 0 || isSupabaseConfigured) && (
         <Card tone="paper" className="space-y-3">
           <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <GraduationCap size={18} className="text-violet-500" />{tr("رسائل المشرفة")}</h3>
+            <GraduationCap size={18} className="text-[#FFC777]" />{tr("رسائل المشرفة")}</h3>
           {messages.length === 0 ? (
             <p className="text-xs leading-relaxed text-brand-950/55">{tr("لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.")}</p>
           ) : (
@@ -188,10 +207,10 @@ export default function SupervisorFeedback() {
                   <li key={m.id} className={`flex ${fromSup ? "justify-start" : "justify-end"}`}>
                     <div
                       className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 ${
-                        fromSup ? "bg-violet-50 text-brand-950" : "border border-brand-100 bg-surface-muted text-brand-950"
+                        fromSup ? "bg-[rgba(255,199,119,.10)] text-brand-950 ring-1 ring-[rgba(255,199,119,.22)]" : "border border-brand-100 bg-surface-muted text-brand-950"
                       }`}
                     >
-                      <p className="text-[11px] font-bold text-brand-950/45">
+                      <p className="text-[12px] font-bold text-brand-950/45">
                         {fromSup ? m.senderName || tr("المشرفة") : m.senderName ? tr("أنتم — {0}", m.senderName) : tr("أنتم")}
                         <span className="ms-2 font-medium">{formatDateLong(m.createdAt.slice(0, 10))}</span>
                       </p>
@@ -199,7 +218,7 @@ export default function SupervisorFeedback() {
                       {fromSup && (
                         <button
                           onClick={() => toTasks(m.body)}
-                          className="mt-2 flex items-center gap-1.5 text-xs font-bold text-violet-600 underline underline-offset-2 hover:text-violet-700"
+                          className="mt-2 flex min-h-[32px] items-center gap-1.5 text-xs font-bold text-[#FF9A3C] underline underline-offset-2 hover:text-[#FFB547]"
                         >
                           <ClipboardCheck size={12} />{tr("حوّلوها لمهام")}</button>
                       )}
@@ -222,7 +241,7 @@ export default function SupervisorFeedback() {
               onClick={sendReply}
               disabled={replyBusy || !replyText.trim()}
               className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-50"
-            >{trx("{0}إرسال", replyBusy ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />)}</button>
+            >{trx("{0}إرسال", replyBusy ? <WSpin size={13} /> : <Send size={13} />)}</button>
           </div>
           {replyErr && <p className="text-xs font-semibold text-rose-600">{replyErr}</p>}
           {nudge && supervisorLink && (
@@ -236,10 +255,14 @@ export default function SupervisorFeedback() {
                 className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-brand-600"
               >
                 <MessageCircle size={14} />{tr("نبّهوها بواتساب")}</a>
-              <button onClick={() => setNudge(false)} className="text-[11px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
+              <button onClick={() => setNudge(false)} className="text-[12px] font-bold text-brand-950/40 hover:text-brand-950/70">{tr("لاحقًا")}</button>
             </div>
           )}
-          <p className="text-[11px] text-brand-950/40">{tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}</p>
+          <p className="text-[12px] text-brand-950/40">
+            {emailOn
+              ? tr("المشرفة مفعّلة الإيميل: يوصلها تنبيه بردّكم (تنبيه واحد كل 10 دقايق بالكثير).")
+              : tr("ملاحظة: المشرفة ما يجيها إيميل ولا إشعار جوال — ترى ردّكم لما تفتح رابطها، فلو الموضوع عاجل نبّهوها بواتساب.")}
+          </p>
         </Card>
       )}
 
@@ -263,7 +286,7 @@ export default function SupervisorFeedback() {
               disabled={!raw.trim() || splitting}
               className="flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50"
             >
-              {splitting ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />}
+              {splitting ? <WSpin size={15} /> : <Wand2 size={15} />}
               {splitting ? tr("جاري التقسيم...") : tr("قسّمها بالذكاء الاصطناعي")}
             </button>
           )}
@@ -275,7 +298,7 @@ export default function SupervisorFeedback() {
         </div>
         {splitMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm font-medium text-amber-accent-700">{splitMsg}</p>}
         {!aiOk && isSupabaseConfigured && (
-          <p className="text-[11px] text-brand-950/45">{tr("التقسيم الذكي متاح بباقة AI. التقسيم البسيط مجاني.")}</p>
+          <p className="text-[12px] text-brand-950/45">{tr("التقسيم الذكي يفتح مع الاشتراك. التقسيم البسيط مجاني.")}</p>
         )}
       </Card>
 
@@ -385,7 +408,7 @@ export default function SupervisorFeedback() {
               </button>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-semibold ${i.status === "done" ? "text-brand-950/40 line-through" : "text-brand-950"}`}>{i.comment}</p>
-                <p className="mt-0.5 text-[11px] text-brand-950/45">
+                <p className="mt-0.5 text-[12px] text-brand-950/45">
                   {sectionLabels[i.sectionKey] ?? tr("أخرى")} · {formatDateLong(i.feedbackDate)}
                   {i.status === "done" && i.resolvedAt ? tr(" · انحلّت {0}", formatDateLong(i.resolvedAt.slice(0, 10))) : ""}
                 </p>
@@ -422,7 +445,7 @@ export default function SupervisorFeedback() {
           <div className="flex flex-wrap gap-2">
             <button onClick={() => writeMail("remind")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">{tr("تذكير بانتظار ملاحظاتها")}</button>
             <button onClick={() => writeMail("progress")} disabled={mailBusy} className="rounded-xl border border-brand-200 bg-paper px-3.5 py-2 text-sm font-bold text-brand-950/75 hover:bg-surface-muted disabled:opacity-50">{tr("تحديث بتقدّمنا")}</button>
-            {mailBusy && <Loader2 size={18} className="animate-spin self-center text-brand-500" />}
+            {mailBusy && <WSpin size={18} className="self-center text-brand-500" />}
           </div>
           {mailMsg && <p className="rounded-xl bg-amber-accent-50 px-3 py-2 text-sm text-amber-accent-700">{mailMsg}</p>}
           {mailText && (

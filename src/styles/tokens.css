@@ -20,7 +20,7 @@
   --ws-c-accent-2: #FF9A3C;
   --ws-c-on-accent: #1A0802;
   --ws-c-late: #FF8A7A;
-  --ws-c-done: #7FE0A6;
+  --ws-c-done: #FFC777;
   --ws-c-warn: #FFC777;
   --ws-glow-opacity: 0.22;
 
@@ -59,7 +59,7 @@
   --color-ws-accent: #FF6A00;
   --color-ws-accent2: #FF9A3C;
   --color-ws-late: #FF8A7A;
-  --color-ws-done: #7FE0A6;
+  --color-ws-done: #FFC777;
   --color-ws-warn: #FFC777;
   --ease-ws: cubic-bezier(0.2, 0.8, 0.2, 1);
 }

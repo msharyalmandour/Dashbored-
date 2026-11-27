@@ -10,7 +10,7 @@ export interface ChatRef {
 
 export type ChatKind = "user" | "agent" | "event" | "poll";
 
-/** بيانات الحدث / التصويت / رد الوكيل (team_messages.meta) */
+/** بيانات الحدث / التصويت / رد ويسي (team_messages.meta) */
 export interface ChatMeta {
   type?: string;
   options?: string[];
@@ -208,7 +208,7 @@ export function useTeamChat() {
   const { currentUser } = useAuth();
   const [now, setNow] = useState(() => Date.now());
 
-  // «يكتب الحين…» يختفي بعد ٤ ثواني بدون إشارة جديدة
+  // «يكتب الحين…» يختفي بعد 4 ثواني بدون إشارة جديدة
   useEffect(() => {
     if (!s?.typers.length) return;
     const t = setInterval(() => setNow(Date.now()), 1500);
@@ -271,7 +271,7 @@ export function useTeamChat() {
     [s],
   );
 
-  /** رد الوكيل أو تصويت: نفس الإرسال بنوع وبيانات (يحتاج ملف SQL الجديد) */
+  /** رد ويسي أو تصويت: نفس الإرسال بنوع وبيانات (يحتاج ملف SQL الجديد) */
   const post = useCallback(
     async (kind: "agent" | "poll", body: string, meta: ChatMeta, replyTo: string | null = null) => {
       if (!s || !currentUser) return { error: "offline" };

@@ -1,0 +1,26 @@
+/* شعار W (brand/wesync-logo.js · wave). loading = مؤشر تحميل (الحركة الوحيدة المسموح تتكرر).
+   sync = الموجتين تقفل على W (~0.8s) وبعدها ومضة ذهبية: النجمة تصغر وتختفي، والخط ذهبي لحظة. */
+.wl { display: inline-block; flex: none; vertical-align: middle; overflow: visible; }
+.wl-loading .wl-a { animation: wl-a 0.98s cubic-bezier(.37,0,.63,1) infinite alternate; }
+.wl-loading .wl-b { animation: wl-b 0.98s cubic-bezier(.37,0,.63,1) infinite alternate; }
+@keyframes wl-a { from { transform: translate(0, 0); } to { transform: translate(-22px, -10px); } }
+@keyframes wl-b { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(22px, 10px); opacity: .35; } }
+.wl-sync .wl-a { animation: wl-a-in .8s cubic-bezier(.2,.8,.2,1) both, wl-gold .55s .75s linear both; }
+.wl-sync .wl-b { animation: wl-b-in .8s cubic-bezier(.2,.8,.2,1) both, wl-gold .55s .75s linear both; }
+@keyframes wl-a-in { from { transform: translate(-22px, -10px); } to { transform: translate(0, 0); } }
+@keyframes wl-b-in { from { transform: translate(22px, 10px); opacity: .35; } to { transform: translate(0, 0); opacity: 1; } }
+@keyframes wl-gold { 0%, 95% { stroke: var(--wl-gold); } 100% { stroke: var(--wl-fg); } }
+.wl-spark { transform-origin: 100px 72px; opacity: 0; animation: wl-spark .55s .75s linear both; }
+@keyframes wl-spark { from { opacity: .95; transform: scale(1); } to { opacity: 0; transform: scale(.23); } }
+@media (prefers-reduced-motion: reduce) {
+  .wl-loading .wl-a, .wl-loading .wl-b, .wl-sync .wl-a, .wl-sync .wl-b, .wl-spark { animation: none; }
+  .wl-loading, .wl-sync { animation: wl-fade 200ms ease-out both; }
+}
+html[data-reduce-motion="true"] .wl-loading .wl-a, html[data-reduce-motion="true"] .wl-loading .wl-b,
+html[data-reduce-motion="true"] .wl-sync .wl-a, html[data-reduce-motion="true"] .wl-sync .wl-b, html[data-reduce-motion="true"] .wl-spark { animation: none; }
+@keyframes wl-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ويسي */
+.wesy { display: inline-block; flex: none; }
+.wesy > svg { display: block; animation: wl-fade 200ms ease-out both; }
+.wesy-av { display: inline-flex; flex: none; overflow: hidden; border-radius: 28%; background: #F3E9DC; box-shadow: 0 0 0 1.5px #FFC777; }

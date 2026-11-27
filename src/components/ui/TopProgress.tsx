@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { topProgress, useTopProgressActive } from "../../lib/topProgress";
 import { tr } from "../../lib/i18n";
 
-/** شريط برتقالي ٣px أعلى الشاشة: يشتغل مع أي تحميل مسجّل (topProgress.start/done) ومع كل تنقل بين الصفحات */
+/** شريط برتقالي 3px أعلى الشاشة: يشتغل مع أي تحميل مسجّل (topProgress.start/done) ومع كل تنقل بين الصفحات */
 export default function TopProgress() {
   const active = useTopProgressActive();
   const [phase, setPhase] = useState<"idle" | "run" | "finish">("idle");

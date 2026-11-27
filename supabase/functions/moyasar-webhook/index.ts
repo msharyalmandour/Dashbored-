@@ -82,12 +82,59 @@ Deno.serve(async (req: Request) => {
 
   const amount = (amountHalalas ?? 0) / 100;
 
+  // ── السعر لكل شخص (2026-11-27) — نفس src/lib/plans.ts ──
+  //   شهري 15 (30 يوم) · فصل 49 (120 يوم) · السنة الدراسية 99 (270 يوم) · خصم الاستمرار: الشهري 12
+  //   الأيام تنضاف للفريق كامل بالتناسب: المبلغ × أيام المدة ÷ (عدد الأعضاء × سعر الشخص)
+  //   فدفعة الفريق كامل = المدة كاملة، وحصة شخص من 4 = ربعها. الدفعات تتراكم.
+  const PLANS: Record<string, { price: number; days: number }> = {
+    month: { price: 15, days: 30 },
+    semester: { price: 49, days: 120 },
+    year: { price: 99, days: 270 },
+  };
+  const { count: memberCount } = await supabaseAdmin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("team_id", teamId);
+  const members = Math.max(memberCount ?? 1, 1);
+
+  // تبرع «مقعد لزميل محتاج» ينطرح قبل الحسبة (حده 50)
+  const donation = Math.min(Math.max(Number(metadata?.donation ?? 0) || 0, 0), 50, amount);
+  const net = amount - donation;
+  const forTeam = metadata?.mode === "full";
+  // قائمة صريحة (مو «in») عشان قيم زي "constructor" ما تمر
+  let period = ["month", "semester", "year"].includes(String(metadata?.period)) ? String(metadata?.period) : "month";
+  let unit = PLANS[period].price;
+  if (period === "month" && metadata?.streak === "1") {
+    const { data: streakOk } = await supabaseAdmin.rpc("team_streak_ok", { p_team: teamId });
+    if (streakOk === true) unit = 12;
+  }
+  // المبلغ أقل من سعر شخص واحد لهالمدة (أو نقص عن الفريق كامل) → نحسبه شهري بالتناسب، ما نعطي سعر مدة ما انشرت
+  const seats = forTeam ? members : 1;
+  if (net < unit * seats - 0.5) {
+    period = "month";
+    unit = PLANS.month.price;
+  }
+  const daysToAdd = Math.max(Math.round((net * PLANS[period].days) / (members * unit)), 1);
+
+  // «ادفع عن صاحبك»: المستفيد لازم يكون من نفس الفريق، وإلا الدفعة تنحسب لصاحبها
+  let beneficiary = profileId ?? null;
+  const forProfile = typeof metadata?.for_profile_id === "string" ? (metadata.for_profile_id as string) : null;
+  if (forProfile && forProfile !== profileId) {
+    const { data: same } = await supabaseAdmin.from("profiles").select("id").eq("id", forProfile).eq("team_id", teamId).maybeSingle();
+    if (same) beneficiary = forProfile;
+  }
+
   // idempotency — لو نفس الدفعة وصلت أكتر من مرة (إعادة محاولة من Moyasar)، ما نمدد الاشتراك مرتين
-  const { data: inserted, error: insertError } = await supabaseAdmin
+  const row = { team_id: teamId, moyasar_payment_id: moyasarPaymentId, amount, status, profile_id: beneficiary };
+  let { data: inserted, error: insertError } = await supabaseAdmin
     .from("payments")
-    .insert({ team_id: teamId, moyasar_payment_id: moyasarPaymentId, amount, status, profile_id: profileId ?? null })
+    .insert({ ...row, paid_by: profileId ?? null, period, donation, for_team: forTeam })
     .select("id")
     .maybeSingle();
+  // الأعمدة الجديدة لسا ما انضافت بالقاعدة (قبل تشغيل ملف SQL)؟ نحفظ بالأعمدة القديمة عشان الدفع ما يوقف
+  if (insertError && (insertError.code === "42703" || insertError.code === "PGRST204")) {
+    ({ data: inserted, error: insertError } = await supabaseAdmin.from("payments").insert(row).select("id").maybeSingle());
+  }
 
   if (insertError) {
     if (insertError.code === "23505") {
@@ -103,7 +150,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: team, error: teamError } = await supabaseAdmin
     .from("teams")
-    .select("subscription_end_date, plan, is_founder, referred_by_team_id, referral_reward_granted")
+    .select("subscription_end_date, referred_by_team_id, referral_reward_granted")
     .eq("id", teamId)
     .single();
 
@@ -111,21 +158,6 @@ Deno.serve(async (req: Request) => {
     console.error("team lookup failed", teamError);
     return new Response("error", { status: 500, headers: corsHeaders });
   }
-
-  // السعر للفريق كامل (سعر الإطلاق، نفس public.team_monthly_total): باحث لحاله 19، شخصين 39،
-  // ٣–٥ أعضاء 49، والمساعد الذكي +19 للباحث لحاله، +39 للفريق (+19 للمؤسسين).
-  // كل عضو يقدر يدفع نصيبه لحاله، فنمدد بالتناسب: (المبلغ ÷ اشتراك الفريق) × ٣٠ يوم —
-  // الدفعات تتراكم، ودفعة الفريق كامل تمدد شهر كامل.
-  const { count: memberCount } = await supabaseAdmin
-    .from("profiles")
-    .select("id", { count: "exact", head: true })
-    .eq("team_id", teamId);
-  const members = Math.max(memberCount ?? 1, 1);
-  const basePrice = members <= 1 ? 19 : members === 2 ? 39 : 49;
-  const addon = team.plan === "ai" ? (members <= 1 ? 19 : team.is_founder ? 19 : 39) : 0;
-  const totalMonthlyCost = basePrice + addon;
-  const daysToAdd =
-    totalMonthlyCost > 0 ? Math.max(Math.round((amount / totalMonthlyCost) * 30), 1) : 30;
 
   const currentEnd = team.subscription_end_date
     ? new Date(team.subscription_end_date as string)
@@ -138,7 +170,8 @@ Deno.serve(async (req: Request) => {
 
   await supabaseAdmin
     .from("teams")
-    .update({ subscription_end_date: newEndStr, on_trial: false })
+    // الاشتراك شامل: أي دفعة تفتح المساعد الذكي (plan='ai') حتى للفرق القديمة اللي كانت Basic
+    .update({ subscription_end_date: newEndStr, on_trial: false, plan: "ai" })
     .eq("id", teamId);
 
   // أول تمديد حقيقي لفريق مُحال: شهر مجاني للفريقين (الداعي والجديد) — مرة وحدة بس، نفس منطق admin_extend_subscription

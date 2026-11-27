@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { WSpin } from "../brand/WLogo";
 import { Link } from "react-router-dom";
-import { BookOpenCheck, Check, FileUp, Loader2, X } from "lucide-react";
+import { BookOpenCheck, Check, FileUp, X } from "lucide-react";
 import clsx from "clsx";
 import { glassCard } from "../ui/researchUi";
 import { readPaperFiles, type PaperReading } from "../../hooks/useProjectAgent";
@@ -23,11 +24,11 @@ type Save = (p: {
   dataCollection: string;
 }) => Promise<{ error?: string }>;
 
-/** «اقرأ لي هذي الورقة»: ترفعون PDF أو صور صفحاتها (تصوير جوال/لقطات شاشة)، الوكيل يطلّع بطاقة قراءة
+/** «اقرأ لي هذي الورقة»: ترفعون PDF أو صور صفحاتها (تصوير جوال/لقطات شاشة)، ويسي يطلّع بطاقة قراءة
     (الدولة، الهدف، التصميم، العينة، النتيجة، الحدود، علاقتها ببحثكم) وأنتم تراجعونها وتعتمدون إضافتها للمكتبة،
     وتنزل بجدول الأدبيات. الملخص من نص الورقة فقط — راجعوه قبل ما تعتمدونه بالبحث.
-    compact: داخل الوكيل العائم (بدون الإطار الزجاجي). */
-export default function PaperReaderCard({ onSave, compact = false, onClose, initialFiles }: { onSave: Save; compact?: boolean; onClose?: () => void; /** ملفات اختارها الطالب من الوكيل — تنقرا أول ما يفتح الكرت */ initialFiles?: File[] }) {
+    compact: داخل ويسي العائم (بدون الإطار الزجاجي). */
+export default function PaperReaderCard({ onSave, compact = false, onClose, initialFiles }: { onSave: Save; compact?: boolean; onClose?: () => void; /** ملفات اختارها الطالب من ويسي — تنقرا أول ما يفتح الكرت */ initialFiles?: File[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [paper, setPaper] = useState<PaperReading | null>(null);
@@ -108,7 +109,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
           <p className="flex items-center gap-2 text-sm font-extrabold text-[#F4F0EC]">
             <BookOpenCheck size={16} className="text-[#FFB444]" /> {tr("اقرأ لي هذي الورقة")}
           </p>
-          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى ١٠ صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
+          <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("ارفعوا PDF الدراسة، أو صوّروا صفحاتها (حتى 10 صور)، أو اسحبوها هنا. يطلع لكم ملخص منظّم، وتعتمدون إضافته لجدول الأدبيات.")}</p>
         </div>
         {onClose && !busy && (
           <button type="button" onClick={onClose} aria-label={tr("إغلاق")} className="rounded-full p-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
@@ -116,7 +117,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
           </button>
         )}
         <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#FFB444] transition hover:bg-[#FF6B00]/10 disabled:opacity-50">
-          {busy ? <Loader2 size={14} className="animate-spin" /> : <FileUp size={14} />}
+          {busy ? <WSpin size={14} /> : <FileUp size={14} />}
           {busy ? tr("أقرأها…") : tr("ارفعوا PDF أو صور")}
         </button>
         <input
@@ -149,16 +150,16 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
               .filter(([, v]) => v)
               .map(([k, v]) => (
                 <div key={k}>
-                  <dt className="text-[11px] font-bold text-[#B8ADA2]">{k}</dt>
+                  <dt className="text-[12px] font-bold text-[#B8ADA2]">{k}</dt>
                   <dd className="text-[13px] text-[#E6DBD1]">{v}</dd>
                 </div>
               ))}
           </dl>
-          <p className="text-[11px] text-[#B8ADA2]">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
+          <p className="text-[12px] text-[#B8ADA2]">{tr("تنحفظ بقسم «{0}» — تقدرون تغيّرونه بعدين.", sectionLabelAr[paper.section])}</p>
           <div className="flex flex-wrap items-center gap-3 pt-1">
             {saved ? (
               <>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7fd6a0]">
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
                   <Check size={15} /> {tr("انضافت للمكتبة وجدول الأدبيات")}
                 </span>
                 <Link to="/literature-review" className="text-xs font-bold text-[#FFB444] hover:underline">
@@ -176,7 +177,7 @@ export default function PaperReaderCard({ onSave, compact = false, onClose, init
               </>
             )}
           </div>
-          <p className="text-[11px] text-[#B8ADA2]/80">{tr("الملخص من نص الورقة بالذكاء — راجعوا الأرقام بالأصل قبل ما تعتمدونها بالبحث.")}</p>
+          <p className="text-[12px] text-[#B8ADA2]/80">{tr("الملخص من نص الورقة بالذكاء — راجعوا الأرقام بالأصل قبل ما تعتمدونها بالبحث.")}</p>
         </div>
       )}
     </div>

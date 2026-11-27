@@ -5,6 +5,8 @@
 //   chat  : (كاتب الرسالة نفسه، بعد ما تنحفظ) إشعار لباقي الفريق برسالة المحادثة — مرة وحدة لكل رسالة
 //   reminders : (pg_cron كل ١٠ دقايق) «ذكّرني» من المحادثة لما يجي وقتها
 //   drop  : (اللي رمى، بعد ما تنحفظ رميته) «مشاري رمى ملف وانحطّ في مكتبة الأدلة» لباقي الفريق — مرة وحدة لكل رمية
+//   doc   : (برمز رابط المشرف/ة، بعد ما تنرسل رسالتها) «د. إسراء حطت موعد اجتماع 📅» لكل الفريق — أولوية عالية، مرة وحدة لكل رسالة،
+//           ولو جت أكثر من رسالة بنفس الدقيقة تتجمّع بإشعار واحد (نفس tag)
 //   daily يذكّر كمان الفريق قبل اجتماعهم المؤكد مع المشرف/ة بيوم
 // الاشتراكات الميتة (404/410) تنحذف تلقائيًا. بدون أي مفتاح يدخله أحد يدويًا.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -43,14 +45,14 @@ interface Sub {
   auth: string;
 }
 
-async function sendTo(subs: Sub[], payload: { title: string; body: string; url: string; tag?: string; renotify?: boolean }): Promise<number> {
+async function sendTo(subs: Sub[], payload: { title: string; body: string; url: string; tag?: string; renotify?: boolean; actions?: { action: string; title: string }[] }, urgency: "normal" | "high" = "normal"): Promise<number> {
   if (subs.length === 0) return 0;
   const k = await getKeys();
   webpush.setVapidDetails(`mailto:${Deno.env.get("PUSH_CONTACT") ?? "support@wesync.app"}`, k.publicKey, k.privateKey);
   let ok = 0;
   for (const s of subs) {
     try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload), { TTL: 86400 });
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload), { TTL: 86400, urgency });
       ok++;
     } catch (err) {
       const code = (err as { statusCode?: number }).statusCode;
@@ -163,8 +165,39 @@ async function runChat(userId: string, messageId: string, mentions: string[] = [
   const base = { body, url: `${site()}/#/chat`, renotify: true };
   const sentTagged = await sendTo(all.filter((x) => tagged.has(x.profile_id)), { ...base, title: `${first} أشار لك بالمحادثة`, tag: `chat-mention-${m.id}` });
   // رسائل الفريق تتجمع بإشعار واحد يتحدّث، ويرن مع كل رسالة جديدة
-  const sentRest = await sendTo(all.filter((x) => !tagged.has(x.profile_id) && !focused.has(x.profile_id)), { ...base, title: `${first} · محادثة الفريق`, tag: `chat-${m.team_id}` });
+  const sentRest = await sendTo(all.filter((x) => !tagged.has(x.profile_id) && !focused.has(x.profile_id)), { ...base, title: `🔒 الفريق بس · ${first}`, tag: `chat-${m.team_id}` });
   return { sent: sentTagged + sentRest };
+}
+
+// رسالة الدكتورة (مجموعة «مع الدكتورة») → إشعار عالي الأولوية لكل الفريق. التحقق برمز الرابط نفسه (زي باقي دوال المشرف/ة)
+async function runDoc(token: string, messageId: string): Promise<{ sent: number; skipped?: string }> {
+  if (!/^[0-9a-f-]{36}$/i.test(messageId) || !/^[0-9a-f-]{36}$/i.test(token)) return { sent: 0, skipped: "bad_id" };
+  const { data: team } = await admin.from("teams").select("id").eq("share_token", token).maybeSingle();
+  if (!team) return { sent: 0, skipped: "bad_token" };
+  const { data: m } = await admin.from("supervisor_messages").select("*").eq("id", messageId).maybeSingle();
+  if (!m || m.team_id !== team.id || m.sender !== "supervisor") return { sent: 0, skipped: "not_found" };
+  if (Date.now() - new Date(m.created_at).getTime() > 5 * 60000) return { sent: 0, skipped: "stale" };
+  const { error: dup } = await admin.from("reminder_log").insert({ kind: "push-doc", ref_id: m.id, recipient: "team" });
+  if (dup) return { sent: 0, skipped: "duplicate" };
+  const raw = String(m.sender_name ?? "").trim();
+  const doc = !raw ? "المشرف/ة" : /^(د\.|د |dr)/i.test(raw) ? raw : `د. ${raw}`;
+  const p = (m.payload ?? {}) as Record<string, string>;
+  const kind = String(m.kind ?? "text");
+  const quote = String(m.body ?? "").slice(0, 140);
+  const n =
+    kind === "meeting"
+      ? { title: `${doc} حطت موعد اجتماع 📅`, body: [p.date, p.time, p.place].filter(Boolean).join(" · "), actions: [{ action: "rsvp-yes", title: "نحضر ✓" }, { action: "ics", title: "أضيفوه للتقويم" }] }
+      : kind === "request"
+        ? { title: `${doc} · مع الدكتورة`, body: `طلب جديد صار مهمة: ${p.title ?? quote}`, actions: [] }
+        : kind === "approval"
+          ? { title: `${doc} اعتمدت المحضر ✓`, body: quote, actions: [] }
+          : { title: `${doc} ردّت عليكم`, body: `«${quote}»`, actions: [{ action: "reply", title: "ردّوا" }] };
+  const { data: members } = await admin.from("profiles").select("id").eq("team_id", team.id);
+  const ids = ((members ?? []) as { id: string }[]).map((x) => x.id);
+  if (!ids.length) return { sent: 0 };
+  const { data: subs } = await admin.from("push_subscriptions").select("id, profile_id, endpoint, p256dh, auth").in("profile_id", ids);
+  const sent = await sendTo((subs ?? []) as Sub[], { ...n, url: `${site()}/#/chat?g=doc`, tag: `doc-${team.id}`, renotify: true }, "high");
+  return { sent };
 }
 
 const DROP_PLACE: Record<string, string> = {
@@ -237,6 +270,7 @@ Deno.serve(async (req: Request) => {
       const n = await sendTo((subs ?? []) as Sub[], { title: "Wesync", body: "الإشعارات شغّالة ✓ بتوصلك تذكيرات مهامك هنا.", url: `${site()}/#/tasks`, tag: "test" });
       return json(200, { sent: n });
     }
+    if (action === "doc") return json(200, await runDoc(String(body.token ?? ""), String(body.messageId ?? "")));
     if (!(await secretOk(req.headers.get("x-digest-secret")))) return json(401, { error: "unauthorized" });
     if (action === "daily") return json(200, await runDaily());
     if (action === "reminders") return json(200, await runReminders());

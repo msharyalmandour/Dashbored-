@@ -9,11 +9,10 @@ export interface ThemeOption {
   swatch: string;
 }
 
+/** هوية ثابتة: بدون أخضر ولا أزرق (قرار المالك) — اللي كان مختار أخضر/كحلي يرجع للأسود العنبري */
 export const themes: ThemeOption[] = [
   { id: "white", label: tr("الأساسي"), swatch: "#c93f64" },
-  { id: "dark-green", label: tr("أخضر غامق"), swatch: "#0e3a2a" },
   { id: "black", label: tr("أسود عنبري"), swatch: "#ff6a00" },
-  { id: "navy", label: tr("كحلي"), swatch: "#0e2340" },
 ];
 
 interface ThemeContextValue {

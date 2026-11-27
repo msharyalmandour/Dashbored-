@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { WSpin } from "../components/brand/WLogo";
 import {
   BadgeCheck,
   Check,
@@ -8,7 +8,6 @@ import {
   GraduationCap,
   Library,
   ListTree,
-  Loader2,
   Lightbulb,
   Ruler,
   Search,
@@ -27,7 +26,6 @@ import ThreeDotsMenu from "../components/ui/ThreeDotsMenu";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import AgentKickstart from "../components/AgentKickstart";
-import ProjectAgentChat from "../components/ProjectAgentChat";
 import { useResearchAgentState, type ResearchTab } from "../context/ResearchAgentContext";
 import { useResearchProject } from "../hooks/useResearchProject";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
@@ -79,9 +77,9 @@ function HowItWorks() {
     }
   };
   const steps = [
-    [tr("١"), tr("اكتبوا موضوع بحثكم"), tr("عنوان بحثكم أو موضوعه بكلمات بسيطة — مثل: الاحتراق الوظيفي عند الممرضات.")],
-    [tr("٢"), tr("اضغطوا «ابحث» وانتظروا"), tr("ياخذ حوالي ٢٠ ثانية. تقدرون تتنقلون بالموقع وتكملون شغلكم، ونخبركم لما تجهز النتائج.")],
-    [tr("٣"), tr("اقرأوا وأضيفوا المفيد"), tr("كل دراسة ملخّصة بالعربي. أي وحدة تعجبكم اضغطوا «أضيفوها لمكتبتكم» وتدخل مراجعة الأدبيات وقائمة المراجع تلقائيًا.")],
+    [tr("1"), tr("اكتبوا موضوع بحثكم"), tr("عنوان بحثكم أو موضوعه بكلمات بسيطة — مثل: الاحتراق الوظيفي عند الممرضات.")],
+    [tr("2"), tr("اضغطوا «ابحث» وانتظروا"), tr("ياخذ حوالي 20 ثانية. تقدرون تتنقلون بالموقع وتكملون شغلكم، ونخبركم لما تجهز النتائج.")],
+    [tr("3"), tr("اقرأوا وأضيفوا المفيد"), tr("كل دراسة ملخّصة بالعربي. أي وحدة تعجبكم اضغطوا «أضيفوها لمكتبتكم» وتدخل مراجعة الأدبيات وقائمة المراجع تلقائيًا.")],
   ];
   return (
     <div className={`${glassCard} relative p-5`}>
@@ -137,12 +135,12 @@ function SearchProgress() {
               i < stage ? "text-[#FFB444]" : i === stage ? "text-[#F4F0EC]" : "text-[#F4F0EC]/30"
             }`}
           >
-            {i < stage ? <Check size={13} /> : i === stage ? <Loader2 size={13} className="animate-spin" /> : <span className="w-[13px]" />}
+            {i < stage ? <Check size={13} /> : i === stage ? <WSpin size={13} /> : <span className="w-[13px]" />}
             {s}
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-[11px] text-[#B8ADA2]">{tr("ياخذ غالبًا ١٥–٢٠ ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
+      <p className="mt-3 text-[12px] text-[#B8ADA2]">{tr("ياخذ غالبًا 15–20 ثانية. تقدرون تتنقلون لأي قسم — البحث يكمل بالخلفية وبيطلع لكم إشعار لما يخلص.")}</p>
     </div>
   );
 }
@@ -204,12 +202,12 @@ function ResultCard({
           </SourceBadge>
           <span
             title={peer ? tr("منشورة بمجلة علمية محكّمة") : tr("مصدر مو مجلة محكّمة — تأكدوا منه قبل الاعتماد عليه")}
-            className={`text-[11px] font-semibold ${peer ? "text-[#7fd6a0]" : "text-[#FFB444]"}`}
+            className={`text-[12px] font-semibold ${peer ? "text-[#FFC777]" : "text-[#FFB444]"}`}
           >
             {peer ? tr("✓ دراسة محكّمة") : result.sourceType === "general" ? tr("مصدر عام — تأكدوا منه") : tr("مصدر غير مصنّف")}
           </span>
-          {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.studyDesign}</span>}
-          {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[11px] text-[#B8ADA2]">{result.sampleSize}</span>}
+          {result.studyDesign && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[12px] text-[#B8ADA2]">{result.studyDesign}</span>}
+          {result.sampleSize && <span className="rounded-full border border-white/[0.14] px-2.5 py-0.5 text-[12px] text-[#B8ADA2]">{result.sampleSize}</span>}
         </div>
         <span className="text-sm text-[#B8ADA2]">{result.year ?? ""}</span>
       </div>
@@ -236,7 +234,7 @@ function ResultCard({
           disabled={adding || added}
           className="flex items-center gap-1.5 font-bold text-[#FFB444] hover:text-[#FFC85A] disabled:opacity-70"
         >
-          {adding ? <Loader2 size={14} className="animate-spin" /> : added ? <Check size={14} /> : <Library size={14} />}
+          {adding ? <WSpin size={14} /> : added ? <Check size={14} /> : <Library size={14} />}
           {added ? tr("انضافت للمكتبة") : tr("+ أضف للمكتبة")}
         </button>
         <a href={result.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[#B8ADA2] hover:text-[#F4F0EC]">
@@ -256,7 +254,7 @@ function ResultCard({
             </div>
           )}
           <label className="block">
-            <span className="mb-1 block text-[11px] font-bold text-[#B8ADA2]">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
+            <span className="mb-1 block text-[12px] font-bold text-[#B8ADA2]">{tr("وين تنحط بمراجعة الأدبيات؟ (تقدرون تغيّرونه بعدين)")}</span>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as LiteratureTheme)}
@@ -270,7 +268,7 @@ function ResultCard({
               ))}
             </select>
           </label>
-          <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-[#B8ADA2]">
+          <div className="flex flex-wrap items-center gap-3 text-[12px] font-semibold text-[#B8ADA2]">
             <a
               href={`https://scholar.google.com/scholar?q=${encodeURIComponent(`"${result.title}"`)}`}
               target="_blank"
@@ -328,35 +326,11 @@ export default function ResearchSearch() {
   const busyOn: Record<ResearchTab, boolean> = { papers: st.searching, tools: st.toolsBusy, strategy: st.strategyBusy };
 
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [params] = useSearchParams();
-  const view: "agent" | "studies" = params.get("tab") === "studies" ? "studies" : "agent";
-
-  // أول ما تطلع نتائج جديدة، ننزل لها — الطالب ما يضطر يدوّر عنها تحت
+  // «ويسي» صار لوحة وحدة (الكرة أو Ctrl K) — هالصفحة للبحث عن دراسات بس
   useEffect(() => {
-    if (view === "studies" && st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (st.activeResult) resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st.activeResult]);
-
-  if (view === "agent") {
-    return (
-      <div className="space-y-5">
-        {!aiOk && <AiLockedCard feature={tr("وكيل البحث العلمي")} />}
-        {aiOk && <ProjectAgentChat />}
-        {aiOk && (
-          <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
-              <span>{tr("جهّزوا لنا البداية")}<span className="ms-2 text-xs font-normal text-[#B8ADA2]">{tr("دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم")}</span>
-              </span>
-              <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
-            </summary>
-            <div className="mt-4">
-              <AgentKickstart />
-            </div>
-          </details>
-        )}
-      </div>
-    );
-  }
 
   const activeTab = tabs.find((t) => t.id === st.tab) ?? tabs[0];
   const fieldPill =
@@ -364,7 +338,7 @@ export default function ResearchSearch() {
 
   return (
     <div className="space-y-6">
-      {!aiOk && <AiLockedCard feature={tr("وكيل البحث العلمي")} />}
+      {!aiOk && <AiLockedCard feature={tr("ويسي للبحث العلمي")} />}
 
       {aiOk && (
         <div className="flex flex-wrap gap-2">
@@ -377,6 +351,21 @@ export default function ResearchSearch() {
       )}
 
       {aiOk && <HowItWorks />}
+
+      {aiOk && (
+        <details className="group rounded-3xl border border-[rgba(255,107,0,.3)] bg-[rgba(24,16,8,.88)] px-5 py-4 backdrop-blur-xl open:pb-5">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#F4F0EC]">
+            <span>
+              {tr("جهّزوا لنا البداية")}
+              <span className="ms-2 text-xs font-normal text-[#B8ADA2]">{tr("دراسات + فجوة + أسئلة + مهام، وأنتم توافقون على اللي يعجبكم")}</span>
+            </span>
+            <ChevronDown size={16} className="shrink-0 text-[#B8ADA2] transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="mt-4">
+            <AgentKickstart />
+          </div>
+        </details>
+      )}
 
       {aiOk && st.tab === "papers" && (
         <section className="relative isolate overflow-hidden rounded-[32px] border border-[rgba(255,107,0,.3)] bg-[radial-gradient(ellipse_at_50%_0%,#2E0E04_0,#140804_55%,#0A0605_100%)] px-5 py-10 text-center text-[#F4F0EC] sm:px-8 md:py-12">
@@ -401,7 +390,7 @@ export default function ResearchSearch() {
                 className={fieldPill}
               />
               <button type="submit" disabled={st.searching || !st.topic.trim()} className={`${gradientPill} !px-7 !py-3 shrink-0`}>
-                {st.searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                {st.searching ? <WSpin size={16} /> : <Search size={16} />}
                 {st.searching ? tr("جاري البحث...") : tr("ابحث")}
               </button>
             </form>
@@ -432,11 +421,11 @@ export default function ResearchSearch() {
                 <SourceLogo name="scholar" />
               </a>
             </div>
-            <p className="-mt-1 text-[11px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
+            <p className="-mt-1 text-[12px] text-[#B8ADA2]/80">{tr("النتائج تجي من ")}<bdi>PubMed</bdi>{tr(" و")}<bdi>OpenAlex</bdi>{tr(" و")}<bdi>Crossref</bdi>{tr("، و")}<bdi>Google Scholar</bdi>{tr(" يفتح ببحث خارجي بكلمات بحثكم بالإنجليزي.")}</p>
 
             {!st.topic.trim() && !st.searching && (
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="text-[11px] font-bold text-[#B8ADA2]/70">{tr("جرّبوا مثلًا:")}</span>
+                <span className="text-[12px] font-bold text-[#B8ADA2]/70">{tr("جرّبوا مثلًا:")}</span>
                 {exampleTopics.map((ex) => (
                   <button
                     key={ex}
@@ -452,7 +441,7 @@ export default function ResearchSearch() {
             {st.searching && <div className="w-full"><SearchProgress /></div>}
 
             {!st.searching && (
-              <p className="text-[11px] text-[#B8ADA2]/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
+              <p className="text-[12px] text-[#B8ADA2]/80">{trx("استخدمتم {0} من {1} عمليات بحث هالشهر (باقي {2}). فتح بحث قديم من القائمة بالأسفل ما يحسب عليكم.", usedThisMonth, SEARCH_MONTHLY_LIMIT, left)}</p>
             )}
 
             {st.searchError && <p className="rounded-2xl bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-300">{st.searchError}</p>}
@@ -490,7 +479,7 @@ export default function ResearchSearch() {
               <div>
                 <p className="text-sm font-bold">{tr("وش يميّز بحثكم عن اللي انكتب؟")}</p>
                 <p className="mt-1 text-sm leading-relaxed text-[#B8ADA2]">{st.activeResult.noveltyNote}</p>
-                <p className="mt-1.5 text-[11px] text-[#B8ADA2]/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
+                <p className="mt-1.5 text-[12px] text-[#B8ADA2]/70">{tr("هذا تقدير سريع مبني على الدراسات اللي ظهرت — يساعدكم تفكرون بالفجوة البحثية، ومو حكم نهائي. اعرضوه على المشرفة.")}</p>
               </div>
             </div>
           )}

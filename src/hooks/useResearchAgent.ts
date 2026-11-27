@@ -26,7 +26,7 @@ async function callAgent<T extends AgentReply>(body: Record<string, unknown>) {
   return { data: reply, message: undefined as string | undefined };
 }
 
-/** أدوات وكيل البحث الإضافية: أدوات القياس، استراتيجية البحث، وسؤال عن دراسة */
+/** أدوات ويسي للبحث الإضافية: أدوات القياس، استراتيجية البحث، وسؤال عن دراسة */
 export function useResearchAgent() {
   const [busy, setBusy] = useState(false);
 

@@ -72,7 +72,7 @@ export function useChatIntel(messages: ChatMessage[], loaded: boolean, myLastRea
     [dismissKey],
   );
 
-  // ── «اللي فاتك ويخصك»: بعد غياب ٤٨ ساعة، مرة وحدة بالزيارة ──
+  // ── «اللي فاتك ويخصك»: بعد غياب 48 ساعة، مرة وحدة بالزيارة ──
   const [catchup, setCatchup] = useState<{ lines: string[]; since: string } | null>(null);
   const asked = useRef(false);
   useEffect(() => {

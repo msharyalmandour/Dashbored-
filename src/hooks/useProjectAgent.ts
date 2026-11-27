@@ -120,7 +120,7 @@ export interface AskTurn {
   text: string;
 }
 
-/** «اسألوا الوكيل عن مشروعكم»: جواب من لقطة المشروع الحقيقية + إجراءات مقترحة تنتظر موافقة الفريق */
+/** «اسألوا ويسي عن مشروعكم»: جواب من لقطة المشروع الحقيقية + إجراءات مقترحة تنتظر موافقة الفريق */
 export async function askProjectAgent(
   question: string,
   history: AskTurn[],
@@ -131,7 +131,7 @@ export async function askProjectAgent(
   if (reply?.limitReached) return { message: reply.message ?? tr("وصلتوا للحد المتاح") };
   if (reply?.error) return { message: reply.error };
   if (reply?.answer) return { data: { answer: reply.answer, actions: reply.actions ?? [] } };
-  return { message: error ? tr("الوكيل غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
+  return { message: error ? tr("ويسي غير متاح الحين — جرّبوا بعد شوي.") : tr("ما وصل الرد — حاولوا مرة ثانية.") };
 }
 
 export interface ReviewCheck {
@@ -208,7 +208,7 @@ export async function readPaperFiles(files: File[]): Promise<{ data?: PaperReadi
     return readPaperPdf(pdfs[0]);
   }
   if (images.length === 0) return { message: tr("الملف لازم يكون PDF أو صور (JPG أو PNG).") };
-  if (images.length > 10) return { message: tr("الحد ١٠ صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).") };
+  if (images.length > 10) return { message: tr("الحد 10 صور للدراسة الوحدة — اختاروا الصفحات المهمة (العنوان والملخص والمنهجية والنتائج).") };
   try {
     const { imagesToPdf } = await import("../lib/imagesToPdf");
     return readPaperPdf(await imagesToPdf(images, MAX_PAPER_BYTES));
@@ -221,7 +221,7 @@ export async function readPaperFiles(files: File[]): Promise<{ data?: PaperReadi
 export async function readPaperPdf(file: File): Promise<{ data?: PaperReading; message?: string }> {
   if (!isSupabaseConfigured) return { message: tr("هذي الميزة متاحة فقط بالوضع الحقيقي (مع حساب فريقكم).") };
   if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) return { message: tr("الملف لازم يكون PDF.") };
-  if (file.size > MAX_PAPER_BYTES) return { message: tr("الملف كبير (الحد ٤ ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.") };
+  if (file.size > MAX_PAPER_BYTES) return { message: tr("الملف كبير (الحد 4 ميغا). جرّبوا ملف أصغر أو أضيفوا الدراسة يدويًا.") };
   const pdfBase64 = await toBase64(file);
   const { data, error } = await supabase!.functions.invoke("project-agent", { body: { action: "read", fileName: file.name, pdfBase64 } });
   const reply = data as { paper?: PaperReading; error?: string; limitReached?: boolean; message?: string } | null;

@@ -33,11 +33,26 @@ export function computeNextSteps(input: {
   hasDeadline: boolean;
   /** المرحلة الحالية مكتملة — بطاقة «انتقلوا للجاية» تتولى التوجيه، فما نكرر الخطوة */
   stageReady?: boolean;
-  /** عدد الدراسات المحفوظة بمكتبة الأدلة وهل كتبوا عنوان — لتقترح «جهّزوا البداية بالوكيل» لما العنوان جاهز والمكتبة فاضية */
+  /** عدد الدراسات المحفوظة بمكتبة الأدلة وهل كتبوا عنوان — لتقترح «جهّزوا البداية بويسي» لما العنوان جاهز والمكتبة فاضية */
   evidenceCount?: number;
   hasTitle?: boolean;
+  /** عدد أعضاء الفريق (القائد ضمنهم) — الفريق اللي فيه أقل من 3: الدعوة تتقدّم (5 من 7 فرق كانت لحالها) */
+  memberCount?: number;
 }): NextStep[] {
   const steps: NextStep[] = [];
+  const invite: NextStep | null =
+    input.memberCount !== undefined && input.memberCount < 3
+      ? {
+          id: "invite",
+          title: input.memberCount <= 1 ? tr("بحثكم لحالكم؟ ادعوا فريقكم") : tr("فريقكم {0} من 4 — كمّلوه", input.memberCount),
+          why: tr("رابط واحد بقروب الدفعة، وكل من يفتحه يدخل فريقكم على طول. المهام تتوزع لما يكتمل الفريق."),
+          to: "/team?invite=1",
+          cta: tr("ادعوهم الحين"),
+          tone: "urgent",
+        }
+      : null;
+  // لحالكم: الدعوة قبل أي شي (حتى المتأخر — المهام أصلًا عليكم كلها)
+  if (invite && input.memberCount! <= 1) steps.push(invite);
   const open = input.tasks.filter((t) => t.status !== "done");
   const late = (t: Task) => t.status === "overdue" || (!!t.dueDate && t.dueDate < input.todayIso);
 
@@ -52,6 +67,9 @@ export function computeNextSteps(input: {
       tone: "urgent",
     });
   }
+
+  // شخصين: الدعوة بعد مهامكم المتأخرة
+  if (invite && input.memberCount! > 1) steps.push(invite);
 
   const teamLate = open.filter((t) => t.assigneeId !== input.currentUserId && late(t));
   if (teamLate.length > 0) {
@@ -79,7 +97,7 @@ export function computeNextSteps(input: {
   if (input.hasTitle && input.evidenceCount === 0) {
     steps.push({
       id: "agent-kickstart",
-      title: tr("خلّوا الوكيل يجهّز لكم البداية"),
+      title: tr("خلّوا ويسي يجهّز لكم البداية"),
       why: tr("يدوّر بدراسات منشورة عن عنوانكم ويطلّع دراسات ومسودة فجوة وأسئلة ومهام — وأنتم توافقون على اللي يعجبكم."),
       to: "/research-search",
       cta: tr("جهّزوا البداية"),

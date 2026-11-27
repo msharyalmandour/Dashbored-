@@ -2,6 +2,7 @@ import { useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, t
 import { Link } from "react-router-dom";
 import { ArrowUp, BookOpen, Check, Clock, Flag, Gauge, PenLine, Route, Shield, Users } from "lucide-react";
 import clsx from "clsx";
+import { WesyAvatar } from "../brand/Wesy";
 import AgentWave from "../ui/AgentWave";
 import { PALETTE, letter, weekdayAr } from "./TeamMeetLux";
 import { num } from "../v3/WriteHeader";
@@ -11,12 +12,12 @@ import { arabicMonths, daysUntil, formatDateShort } from "../../lib/date";
 import { isLate, todoList, weeklySeries, type TodoKind } from "../../lib/homeCalm";
 import { isEn, tr } from "../../lib/i18n";
 
-/* «الرئيسية الفخمة (زجاج + تقدّم + الوكيل)»: لوحة V3HomeGlass للكمبيوتر و MHomeGlass للجوال.
+/* «الرئيسية الفخمة (زجاج + تقدّم + ويسي)»: لوحة V3HomeGlass للكمبيوتر و MHomeGlass للجوال.
    كل الأرقام محسوبة من بيانات الفريق الحقيقية (المهام، الأقسام، الأدبيات، المنهجية، الموافقة الأخلاقية، المراحل). */
 
 const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
-/** عدد + المعدود: ١ قسم، ٢ قسمين، ٣–١٠ أقسام، ١١+ قسم */
+/** عدد + المعدود: 1 قسم، 2 قسمين، 3–10 أقسام، 11+ قسم */
 export const countAr = (n: number, one: string, two: string, few: string, many: string) =>
   n === 1 ? one : n === 2 ? two : n >= 3 && n <= 10 ? tr(few, num(n)) : tr(many, num(n));
 const daysWord = (n: number) => (n === 1 ? tr("يوم") : n === 2 ? tr("يومين") : n >= 3 && n <= 10 ? tr("أيام") : tr("يوم"));
@@ -43,16 +44,13 @@ export function GlassHeader({ firstName, now, aside }: { firstName: string; now:
   );
 }
 
-/** زر الوكيل جنب الترحيب (كمبيوتر) */
+/** زر ويسي جنب الترحيب (كمبيوتر) */
 export function AgentPill({ firstName }: { firstName: string }) {
   return (
-    <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح وكيل Wesync")}>
-      <span aria-hidden className="h-10 w-10 flex-none rounded-full" style={{ background: "radial-gradient(circle at 40% 35%,#FFF0C2,#FFB444 35%,#FF6A00 70%,#8A2A05)", boxShadow: "0 0 24px rgba(255,140,40,.6)" }} />
+    <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح ويسي")}>
+      <WesyAvatar size={40} />
       <span className="min-w-0 flex-1 text-sm leading-normal">
         <b>{tr("هلا {0}!", `\u2068${firstName}\u2069`)}</b> <span className="text-[#ABA095]">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
-      </span>
-      <span className="hg-pbtn !h-[38px] !w-[38px] !rounded-xl" aria-hidden>
-        <AgentWave size={18} />
       </span>
     </button>
   );
@@ -119,7 +117,7 @@ export function TodoCard({
   };
 
   const dueLabel = (t: Task, kind: TodoKind) => {
-    if (kind === "done") return { text: tr("خلصت ✓"), color: "#7FE0A6" };
+    if (kind === "done") return { text: tr("خلصت ✓"), color: "#FFC777" };
     if (kind === "late") {
       const n = -daysUntil(t.dueDate, new Date(`${today}T12:00:00`));
       return { text: n <= 1 ? tr("متأخرة يوم") : n === 2 ? tr("متأخرة يومين") : n <= 10 ? tr("متأخرة {0} أيام", num(n)) : tr("متأخرة {0} يوم", num(n)), color: "#FF8A7A" };
@@ -457,7 +455,7 @@ export function MobileTiles({
           <span className="hg-num text-[46px] leading-[1.05] text-[#F2EBE3]">{weekDone}</span>
           <b className="text-base">{weekDone === 1 ? tr("مهمة") : weekDone === 2 ? tr("مهمتين") : weekDone <= 10 ? tr("مهام") : tr("مهمة")}</b>
         </div>
-        <div className="text-xs" style={{ color: weekDiff > 0 ? "#7FE0A6" : "#ABA095" }}>
+        <div className="text-xs" style={{ color: weekDiff > 0 ? "#FFC777" : "#ABA095" }}>
           {weekDiff > 0 ? tr("+{0} عن اللي قبله", num(weekDiff)) : weekDiff < 0 ? tr("{0} أقل من اللي قبله", num(-weekDiff)) : tr("نفس الأسبوع اللي قبله")}
         </div>
       </Link>
@@ -469,7 +467,7 @@ export function MobileTiles({
 
 export type JourneyStep = { key: string; label: string; state: "done" | "now" | "todo" | "deliver"; long: string; short: string; to: string };
 
-const STATE_COLOR = { done: "#7FE0A6", now: "#FFC777", todo: "#ABA095", deliver: "#FF9A3C" } as const;
+const STATE_COLOR = { done: "#FFC777", now: "#FFC777", todo: "#ABA095", deliver: "#FF9A3C" } as const;
 const XS = [750, 570, 390, 210, 30];
 
 export function JourneyCard({ steps, headerNote, style, className }: { steps: JourneyStep[]; headerNote: string; style?: CSSProperties; className?: string }) {
@@ -598,7 +596,7 @@ export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; lon
             </>
           ) : (
             <>
-              <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#7FE0A6" : s.state === "deliver" ? "#FF9A3C" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
+              <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#FFC777" : s.state === "deliver" ? "#FF9A3C" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
                 {s.short}
               </div>
               <div className="text-xs" style={{ color: s.state === "now" ? "#FF9A3C" : "#ABA095", fontWeight: s.state === "now" ? 800 : 500 }}>
@@ -651,7 +649,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
           {(
             [
               ["month", tr("شهر")],
-              ["8w", tr("٨ أسابيع")],
+              ["8w", tr("8 أسابيع")],
               ["all", tr("الكل")],
             ] as const
           ).map(([k, l]) => (
@@ -700,7 +698,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
   );
 }
 
-// ───────────────────────────── وكيل Wesync ─────────────────────────────
+// ───────────────────────────── ويسي ─────────────────────────────
 
 export function AgentScene({ cards, style }: { cards: { title: string; sub: string }[]; style?: CSSProperties }) {
   const [q, setQ] = useState("");
@@ -725,7 +723,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
   const side = isEn ? "left" : "right";
   return (
     <section className="hg-ai mb-5" style={style} aria-labelledby="hg-ai-title">
-      {/* البطاقات الطايرة: كمبيوتر ٤، جوال ٣ */}
+      {/* البطاقات الطايرة: كمبيوتر 4، جوال 3 */}
       {cards.slice(0, 4).map((c, i) => (
         <div key={`d${i}`} className="hg-fc hidden lg:block" aria-hidden style={{ [side]: desk[i].r, top: desk[i].top, ["--r" as string]: desk[i].rot, animationDelay: `${0.5 + i * 0.12}s` }}>
           <b>{c.title}</b>
@@ -741,7 +739,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
         </div>
       ))}
       <div className={clsx("relative z-[2] lg:absolute lg:top-10 lg:w-[330px]", isEn ? "lg:right-[34px]" : "lg:left-[34px]")}>
-        <div className="text-xs font-extrabold tracking-[.12em] text-[rgba(255,235,220,.75)] lg:text-[13px]">{tr("وكيل Wesync")}</div>
+        <div className="text-xs font-extrabold tracking-[.12em] text-[rgba(255,235,220,.75)] lg:text-[13px]">{tr("ويسي")}</div>
         <h2 id="hg-ai-title" className="m-0 mt-1 text-[22px] font-extrabold leading-[1.3] text-[#FFF3E8] lg:mt-1.5 lg:text-[34px] lg:leading-[1.25]">
           <span className="lg:hidden">{tr("اسألوه، يعرف بحثكم كامل")}</span>
           <span className="hidden lg:inline">
@@ -753,7 +751,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
         <p className="m-0 mt-2 hidden text-[15px] leading-[1.8] text-[rgba(255,235,220,.75)] lg:block">{tr("الأقسام، الملفات، الدراسات، وملاحظات المشرف/ة. اكتبوا سؤالكم وهو يجاوب.")}</p>
       </div>
       <form className="hg-prompt" onSubmit={send}>
-        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر ٣ دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل وكيل Wesync")} />
+        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("لخّص لي آخر 3 دراسات عن موضوعنا، وطلّع الفجوة البحثية")} aria-label={tr("اسأل ويسي")} />
         <div className="-mx-4 mt-2.5 flex gap-1.5 overflow-x-auto px-4 pb-0.5 lg:mx-0 lg:mt-3 lg:flex-wrap lg:gap-2 lg:overflow-visible lg:px-0">
           {suggestions.map((s) => (
             <button key={s} type="button" className="hg-sug" onClick={() => openAgent(s)}>
@@ -762,7 +760,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
           ))}
         </div>
         <div className="mt-3 flex items-center lg:mt-[18px]">
-          <button type="button" className="hg-pbtn" onClick={() => openAgent()} aria-label={tr("افتح وكيل Wesync")}>
+          <button type="button" className="hg-pbtn" onClick={() => openAgent()} aria-label={tr("افتح ويسي")}>
             <AgentWave size={22} />
           </button>
           <div className="flex flex-1 flex-col items-center gap-1.5 lg:gap-2" aria-hidden>
@@ -781,7 +779,7 @@ export function AgentScene({ cards, style }: { cards: { title: string; sub: stri
             </div>
             <span className="text-[13px] text-[rgba(255,235,220,.7)] lg:text-[15px]">{tr("اكتبوا واضغطوا Enter")}</span>
           </div>
-          <button type="submit" className="hg-pbtn" aria-label={tr("أرسل للوكيل")}>
+          <button type="submit" className="hg-pbtn" aria-label={tr("أرسل لويسي")}>
             <ArrowUp size={22} aria-hidden />
           </button>
         </div>

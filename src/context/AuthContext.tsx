@@ -40,6 +40,8 @@ interface AuthContextValue {
     teamId?: string,
     referralCode?: string,
     university?: string,
+    /** من وين جا (supervisor = رابط المشرفة) — للقياس بس */
+    source?: string,
   ) => Promise<AuthResult>;
   resetPassword: (email: string) => Promise<AuthResult>;
   updatePassword: (password: string) => Promise<AuthResult>;
@@ -239,6 +241,7 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
     teamId?: string,
     referralCode?: string,
     university?: string,
+    source?: string,
   ) => {
     const { error } = await supabase!.auth.signUp({
       email,
@@ -251,12 +254,13 @@ function AuthProviderSupabase({ children }: { children: ReactNode }) {
           ...(teamId ? { team_id: teamId } : {}),
           ...(referralCode ? { referral_code: referralCode } : {}),
           ...(university?.trim() ? { university: university.trim() } : {}),
+          ...(source && !teamId ? { source } : {}),
         },
       },
     });
-    // handle_new_user يرفض الانضمام لفريق فيه ٥ أعضاء (team_full)، وSupabase يرجّعها كـ "Database error saving new user"
+    // handle_new_user يرفض الانضمام لفريق فيه 5 أعضاء (team_full)، وSupabase يرجّعها كـ "Database error saving new user"
     if (error && teamId && /team_full|database error saving new user/i.test(error.message)) {
-      return { error: tr("تعذّر الانضمام للفريق — غالبًا الفريق مكتمل (٥ أعضاء كحد أقصى) أو رابط الدعوة قديم. تواصلوا مع قائد الفريق.") };
+      return { error: tr("تعذّر الانضمام للفريق — غالبًا الفريق مكتمل (5 أعضاء كحد أقصى) أو رابط الدعوة قديم. تواصلوا مع قائد الفريق.") };
     }
     return error ? { error: error.message } : {};
   };

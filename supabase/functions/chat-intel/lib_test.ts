@@ -6,8 +6,8 @@ Deno.test("summary keeps 3 per list and only roster owners", () => {
     { decided: ["العينة ١٢٠ ممرض", "العينة ١٢٠ ممرض", "٣ مستشفيات", "أ", "ب"], open: ["MBI أو CBI؟"], owners: [{ who: "خالد", what: "البند ٧" }, { who: "سارة", what: "شي" }] },
     ["خالد الحربي", "ريان الشهري"],
   );
-  assertEquals(s.decided, ["العينة ١٢٠ ممرض", "٣ مستشفيات", "أ"]);
-  assertEquals(s.owners, [{ who: "خالد", what: "البند ٧" }]);
+  assertEquals(s.decided, ["العينة 120 ممرض", "3 مستشفيات", "أ"]);
+  assertEquals(s.owners, [{ who: "خالد", what: "البند 7" }]);
 });
 
 Deno.test("catch-up is at most three lines", () => {

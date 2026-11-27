@@ -15,7 +15,7 @@ export type MethodPartKey = keyof typeof METHOD_READY;
 
 export const methodologyReadyCount = (m: Methodology) => Object.values(METHOD_READY).filter((ready) => ready(m)).length;
 
-/** بنود المبادئ الأخلاقية الـ١٣ بنفس ترتيب النموذج الرسمي */
+/** بنود المبادئ الأخلاقية الـ13 بنفس ترتيب النموذج الرسمي */
 export const PRINCIPLE_KEYS: (keyof EthicalPrinciples)[] = [
   "writtenExplanation",
   "oralExplanation",

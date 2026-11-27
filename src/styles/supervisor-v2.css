@@ -7,20 +7,9 @@
 @keyframes svToast { from { opacity: 0; transform: translate(-50%, 10px); } }
 
 @layer components {
-  .sv-page { min-height: 100vh; background: radial-gradient(120% 60% at 50% -10%, #2A0F04 0%, #120806 45%, #080808 100%); color: #F2EBE3; font-family: Tajawal, sans-serif; }
-  .sv-col { max-width: 720px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
 
-  .sv-top { display: flex; align-items: center; gap: 10px; padding: 16px 0 6px; }
-  .sv-orb { width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #FFD9A8, #FF9A3C 45%, #C84A00 100%); box-shadow: 0 0 0 1px rgba(255,214,170,.25), 0 8px 24px rgba(255,106,0,.35); }
-  .sv-brand { font-weight: 800; font-size: 16px; color: #F2EBE3; }
-  .sv-lock { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,214,170,.16); font-size: 12px; font-weight: 700; color: #D9CBB9; white-space: nowrap; }
-  .sv-lock svg { color: #FFC777; }
-  .sv-teams { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #E9C9A0; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .sv-teams { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 0; font-family: inherit; cursor: pointer; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #E9C9A0; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
 
-  .sv-hello { margin-top: 22px; font-size: 16px; font-weight: 700; color: #E9C9A0; }
-  .sv-name { margin: 2px 0 0; font-weight: 800; font-size: 46px; line-height: 1.2; background: linear-gradient(180deg, #FFF6EC, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .sv-sub { margin-top: 6px; font-size: 15px; color: #ABA095; }
-  .sv-sub b { color: #EAE3DC; font-weight: 700; }
 
   .sv-sec { margin-top: 28px; }
   .sv-h { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 18px; font-weight: 800; color: #F2EBE3; }
@@ -59,7 +48,7 @@
   .sv-in::placeholder { color: #7A7067; }
   .sv-in:focus { box-shadow: inset 0 0 0 1.5px rgba(255,170,90,.5); }
   textarea.sv-in { resize: vertical; line-height: 1.8; }
-  .sv-ok { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #7FE0A6; }
+  .sv-ok { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #FFC777; }
   .sv-err { margin-top: 8px; font-size: 13px; font-weight: 700; color: #FF9A8A; }
 
   /* وضع الفريق */
@@ -83,11 +72,11 @@
   .sv-mem { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
   .sv-mem + .sv-mem { border-top: 1px solid rgba(255,255,255,.06); }
   .sv-av { position: relative; width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 14px; font-weight: 800; color: #1A0B05; }
-  .sv-av.sm { width: 22px; height: 22px; font-size: 10px; }
+  .sv-av.sm { width: 22px; height: 22px; font-size: 12px; }
   .sv-av i { position: absolute; bottom: -1px; inset-inline-end: -1px; width: 12px; height: 12px; border-radius: 50%; background: #5E554D; box-shadow: 0 0 0 2.5px #150C08; }
-  .sv-av i.on { background: #4ADE80; }
+  .sv-av i.on { background: #FFC777; }
   .sv-mn { font-size: 15px; font-weight: 800; color: #F2EBE3; }
-  .sv-lead { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #FFC777; background: rgba(255,180,68,.14); margin-inline-start: 6px; vertical-align: 2px; }
+  .sv-lead { font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #FFC777; background: rgba(255,180,68,.14); margin-inline-start: 6px; vertical-align: 2px; }
   .sv-ms { font-size: 12px; color: #ABA095; margin-top: 1px; }
   .sv-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
   .sv-bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #FF6A00, #FFB547); transform-origin: right; animation: svGrow 1s cubic-bezier(.2,.8,.2,1) .3s both; }
@@ -111,7 +100,7 @@
   .sv-task { display: flex; gap: 12px; padding: 12px 0; align-items: flex-start; }
   .sv-task + .sv-task { border-top: 1px solid rgba(255,255,255,.06); }
   .sv-box { width: 22px; height: 22px; border-radius: 7px; flex: none; margin-top: 2px; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); }
-  .sv-box.done { background: #7FE0A6; box-shadow: none; color: #0B2015; }
+  .sv-box.done { background: #FFC777; box-shadow: none; color: #0B2015; }
   .sv-box.late { box-shadow: inset 0 0 0 1.5px rgba(255,138,122,.7); }
   .sv-tt { font-size: 15px; font-weight: 700; line-height: 1.5; color: #EAE3DC; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .sv-tt.done { color: #8F857C; text-decoration: line-through; text-decoration-color: rgba(255,255,255,.25); }
@@ -125,20 +114,18 @@
   .sv-setup { display: flex; width: 100%; align-items: center; gap: 12px; min-height: 64px; padding: 14px 16px; border-radius: 20px; text-align: start; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,214,170,.14); }
   .sv-setup .t { font-size: 15px; font-weight: 800; color: #F2EBE3; }
   .sv-setup .s { font-size: 12px; color: #ABA095; margin-top: 2px; }
-  .sv-setup .s b { color: #7FE0A6; font-weight: 700; }
+  .sv-setup .s b { color: #FFC777; font-weight: 700; }
   .sv-dots { display: flex; gap: 5px; margin-inline-start: auto; flex: none; }
   .sv-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.18); }
   .sv-dots i.on { background: #FF9A3C; }
   .sv-step { display: flex; gap: 12px; }
   .sv-step + .sv-step { margin-top: 20px; }
   .sv-sn { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 13px; font-weight: 800; box-shadow: inset 0 0 0 1.5px rgba(255,170,90,.5); color: #FFC777; }
-  .sv-sn.done { background: rgba(127,224,166,.16); box-shadow: none; color: #7FE0A6; }
+  .sv-sn.done { background: rgba(255,199,119,.16); box-shadow: none; color: #FFC777; }
   .sv-st { font-size: 15px; font-weight: 800; color: #F2EBE3; }
   .sv-sd { font-size: 13px; line-height: 1.7; color: #ABA095; margin-top: 2px; }
 
   /* الـ dock والـ sheet والـ toast */
-  .sv-dock { position: fixed; z-index: 40; bottom: max(12px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: min(688px, calc(100% - 24px)); display: flex; gap: 8px; padding: 8px; border-radius: 24px; box-sizing: border-box; background: rgba(22,13,9,.72); -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3); box-shadow: inset 0 0 0 1px rgba(255,214,170,.14), 0 18px 50px rgba(0,0,0,.55); }
-  .sv-dock .sv-btn { flex: 1; min-height: 50px; }
   .sv-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.6); animation: svFade .25s ease both; }
   .sv-sheet { position: fixed; z-index: 61; bottom: 0; left: 50%; transform: translateX(-50%); width: min(720px, 100%); max-height: 88vh; overflow-y: auto; box-sizing: border-box; padding: 10px 18px calc(24px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: linear-gradient(180deg, #1E120C, #120A07); box-shadow: inset 0 1px 0 rgba(255,220,180,.14), 0 -20px 60px rgba(0,0,0,.6); color: #F2EBE3; font-family: Tajawal, sans-serif; }
   .sv-sheet-in { animation: svUp .34s cubic-bezier(.2,.8,.2,1) both; }
@@ -152,16 +139,12 @@
   .sv-msg small { display: block; font-size: 12px; font-weight: 700; color: #ABA095; margin-bottom: 2px; }
   .sv-ds { padding: 12px 0; }
   .sv-ds + .sv-ds { border-top: 1px solid rgba(255,255,255,.06); }
-  .sv-toast { position: fixed; z-index: 70; left: 50%; bottom: 96px; transform: translateX(-50%); padding: 12px 18px; border-radius: 999px; background: rgba(24,30,22,.96); color: #A7F0C2; font-size: 14px; font-weight: 800; box-shadow: inset 0 0 0 1px rgba(127,224,166,.35), 0 14px 40px rgba(0,0,0,.6); animation: svToast .3s ease both; white-space: nowrap; }
 
   @media (min-width: 768px) {
-    .sv-name { font-size: 52px; }
     .sv-card { padding: 22px !important; }
   }
   @media (max-width: 370px) {
-    .sv-name { font-size: 40px; }
     .sv-btn { font-size: 14px; padding: 0 10px; }
-    .sv-lock { padding: 0 10px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .sv-ring .arc, .sv-bar > span, .sv-sheet-in, .sv-scrim, .sv-toast { animation: none; }
@@ -219,4 +202,16 @@
   .rp-cols li { padding: 4px 0; }
   .rp-foot { margin-top: 16px; }
   body:has(.rp-page) .rp-page { position: absolute !important; inset: 0 0 auto 0 !important; width: auto !important; padding: 12mm 13mm !important; background: #FFFCF8 !important; }
+}
+
+/* ═══ صفحة الفريق داخل لوحة المشرفة (بدّلت الصفحة القديمة المستقلة) ═══ */
+.sv-team { display: grid; gap: 18px; }
+.sv-team > *, .sv-team-col > * { min-width: 0; }
+.sv-team .sv-sec { margin-top: 0; }
+.sv-team-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sv-team-acts .sv-btn, .sv-team-acts .sup-btn-cream { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; flex: none; }
+.sv-team-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+.sv-team-col { display: grid; gap: 18px; min-width: 0; }
+@media (min-width: 1024px) {
+  .sv-team-cols { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
 }

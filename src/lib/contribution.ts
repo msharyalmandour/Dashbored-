@@ -19,14 +19,14 @@ export interface MemberContribution {
   onTimeRate: number | null;
   overdue: number;
   points: number;
-  /** حصته من نقاط الفريق الكلية (٠–١٠٠) */
+  /** حصته من نقاط الفريق الكلية (0–100) */
   share: number;
 }
 
 export interface ContributionSummary {
   rows: MemberContribution[];
   totalPoints: number;
-  /** عضو واحد يحمل أكثر من نصف الإنجاز (٣ أعضاء فأكثر) */
+  /** عضو واحد يحمل أكثر من نصف الإنجاز (3 أعضاء فأكثر) */
   dominantId: string | null;
   /** أعضاء بدون أي مهمة مكتملة بينما الفريق أنجز */
   idleIds: string[];

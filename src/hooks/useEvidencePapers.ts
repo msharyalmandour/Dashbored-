@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { refreshDoors } from "./useDoors";
 import { evidenceLibrary as mockPapers } from "../data/mockData";
 import type { EvidencePaper } from "../data/types";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
@@ -60,7 +61,7 @@ export interface NewEvidencePaper {
   dataCollection?: string;
 }
 
-/** يحفظ دراسة بمكتبة الأدلة (وتطلع بجدول الأدبيات) — بدون ما يحمّل المكتبة كاملة، للوكيل العائم */
+/** يحفظ دراسة بمكتبة الأدلة (وتطلع بجدول الأدبيات) — بدون ما يحمّل المكتبة كاملة، لويسي العائم */
 export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ error?: string; id?: string }> {
   if (!isSupabaseConfigured) return { error: "demo" };
   const { data: projectId } = await supabase!.rpc("my_research_project_id");
@@ -81,6 +82,7 @@ export async function insertEvidencePaper(input: NewEvidencePaper): Promise<{ er
     sample: input.sample ?? "",
     data_collection: input.dataCollection ?? "",
   }).select("id").single();
+  if (!error) refreshDoors(); // أول دراسة تفتح باب «أكتب»
   return { error: error?.message, id: (data as { id: string } | null)?.id };
 }
 

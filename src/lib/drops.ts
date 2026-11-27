@@ -92,7 +92,7 @@ export async function startDrop(teamId: string, userId: string, input: DropInput
   const files = (input.files ?? []).slice(0, MAX_FILES);
   const text = (input.text ?? "").trim();
   if (!files.length && text.length < 2) return { error: "empty", message: tr("ارموا ملف أو الصقوا نص أول.") };
-  if ((input.files?.length ?? 0) > MAX_FILES || files.some((f) => f.size > MAX_FILE_BYTES)) return { error: "too_large", message: tr("الحد ١٠ ملفات و٢٥ ميغا للملف.") };
+  if ((input.files?.length ?? 0) > MAX_FILES || files.some((f) => f.size > MAX_FILE_BYTES)) return { error: "too_large", message: tr("الحد 10 ملفات و25 ميغا للملف.") };
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     await queueOffline({ files, text, source: input.source });
     return { error: "offline", message: tr("حفظناه عندكم، وأول ما يرجع النت نقراه لحاله.") };
@@ -214,7 +214,7 @@ export const DEST_LABEL: Record<Destination, string> = {
   files: tr("الملفات"),
 };
 /** «انحطّت في …» */
-/** اسم قصير للعدّ («١ دراسة»، «ملاحظة + ٢ مهام») */
+/** اسم قصير للعدّ («1 دراسة»، «ملاحظة + 2 مهام») */
 export const DEST_NOUN: Record<Destination, string> = {
   library: tr("دراسة"),
   tasks: tr("مهام"),

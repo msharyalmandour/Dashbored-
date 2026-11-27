@@ -20,7 +20,7 @@ import { lastActivity, loadTeam, proofProgress, radarOf, requestChips, teamStatu
 
 type View = "home" | "chat" | "teams" | "requests" | "meetings" | "reports" | "settings";
 const NAME_KEY = "wesync-supervisor-name";
-const AV = ["#FFC85A", "#FFB444", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFC85A", "#FFB547", "#FFE3C2", "#FF9A5A"];
 const dateFmt = new Intl.DateTimeFormat(isEn ? "en-GB" : "ar-u-ca-gregory-nu-latn", { weekday: "long", day: "numeric", month: "long" });
 const todayISO = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
 
@@ -349,10 +349,10 @@ export default function SupervisorDash() {
       </div>
       <div className="sd-legend">
         <span>
-          <i style={{ width: 10, height: 4, background: "#FFC777" }} /> {tr("اللي راح من الوقت")}
+          <i style={{ width: 10, height: 4, background: "#FFB547" }} /> {tr("اللي راح من الوقت")}
         </span>
         <span>
-          <i style={{ width: 10, height: 4, background: "repeating-linear-gradient(90deg,#FF9A3C 0 3px,transparent 3px 5px)" }} /> {tr("التوقع بسرعتهم")}
+          <i style={{ width: 10, height: 4, background: "repeating-linear-gradient(90deg,#FF8A24 0 3px,transparent 3px 5px)" }} /> {tr("التوقع بسرعتهم")}
         </span>
         <span>
           <i style={{ width: 2, height: 10, background: "#F2EBE3" }} /> {tr("الموعد")}
@@ -363,7 +363,7 @@ export default function SupervisorDash() {
         .filter((r) => r.radar)
         .map(({ t, radar }, i) => {
           const r = radar!;
-          const color = r.tone === "late" ? "#FF8A7A" : r.tone === "orange" ? "#FF9A3C" : "#FFC777";
+          const color = r.tone === "late" ? "#FF8A7A" : r.tone === "orange" ? "#FF8A24" : "#FFB547";
           const f = r.pos.finish;
           return (
             <div key={t.token} style={{ padding: "10px 0", borderTop: i ? "1px solid rgba(255,255,255,0.06)" : undefined }}>
@@ -373,7 +373,7 @@ export default function SupervisorDash() {
               </div>
               <div className="sd-radar" role="img" aria-label={`${t.name}: ${r.label}`}>
                 <span style={{ top: 9, insetInline: 0, height: 4, borderRadius: 99, background: "rgba(255,255,255,0.07)" }} />
-                <span style={{ top: 9, insetInlineStart: 0, width: `${r.pos.today}%`, height: 4, borderRadius: 99, background: "linear-gradient(90deg,#FFC777,#FF7A1A)" }} />
+                <span style={{ top: 9, insetInlineStart: 0, width: `${r.pos.today}%`, height: 4, borderRadius: 99, background: "linear-gradient(90deg,#FFB547,#FF7A1A)" }} />
                 {f !== null && f > r.pos.today && <span style={{ top: 9, insetInlineStart: `${r.pos.today}%`, width: `${f - r.pos.today}%`, height: 4, background: `repeating-linear-gradient(90deg, ${color} 0 6px, transparent 6px 10px)`, opacity: 0.8 }} />}
                 {r.pos.deadline !== null && <span title={tr("الموعد")} style={{ top: 0, insetInlineStart: `${r.pos.deadline}%`, width: 2, height: 22, background: "#F2EBE3" }} />}
                 {f !== null && <span style={{ top: 4, insetInlineStart: `calc(${f}% - 7px)`, width: 14, height: 14, borderRadius: "50%", background: color, boxShadow: "0 0 0 4px rgba(0,0,0,.4)" }} />}
@@ -404,7 +404,7 @@ export default function SupervisorDash() {
         <p className="si-msg" dir="auto">
           {inviteMsg}
         </p>
-        {docJoined > 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#FFC777", fontWeight: 800 }}>{docJoined === 1 ? tr("فريق سجّل من رابطكم ✓") : tr("{0} فرق سجّلت من رابطكم ✓", docJoined)}</p>}
+        {docJoined > 0 && <p style={{ margin: "6px 0 0", fontSize: 13, color: "#FFB547", fontWeight: 800 }}>{docJoined === 1 ? tr("فريق سجّل من رابطكم ✓") : tr("{0} فرق سجّلت من رابطكم ✓", docJoined)}</p>}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
           <a className="dc-send" style={{ textDecoration: "none" }} href={`https://wa.me/?text=${encodeURIComponent(inviteMsg)}`} target="_blank" rel="noreferrer">
             <MessageCircle size={16} aria-hidden />
@@ -556,7 +556,7 @@ export default function SupervisorDash() {
             <WLogo size={34} />
             <div style={{ lineHeight: 1.2 }}>
               <b style={{ fontSize: 20 }}>Wesync</b>
-              <div style={{ fontSize: 12, color: "#FFB444" }}>{tr("بوابة المشرف/ة")}</div>
+              <div style={{ fontSize: 12, color: "#FFB547" }}>{tr("بوابة المشرف/ة")}</div>
             </div>
           </div>
           {navBtns}
@@ -597,7 +597,7 @@ export default function SupervisorDash() {
                 {dn || tr("أهلًا بكم")}
               </h1>
               {!dn && (
-                <button type="button" onClick={() => go("settings")} style={{ background: "none", border: 0, padding: "4px 0", minHeight: 44, color: "#FFC777", font: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                <button type="button" onClick={() => go("settings")} style={{ background: "none", border: 0, padding: "4px 0", minHeight: 44, color: "#FFB547", font: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
                   {tr("أضيفوا اسمكم عشان يظهر للطلاب")}
                 </button>
               )}

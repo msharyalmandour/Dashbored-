@@ -11,7 +11,7 @@ import type { TeamData } from "../../lib/supervisorDash";
 /* محادثات الدكتورة (DocChat): قائمة على اليمين (محادثة لكل فريق + «كل فرقي (إعلان)») والمحادثة على اليسار.
    الكتابة بأربع أوضاع: رسالة · طلب = مهمة · موعد · اعتماد. الدكتورة تدخل برمز الرابط (بدون حساب)، فنحدّث كل 10 ثواني بدل Realtime. */
 
-const AV = ["#FFC85A", "#FFB444", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFC85A", "#FFB547", "#FFE3C2", "#FF9A5A"];
 type Mode = "text" | "request" | "meeting" | "approval";
 const ALL = "__all__";
 
@@ -374,7 +374,7 @@ function RequestCard({ m }: { m: DocMsg }) {
         <Check size={14} aria-hidden />
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: "#FFC777" }}>{tr("صار مهمة")}</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#FFB547" }}>{tr("صار مهمة")}</span>
         <b style={{ display: "block", fontSize: 14 }}>{p.title || m.body}</b>
       </div>
       {p.assignee_name && <span className="dc-av sm">{avatarLetter(p.assignee_name)}</span>}
@@ -394,7 +394,7 @@ export function MeetingCard({ m, members, actions }: { m: DocMsg; members: { id:
           <b dir="ltr">{d ? d.getDate() : "—"}</b>
         </span>
         <div style={{ minWidth: 0 }}>
-          <span style={{ fontSize: 12, fontWeight: 800, color: "#FFC777" }}>{tr("موعد اجتماع")}</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: "#FFB547" }}>{tr("موعد اجتماع")}</span>
           <b style={{ display: "block", fontSize: 15 }}>
             <span dir="ltr">{p.time}</span>
             {p.place ? ` · ${p.place}` : ""}

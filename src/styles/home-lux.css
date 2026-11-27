@@ -53,25 +53,25 @@
 }
 @media (min-width: 640px) { .lux-meet { padding: 30px; } }
 .lux-dtile { width: 120px; flex: none; border-radius: 24px; overflow: hidden; text-align: center; box-shadow: 0 0 0 1px rgba(255,220,180,.35), 0 24px 50px rgba(0,0,0,.5), 0 0 40px rgba(255,130,30,.2); transform: perspective(600px) rotateY(-8deg) rotateX(4deg); }
-.lux-dtile .t { background: linear-gradient(90deg, #FF6A00, #FF9A3C); color: #1A0802; font-size: 13px; font-weight: 800; padding: 6px 0; }
+.lux-dtile .t { background: linear-gradient(90deg, #FF6A00, #FF8A24); color: #1A0802; font-size: 13px; font-weight: 800; padding: 6px 0; }
 .lux-dtile .b { background: linear-gradient(180deg, #FBF5EC, #E9DCCB); color: #1E140E; padding: 8px 0 10px; }
-.lux-soon { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,154,60,.14); border: 1px solid rgba(255,154,60,.35); color: #FFC777; font-size: 13px; font-weight: 800; }
-.lux-soon i { width: 7px; height: 7px; border-radius: 50%; background: #FF9A3C; box-shadow: 0 0 10px #FF9A3C; }
+.lux-soon { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(255,154,60,.14); border: 1px solid rgba(255,154,60,.35); color: #FFB547; font-size: 13px; font-weight: 800; }
+.lux-soon i { width: 7px; height: 7px; border-radius: 50%; background: #FF8A24; box-shadow: 0 0 10px #FF8A24; }
 .lux-bigtime { font-family: "Tajawal", sans-serif; font-weight: 800; font-size: 74px; line-height: .9; letter-spacing: -.02em; background: linear-gradient(180deg, #FFF6E8, #E9C9A0); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .lux-avs { display: flex; padding-inline-start: 8px; }
 .lux-avs > span { margin-inline-start: -8px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: #1A0A02; border: 2px solid #17110E; }
 .lux-join { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 16px; white-space: nowrap; border-radius: 999px; background: #F2EBE3; color: #160904; font-weight: 800; font-size: 15px; box-shadow: 0 14px 34px rgba(255,190,120,.25); text-decoration: none; transition: transform .2s ease; }
 .lux-join:hover { transform: translateY(-1px); }
-.lux-join:focus-visible { outline: 2px solid #FF9A3C; outline-offset: 2px; }
+.lux-join:focus-visible { outline: 2px solid #FF8A24; outline-offset: 2px; }
 
 /* هالأسبوع */
 .lux-week { position: relative; border-radius: 34px; padding: 22px; background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), rgba(15,11,9,.72); box-shadow: inset 0 1px 0 rgba(255,236,210,.14), inset 0 0 0 1px rgba(255,214,170,.12), 0 30px 70px rgba(0,0,0,.45); }
 @media (min-width: 640px) { .lux-week { padding: 28px; } }
 .lux-tl { position: relative; padding-inline-start: 26px; }
-.lux-tl::before { content: ""; position: absolute; top: 8px; bottom: 8px; inset-inline-start: 7px; width: 2px; background: linear-gradient(180deg, #FF9A3C, rgba(255,154,60,.15) 70%, rgba(255,138,122,.5)); }
+.lux-tl::before { content: ""; position: absolute; top: 8px; bottom: 8px; inset-inline-start: 7px; width: 2px; background: linear-gradient(180deg, #FF8A24, rgba(255,154,60,.15) 70%, rgba(255,138,122,.5)); }
 .lux-ev { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 0; }
 .lux-ev::before { content: ""; position: absolute; inset-inline-start: -23px; width: 10px; height: 10px; border-radius: 50%; background: #2A1F19; border: 2px solid rgba(255,255,255,.25); }
-.lux-ev.today::before { background: #FF9A3C; border-color: #FF9A3C; box-shadow: 0 0 0 4px rgba(255,154,60,.18); }
+.lux-ev.today::before { background: #FF8A24; border-color: #FF8A24; box-shadow: 0 0 0 4px rgba(255,154,60,.18); }
 .lux-ev.dl::before { background: #FF8A7A; border-color: #FF8A7A; }
 .lux-card { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 16px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); }
 .lux-ev.today .lux-card { border-color: rgba(255,154,60,.22); background: linear-gradient(90deg, rgba(255,154,60,.08), rgba(255,255,255,.02)); }

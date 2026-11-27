@@ -345,11 +345,11 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
                       {needs.length > 0 ? (
                         <NeedsList needs={needs} onGo={goNeed} busy={busy} />
                       ) : (
-                        <p className="m-0 text-[14px] text-[#E9D3B8]">{tr("ما فيه شي يحتاجكم الحين. اطلبوا أي شي تحت.")}</p>
+                        <p className="m-0 text-[14px] text-ws-text-accent">{tr("ما فيه شي يحتاجكم الحين. اطلبوا أي شي تحت.")}</p>
                       )}
                       {lastUndoable && (
                         <div className="ag-last">
-                          <span className="min-w-0 flex-1 truncate text-[13px] text-[#E9D3B8]">{tr("آخر شي سوّيته: {0}", lastUndoable.summary)}</span>
+                          <span className="min-w-0 flex-1 truncate text-[13px] text-ws-text-accent">{tr("آخر شي سوّيته: {0}", lastUndoable.summary)}</span>
                           <button type="button" className="ag-link" disabled={!!undoing} onClick={() => void undoReceipt(lastUndoable)}>
                             {tr("تراجع")}
                           </button>
@@ -387,7 +387,7 @@ function AgentBody({ onClose, prefill }: { onClose: () => void; prefill: { text:
                               <div className="ag-say">
                                 <AgentOrb size={26} />
                                 <p className="m-0 flex-1">
-                                  {tr("هذي خطتي.")} <b className="text-[#F2EBE3]">{tr("ما بسوي شي لين توافقون")}</b>
+                                  {tr("هذي خطتي.")} <b className="text-ws-text">{tr("ما بسوي شي لين توافقون")}</b>
                                   {tr("، وتقدرون تشيلون أي خطوة.")}
                                 </p>
                               </div>

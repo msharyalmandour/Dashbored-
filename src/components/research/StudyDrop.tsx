@@ -168,8 +168,8 @@ export function PageDropOverlay({ show }: { show: boolean }) {
     <div className="sd-overlay" aria-hidden>
       <div className="sd-overlay-box">
         <Upload size={34} />
-        <p className="m-0 text-[22px] font-extrabold text-[#F2EBE3]">{tr("ارموها هنا")}</p>
-        <p className="m-0 text-[14px] text-[#E9D3B8]">{tr("نقراها ونعبّي جدول الأدبيات عنكم")}</p>
+        <p className="m-0 text-[22px] font-extrabold text-ws-text">{tr("ارموها هنا")}</p>
+        <p className="m-0 text-[14px] text-ws-text-accent">{tr("نقراها ونعبّي جدول الأدبيات عنكم")}</p>
       </div>
     </div>
   );
@@ -232,10 +232,10 @@ export function StudyDropCard({
           <Vessel size={hero ? 320 : 140} state="hover" />
         </div>
         <div className={clsx("min-w-0", hero ? "text-center" : "flex-1")}>
-          <h2 id="sd-h" className={clsx("m-0 font-extrabold text-[#F2EBE3]", hero ? "sd-hero-h" : "text-[24px]")}>
+          <h2 id="sd-h" className={clsx("m-0 font-extrabold text-ws-text", hero ? "sd-hero-h" : "text-[24px]")}>
             {hero ? tr("ارموا دراساتكم") : tr("ارموا الدراسة هنا")}
           </h2>
-          <p className={clsx("m-0 mt-1 text-[#E9D3B8]", hero ? "text-[18px]" : "text-[15px]")}>{tr("ونعبّي الجدول لحاله")}</p>
+          <p className={clsx("m-0 mt-1 text-ws-text-accent", hero ? "text-[18px]" : "text-[15px]")}>{tr("ونعبّي الجدول لحاله")}</p>
         </div>
         <div className={clsx("flex shrink-0 flex-wrap items-center gap-2.5", hero && "justify-center")}>
           <button type="button" className="sdz-glass" onClick={onImport}>

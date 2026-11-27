@@ -6,7 +6,7 @@
   .lv-sec { position: relative; margin-top: 84px; }
   @media (min-width: 768px) { .lv-sec { margin-top: 140px; } }
 
-  .lv-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #FFC777; padding: 5px 14px; border-radius: 999px; background: rgba(255,199,119,.08); box-shadow: inset 0 0 0 1px rgba(255,199,119,.22); }
+  .lv-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #FFB547; padding: 5px 14px; border-radius: 999px; background: rgba(255,199,119,.08); box-shadow: inset 0 0 0 1px rgba(255,199,119,.22); }
   .lv-title { font-family: Tajawal, sans-serif; font-weight: 800; font-size: 32px; line-height: 1.3; letter-spacing: -.01em; color: #F7EFE6; margin: 14px 0 0; }
   @media (min-width: 768px) { .lv-title { font-size: 46px; line-height: 1.25; } }
   .lv-desc { color: #ABA095; font-size: 17px; line-height: 1.7; margin: 12px auto 0; max-width: 56ch; }
@@ -34,13 +34,13 @@
     .lv-b-2x1 { grid-column: span 2; }
   }
   .lv-bcard { padding: 22px; display: flex; flex-direction: column; }
-  .lv-bk { font-size: 13px; font-weight: 700; color: #FFC777; }
+  .lv-bk { font-size: 13px; font-weight: 700; color: #FFB547; }
   .lv-bt { font-family: Tajawal, sans-serif; font-weight: 800; font-size: 21px; line-height: 1.45; color: #F7EFE6; margin-top: 6px; }
   @media (min-width: 1024px) { .lv-bt { font-size: 24px; } }
   .lv-gauge { position: absolute; left: 50%; bottom: -30px; width: min(78%, 400px); transform: translateX(-50%); border-radius: 28px; padding: 18px 18px 44px; }
   .lv-coach { background: linear-gradient(165deg, #A9472A 0%, #6E1A12 55%, #2E0706 100%); box-shadow: inset 0 1px 0 rgba(255,220,190,.28), 0 40px 80px rgba(0,0,0,.45); }
   .lv-coach-box { margin-top: auto; border-radius: 22px; padding: 14px 16px; background: linear-gradient(180deg, rgba(60,22,18,.5), rgba(30,10,10,.68)); box-shadow: inset 0 1px 0 rgba(255,225,205,.3), inset 0 0 0 1px rgba(255,210,190,.16); }
-  .lv-bubble { border-radius: 18px 18px 18px 6px; padding: 12px 14px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); font-size: 14px; line-height: 1.6; color: #EAE3DC; }
+  .lv-bubble { border-radius: 18px 18px 18px 6px; padding: 12px 14px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); font-size: 14px; line-height: 1.6; color: #F2EBE3; }
   [dir="rtl"] .lv-bubble { border-radius: 18px 18px 6px 18px; }
   .lv-white-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 16px; border-radius: 999px; background: #F2EBE3; color: #1A0802; font-weight: 800; font-size: 14px; }
 
@@ -67,7 +67,7 @@
   .lv-dash { stroke: rgba(255,199,119,.65); stroke-width: 2.5; stroke-dasharray: 0.5 9; stroke-linecap: round; fill: none; }
   .ld-in .lv-dash { animation: lvDash 1.2s ease .3s both; }
   @keyframes lvDash { from { opacity: 0; } to { opacity: 1; } }
-  .lv-soon { font-size: 12px; font-weight: 800; color: #1A0802; background: #FFC777; border-radius: 999px; padding: 1px 8px; }
+  .lv-soon { font-size: 12px; font-weight: 800; color: #1A0802; background: #FFB547; border-radius: 999px; padding: 1px 8px; }
 
   /* ── الأسعار ── */
   .lv-seg { display: flex; padding: 5px; gap: 4px; border-radius: 999px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); width: 100%; }
@@ -80,20 +80,20 @@
   @media (min-width: 768px) { .lv-price-card { padding: 34px; } }
   .lv-price { font-family: Tajawal, sans-serif; font-weight: 800; font-size: 84px; line-height: .95; letter-spacing: -.03em; direction: ltr; display: inline-block; }
   @media (min-width: 768px) { .lv-price { font-size: 104px; } }
-  .lv-gold-num { background: linear-gradient(180deg, #FFF6EC, #FFC777); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lv-gold-num { background: linear-gradient(180deg, #FFF6EC, #FFB547); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .lv-green-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 14px; font-size: 14px; color: #FFE2B0; background: rgba(255,199,119,.08); box-shadow: inset 0 0 0 1px rgba(255,199,119,.25); }
   .lv-ghost-btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 58px; border-radius: 999px; font-weight: 800; font-size: 16px; color: #F7EFE6; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background .2s, transform .2s; }
   .lv-ghost-btn:hover { background: rgba(255,255,255,.1); transform: translateY(-1px); }
   .lv-cream-btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 58px; border-radius: 999px; font-weight: 800; font-size: 16px; color: #1A0802; background: linear-gradient(180deg, #FFF6EC, #F1DDC4); box-shadow: 0 14px 40px rgba(255,170,60,.35), inset 0 1px 0 #fff; transition: transform .2s; }
   .lv-cream-btn:hover { transform: translateY(-1px); }
-  .lv-feat { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.7; color: #E6DBD1; }
-  .lv-feat i { width: 22px; height: 22px; flex: none; margin-top: 2px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,140,40,.12); color: #FF9A3C; box-shadow: inset 0 0 0 1px rgba(255,140,40,.3); }
+  .lv-feat { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.7; color: #F2EBE3; }
+  .lv-feat i { width: 22px; height: 22px; flex: none; margin-top: 2px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,140,40,.12); color: #FF8A24; box-shadow: inset 0 0 0 1px rgba(255,140,40,.3); }
   .lv-ai-card {
     position: relative; border-radius: 34px; padding: 62px 22px 26px; border: 1.5px solid transparent;
     background:
       radial-gradient(520px 300px at 50% -60px, rgba(255,130,30,.42), transparent 70%) padding-box,
       linear-gradient(180deg, #2A160C, #140B07) padding-box,
-      conic-gradient(from 210deg, #FFD9A0, #FF7A1A 25%, rgba(255,255,255,.08) 45%, rgba(255,255,255,.06) 60%, #FF9A3C 80%, #FFD9A0) border-box;
+      conic-gradient(from 210deg, #FFD9A0, #FF7A1A 25%, rgba(255,255,255,.08) 45%, rgba(255,255,255,.06) 60%, #FF8A24 80%, #FFD9A0) border-box;
     box-shadow: 0 50px 110px rgba(255,100,10,.18);
   }
   @media (min-width: 768px) { .lv-ai-card { padding: 34px; } }
@@ -101,7 +101,7 @@
   @media (min-width: 768px) { .lv-popular { inset-inline-start: auto; inset-inline-end: 24px; top: 24px; } }
   .lv-founders { border-radius: 20px; padding: 14px 16px; background: rgba(255,154,60,.08); box-shadow: inset 0 0 0 1px rgba(255,154,60,.3); }
   .lv-fbar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
-  .lv-fbar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #FF6A00, #FFC777); transform-origin: right; }
+  .lv-fbar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #FF6A00, #FFB547); transform-origin: right; }
   [dir="ltr"] .lv-fbar i { transform-origin: left; }
   .ld-in .lv-fbar i { animation: lvGrow 1.2s cubic-bezier(.2,.8,.2,1) .5s both; }
   @keyframes lvGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }

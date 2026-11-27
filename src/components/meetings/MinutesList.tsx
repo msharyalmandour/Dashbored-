@@ -34,7 +34,7 @@ interface MinutesListProps {
 /** أرقام غربية 0–9 بكل مكان */
 const arDigit = (n: number) => String(n);
 const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean).length;
-const toolBtn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-[#B8ADA2] transition hover:border-[#FF8A24]/50 hover:text-[#F4F0EC] disabled:opacity-50";
+const toolBtn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text disabled:opacity-50";
 
 /** المحاضر السابقة: صفوف هادئة (رقم + تاريخ + عدد القرارات والبنود + حالة)، والتفاصيل والأدوات بنافذة */
 export default function MinutesList(props: MinutesListProps) {
@@ -42,7 +42,7 @@ export default function MinutesList(props: MinutesListProps) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [sending, setSending] = useState<string | null>(null);
 
-  if (loading) return <p className="text-sm text-[#B8ADA2]">{tr("جاري التحميل...")}</p>;
+  if (loading) return <p className="text-sm text-ws-muted">{tr("جاري التحميل...")}</p>;
   if (minutes.length === 0) {
     return (
       <div className={clsx(glassCard, "p-2")}>
@@ -78,10 +78,10 @@ export default function MinutesList(props: MinutesListProps) {
                   {String(n).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-[1.4] leading-[1.4]">
-                  <b className="block truncate text-[16px] text-[#F2EBE3]" dir="auto">
+                  <b className="block truncate text-[16px] text-ws-text" dir="auto">
                     {title}
                   </b>
-                  <span className="flex items-center gap-2 text-[13px] text-[#ABA095]">
+                  <span className="flex items-center gap-2 text-[13px] text-ws-muted">
                     {formatDateShort(x.meetingDate)}
                     {x.attendees.length > 0 && (
                       <span className="mt-avs" aria-label={tr("{0} حضروا", x.attendees.length)}>
@@ -94,11 +94,11 @@ export default function MinutesList(props: MinutesListProps) {
                     )}
                   </span>
                 </span>
-                <span className="hidden flex-1 text-[13px] text-[#E9D3B8] sm:block">
+                <span className="hidden flex-1 text-[13px] text-ws-text-accent sm:block">
                   {decisionCount > 0 ? `${arDigit(decisionCount)} ${decisionCount === 1 ? tr("قرار") : tr("قرارات")}` : tr("بدون قرارات")} · {items > 0 ? `${arDigit(items)} ${items === 1 ? tr("مهمة") : tr("مهام")}` : tr("بدون بنود")}
                 </span>
                 <ApprovalBadge status={st} />
-                <ChevronLeft size={16} className="shrink-0 text-[#ABA095] ltr:rotate-180" aria-hidden />
+                <ChevronLeft size={16} className="shrink-0 text-ws-muted ltr:rotate-180" aria-hidden />
               </button>
             </li>
           );
@@ -109,7 +109,7 @@ export default function MinutesList(props: MinutesListProps) {
         {m && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs text-[#B8ADA2]">
+              <p className="text-xs text-ws-muted">
                 {relativeDayLabel(m.meetingDate)}
                 {formatHijri(m.meetingDate) && <> · {formatHijri(m.meetingDate)}</>}
               </p>
@@ -136,12 +136,12 @@ export default function MinutesList(props: MinutesListProps) {
 
             {prog.total > 0 && (
               <div>
-                <div className="mb-1 flex items-center justify-between text-[12px] font-bold text-[#B8ADA2]">
+                <div className="mb-1 flex items-center justify-between text-[12px] font-bold text-ws-muted">
                   <span>{tr("إنجاز بنود هذا الاجتماع")}</span>
                   <span>{trx("{0} من {1}", prog.done, prog.total)}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-                  <div className="h-full rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] transition-[width] duration-500" style={{ width: `${pct}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent transition-[width] duration-500" style={{ width: `${pct}%` }} />
                 </div>
               </div>
             )}
@@ -151,7 +151,7 @@ export default function MinutesList(props: MinutesListProps) {
                 <p className="font-extrabold text-rose-300">
                   <Pencil size={13} className="me-1 inline" />{trx("{0} طلب تعديلًا:", approval.supervisorName || tr("المشرف/ة"))}</p>
                 <p className="mt-1 whitespace-pre-wrap">{approval.note}</p>
-                <p className="mt-1 text-xs text-[#B8ADA2]">{tr("عدّلوا ما يلزم، ثم أعيدوا الإرسال للاعتماد.")}</p>
+                <p className="mt-1 text-xs text-ws-muted">{tr("عدّلوا ما يلزم، ثم أعيدوا الإرسال للاعتماد.")}</p>
               </div>
             )}
 
@@ -168,10 +168,10 @@ export default function MinutesList(props: MinutesListProps) {
                   const done = isActionDone(a, tasks);
                   return (
                     <li key={a.id} className="flex items-start gap-2 text-sm">
-                      {done ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-[#FFC777]" /> : <Circle size={16} className="mt-0.5 shrink-0 text-[#B8ADA2]/50" />}
-                      <span className={done ? "text-[#B8ADA2] line-through" : ""}>
+                      {done ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-ws-accent3" /> : <Circle size={16} className="mt-0.5 shrink-0 text-ws-muted/50" />}
+                      <span className={done ? "text-ws-muted line-through" : ""}>
                         {a.text}
-                        <span className="text-xs text-[#B8ADA2]">
+                        <span className="text-xs text-ws-muted">
                           {" "}
                           — {memberName(a.assigneeId)}
                           {a.dueDate ? ` · ${formatDateShort(a.dueDate)}` : ""}
@@ -190,10 +190,10 @@ export default function MinutesList(props: MinutesListProps) {
             )}
 
             {(m.agenda || m.attendees.length > 0) && (
-              <div className="space-y-2 rounded-2xl bg-white/[0.04] p-3.5 text-xs text-[#B8ADA2]">
+              <div className="space-y-2 rounded-2xl bg-white/[0.04] p-3.5 text-xs text-ws-muted">
                 {m.attendees.length > 0 && (
                   <p>
-                    <b className="text-[#F4F0EC]">{tr("الحاضرون:")}</b> {m.attendees.join(tr("، "))}
+                    <b className="text-ws-text">{tr("الحاضرون:")}</b> {m.attendees.join(tr("، "))}
                   </p>
                 )}
                 {m.agenda && <p className="whitespace-pre-wrap leading-relaxed">{m.agenda}</p>}
@@ -227,7 +227,7 @@ export default function MinutesList(props: MinutesListProps) {
                     setSending(null);
                   }}
                   disabled={sending === m.id}
-                  className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-bold text-[#1A0F00] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-4 py-1.5 text-xs font-bold text-[#1A0F00] disabled:opacity-50"
                 >
                   {sending === m.id ? <WSpin size={12} /> : <Send size={12} />}
                   {status === "none" ? tr("أرسلوه للاعتماد") : tr("أعيدوا الإرسال")}

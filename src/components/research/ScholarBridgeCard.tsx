@@ -176,7 +176,7 @@ export default function ScholarBridgeCard({ suggestions }: { suggestions: string
           </div>
         )}
         {saved !== null && (
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-ws-accent3">
             <Check size={15} /> {tr("انضافت {0} دراسة لمكتبتكم. كمّلوا بياناتها (العينة، الهدف…) برفع الورقة أو يدويًا.", saved)}
           </p>
         )}

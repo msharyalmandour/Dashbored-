@@ -4,7 +4,7 @@
 export const AVATAR_PIECES = ["hair", "glasses", "cap", "shemagh", "curly"] as const;
 export type AvatarPiece = (typeof AVATAR_PIECES)[number];
 
-export const AVATAR_BGS = ["#FFB444", "#FF8A3D", "#C0563A", "#E9C9A0"] as const;
+export const AVATAR_BGS = ["#FFB547", "#FF8A3D", "#C0563A", "#E9C9A0"] as const;
 export const AVATAR_SKINS = ["#E2A97E", "#C98B62", "#D9A274", "#B97850"] as const;
 
 export interface AvatarCharacter {

@@ -133,9 +133,9 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
       <nextItem.icon size={18} strokeWidth={1.8} aria-hidden />
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate">{nextItem.label}</span>
-        <span className="block truncate text-[12px] font-medium text-[#ABA095]">{DOOR_HINT[sideNext]}</span>
+        <span className="block truncate text-[12px] font-medium text-ws-muted">{DOOR_HINT[sideNext]}</span>
       </span>
-      <Lock size={14} className="flex-none text-[#FFC777]" aria-hidden />
+      <Lock size={14} className="flex-none text-ws-accent3" aria-hidden />
     </div>
   );
   const nextIsJourney = !!nextItem && journey.includes(nextItem);
@@ -146,7 +146,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
       <aside className={clsx("lx-side print:hidden", open ? "translate-x-0" : "translate-x-full ltr:-translate-x-full md:translate-x-0 md:ltr:translate-x-0")}>
         <div className="flex items-center gap-2.5 px-3 pb-[18px] pt-1.5">
           <WLogo size={30} />
-          <b className="text-[21px] font-extrabold text-[#F2EBE3]" dir="ltr">
+          <b className="text-[21px] font-extrabold text-ws-text" dir="ltr">
             Wesync
           </b>
         </div>
@@ -206,8 +206,8 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
           <div className="lx-me" ref={menuRef}>
             <Avatar initials={currentUser.initials} color={currentUser.color} size="sm" />
             <div className="min-w-0 flex-1 leading-[1.35]">
-              <div className="truncate text-[14px] font-bold text-[#F2EBE3]">{currentUser.name}</div>
-              <div className="truncate text-[12px] text-[#ABA095]">{isLeader ? tr("قائد الفريق") : tr("عضو الفريق")}</div>
+              <div className="truncate text-[14px] font-bold text-ws-text">{currentUser.name}</div>
+              <div className="truncate text-[12px] text-ws-muted">{isLeader ? tr("قائد الفريق") : tr("عضو الفريق")}</div>
             </div>
             <div className="lx-tools">
               <NotificationsBell up />
@@ -245,7 +245,7 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
                 <button type="button" role="menuitemcheckbox" aria-checked={syncOn} className="lx-mi" onClick={() => (setSyncSoundOn(!syncOn), setSyncOn(!syncOn))}>
                   {syncOn ? <Volume2 size={16} aria-hidden /> : <VolumeX size={16} aria-hidden />}
                   <span className="flex-1">{tr("صوت المزامنة")}</span>
-                  <span className="text-[12px] text-[#ABA095]">{syncOn ? tr("شغّال") : tr("مطفي")}</span>
+                  <span className="text-[12px] text-ws-muted">{syncOn ? tr("شغّال") : tr("مطفي")}</span>
                 </button>
                 <NavLink role="menuitem" to="/stickers" className="lx-mi" onClick={() => (setMenu(false), onClose?.())}>
                   <Smile size={16} aria-hidden />

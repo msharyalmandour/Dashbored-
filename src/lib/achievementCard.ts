@@ -94,7 +94,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
     ctx.roundRect(W / 2 - tw / 2, 246, tw, 62, 31);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = "#FFC777";
+    ctx.fillStyle = "#FFB547";
     ctx.fillText(t, W / 2, 289);
   }
 
@@ -103,7 +103,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   const cy = 600;
   const seal = ctx.createRadialGradient(cx - 50, cy - 60, 20, cx, cy, 190);
   seal.addColorStop(0, "#FFF0C2");
-  seal.addColorStop(0.45, "#FFC777");
+  seal.addColorStop(0.45, "#FFB547");
   seal.addColorStop(1, "#C9822A");
   ctx.fillStyle = seal;
   ctx.beginPath();
@@ -125,7 +125,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.stroke();
 
   // الكيكر
-  ctx.fillStyle = "#FFC777";
+  ctx.fillStyle = "#FFB547";
   ctx.font = "800 44px Tajawal, sans-serif";
   ctx.fillText(tr("إنجاز جديد"), W / 2, 930);
 
@@ -149,7 +149,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
     for (let i = 0; i < 10; i++) {
       // RTL: أول خطوة على اليمين
       const x = W / 2 + total / 2 - (i + 1) * segW - i * gap;
-      ctx.fillStyle = i < step ? "#FFC777" : "rgba(255,255,255,0.10)";
+      ctx.fillStyle = i < step ? "#FFB547" : "rgba(255,255,255,0.10)";
       ctx.beginPath();
       ctx.roundRect(x, y, segW, 10, 5);
       ctx.fill();
@@ -171,7 +171,7 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.beginPath();
   ctx.roundRect(right - 120, by - 60, 120, 120, 34);
   ctx.fill();
-  ctx.strokeStyle = "#FFC777";
+  ctx.strokeStyle = "#FFB547";
   ctx.lineWidth = 3;
   ctx.stroke();
   if (head) {
@@ -187,10 +187,10 @@ export async function drawAchievement({ title, sub, step, refCode, founder }: { 
   ctx.fillText(label, right - 144, by + 14);
   ctx.textAlign = "center";
 
-  ctx.fillStyle = "#FFC777";
+  ctx.fillStyle = "#FFB547";
   ctx.font = "700 42px Tajawal, sans-serif";
   ctx.fillText(tr(CATCHPHRASE), W / 2, H - 190);
-  ctx.fillStyle = "#FF9A3C";
+  ctx.fillStyle = "#FF8A24";
   ctx.font = "700 40px Tajawal, sans-serif";
   ctx.direction = "ltr";
   ctx.fillText(shareLink(refCode), W / 2, H - 120);

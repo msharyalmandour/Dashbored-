@@ -138,7 +138,7 @@ export default function Layout() {
           سكرول موضع، مو بس أعلى الصفحة. النسب المئوية تتكيف تلقائيًا
           مع طول أي صفحة كانت */}
       <div className="pointer-events-none absolute -right-24 top-0 h-[30rem] w-[30rem] rounded-full bg-[#D9380A] opacity-[.22] blur-3xl" />
-      <div className="pointer-events-none absolute -left-20 top-[40%] h-96 w-96 rounded-full bg-[#FF8A24] opacity-[.1] blur-3xl" />
+      <div className="pointer-events-none absolute -left-20 top-[40%] h-96 w-96 rounded-full bg-ws-accent2 opacity-[.1] blur-3xl" />
       <div className="pointer-events-none absolute -right-20 top-[80%] h-96 w-96 rounded-full bg-[#D9380A] opacity-[.12] blur-3xl" />
       <DriveNotice />
       <StageCelebration />

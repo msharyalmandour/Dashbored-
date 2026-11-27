@@ -45,14 +45,14 @@
 .ws-write.is-paper.v3-g.v3-hover:hover { transform: none; }
 
 /* العناوين: نسخ عريض 34px، والإنجليزي تحته Georgia مائل */
-.ws-write.is-paper h2, .ws-write.is-paper h3 { font-family: "Noto Naskh Arabic", "Amiri", serif; font-weight: 700; font-size: 34px; line-height: 1.4; color: var(--ws-paper-head); }
+.ws-write.is-paper h2, .ws-write.is-paper h3 { font-family: "Tajawal", sans-serif; font-weight: 700; font-size: 34px; line-height: 1.4; color: var(--ws-paper-head); }
 .ws-write.is-paper .v3-en { font-family: Georgia, "Times New Roman", serif; font-style: italic; color: var(--ws-paper-en); font-size: 13px; }
 .ws-write.is-paper .v3-eye, .ws-write.is-paper .v3-mut { color: #7A6246; }
 .ws-write.is-paper label > span, .ws-write.is-paper summary { color: #4A3424; }
 
 /* الكتابة: نسخ 20px، مسافة أسطر 2.05، سطر ≤ 60ch، حبر بني، مؤشر بني محمر */
 .ws-write.is-paper .v3-field {
-  font-family: "Noto Naskh Arabic", "Amiri", serif;
+  font-family: "Tajawal", sans-serif;
   font-size: 20px; line-height: 2.05; max-width: 60ch;
   color: var(--ws-paper-ink); caret-color: var(--ws-paper-caret);
   background: transparent; border: 0; border-radius: 0; padding: 0; box-shadow: none;

@@ -154,10 +154,10 @@ html[data-reduce-motion="true"] .v3-g.v3-hover:hover, html[data-reduce-motion="t
 }
 .ws-toast.out { animation: ws-toast-out .4s ease-in both; }
 /* شريط العمر: ينقص خلال 5 ثواني، ويوقف مع الماوس أو الضغط (animation-play-state من الواجهة) */
-.ws-life { position: absolute; inset: 0; display: block; background: linear-gradient(90deg, var(--ws-c-accent), #FFC777); transform-origin: right center; animation: ws-life 5s linear both; }
+.ws-life { position: absolute; inset: 0; display: block; background: linear-gradient(90deg, var(--ws-c-accent), #FFB547); transform-origin: right center; animation: ws-life 5s linear both; }
 [dir="ltr"] .ws-life { transform-origin: left center; }
 /* دوّارة متدرجة (بس وقت «جاري الربط») */
-.ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #FFB444 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
+.ws-spin { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0 25%, #FFB547 100%); -webkit-mask: radial-gradient(circle, transparent 6px, #000 7px); mask: radial-gradient(circle, transparent 6px, #000 7px); animation: ws-spin .8s linear infinite; }
 /* ✓ خضرا تنط مرة وحدة */
 .ws-ok { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 800; background: rgba(255,199,119,.16); color: var(--ws-c-done); box-shadow: 0 0 18px rgba(255,199,119,.3); animation: ws-pop .5s cubic-bezier(.3,1.6,.5,1) both; }
 /* مفتاح الإيميل: ينزلق بـ spring ويتوهج لما يشتغل */

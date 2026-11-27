@@ -83,13 +83,13 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
   };
 
   const runCheck = () => setCheck(checkCitations(sections.map((s) => s.content ?? ""), papers));
-  const btn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-[#B8ADA2] transition hover:border-[#FF8A24]/50 hover:text-[#F4F0EC] disabled:opacity-40";
+  const btn = "flex items-center gap-1.5 rounded-full border border-white/[0.14] px-3.5 py-1.5 text-xs font-semibold text-ws-muted transition hover:border-ws-accent2/50 hover:text-ws-text disabled:opacity-40";
 
   return (
     <div className={clsx(glassCard, "space-y-3 p-5")} data-agent="references-tools">
       <div>
-        <p className="text-sm font-extrabold text-[#F4F0EC]">{tr("المراجع: استيراد وتصدير وفحص")}</p>
-        <p className="mt-0.5 text-xs text-[#B8ADA2]">{tr("تستخدمون Zotero أو Mendeley؟ استوردوا مراجعكم بملف BibTeX/RIS بدل الكتابة من جديد، وصدّروا مكتبتكم لهم، وافحصوا إن كل استشهاد بنصكم له مرجع.")}</p>
+        <p className="text-sm font-extrabold text-ws-text">{tr("المراجع: استيراد وتصدير وفحص")}</p>
+        <p className="mt-0.5 text-xs text-ws-muted">{tr("تستخدمون Zotero أو Mendeley؟ استوردوا مراجعكم بملف BibTeX/RIS بدل الكتابة من جديد، وصدّروا مكتبتكم لهم، وافحصوا إن كل استشهاد بنصكم له مرجع.")}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -108,9 +108,9 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
         </button>
       </div>
 
-      <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} onBlur={() => pasted.trim().length > 20 && parse(pasted)} rows={2} dir="ltr" placeholder={tr("أو الصقوا محتوى BibTeX/RIS هنا")} className="w-full rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2 text-xs text-[#F4F0EC] outline-none placeholder:text-[#B8ADA2]/60 focus:border-[#FF8A24]/60" />
+      <textarea value={pasted} onChange={(e) => setPasted(e.target.value)} onBlur={() => pasted.trim().length > 20 && parse(pasted)} rows={2} dir="ltr" placeholder={tr("أو الصقوا محتوى BibTeX/RIS هنا")} className="w-full rounded-2xl border border-white/[0.14] bg-white/[0.04] px-3 py-2 text-xs text-ws-text outline-none placeholder:text-ws-muted/60 focus:border-ws-accent2/60" />
 
-      {msg && <p className="text-xs text-[#E6DBD1]">{msg}</p>}
+      {msg && <p className="text-xs text-ws-text">{msg}</p>}
 
       {found.length > 0 && (
         <div className="space-y-2">
@@ -118,17 +118,17 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
             {found.map((e, i) => (
               <li key={`${e.title}-${i}`} className="flex items-start gap-2 rounded-xl bg-white/[0.04] px-3 py-2 text-xs">
                 <input type="checkbox" checked={e.on} onChange={() => setFound((f) => f.map((x, k) => (k === i ? { ...x, on: !x.on } : x)))} className="mt-0.5" />
-                <span dir="ltr" className="text-start text-[#E6DBD1]">
+                <span dir="ltr" className="text-start text-ws-text">
                   <b>{e.title}</b>
-                  <span className="block text-[#B8ADA2]">
+                  <span className="block text-ws-muted">
                     {e.authors} ({e.year ?? "—"}) {e.journal && `· ${e.journal}`}
                   </span>
-                  {e.dup && <span className="text-[#FFB444]">{tr("موجودة بالمكتبة")}</span>}
+                  {e.dup && <span className="text-ws-accent3">{tr("موجودة بالمكتبة")}</span>}
                 </span>
               </li>
             ))}
           </ul>
-          <button type="button" onClick={addSelected} disabled={!canWrite || !found.some((x) => x.on)} className="rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-extrabold text-[#1A0F00] disabled:opacity-50">
+          <button type="button" onClick={addSelected} disabled={!canWrite || !found.some((x) => x.on)} className="rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-4 py-1.5 text-xs font-extrabold text-[#1A0F00] disabled:opacity-50">
             {tr("أضيفوا المحدد ({0})", found.filter((x) => x.on).length)}
           </button>
         </div>
@@ -136,23 +136,23 @@ export default function ReferencesToolsCard({ papers, addPaper }: { papers: Evid
 
       {check && (
         <div className="space-y-2 rounded-2xl border border-white/[0.12] p-3 text-xs">
-          <p className="flex items-center gap-1.5 font-bold text-[#F4F0EC]">
-            {check.missing.length === 0 ? <Check size={14} className="text-[#FFC777]" /> : <AlertTriangle size={14} className="text-[#FFB444]" />}
+          <p className="flex items-center gap-1.5 font-bold text-ws-text">
+            {check.missing.length === 0 ? <Check size={14} className="text-ws-accent3" /> : <AlertTriangle size={14} className="text-ws-accent3" />}
             {tr("{0} استشهاد مطابق لمكتبتكم", check.matched)}
           </p>
           {check.missing.length > 0 && (
             <div>
-              <p className="font-semibold text-[#FFB444]">{tr("مذكورة بالنص وما لها مرجع بالمكتبة:")}</p>
-              <p dir="ltr" className="text-start text-[#E6DBD1]">{check.missing.map((c) => c.raw).join(" · ")}</p>
+              <p className="font-semibold text-ws-accent3">{tr("مذكورة بالنص وما لها مرجع بالمكتبة:")}</p>
+              <p dir="ltr" className="text-start text-ws-text">{check.missing.map((c) => c.raw).join(" · ")}</p>
             </div>
           )}
           {check.uncited.length > 0 && (
             <div>
-              <p className="font-semibold text-[#B8ADA2]">{tr("بالمكتبة وما انذكرت بالنص:")}</p>
-              <p dir="ltr" className="text-start text-[#E6DBD1]">{check.uncited.map((p) => `${p.authors.split(",")[0]} (${p.year})`).join(" · ")}</p>
+              <p className="font-semibold text-ws-muted">{tr("بالمكتبة وما انذكرت بالنص:")}</p>
+              <p dir="ltr" className="text-start text-ws-text">{check.uncited.map((p) => `${p.authors.split(",")[0]} (${p.year})`).join(" · ")}</p>
             </div>
           )}
-          <p className="text-[12px] text-[#B8ADA2]/80">{tr("الفحص يقرأ صيغة APA بالنص (Devon, 2010) و(Devon et al., 2010) ويطابق أول مؤلف والسنة. مراجعتكم النهائية تبقى مع المشرف/ة.")}</p>
+          <p className="text-[12px] text-ws-muted/80">{tr("الفحص يقرأ صيغة APA بالنص (Devon, 2010) و(Devon et al., 2010) ويطابق أول مؤلف والسنة. مراجعتكم النهائية تبقى مع المشرف/ة.")}</p>
         </div>
       )}
     </div>

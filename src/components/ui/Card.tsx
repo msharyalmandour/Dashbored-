@@ -9,7 +9,7 @@ const toneClasses: Record<CardTone, string> = {
   teal: "bg-brand-50/55 border-brand-100/60",
   sky: "bg-sky-accent-50/55 border-sky-accent-100/60",
   amber: "bg-amber-accent-100/50 border-amber-accent-200/60",
-  violet: "bg-violet-50/55 border-violet-100/60",
+  violet: "bg-white/[0.04] border-white/10",
   rose: "bg-rose-50/55 border-rose-100/60",
 };
 

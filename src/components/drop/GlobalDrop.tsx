@@ -447,7 +447,7 @@ export default function GlobalDrop() {
           </span>
           <div className="min-w-0 flex-1 leading-[1.4]">
             <b className="text-[16px]">{tr("{0} من {1} مختارة", included.length, nAll)}</b>
-            <div className="truncate text-[13px] text-[#ABA095]">{noteLine}</div>
+            <div className="truncate text-[13px] text-ws-muted">{noteLine}</div>
           </div>
           <button type="button" className="hd-glass !min-h-[52px] !rounded-[18px] !text-[15px]" onClick={reviewOneByOne} disabled={!included.length}>
             {tr("راجعوها وحدة وحدة")}
@@ -515,7 +515,7 @@ function sourceLabel(s?: DropSource) {
 function MTop({ label, onClose }: { label: string; onClose: () => void }) {
   return (
     <div className="hd-m-top">
-      <span className="text-[13px] font-bold text-[#E9D3B8]">{label}</span>
+      <span className="text-[13px] font-bold text-ws-text-accent">{label}</span>
       <button type="button" className="hd-x end-4 top-2.5" onClick={onClose} aria-label={tr("إغلاق")}>
         <X size={18} />
       </button>
@@ -528,8 +528,8 @@ function Rings() {
     <svg aria-hidden className="hd-orb" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
       <defs>
         <linearGradient id="hd-rgd" x1="0" x2="1">
-          <stop offset="0" stopColor="#FFC777" stopOpacity="0" />
-          <stop offset=".5" stopColor="#FFC777" stopOpacity=".7" />
+          <stop offset="0" stopColor="#FFB547" stopOpacity="0" />
+          <stop offset=".5" stopColor="#FFB547" stopOpacity=".7" />
           <stop offset="1" stopColor="#FF7A1A" stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -648,7 +648,7 @@ function Threads({ cols }: { cols: number }) {
       {xs.map((x, i) => (
         <g key={i}>
           <path d={`M500 0 Q ${(x + 500) / 2} 40 ${x} 58`} fill="none" stroke="rgba(255,199,119,0.55)" strokeWidth="1.3" vectorEffect="non-scaling-stroke" style={{ ["--len" as string]: 700, strokeDasharray: 700, animation: `hdDraw .7s cubic-bezier(.2,.8,.2,1) ${0.15 + i * 0.12}s both` } as CSSProperties} />
-          <circle cx={x} cy="61" r="3" fill="#FFC777" />
+          <circle cx={x} cy="61" r="3" fill="#FFB547" />
         </g>
       ))}
     </svg>
@@ -687,7 +687,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
           ))}
         </div>
       ) : (
-        <div className="text-[13px] text-[#ABA095]" dir="auto">
+        <div className="text-[13px] text-ws-muted" dir="auto">
           {[p.authors, p.year].filter(Boolean).join(" · ")}
         </div>
       );
@@ -718,8 +718,8 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
               </div>
             );
           })}
-          {(p.tasks?.length ?? 0) > 4 && <div className="text-[12px] text-[#ABA095]">{tr("و{0} غيرها", p.tasks.length - 4)}</div>}
-          {!isLeader && <div className="mt-1 text-[12px] text-[#FFC777]">{tr("تنتظر القائد — هو اللي يضيف المهام")}</div>}
+          {(p.tasks?.length ?? 0) > 4 && <div className="text-[12px] text-ws-muted">{tr("و{0} غيرها", p.tasks.length - 4)}</div>}
+          {!isLeader && <div className="mt-1 text-[12px] text-ws-accent3">{tr("تنتظر القائد — هو اللي يضيف المهام")}</div>}
         </div>
       );
       break;
@@ -735,7 +735,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
             <b className="block truncate text-[16px]" dir="auto">
               {ev.title}
             </b>
-            <div className="text-[13px] text-[#ABA095]">{[ev.time, ev.date ? monthName(ev.date) : ""].filter(Boolean).join(" · ")}</div>
+            <div className="text-[13px] text-ws-muted">{[ev.time, ev.date ? monthName(ev.date) : ""].filter(Boolean).join(" · ")}</div>
           </div>
         </div>
       ) : null;
@@ -767,7 +767,7 @@ function HeroCard({ r, i, roster, isLeader, onToggle, onMove }: { r: DropResult;
           <div className="hd-card-k">
             {DEST_LABEL[r.destination]}
             {n > 1 && (
-              <b className="text-[12px] text-[#FFC777]" dir="ltr">
+              <b className="text-[12px] text-ws-accent3" dir="ltr">
                 ×{n}
               </b>
             )}
@@ -840,7 +840,7 @@ function Flights({ ids }: { ids: string[] }) {
   return (
     <svg aria-hidden className="hd-flight" width="100%" height="100%">
       {paths.map((d, i) => (
-        <path key={i} d={d} fill="none" stroke="#FFC777" strokeOpacity=".75" strokeWidth="1.4" style={{ animationDelay: `${i * 0.1}s` }} />
+        <path key={i} d={d} fill="none" stroke="#FFB547" strokeOpacity=".75" strokeWidth="1.4" style={{ animationDelay: `${i * 0.1}s` }} />
       ))}
     </svg>
   );

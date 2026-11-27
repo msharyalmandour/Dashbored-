@@ -247,7 +247,7 @@ export default function Collect() {
                 </div>
                 <span
                   className="grid h-11 w-11 place-items-center rounded-[15px] sm:h-[46px] sm:w-[46px]"
-                  style={now ? { background: "linear-gradient(90deg,#FF6A00,#FF9A3C)", color: "#1A0802" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}
+                  style={now ? { background: "linear-gradient(90deg,#FF6A00,#FF8A24)", color: "#1A0802" } : { background: "rgba(255,255,255,.07)", color: "var(--ws-c-text)" }}
                 >
                   <Icon size={21} aria-hidden />
                 </span>
@@ -308,7 +308,7 @@ export default function Collect() {
                         ...({ ["--v3-d" as string]: i } as CSSProperties),
                         ...(filled
                           ? { background: "linear-gradient(135deg,#FF7A10,#FFC85A)", color: "#1A0802" }
-                          : { border: `1.5px dashed ${next ? "rgba(255,180,68,.7)" : "rgba(255,255,255,.2)"}`, color: next ? "#FFB444" : "var(--ws-c-muted)" }),
+                          : { border: `1.5px dashed ${next ? "rgba(255,180,68,.7)" : "rgba(255,255,255,.2)"}`, color: next ? "#FFB547" : "var(--ws-c-muted)" }),
                       }}
                     >
                       {perDot === 1 ? num(i + 1) : ""}
@@ -419,7 +419,7 @@ export default function Collect() {
                       style={{
                         ...({ ["--v3-i" as string]: i } as CSSProperties),
                         height: `${Math.max(6, (b.n / themeMax) * 100)}%`,
-                        background: i === themeBars.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6B00)" : "rgba(255,180,68,.4)",
+                        background: i === themeBars.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6A00)" : "rgba(255,180,68,.4)",
                       }}
                     />
                   ))}
@@ -452,7 +452,7 @@ export default function Collect() {
                       style={{
                         ...({ ["--v3-i" as string]: i } as CSSProperties),
                         height: `${Math.max(6, (c.total / chartMax) * 100)}%`,
-                        background: i === chart.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6B00)" : "rgba(255,180,68,.4)",
+                        background: i === chart.length - 1 ? "linear-gradient(180deg,#FFF0C2,#FF6A00)" : "rgba(255,180,68,.4)",
                       }}
                     />
                   ))}

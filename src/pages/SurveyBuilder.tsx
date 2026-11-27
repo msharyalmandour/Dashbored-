@@ -83,7 +83,7 @@ function TipRow({ tip }: { tip: Tip }) {
         <div className="mt-2 space-y-1.5 leading-relaxed text-brand-950/70">
           <p>{tip.why}</p>
           {tip.bad && <p className="rounded-lg bg-rose-500/10 px-2 py-1 text-rose-500">✗ {tip.bad}</p>}
-          {tip.good && <p className="rounded-lg bg-[#FFC777]/10 px-2 py-1 text-[#FFC777]">✓ {tip.good}</p>}
+          {tip.good && <p className="rounded-lg bg-ws-accent3/10 px-2 py-1 text-ws-accent3">✓ {tip.good}</p>}
         </div>
       )}
     </div>
@@ -280,7 +280,7 @@ export default function SurveyBuilder() {
         <span className="text-xs font-semibold text-brand-950/40">{saving ? tr("يحفظ…") : tr("محفوظ ✓")}</span>
         <span
           className={`rounded-full px-3 py-1 text-xs font-extrabold ${
-            s.status === "open" ? "bg-[#FFC777]/15 text-[#FFC777]" : s.status === "closed" ? "bg-rose-100 text-rose-700" : "bg-surface-muted text-brand-950/60"
+            s.status === "open" ? "bg-ws-accent3/15 text-ws-accent3" : s.status === "closed" ? "bg-rose-100 text-rose-700" : "bg-surface-muted text-brand-950/60"
           }`}
         >
           {s.status === "open" ? tr("مفتوح") : s.status === "closed" ? tr("مغلق") : tr("مسوّدة")}
@@ -424,7 +424,7 @@ export default function SurveyBuilder() {
               {aiRes && (
                 <div className="space-y-2.5">
                   {aiRes.overall && <p className="rounded-xl bg-brand-500/10 px-3 py-2 text-xs leading-relaxed text-brand-950/80">{aiRes.overall}</p>}
-                  {aiRes.items.length === 0 && <p className="text-xs font-semibold text-[#FFC777]">{tr("ما لقينا مشاكل واضحة بالصياغة — أحسنتم 👏")}</p>}
+                  {aiRes.items.length === 0 && <p className="text-xs font-semibold text-ws-accent3">{tr("ما لقينا مشاكل واضحة بالصياغة — أحسنتم 👏")}</p>}
                   {aiRes.items.map((it) => {
                     const idx = s.questions.findIndex((q) => q.id === it.id);
                     return (
@@ -433,7 +433,7 @@ export default function SurveyBuilder() {
                         </p>
                         <p className="mt-1 leading-relaxed text-brand-950/65">{it.why}</p>
                         {it.better && (
-                          <div className="mt-2 rounded-lg bg-[#FFC777]/10 px-2.5 py-2 text-[#FFC777]">
+                          <div className="mt-2 rounded-lg bg-ws-accent3/10 px-2.5 py-2 text-ws-accent3">
                             <p className="leading-relaxed">✓ {it.better}</p>
                             {!locked && (
                               <button onClick={() => idx >= 0 && setQ(idx, { ...s.questions[idx], text: it.better })} className="mt-1.5 font-extrabold underline">{tr("استبدلوا سؤالي بهذي الصياغة")}</button>
@@ -534,7 +534,7 @@ export default function SurveyBuilder() {
                 <button
                   disabled={!edit || !canOpen}
                   onClick={() => update(s.id, { status: "open" })}
-                  className="rounded-2xl bg-[#F2EBE3] px-5 py-2.5 text-sm font-extrabold text-[#160904] hover:bg-white disabled:opacity-40"
+                  className="rounded-2xl bg-ws-text px-5 py-2.5 text-sm font-extrabold text-[#160904] hover:bg-white disabled:opacity-40"
                 >{tr("افتحوه للمشاركين")}</button>
               ) : (
                 <button disabled={!edit} onClick={() => update(s.id, { status: "closed" })} className="rounded-2xl bg-rose-600 px-5 py-2.5 text-sm font-extrabold text-white hover:bg-rose-700 disabled:opacity-40">{tr("أغلقوا الاستبيان")}</button>
@@ -559,7 +559,7 @@ export default function SurveyBuilder() {
                     href={`https://wa.me/?text=${encodeURIComponent(tr("تفضلوا بالمشاركة بهذا الاستبيان (مجهول):\n{0}", link))}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-[#EAE3DC] ring-1 ring-white/10 transition hover:bg-white/[0.11]"
+                    className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.07] px-3.5 text-[13px] font-bold text-ws-text ring-1 ring-white/10 transition hover:bg-white/[0.11]"
                   >
                     <MessageCircle size={13} />{tr("واتساب")}</a>
                 </div>

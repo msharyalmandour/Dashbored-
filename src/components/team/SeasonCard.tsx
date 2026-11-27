@@ -25,24 +25,24 @@ export default function SeasonCard() {
   return (
     <section className="lx-card lx-in" aria-labelledby="season-h">
       <div className="flex items-center gap-2.5">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/[0.07] text-[#FFC777]" aria-hidden>
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/[0.07] text-ws-accent3" aria-hidden>
           <CalendarRange size={17} />
         </span>
         <b id="season-h" className="flex-1 text-[18px]">
           {tr("مواسم الكلية")}
         </b>
       </div>
-      <p className="m-0 mt-1 text-[13px] text-[#ABA095]">{s.line ?? tr("حطوا الاختبارات والتدريب والتسليمات، وويسي يرتب الضغط حسبها.")}</p>
+      <p className="m-0 mt-1 text-[13px] text-ws-muted">{s.line ?? tr("حطوا الاختبارات والتدريب والتسليمات، وويسي يرتب الضغط حسبها.")}</p>
       <ul className="m-0 mt-3 list-none space-y-1.5 p-0">
         {events.map((e) => (
           <li key={e.id} className="flex min-h-[44px] items-center gap-3 rounded-2xl bg-black/20 px-3">
-            <span className="text-[12px] font-extrabold text-[#FFC777]">{KINDS.find((x) => x.k === e.kind)?.label}</span>
+            <span className="text-[12px] font-extrabold text-ws-accent3">{KINDS.find((x) => x.k === e.kind)?.label}</span>
             <span className="min-w-0 flex-1 truncate text-[14px] font-bold">{e.title}</span>
-            <span className="text-[12px] text-[#ABA095]">
+            <span className="text-[12px] text-ws-muted">
               {formatDateShort(e.startsOn)}
               {e.endsOn ? ` – ${formatDateShort(e.endsOn)}` : ""}
             </span>
-            <button type="button" className="grid h-11 w-11 place-items-center rounded-xl text-[#ABA095] hover:text-[#FF8A7A]" aria-label={tr("احذفوا {0}", e.title)} onClick={() => void remove(e.id)}>
+            <button type="button" className="grid h-11 w-11 place-items-center rounded-xl text-ws-muted hover:text-[#FF8A7A]" aria-label={tr("احذفوا {0}", e.title)} onClick={() => void remove(e.id)}>
               <Trash2 size={15} aria-hidden />
             </button>
           </li>

@@ -19,7 +19,7 @@ export default class AppErrorBoundary extends Component<{ children: ReactNode },
     const { error, where } = this.state;
     if (!error) return this.props.children;
     return (
-      <div dir="rtl" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, background: "#0F0B09", color: "#EAE3DC", fontFamily: "Tajawal, system-ui, sans-serif" }}>
+      <div dir="rtl" style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, background: "#0F0B09", color: "#F2EBE3", fontFamily: "Tajawal, system-ui, sans-serif" }}>
         <div style={{ maxWidth: 520, width: "100%", textAlign: "center" }}>
           <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>صار خطأ وما قدرنا نفتح الصفحة</div>
           <p style={{ color: "#ABA095", fontSize: 15, lineHeight: 1.7, margin: "0 0 16px" }}>
@@ -30,7 +30,7 @@ export default class AppErrorBoundary extends Component<{ children: ReactNode },
             {where ? `\n${where}` : ""}
           </pre>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            <button type="button" onClick={() => window.location.reload()} style={{ minHeight: 44, padding: "0 22px", borderRadius: 999, border: 0, fontWeight: 800, fontSize: 15, background: "linear-gradient(90deg,#FF6A00,#FF9A3C)", color: "#1A0802", cursor: "pointer" }}>
+            <button type="button" onClick={() => window.location.reload()} style={{ minHeight: 44, padding: "0 22px", borderRadius: 999, border: 0, fontWeight: 800, fontSize: 15, background: "linear-gradient(90deg,#FF6A00,#FF8A24)", color: "#1A0802", cursor: "pointer" }}>
               حدّث الصفحة
             </button>
             <button
@@ -39,7 +39,7 @@ export default class AppErrorBoundary extends Component<{ children: ReactNode },
                 window.location.hash = "#/tasks";
                 window.location.reload();
               }}
-              style={{ minHeight: 44, padding: "0 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.07)", color: "#EAE3DC", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
+              style={{ minHeight: 44, padding: "0 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.07)", color: "#F2EBE3", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
             >
               افتح مهامي
             </button>

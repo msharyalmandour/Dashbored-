@@ -37,7 +37,7 @@ export function GlassHeader({ firstName, now, aside }: { firstName: string; now:
       <div className="min-w-0 flex-1">
         <div className="hg-hello">{now.getHours() < 12 ? tr("صباح الخير يا") : tr("مساء الخير يا")}</div>
         <h1 className="hg-name m-0">{firstName}</h1>
-        <p className="m-0 mt-1 text-[15px] text-[#ABA095]">{tr("{0} · هذي نظرة على بحثكم", dateLine)}</p>
+        <p className="m-0 mt-1 text-[15px] text-ws-muted">{tr("{0} · هذي نظرة على بحثكم", dateLine)}</p>
       </div>
       {aside}
     </header>
@@ -50,7 +50,7 @@ export function AgentPill({ firstName }: { firstName: string }) {
     <button type="button" className="hg-card hg-pill hidden lg:flex" onClick={() => openAgent()} aria-label={tr("افتح ويسي")}>
       <WesyAvatar size={40} />
       <span className="min-w-0 flex-1 text-sm leading-normal">
-        <b>{tr("هلا {0}!", `\u2068${firstName}\u2069`)}</b> <span className="text-[#ABA095]">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
+        <b>{tr("هلا {0}!", `\u2068${firstName}\u2069`)}</b> <span className="text-ws-muted">{tr("وش أقدر أسوي لكم اليوم؟")}</span>
       </span>
     </button>
   );
@@ -117,12 +117,12 @@ export function TodoCard({
   };
 
   const dueLabel = (t: Task, kind: TodoKind) => {
-    if (kind === "done") return { text: tr("خلصت ✓"), color: "#FFC777" };
+    if (kind === "done") return { text: tr("خلصت ✓"), color: "#FFB547" };
     if (kind === "late") {
       const n = -daysUntil(t.dueDate, new Date(`${today}T12:00:00`));
       return { text: n <= 1 ? tr("متأخرة يوم") : n === 2 ? tr("متأخرة يومين") : n <= 10 ? tr("متأخرة {0} أيام", num(n)) : tr("متأخرة {0} يوم", num(n)), color: "#FF8A7A" };
     }
-    if (kind === "today") return { text: tr("اليوم"), color: "#FFC777" };
+    if (kind === "today") return { text: tr("اليوم"), color: "#FFB547" };
     const d = daysUntil(t.dueDate, new Date(`${today}T12:00:00`));
     return { text: d === 1 ? tr("بكرة") : d <= 6 ? weekdayAr(new Date(`${t.dueDate}T00:00:00`)) : dayMonth(t.dueDate), color: "#ABA095" };
   };
@@ -145,16 +145,16 @@ export function TodoCard({
           <div className="hg-tr" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-label={tr("إنجاز اليوم")}>
             <i style={{ width: `${pct}%` }} />
           </div>
-          <span className="whitespace-nowrap text-[13px] text-[#ABA095]">
+          <span className="whitespace-nowrap text-[13px] text-ws-muted">
             {tr("{0} من {1} خلصت", "§0", "§1")
               .split(/(§0|§1)/)
               .map((part, i) =>
                 part === "§0" ? (
-                  <b key={i} className="hg-num text-[#EAE3DC]">
+                  <b key={i} className="hg-num text-ws-text">
                     {done}
                   </b>
                 ) : part === "§1" ? (
-                  <b key={i} className="hg-num text-[#EAE3DC]">
+                  <b key={i} className="hg-num text-ws-text">
                     {total}
                   </b>
                 ) : (
@@ -165,7 +165,7 @@ export function TodoCard({
         </div>
       )}
       <ul className="relative z-[1] m-0 mt-2.5 list-none p-0">
-        {items.length === 0 && <li className="px-3 py-4 text-[15px] text-[#ABA095]">{tr("ولا شي متأخر ولا شي موعده اليوم. يوم هادي ☕")}</li>}
+        {items.length === 0 && <li className="px-3 py-4 text-[15px] text-ws-muted">{tr("ولا شي متأخر ولا شي موعده اليوم. يوم هادي ☕")}</li>}
         {items.map(({ task: t, kind }) => {
           const isDone = t.status === "done";
           const shownKind: TodoKind = isDone ? "done" : kind === "done" ? (isLate(t, today) ? "late" : t.dueDate === today ? "today" : "next") : kind;
@@ -345,23 +345,23 @@ export function DeadlineCard({
       </div>
       {deadline && d ? (
         <div className="mt-2.5 flex items-baseline gap-2.5">
-          <span className="hg-num hg-days text-[72px] leading-[.95] text-[#F2EBE3]">{Math.abs(daysLeft ?? 0)}</span>
+          <span className="hg-num hg-days text-[72px] leading-[.95] text-ws-text">{Math.abs(daysLeft ?? 0)}</span>
           <span className="text-[22px] font-extrabold">{daysWord(Math.abs(daysLeft ?? 0))}</span>
-          <span className="ms-auto text-end text-sm text-[#ABA095]">
+          <span className="ms-auto text-end text-sm text-ws-muted">
             {isEn ? d.toLocaleDateString("en", { weekday: "long" }) : weekdayAr(d)}
             <br />
-            <b className="text-[#FF9A3C]">{dayMonth(deadline)}</b>
+            <b className="text-ws-accent2">{dayMonth(deadline)}</b>
           </span>
         </div>
       ) : (
         <div className="mt-3 flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-[rgba(255,140,40,.14)] text-[#FF9A3C]" aria-hidden>
+            <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-[rgba(255,140,40,.14)] text-ws-accent2" aria-hidden>
               <Flag size={22} />
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-[17px] font-extrabold">{tr("حدّدوا موعد التسليم")}</div>
-              <div className="text-[13px] text-[#ABA095]">{tr("ونحسب لكم كم يوم باقي")}</div>
+              <div className="text-[13px] text-ws-muted">{tr("ونحسب لكم كم يوم باقي")}</div>
             </div>
           </div>
           {canWrite && (
@@ -384,21 +384,21 @@ export function DeadlineCard({
               </span>
               <span className="hg-bar" aria-hidden>
                 {latePct > 0 && <i style={{ width: `${Math.max(4, latePct)}%`, background: "#FF5A4A", animationDelay: `${0.4 + i * 0.06}s` }} />}
-                {donePct > 0 && <i style={{ width: `${donePct}%`, background: "linear-gradient(90deg,#FF7A1A,#FFB444)", animationDelay: `${0.52 + i * 0.06}s` }} />}
+                {donePct > 0 && <i style={{ width: `${donePct}%`, background: "linear-gradient(90deg,#FF7A1A,#FFB547)", animationDelay: `${0.52 + i * 0.06}s` }} />}
               </span>
-              <span className="hg-num w-10 text-sm text-[#EAE3DC]" aria-hidden>
+              <span className="hg-num w-10 text-sm text-ws-text" aria-hidden>
                 {b.total ? `${b.done}/${b.total}` : "—"}
               </span>
             </Link>
           );
         })}
         {bars.length > 0 && (
-          <div className="mt-4 flex gap-3.5 text-xs text-[#ABA095]">
+          <div className="mt-4 flex gap-3.5 text-xs text-ws-muted">
             <span>
               <i className="inline-block h-2 w-2 rounded-full bg-[#FF5A4A]" aria-hidden /> {tr("متأخر")}
             </span>
             <span>
-              <i className="inline-block h-2 w-2 rounded-full bg-[#FF9A3C]" aria-hidden /> {tr("خلص")}
+              <i className="inline-block h-2 w-2 rounded-full bg-ws-accent2" aria-hidden /> {tr("خلص")}
             </span>
             <span>
               <i className="inline-block h-2 w-2 rounded-full bg-white/20" aria-hidden /> {tr("باقي")}
@@ -432,30 +432,30 @@ export function MobileTiles({
   return (
     <div className="grid grid-cols-2 gap-2.5 lg:hidden" style={style}>
       <div className="hg-card" style={rise(2)}>
-        <div className="text-xs font-bold text-[#ABA095]">{(daysLeft ?? 0) < 0 ? tr("فات موعد التسليم") : tr("باقي على التسليم")}</div>
+        <div className="text-xs font-bold text-ws-muted">{(daysLeft ?? 0) < 0 ? tr("فات موعد التسليم") : tr("باقي على التسليم")}</div>
         {deadline && d ? (
           <>
             <div className="flex items-baseline gap-1.5">
-              <span className="hg-num hg-days text-[46px] leading-[1.05] text-[#F2EBE3]">{Math.abs(daysLeft ?? 0)}</span>
+              <span className="hg-num hg-days text-[46px] leading-[1.05] text-ws-text">{Math.abs(daysLeft ?? 0)}</span>
               <b className="text-base">{daysWord(Math.abs(daysLeft ?? 0))}</b>
             </div>
-            <div className="text-xs text-[#FF9A3C]">{isEn ? formatDateShort(deadline) : `${weekdayAr(d)} ${dayMonth(deadline)}`}</div>
+            <div className="text-xs text-ws-accent2">{isEn ? formatDateShort(deadline) : `${weekdayAr(d)} ${dayMonth(deadline)}`}</div>
           </>
         ) : canWrite ? (
-          <button type="button" className="mt-2 min-h-[44px] text-start text-[15px] font-extrabold text-[#FF9A3C]" onClick={onSetDeadline}>
+          <button type="button" className="mt-2 min-h-[44px] text-start text-[15px] font-extrabold text-ws-accent2" onClick={onSetDeadline}>
             {tr("حدّدوا الموعد ←")}
           </button>
         ) : (
-          <div className="mt-2 text-sm text-[#ABA095]">{tr("ما انحدد بعد")}</div>
+          <div className="mt-2 text-sm text-ws-muted">{tr("ما انحدد بعد")}</div>
         )}
       </div>
       <Link to="/tasks" className="hg-card block" style={rise(3)}>
-        <div className="text-xs font-bold text-[#ABA095]">{tr("هالأسبوع")}</div>
+        <div className="text-xs font-bold text-ws-muted">{tr("هالأسبوع")}</div>
         <div className="flex items-baseline gap-1.5">
-          <span className="hg-num text-[46px] leading-[1.05] text-[#F2EBE3]">{weekDone}</span>
+          <span className="hg-num text-[46px] leading-[1.05] text-ws-text">{weekDone}</span>
           <b className="text-base">{weekDone === 1 ? tr("مهمة") : weekDone === 2 ? tr("مهمتين") : weekDone <= 10 ? tr("مهام") : tr("مهمة")}</b>
         </div>
-        <div className="text-xs" style={{ color: weekDiff > 0 ? "#FFC777" : "#ABA095" }}>
+        <div className="text-xs" style={{ color: weekDiff > 0 ? "#FFB547" : "#ABA095" }}>
           {weekDiff > 0 ? tr("+{0} عن اللي قبله", num(weekDiff)) : weekDiff < 0 ? tr("{0} أقل من اللي قبله", num(-weekDiff)) : tr("نفس الأسبوع اللي قبله")}
         </div>
       </Link>
@@ -467,7 +467,7 @@ export function MobileTiles({
 
 export type JourneyStep = { key: string; label: string; state: "done" | "now" | "todo" | "deliver"; long: string; short: string; to: string };
 
-const STATE_COLOR = { done: "#FFC777", now: "#FFC777", todo: "#ABA095", deliver: "#FF9A3C" } as const;
+const STATE_COLOR = { done: "#FFB547", now: "#FFB547", todo: "#ABA095", deliver: "#FF8A24" } as const;
 const XS = [750, 570, 390, 210, 30];
 
 export function JourneyCard({ steps, headerNote, style, className }: { steps: JourneyStep[]; headerNote: string; style?: CSSProperties; className?: string }) {
@@ -492,10 +492,10 @@ export function JourneyCard({ steps, headerNote, style, className }: { steps: Jo
         <h2 id="hg-journey-title" className="m-0 text-[inherit] font-bold">
           {tr("رحلة البحث")}
         </h2>
-        <span className="text-[13px] font-medium text-[#ABA095] lg:ms-2">
+        <span className="text-[13px] font-medium text-ws-muted lg:ms-2">
           <span className="hidden lg:inline">{tr("من الموضوع للتسليم")}</span>
         </span>
-        <span className="ms-auto text-xs font-medium text-[#ABA095] lg:hidden">{headerNote}</span>
+        <span className="ms-auto text-xs font-medium text-ws-muted lg:hidden">{headerNote}</span>
       </div>
 
       {/* كمبيوتر: شريط متوهّج والمراحل فوقه */}
@@ -518,7 +518,7 @@ export function JourneyCard({ steps, headerNote, style, className }: { steps: Jo
           {xs.map((x, i) => (
             <g key={i}>
               <line x1={x} y1="18" x2={x} y2="190" stroke="rgba(255,255,255,.14)" strokeDasharray="3 4" />
-              <circle cx={x} cy="18" r="3.5" fill={i <= curIdx ? "#FF9A3C" : "#6E645C"} />
+              <circle cx={x} cy="18" r="3.5" fill={i <= curIdx ? "#FF8A24" : "#6E645C"} />
             </g>
           ))}
           <path d={band([5, 12, 28, 38, 45])} fill="#FF6A00" opacity=".25" filter="url(#hg-bl8)" />
@@ -578,7 +578,7 @@ export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; lon
           const x = isEn ? 340 - x0 : x0;
           const s = steps[i];
           const cur = s && (s.state === "now" || (s.state === "deliver" && i === curIdx));
-          return <circle key={i} cx={x} cy="37" r={cur ? 5 : 3.5} fill={s && (s.state === "done" || cur) ? "#FFF3E8" : "#6E645C"} stroke={cur ? "#FF9A3C" : "none"} strokeWidth="3" />;
+          return <circle key={i} cx={x} cy="37" r={cur ? 5 : 3.5} fill={s && (s.state === "done" || cur) ? "#FFF3E8" : "#6E645C"} stroke={cur ? "#FF8A24" : "none"} strokeWidth="3" />;
         })}
       </svg>
     </div>
@@ -587,7 +587,7 @@ export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; lon
         <li key={s.key} className={clsx("text-center", long ? "min-w-0 flex-1" : "w-[62px]")} aria-current={s.state === "now" ? "step" : undefined}>
           {long ? (
             <>
-              <div className="text-sm font-extrabold" style={{ color: s.state === "now" ? "#FF9A3C" : "#F2EBE3" }}>
+              <div className="text-sm font-extrabold" style={{ color: s.state === "now" ? "#FF8A24" : "#F2EBE3" }}>
                 {s.label}
               </div>
               <div className="text-xs font-bold" style={{ color: STATE_COLOR[s.state] }}>
@@ -596,10 +596,10 @@ export function JourneyMini({ steps, long = false }: { steps: JourneyStep[]; lon
             </>
           ) : (
             <>
-              <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#FFC777" : s.state === "deliver" ? "#FF9A3C" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
+              <div className="text-sm font-extrabold" style={{ color: s.state === "done" ? "#FFB547" : s.state === "deliver" ? "#FF8A24" : s.state === "now" ? "#F2EBE3" : "#ABA095" }}>
                 {s.short}
               </div>
-              <div className="text-xs" style={{ color: s.state === "now" ? "#FF9A3C" : "#ABA095", fontWeight: s.state === "now" ? 800 : 500 }}>
+              <div className="text-xs" style={{ color: s.state === "now" ? "#FF8A24" : "#ABA095", fontWeight: s.state === "now" ? 800 : 500 }}>
                 {s.label}
               </div>
             </>
@@ -676,7 +676,7 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
         ))}
         <polygon points={`${x(0).toFixed(1)},150 ${donePts} ${x(weeks - 1).toFixed(1)},150`} fill="url(#hg-ar)" />
         <polyline points={planPts} fill="none" stroke="#E9C9A0" strokeWidth="1.5" strokeDasharray="4 5" opacity=".7" />
-        <polyline key={weeks} className="hg-draw" points={donePts} fill="none" stroke="#FF9A3C" strokeWidth="2.5" strokeLinejoin="round" pathLength={1} />
+        <polyline key={weeks} className="hg-draw" points={donePts} fill="none" stroke="#FF8A24" strokeWidth="2.5" strokeLinejoin="round" pathLength={1} />
         {last && <circle cx={x(weeks - 1)} cy={y(last.done)} r="9" fill="#FF7A1A" stroke="#FFE7CF" strokeWidth="2.5" />}
         {series.map((_, i) =>
           i % labelEvery === 0 || i === weeks - 1 ? (
@@ -686,11 +686,11 @@ export function TeamChartCard({ tasks, today, style, className }: { tasks: Task[
           ) : null,
         )}
       </svg>
-      <div className="mt-1.5 flex flex-wrap gap-3.5 text-xs text-[#ABA095]">
-        <span className="text-[#FF9A3C]">● {tr("مهام خلصت")}</span>
+      <div className="mt-1.5 flex flex-wrap gap-3.5 text-xs text-ws-muted">
+        <span className="text-ws-accent2">● {tr("مهام خلصت")}</span>
         <span>┄ {tr("المخطط")}</span>
         <span>{tr("الأسابيع ←")}</span>
-        <span className="ms-auto text-[#EAE3DC]">
+        <span className="ms-auto text-ws-text">
           {tr("هالأسبوع")} <b className="hg-num">{last?.done ?? 0}</b> {(last?.done ?? 0) === 1 ? tr("مهمة") : (last?.done ?? 0) === 2 ? tr("مهمتين") : (last?.done ?? 0) <= 10 ? tr("مهام") : tr("مهمة")}
         </span>
       </div>

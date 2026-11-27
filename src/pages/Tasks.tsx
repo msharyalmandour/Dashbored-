@@ -344,7 +344,7 @@ export default function Tasks() {
     if (!r) return null;
     const when = r.dueDate === today ? tr("تذكير اليوم") : r.dueDate === tomorrow ? tr("تذكير بكرة") : tr("تذكير {0}", formatDateShort(r.dueDate));
     return (
-      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-xs text-[#FFB444]">
+      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-[rgba(255,180,68,.3)] bg-white/[0.06] px-2 py-0.5 text-xs text-ws-accent3">
         <Bell size={11} aria-hidden />
         {when}
       </span>
@@ -417,15 +417,15 @@ export default function Tasks() {
               style={
                 task.status === "done"
                   ? proof?.met === false
-                    ? { boxShadow: "0 0 0 2px #FFC777, 0 0 0 5px rgba(255,199,119,.14)", background: "rgba(255,199,119,.08)", color: "#FFC777" }
-                    : { background: "#FFC777", color: "#2A1404" }
+                    ? { boxShadow: "0 0 0 2px #FFB547, 0 0 0 5px rgba(255,199,119,.14)", background: "rgba(255,199,119,.08)", color: "#FFB547" }
+                    : { background: "#FFB547", color: "#2A1404" }
                   : task.status === "in-progress"
-                    ? { boxShadow: "inset 0 0 0 1.6px #FF9A3C" }
+                    ? { boxShadow: "inset 0 0 0 1.6px #FF8A24" }
                     : { boxShadow: `inset 0 0 0 1.6px ${late ? "#FF8A7A" : "rgba(255,255,255,.3)"}` }
               }
             >
               {task.status === "done" && <Check size={14} strokeWidth={3} />}
-              {task.status === "in-progress" && <i className="block h-2.5 w-2.5 rounded-[3px] bg-[#FF9A3C]" />}
+              {task.status === "in-progress" && <i className="block h-2.5 w-2.5 rounded-[3px] bg-ws-accent2" />}
             </span>
           </button>
 
@@ -514,7 +514,7 @@ export default function Tasks() {
             )}
             {reminders.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                <Bell size={14} className="text-[#FFB444]" aria-hidden />
+                <Bell size={14} className="text-ws-accent3" aria-hidden />
                 <span className="v3-mut">{tr("تذكيرات هالمهمة:")}</span>
                 {reminders.map((r) => (
                   <span key={r.id} className={clsx("v3-st", r.status === "done" || r.dueDate < today ? "todo" : "doing")}>
@@ -674,35 +674,35 @@ export default function Tasks() {
           <div className="relative h-[92px] w-[92px] flex-none">
             <div className="v3-ring h-[92px] w-[92px]" style={{ ["--v3-target" as string]: `${pct}%` }} role="img" aria-label={tr("{0} من {1} خلصت", num(doneCount), num(visible.length))} />
             <div className="absolute inset-0 flex flex-col items-center justify-center leading-[1.1]" aria-hidden>
-              <b className="text-[23px] font-extrabold text-[#EAE3DC]" dir="ltr">
+              <b className="text-[23px] font-extrabold text-ws-text" dir="ltr">
                 {num(doneCount)}/{num(visible.length)}
               </b>
-              <span className="mt-1 text-[12px] text-[#ABA095]">{tr("خلصت")}</span>
+              <span className="mt-1 text-[12px] text-ws-muted">{tr("خلصت")}</span>
             </div>
           </div>
           <div className="leading-[1.4]">
             <b className="text-[18px]">{visible.length && doneCount === visible.length ? tr("خلصتوا كل المهام") : tr("{0} باقية", num(visible.length - doneCount))}</b>
-            <div className="text-[13px] font-bold text-[#FFC777]">
+            <div className="text-[13px] font-bold text-ws-accent3">
               {unprovenCount > 0 ? tr("بس {0} منها بدون دليل", num(unprovenCount)) : doneCount ? tr("كلها بدليل ✓") : tr("ابدأوا بأقرب موعد")}
             </div>
           </div>
         </div>
         <div className="lx-stat">
-          <b dir="ltr" className="text-[#FFC777]">
+          <b dir="ltr" className="text-ws-accent3">
             {num(unprovenCount)}
           </b>
           <div>{tr("تحتاج دليل")}</div>
           <small>{tr("الدكتورة تشوفها «بدون دليل»")}</small>
         </div>
         <div className="lx-stat">
-          <b dir="ltr" className={lateCount ? "text-[#FF8A7A]" : "text-[#EAE3DC]"}>
+          <b dir="ltr" className={lateCount ? "text-[#FF8A7A]" : "text-ws-text"}>
             {num(lateCount)}
           </b>
           <div>{tr("متأخرة")}</div>
           <small>{lateCount ? (tomorrowCount ? tr("و{0} بكرة", num(tomorrowCount)) : tr("خلّصوها أول")) : tr("ممتاز، كملوا كذا")}</small>
         </div>
         <div className="lx-stat">
-          <b dir="ltr" className={project?.targetSubmissionDate ? "text-[#EAE3DC]" : "text-[#ABA095]"}>
+          <b dir="ltr" className={project?.targetSubmissionDate ? "text-ws-text" : "text-ws-muted"}>
             {project?.targetSubmissionDate ? num(Math.max(0, daysUntil(project.targetSubmissionDate))) : "—"}
           </b>
           <div>{tr("موعد التسليم")}</div>
@@ -805,8 +805,8 @@ export default function Tasks() {
                         width: `${mine.length === 0 ? 0 : Math.max(8, (mine.length / maxLoad) * 100)}%`,
                         background:
                           imbalanced && member.id === most.member.id
-                            ? "linear-gradient(90deg,#FF6B00,#FF8A7A)"
-                            : "linear-gradient(90deg,#FF6B00,#FFD25A)",
+                            ? "linear-gradient(90deg,#FF6A00,#FF8A7A)"
+                            : "linear-gradient(90deg,#FF6A00,#FFD25A)",
                       }}
                     />
                   </div>
@@ -844,7 +844,7 @@ export default function Tasks() {
             <p className="m-0 text-[15px] leading-relaxed" dir="auto">
               {tr("مهمة «{0}» تطلب {1}، والموجود فعلًا {2}.", strict.task.title, num(strict.proof.need), strict.proof.label)}
             </p>
-            <p className="m-0 text-[13px] text-[#ABA095]">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
+            <p className="m-0 text-[13px] text-ws-muted">{tr("المشرف/ة يشوف التقدّم من شغلكم الفعلي. لو خلصتوها برا الموقع، أضيفوها هنا عشان تنحسب لكم.")}</p>
             <div className="flex flex-wrap gap-2 pt-1">
               <button
                 type="button"

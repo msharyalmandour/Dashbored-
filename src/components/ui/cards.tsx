@@ -172,12 +172,12 @@ const alertToneClasses: Record<
     iconText: "text-brand-600",
   },
   violet: {
-    border: "border-violet-200/70",
-    bg: "bg-violet-50/80",
-    chip: "bg-gradient-to-br from-violet-400 to-violet-600",
+    border: "border-white/10",
+    bg: "bg-white/[0.04]",
+    chip: "bg-gradient-to-br from-ws-accent3 to-ws-accent",
     glow: "shadow-[0_0_0_4px_rgba(139,92,246,0.14)]",
-    text: "text-violet-700",
-    iconText: "text-violet-600",
+    text: "text-ws-text",
+    iconText: "text-ws-accent3",
   },
 };
 

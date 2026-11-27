@@ -159,7 +159,7 @@ export default function AgentKickstart() {
 
   const Approve = ({ section, onClick, label, disabled }: { section: Section; onClick: () => void; label: string; disabled?: boolean }) =>
     done[section] ? (
-      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FFC777]">
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ws-accent3">
         <CheckCircle2 size={16} />{tr(" تم")}</span>
     ) : (
       <button onClick={onClick} disabled={!canWrite || disabled || applying !== null} className={primaryBtn}>

@@ -47,21 +47,21 @@ export default function DropShare() {
         <WLogo size={32} />
         <b className="text-[17px]">Wesync</b>
         <span className="flex-1" />
-        <button type="button" className="dr-card flex h-11 w-11 items-center justify-center rounded-full text-[#EAE3DC]" aria-label={tr("إغلاق")} onClick={() => navigate("/")}>
+        <button type="button" className="dr-card flex h-11 w-11 items-center justify-center rounded-full text-ws-text" aria-label={tr("إغلاق")} onClick={() => navigate("/")}>
           <X size={18} />
         </button>
       </div>
       <div className="flex items-center gap-3">
         <Vessel size={96} state="hover" scene />
         <div>
-          <div className="text-[13px] font-bold text-[#FFB444]">{fromWa ? tr("جاية من واتساب") : tr("جاية من تطبيق ثاني")}</div>
+          <div className="text-[13px] font-bold text-ws-accent3">{fromWa ? tr("جاية من واتساب") : tr("جاية من تطبيق ثاني")}</div>
           <h1 className="dr-title text-[24px] leading-[1.3]">{tr("ارموها لـ Wesync")}</h1>
         </div>
       </div>
 
       {shared === undefined ? null : nothing ? (
         <section className="dr-card rounded-[26px] p-4 text-center">
-          <p className="m-0 text-[15px] text-[#E9D3B8]">{tr("ما وصلنا شي من المشاركة. جرّبوا تشاركونه مرة ثانية، أو ارموه من صفحة «ارموا أي شي».")}</p>
+          <p className="m-0 text-[15px] text-ws-text-accent">{tr("ما وصلنا شي من المشاركة. جرّبوا تشاركونه مرة ثانية، أو ارموه من صفحة «ارموا أي شي».")}</p>
           <button type="button" className="dr-cream mt-3 w-full" onClick={() => navigate("/drop")}>
             {tr("افتحوا «ارموا أي شي»")}
           </button>
@@ -100,7 +100,7 @@ export default function DropShare() {
             </div>
           </section>
           <section className="dr-card rounded-[22px] px-3.5 py-3">
-            <div className="mb-1.5 text-[13px] text-[#ABA095]">{tr("للفريق")}</div>
+            <div className="mb-1.5 text-[13px] text-ws-muted">{tr("للفريق")}</div>
             <div className="flex items-center gap-2.5">
               <span className="dr-ic" aria-hidden>
                 <Users size={16} />
@@ -108,17 +108,17 @@ export default function DropShare() {
               <b className="flex-1 truncate text-[15px]" dir="auto">
                 {project?.title?.trim() || team?.name || tr("فريقكم")}
               </b>
-              <ChevronLeft size={18} className="text-[#ABA095] ltr:rotate-180" aria-hidden />
+              <ChevronLeft size={18} className="text-ws-muted ltr:rotate-180" aria-hidden />
             </div>
           </section>
-          <label className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-black/25 px-3.5 text-[14px] text-[#ABA095] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+          <label className="flex min-h-[48px] items-center gap-2.5 rounded-2xl bg-black/25 px-3.5 text-[14px] text-ws-muted shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
             <PenLine size={16} aria-hidden />
-            <input className="min-w-0 flex-1 border-0 bg-transparent text-[#EAE3DC] outline-none placeholder:text-[#ABA095]" placeholder={tr("كلمة للفريق (اختياري)")} value={note} onChange={(e) => setNote(e.target.value)} dir="auto" />
+            <input className="min-w-0 flex-1 border-0 bg-transparent text-ws-text outline-none placeholder:text-ws-muted" placeholder={tr("كلمة للفريق (اختياري)")} value={note} onChange={(e) => setNote(e.target.value)} dir="auto" />
           </label>
           <button type="button" className="dr-primary mt-1" onClick={go}>
             {tr("ارموها")}
           </button>
-          <p className="m-0 text-center text-[12px] text-[#ABA095]">{tr("بنقراها ونوريكم وين بتنحط قبل لا نحطها.")}</p>
+          <p className="m-0 text-center text-[12px] text-ws-muted">{tr("بنقراها ونوريكم وين بتنحط قبل لا نحطها.")}</p>
         </>
       )}
     </div>

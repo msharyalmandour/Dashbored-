@@ -33,7 +33,7 @@ function Ring({ pct, size, children }: { pct: number; size: number; children: Re
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden className="-rotate-90">
         <defs>
           <linearGradient id="ml-ring" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0" stopColor="#FFC777" />
+            <stop offset="0" stopColor="#FFB547" />
             <stop offset="1" stopColor="#FF7A1A" />
           </linearGradient>
         </defs>
@@ -228,7 +228,7 @@ export default function MinutesLive() {
     return (
       <div className="v3 mx-auto max-w-[640px] px-4 pb-[140px] pt-6">
         <section className="sup-glass">
-          <div className="text-[12px] font-bold text-[#FFB444]">{tr("وضع الاجتماع")}</div>
+          <div className="text-[12px] font-bold text-ws-accent3">{tr("وضع الاجتماع")}</div>
           <h1 className="m-0 mt-1 bg-gradient-to-b from-[#FFF6EC] to-[#E9C9A0] bg-clip-text text-[26px] font-extrabold text-transparent">{tr("نبدأ الاجتماع")}</h1>
           <label className="sup-lbl block" htmlFor="ml-title">
             {tr("عنوان الاجتماع")}
@@ -267,7 +267,7 @@ export default function MinutesLive() {
               {tr("بعدين")}
             </button>
           </div>
-          {!canTranscribeLive() && <p className="m-0 mt-3 text-[13px] text-[#ABA095]">{tr("متصفحكم ما يكتب الكلام — تقدرون تكتبون السطور بأنفسكم.")}</p>}
+          {!canTranscribeLive() && <p className="m-0 mt-3 text-[13px] text-ws-muted">{tr("متصفحكم ما يكتب الكلام — تقدرون تكتبون السطور بأنفسكم.")}</p>}
         </section>
       </div>
     );
@@ -283,7 +283,7 @@ export default function MinutesLive() {
           </button>
         ))}
       </div>
-      <span className="text-[13px] text-[#EAE3DC]">
+      <span className="text-[13px] text-ws-text">
         <b>
           {present}/{d.attendance.length}
         </b>{" "}
@@ -297,13 +297,13 @@ export default function MinutesLive() {
     const sup = c.by === SUP_ID;
     return (
       <div key={c.id} className={`ml-line${c.tag === "decision" ? " dec" : ""}`}>
-        <span className="w-10 flex-none pt-1 text-[12px] text-[#ABA095]" dir="ltr">
+        <span className="w-10 flex-none pt-1 text-[12px] text-ws-muted" dir="ltr">
           {hhmm(c.at)}
         </span>
         {sup ? <DocAvatar name={tr("الدكتورة")} px={28} /> : p ? <Avatar initials="" name={p.name} avatar={p.avatar ?? undefined} px={28} ring="#1A120E" /> : <span className="ml-mic-av" aria-label={tr("من الصوت")}><Mic size={14} aria-hidden /></span>}
         <div className="min-w-0 flex-1">
           <span className={`sup-chip${c.tag === "decision" || c.tag === "task" ? " gold" : ""}`}>{TAG_LABEL[c.tag]}</span>
-          <div className="mt-1 text-[15px] leading-[1.7] text-[#EAE3DC]" dir="auto">
+          <div className="mt-1 text-[15px] leading-[1.7] text-ws-text" dir="auto">
             {c.text}
           </div>
         </div>
@@ -334,16 +334,16 @@ export default function MinutesLive() {
   const building = (
     <section className="sup-glass">
       <div className="flex items-center gap-2">
-        <span className="text-[#FFC777]">✦</span>
+        <span className="text-ws-accent3">✦</span>
         <b className="flex-1 text-[17px]">{tr("المحضر يتكوّن")}</b>
-        <span className="text-[12px] text-[#ABA095]">{tr("لحاله")}</span>
+        <span className="text-[12px] text-ws-muted">{tr("لحاله")}</span>
       </div>
       <div className="sup-sec">{tr("القرارات")}</div>
       {built.decisions ? built.decisions.split("\n").map((x, i) => (
         <div key={i} className="ml-built">
-          <b className="text-[#FFC777]">{i + 1}</b> <span dir="auto">{x}</span>
+          <b className="text-ws-accent3">{i + 1}</b> <span dir="auto">{x}</span>
         </div>
-      )) : <p className="m-0 text-[13px] text-[#ABA095]">{tr("لا شي للحين")}</p>}
+      )) : <p className="m-0 text-[13px] text-ws-muted">{tr("لا شي للحين")}</p>}
       <div className="sup-sec">{tr("بنود العمل")}</div>
       {built.tasks.length ? built.tasks.map((t, i) => {
         const p = who(t.assigneeId);
@@ -354,9 +354,9 @@ export default function MinutesLive() {
             {p && <Avatar initials="" name={p.name} avatar={p.avatar ?? undefined} px={22} ring="#1A120E" />}
           </div>
         );
-      }) : <p className="m-0 text-[13px] text-[#ABA095]">{tr("لا شي للحين")}</p>}
+      }) : <p className="m-0 text-[13px] text-ws-muted">{tr("لا شي للحين")}</p>}
       <div className="sup-sec">{tr("مفتوح")}</div>
-      {built.open ? built.open.split("\n").map((x, i) => <div key={i} className="ml-built" dir="auto">{x}</div>) : <p className="m-0 text-[13px] text-[#ABA095]">{tr("لا شي للحين")}</p>}
+      {built.open ? built.open.split("\n").map((x, i) => <div key={i} className="ml-built" dir="auto">{x}</div>) : <p className="m-0 text-[13px] text-ws-muted">{tr("لا شي للحين")}</p>}
     </section>
   );
 
@@ -371,13 +371,13 @@ export default function MinutesLive() {
               <FileText size={20} aria-hidden />
             </span>
             <div>
-              <div className="text-[12px] font-bold text-[#FFB444]">{tr("انحفظ المحضر · قبل لا ترسلونه")}</div>
-              <h2 id="ml-forgot-h" className="m-0 text-[24px] font-extrabold text-[#F2EBE3]">
+              <div className="text-[12px] font-bold text-ws-accent3">{tr("انحفظ المحضر · قبل لا ترسلونه")}</div>
+              <h2 id="ml-forgot-h" className="m-0 text-[24px] font-extrabold text-ws-text">
                 {tr("نسيتوا شي؟")}
               </h2>
             </div>
           </div>
-          <p className="m-0 mt-2 text-[14px] text-[#E9D3B8]">
+          <p className="m-0 mt-2 text-[14px] text-ws-text-accent">
             {!openReqs.length
               ? tr("ما فيه طلبات مفتوحة من الدكتورة ✓")
               : openReqs.length === 1
@@ -394,7 +394,7 @@ export default function MinutesLive() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <b className="block text-[14px]" dir="auto">{item.title}</b>
-                  <span className="text-[12px] text-[#ABA095]">{covered ? tr("انذكرت بالمحضر ✓") : tr("ما انذكرت")}</span>
+                  <span className="text-[12px] text-ws-muted">{covered ? tr("انذكرت بالمحضر ✓") : tr("ما انذكرت")}</span>
                 </div>
                 {!covered && (
                   <button type="button" className="ci-cream" onClick={() => addForgot(item)}>
@@ -408,11 +408,11 @@ export default function MinutesLive() {
             {tr("أرسلوا المحضر للدكتورة")}
           </button>
           {openReqs.some((x) => !x.covered) && (
-            <button type="button" className="vm-textbtn !text-[#EAE3DC]" onClick={() => openReqs.filter((x) => !x.covered).forEach((x) => addForgot(x.item))}>
+            <button type="button" className="vm-textbtn !text-ws-text" onClick={() => openReqs.filter((x) => !x.covered).forEach((x) => addForgot(x.item))}>
               {tr("أضيفوا الكل للمحضر")}
             </button>
           )}
-          <button type="button" className="vm-textbtn !text-[#ABA095]" onClick={() => { if (teamId) saveDraft(teamId, null); navigate(`/meeting-minutes/${ending.minutesId}`); }}>
+          <button type="button" className="vm-textbtn !text-ws-muted" onClick={() => { if (teamId) saveDraft(teamId, null); navigate(`/meeting-minutes/${ending.minutesId}`); }}>
             {tr("أرسله بعدين")}
           </button>
         </section>
@@ -430,14 +430,14 @@ export default function MinutesLive() {
         </div>
         <div className="mt-4 flex justify-center">
           <Ring pct={pct} size={190}>
-            <div className="text-[46px] font-extrabold leading-none text-[#F2EBE3]" dir="ltr">
+            <div className="text-[46px] font-extrabold leading-none text-ws-text" dir="ltr">
               {clock(elapsed)}
             </div>
-            <div className="mt-2 text-[12px] text-[#ABA095]">{tr("من {0} دقيقة", d.planned)}</div>
+            <div className="mt-2 text-[12px] text-ws-muted">{tr("من {0} دقيقة", d.planned)}</div>
           </Ring>
         </div>
         {agendaNow && (
-          <p className="m-0 mt-3 text-center text-[13px] text-[#E9D3B8]">
+          <p className="m-0 mt-3 text-center text-[13px] text-ws-text-accent">
             {tr("البند {0} من {1} · ", d.current + 1, d.agenda.length)}
             <b>{agendaNow}</b>
           </p>
@@ -466,17 +466,17 @@ export default function MinutesLive() {
     <div className="v3 flex flex-col gap-4 px-6 py-6">
       <section className="sup-glass ml-head">
         <Ring pct={pct} size={124}>
-          <div className="text-[30px] font-extrabold leading-none text-[#F2EBE3]" dir="ltr">
+          <div className="text-[30px] font-extrabold leading-none text-ws-text" dir="ltr">
             {clock(elapsed)}
           </div>
-          <div className="mt-1.5 text-[12px] text-[#ABA095]">{tr("من {0} دقيقة", d.planned)}</div>
+          <div className="mt-1.5 text-[12px] text-ws-muted">{tr("من {0} دقيقة", d.planned)}</div>
         </Ring>
         <div className="min-w-0 flex-1">
           <span className="ml-live">{tr("الاجتماع شغّال")}</span>
           <h1 className="m-0 mt-1 truncate bg-gradient-to-b from-[#FFF6EC] to-[#E9C9A0] bg-clip-text text-[36px] font-extrabold text-transparent">{d.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-4">
             {faces}
-            {d.room && <span className="text-[13px] text-[#ABA095]">{d.room}</span>}
+            {d.room && <span className="text-[13px] text-ws-muted">{d.room}</span>}
           </div>
         </div>
         <button type="button" className="sup-btn-primary !flex-none px-7" disabled={busy} onClick={() => void finish()}>
@@ -488,19 +488,19 @@ export default function MinutesLive() {
           <div className="sup-sec !mt-0">{tr("جدول الأعمال")}</div>
           {d.agenda.length ? d.agenda.map((a, i) => (
             <button key={i} type="button" className={`ml-agenda${i === d.current ? " now" : ""}`} onClick={() => setD({ ...d, current: i })} aria-current={i === d.current}>
-              {i < d.current ? <span className="ml-done" aria-label={tr("خلص")}><Check size={13} /></span> : <b className="w-5 text-center text-[#ABA095]">{i + 1}</b>}
+              {i < d.current ? <span className="ml-done" aria-label={tr("خلص")}><Check size={13} /></span> : <b className="w-5 text-center text-ws-muted">{i + 1}</b>}
               <span className="min-w-0 flex-1 text-start" dir="auto">{a}</span>
-              {i === d.current && <span className="text-[12px] font-bold text-[#FFC777]">{tr("الحين")}</span>}
+              {i === d.current && <span className="text-[12px] font-bold text-ws-accent3">{tr("الحين")}</span>}
             </button>
-          )) : <p className="m-0 text-[13px] text-[#ABA095]">{tr("ما فيه جدول أعمال")}</p>}
+          )) : <p className="m-0 text-[13px] text-ws-muted">{tr("ما فيه جدول أعمال")}</p>}
         </section>
         <section className="sup-glass flex min-h-[420px] flex-col">
           <div className="flex items-center">
             <b className="flex-1 text-[18px]">{tr("اللي انقال")}</b>
-            <span className="text-[12px] text-[#ABA095]">{tr("صوت + كتابة · كل سطر له وسم")}</span>
+            <span className="text-[12px] text-ws-muted">{tr("صوت + كتابة · كل سطر له وسم")}</span>
           </div>
           <div className="mt-2 flex flex-1 flex-col gap-2" aria-live="polite">
-            {d.captures.length ? d.captures.map(line) : <p className="m-auto text-[14px] text-[#ABA095]">{tr("شغّلوا المايك أو اكتبوا أول سطر")}</p>}
+            {d.captures.length ? d.captures.map(line) : <p className="m-auto text-[14px] text-ws-muted">{tr("شغّلوا المايك أو اكتبوا أول سطر")}</p>}
           </div>
           <div className="ml-composer">
             {tagBar}

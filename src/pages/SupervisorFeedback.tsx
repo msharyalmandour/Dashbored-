@@ -196,7 +196,7 @@ export default function SupervisorFeedback() {
       {(messages.length > 0 || isSupabaseConfigured) && (
         <Card tone="paper" className="space-y-3">
           <h3 className="flex items-center gap-2 text-base font-bold text-brand-950">
-            <GraduationCap size={18} className="text-[#FFC777]" />{tr("رسائل المشرفة")}</h3>
+            <GraduationCap size={18} className="text-ws-accent3" />{tr("رسائل المشرفة")}</h3>
           {messages.length === 0 ? (
             <p className="text-xs leading-relaxed text-brand-950/55">{tr("لسا ما وصلتكم رسالة. المشرفة تراسلكم من رابطها (تلقونه بصفحة الفريق) وتظهر هنا وتوصلكم تنبيه بالجرس، وتقدرون تردّون عليها من هنا.")}</p>
           ) : (
@@ -218,7 +218,7 @@ export default function SupervisorFeedback() {
                       {fromSup && (
                         <button
                           onClick={() => toTasks(m.body)}
-                          className="mt-2 flex min-h-[32px] items-center gap-1.5 text-xs font-bold text-[#FF9A3C] underline underline-offset-2 hover:text-[#FFB547]"
+                          className="mt-2 flex min-h-[32px] items-center gap-1.5 text-xs font-bold text-ws-accent2 underline underline-offset-2 hover:text-ws-accent3"
                         >
                           <ClipboardCheck size={12} />{tr("حوّلوها لمهام")}</button>
                       )}

@@ -59,7 +59,7 @@ function ShareSiteRow() {
         href={`https://wa.me/?text=${encodeURIComponent(waMessage)}`}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-[#FFC777]/40 hover:text-[#FFC777]"
+        className="flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/50 transition hover:border-ws-accent3/40 hover:text-ws-accent3"
       >
         <MessageCircle size={13} />{tr(" شاركي الموقع")}</a>
       <button
@@ -165,7 +165,7 @@ export default function Landing() {
       {/* ================= HERO ================= */}
       <section className="relative isolate min-h-[820px] overflow-hidden bg-[#260600] md:min-h-[940px]">
         <div aria-hidden className="ld-breath ld-par absolute top-[120px] h-[720px] w-[720px] rounded-full bg-[#E8400A] opacity-[0.85] blur-[90px] end-[8%]" style={{ ["--k" as string]: 0.18 }} />
-        <div aria-hidden className="ld-breath ld-par absolute top-[300px] h-[380px] w-[460px] rounded-full bg-[#FFB444] blur-[110px] end-[16%]" style={{ ["--k" as string]: 0.1 }} />
+        <div aria-hidden className="ld-breath ld-par absolute top-[300px] h-[380px] w-[460px] rounded-full bg-ws-accent3 blur-[110px] end-[16%]" style={{ ["--k" as string]: 0.1 }} />
         <div aria-hidden className="absolute top-[380px] h-[240px] w-[300px] rounded-full bg-[#FFE27A] opacity-90 blur-[70px] end-[20%]" />
         {/* على الجوال الصورة تقعد بالنص السفلي تحت الكلام عشان الشخص ما يختفي ورا العنوان */}
         <div className="ld-hero-flip absolute inset-0 hidden md:block">
@@ -223,7 +223,7 @@ export default function Landing() {
             <span className="hidden lg:inline-flex">
               <InstallAppButton />
             </span>
-            <LangToggle className="border-white/20 bg-white/[0.08] text-[#F4F0EC] hover:bg-white/[0.14]" />
+            <LangToggle className="border-white/20 bg-white/[0.08] text-ws-text hover:bg-white/[0.14]" />
             <Link to="/login" className="px-4 py-2.5 text-[15px] text-[#D9CFC6] hover:text-white">{tr("دخول")}</Link>
             <Link to="/login?signup=1" className="ld-btn rounded-full bg-[#F6F1EC] px-[22px] py-2.5 text-[15px] font-semibold text-[#1A0F00]">{tr("ابدأوا")}</Link>
           </div>
@@ -233,9 +233,9 @@ export default function Landing() {
           <div className="max-w-[600px]">
             <div {...rise(150)} className="ld-rise ld-glass inline-block rounded-full border border-white/[0.16] bg-white/[0.08] px-[18px] py-[7px] text-sm text-[#F1D9C4]">{tr("لفِرَق بحوث التخرّج")}</div>
             <h1 {...rise(300)} className={`ld-rise ${font} mt-7 text-[38px] font-extrabold leading-[1.25] tracking-[-0.5px] sm:text-[46px] md:text-[68px] md:leading-[1.2] md:tracking-[-1px]`}>{tr("بحثكم يخلص")}<br />
-              <span className="bg-gradient-to-l from-[#FFE3A3] to-[#FFB444] bg-clip-text text-transparent">{tr("بوقته، مو بآخر ليلة")}</span>
+              <span className="bg-gradient-to-l from-[#FFE3A3] to-ws-accent3 bg-clip-text text-transparent">{tr("بوقته، مو بآخر ليلة")}</span>
             </h1>
-            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-[#E6DBD1] [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">{tr("قروب واتساب ضايع، وواحد شايل الشغل كله، وملاحظات المشرفة محد يدري عنها؟ Wesync يجمع فريقكم ومشرفكم وكل مراحل البحث بمكان واحد — كل واحد يعرف وش عليه، ومتى.")}</p>
+            <p {...rise(500)} className="ld-rise mt-6 max-w-[44ch] text-lg font-light text-ws-text [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] md:text-[21px]">{tr("قروب واتساب ضايع، وواحد شايل الشغل كله، وملاحظات المشرفة محد يدري عنها؟ Wesync يجمع فريقكم ومشرفكم وكل مراحل البحث بمكان واحد — كل واحد يعرف وش عليه، ومتى.")}</p>
             <div {...rise(700)} className="ld-rise mt-9 flex flex-wrap items-center gap-3">
               <CtaButton>{tr("ابدأوا فريقكم")}</CtaButton>
               <a href="#how" className={glassBtn}>{tr("شاهدوا كيف يعمل")}</a>
@@ -258,8 +258,8 @@ export default function Landing() {
       <section className="relative mx-auto max-w-[1280px] px-6 pb-16 pt-[120px] sm:px-9">
         <div className="flex flex-wrap gap-6">
           {pillars.map((p, i) => (
-            <div key={p.n} {...fx(i * 160)} className="ld-fx min-w-[280px] flex-1 border-t border-[#FFB444]/40 pt-[26px]">
-              <div className={`${font} text-[15px] font-extrabold text-[#FFB444]`}>{p.n} — {p.k}</div>
+            <div key={p.n} {...fx(i * 160)} className="ld-fx min-w-[280px] flex-1 border-t border-ws-accent3/40 pt-[26px]">
+              <div className={`${font} text-[15px] font-extrabold text-ws-accent3`}>{p.n} — {p.k}</div>
               <h3 className={`${font} mb-2 mt-3 text-[26px] font-semibold leading-[1.45]`}>{p.t}</h3>
               <p className="text-[#BDAFA3]">{p.d}</p>
             </div>
@@ -272,7 +272,7 @@ export default function Landing() {
         className="relative overflow-hidden px-6 pb-[140px] pt-[150px] text-center sm:px-9"
         style={{
           background:
-            "linear-gradient(180deg,#080808 0,#080808 6%,rgba(8,8,8,0) 30%),repeating-linear-gradient(90deg,rgba(255,255,255,0) 0,rgba(255,255,255,.05) 22px,rgba(255,255,255,0) 54px),linear-gradient(180deg,#080808 0,#3A1204 30%,#C24A0A 62%,#FF9A3C 84%,#FFE3B0 100%)",
+            "linear-gradient(180deg,#080808 0,#080808 6%,rgba(8,8,8,0) 30%),repeating-linear-gradient(90deg,rgba(255,255,255,0) 0,rgba(255,255,255,.05) 22px,rgba(255,255,255,0) 54px),linear-gradient(180deg,#080808 0,#3A1204 30%,#C24A0A 62%,#FF8A24 84%,#FFE3B0 100%)",
         }}
       >
         <div {...fx()} className="ld-fx relative mx-auto max-w-[900px]">
@@ -318,7 +318,7 @@ export default function Landing() {
           <h2 className={`${font} text-[38px] font-extrabold leading-[1.3] md:text-[60px]`}>{tr("الليلة الأخيرة قبل التسليم؟")}<br />
             <span className="font-normal">{tr("خلّوها ليلة عادية.")}</span>
           </h2>
-          <p className="mx-auto mb-9 mt-[18px] max-w-xl text-lg font-light text-[#E6DBD1] md:text-xl">{trx("{0} يوم مجانًا بدون بطاقة. ادعوا فريقكم ومشرفكم في دقيقة.", TRIAL_DAYS)}</p>
+          <p className="mx-auto mb-9 mt-[18px] max-w-xl text-lg font-light text-ws-text md:text-xl">{trx("{0} يوم مجانًا بدون بطاقة. ادعوا فريقكم ومشرفكم في دقيقة.", TRIAL_DAYS)}</p>
           <CtaButton big>{tr("ابدأوا فريقكم")}</CtaButton>
         </div>
       </section>
@@ -327,10 +327,10 @@ export default function Landing() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className={`${font} flex items-center gap-2.5 font-semibold text-[#F6F1EC]`}><Logo size={26} /> Wesync</div>
           <nav className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link to="/legal/terms" className="inline-block py-2 hover:text-[#FFB444]">{tr("شروط الاستخدام")}</Link>
-            <Link to="/legal/privacy" className="inline-block py-2 hover:text-[#FFB444]">{tr("سياسة الخصوصية")}</Link>
-            <Link to="/legal/refund" className="inline-block py-2 hover:text-[#FFB444]">{tr("الإلغاء والاسترداد")}</Link>
-            <Link to="/legal/contact" className="inline-block py-2 hover:text-[#FFB444]">{tr("تواصل معنا")}</Link>
+            <Link to="/legal/terms" className="inline-block py-2 hover:text-ws-accent3">{tr("شروط الاستخدام")}</Link>
+            <Link to="/legal/privacy" className="inline-block py-2 hover:text-ws-accent3">{tr("سياسة الخصوصية")}</Link>
+            <Link to="/legal/refund" className="inline-block py-2 hover:text-ws-accent3">{tr("الإلغاء والاسترداد")}</Link>
+            <Link to="/legal/contact" className="inline-block py-2 hover:text-ws-accent3">{tr("تواصل معنا")}</Link>
           </nav>
           <div>© {new Date().getFullYear()} Wesync</div>
         </div>

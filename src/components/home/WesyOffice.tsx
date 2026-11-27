@@ -37,7 +37,7 @@ function Skyline() {
         </linearGradient>
       </defs>
       <rect width="400" height="260" fill="url(#wo-dusk)" />
-      <circle cx="300" cy="215" r="34" fill="#FFC777" opacity=".55" />
+      <circle cx="300" cy="215" r="34" fill="#FFB547" opacity=".55" />
       <g fill="#140805">
         <rect x="0" y="200" width="40" height="60" />
         <rect x="34" y="176" width="26" height="84" />
@@ -64,7 +64,7 @@ const ITEM_ICON: Record<OfficeItemId, LucideIcon> = {
   papers: ScrollText,
   cap: GraduationCap,
 };
-const BOOKS = ["#E9651F", "#FFC777", "#7A2E1C", "#F2EBE3", "#B4430B", "#FFB547", "#3A1504"];
+const BOOKS = ["#E9651F", "#FFB547", "#7A2E1C", "#F2EBE3", "#B4430B", "#FFB547", "#3A1504"];
 
 /** رف ويسي: كل ما ساعدوه بشي (درس من الأكاديمية) تنحط قطعة على الرف مكان كتاب.
     القطعة الجديدة تطلع بحركة وحدة بس (مرة)، والباقي ثابت. */

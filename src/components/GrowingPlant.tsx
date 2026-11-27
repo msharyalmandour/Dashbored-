@@ -22,7 +22,7 @@ export default function GrowingPlant({ className }: { className?: string }) {
         {/* الساق */}
         <path
           d="M60 116 C 58 96 62 78 60 58"
-          stroke="#FFC777"
+          stroke="#FFB547"
           strokeWidth="3.5"
           strokeLinecap="round"
           fill="none"
@@ -35,7 +35,7 @@ export default function GrowingPlant({ className }: { className?: string }) {
         >
           <path
             d="M60 96 C 40 92 26 78 24 62 C 46 64 60 78 60 96 Z"
-            fill="#FFC777"
+            fill="#FFB547"
             opacity="0.85"
           />
         </g>

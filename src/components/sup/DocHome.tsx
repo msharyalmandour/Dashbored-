@@ -8,7 +8,7 @@ import { TEAM_TONE, TONE_RANK, teamStatus, type TeamData, type WaitItem } from "
 /* بوابة الدكتورة — الرئيسية (DocHome2 / DocHomeM2):
    الشريط البرتقالي «أشياء تنتظرك» (3 بلاطات بالكثير، فعل واحد لكل وحدة) ← «يومك» (3 بلاطات، الجاي كريمي) ← كروت الفرق مرتبة باللي يحتاجك أكثر. */
 
-const AV = ["#FFC85A", "#FFB444", "#FFE3C2", "#FF9A5A"];
+const AV = ["#FFC85A", "#FFB547", "#FFE3C2", "#FF9A5A"];
 
 export function DocWaitStrip({ waits, icon, onOpen, onAll }: { waits: WaitItem[]; icon: (w: WaitItem) => ReactNode; onOpen: (w: WaitItem) => void; onAll: () => void }) {
   const list = waits.filter((w) => w.kind !== "radar");

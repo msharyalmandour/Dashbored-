@@ -78,15 +78,15 @@ export function DocBubble({ name, body, time }: { name: string; body: string; ti
       <DocAvatar name={name} />
       <div className="sup-docmsg">
         <div className="flex items-center gap-1.5">
-          <b className="text-[13px] text-[#FFC777]">{name}</b>
-          <span className="rounded-full px-2 py-px text-[12px] font-bold text-[#FFC777]" style={{ background: "rgba(255,199,119,0.16)" }}>
+          <b className="text-[13px] text-ws-accent3">{name}</b>
+          <span className="rounded-full px-2 py-px text-[12px] font-bold text-ws-accent3" style={{ background: "rgba(255,199,119,0.16)" }}>
             {tr("الدكتورة")}
           </span>
         </div>
-        <div className="mt-1 whitespace-pre-wrap text-[15px] text-[#EAE3DC]" dir="auto">
+        <div className="mt-1 whitespace-pre-wrap text-[15px] text-ws-text" dir="auto">
           {body}
         </div>
-        <div className="mt-1 text-[12px] text-[#ABA095]" dir="ltr">
+        <div className="mt-1 text-[12px] text-ws-muted" dir="ltr">
           {time}
         </div>
       </div>
@@ -100,12 +100,12 @@ export function Thread() {
     <svg aria-hidden="true" width="40" height="44" viewBox="0 0 40 44" className="-mb-1 -mt-2 ms-1 block md:hidden">
       <defs>
         <linearGradient id="sup-gth" x1="0" x2="1">
-          <stop offset="0" stopColor="#FFC777" />
+          <stop offset="0" stopColor="#FFB547" />
           <stop offset="1" stopColor="#FF7A1A" />
         </linearGradient>
       </defs>
       <path className="sup-thread" style={{ ["--len" as string]: 50 }} d="M 20 4 C 20 20, 20 26, 20 42" fill="none" stroke="url(#sup-gth)" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="20" cy="4" r="3.5" fill="#FFC777" />
+      <circle cx="20" cy="4" r="3.5" fill="#FFB547" />
     </svg>
   );
 }
@@ -117,11 +117,11 @@ export function SideThread() {
       <path className="sup-thread" style={{ ["--len" as string]: 160 }} d="M 28 4 C 28 70, 6 96, 6 146" fill="none" stroke="url(#sup-gth2)" strokeWidth="2" strokeLinecap="round" />
       <defs>
         <linearGradient id="sup-gth2" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#FFC777" />
+          <stop offset="0" stopColor="#FFB547" />
           <stop offset="1" stopColor="#FF7A1A" />
         </linearGradient>
       </defs>
-      <circle cx="28" cy="4" r="3.5" fill="#FFC777" />
+      <circle cx="28" cy="4" r="3.5" fill="#FFB547" />
     </svg>
   );
 }
@@ -166,14 +166,14 @@ export function RequestCard({
         <div className="flex items-center gap-2.5">
           <span className="sup-ic gold">{I.spark}</span>
           <div className="min-w-0 flex-1 leading-[1.35]">
-            <div className="text-[12px] font-bold text-[#FFB444]">{tr("وعد من الدكتورة")}</div>
-            <div className="text-[15px] font-extrabold text-[#EAE3DC]" dir="auto">
+            <div className="text-[12px] font-bold text-ws-accent3">{tr("وعد من الدكتورة")}</div>
+            <div className="text-[15px] font-extrabold text-ws-text" dir="auto">
               {c.title}
             </div>
           </div>
-          <span className="text-[12px] text-[#ABA095]">{c.due_label || (c.due_at ? formatDateShort(c.due_at.slice(0, 10)) : "")}</span>
+          <span className="text-[12px] text-ws-muted">{c.due_label || (c.due_at ? formatDateShort(c.due_at.slice(0, 10)) : "")}</span>
         </div>
-        <div className="mt-1.5 text-[12px] text-[#ABA095]">{tr("ينضاف لسجل الوعود · نذكّركم بلطف لو تأخر")}</div>
+        <div className="mt-1.5 text-[12px] text-ws-muted">{tr("ينضاف لسجل الوعود · نذكّركم بلطف لو تأخر")}</div>
       </article>
     );
   }
@@ -186,12 +186,12 @@ export function RequestCard({
         <div className="flex items-center gap-2.5">
           <span className="sup-ic gold">{I.spark}</span>
           <div className="min-w-0 flex-1 leading-[1.35]">
-            <div className="text-[12px] font-bold text-[#FFB444]">{tr("صارت مهمة")}</div>
+            <div className="text-[12px] font-bold text-ws-accent3">{tr("صارت مهمة")}</div>
             <div className="truncate text-[15px] font-extrabold" dir="auto">
               {c.title}
             </div>
           </div>
-          {c.important && <span className="text-[#FFC777]">{I.starLine(14)}</span>}
+          {c.important && <span className="text-ws-accent3">{I.starLine(14)}</span>}
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
           {owner && (
@@ -200,10 +200,10 @@ export function RequestCard({
               {first(owner.name)}
             </span>
           )}
-          <span className={s.tone === "gold" ? "font-bold text-[#FFC777]" : s.tone === "warm" ? "font-bold text-[#FFB65C]" : "font-bold text-[#ABA095]"}>{s.text}</span>
+          <span className={s.tone === "gold" ? "font-bold text-ws-accent3" : s.tone === "warm" ? "font-bold text-[#FFB65C]" : "font-bold text-ws-muted"}>{s.text}</span>
           <span className="flex-1" />
           {c.created_task_id && (
-            <Link to={`/tasks?task=${c.created_task_id}`} className="inline-flex min-h-[44px] items-center font-bold text-[#FFC777]">
+            <Link to={`/tasks?task=${c.created_task_id}`} className="inline-flex min-h-[44px] items-center font-bold text-ws-accent3">
               {tr("افتحوا المهمة")}
             </Link>
           )}
@@ -217,10 +217,10 @@ export function RequestCard({
       <div className="flex items-center gap-2.5">
         <span className="sup-ic gold">{I.spark}</span>
         <div className="min-w-0 flex-1 leading-[1.35]">
-          <div className="text-[12px] font-bold text-[#FFB444]">{tr("طلعنا منها مهمة")}</div>
+          <div className="text-[12px] font-bold text-ws-accent3">{tr("طلعنا منها مهمة")}</div>
           {editing ? (
             <input
-              className="mt-0.5 w-full rounded-[10px] border-0 bg-white/[.06] px-2 py-1 text-[17px] font-extrabold text-[#EAE3DC] outline-none focus:ring-2 focus:ring-[#FFC777]"
+              className="mt-0.5 w-full rounded-[10px] border-0 bg-white/[.06] px-2 py-1 text-[17px] font-extrabold text-ws-text outline-none focus:ring-2 focus:ring-ws-accent3"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               aria-label={tr("عنوان المهمة")}
@@ -228,7 +228,7 @@ export function RequestCard({
               dir="auto"
             />
           ) : (
-            <div className="text-[17px] font-extrabold text-[#EAE3DC]" dir="auto">
+            <div className="text-[17px] font-extrabold text-ws-text" dir="auto">
               {title}
             </div>
           )}
@@ -270,7 +270,7 @@ export function RequestCard({
           {I.cal}
           <span className="sr-only">{tr("الموعد")}</span>
           <input type="date" value={due} onChange={(e) => setDue(e.target.value)} />
-          {c.due_label && <span className="text-[12px] text-[#ABA095]">{c.due_label}</span>}
+          {c.due_label && <span className="text-[12px] text-ws-muted">{c.due_label}</span>}
         </label>
       )}
       {isLeader ? (
@@ -287,10 +287,10 @@ export function RequestCard({
               {tr("مو مهمة")}
             </button>
           </div>
-          <div className="mt-2 text-center text-[12px] text-[#ABA095]">{tr("للقائد بس · الدكتورة تشوفها «تحت التنفيذ» أول ما تعتمدونها")}</div>
+          <div className="mt-2 text-center text-[12px] text-ws-muted">{tr("للقائد بس · الدكتورة تشوفها «تحت التنفيذ» أول ما تعتمدونها")}</div>
         </>
       ) : (
-        <div className="mt-3 text-center text-[13px] text-[#ABA095]">{tr("تنتظر اعتماد القائد")}</div>
+        <div className="mt-3 text-center text-[13px] text-ws-muted">{tr("تنتظر اعتماد القائد")}</div>
       )}
     </article>
   );
@@ -309,7 +309,7 @@ export function SupState({ kind, title, sub, onRetry }: { kind: "empty" | "loadi
   if (kind === "error")
     return (
       <div className="sup-glass sup-dim" role="alert">
-        <div className="flex items-center gap-1.5 text-[14px] text-[#E9D3B8]">
+        <div className="flex items-center gap-1.5 text-[14px] text-ws-text-accent">
           {I.info}
           {title}
         </div>
@@ -323,7 +323,7 @@ export function SupState({ kind, title, sub, onRetry }: { kind: "empty" | "loadi
   return (
     <div className="sup-glass text-center">
       <b className="block text-[15px]">{title}</b>
-      {sub && <p className="m-0 mt-1 text-[13px] text-[#E9D3B8]">{sub}</p>}
+      {sub && <p className="m-0 mt-1 text-[13px] text-ws-text-accent">{sub}</p>}
     </div>
   );
 }
@@ -353,13 +353,13 @@ export function Ledger({ rows, docName, action, viewer = "team" }: { rows: Ledge
         <b id="sup-ledger-h" className="flex-1 text-[17px]">
           {tr("سجل الوعود")}
         </b>
-        <span className="rounded-full px-2.5 py-[3px] text-[12px] font-extrabold text-[#FFC777]" style={{ background: "rgba(255,199,119,0.14)" }}>
+        <span className="rounded-full px-2.5 py-[3px] text-[12px] font-extrabold text-ws-accent3" style={{ background: "rgba(255,199,119,0.14)" }}>
           {tr("{0} طلبات · {1} وعود", reqs.length, proms.length)}
         </span>
       </div>
       {!rows.length ? (
-        <p className="m-0 mt-3 text-center text-[13px] text-[#E9D3B8]">
-          <b className="mb-1 block text-[15px] text-[#EAE3DC]">{tr("السجل فاضي")}</b>
+        <p className="m-0 mt-3 text-center text-[13px] text-ws-text-accent">
+          <b className="mb-1 block text-[15px] text-ws-text">{tr("السجل فاضي")}</b>
           {sv ? tr("طلباتكم من الفرق ووعودكم لهم بتتجمع هنا") : tr("طلبات الدكتورة ووعودها بتتجمع هنا")}
         </p>
       ) : (
@@ -369,11 +369,11 @@ export function Ledger({ rows, docName, action, viewer = "team" }: { rows: Ledge
             const s = statusLabel(r);
             return (
               <div key={r.id} className="sup-row">
-                {action ? null : r.important ? <span className="text-[#FFC777]">{I.starLine(14)}</span> : <span style={{ width: 14 }} aria-hidden />}
+                {action ? null : r.important ? <span className="text-ws-accent3">{I.starLine(14)}</span> : <span style={{ width: 14 }} aria-hidden />}
                 <span className="min-w-0 flex-1 text-[14px] font-bold" dir="auto">
                   {r.title}
                 </span>
-                <span className="whitespace-nowrap text-[12px] font-bold" style={{ color: s.tone === "gold" ? "#FFC777" : s.tone === "warm" ? "#FFB65C" : "#ABA095" }}>
+                <span className="whitespace-nowrap text-[12px] font-bold" style={{ color: s.tone === "gold" ? "#FFB547" : s.tone === "warm" ? "#FFB65C" : "#ABA095" }}>
                   {s.text}
                 </span>
                 {r.owner ? <Avatar initials="" name={r.owner.name} avatar={r.owner.avatar ?? undefined} px={24} ring="#1A120E" /> : <span style={{ width: 24 }} aria-hidden />}
@@ -388,8 +388,8 @@ export function Ledger({ rows, docName, action, viewer = "team" }: { rows: Ledge
               <span className="min-w-0 flex-1 text-[14px] font-bold" dir="auto">
                 {r.title}
               </span>
-              <span className="text-[12px] text-[#EAE3DC]">{r.due_label || (r.due_at ? formatDateShort(r.due_at.slice(0, 10)) : "")}</span>
-              <span className="text-[12px] text-[#ABA095]">{r.status === "done" ? tr("تمّ ✓") : remainingLabel(r.due_at)}</span>
+              <span className="text-[12px] text-ws-text">{r.due_label || (r.due_at ? formatDateShort(r.due_at.slice(0, 10)) : "")}</span>
+              <span className="text-[12px] text-ws-muted">{r.status === "done" ? tr("تمّ ✓") : remainingLabel(r.due_at)}</span>
               {action?.(r)}
             </div>
           ))}
@@ -406,8 +406,8 @@ export function ThreadExplainer() {
       <div className="sup-obj" role="img" aria-label={tr("كروت زجاج وخيط ذهبي")} style={{ width: 110, height: 110, flex: "none" }}>
         <img src="/sup/glass.jpg" alt="" width={110} height={110} />
       </div>
-      <div className="text-[14px] leading-[1.7] text-[#E9D3B8]">
-        <b className="block text-[#EAE3DC]">{tr("خيط الالتزام")}</b>
+      <div className="text-[14px] leading-[1.7] text-ws-text-accent">
+        <b className="block text-ws-text">{tr("خيط الالتزام")}</b>
         {tr("كل طلب من الدكتورة ينربط بخيط ذهبي: رسالتها ← المهمة ← الإيصال.")}
       </div>
     </section>
@@ -448,14 +448,14 @@ export function ReceiptCard({
             <img src="/sup/seal.jpg" alt="" width={170} height={170} />
           </div>
         </div>
-        <div className="-mt-2 text-[12px] font-bold tracking-[.06em] text-[#FFB444]">{tr("إيصال إنجاز · {0}", teamName)}</div>
+        <div className="-mt-2 text-[12px] font-bold tracking-[.06em] text-ws-accent3">{tr("إيصال إنجاز · {0}", teamName)}</div>
         <h2 id="sup-rcpt-h" className="mb-0.5 mt-1 bg-gradient-to-b from-[#FFF6EC] to-[#E9C9A0] bg-clip-text text-[30px] font-extrabold text-transparent">
           {tr("طلبك خلص ✓")}
         </h2>
-        <p className="m-0 text-[15px] text-[#EAE3DC]" dir="auto">
+        <p className="m-0 text-[15px] text-ws-text" dir="auto">
           «{quote}»
         </p>
-        <p className="mb-3.5 mt-1 text-[13px] text-[#ABA095]">{[tr("خلّصه {0}", who), when, timing].filter(Boolean).join(" · ")}</p>
+        <p className="mb-3.5 mt-1 text-[13px] text-ws-muted">{[tr("خلّصه {0}", who), when, timing].filter(Boolean).join(" · ")}</p>
       </div>
       {file && (
         <div className="flex items-center gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(0,0,0,0.25)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)" }}>
@@ -468,14 +468,14 @@ export function ReceiptCard({
             </div>
           </div>
           {onOpenFile && (
-            <button type="button" className="flex min-h-[44px] items-center border-0 bg-transparent font-[inherit] text-[13px] font-bold text-[#FFC777]" onClick={onOpenFile}>
+            <button type="button" className="flex min-h-[44px] items-center border-0 bg-transparent font-[inherit] text-[13px] font-bold text-ws-accent3" onClick={onOpenFile}>
               {tr("افتحوه")}
             </button>
           )}
         </div>
       )}
       {acked ? (
-        <p className="m-0 mt-3 text-center text-[14px] font-bold text-[#FFC777]" role="status">
+        <p className="m-0 mt-3 text-center text-[14px] font-bold text-ws-accent3" role="status">
           {tr("وصلنا «تمام» ✓")}
         </p>
       ) : (
@@ -518,24 +518,24 @@ export function ImpactCard({ docName, label, comment, before, after }: { docName
       <div className="flex items-center gap-2.5">
         <span className="sup-ic">{I.pen}</span>
         <b className="flex-1 text-[18px]">{tr("أثر ملاحظتك")}</b>
-        <span className="text-[12px] text-[#ABA095]">{label}</span>
+        <span className="text-[12px] text-ws-muted">{label}</span>
       </div>
       <div className="mt-2.5 flex items-start gap-2 rounded-[14px] px-3 py-2.5" style={{ background: "rgba(255,199,119,0.07)" }}>
         <DocAvatar name={docName} px={24} />
-        <span className="text-[13px] text-[#EAE3DC]" dir="auto">
+        <span className="text-[13px] text-ws-text" dir="auto">
           «{comment}»
         </span>
       </div>
       <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         <div className="rounded-2xl p-3" style={{ background: "rgba(0,0,0,0.22)" }}>
-          <div className="mb-1.5 text-[12px] font-bold text-[#ABA095]">{tr("قبل")}</div>
-          <p className="m-0 whitespace-pre-wrap text-[14px] leading-[1.8] text-[#E9D3B8]" dir="auto">
+          <div className="mb-1.5 text-[12px] font-bold text-ws-muted">{tr("قبل")}</div>
+          <p className="m-0 whitespace-pre-wrap text-[14px] leading-[1.8] text-ws-text-accent" dir="auto">
             <Parts parts={d.before} />
           </p>
         </div>
         <div className="rounded-2xl p-3" style={{ background: "rgba(255,199,119,0.05)", boxShadow: "inset 0 0 0 1px rgba(255,199,119,0.2)" }}>
-          <div className="mb-1.5 text-[12px] font-bold text-[#FFC777]">{tr("بعد · تعدّل النص ✓")}</div>
-          <p className="m-0 whitespace-pre-wrap text-[14px] leading-[1.8] text-[#EAE3DC]" dir="auto">
+          <div className="mb-1.5 text-[12px] font-bold text-ws-accent3">{tr("بعد · تعدّل النص ✓")}</div>
+          <p className="m-0 whitespace-pre-wrap text-[14px] leading-[1.8] text-ws-text" dir="auto">
             <Parts parts={d.after} />
           </p>
         </div>

@@ -23,7 +23,7 @@ const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
 /** لون كل عضو (تدرج الأفاتار + هالة الضوء) — ثابت حسب ترتيبه بالفريق */
 export const PALETTE = [
-  { from: "#FFE08A", to: "#FFB444", tint: "rgba(255,190,80,.7)" },
+  { from: "#FFE08A", to: "#FFB547", tint: "rgba(255,190,80,.7)" },
   { from: "#FFC27A", to: "#FF8A2A", tint: "rgba(255,130,40,.6)" },
   { from: "#FFF3E2", to: "#E7D3BC", tint: "rgba(255,225,190,.45)" },
   { from: "#FF9A5A", to: "#D9500A", tint: "rgba(230,80,20,.6)" },
@@ -106,13 +106,13 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                   <div className="relative">
                     <div
                       className="lux-ring"
-                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#FFC777" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
+                      style={{ ["--lux-p" as string]: `${pct}%`, ["--lux-c" as string]: green ? "#FFB547" : "#FFB65C", ["--lux-glow" as string]: pal.tint }}
                       role="img"
                       aria-label={tr("{0}٪ من المهام خلصت", num(pct))}
                     >
                       <div style={{ background: `linear-gradient(145deg, ${pal.from}, ${pal.to})` }}>{letter(m.name)}</div>
                     </div>
-                    <span className="lux-pres" role="img" style={{ background: on ? "#FFC777" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
+                    <span className="lux-pres" role="img" style={{ background: on ? "#FFB547" : "#6E645C" }} aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")} />
                     <span className="lux-pct">{n0(pct)}٪</span>
                   </div>
                 </div>
@@ -121,13 +121,13 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     <div className="lux-name">{m.name.split(" ")[0]}</div>
                     <div className="v3-mut mt-0.5 text-xs">
                       {m.role === "leader" ? tr("قائد/ة الفريق") : tr("عضو")} ·{" "}
-                      <span style={{ color: on ? "#FFC777" : "var(--ws-c-muted)" }}>{on ? tr("أونلاين الحين") : tr("مو أونلاين")}</span>
+                      <span style={{ color: on ? "#FFB547" : "var(--ws-c-muted)" }}>{on ? tr("أونلاين الحين") : tr("مو أونلاين")}</span>
                     </div>
                   </div>
                   <div className="lux-now">
                     {now ? (
                       <>
-                        <div className="lux-now-k" style={{ color: isCurrent ? "#FFC777" : "#E9C9A0" }}>
+                        <div className="lux-now-k" style={{ color: isCurrent ? "#FFB547" : "#E9C9A0" }}>
                           {isCurrent ? tr("الحين") : tr("الجاي")}
                         </div>
                         <Link to={`/tasks?task=${now.id}`} className="mt-0.5 line-clamp-2 block text-sm font-bold leading-[1.5] hover:underline" dir="auto">
@@ -139,7 +139,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
                     )}
                   </div>
                   <div className="lux-split" aria-hidden>
-                    {done > 0 && <i style={{ width: `${pct}%`, background: "linear-gradient(90deg,#FFE2B0,#FFC777)" }} />}
+                    {done > 0 && <i style={{ width: `${pct}%`, background: "linear-gradient(90deg,#FFE2B0,#FFB547)" }} />}
                     {open > 0 && <i style={{ flex: 1, background: "rgba(255,182,92,.35)" }} />}
                   </div>
                   <div className="flex w-full justify-between text-xs">
@@ -229,7 +229,7 @@ export function MeetLuxCard({ now, style }: { now: Date; style?: CSSProperties }
       <section className="lux-meet v3-rise flex flex-col gap-5" style={style} aria-label={tr("الاجتماع الجاي")}>
         {head}
         <div className="flex flex-wrap items-center gap-4">
-          <span className="grid h-[72px] w-[72px] place-items-center rounded-[22px] bg-[rgba(255,140,40,.14)] text-[#FF9A3C]" aria-hidden>
+          <span className="grid h-[72px] w-[72px] place-items-center rounded-[22px] bg-[rgba(255,140,40,.14)] text-ws-accent2" aria-hidden>
             <CalendarClock size={32} />
           </span>
           <div className="min-w-[180px] flex-1">
@@ -388,7 +388,7 @@ export function WeekLuxCard({ today, now, style }: { today: string; now: Date; s
             const label = day === today ? tr("اليوم") : `${isEn ? d.toLocaleDateString("en", { weekday: "long" }) : weekdayAr(d)} ${num(d.getDate())}`;
             return (
               <div key={day}>
-                <div className="pb-0.5 pt-2.5 text-xs font-extrabold" style={{ color: day === today ? "#FF9A3C" : hasDl ? "#FF8A7A" : "var(--ws-c-muted)" }}>
+                <div className="pb-0.5 pt-2.5 text-xs font-extrabold" style={{ color: day === today ? "#FF8A24" : hasDl ? "#FF8A7A" : "var(--ws-c-muted)" }}>
                   {label}
                 </div>
                 {list.map((e) => {
@@ -476,7 +476,7 @@ export function TeamMini({ tasks, today, style }: { tasks: Task[]; today: string
                     </span>
                     <span
                       className="absolute -bottom-0.5 -start-0.5 h-3 w-3 rounded-full border-2 border-[#120a06]"
-                      style={{ background: on ? "#FFC777" : "#6E645C" }}
+                      style={{ background: on ? "#FFB547" : "#6E645C" }}
                       role="img"
                       aria-label={on ? tr("أونلاين الحين") : tr("مو أونلاين")}
                     />
@@ -490,7 +490,7 @@ export function TeamMini({ tasks, today, style }: { tasks: Task[]; today: string
                       {now ? now.title : tr("ما عليه شي مفتوح")}
                     </span>
                   </span>
-                  <span className="shrink-0 text-sm font-extrabold tabular-nums" style={{ color: pct >= 75 ? "#FFC777" : "var(--ws-c-muted)" }}>
+                  <span className="shrink-0 text-sm font-extrabold tabular-nums" style={{ color: pct >= 75 ? "#FFB547" : "var(--ws-c-muted)" }}>
                     {n0(pct)}٪
                   </span>
                 </Link>

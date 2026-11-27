@@ -211,7 +211,7 @@ function MeetRoomInner({
               {preview.denied && cam && <p className="mt-hint" style={{ textAlign: "center", color: "#FFB2A6" }}>{tr("المتصفح ما سمح بالكاميرا. اسمحوا لها من إعدادات الموقع، أو ادخلوا بدون كاميرا.")}</p>}
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("اجتماع الفريق")}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{tr("اجتماع الفريق")}</div>
               <h1 className="sd-ttl" style={{ fontSize: 30, margin: "2px 0 0", lineHeight: 1.25 }}>
                 {tr("جاهزين تدخلون؟")}
               </h1>

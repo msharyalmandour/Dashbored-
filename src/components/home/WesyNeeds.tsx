@@ -27,10 +27,10 @@ export default function WesyNeeds({ style }: { style?: CSSProperties }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="lux-eye m-0 !text-[12px]">{tr("ويسي يحتاجكم")}</p>
-        <p className="m-0 text-[16px] font-extrabold leading-snug text-[#F2EBE3]">{need.ask}</p>
+        <p className="m-0 text-[16px] font-extrabold leading-snug text-ws-text">{need.ask}</p>
       </div>
       <div className="flex items-center gap-3">
-        <span className="hidden text-[13px] font-bold text-[#ABA095] sm:inline" title={tr("ساعدتوه {0} من {1}", done, total)}>
+        <span className="hidden text-[13px] font-bold text-ws-muted sm:inline" title={tr("ساعدتوه {0} من {1}", done, total)}>
           {tr("رفّه")} <span dir="ltr">{items}/{officeItemIds.length}</span>
         </span>
         <button type="button" className="v3-bd !min-h-[44px] !text-sm" onClick={() => start(next.id)}>

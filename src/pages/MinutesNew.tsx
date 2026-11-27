@@ -135,7 +135,7 @@ export default function MinutesNew() {
 
   return (
     <div className="mx-auto max-w-[760px] space-y-6">
-      <Link to="/meeting-minutes" className="inline-flex items-center gap-1.5 text-sm text-[#B8ADA2] hover:text-[#F4F0EC]">
+      <Link to="/meeting-minutes" className="inline-flex items-center gap-1.5 text-sm text-ws-muted hover:text-ws-text">
         <ArrowRight size={14} />{tr("الاجتماعات")}</Link>
       <ResearchHeader title={tr("محضر جديد")} subtitle={tr("اكتبوا بإيجاز، والبنود تتحول لمهام بمسؤول وموعد.")} />
 
@@ -156,14 +156,14 @@ export default function MinutesNew() {
                 <span
                   className={clsx(
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
-                    on ? "border-transparent bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00]" : done ? "border-[#FFC777]/60 bg-[#FFC777]/15 text-[#FFC777]" : "border-white/20 text-[#B8ADA2]",
+                    on ? "border-transparent bg-gradient-to-l from-ws-accent3 to-ws-accent text-[#1A0F00]" : done ? "border-ws-accent3/60 bg-ws-accent3/15 text-ws-accent3" : "border-white/20 text-ws-muted",
                   )}
                 >
                   {done ? <Check size={15} strokeWidth={3} /> : n}
                 </span>
-                <span className={clsx("hidden text-sm sm:block", on ? "font-bold text-[#F4F0EC]" : "text-[#B8ADA2]")}>{label}</span>
+                <span className={clsx("hidden text-sm sm:block", on ? "font-bold text-ws-text" : "text-ws-muted")}>{label}</span>
               </button>
-              {n < STEPS.length && <span aria-hidden className={clsx("h-px flex-1", done ? "bg-[#FFC777]/50" : "bg-white/15")} />}
+              {n < STEPS.length && <span aria-hidden className={clsx("h-px flex-1", done ? "bg-ws-accent3/50" : "bg-white/15")} />}
             </li>
           );
         })}
@@ -183,14 +183,14 @@ export default function MinutesNew() {
                     onClick={() => setMeetingDate(p.value)}
                     className={clsx(
                       "rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors",
-                      meetingDate === p.value ? "border-[#FF8A24]/70 bg-[#FF6B00]/15 text-[#FFB444]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
+                      meetingDate === p.value ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/[0.14] text-ws-muted hover:text-ws-text",
                     )}
                   >
                     {p.label}
                   </button>
                 ))}
               </div>
-              <p className={clsx("mt-2 text-xs", dateProblem ? "font-semibold text-rose-400" : "text-[#B8ADA2]")} aria-live="polite">
+              <p className={clsx("mt-2 text-xs", dateProblem ? "font-semibold text-rose-400" : "text-ws-muted")} aria-live="polite">
                 {dateProblem ?? (
                   <>
                     {formatDateFull(meetingDate)}
@@ -212,10 +212,10 @@ export default function MinutesNew() {
                       onClick={() => setAttendeeIds((p) => (on ? p.filter((x) => x !== m.id) : [...p, m.id]))}
                       className={clsx(
                         "flex items-center gap-2 rounded-full border py-1.5 ps-1.5 pe-4 text-sm transition-colors",
-                        on ? "border-[#FF8A24]/70 bg-[#FF6B00]/15 text-[#FFB444]" : "border-white/[0.14] text-[#B8ADA2] hover:text-[#F4F0EC]",
+                        on ? "border-ws-accent2/70 bg-ws-accent/15 text-ws-accent3" : "border-white/[0.14] text-ws-muted hover:text-ws-text",
                       )}
                     >
-                      <span className={clsx("flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold", on ? "border-[#FFB444]" : "border-white/25")}>{m.name.trim().charAt(0)}</span>
+                      <span className={clsx("flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold", on ? "border-ws-accent3" : "border-white/25")}>{m.name.trim().charAt(0)}</span>
                       {m.name.split(" ")[0]}
                     </button>
                   );
@@ -228,15 +228,15 @@ export default function MinutesNew() {
         {step === 2 && (
           <>
             {hint && (
-              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#FF8A24]/30 bg-[#FF6B00]/[0.06] p-3.5">
+              <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-ws-accent2/30 bg-ws-accent/[0.06] p-3.5">
                 <AgentOrb size={34} />
                 <p className="min-w-0 flex-1 text-sm">{tr("عندكم جدول أعمال جاهز، تبغون نعبّي النقاط منه؟")}</p>
                 <button
                   type="button"
                   onClick={() => setAgenda(readiness.agendaText)}
-                  className="rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-4 py-1.5 text-xs font-bold text-[#1A0F00]"
+                  className="rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-4 py-1.5 text-xs font-bold text-[#1A0F00]"
                 >{tr("نعم، عبّوها")}</button>
-                <button type="button" onClick={() => setDismissedHint(true)} className="text-xs text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("لا، شكراً")}</button>
+                <button type="button" onClick={() => setDismissedHint(true)} className="text-xs text-ws-muted hover:text-ws-text">{tr("لا، شكراً")}</button>
               </div>
             )}
             <label className="block">
@@ -260,13 +260,13 @@ export default function MinutesNew() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-bold">{tr("البنود المطلوبة")}</p>
-                <p className="text-xs text-[#B8ADA2]">{tr("كل بند يتحول لمهمة بمسؤول وموعد، وتتابعون إنجازها.")}</p>
+                <p className="text-xs text-ws-muted">{tr("كل بند يتحول لمهمة بمسؤول وموعد، وتتابعون إنجازها.")}</p>
               </div>
-              <button type="button" onClick={addRow} className="flex shrink-0 items-center gap-1 rounded-full border border-[#FF8A24]/50 px-3.5 py-1.5 text-xs font-bold text-[#FFB444] hover:bg-[#FF6B00]/10">
+              <button type="button" onClick={addRow} className="flex shrink-0 items-center gap-1 rounded-full border border-ws-accent2/50 px-3.5 py-1.5 text-xs font-bold text-ws-accent3 hover:bg-ws-accent/10">
                 <Plus size={13} />{tr("أضيفوا بند")}</button>
             </div>
             {rows.length === 0 ? (
-              <p className="rounded-2xl bg-white/[0.04] p-4 text-sm text-[#B8ADA2]">{tr("ما فيه بنود. تقدرون تحفظون المحضر بدونها، أو تضيفون بنود تتحول لمهام.")}</p>
+              <p className="rounded-2xl bg-white/[0.04] p-4 text-sm text-ws-muted">{tr("ما فيه بنود. تقدرون تحفظون المحضر بدونها، أو تضيفون بنود تتحول لمهام.")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {rows.map((r) => (
@@ -280,7 +280,7 @@ export default function MinutesNew() {
                       ))}
                     </select>
                     <input type="date" value={r.dueDate} onChange={(e) => patchRow(r.key, { dueDate: e.target.value })} aria-label={tr("الموعد")} className={fieldBox} />
-                    <button type="button" onClick={() => setRows((x) => x.filter((y) => y.key !== r.key))} aria-label={tr("حذف البند")} className="grid place-items-center rounded-full px-2.5 text-[#B8ADA2] hover:bg-rose-500/10 hover:text-rose-400">
+                    <button type="button" onClick={() => setRows((x) => x.filter((y) => y.key !== r.key))} aria-label={tr("حذف البند")} className="grid place-items-center rounded-full px-2.5 text-ws-muted hover:bg-rose-500/10 hover:text-rose-400">
                       <Trash2 size={16} />
                     </button>
                   </li>
@@ -288,10 +288,10 @@ export default function MinutesNew() {
               </ul>
             )}
             <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-white/[0.04] p-4 text-sm">
-              <input type="checkbox" checked={sendToSupervisor} onChange={(e) => setSendToSupervisor(e.target.checked)} className="mt-1 h-4 w-4 accent-[#FF6B00]" />
+              <input type="checkbox" checked={sendToSupervisor} onChange={(e) => setSendToSupervisor(e.target.checked)} className="mt-1 h-4 w-4 accent-ws-accent" />
               <span>
                 <span className="block font-bold">{tr("أرسلوه للمشرف/ة للاعتماد")}</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-[#B8ADA2]">{tr("تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال 48 ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.")}</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-ws-muted">{tr("تعتمده بضغطة وحدة من رابطها بدون تسجيل دخول. ولو ما ردّت خلال 48 ساعة يُحسب معتمدًا تلقائيًا، فما يتعطل شغلكم.")}</span>
               </span>
             </label>
             {error && (
@@ -304,17 +304,17 @@ export default function MinutesNew() {
 
         <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-5">
           {step > 1 ? (
-            <button type="button" onClick={() => setStep((s) => s - 1)} className="rounded-full border border-white/[0.14] px-5 py-2.5 text-sm font-semibold text-[#B8ADA2] hover:text-[#F4F0EC]">{tr("السابق")}</button>
+            <button type="button" onClick={() => setStep((s) => s - 1)} className="rounded-full border border-white/[0.14] px-5 py-2.5 text-sm font-semibold text-ws-muted hover:text-ws-text">{tr("السابق")}</button>
           ) : (
             <span />
           )}
-          <span className={clsx("text-[12px] text-[#B8ADA2] transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
+          <span className={clsx("text-[12px] text-ws-muted transition-opacity", draftSaved ? "opacity-100" : "opacity-0")} aria-live="polite">{tr("المسودة محفوظة")}</span>
           {step < 3 ? (
             <button
               type="button"
               disabled={!canNext}
               onClick={() => setStep((s) => s + 1)}
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-l from-[#FFB444] to-[#FF6B00] px-7 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] transition hover:brightness-110 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent px-7 py-2.5 text-sm font-bold text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6A00] transition hover:brightness-110 disabled:opacity-50"
             >{tr("التالي")}</button>
           ) : (
             <LoadingButton loading={saving} error={failed} loadingText={tr("جاري الحفظ…")} onClick={submit} disabled={!discussion.trim() || !!dateProblem}>{tr("حفظ المحضر")}</LoadingButton>

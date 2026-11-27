@@ -107,9 +107,9 @@ function Choice({ stage, onPick, onNext }: { stage: TeamStage | null; onPick: (s
       <div className="hidden md:block">
         <span aria-hidden className="st-glow" />
         <div className="relative mx-auto max-w-[760px] pt-[140px] text-center">
-          <div className="text-[13px] font-extrabold text-[#FFB444]">{tr("خطوة 1 من 3 · ما نضيّع شغلكم")}</div>
+          <div className="text-[13px] font-extrabold text-ws-accent3">{tr("خطوة 1 من 3 · ما نضيّع شغلكم")}</div>
           <h1 className="lx-h1 !text-[60px]">{tr("وين وصلتوا ببحثكم؟")}</h1>
-          <p className="m-0 mt-2 text-[17px] text-[#E9D3B8]">{tr("ما يحتاج تبدون من الصفر. قولوا لنا وين أنتم، ونجيب شغلكم القديم معكم.")}</p>
+          <p className="m-0 mt-2 text-[17px] text-ws-text-accent">{tr("ما يحتاج تبدون من الصفر. قولوا لنا وين أنتم، ونجيب شغلكم القديم معكم.")}</p>
         </div>
         <div className="relative mt-8 grid grid-cols-4 gap-[18px]" role="radiogroup" aria-label={tr("وين وصلتوا ببحثكم؟")}>
           {STAGE_CHOICES.map((c, i) => (
@@ -117,7 +117,7 @@ function Choice({ stage, onPick, onNext }: { stage: TeamStage | null; onPick: (s
           ))}
         </div>
         <div className="relative mt-6 flex items-center gap-3">
-          <button type="button" className="lx-fix !font-bold !text-[#ABA095]" onClick={() => team && (void saveTeamStage(team.id, "fresh"), navigate("/"))}>
+          <button type="button" className="lx-fix !font-bold !text-ws-muted" onClick={() => team && (void saveTeamStage(team.id, "fresh"), navigate("/"))}>
             {tr("لسه ما بدأنا · ودّونا للبداية")}
           </button>
           <span className="flex-1" />
@@ -131,9 +131,9 @@ function Choice({ stage, onPick, onNext }: { stage: TeamStage | null; onPick: (s
       <div className="flex min-h-[calc(100dvh-210px)] flex-col md:hidden">
         <span aria-hidden className="st-glow !top-[-60px]" />
         <div className="relative pt-16 text-center">
-          <div className="text-[13px] font-extrabold text-[#FFB444]">{tr("خطوة 1 من 3")}</div>
+          <div className="text-[13px] font-extrabold text-ws-accent3">{tr("خطوة 1 من 3")}</div>
           <h1 className="lx-h1 !text-[34px]">{tr("وين وصلتوا ببحثكم؟")}</h1>
-          <p className="m-0 mt-1 text-[15px] text-[#E9D3B8]">{tr("ما يحتاج تبدون من الصفر")}</p>
+          <p className="m-0 mt-1 text-[15px] text-ws-text-accent">{tr("ما يحتاج تبدون من الصفر")}</p>
         </div>
         <div className="relative mt-5 flex flex-col gap-3" role="radiogroup" aria-label={tr("وين وصلتوا ببحثكم؟")}>
           {STAGE_CHOICES.map((c, i) => (
@@ -144,7 +144,7 @@ function Choice({ stage, onPick, onNext }: { stage: TeamStage | null; onPick: (s
         <button type="button" className="st-go mt-6 w-full" disabled={!sel || busy} onClick={() => sel && void save(sel).then(onNext)}>
           {tr("كملوا")}
         </button>
-        <button type="button" className="mx-auto mt-1 min-h-[44px] text-[14px] text-[#ABA095]" onClick={() => team && (void saveTeamStage(team.id, "fresh"), navigate("/"))}>
+        <button type="button" className="mx-auto mt-1 min-h-[44px] text-[14px] text-ws-muted" onClick={() => team && (void saveTeamStage(team.id, "fresh"), navigate("/"))}>
           {tr("لسه ما بدأنا")}
         </button>
       </div>
@@ -169,7 +169,7 @@ function ChoiceCard({ c, on, onClick, i, compact }: { c: (typeof STAGE_CHOICES)[
       <span className="flex items-center gap-3">
         <span className="min-w-0 flex-1">
           <b className={clsx("block leading-[1.35]", compact ? "text-[18px]" : "text-[20px]")}>{c.title}</b>
-          <span className="mt-1 block text-[14px] text-[#E9D3B8]">{c.sub}</span>
+          <span className="mt-1 block text-[14px] text-ws-text-accent">{c.sub}</span>
         </span>
         {compact && on && (
           <span className="st-tick" aria-hidden>
@@ -275,7 +275,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
           <div className="stp-bar" aria-hidden>
             <i style={{ width: `${got.studies.total ? Math.round((got.studies.filed / got.studies.total) * 100) : 0}%` }} />
           </div>
-          <div className="mt-1 text-[12px] font-bold text-[#FFC777]">{tr("{0} من {1} ملف", got.studies.filed, got.studies.total)}</div>
+          <div className="mt-1 text-[12px] font-bold text-ws-accent3">{tr("{0} من {1} ملف", got.studies.filed, got.studies.total)}</div>
           {got.studies.filed < got.studies.total && (
             <button type="button" className="lx-fix !min-h-[32px] !text-[12px]" onClick={() => choose("studies", ".pdf,application/pdf")}>
               {tr("زيدوا")}
@@ -318,7 +318,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
             {tr("مربوط")}
           </span>
         ) : drive === "na" ? (
-          <span className="text-[12px] text-[#ABA095]">{tr("مو مفعّل بعد")}</span>
+          <span className="text-[12px] text-ws-muted">{tr("مو مفعّل بعد")}</span>
         ) : (
           <button type="button" className="st-btn" disabled={drive === "wait"} onClick={() => void connectDrive()}>
             {tr("اربطوه")}
@@ -336,7 +336,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
           </span>
           <div className="min-w-0 flex-1 leading-[1.45]">
             <b className="text-[17px]">{r.title}</b>
-            <div className="text-[14px] text-[#ABA095]">{r.sub}</div>
+            <div className="text-[14px] text-ws-muted">{r.sub}</div>
           </div>
           {r.right}
         </div>
@@ -349,9 +349,9 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
       <input ref={pick} type="file" multiple hidden accept={accept} onChange={(e) => (onFiles(e.target.files), (e.target.value = ""))} />
       <span aria-hidden className="st-glow !top-[-140px] !start-[30%]" />
       <div className="relative">
-        <div className="text-[13px] font-extrabold text-[#FFB444]">{tr("خطوة 2 من 3 · جيبوا شغلكم")}</div>
+        <div className="text-[13px] font-extrabold text-ws-accent3">{tr("خطوة 2 من 3 · جيبوا شغلكم")}</div>
         <h1 className="lx-h1 !text-[38px] md:!text-[60px]">{tr("جيبوا اللي سويتوه")}</h1>
-        <p className="m-0 mt-1.5 text-[15px] text-[#E9D3B8] md:text-[17px]">{tr("اللي عندكم يكفي. ما تحتاجون ترتبونه، احنا نرتبه.")}</p>
+        <p className="m-0 mt-1.5 text-[15px] text-ws-text-accent md:text-[17px]">{tr("اللي عندكم يكفي. ما تحتاجون ترتبونه، احنا نرتبه.")}</p>
       </div>
       <div className="relative mt-6 grid grid-cols-1 items-stretch gap-[18px] lg:grid-cols-[1fr_380px]">
         {list}
@@ -360,7 +360,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
             <Vessel size={220} state="hover" />
           </span>
           <b className="-mt-4 text-[22px]">{tr("ارموها كلها مرة وحدة")}</b>
-          <span className="mt-1 text-[14px] leading-[1.7] text-[#E9D3B8]">
+          <span className="mt-1 text-[14px] leading-[1.7] text-ws-text-accent">
             {tr("نعرف وش كل ملف ونحطه بمكانه.")}
             <br />
             {tr("وتقدرون تراجعون قبل لا نحفظ.")}
@@ -368,7 +368,7 @@ function Bring({ teamId, onNext }: { teamId: string; onNext: () => void }) {
         </button>
       </div>
       <div className="relative mt-6 flex flex-col-reverse items-stretch gap-2 md:flex-row md:items-center md:gap-3">
-        <button type="button" className="min-h-[44px] text-[14px] text-[#ABA095]" onClick={() => navigate("/")}>
+        <button type="button" className="min-h-[44px] text-[14px] text-ws-muted" onClick={() => navigate("/")}>
           {tr("نسويها بعدين")}
         </button>
         <span className="hidden flex-1 md:block" />
@@ -432,7 +432,7 @@ function Result({ teamId, stage }: { teamId: string; stage: TeamStage | null }) 
       <span aria-hidden className="st-glow !top-[-140px] !start-[40%]" />
       <div className="relative flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-[1_1_420px]">
-          <div className="text-[13px] font-extrabold text-[#FFB444]">{tr("خطوة 3 من 3 · هذا بحثكم")}</div>
+          <div className="text-[13px] font-extrabold text-ws-accent3">{tr("خطوة 3 من 3 · هذا بحثكم")}</div>
           <h1 className="lx-h1 !text-[34px] md:!text-[56px]">{overall >= 70 ? tr("أنتم قريبين من النهاية") : overall >= 20 ? tr("أنتم بنص الطريق، مو بالبداية") : tr("بداية مرتبة، وكل شي بمكانه")}</h1>
         </div>
         <div className="st-pct lx-in" role="img" aria-label={tr("{0}% من المقترح", overall)}>
@@ -456,7 +456,7 @@ function Result({ teamId, stage }: { teamId: string; stage: TeamStage | null }) 
             )}
           </div>
           {rows.length === 0 ? (
-            <p className="m-0 py-4 text-[14px] text-[#ABA095]">{tr("ما لقينا أقسام للحين. ارموا ملف المقترح ونقسمه لكم.")}</p>
+            <p className="m-0 py-4 text-[14px] text-ws-muted">{tr("ما لقينا أقسام للحين. ارموا ملف المقترح ونقسمه لكم.")}</p>
           ) : (
             <ul className="m-0 list-none p-0">
               {rows.map((r) => (
@@ -471,7 +471,7 @@ function Result({ teamId, stage }: { teamId: string; stage: TeamStage | null }) 
                         <span className="truncate text-[14px]">{r.owner.name.split(" ")[0]}</span>
                       </>
                     ) : (
-                      <Link to="/proposal" className="text-[14px] font-extrabold text-[#FFC777]">
+                      <Link to="/proposal" className="text-[14px] font-extrabold text-ws-accent3">
                         {tr("حددوا مين")}
                       </Link>
                     )}
@@ -479,7 +479,7 @@ function Result({ teamId, stage }: { teamId: string; stage: TeamStage | null }) 
                   <span className="stp-bar hidden w-[134px] flex-none sm:block" aria-hidden>
                     <i style={{ width: `${r.pct}%` }} />
                   </span>
-                  <span className={clsx("w-[120px] flex-none text-start text-[13px] font-bold", r.done ? "text-[#FFC777]" : "text-[#E9D3B8]")}>{r.note}</span>
+                  <span className={clsx("w-[120px] flex-none text-start text-[13px] font-bold", r.done ? "text-ws-accent3" : "text-ws-text-accent")}>{r.note}</span>
                 </li>
               ))}
             </ul>
@@ -502,7 +502,7 @@ function Result({ teamId, stage }: { teamId: string; stage: TeamStage | null }) 
                 </span>
                 <Link to={n.to} className="min-w-0 flex-1 leading-[1.45]">
                   <b className="block text-[15px]">{n.title}</b>
-                  <span className="block truncate text-[13px] text-[#ABA095]">{n.why}</span>
+                  <span className="block truncate text-[13px] text-ws-muted">{n.why}</span>
                 </Link>
               </li>
             ))}

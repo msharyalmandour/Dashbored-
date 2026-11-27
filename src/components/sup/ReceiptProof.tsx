@@ -28,12 +28,12 @@ export default function ReceiptProof({ task }: { task: Task }) {
   return (
     <div className="flex flex-wrap items-center gap-2.5 rounded-2xl px-3 py-2.5" style={{ background: "rgba(255,199,119,0.06)", boxShadow: "inset 0 0 0 1px rgba(255,199,119,0.18)" }}>
       <div className="min-w-0 flex-1 text-[13px] leading-[1.5]">
-        <b className="block text-[#FFC777]">{tr("ملف للإيصال")}</b>
+        <b className="block text-ws-accent3">{tr("ملف للإيصال")}</b>
         <span className="text-[var(--ws-c-muted)]" dir="auto">
           {c.proof_name ? c.proof_name : tr("لما تخلص المهمة يوصل الدكتورة «طلبك خلص ✓» ومعه هالملف")}
         </span>
         {msg && (
-          <span className="mt-0.5 block text-[#FFC777]" role="status">
+          <span className="mt-0.5 block text-ws-accent3" role="status">
             {msg}
           </span>
         )}

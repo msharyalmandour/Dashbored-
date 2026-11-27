@@ -198,7 +198,7 @@ export function ResearchAgentProvider({ children }: { children: ReactNode }) {
         >
           <span
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${
-              running ? "bg-brand-500" : "bg-[#FFC777]"
+              running ? "bg-brand-500" : "bg-ws-accent3"
             }`}
           >
             {running ? <WSpin size={16} /> : <Check size={16} />}

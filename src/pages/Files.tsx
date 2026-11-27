@@ -35,7 +35,7 @@ const kindIcon: Record<Kind, typeof FileText> = {
 const kindColor: Record<Kind, string> = {
   pdf: "bg-[#ff7a6b]/15 text-[#ff7a6b]",
   doc: "bg-brand-500/15 text-amber-accent-400",
-  sheet: "bg-[#FFC777]/15 text-[#FFC777]",
+  sheet: "bg-ws-accent3/15 text-ws-accent3",
   image: "bg-amber-accent-400/15 text-amber-accent-400",
 };
 

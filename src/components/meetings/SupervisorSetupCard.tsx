@@ -12,7 +12,7 @@ const SENT_KEY = "wesync.supervisorInviteSent";
 function Step({ n, done, title, desc, children }: { n: number; done: boolean; title: string; desc: string; children?: React.ReactNode }) {
   return (
     <li className={clsx(rowSurface, "flex gap-3")}>
-      <span className={clsx("mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-extrabold", done ? "bg-[#FFC777]/20 text-[#FFC777]" : "border border-brand-500/50 text-amber-accent-400")}>
+      <span className={clsx("mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-extrabold", done ? "bg-ws-accent3/20 text-ws-accent3" : "border border-brand-500/50 text-amber-accent-400")}>
         {done ? <Check size={14} strokeWidth={3} /> : n}
       </span>
       <div className="min-w-0 flex-1">

@@ -194,9 +194,9 @@ export default function Login() {
   const clearValidity = (e: React.ChangeEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity("");
 
   const inputClass =
-    "w-full rounded-2xl border border-white/[0.12] bg-white/[0.04] px-[18px] py-3.5 text-[15px] text-white outline-none transition-[border-color,box-shadow] placeholder:text-[#8F8378] focus:border-[#ff8a24]/70 focus:shadow-[0_0_0_4px_rgba(255,138,36,0.14)]";
+    "w-full rounded-2xl border border-white/[0.12] bg-white/[0.04] px-[18px] py-3.5 text-[15px] text-white outline-none transition-[border-color,box-shadow] placeholder:text-[#8F8378] focus:border-ws-accent2/70 focus:shadow-[0_0_0_4px_rgba(255,138,36,0.14)]";
   const glowButtonClass =
-    "w-full rounded-full bg-gradient-to-l from-[#ffb547] to-[#ff6a00] py-4 text-[17px] font-bold text-[#1a0f00] shadow-[0_14px_40px_rgba(255,107,0,0.35)] transition hover:brightness-110 disabled:opacity-60";
+    "w-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent py-4 text-[17px] font-bold text-[#1a0f00] shadow-[0_14px_40px_rgba(255,107,0,0.35)] transition hover:brightness-110 disabled:opacity-60";
   // في النسخة التجريبية (mock) ما فيه إنشاء حساب، فعنوان الإنشاء يطلع بس بالوضع الحقيقي
   const signUpView = isSignUp && mode === "supabase";
 
@@ -233,18 +233,18 @@ export default function Login() {
                         setIsSignUp((v) => !v);
                         setError(null);
                       }}
-                      className="text-sm text-[#B8ADA2]"
+                      className="text-sm text-ws-muted"
                     >
                       {isSignUp ? (
-                        <>{tr("عندك حساب؟ ")}<span className="text-[#FFB444]">{tr("ادخل")}</span>
+                        <>{tr("عندك حساب؟ ")}<span className="text-ws-accent3">{tr("ادخل")}</span>
                         </>
                       ) : (
-                        <>{tr("ما عندك حساب؟ ")}<span className="text-[#FFB444]">{tr("أنشئ واحد")}</span>
+                        <>{tr("ما عندك حساب؟ ")}<span className="text-ws-accent3">{tr("أنشئ واحد")}</span>
                         </>
                       )}
                     </button>
                   )}
-                    <LangToggle className="border-white/20 bg-white/[0.08] text-[#F4F0EC] hover:bg-white/[0.14]" />
+                    <LangToggle className="border-white/20 bg-white/[0.08] text-ws-text hover:bg-white/[0.14]" />
                   </div>
                 </div>
                 <div>
@@ -258,14 +258,14 @@ export default function Login() {
                     )}
                   </h1>
                   {signUpView && !isForgotPassword && (
-                    <p className="mt-2 font-light text-[#B8ADA2]">{tr("14 يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
+                    <p className="mt-2 font-light text-ws-muted">{tr("14 يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
                   )}
                   {inviteTeamId && mode === "supabase" && (
-                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
+                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-ws-accent2/15 px-3 py-1 text-xs font-bold text-ws-accent3">
                       <Users size={13} />{tr("دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل")}</span>
                   )}
                   {!inviteTeamId && referralCode && mode === "supabase" && (
-                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#ff8a24]/15 px-3 py-1 text-xs font-bold text-[#ffb547]">
+                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-ws-accent2/15 px-3 py-1 text-xs font-bold text-ws-accent3">
                       <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة 14 يوم مجانية. لما تبدأون فعليًا تاخذون أسبوعين هدية أنتم وهم، ولما تشتركون شهر 🎉")}</span>
                   )}
                 </div>
@@ -274,7 +274,7 @@ export default function Login() {
               {mode === "supabase" && isForgotPassword ? (
                 <>
                   {resetSent ? (
-                    <p className="rounded-xl bg-[#ff8a24]/10 px-3 py-3 text-center text-sm font-semibold text-[#ffb547]">{tr("تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط الرابط لتعيين كلمة مرور جديدة.")}</p>
+                    <p className="rounded-xl bg-ws-accent2/10 px-3 py-3 text-center text-sm font-semibold text-ws-accent3">{tr("تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط الرابط لتعيين كلمة مرور جديدة.")}</p>
                   ) : (
                     <form onSubmit={handleResetSubmit} className="space-y-3">
                       <label className="block text-sm">
@@ -316,7 +316,7 @@ export default function Login() {
                       setResetSent(false);
                       setResetError(null);
                     }}
-                    className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-ws-accent3 hover:underline"
                   >{tr("الرجوع لتسجيل الدخول")}</button>
                 </>
               ) : mode === "supabase" ? (
@@ -355,8 +355,8 @@ export default function Login() {
                               aria-pressed={gender === g}
                               className={`flex-1 rounded-full px-3 py-2.5 text-sm font-semibold transition-colors ${
                                 gender === g
-                                  ? "bg-gradient-to-l from-[#ffb547] to-[#ff6a00] text-[#1a0f00]"
-                                  : "text-[#B8ADA2] hover:text-white"
+                                  ? "bg-gradient-to-l from-ws-accent3 to-ws-accent text-[#1a0f00]"
+                                  : "text-ws-muted hover:text-white"
                               }`}
                             >
                               {label}
@@ -450,8 +450,8 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={() => setShowManualTeamCode(true)}
-                        className="block w-full text-center text-sm text-[#B8ADA2]"
-                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-[#FFB444]">{tr("ادخله هنا")}</span>
+                        className="block w-full text-center text-sm text-ws-muted"
+                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-ws-accent3">{tr("ادخله هنا")}</span>
                       </button>
                     )}
                   </form>
@@ -462,7 +462,7 @@ export default function Login() {
                         setIsForgotPassword(true);
                         setError(null);
                       }}
-                      className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-[#ffb547] hover:underline"
+                      className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-ws-accent3 hover:underline"
                     >{tr("نسيت كلمة المرور؟")}</button>
                   )}
 
@@ -506,7 +506,7 @@ export default function Login() {
 
                   <button
                     onClick={() => setShowDemoCreds((s) => !s)}
-                    className="mt-4 w-full text-center text-sm font-semibold text-[#ffb547] hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-ws-accent3 hover:underline"
                   >
                     {showDemoCreds ? tr("إخفاء بيانات الدخول التجريبية") : tr("عرض بيانات الدخول التجريبية")}
                   </button>
@@ -529,7 +529,7 @@ export default function Login() {
                             <span className="font-semibold text-white/70">
                               {member.name}
                               {member.role === "leader" && (
-                                <span className="ms-1 text-[#ffb547]">{tr("(قائدة الفريق)")}</span>
+                                <span className="ms-1 text-ws-accent3">{tr("(قائدة الفريق)")}</span>
                               )}
                             </span>
                             <span className="font-mono text-white/40" dir="ltr">

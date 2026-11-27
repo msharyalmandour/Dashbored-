@@ -25,7 +25,7 @@ const statusLabel = {
 };
 
 const statusChip = {
-  completed: "border border-[#FFC777] text-[#FFC777]",
+  completed: "border border-ws-accent3 text-ws-accent3",
   active: "border border-amber-accent-400 text-amber-accent-400",
   "not-started": "border border-brand-950/25 text-brand-950/50",
 };

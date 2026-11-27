@@ -136,11 +136,11 @@ export default function MeetingMinutes() {
             <img src="/sup/pen_hero.jpg" alt="" aria-hidden className="mt-hero-img" />
             <div aria-hidden className="mt-hero-veil" />
             <div className="relative min-w-0 flex-1 md:max-w-[68%]">
-              <div className="text-[13px] font-bold text-[#FFB444]">{liveOn ? tr("اجتماع شغّال الحين") : tr("الاجتماع الجاي")}</div>
+              <div className="text-[13px] font-bold text-ws-accent3">{liveOn ? tr("اجتماع شغّال الحين") : tr("الاجتماع الجاي")}</div>
               <h2 className="lx-h1 !mt-1 !text-[40px] md:!text-[52px]" dir="auto">
                 {nextBooking ? (supName ? tr("{0} مع {1}", formatWeekday(nextBooking.date), supName) : formatWeekday(nextBooking.date)) : tr("ما فيه موعد محجوز")}
               </h2>
-              <p className="m-0 mt-2 flex flex-wrap items-center gap-x-3 text-[15px] text-[#E9D3B8]">
+              <p className="m-0 mt-2 flex flex-wrap items-center gap-x-3 text-[15px] text-ws-text-accent">
                 {nextBooking ? (
                   <>
                     <span>{formatDateShort(nextBooking.date)}</span>
@@ -185,9 +185,9 @@ export default function MeetingMinutes() {
               )}
             </div>
             <div className="mt-count relative self-start md:me-0 md:ms-auto md:self-center" role="timer" aria-label={left ? tr("باقي {0}", left.label) : tr("ما فيه موعد")}>
-              <span className="text-[13px] font-bold text-[#FFB444]">{tr("باقي")}</span>
+              <span className="text-[13px] font-bold text-ws-accent3">{tr("باقي")}</span>
               <b dir="ltr">{left ? left.big : "—"}</b>
-              <span className="mt-1 text-[13px] text-[#E9D3B8]">{left ? left.small : tr("بدون موعد")}</span>
+              <span className="mt-1 text-[13px] text-ws-text-accent">{left ? left.small : tr("بدون موعد")}</span>
             </div>
           </section>
 
@@ -203,27 +203,27 @@ export default function MeetingMinutes() {
             ].map((p) => (
               <button key={p.title} type="button" className="mt-prog text-start" onClick={p.go}>
                 <span className="flex items-center justify-between gap-3">
-                  <b className="text-[16px] text-[#F2EBE3]">{p.title}</b>
-                  <b className="text-[16px] text-[#FFC777]" dir="ltr">
+                  <b className="text-[16px] text-ws-text">{p.title}</b>
+                  <b className="text-[16px] text-ws-accent3" dir="ltr">
                     {p.done}/{p.total}
                   </b>
                 </span>
                 <span className="mtl-bar block" aria-hidden>
                   <i style={{ width: `${p.total ? Math.round((Math.min(p.done, p.total) / p.total) * 100) : 0}%` }} />
                 </span>
-                <span className="text-[13px] font-bold text-[#FFC777]">{p.note}</span>
+                <span className="text-[13px] font-bold text-ws-accent3">{p.note}</span>
               </button>
             ))}
           </section>
 
           {justSaved && (
             <div className={clsx(glassCard, "relative p-4")}>
-              <button onClick={() => setJustSaved(null)} aria-label={tr("إغلاق")} className="absolute end-3 top-3 text-[#B8ADA2] hover:text-[#F4F0EC]">
+              <button onClick={() => setJustSaved(null)} aria-label={tr("إغلاق")} className="absolute end-3 top-3 text-ws-muted hover:text-ws-text">
                 <X size={16} />
               </button>
               <p className="flex items-center gap-2 text-sm font-extrabold">
-                <Check size={16} className="text-[#FFC777]" />{trx("انحفظ محضر {0}", formatDateFull(justSaved.date))}</p>
-              <p className="mt-1 text-xs text-[#B8ADA2]">
+                <Check size={16} className="text-ws-accent3" />{trx("انحفظ محضر {0}", formatDateFull(justSaved.date))}</p>
+              <p className="mt-1 text-xs text-ws-muted">
                 {justSaved.sent ? tr("وانرسل للاعتماد. لو المشرف/ة ما فعّلت الإيميل، أرسلوا لها الرابط بواتساب:") : tr("ما أُرسل للاعتماد. تقدرون ترسلونه من القائمة تحت.")}
               </p>
               {justSaved.sent && supervisorUrl && (
@@ -231,7 +231,7 @@ export default function MeetingMinutes() {
                   href={whatsappUrl(approvalRequestMessage(formatDateFull(justSaved.date), supervisorUrl))}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-xs font-bold text-[#FFB444] hover:bg-[#FF6B00]/10"
+                  className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-ws-accent2/50 px-4 py-1.5 text-xs font-bold text-ws-accent3 hover:bg-ws-accent/10"
                 >
                   <MessageCircle size={14} />{tr("أرسلوا الرابط بواتساب")}</a>
               )}
@@ -247,7 +247,7 @@ export default function MeetingMinutes() {
                 <h2 id="mt-min-h" className="lx-h2 flex-1">
                   {tr("المحاضر")}
                 </h2>
-                <span className="text-[13px] text-[#ABA095]">{tr("{0} محاضر · {1} معتمدة", a.minutes.length, approvedCount)}</span>
+                <span className="text-[13px] text-ws-muted">{tr("{0} محاضر · {1} معتمدة", a.minutes.length, approvedCount)}</span>
               </div>
               <MinutesList
                 minutes={a.minutes}
@@ -278,7 +278,7 @@ export default function MeetingMinutes() {
                   </h2>
                 </div>
                 {recentDecisions.length === 0 ? (
-                  <p className="m-0 mt-2 text-[14px] text-[#ABA095]">{tr("ما فيه قرارات للحين. اسألوا المشرف/ة بضغطة من تبويب القرارات.")}</p>
+                  <p className="m-0 mt-2 text-[14px] text-ws-muted">{tr("ما فيه قرارات للحين. اسألوا المشرف/ة بضغطة من تبويب القرارات.")}</p>
                 ) : (
                   <ul className="m-0 list-none p-0">
                     {recentDecisions.map((d) => (
@@ -286,10 +286,10 @@ export default function MeetingMinutes() {
                         <span className={clsx("mt-dec-ic", d.status === "answered" ? "done" : "wait")} aria-hidden>
                           {d.status === "answered" ? <Check size={14} strokeWidth={3} /> : <CircleHelp size={15} />}
                         </span>
-                        <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-[#F2EBE3]" dir="auto" title={d.question}>
+                        <span className="min-w-0 flex-1 truncate text-[14px] font-bold text-ws-text" dir="auto" title={d.question}>
                           {d.status === "answered" && d.chosenIndex !== null && d.options[d.chosenIndex] ? d.options[d.chosenIndex] : d.question}
                         </span>
-                        <span className={clsx("text-[12px] font-extrabold", d.status === "answered" ? "text-[#FFC777]" : "text-[#ABA095]")}>{d.status === "answered" ? tr("معتمد") : tr("ينتظر")}</span>
+                        <span className={clsx("text-[12px] font-extrabold", d.status === "answered" ? "text-ws-accent3" : "text-ws-muted")}>{d.status === "answered" ? tr("معتمد") : tr("ينتظر")}</span>
                       </li>
                     ))}
                   </ul>
@@ -300,8 +300,8 @@ export default function MeetingMinutes() {
                   <GoogleDriveLogo size={22} />
                 </span>
                 <span className="min-w-0 flex-1 leading-[1.4]">
-                  <b className="block text-[16px] text-[#F2EBE3]">{driveStatus?.connected ? tr("درايف الفريق مربوط") : tr("درايف الفريق: {0}", driveValue)}</b>
-                  <span className="block text-[13px] text-[#ABA095]">{driveStatus?.connected ? tr("كل محضر معتمد PDF ينحفظ لحاله") : tr("اربطوه عشان المحاضر تنحفظ لحالها")}</span>
+                  <b className="block text-[16px] text-ws-text">{driveStatus?.connected ? tr("درايف الفريق مربوط") : tr("درايف الفريق: {0}", driveValue)}</b>
+                  <span className="block text-[13px] text-ws-muted">{driveStatus?.connected ? tr("كل محضر معتمد PDF ينحفظ لحاله") : tr("اربطوه عشان المحاضر تنحفظ لحالها")}</span>
                 </span>
                 <span className="lx-fix">{driveStatus?.connected ? tr("افتحوه") : tr("اربطوه")}</span>
               </button>
@@ -326,7 +326,7 @@ export default function MeetingMinutes() {
                 <b>{formatDateFull(nextBooking.date)}</b> · {nextBooking.time}
               </>
             ) : (
-              <span className="text-[#B8ADA2]">{tr("ما فيه اجتماع محجوز. احجزوا موعد من تبويب «المواعيد».")}</span>
+              <span className="text-ws-muted">{tr("ما فيه اجتماع محجوز. احجزوا موعد من تبويب «المواعيد».")}</span>
             )}
           </p>
           {!nextBooking && (
@@ -336,7 +336,7 @@ export default function MeetingMinutes() {
                 setDlg(null);
                 setTab("appointments");
               }}
-              className="rounded-full border border-[#FF8A24]/50 px-4 py-1.5 text-sm font-bold text-[#FFB444] hover:bg-[#FF6B00]/10"
+              className="rounded-full border border-ws-accent2/50 px-4 py-1.5 text-sm font-bold text-ws-accent3 hover:bg-ws-accent/10"
             >{tr("افتحوا المواعيد")}</button>
           )}
           {canWrite && (
@@ -367,7 +367,7 @@ export default function MeetingMinutes() {
         {driveStatus && (driveStatus.configured || driveStatus.unreachable) ? (
           <DriveCard status={driveStatus} onChanged={refreshDrive} />
         ) : (
-          <p className="text-sm leading-relaxed text-[#B8ADA2]">{tr("ربط الدرايف مو مفعّل على الخادم بعد.")}</p>
+          <p className="text-sm leading-relaxed text-ws-muted">{tr("ربط الدرايف مو مفعّل على الخادم بعد.")}</p>
         )}
       </Dialog>
     </div>

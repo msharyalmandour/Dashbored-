@@ -380,7 +380,7 @@ export default function Methodology() {
               <h3 id="m-link-title" className="m-0 text-[18px] font-extrabold">
                 {tr("مربوطة بباقي البحث")}
               </h3>
-              <div className="mt-0.5 text-[13px] text-[#ABA095]">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
+              <div className="mt-0.5 text-[13px] text-ws-muted">{tr("المنهجية تنسحب للموافقة الأخلاقية، وملخصها ينكتب في قسم «المنهجية» بالمقترح.")}</div>
               <div className="mt-2.5">
                 <div className="wf-kv">
                   <span>{tr("الأجزاء الجاهزة")}</span>
@@ -393,7 +393,7 @@ export default function Methodology() {
                 <div className="wf-kv">
                   <span>{tr("قسم المقترح")}</span>
                   <b>
-                    <Link to="/proposal?section=methodology" className="text-[#FFC777]">
+                    <Link to="/proposal?section=methodology" className="text-ws-accent3">
                       {tr("القسم")} <span className="wf-num">7</span> · {tr("المنهجية")}
                     </Link>
                   </b>
@@ -401,7 +401,7 @@ export default function Methodology() {
                 <div className="wf-kv">
                   <span>{tr("الموافقة الأخلاقية")}</span>
                   <b>
-                    <Link to="/ethical-approval" className="text-[#FFC777]">
+                    <Link to="/ethical-approval" className="text-ws-accent3">
                       {tr("افتحوها")}
                     </Link>
                   </b>
@@ -421,7 +421,7 @@ export default function Methodology() {
                 )}
               </div>
               {notes.length === 0 ? (
-                <p className="m-0 mt-2 text-[14px] text-[#ABA095]">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
+                <p className="m-0 mt-2 text-[14px] text-ws-muted">{tr("ما فيه ملاحظات مفتوحة على المنهجية.")}</p>
               ) : (
                 <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
                   {notes.slice(0, 2).map((n) => (

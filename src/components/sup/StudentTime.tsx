@@ -82,10 +82,10 @@ export function AwayStrip({ away, pending = 0, to = "/feedback" }: { away: DashA
     <section className="sd-strip sd-in" aria-label={tr("{0} مو متاح/ة", who)}>
       <Hourglass px={64} />
       <div style={{ flex: 1, lineHeight: 1.45, minWidth: 0 }}>
-        <b style={{ display: "block", fontSize: 15, color: "#EAE3DC" }}>{tr("{0} مو متاح/ة لين {1}", who, formatDateShort(away.to))}</b>
+        <b style={{ display: "block", fontSize: 15, color: "#F2EBE3" }}>{tr("{0} مو متاح/ة لين {1}", who, formatDateShort(away.to))}</b>
         {bits.length > 0 && <span style={{ fontSize: 12, color: "#E9D3B8" }}>{bits.join(" · ")}</span>}
       </div>
-      <Link to={to} style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#EAE3DC" }}>
+      <Link to={to} style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "#F2EBE3" }}>
         {tr("التفاصيل")}
         <Chev size={14} aria-hidden />
       </Link>
@@ -152,7 +152,7 @@ export function ExtensionSheet({
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <Hourglass px={76} />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("طلب تمديد رسمي")}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{tr("طلب تمديد رسمي")}</div>
           <div className="sd-ttl" style={{ fontSize: 24 }}>
             {tr("تحتاجون وقت أكثر؟")}
           </div>
@@ -176,7 +176,7 @@ export function ExtensionSheet({
             {n && n > 0 ? (
               <>
                 {" · "}
-                <span style={{ color: "#FFC777" }}>+{dayCount(n)}</span>
+                <span style={{ color: "#FFB547" }}>+{dayCount(n)}</span>
               </>
             ) : null}
           </div>
@@ -210,7 +210,7 @@ export function ExtensionSheet({
             </span>
             <label style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 44 }}>
               {tr("أو تاريخ ثاني")}
-              <input type="date" value={pick} min={min} onChange={(e) => e.target.value && setPick(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: 0, borderRadius: 10, color: "#EAE3DC", colorScheme: "dark", padding: "6px 8px", font: "inherit" }} />
+              <input type="date" value={pick} min={min} onChange={(e) => e.target.value && setPick(e.target.value)} style={{ background: "rgba(255,255,255,0.05)", border: 0, borderRadius: 10, color: "#F2EBE3", colorScheme: "dark", padding: "6px 8px", font: "inherit" }} />
             </label>
           </div>
 

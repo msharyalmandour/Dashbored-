@@ -3,9 +3,9 @@ import type { ApprovalStatus } from "../../data/types";
 import { APPROVAL_LABEL } from "../../lib/meetings";
 
 const tone: Record<(typeof APPROVAL_LABEL)[ApprovalStatus]["tone"], string> = {
-  muted: "border-white/15 bg-white/[0.04] text-[#B8ADA2]",
-  amber: "border-[#FFB444]/40 bg-[#FFB444]/10 text-[#FFB444]",
-  green: "border-[#FFC777]/40 bg-[#FFC777]/10 text-[#FFC777]",
+  muted: "border-white/15 bg-white/[0.04] text-ws-muted",
+  amber: "border-ws-accent3/40 bg-ws-accent3/10 text-ws-accent3",
+  green: "border-ws-accent3/40 bg-ws-accent3/10 text-ws-accent3",
   rose: "border-rose-400/40 bg-rose-500/10 text-rose-300",
 };
 

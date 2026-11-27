@@ -105,10 +105,10 @@ export default function SvCommitments({ token, name, teamName, openTarget, onToa
                 if (note.trim()) void ack(c.id, note.trim());
               }}
             >
-              <label htmlFor={`sv-note-${c.id}`} className="text-[13px] font-bold text-[#ABA095]">
+              <label htmlFor={`sv-note-${c.id}`} className="text-[13px] font-bold text-ws-muted">
                 {tr("ملاحظتك توصل للفريق بالمحادثة")}
               </label>
-              <textarea id={`sv-note-${c.id}`} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={1500} autoFocus className="w-full resize-none rounded-[14px] border-0 bg-white/5 p-3 font-[inherit] text-[14px] text-[#EAE3DC] outline-none focus-visible:ring-2 focus-visible:ring-[#FFC777]" dir="auto" />
+              <textarea id={`sv-note-${c.id}`} value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={1500} autoFocus className="w-full resize-none rounded-[14px] border-0 bg-white/5 p-3 font-[inherit] text-[14px] text-ws-text outline-none focus-visible:ring-2 focus-visible:ring-ws-accent3" dir="auto" />
               <button type="submit" className="sup-btn-cream" disabled={!note.trim() || busy === c.id}>
                 {tr("أرسلوا الملاحظة")}
               </button>

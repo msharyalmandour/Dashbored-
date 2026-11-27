@@ -191,7 +191,7 @@ export default function DocCal({ teams, today, name, onOpenTeam, onToast, onChan
                 {formatWeekday(req.b.date)} · <span dir="ltr">{req.b.time}</span>
               </b>
               <span style={{ flex: 1 }} />
-              <span style={{ fontSize: 12, fontWeight: 800, color: free ? "#FFC777" : "#FF8A7A" }}>{free ? tr("فاضية ✓") : tr("فيه تعارض")}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: free ? "#FFB547" : "#FF8A7A" }}>{free ? tr("فاضية ✓") : tr("فيه تعارض")}</span>
             </div>
             <div className="cal-acts">
               <button type="button" className="dc-send" disabled={busy} onClick={approve}>

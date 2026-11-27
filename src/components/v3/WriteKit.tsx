@@ -19,7 +19,7 @@ function Ring({ pct }: { pct: number }) {
         <defs>
           <linearGradient id="wf-ring" x1="0" x2="1">
             <stop offset="0" stopColor="#FF6A00" />
-            <stop offset="1" stopColor="#FFC777" />
+            <stop offset="1" stopColor="#FFB547" />
           </linearGradient>
         </defs>
       </svg>
@@ -54,8 +54,8 @@ export function SectionRail({
       <div className="flex items-center gap-3 px-1.5 pb-2.5">
         <div className="min-w-0 flex-1">
           <div className="text-[20px] font-extrabold">{title}</div>
-          <div className="text-[13px] text-[#ABA095]">
-            <b className="wf-num text-[#EAE3DC]">{done}</b> {tr("من")} <b className="wf-num text-[#EAE3DC]">{items.length}</b> {tr("خلصت")}
+          <div className="text-[13px] text-ws-muted">
+            <b className="wf-num text-ws-text">{done}</b> {tr("من")} <b className="wf-num text-ws-text">{items.length}</b> {tr("خلصت")}
           </div>
         </div>
         <Ring pct={pct} />
@@ -152,19 +152,19 @@ export function EditorCard({
       <div className="ws-paper-margin" aria-hidden />
       <div className="flex items-start gap-3.5">
         <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-bold text-[#ABA095]">
+          <div className="text-[13px] font-bold text-ws-muted">
             {tr("القسم")} <span className="wf-num">{index}</span> {tr("من")} <span className="wf-num">{total}</span>
           </div>
           <h2 id={titleId} className="m-0 text-[24px] font-extrabold leading-[1.25] sm:text-[30px]">
             {title}
           </h2>
-          {!isEn && en && <div className="text-sm text-[#ABA095]" dir="ltr" style={{ textAlign: "right" }}>{en}</div>}
+          {!isEn && en && <div className="text-sm text-ws-muted" dir="ltr" style={{ textAlign: "right" }}>{en}</div>}
         </div>
         <ModeToggle paper={paper} onChange={onPaper} />
       </div>
       {hint && (
         <div className="wf-hint ws-dark-only">
-          <Lightbulb size={17} className="mt-0.5 shrink-0 text-[#FFC777]" aria-hidden />
+          <Lightbulb size={17} className="mt-0.5 shrink-0 text-ws-accent3" aria-hidden />
           <span>{hint}</span>
         </div>
       )}
@@ -176,8 +176,8 @@ export function EditorCard({
 /** «{n} كلمة · ينحفظ تلقائيًا» */
 export function WordsSaved({ words, extra }: { words: number; extra?: ReactNode }) {
   return (
-    <span className="text-[13px] text-[#ABA095]">
-      <b className="wf-num text-[#EAE3DC]">{words}</b> {tr("كلمة")} · {tr("ينحفظ تلقائيًا")}
+    <span className="text-[13px] text-ws-muted">
+      <b className="wf-num text-ws-text">{words}</b> {tr("كلمة")} · {tr("ينحفظ تلقائيًا")}
       {extra}
     </span>
   );

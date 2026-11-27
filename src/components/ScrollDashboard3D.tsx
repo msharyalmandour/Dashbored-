@@ -57,7 +57,7 @@ function Frame({ src, alt, chip }: { src: string; alt: string; chip?: string }) 
         <div className="flex items-center gap-1.5 border-b border-white/10 bg-neutral-800/80 px-3.5 py-2">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#FFC777]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-ws-accent3" />
         </div>
         <img src={src} alt={alt} decoding="async" className="block w-full" draggable={false} />
       </div>

@@ -171,7 +171,7 @@ function Row({ m, me, docName, roster, myRsvp, now, onRsvp, onRemove }: { m: Sup
               <Check size={14} aria-hidden />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#FFC777" }}>{tr("صار مهمة")}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#FFB547" }}>{tr("صار مهمة")}</span>
               <b style={{ display: "block", fontSize: 14 }}>{String(p.title ?? m.body)}</b>
             </div>
             {p.assignee_name && <span className="dc-av sm">{avatarLetter(String(p.assignee_name))}</span>}
@@ -186,7 +186,7 @@ function Row({ m, me, docName, roster, myRsvp, now, onRsvp, onRemove }: { m: Sup
                 <b dir="ltr">{new Date(`${p.date}T12:00:00`).getDate()}</b>
               </span>
               <div style={{ minWidth: 0 }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: "#FFC777" }}>{tr("موعد اجتماع")}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: "#FFB547" }}>{tr("موعد اجتماع")}</span>
                 <b style={{ display: "block", fontSize: 15 }}>
                   <span dir="ltr">{String(p.time ?? "")}</span>
                   {p.place ? ` · ${p.place}` : ""}

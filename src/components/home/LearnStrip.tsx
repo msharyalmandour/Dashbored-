@@ -18,15 +18,15 @@ export default function LearnStrip({ style }: { style?: React.CSSProperties }) {
         <GraduationCap size={18} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-extrabold text-[#F2EBE3]">
-          {tr("تعلّموا Wesync")} <span className="text-[13px] font-bold text-[#ABA095]" dir="ltr">· {done}/{total}</span>
+        <span className="block text-[15px] font-extrabold text-ws-text">
+          {tr("تعلّموا Wesync")} <span className="text-[13px] font-bold text-ws-muted" dir="ltr">· {done}/{total}</span>
         </span>
-        <span className="block truncate text-[13px] text-[#ABA095]">{tr("الدرس الجاي: {0}", next.title)}</span>
+        <span className="block truncate text-[13px] text-ws-muted">{tr("الدرس الجاي: {0}", next.title)}</span>
         <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10" aria-hidden>
-          <span className="block h-full rounded-full bg-gradient-to-l from-[#FFC777] to-[#FF6A00]" style={{ width: `${Math.max(4, pct)}%` }} />
+          <span className="block h-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent" style={{ width: `${Math.max(4, pct)}%` }} />
         </span>
       </span>
-      <ChevronLeft size={20} className="shrink-0 text-[#ABA095] ltr:rotate-180" aria-hidden />
+      <ChevronLeft size={20} className="shrink-0 text-ws-muted ltr:rotate-180" aria-hidden />
     </Link>
   );
 }

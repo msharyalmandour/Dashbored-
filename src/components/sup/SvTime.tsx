@@ -88,7 +88,7 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         <Hourglass className="sd-ext-obj" />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("طلب تمديد · {0}", team)}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{tr("طلب تمديد · {0}", team)}</div>
           <div className="sd-ttl" style={{ fontSize: 24, lineHeight: 1.3 }}>
             {ext.taskTitle}
           </div>
@@ -97,13 +97,13 @@ export function ExtCard({ ext, team, token, name, primary, onDone }: { ext: Dash
               {avatarLetter(ext.requestedBy)}
             </span>
             <span>
-              {ext.requestedBy} · {tr("طلب")} <b style={{ color: "#FFC777" }}>{n ? `+${dayCount(n)}` : ""}</b> · {tr("من {0} ← {1}", dayLabel(ext.currentDue), dayLabel(ext.requestedDue))}
+              {ext.requestedBy} · {tr("طلب")} <b style={{ color: "#FFB547" }}>{n ? `+${dayCount(n)}` : ""}</b> · {tr("من {0} ← {1}", dayLabel(ext.currentDue), dayLabel(ext.requestedDue))}
             </span>
           </div>
         </div>
       </div>
       <div className="sd-why">
-        <span style={{ color: "#FFC777" }}>
+        <span style={{ color: "#FFB547" }}>
           {tr("السبب:")} {reasonLabel(ext.reason)}
           {ext.note ? " ·" : ""}
         </span>{" "}
@@ -181,7 +181,7 @@ export function logText(l: Pick<DashLog, "action" | "taskTitle" | "from" | "to" 
       return tr("رجوع من «مو متاح/ة»");
   }
 }
-const LOG_DOT: Record<string, string> = { requested: "#FF9A3C", approved: "#FFC777", countered: "#FFC777", due_changed: "#FFC777", deadline_changed: "#FFC777" };
+const LOG_DOT: Record<string, string> = { requested: "#FF8A24", approved: "#FFB547", countered: "#FFB547", due_changed: "#FFB547", deadline_changed: "#FFB547" };
 
 export function TimeLog({ log, title = tr("السجل"), limit = 8, showTeam }: { log: (DashLog & { team?: string })[]; title?: string; limit?: number; showTeam?: boolean }) {
   return (
@@ -193,7 +193,7 @@ export function TimeLog({ log, title = tr("السجل"), limit = 8, showTeam }: 
           <div key={l.id} className="sd-log">
             <i style={{ background: LOG_DOT[l.action] ?? "#ABA095" }} />
             <div style={{ flex: 1, lineHeight: 1.5 }}>
-              <div style={{ fontSize: 14, color: "#EAE3DC" }}>{logText(l)}</div>
+              <div style={{ fontSize: 14, color: "#F2EBE3" }}>{logText(l)}</div>
               <div style={{ fontSize: 12, color: "#ABA095" }}>
                 {[showTeam ? l.team : "", l.actorName, relTime(l.at)]
                   .filter(Boolean)
@@ -245,7 +245,7 @@ export function DeadlinesSheet({ token, team, dash, name, onClose, onSaved }: { 
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <Hourglass px={72} />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{team}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{team}</div>
           <div id={hid} className="sd-ttl" style={{ fontSize: 24 }}>
             {tr("المواعيد بيدكم")}
           </div>
@@ -356,7 +356,7 @@ export function AwaySheet({
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <Hourglass px={84} />
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB444" }}>{tr("إجازة · مؤتمر · ضغط")}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#FFB547" }}>{tr("إجازة · مؤتمر · ضغط")}</div>
           <div className="sd-ttl" style={{ fontSize: 24 }}>
             {tr("مو متاح/ة لفترة؟")}
           </div>

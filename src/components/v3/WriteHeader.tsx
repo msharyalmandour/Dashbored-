@@ -90,7 +90,7 @@ export default function WriteHeader({ fallbackTitle, style, live }: { fallbackTi
           {typeLabel && <span className="wf-chip">{method ? `${typeLabel} · ${method}` : typeLabel}</span>}
           {supervisor && <span className="wf-chip">{tr("المشرف/ة {0}", supervisor)}</span>}
           {daysLeft !== null && (
-            <span className="wf-chip" style={{ color: daysLeft < 0 ? "#FF8A7A" : "#FFC777" }}>
+            <span className="wf-chip" style={{ color: daysLeft < 0 ? "#FF8A7A" : "#FFB547" }}>
               {daysLeft < 0 ? tr("فات موعد التسليم") : (
                 <>
                   {tr("التسليم بعد")} <span className="wf-num">{daysLeft}</span> {tr("يوم")}

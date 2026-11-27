@@ -288,7 +288,7 @@ export default function VoiceMode({ teamId, roster, onClose, onTypeInstead, onSe
       {phase === "sorting" && result && (
         <div className="vm-sort">
           <div className="vm-fi flex items-center gap-2.5 text-[#FFF4EA]">
-            <span className="text-[#FFC777]">✦</span>
+            <span className="text-ws-accent3">✦</span>
             <b className="text-[20px]">{result.items.length ? tr("طلع من كلامك {0} أشياء", result.items.length) : tr("ما لقطنا مهام من كلامك")}</b>
           </div>
           {result.items.map((it, i) => {

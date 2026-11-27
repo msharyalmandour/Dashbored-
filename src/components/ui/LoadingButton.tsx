@@ -18,8 +18,8 @@ type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
 
 const base = "inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed";
 const variants = {
-  primary: "bg-gradient-to-l from-[#FFB444] to-[#FF6B00] text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6B00] hover:brightness-110 disabled:opacity-60",
-  ghost: "border border-[#FF6B00]/40 text-[#FFB444] hover:bg-[#FF6B00]/10 disabled:opacity-60",
+  primary: "bg-gradient-to-l from-ws-accent3 to-ws-accent text-[#1A0F00] shadow-[0_8px_28px_-8px_#FF6A00] hover:brightness-110 disabled:opacity-60",
+  ghost: "border border-ws-accent/40 text-ws-accent3 hover:bg-ws-accent/10 disabled:opacity-60",
 };
 
 /** زر بحالات: عادي ← تحميل (دائرة صغيرة + نص) ← «✓ انحفظ» أخضر ثانيتين ← أو خطأ + «أعد المحاولة». */
@@ -67,7 +67,7 @@ export default function LoadingButton({
       className={clsx(
         base,
         state === "saved"
-          ? "border border-[#FFC777]/50 bg-[#FFC777]/15 text-[#FFC777]"
+          ? "border border-ws-accent3/50 bg-ws-accent3/15 text-ws-accent3"
           : state === "error"
             ? "border border-rose-400/60 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
             : variants[variant],

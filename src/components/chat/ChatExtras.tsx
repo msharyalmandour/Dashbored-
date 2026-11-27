@@ -156,7 +156,7 @@ export function PollCard({
                   </span>
                 ))}
               </span>
-              <span className="relative z-[1] w-9 text-end text-[12px] font-bold text-[#ABA095]" dir="ltr">
+              <span className="relative z-[1] w-9 text-end text-[12px] font-bold text-ws-muted" dir="ltr">
                 {pct}%
               </span>
             </button>
@@ -164,7 +164,7 @@ export function PollCard({
         })}
       </div>
       {canClose && !closed && total > 0 && (
-        <button type="button" className="tc-ghost self-start !px-0 text-[#FFC777]" onClick={() => onClose(top)}>
+        <button type="button" className="tc-ghost self-start !px-0 text-ws-accent3" onClick={() => onClose(top)}>
           {tr("اعتمدوا «{0}» قرار", options[top] ?? "")}
         </button>
       )}
@@ -190,7 +190,7 @@ export function PollComposer({ open, onClose, onCreate }: { open: boolean; onClo
             <input key={i} className="tc-field" value={o} maxLength={120} onChange={(e) => setOpts(opts.map((x, j) => (j === i ? e.target.value : x)))} placeholder={tr("الخيار {0}", i + 1)} aria-label={tr("الخيار {0}", i + 1)} />
           ))}
           {opts.length < 6 && (
-            <button type="button" className="tc-ghost self-start !px-0 text-[#FFC777]" onClick={() => setOpts([...opts, ""])}>
+            <button type="button" className="tc-ghost self-start !px-0 text-ws-accent3" onClick={() => setOpts([...opts, ""])}>
               {tr("+ خيار ثاني")}
             </button>
           )}
@@ -297,7 +297,7 @@ export function SupervisorQuestionSheet({ msg, onClose, onAsk }: { msg: ChatMess
             <input key={i} className="tc-field" value={o} maxLength={120} onChange={(e) => setOpts(opts.map((x, j) => (j === i ? e.target.value : x)))} placeholder={tr("الخيار {0}", i + 1)} aria-label={tr("الخيار {0}", i + 1)} />
           ))}
           {opts.length < 4 && (
-            <button type="button" className="tc-ghost self-start !px-0 text-[#FFC777]" onClick={() => setOpts([...opts, ""])}>
+            <button type="button" className="tc-ghost self-start !px-0 text-ws-accent3" onClick={() => setOpts([...opts, ""])}>
               {tr("+ خيار ثاني")}
             </button>
           )}

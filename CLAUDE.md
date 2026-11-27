@@ -17,3 +17,6 @@
   user segment → find the problem that recurs for them → test the fix with real users → measure
   **repeat usage** (weekly active teams, members active per team, supervisor activity, actual payment),
   never compliments, likes, sign-up counts or "I'd pay" survey answers alone.
+- Release announcements (owner asked 2026-11-27): after a user-facing release, insert a row into
+  `public.app_updates` (title, lines[], closing) — the `app-updates` function (pg_cron every 10 min) posts it once as a
+  Wesy card in every team chat and emails every member with email reminders on. Show the owner the text first.

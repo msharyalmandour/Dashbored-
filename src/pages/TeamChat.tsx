@@ -34,7 +34,7 @@ import { dropQueued, extractVoice, queueVoice, takeQueued, transcribeServer, upl
 import { approveCommitment, dismissCommitment, setCommitmentImportant, type Commitment } from "../lib/commitments";
 import { ACCEPT } from "../lib/drops";
 import { queueDrop } from "../lib/dropQueue";
-import { AgentMark, BookingSheet, EventRow, PollCard, PollComposer, ReminderSheet, StudyDropSheet, SupervisorQuestionSheet, TodaySummary } from "../components/chat/ChatExtras";
+import { AgentMark, BookingSheet, EventRow, UpdateCard, PollCard, PollComposer, ReminderSheet, StudyDropSheet, SupervisorQuestionSheet, TodaySummary } from "../components/chat/ChatExtras";
 import type { TeamMember } from "../data/types";
 import { addDaysISO, formatDateShort, relativeDayLabel, toISODate } from "../lib/date";
 import { publicBase } from "../lib/publicUrl";
@@ -543,6 +543,11 @@ export default function TeamChat() {
             </div>
           </div>,
         );
+        return;
+      }
+      // «فيه تحديث جديد»: بطاقة من ويسي (العنوان + النقاط) بدل سطر هادي
+      if (m.meta?.type === "app_update") {
+        rows.push(<UpdateCard key={m.id} body={m.body} time={time(m.createdAt)} />);
         return;
       }
       rows.push(<EventRow key={m.id} m={m} nameOf={nameOf} time={time(m.createdAt)} />);

@@ -13,6 +13,41 @@ import { tr } from "../../lib/i18n";
 
 const firstName = (n: string) => n.trim().split(/\s+/)[0] ?? "";
 
+/* ══ «فيه تحديث جديد» من ويسي: أول سطر عنوان، والأسطر اللي تبدأ بـ«- » نقاط، والباقي سطر ختام ══ */
+export function UpdateCard({ body, time }: { body: string; time: string }) {
+  const [title, ...rest] = body.split("\n").filter((l) => l.trim());
+  const points = rest.filter((l) => l.startsWith("- ")).map((l) => l.slice(2));
+  const tail = rest.filter((l) => !l.startsWith("- "));
+  return (
+    <div className="my-3 flex justify-center px-2">
+      <div className="w-full max-w-[520px] rounded-[20px] border border-[rgba(255,138,36,0.28)] bg-[#100906] p-4 shadow-[0_0_40px_-18px_rgba(255,106,0,0.5)]">
+        <div className="flex items-center gap-2.5">
+          <WesyAvatar size={34} state="greet" />
+          <div className="min-w-0 flex-1">
+            <p className="m-0 text-[11px] font-bold text-[#ffb547]">{tr("ويسي")} · {time}</p>
+            <p className="m-0 text-sm font-extrabold text-ws-text">{title}</p>
+          </div>
+        </div>
+        {points.length > 0 && (
+          <ul className="m-0 mt-2.5 flex list-none flex-col gap-1.5 p-0">
+            {points.map((p, i) => (
+              <li key={i} className="flex gap-2 text-sm leading-relaxed text-ws-text-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#ff8a24]" aria-hidden />
+                {p}
+              </li>
+            ))}
+          </ul>
+        )}
+        {tail.map((l, i) => (
+          <p key={i} className="m-0 mt-2.5 text-xs text-ws-text-2">
+            {l}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ══ حدث بالموقع: سطر هادي بالنص مع أيقونة ورابط (مو فقاعة) ══ */
 export function EventRow({ m, nameOf, time }: { m: ChatMessage; nameOf: (id: string) => string; time: string }) {
   const meta = m.meta ?? {};

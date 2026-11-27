@@ -11,6 +11,8 @@
 - Long-term goals (Wesync Meet vs Zoom/Teams, wow features, 10 usability ideas) live
   in `docs/ROADMAP.md` — owner asked to keep them (2026-10-01). Proposals only, except Wesync Meet:
   owner decided 2026-11-12 to build it now on LiveKit, transcript only (no video recording) in v1.
+- Wesync Meet big plan + exact status is saved in `docs/ROADMAP.md` («Wesync Meet الكبير»). Owner paused it
+  2026-11-27 and said we WILL come back: next is the supervisor joining the call (A6), then A2–A5.
 - Product/pricing/marketing decisions follow the owner's validation rule (2026-10-27): pick a precise
   user segment → find the problem that recurs for them → test the fix with real users → measure
   **repeat usage** (weekly active teams, members active per team, supervisor activity, actual payment),

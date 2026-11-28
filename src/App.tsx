@@ -56,6 +56,7 @@ const Learn = lazyPage(() => import("./pages/Learn"));
 const Drop = lazyPage(() => import("./pages/Drop"));
 const Start = lazyPage(() => import("./pages/Start"));
 const Explain = lazyPage(() => import("./pages/Explain"));
+const WesyAI = lazyPage(() => import("./pages/WesyAI"));
 const Drive = lazyPage(() => import("./pages/Drive"));
 const DriveJoin = lazyPage(() => import("./pages/DriveJoin"));
 const DropShare = lazyPage(() => import("./pages/DropShare"));
@@ -158,6 +159,7 @@ export default function App() {
         <Route path="/drop" element={<Drop />} />
         <Route path="/start" element={<Start />} />
         <Route path="/explain" element={<Explain />} />
+        <Route path="/wesy" element={<WesyAI />} />
         <Route path="/drive" element={<Drive />} />
         <Route path="/stickers" element={<Stickers />} />
         <Route path="/drive/join" element={<DriveJoin />} />

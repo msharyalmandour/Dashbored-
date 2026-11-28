@@ -6,9 +6,10 @@ import { tr } from "../../lib/i18n";
 
 /* قطع Lux المشتركة (HomeLux / TasksLux / MeetLux) */
 
-export function LuxHead({ kicker, title, sub, children }: { kicker: string; title: string; sub?: string; children?: ReactNode }) {
+export function LuxHead({ kicker, title, sub, children, lead }: { kicker: string; title: string; sub?: string; children?: ReactNode; lead?: ReactNode }) {
   return (
     <header className="lx-head">
+      {lead}
       <div className="min-w-0 flex-[1_1_320px]">
         <div className="lx-kick">{kicker}</div>
         <h1 className="lx-h1">{title}</h1>

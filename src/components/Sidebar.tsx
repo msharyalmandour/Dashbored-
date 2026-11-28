@@ -157,6 +157,15 @@ export default function Sidebar({ open = false, onClose }: { open?: boolean; onC
             <span className="flex-1">{home.label}</span>
             {homeActive && <span className="lx-here">{tr("أنتم هنا")}</span>}
           </NavLink>
+          <NavLink to="/wesy" onClick={onClose} data-nav-id="wesy" className={({ isActive }) => clsx("lx-link lx-wesy-link", isActive && "on")}>
+            {({ isActive }) => (
+              <>
+                <img src="/lux/wz-wave.webp" alt="" aria-hidden className="h-[22px] w-[18px] object-contain object-top" />
+                <span className="flex-1">{tr("ويسي الذكي")}</span>
+                {isActive && <span className="lx-here">{tr("أنتم هنا")}</span>}
+              </>
+            )}
+          </NavLink>
           <NavLink to="/drop" onClick={onClose} data-learn="drop" className={({ isActive }) => clsx("lx-link", isActive && "on")}>
             {({ isActive }) => (
               <>

@@ -16,10 +16,12 @@ const SCENES: Scene[] = [
   { match: ["/viva"], pose: "point", tag: "المنصة", say: "أدرّبكم لين تدخلون المناقشة واثقين" },
 ];
 /** صفحات ملء الشاشة أو لها مشهدها الخاص */
-const SKIP = ["/", "/chat", "/meet", "/drop", "/explain", "/start", "/agent"];
+const SKIP = ["/", "/chat", "/meet", "/drop", "/explain", "/start", "/agent", "/wesy", "/meeting-minutes/live", "/meeting-minutes/new"];
 
 export default function LuxSectionScene() {
   const { pathname } = useLocation();
+  // صفحة محضر وحدة لها ويسي بالواجهة نفسها
+  if (/^\/meeting-minutes\/[^/]+$/.test(pathname)) return null;
   if (SKIP.some((p) => (p === "/" ? pathname === "/" : pathname === p || pathname.startsWith(`${p}/`)))) return null;
   const scene = SCENES.find((s) => s.match.some((m) => pathname === m || pathname.startsWith(`${m}/`)));
   if (!scene) return null;

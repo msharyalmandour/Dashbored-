@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { Panel } from "./ui/page";
-import { AppleLogo, GoogleLogo, LogoTile } from "./ui/BrandLogos";
+import { AppleLogo, GoogleCalendarLogo } from "./ui/BrandLogos";
 import { useAuth } from "../context/AuthContext";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import { tr } from "../lib/i18n";
@@ -60,8 +60,7 @@ export default function PhoneCalendarCard() {
 
   if (!isSupabaseConfigured) return null;
 
-  const logoBtn =
-    "flex flex-1 items-center justify-center gap-2.5 rounded-full border border-brand-500/35 bg-black/20 px-5 py-3 text-sm font-bold text-brand-950 transition hover:border-brand-500/70 hover:bg-brand-500/10";
+  const logoBtn = "calbtn-lux flex-1";
 
   return (
     <Panel title={tr("اربطوا تقويمكم")}>
@@ -71,12 +70,22 @@ export default function PhoneCalendarCard() {
         <div className="mt-4 space-y-3">
           <div className="flex flex-col gap-2.5 sm:flex-row">
             <a href={googleUrl} target="_blank" rel="noreferrer" className={logoBtn}>
-              <LogoTile className="h-7 w-7"><GoogleLogo size={22} /></LogoTile>
-              Google Calendar
+              <span className="ltile" style={{ width: 48, height: 48 }} aria-hidden>
+                <GoogleCalendarLogo size={26} />
+              </span>
+              <span className="min-w-0 flex-1 text-start">
+                <b className="block">{tr("تقويم Google")}</b>
+                <span className="block text-xs font-medium text-ws-muted">{tr("أندرويد وأي جهاز")}</span>
+              </span>
             </a>
             <a href={webcalUrl} className={logoBtn}>
-              <LogoTile className="h-7 w-7" delay={0.6}><AppleLogo size={22} /></LogoTile>
-              Apple Calendar
+              <span className="ltile" style={{ width: 48, height: 48 }} aria-hidden>
+                <AppleLogo size={26} />
+              </span>
+              <span className="min-w-0 flex-1 text-start">
+                <b className="block">{tr("تقويم Apple")}</b>
+                <span className="block text-xs font-medium text-ws-muted">{tr("آيفون وآيباد وماك")}</span>
+              </span>
             </a>
           </div>
 

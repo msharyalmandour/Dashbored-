@@ -1,0 +1,223 @@
+/* صفحة ويسي الذكي — التصميم الموحّد (مركز إعادة التصميم: «ويسي الذكي · صفحة AI») */
+.wa {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 8px 0 40px;
+  text-align: center;
+  color: #f2ebe3;
+}
+.wa-halo {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  width: 460px;
+  height: 460px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 106, 0, 0.4), rgba(255, 106, 0, 0) 68%);
+  pointer-events: none;
+  animation: wa-glow 4s ease-in-out infinite;
+}
+.wa-wesy {
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  height: 210px;
+  width: auto;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.6));
+  animation: wa-float 5s ease-in-out infinite;
+}
+.wa-title {
+  position: relative;
+  margin: 18px 0 0;
+  font-family: "Amiri", serif;
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 54px);
+  line-height: 1.2;
+  background: linear-gradient(180deg, #fff8f0 35%, #ebc79a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.wa-sub {
+  position: relative;
+  margin: 8px 0 0;
+  color: #a89a8c;
+  font-size: 16px;
+}
+.wa-box {
+  position: relative;
+  margin: 26px auto 0;
+  text-align: start;
+  border-radius: 28px;
+  padding: 16px 16px 12px 20px;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #160c07, #0d0705) padding-box,
+    linear-gradient(135deg, rgba(255, 200, 130, 0.6), rgba(255, 106, 0, 0.12) 40%, rgba(255, 181, 71, 0.4)) border-box;
+  box-shadow: 0 30px 80px -30px rgba(255, 106, 0, 0.5);
+}
+.wa-box textarea {
+  width: 100%;
+  resize: none;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: #f2ebe3;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.wa-box textarea::placeholder {
+  color: #8e8276;
+}
+.wa-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.wa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  color: #cdbfaf;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 220, 180, 0.14);
+}
+.wa-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6a00;
+}
+.wa-dot.g {
+  background: #ffb547;
+}
+.wa-dot.c {
+  background: #f4ece4;
+}
+.wa-ic,
+.wa-send {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 0;
+}
+.wa-ic {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f2ebe3;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.wa-send {
+  background: linear-gradient(180deg, #ff9a3c, #ff6a00);
+  color: #1a0a02;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 24px -10px rgba(255, 106, 0, 0.9);
+}
+.wa-ctx {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+.wa-mut {
+  color: #8e8276;
+  font-size: 13px;
+}
+.wa-cols {
+  display: grid;
+  gap: 26px;
+  margin-top: 30px;
+  text-align: start;
+}
+@media (min-width: 768px) {
+  .wa-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.wa-h2 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffb547;
+}
+.wa-sugg {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 4px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #f2ebe3;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+.wa-sugg:hover b {
+  color: #ffb547;
+}
+.wa-sugg b {
+  display: block;
+  font-weight: 700;
+}
+.wa-sugg small {
+  display: block;
+  font-size: 12px;
+  color: #8e8276;
+}
+.wa-n {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 106, 0, 0.12);
+  border: 1px solid rgba(255, 138, 36, 0.3);
+  color: #ffb547;
+  font-weight: 900;
+}
+.wa-foot {
+  margin-top: 22px;
+  font-size: 12px;
+  color: #8e8276;
+}
+@keyframes wa-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes wa-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wa-halo,
+  .wa-wesy {
+    animation: none;
+  }
+}

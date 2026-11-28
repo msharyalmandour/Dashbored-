@@ -122,10 +122,17 @@ export default function MeetingMinutes() {
   const recentDecisions = meetings.decisions.filter((d) => d.status !== "cancelled").slice(0, 4);
   const approvedCount = a.minutes.filter((m) => effectiveApproval(meetings.approvals.find((x) => x.minutesId === m.id)) === "approved").length;
   const left = nextBooking ? countdown(nextBooking.date, nextBooking.time) : null;
+  const agendaPreview = [
+    ...a.readiness.openActions.map((x) => x.text),
+    ...a.readiness.openDecisions.map((d) => d.question),
+    ...a.readiness.overdueTasks.map((t) => t.title),
+  ]
+    .filter((t) => t.trim())
+    .slice(0, 3);
 
   return (
     <div className="space-y-6">
-      <LuxHead kicker={tr("المشرف/ة")} title={tr("الاجتماعات والمشرف/ة")} sub={tr("محاضر تتحول لمهام، وقرارات بضغطة، ومواعيد ما تفوتكم")}>
+      <LuxHead kicker={tr("المشرف/ة")} title={tr("غرفة الاجتماعات")} sub={tr("محاضر تتحول لمهام، وقرارات بضغطة، ومواعيد ما تفوتكم")}>
         <LuxSeg label={tr("الاجتماعات")} items={TABS.map((t) => ({ id: t.id, label: t.label, count: badge(t.id) || undefined }))} value={tab} onChange={setTab} />
       </LuxHead>
 
@@ -133,8 +140,13 @@ export default function MeetingMinutes() {
         <>
           {/* ── الاجتماع الجاي (MeetLux) ── */}
           <section className="mt-hero lx-in flex flex-col gap-6 md:flex-row md:items-center">
-            <img src="/sup/pen_hero.jpg" alt="" aria-hidden className="mt-hero-img" />
-            <div aria-hidden className="mt-hero-veil" />
+            {nextBooking && (
+              <div className="mt-date relative" aria-hidden>
+                <span>{formatWeekday(nextBooking.date)}</span>
+                <b>{new Date(`${nextBooking.date}T00:00`).getDate()}</b>
+                <span>{formatDateShort(nextBooking.date).replace(/^\d+\s*/, "")}</span>
+              </div>
+            )}
             <div className="relative min-w-0 flex-1 md:max-w-[68%]">
               <div className="text-sm font-bold text-ws-accent3">{liveOn ? tr("اجتماع شغّال الحين") : tr("الاجتماع الجاي")}</div>
               <h2 className="lx-h1 !mt-1 !text-[40px] md:!text-[52px]" dir="auto">
@@ -157,6 +169,18 @@ export default function MeetingMinutes() {
                   tr("احجزوا من أوقات المشرف/ة، ويوصلكم تذكير قبله.")
                 )}
               </p>
+              {agendaPreview.length > 0 && (
+                <div className="mt-agenda">
+                  <span className="text-sm font-bold text-ws-accent3">{tr("الأجندة (ويسي جهّزها من آخر محضر والأسئلة المفتوحة)")}</span>
+                  <ol>
+                    {agendaPreview.map((t, i) => (
+                      <li key={i} dir="auto">
+                        {t}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
               {canWrite && (
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   <Link to="/meeting-minutes/live" className="lx-go">

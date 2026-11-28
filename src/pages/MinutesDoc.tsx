@@ -255,7 +255,7 @@ export default function MinutesDoc() {
         <span style={{ width: 44 }} />
       </div>
       <header className="md-hero">
-        <img src="/sup/pen_hero.jpg" alt="" aria-hidden className="md-hero-img" />
+        <img src="/lux/wz-clip.webp" alt="" aria-hidden className="md-hero-wesy" decoding="async" />
         <div className="md-hero-in">
           <div className="text-sm font-bold text-ws-accent3">{tr("محضر اجتماع · رقم {0}", number)}</div>
           <h1 className="md-title">{title}</h1>

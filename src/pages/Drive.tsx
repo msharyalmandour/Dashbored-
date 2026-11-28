@@ -202,10 +202,21 @@ export default function Drive() {
   const list = folders ?? DEFAULT_FOLDERS;
   return (
     <div className="relative text-ws-text">
-      <LuxHead kicker={tr("التقويم والملفات")} title={tr("الدرايف ومين مربوط")} sub={tr("مجلد واحد للفريق والمشرف/ة، وكل شي ينحفظ فيه لحاله")}>
+      <LuxHead
+        kicker={tr("التقويم والملفات")}
+        title={tr("الدرايف ومين مربوط")}
+        sub={tr("مجلد واحد للفريق والمشرف/ة، وكل شي ينحفظ فيه لحاله")}
+        lead={
+          <span className="ltile" style={{ width: 84, height: 84 }} aria-hidden>
+            <GoogleDriveLogo size={46} />
+          </span>
+        }
+      >
         {status?.folderLink && (
           <a className="lx-ghost" href={status.folderLink} target="_blank" rel="noreferrer">
-            <ExternalLink size={16} aria-hidden />
+            <GoogleDriveLogo size={18} />
+            {tr("افتحوا في Google Drive")}
+            <ExternalLink size={14} aria-hidden />
             {tr("افتحوا المجلد")}
           </a>
         )}

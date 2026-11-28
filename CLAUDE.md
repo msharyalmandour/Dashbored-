@@ -4,6 +4,9 @@
 - Marketing/ad visuals follow `marketing/AD_STYLE.md`: **one fixed identity** — Obsidian × Ember
   (black `#080808`, orange `#ff6a00`/`#ff8a24`/`#ffb547`, Tajawal) taken from the site itself. Owner decided
   (2026-10-01) it must never change: no cobalt blue, no meadow/green, no per-post style switching.
+  Site redesign (owner approved 2026-11-28): big titles and big numbers use Amiri (gold gradient), everything else Tajawal;
+  Wesy is always present (cartoon cutouts in `public/lux/wz-*.webp`); home = `src/components/home/LuxHome.tsx` (`lh-` classes),
+  section scenes = `src/components/LuxSectionScene.tsx` + `src/styles/lux-global.css`. Canvas «كل الأقسام» holds the full design.
 - Existing Instagram posts workspace: `marketing/instagram-campaign/`.
 - Arabic text in generated media must be rendered by our own pipeline (Playwright +
   local font opened via `file://`), never by the image/video model.

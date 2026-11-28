@@ -8,6 +8,7 @@ import Logo from "../components/Logo";
 import LangToggle from "../components/ui/LangToggle";
 import { tr } from "../lib/i18n";
 import { clearSignupRef, parseRef, storedSignupRef } from "../lib/signupSource";
+import "../styles/bright.css";
 
 /** اقتراحات جاهزة بخانة "الجامعة" وقت التسجيل — الحقل نص حر أصلًا
     (datalist)، فأي جامعة مو بالقائمة تُكتب يدويًا بدون أي قيد */
@@ -194,31 +195,23 @@ export default function Login() {
   const clearValidity = (e: React.ChangeEvent<HTMLInputElement>) => e.currentTarget.setCustomValidity("");
 
   const inputClass =
-    "w-full rounded-2xl border border-white/10 bg-white/[0.04] px-[18px] py-3.5 text-base text-white outline-none transition-[border-color,box-shadow] placeholder:text-[#8F8378] focus:border-ws-accent2/70 focus:shadow-[0_0_0_4px_rgba(255,138,36,0.14)]";
+    "w-full rounded-2xl border border-[#E2D9D0] bg-white px-[18px] py-3.5 text-base text-[#141414] outline-none transition-[border-color,box-shadow] placeholder:text-[#8F8378] focus:border-[#FF6A00] focus:shadow-[0_0_0_4px_rgba(255,106,0,0.14)]";
   const glowButtonClass =
-    "w-full rounded-full bg-gradient-to-l from-ws-accent3 to-ws-accent py-4 text-lg font-bold text-[#1a0f00] shadow-[0_14px_40px_rgba(255,107,0,0.35)] transition hover:brightness-110 disabled:opacity-60";
+    "w-full rounded-full bg-[#FF6A00] py-4 text-lg font-bold text-white shadow-[0_14px_30px_-10px_rgba(255,106,0,0.8)] hover:-translate-y-0.5 transition hover:brightness-110 disabled:opacity-60";
   // في النسخة التجريبية (mock) ما فيه إنشاء حساب، فعنوان الإنشاء يطلع بس بالوضع الحقيقي
   const signUpView = isSignUp && mode === "supabase";
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#260600]">
-      <picture>
-        <source media="(max-width: 767px)" srcSet="/landing/students-m.webp" />
-        <img
-          src="/landing/students.webp"
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: "blur(18px)", transform: "scale(1.08)" }}
-        />
-      </picture>
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(ellipse at 50% 50%,rgba(8,8,8,.15),rgba(8,8,8,.6) 80%)" }}
-      />
-
-      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
-        <main className="flex w-full flex-1 flex-col items-center justify-center py-6">
-            <div className="w-full max-w-[500px] animate-[panel-in_0.5s_ease-out] rounded-3xl border border-[rgba(255,220,180,.25)] bg-[rgba(20,8,4,.55)] p-7 text-ws-text shadow-[0_60px_140px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,240,220,.25)] backdrop-blur-[30px] backdrop-saturate-150 sm:p-10">
+    <div className="bl">
+      <div className="bl-auth">
+        <div className="form">
+          <div className="bl-strip" aria-hidden>
+            {(signUpView ? ["team", "pink", "mint"] : ["turq", "purple", "yellow"]).map((k) => (
+              <div key={k} className="bl-tile"><img src={`/lux/ph-${k}.webp`} alt="" /></div>
+            ))}
+          </div>
+          <main className="flex w-full flex-1 flex-col justify-center py-6">
+            <div className="bl-pop mx-auto w-full max-w-[480px] text-[#141414]">
               <div className="mb-7 space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <Link to="/" aria-label={tr("Wesync — الصفحة الرئيسية")} className="flex items-center gap-2.5 font-kufi text-xl font-extrabold">
@@ -233,39 +226,39 @@ export default function Login() {
                         setIsSignUp((v) => !v);
                         setError(null);
                       }}
-                      className="text-sm text-ws-muted"
+                      className="text-sm text-[#6b625c]"
                     >
                       {isSignUp ? (
-                        <>{tr("عندك حساب؟ ")}<span className="text-ws-accent3">{tr("ادخل")}</span>
+                        <>{tr("عندك حساب؟ ")}<span className="text-[#E05A00]">{tr("ادخل")}</span>
                         </>
                       ) : (
-                        <>{tr("ما عندك حساب؟ ")}<span className="text-ws-accent3">{tr("أنشئ واحد")}</span>
+                        <>{tr("ما عندك حساب؟ ")}<span className="text-[#E05A00]">{tr("أنشئ واحد")}</span>
                         </>
                       )}
                     </button>
                   )}
-                    <LangToggle className="border-white/20 bg-white/[0.07] text-ws-text hover:bg-white/[0.14]" />
+                    <LangToggle className="border-black/15 !bg-white !text-[#141414] hover:bg-black/5" />
                   </div>
                 </div>
                 <div>
-                  <h1 className="font-kufi text-[34px] font-extrabold leading-[1.3] sm:text-[38px]">
+                  <h1 className="text-[40px] font-black leading-[1.15] sm:text-[48px]">
                     {isForgotPassword ? (
                       tr("استرجاع كلمة المرور")
                     ) : signUpView ? (
-                      <>{tr("ابدأوا بحثكم")}<br />{tr("بالترتيب الصح.")}</>
+                      <>{tr("ابدأوا بحثكم")}<br /><span className="bl-mark in" style={{ ["--m" as string]: "#FFC93C" }}>{tr("بالترتيب الصح.")}</span></>
                     ) : (
-                      tr("تسجيل الدخول")
+                      <>{tr("هلا")} <span className="bl-mark in" style={{ ["--m" as string]: "#5EE0C0" }}>{tr("من جديد")}</span></>
                     )}
                   </h1>
                   {signUpView && !isForgotPassword && (
-                    <p className="mt-2 font-light text-ws-muted">{tr("14 يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
+                    <p className="mt-2 font-light text-[#6b625c]">{tr("14 يوم مجانًا كاملة، بدون بطاقة دفع.")}</p>
                   )}
                   {inviteTeamId && mode === "supabase" && (
-                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-ws-accent2/15 px-3 py-1 text-xs font-bold text-ws-accent3">
+                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold text-[#E05A00]">
                       <Users size={13} />{tr("دعوة انضمام لفريق بحثي — أكملوا التسجيل بالأسفل")}</span>
                   )}
                   {!inviteTeamId && referralCode && mode === "supabase" && (
-                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-ws-accent2/15 px-3 py-1 text-xs font-bold text-ws-accent3">
+                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#FF6A00]/10 px-3 py-1 text-xs font-bold text-[#E05A00]">
                       <Gift size={13} />{tr("دعوة من فريق بحثي — أنشئوا حسابكم وابدأوا تجربة 14 يوم مجانية. لما تبدأون فعليًا تاخذون أسبوعين هدية أنتم وهم، ولما تشتركون شهر 🎉")}</span>
                   )}
                 </div>
@@ -274,7 +267,7 @@ export default function Login() {
               {mode === "supabase" && isForgotPassword ? (
                 <>
                   {resetSent ? (
-                    <p className="rounded-xl bg-ws-accent2/10 px-3 py-3 text-center text-sm font-semibold text-ws-accent3">{tr("تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط الرابط لتعيين كلمة مرور جديدة.")}</p>
+                    <p className="rounded-xl bg-[#3ED6A0]/15 px-3 py-3 text-center text-sm font-semibold text-[#E05A00]">{tr("تم إرسال رابط إعادة تعيين كلمة المرور لبريدك — تحقق منه واضغط الرابط لتعيين كلمة مرور جديدة.")}</p>
                   ) : (
                     <form onSubmit={handleResetSubmit} className="space-y-3">
                       <label className="block text-sm">
@@ -299,7 +292,7 @@ export default function Login() {
                       </label>
 
                       {resetError && (
-                        <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
+                        <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-700">
                           {resetError}
                         </p>
                       )}
@@ -316,7 +309,7 @@ export default function Login() {
                       setResetSent(false);
                       setResetError(null);
                     }}
-                    className="mt-4 w-full text-center text-sm font-semibold text-ws-accent3 hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-[#E05A00] hover:underline"
                   >{tr("الرجوع لتسجيل الدخول")}</button>
                 </>
               ) : mode === "supabase" ? (
@@ -341,7 +334,7 @@ export default function Login() {
                     {isSignUp && (
                       <div className="text-sm">
                         <span className="mb-2 block font-semibold">{tr("نخاطبك بـ")}</span>
-                        <div className="flex rounded-full border border-white/10 bg-white/[0.04] p-1">
+                        <div className="flex rounded-full border border-[#E2D9D0] bg-white p-1">
                           {(
                             [
                               ["female", tr("أنتِ")],
@@ -355,8 +348,8 @@ export default function Login() {
                               aria-pressed={gender === g}
                               className={`flex-1 rounded-full px-3 py-2.5 text-sm font-semibold transition-colors ${
                                 gender === g
-                                  ? "bg-gradient-to-l from-ws-accent3 to-ws-accent text-[#1a0f00]"
-                                  : "text-ws-muted hover:text-white"
+                                  ? "bg-[#141414] text-white"
+                                  : "text-[#6b625c] hover:text-[#141414]"
                               }`}
                             >
                               {label}
@@ -438,7 +431,7 @@ export default function Login() {
                       </label>
                     )}
                     {error && (
-                      <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
+                      <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-700">
                         {error}
                       </p>
                     )}
@@ -450,8 +443,8 @@ export default function Login() {
                       <button
                         type="button"
                         onClick={() => setShowManualTeamCode(true)}
-                        className="block w-full text-center text-sm text-ws-muted"
-                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-ws-accent3">{tr("ادخله هنا")}</span>
+                        className="block w-full text-center text-sm text-[#6b625c]"
+                      >{tr("عندك رمز دعوة من فريقك؟ ")}<span className="text-[#E05A00]">{tr("ادخله هنا")}</span>
                       </button>
                     )}
                   </form>
@@ -462,7 +455,7 @@ export default function Login() {
                         setIsForgotPassword(true);
                         setError(null);
                       }}
-                      className="mt-3 w-full text-center text-xs font-semibold text-white/40 hover:text-ws-accent3 hover:underline"
+                      className="mt-3 w-full text-center text-xs font-semibold text-[#8a8079] hover:text-[#E05A00] hover:underline"
                     >{tr("نسيت كلمة المرور؟")}</button>
                   )}
 
@@ -496,7 +489,7 @@ export default function Login() {
                     </label>
 
                     {mockError && (
-                      <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
+                      <p className="rounded-xl bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-700">
                         {mockError}
                       </p>
                     )}
@@ -506,13 +499,13 @@ export default function Login() {
 
                   <button
                     onClick={() => setShowDemoCreds((s) => !s)}
-                    className="mt-4 w-full text-center text-sm font-semibold text-ws-accent3 hover:underline"
+                    className="mt-4 w-full text-center text-sm font-semibold text-[#E05A00] hover:underline"
                   >
                     {showDemoCreds ? tr("إخفاء بيانات الدخول التجريبية") : tr("عرض بيانات الدخول التجريبية")}
                   </button>
 
                   {showDemoCreds && (
-                    <div className="mt-3 space-y-1.5 rounded-xl bg-white/[0.04] p-3">
+                    <div className="mt-3 space-y-1.5 rounded-xl bg-white p-3">
                       {demoCredentials.map((c) => {
                         const member = teamMembers.find((m) => m.id === c.memberId)!;
                         return (
@@ -524,15 +517,15 @@ export default function Login() {
                               setMockPassword(c.password);
                               setMockError(null);
                             }}
-                            className="flex w-full items-center justify-between rounded-xl px-2 py-1.5 text-xs hover:bg-white/10"
+                            className="flex w-full items-center justify-between rounded-xl px-2 py-1.5 text-xs hover:bg-black/5"
                           >
-                            <span className="font-semibold text-white/70">
+                            <span className="font-semibold text-[#3a3330]">
                               {member.name}
                               {member.role === "leader" && (
-                                <span className="ms-1 text-ws-accent3">{tr("(قائدة الفريق)")}</span>
+                                <span className="ms-1 text-[#E05A00]">{tr("(قائدة الفريق)")}</span>
                               )}
                             </span>
-                            <span className="font-mono text-white/40" dir="ltr">
+                            <span className="font-mono text-[#8a8079]" dir="ltr">
                               {c.universityId} / {c.password}
                             </span>
                           </button>
@@ -541,13 +534,37 @@ export default function Login() {
                     </div>
                   )}
 
-                  <p className="mt-6 text-center text-xs text-white/35">{tr("هذا تسجيل دخول تجريبي بمحاكاة بوابة الطالب — لتفعيل تسجيل دخول حقيقي بالبريد الجامعي وكلمة المرور، أضف مفاتيح Supabase في متغيرات البيئة (راجع ملف .env.example).")}</p>
+                  <p className="mt-6 text-center text-xs text-[#8a8079]">{tr("هذا تسجيل دخول تجريبي بمحاكاة بوابة الطالب — لتفعيل تسجيل دخول حقيقي بالبريد الجامعي وكلمة المرور، أضف مفاتيح Supabase في متغيرات البيئة (راجع ملف .env.example).")}</p>
                 </>
               )}
             </div>
-        </main>
+          </main>
+          <footer className="pb-1 text-center text-xs tracking-wide text-[#8a8079]">{tr("منصة إدارة أبحاث التمريض")}</footer>
+        </div>
 
-        <footer className="pb-1 text-center text-xs tracking-wide text-white/30">{tr("منصة إدارة أبحاث التمريض")}</footer>
+        {/* الجنب: صور حقيقية ملوّنة — كولاج للتسجيل، وصورة + ويسي للدخول */}
+        <aside className="side" aria-hidden>
+          {signUpView ? (
+            <div className="bl-mosaic">
+              {[["purple", "#7B61FF", tr("اكتبوا")], ["team", "#FF6A00", tr("الفريق")], ["mint", "#3ED6A0", tr("راجعوا")], ["poster", "#7B61FF", tr("قدّموا")], ["yellow", "#FFC93C", tr("حلّلوا")]].map(([k, c, t], i) => (
+                <div key={k} className="bl-tile bl-pop" style={{ background: c, animationDelay: `${0.1 + i * 0.12}s` }}>
+                  <img src={`/lux/ph-${k}.webp`} alt="" style={{ objectPosition: "center 30%" }} />
+                  <span className="bl-tag">{t}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bl-tile bl-pop" style={{ height: "100%", borderRadius: 36, background: "#5EE0C0" }}>
+              <img src="/lux/ph-turq.webp" alt="" style={{ objectPosition: "center 40%" }} />
+              <div className="bl-fl" style={{ position: "absolute", top: 44, insetInlineStart: 36, zIndex: 2 }}>
+                <div className="bl-card bl-bub" style={{ width: 330 }}>
+                  <img src="/lux/wesy-face.webp" alt="" />
+                  <div><b>{tr("ويسي")}</b><p>{tr("هلا من جديد. فريقكم ينتظركم، نكمّل من وين وقفتوا؟")}</p></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </aside>
       </div>
     </div>
   );

@@ -1,0 +1,201 @@
+/* التصميم الموحّد الفخم على كل الأقسام (مركز إعادة التصميم: «كل الأقسام»).
+   عناوين Amiri بتدرّج ذهبي، حواف ذهبية رفيعة للبطاقات، لمعة للزر البرتقالي، ومشهد ويسي بكل قسم. */
+
+/* ── العناوين الكبيرة ── */
+.lx-h1,
+.hd-h1,
+.dr-title,
+h1.v3-k,
+main h1.font-display {
+  font-family: "Amiri", serif !important;
+  font-weight: 700 !important;
+  background: linear-gradient(180deg, #fff8f0 35%, #ebc79a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+/* ── حواف ذهبية رفيعة ── */
+.lx-card,
+.hg-card {
+  position: relative;
+}
+.lx-card::after,
+.hg-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, rgba(255, 220, 180, 0.34), rgba(255, 255, 255, 0.03) 45%, rgba(255, 181, 71, 0.16));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── الزر البرتقالي: لمعة ── */
+.lx-go,
+.v3-bw,
+.dr-primary {
+  background: linear-gradient(180deg, #ff9a3c, #ff6a00) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 0 rgba(120, 30, 0, 0.25),
+    0 12px 30px -12px rgba(255, 106, 0, 0.85) !important;
+}
+
+/* ── مشهد ويسي بكل قسم ── */
+.lxs {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 92px;
+  margin-bottom: 18px;
+  padding: 14px 20px;
+  padding-inline-end: 220px;
+  border-radius: 26px;
+  border: 1px solid transparent;
+  background:
+    radial-gradient(90% 140% at 12% 100%, #2b1408 0%, #140a05 55%, #0b0705 100%) padding-box,
+    linear-gradient(170deg, rgba(255, 200, 130, 0.45), rgba(255, 106, 0, 0.06) 40%, rgba(255, 181, 71, 0.25)) border-box;
+  animation: lxs-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.lxs-sun {
+  position: absolute;
+  inset-inline-end: 80px;
+  bottom: -60px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 106, 0, 0.55), rgba(255, 106, 0, 0) 70%);
+  animation: lxs-pulse 4s ease-in-out infinite;
+}
+.lxs-wesy {
+  position: absolute;
+  inset-inline-end: 64px;
+  bottom: -76px;
+  height: 152px;
+  width: auto;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.5));
+  transform-origin: 50% 100%;
+  animation: lxs-breathe 3.8s ease-in-out infinite;
+}
+.lxs-wesy.flip {
+  transform: scaleX(-1);
+  animation: none;
+}
+.lxs-txt {
+  min-width: 0;
+  flex: 1;
+  position: relative;
+}
+.lxs-tag {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #f4ece4;
+  background: rgba(244, 236, 228, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.lxs-say {
+  margin: 6px 0 0;
+  font-family: "Amiri", serif;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.35;
+  background: linear-gradient(180deg, #fff8f0 35%, #ebc79a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lxs-ask {
+  position: relative;
+  flex: none;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffb547;
+  background: rgba(255, 106, 0, 0.1);
+  border: 1px solid rgba(255, 138, 36, 0.5);
+  cursor: pointer;
+}
+.lxs-ask:hover {
+  background: rgba(255, 106, 0, 0.18);
+}
+@media (max-width: 640px) {
+  .lxs {
+    padding: 12px 14px;
+    padding-inline-end: 96px;
+    gap: 10px;
+    min-height: 84px;
+  }
+  .lxs-tag {
+    display: none;
+  }
+  .lxs-say {
+    margin: 0;
+    font-size: 16px;
+  }
+  .lxs-ask {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .lxs-wesy {
+    height: 126px;
+    inset-inline-end: 6px;
+    bottom: -58px;
+  }
+  .lxs-sun {
+    inset-inline-end: 10px;
+  }
+}
+@keyframes lxs-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes lxs-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes lxs-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lxs,
+  .lxs-wesy,
+  .lxs-sun {
+    animation: none;
+  }
+}
+html[data-reduce-motion="true"] .lxs,
+html[data-reduce-motion="true"] .lxs-wesy,
+html[data-reduce-motion="true"] .lxs-sun {
+  animation: none;
+}

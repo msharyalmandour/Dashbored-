@@ -9,6 +9,8 @@ import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import SectionTabs from "./SectionTabs";
+import LuxSectionScene from "./LuxSectionScene";
+import "../styles/lux-global.css";
 import { PageHelpButton } from "./help/PageHelp";
 import PaymentProofUpload from "./PaymentProofUpload";
 import CheckoutModal from "./CheckoutModal";
@@ -231,6 +233,7 @@ export default function Layout() {
               data-redesign={pageHeaderRoutes.has(location.pathname) ? "" : undefined}
               className="animate-[page-in_0.35s_ease-out]"
             >
+              <LuxSectionScene />
               <SectionTabs />
               <GiftNotice />
               <InviteSeats />

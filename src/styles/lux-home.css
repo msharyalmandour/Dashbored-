@@ -2,60 +2,60 @@
    Obsidian × Ember: أسود #080808، برتقالي #ff6a00/#ff8a24/#ffb547، Tajawal للنص، Amiri للعناوين والأرقام الكبيرة.
    الحركة: القوس يعبّي ويتنفس، باب المشهد ينفتح، ويسي يتنفس. كلها تطفى مع prefers-reduced-motion. */
 
-.lx-home {
-  --lx-gold: #ffb547;
-  --lx-o: #ff6a00;
-  --lx-o2: #ff8a24;
-  --lx-cream: #f4ece4;
-  --lx-mut: #a89a8c;
+.lh-home {
+  --lh-gold: #ffb547;
+  --lh-o: #ff6a00;
+  --lh-o2: #ff8a24;
+  --lh-cream: #f4ece4;
+  --lh-mut: #a89a8c;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 22px;
   position: relative;
 }
 @media (min-width: 1600px) {
-  .lx-home {
+  .lh-home {
     grid-template-columns: minmax(0, 1fr) 340px;
     align-items: stretch;
   }
 }
-.lx-main {
+.lh-main {
   container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 14px;
   min-width: 0;
 }
-.lx-home a {
+.lh-home a {
   color: inherit;
   text-decoration: none;
 }
 
 /* ── النصوص ── */
-.lx-eyebrow {
+.lh-eyebrow {
   margin: 0;
   font-size: 14px;
   font-weight: 700;
-  color: var(--lx-gold);
+  color: var(--lh-gold);
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.lx-eyebrow::before {
+.lh-eyebrow::before {
   content: "";
   width: 22px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--lx-gold));
+  background: linear-gradient(90deg, transparent, var(--lh-gold));
 }
-.lx-title,
-.lx-big,
-.lx-num,
-.lx-arc-n,
-.lx-quote {
+.lh-title,
+.lh-big,
+.lh-num,
+.lh-arc-n,
+.lh-quote {
   font-family: "Amiri", serif;
   font-weight: 700;
 }
-.lx-title {
+.lh-title {
   margin: 4px 0 0;
   font-size: clamp(38px, 5vw, 58px);
   line-height: 1.1;
@@ -64,58 +64,58 @@
   background-clip: text;
   color: transparent;
 }
-.lx-sub {
+.lh-sub {
   margin: 6px 0 0;
-  color: var(--lx-mut);
+  color: var(--lh-mut);
   font-size: 16px;
 }
-.lx-gold {
+.lh-gold {
   margin: 0;
-  color: var(--lx-gold);
+  color: var(--lh-gold);
   font-size: 14px;
   font-weight: 700;
 }
-.lx-warn {
+.lh-warn {
   color: #ff8a5c;
   font-size: 14px;
   font-weight: 800;
 }
-.lx-mut {
+.lh-mut {
   margin: 0;
-  color: var(--lx-mut);
+  color: var(--lh-mut);
 }
-.lx-link {
+.lh-link {
   font-size: 12px;
   color: #8e8276;
 }
-.lx-link:hover {
-  color: var(--lx-gold);
+.lh-link:hover {
+  color: var(--lh-gold);
 }
 
 /* ── العنوان + القوس ── */
-.lx-hero {
+.lh-hero {
   display: flex;
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
 }
-.lx-arc {
+.lh-arc {
   position: relative;
   width: 260px;
   height: 140px;
   flex: none;
 }
-.lx-arc svg {
+.lh-arc svg {
   width: 100%;
   height: 100%;
   overflow: visible;
-  animation: lx-breathe 4.5s ease-in-out infinite;
+  animation: lh-breathe 4.5s ease-in-out infinite;
 }
-.lx-arc-v {
+.lh-arc-v {
   stroke-dashoffset: 100;
-  animation: lx-fill 1.6s cubic-bezier(0.3, 0.7, 0.2, 1) 0.2s forwards;
+  animation: lh-fill 1.6s cubic-bezier(0.3, 0.7, 0.2, 1) 0.2s forwards;
 }
-.lx-arc-n {
+.lh-arc-n {
   position: absolute;
   inset: auto 0 0 0;
   text-align: center;
@@ -123,16 +123,16 @@
   line-height: 1;
   color: #fff3e6;
 }
-.lx-arc-n small {
+.lh-arc-n small {
   font-size: 0.55em;
   margin-inline-start: 2px;
 }
-@keyframes lx-fill {
+@keyframes lh-fill {
   to {
     stroke-dashoffset: var(--to);
   }
 }
-@keyframes lx-breathe {
+@keyframes lh-breathe {
   0%,
   100% {
     filter: drop-shadow(0 0 6px rgba(255, 106, 0, 0.3));
@@ -143,13 +143,13 @@
 }
 
 /* ── الأسطح ── */
-.lx-act,
-.lx-card {
+.lh-act,
+.lh-card {
   position: relative;
   border: 1px solid transparent;
   border-radius: 26px;
 }
-.lx-act {
+.lh-act {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -163,17 +163,17 @@
     0 40px 90px -40px #000,
     0 0 90px -40px rgba(255, 106, 0, 0.65);
 }
-.lx-step {
+.lh-step {
   margin: 4px 0 2px;
   font-size: 24px;
   font-weight: 900;
-  color: var(--lx-cream);
+  color: var(--lh-cream);
   line-height: 1.35;
 }
-.lx-act .lx-mut {
+.lh-act .lh-mut {
   font-size: 14px;
 }
-.lx-card {
+.lh-card {
   display: block;
   padding: 16px 18px;
   min-width: 0;
@@ -185,58 +185,58 @@
     transform 0.25s ease-out,
     box-shadow 0.25s ease-out;
 }
-a.lx-card:hover {
+a.lh-card:hover {
   transform: translateY(-2px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 20px 40px -24px rgba(255, 106, 0, 0.6);
 }
-.lx-card.hot {
+.lh-card.hot {
   background:
     linear-gradient(160deg, rgba(255, 106, 0, 0.14), rgba(20, 11, 7, 0.92)) padding-box,
     linear-gradient(140deg, rgba(255, 200, 130, 0.65), rgba(255, 106, 0, 0.1) 50%, rgba(255, 181, 71, 0.35)) border-box;
 }
-.lx-card.warn {
+.lh-card.warn {
   background:
     linear-gradient(180deg, rgba(255, 90, 50, 0.06), rgba(255, 255, 255, 0.01)) padding-box,
     linear-gradient(160deg, rgba(255, 120, 80, 0.45), rgba(255, 255, 255, 0.04) 50%, rgba(255, 120, 80, 0.2)) border-box;
 }
-.lx-slim {
+.lh-slim {
   padding: 14px 18px;
 }
-.lx-row {
+.lh-row {
   display: flex;
   align-items: center;
   gap: 14px;
 }
-.lx-hd {
+.lh-hd {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
 }
-.lx-grid {
+.lh-grid {
   display: grid;
   gap: 14px;
   grid-template-columns: minmax(0, 1fr);
 }
 @container (min-width: 560px) {
-  .lx-grid-3,
-  .lx-grid-3b {
+  .lh-grid-3,
+  .lh-grid-3b {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @container (min-width: 860px) {
-  .lx-grid-3 {
+  .lh-grid-3 {
     grid-template-columns: 1.1fr 1fr 1fr;
   }
-  .lx-grid-3b {
+  .lh-grid-3b {
     grid-template-columns: 1.3fr 1fr 1fr;
   }
 }
 
 /* ── الأزرار ── */
-.lx-btn {
+.lh-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -254,10 +254,10 @@ a.lx-card:hover {
     0 12px 30px -12px rgba(255, 106, 0, 0.85);
   transition: transform 0.2s ease-out;
 }
-.lx-btn:hover {
+.lh-btn:hover {
   transform: translateY(-1px);
 }
-.lx-ghost {
+.lh-ghost {
   display: inline-flex;
   align-items: center;
   height: 40px;
@@ -265,15 +265,15 @@ a.lx-card:hover {
   border-radius: 999px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--lx-cream);
+  color: var(--lh-cream);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 220, 180, 0.18);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
-.lx-ghost:hover {
+.lh-ghost:hover {
   border-color: rgba(255, 181, 71, 0.5);
 }
-.lx-chip {
+.lh-chip {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
@@ -283,18 +283,18 @@ a.lx-card:hover {
   color: #cdbfaf;
   white-space: nowrap;
 }
-.lx-chip.hot {
+.lh-chip.hot {
   border-color: rgba(255, 106, 0, 0.5);
-  color: var(--lx-gold);
+  color: var(--lh-gold);
   background: rgba(255, 106, 0, 0.12);
 }
-.lx-chip.solid {
-  background: var(--lx-o);
-  border-color: var(--lx-o);
+.lh-chip.solid {
+  background: var(--lh-o);
+  border-color: var(--lh-o);
   color: #1a0a02;
   font-weight: 800;
 }
-.lx-live {
+.lh-live {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -305,50 +305,50 @@ a.lx-card:hover {
   border: 1px solid rgba(255, 90, 50, 0.4);
   white-space: nowrap;
 }
-.lx-live i {
+.lh-live i {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: #ff4a2a;
-  animation: lx-pulse 1.2s ease-in-out infinite;
+  animation: lh-pulse 1.2s ease-in-out infinite;
 }
 
 /* ── المواعيد ── */
-.lx-due {
+.lh-due {
   list-style: none;
   margin: 8px 0 0;
   padding: 0;
 }
-.lx-due-row {
+.lh-due-row {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 9px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-.lx-due li:last-child .lx-due-row {
+.lh-due li:last-child .lh-due-row {
   border-bottom: 0;
 }
-.lx-days {
+.lh-days {
   width: 46px;
   flex: none;
   text-align: center;
-  color: var(--lx-cream);
+  color: var(--lh-cream);
 }
-.lx-days b {
+.lh-days b {
   display: block;
   font-family: "Amiri", serif;
   font-size: 28px;
   line-height: 1;
 }
-.lx-days small {
+.lh-days small {
   font-size: 11px;
-  color: var(--lx-mut);
+  color: var(--lh-mut);
 }
-.lx-days.hot b {
-  color: var(--lx-o2);
+.lh-days.hot b {
+  color: var(--lh-o2);
 }
-.lx-due-t {
+.lh-due-t {
   display: block;
   font-weight: 800;
   font-size: 15px;
@@ -359,31 +359,31 @@ a.lx-card:hover {
 }
 
 /* ── الاجتماع ── */
-.lx-tl {
+.lh-tl {
   display: flex;
   gap: 12px;
   margin-top: 12px;
   align-items: stretch;
 }
-.lx-tl-t {
+.lh-tl-t {
   width: 48px;
   font-size: 13px;
   color: #8e8276;
   padding-top: 8px;
 }
-.lx-tl-ev {
+.lh-tl-ev {
   flex: 1;
   min-width: 0;
   border-radius: 14px;
   background: rgba(255, 106, 0, 0.16);
-  border-inline-start: 4px solid var(--lx-o);
+  border-inline-start: 4px solid var(--lh-o);
   padding: 10px 12px;
 }
-.lx-quote {
+.lh-quote {
   margin: 12px 0 0;
   font-size: 19px;
   line-height: 1.75;
-  color: var(--lx-cream);
+  color: var(--lh-cream);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -391,17 +391,17 @@ a.lx-card:hover {
 }
 
 /* ── الدائرة + الأرقام ── */
-.lx-ring {
+.lh-ring {
   position: relative;
   width: 76px;
   height: 76px;
   flex: none;
 }
-.lx-ring svg {
+.lh-ring svg {
   width: 100%;
   height: 100%;
 }
-.lx-ring b {
+.lh-ring b {
   position: absolute;
   inset: 0;
   display: flex;
@@ -410,29 +410,29 @@ a.lx-card:hover {
   font-family: "Amiri", serif;
   font-size: 24px;
 }
-.lx-num {
+.lh-num {
   font-size: 40px;
   line-height: 1;
   color: #fff3e6;
 }
-.lx-vr {
+.lh-vr {
   width: 1px;
   height: 40px;
   background: rgba(255, 255, 255, 0.1);
 }
-.lx-block {
+.lh-block {
   list-style: none;
   margin: 6px 0 0;
   padding: 0;
   font-size: 14px;
   line-height: 1.7;
 }
-.lx-block li + li {
+.lh-block li + li {
   margin-top: 6px;
 }
-.lx-block a,
-.lx-block button {
-  color: var(--lx-cream);
+.lh-block a,
+.lh-block button {
+  color: var(--lh-cream);
   text-align: start;
   background: none;
   border: 0;
@@ -440,32 +440,32 @@ a.lx-card:hover {
   font: inherit;
   cursor: pointer;
 }
-.lx-block a:hover,
-.lx-block button:hover {
-  color: var(--lx-gold);
+.lh-block a:hover,
+.lh-block button:hover {
+  color: var(--lh-gold);
 }
-.lx-dots {
+.lh-dots {
   display: flex;
   gap: 8px;
   margin-top: 12px;
 }
-.lx-dots span {
+.lh-dots span {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
   border: 1.5px dashed rgba(255, 255, 255, 0.15);
 }
-.lx-dots span.on {
-  background: var(--lx-o);
+.lh-dots span.on {
+  background: var(--lh-o);
   border: 0;
 }
-.lx-dots span.now {
-  border: 2px solid var(--lx-o2);
+.lh-dots span.now {
+  border: 2px solid var(--lh-o2);
 }
 
 /* ── مشهد ويسي ── */
-.lx-scene {
+.lh-scene {
   position: relative;
   overflow: hidden;
   border-radius: 30px;
@@ -476,18 +476,18 @@ a.lx-card:hover {
     linear-gradient(170deg, rgba(255, 200, 130, 0.45), rgba(255, 106, 0, 0.06) 40%, rgba(255, 181, 71, 0.25)) border-box;
 }
 @media (max-width: 1599px) {
-  .lx-scene {
+  .lh-scene {
     order: -1;
     min-height: 230px;
   }
 }
-.lx-props {
+.lh-props {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
-.lx-wesy {
+.lh-wesy {
   position: absolute;
   bottom: 70px;
   inset-inline-start: 8%;
@@ -495,15 +495,15 @@ a.lx-card:hover {
   width: auto;
   filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.55));
   transform-origin: 50% 100%;
-  animation: lx-wesy 3.8s ease-in-out infinite;
+  animation: lh-wesy 3.8s ease-in-out infinite;
 }
 @media (max-width: 1599px) {
-  .lx-wesy {
+  .lh-wesy {
     height: 190px;
     bottom: 60px;
   }
 }
-.lx-tag {
+.lh-tag {
   position: absolute;
   top: 18px;
   inset-inline-start: 18px;
@@ -513,18 +513,18 @@ a.lx-card:hover {
   background: rgba(244, 236, 228, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
-.lx-cap {
+.lh-cap {
   position: absolute;
   top: 58px;
   inset-inline: 22px;
 }
 @media (max-width: 1599px) {
-  .lx-cap {
+  .lh-cap {
     inset-inline-start: auto;
     max-width: 55%;
   }
 }
-.lx-big {
+.lh-big {
   margin: 4px 0 0;
   font-size: 32px;
   line-height: 1.25;
@@ -533,7 +533,7 @@ a.lx-card:hover {
   background-clip: text;
   color: transparent;
 }
-.lx-ask {
+.lh-ask {
   position: absolute;
   bottom: 16px;
   inset-inline: 16px;
@@ -552,23 +552,23 @@ a.lx-card:hover {
   cursor: pointer;
   z-index: 2;
 }
-.lx-ask-t {
+.lh-ask-t {
   flex: 1;
   text-align: start;
 }
-.lx-ask b {
+.lh-ask b {
   height: 38px;
   padding: 0 16px;
   border-radius: 999px;
-  background: var(--lx-cream);
+  background: var(--lh-cream);
   color: #1a0a02;
   display: flex;
   align-items: center;
 }
-.lx-ask:hover {
+.lh-ask:hover {
   border-color: rgba(255, 181, 71, 0.6);
 }
-.lx-door {
+.lh-door {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -577,27 +577,27 @@ a.lx-card:hover {
   pointer-events: none;
   background: linear-gradient(90deg, #0b0705, #1a0f09);
 }
-.lx-door.r {
+.lh-door.r {
   right: 0;
   border-left: 1px solid rgba(255, 181, 71, 0.4);
-  animation: lx-door-r 1.4s cubic-bezier(0.7, 0, 0.2, 1) 0.15s forwards;
+  animation: lh-door-r 1.4s cubic-bezier(0.7, 0, 0.2, 1) 0.15s forwards;
 }
-.lx-door.l {
+.lh-door.l {
   left: 0;
   border-right: 1px solid rgba(255, 181, 71, 0.4);
-  animation: lx-door-l 1.4s cubic-bezier(0.7, 0, 0.2, 1) 0.15s forwards;
+  animation: lh-door-l 1.4s cubic-bezier(0.7, 0, 0.2, 1) 0.15s forwards;
 }
-@keyframes lx-door-r {
+@keyframes lh-door-r {
   to {
     transform: translateX(101%);
   }
 }
-@keyframes lx-door-l {
+@keyframes lh-door-l {
   to {
     transform: translateX(-101%);
   }
 }
-@keyframes lx-wesy {
+@keyframes lh-wesy {
   0%,
   100% {
     transform: translateY(0) scale(1);
@@ -606,10 +606,10 @@ a.lx-card:hover {
     transform: translateY(-4px) scale(1.012);
   }
 }
-.lx-float {
-  animation: lx-floaty 5s ease-in-out infinite;
+.lh-float {
+  animation: lh-floaty 5s ease-in-out infinite;
 }
-@keyframes lx-floaty {
+@keyframes lh-floaty {
   0%,
   100% {
     transform: translateY(0);
@@ -618,10 +618,10 @@ a.lx-card:hover {
     transform: translateY(-6px);
   }
 }
-.lx-glow {
-  animation: lx-pulse 3.5s ease-in-out infinite;
+.lh-glow {
+  animation: lh-pulse 3.5s ease-in-out infinite;
 }
-@keyframes lx-pulse {
+@keyframes lh-pulse {
   0%,
   100% {
     opacity: 0.6;
@@ -632,47 +632,47 @@ a.lx-card:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lx-arc svg,
-  .lx-wesy,
-  .lx-float,
-  .lx-glow,
-  .lx-live i {
+  .lh-arc svg,
+  .lh-wesy,
+  .lh-float,
+  .lh-glow,
+  .lh-live i {
     animation: none;
   }
-  .lx-arc-v {
+  .lh-arc-v {
     animation: none;
     stroke-dashoffset: var(--to);
   }
-  .lx-door {
+  .lh-door {
     display: none;
   }
 }
 
 /* أقل من 1600: المشهد يصير شريط فخم فوق (ويسي على الطرف، والكلام وسؤال ويسي جنبه) */
 @media (max-width: 1599px) {
-  .lx-scene {
+  .lh-scene {
     min-height: 168px;
   }
-  .lx-props,
-  .lx-tag {
+  .lh-props,
+  .lh-tag {
     display: none;
   }
-  .lx-wesy {
+  .lh-wesy {
     height: 250px;
     bottom: -84px;
     inset-inline-start: auto;
     inset-inline-end: 28px;
   }
-  .lx-cap {
+  .lh-cap {
     top: 24px;
     inset-inline-start: 26px;
     inset-inline-end: auto;
     max-width: calc(100% - 200px);
   }
-  .lx-big {
+  .lh-big {
     font-size: 28px;
   }
-  .lx-ask {
+  .lh-ask {
     inset-inline-start: 26px;
     inset-inline-end: auto;
     width: min(520px, calc(100% - 200px));
@@ -680,45 +680,45 @@ a.lx-card:hover {
   }
 }
 @media (max-width: 640px) {
-  .lx-scene {
+  .lh-scene {
     min-height: 200px;
   }
-  .lx-wesy {
+  .lh-wesy {
     height: 210px;
     bottom: -60px;
     inset-inline-end: 6px;
   }
-  .lx-cap,
-  .lx-ask {
+  .lh-cap,
+  .lh-ask {
     max-width: none;
     width: auto;
     inset-inline-end: 120px;
   }
-  .lx-big {
+  .lh-big {
     font-size: 24px;
   }
 }
 
 @container (max-width: 560px) {
-  .lx-hero > div:first-child {
+  .lh-hero > div:first-child {
     flex-basis: 100%;
   }
-  .lx-arc {
+  .lh-arc {
     width: 210px;
     height: 114px;
     margin-inline: auto;
   }
-  .lx-arc-n {
+  .lh-arc-n {
     font-size: 44px;
   }
-  .lx-act {
+  .lh-act {
     padding: 18px;
   }
-  .lx-act .lx-btn {
+  .lh-act .lh-btn {
     width: 100%;
     justify-content: center;
   }
-  .lx-step {
+  .lh-step {
     font-size: 20px;
   }
 }

@@ -395,3 +395,189 @@ html[data-reduce-motion="true"] .lxs-sun {
 .lx-side [data-nav-id="team"] svg {
   color: var(--c-orange);
 }
+
+/* ══ عمودين بكل قسم (مثل لوحات «كل الأقسام»): المحتوى + مشهد ويسي على الجنب بالشاشات العريضة ══ */
+.lxp-scene {
+  display: none;
+}
+@media (min-width: 1500px) {
+  .lxp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px;
+    align-items: start;
+  }
+  .lxp .lxs {
+    display: none;
+  }
+  .lxp-scene {
+    display: block;
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 48px);
+    min-height: 560px;
+    max-height: 860px;
+    overflow: hidden;
+    border-radius: 32px;
+    border: 1px solid transparent;
+    background:
+      radial-gradient(120% 80% at 50% 78%, color-mix(in srgb, var(--sec, #ff6a00) 26%, #140a05) 0%, #140a05 55%, #0b0705 100%) padding-box,
+      linear-gradient(170deg, color-mix(in srgb, var(--sec, #ffc882) 70%, transparent), rgba(255, 255, 255, 0.04) 40%, color-mix(in srgb, var(--sec, #ffb547) 30%, transparent)) border-box;
+  }
+}
+.lxp-props {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.lxp-wesy {
+  position: absolute;
+  bottom: 11%;
+  left: 50%;
+  width: auto;
+  transform: translateX(-38%);
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.55));
+}
+.lxp-wesy.flip {
+  transform: translateX(-62%) scaleX(-1);
+}
+.lxp-tag {
+  position: absolute;
+  top: 18px;
+  inset-inline-start: 18px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--sec, #f4ece4);
+  background: rgba(8, 8, 8, 0.45);
+  border: 1px solid color-mix(in srgb, var(--sec, #ffffff) 50%, transparent);
+  z-index: 2;
+}
+.lxp-cap {
+  position: absolute;
+  top: 60px;
+  inset-inline: 22px;
+  z-index: 2;
+}
+.lxp-say {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sec, #ffb547);
+}
+.lxp-big {
+  margin: 4px 0 0;
+  font-family: "Amiri", serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.25;
+  background: linear-gradient(180deg, #fff8f0 35%, color-mix(in srgb, var(--sec, #ebc79a) 65%, #ebc79a) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lxp-ask {
+  position: absolute;
+  bottom: 16px;
+  inset-inline: 16px;
+  height: 50px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 16px 6px;
+  background: rgba(244, 236, 228, 0.07);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--sec, #ffb547) 45%, transparent);
+  color: #cdbfaf;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 3;
+}
+.lxp-ask b {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #f4ece4;
+  color: #1a0a02;
+  display: flex;
+  align-items: center;
+}
+.lxp-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(90deg, #0b0705, #1a0f09);
+}
+.lxp-door.r {
+  right: 0;
+  border-left: 1px solid color-mix(in srgb, var(--sec, #ffb547) 50%, transparent);
+  animation: lxp-door-r 1.3s cubic-bezier(0.7, 0, 0.2, 1) 0.1s forwards;
+}
+.lxp-door.l {
+  left: 0;
+  border-right: 1px solid color-mix(in srgb, var(--sec, #ffb547) 50%, transparent);
+  animation: lxp-door-l 1.3s cubic-bezier(0.7, 0, 0.2, 1) 0.1s forwards;
+}
+@keyframes lxp-door-r {
+  to {
+    transform: translateX(101%);
+  }
+}
+@keyframes lxp-door-l {
+  to {
+    transform: translateX(-101%);
+  }
+}
+.sx-flt {
+  animation: sx-flt 5s ease-in-out infinite;
+}
+@keyframes sx-flt {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.sx-glow {
+  animation: sx-glow 3.5s ease-in-out infinite;
+}
+@keyframes sx-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.sx-rise {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sx-rise 1.4s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+@keyframes sx-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-flt,
+  .sx-glow,
+  .sx-rise {
+    animation: none;
+  }
+  .lxp-door {
+    display: none;
+  }
+}
+html[data-reduce-motion="true"] .lxp-door {
+  display: none;
+}

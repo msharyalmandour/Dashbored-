@@ -9,7 +9,7 @@ import GiftMotion from "./GiftMotion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import SectionTabs from "./SectionTabs";
-import LuxSectionScene, { sectionOf } from "./LuxSectionScene";
+import LuxSectionScene, { LuxSideScene, sectionOf, useHasScene } from "./LuxSectionScene";
 import "../styles/lux-global.css";
 import { PageHelpButton } from "./help/PageHelp";
 import PaymentProofUpload from "./PaymentProofUpload";
@@ -96,6 +96,7 @@ const pageHeaderRoutes = new Set([
 const titleInPageRoutes = new Set(["/", "/learn", "/drop", "/research-search", "/evidence", "/literature-review", "/meeting-minutes", "/meeting-minutes/new"]);
 
 export default function Layout() {
+  const hasScene = useHasScene();
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -234,13 +235,18 @@ export default function Layout() {
               data-sec={sectionOf(location.pathname)}
               className="animate-[page-in_0.35s_ease-out]"
             >
-              <LuxSectionScene />
-              <SectionTabs />
-              <GiftNotice />
-              <InviteSeats />
-              <Suspense fallback={<RouteFallback />}>
-                <Outlet />
-              </Suspense>
+              <div className={hasScene ? "lxp" : undefined}>
+                <div className="min-w-0">
+                  <LuxSectionScene />
+                  <SectionTabs />
+                  <GiftNotice />
+                  <InviteSeats />
+                  <Suspense fallback={<RouteFallback />}>
+                    <Outlet />
+                  </Suspense>
+                </div>
+                {hasScene && <LuxSideScene />}
+              </div>
             </div>
           </div>
         </main>

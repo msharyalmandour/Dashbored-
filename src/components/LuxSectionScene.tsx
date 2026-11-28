@@ -15,6 +15,23 @@ const SCENES: Scene[] = [
   { match: ["/calendar", "/files", "/drive"], pose: "wave", tag: "التقويم والملفات", say: "مواعيدكم في جوالكم، وملفاتكم كل واحد بمكانه" },
   { match: ["/viva"], pose: "point", tag: "المنصة", say: "أدرّبكم لين تدخلون المناقشة واثقين" },
 ];
+/** لون كل قسم (كسر الألوان — قرار المالك 2026-11-28): البرتقالي يظل للأزرار والهوية */
+const SECTION_OF: [string[], string][] = [
+  [["/research-search", "/evidence", "/literature-review"], "search"],
+  [["/proposal", "/methodology", "/ethical-approval"], "write"],
+  [["/collect", "/study-kit", "/surveys", "/stats", "/fieldwork"], "collect"],
+  [["/meeting-minutes", "/feedback", "/minutes", "/meet"], "supervisor"],
+  [["/tasks", "/team"], "team"],
+  [["/chat"], "chat"],
+  [["/calendar", "/files", "/drive"], "calendar"],
+  [["/wesy"], "wesy"],
+];
+export function sectionOf(pathname: string): string {
+  if (pathname === "/") return "home";
+  const hit = SECTION_OF.find(([paths]) => paths.some((m) => pathname === m || pathname.startsWith(`${m}/`)));
+  return hit ? hit[1] : "other";
+}
+
 /** صفحات ملء الشاشة أو لها مشهدها الخاص */
 const SKIP = ["/", "/chat", "/meet", "/drop", "/explain", "/start", "/agent", "/wesy", "/meeting-minutes/live", "/meeting-minutes/new"];
 

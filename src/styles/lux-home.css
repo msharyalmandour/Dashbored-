@@ -722,3 +722,34 @@ a.lh-card:hover {
     font-size: 20px;
   }
 }
+
+/* ══ كسر الألوان: كل بطاقة بلون موضوعها (--c)، والبرتقالي يظل للزر الأساسي ══ */
+.lh-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--c, #ffb547) 7%, rgba(255, 255, 255, 0.03)), rgba(255, 255, 255, 0.012)) padding-box,
+    linear-gradient(160deg, color-mix(in srgb, var(--c, #ffdcb4) 55%, transparent), rgba(255, 255, 255, 0.04) 45%, color-mix(in srgb, var(--c, #ffffff) 20%, transparent)) border-box;
+}
+.lh-card.hot {
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--c, #ff6a00) 18%, transparent), rgba(20, 11, 7, 0.92)) padding-box,
+    linear-gradient(140deg, color-mix(in srgb, var(--c, #ffc882) 75%, transparent), rgba(255, 255, 255, 0.05) 50%, color-mix(in srgb, var(--c, #ffb547) 35%, transparent)) border-box;
+}
+.lh-card .lh-gold {
+  color: var(--c, var(--lh-gold));
+}
+.lh-card .lh-num {
+  color: color-mix(in srgb, var(--c, #fff3e6) 55%, #fff3e6);
+}
+.lh-card .lh-dots span.on {
+  background: var(--c, var(--lh-o));
+}
+.lh-card .lh-dots span.now {
+  border-color: var(--c, var(--lh-o2));
+}
+.lh-card .lh-tl-ev {
+  background: color-mix(in srgb, var(--c, #ff6a00) 16%, transparent);
+  border-inline-start-color: var(--c, var(--lh-o));
+}
+.lh-card .lh-days.hot b {
+  color: var(--c, var(--lh-o2));
+}

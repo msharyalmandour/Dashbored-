@@ -304,3 +304,94 @@ html[data-reduce-motion="true"] .lxs-sun {
 .lx-wesy-link:not(.on) {
   color: #ffb547 !important;
 }
+
+/* ══ كسر الألوان (قرار المالك 2026-11-28): لون لكل قسم، والبرتقالي يظل للأزرار والهوية ══ */
+:root {
+  --c-orange: #ff8a24;
+  --c-purple: #7b61ff;
+  --c-mint: #3ed6a0;
+  --c-yellow: #ffc93c;
+  --c-pink: #ff7aa8;
+}
+[data-sec] {
+  --sec: var(--c-orange);
+}
+[data-sec="search"] {
+  --sec: var(--c-purple);
+}
+[data-sec="write"] {
+  --sec: var(--c-mint);
+}
+[data-sec="collect"] {
+  --sec: var(--c-yellow);
+}
+[data-sec="supervisor"] {
+  --sec: var(--c-pink);
+}
+[data-sec="chat"] {
+  --sec: #a08cff;
+}
+[data-sec="calendar"] {
+  --sec: #5ee0c0;
+}
+[data-sec] .lxs {
+  background:
+    radial-gradient(90% 140% at 12% 100%, color-mix(in srgb, var(--sec) 30%, #140a05) 0%, #120a07 55%, #0b0705 100%) padding-box,
+    linear-gradient(170deg, color-mix(in srgb, var(--sec) 80%, transparent), rgba(255, 255, 255, 0.04) 45%, color-mix(in srgb, var(--sec) 40%, transparent)) border-box;
+}
+[data-sec] .lxs-sun {
+  background: radial-gradient(circle, color-mix(in srgb, var(--sec) 65%, transparent), transparent 70%);
+}
+[data-sec] .lxs-tag {
+  border-color: color-mix(in srgb, var(--sec) 60%, transparent);
+  color: var(--sec);
+}
+[data-sec] .lxs-ask {
+  color: var(--sec);
+  border-color: color-mix(in srgb, var(--sec) 55%, transparent);
+  background: color-mix(in srgb, var(--sec) 12%, transparent);
+}
+[data-sec] .lxs-say,
+[data-sec] .lx-h1,
+[data-sec] .md-title {
+  background: linear-gradient(180deg, #fff8f0 35%, color-mix(in srgb, var(--sec) 70%, #ebc79a) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+[data-sec] .lx-kick {
+  color: var(--sec);
+}
+[data-sec] .lx-seg-b.on {
+  background: var(--sec);
+  color: #120a06;
+}
+[data-sec] .lx-card::after,
+[data-sec] .hg-card::after {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--sec) 55%, transparent), rgba(255, 255, 255, 0.03) 45%, color-mix(in srgb, var(--sec) 22%, transparent));
+}
+[data-sec] .lx-ic {
+  color: var(--sec);
+}
+
+/* القائمة الجانبية: كل قسم بلونه */
+.lx-side [data-nav-id="search"] svg {
+  color: var(--c-purple);
+}
+.lx-side [data-nav-id="write"] svg {
+  color: var(--c-mint);
+}
+.lx-side [data-nav-id="collect"] svg {
+  color: var(--c-yellow);
+}
+.lx-side [data-nav-id="supervisor"] svg {
+  color: var(--c-pink);
+}
+.lx-side [data-nav-id="chat"] svg {
+  color: #a08cff;
+}
+.lx-side [data-nav-id="calendar"] svg {
+  color: #5ee0c0;
+}
+.lx-side [data-nav-id="team"] svg {
+  color: var(--c-orange);
+}

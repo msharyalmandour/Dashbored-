@@ -7,6 +7,10 @@
   Site redesign (owner approved 2026-11-28): big titles and big numbers use Amiri (gold gradient), everything else Tajawal;
   Wesy is always present (cartoon cutouts in `public/lux/wz-*.webp`); home = `src/components/home/LuxHome.tsx` (`lh-` classes),
   section scenes = `src/components/LuxSectionScene.tsx` + `src/styles/lux-global.css`. Canvas «كل الأقسام» holds the full design.
+  Owner REVERSED the orange-only rule for the SITE on 2026-11-28 («نكسر الألوان», chose the bold Skillshare-like set): orange stays
+  the brand/primary-button colour; each section has its own accent via `data-sec` → `--sec` (search purple #7B61FF, write mint #3ED6A0,
+  collect yellow #FFC93C, supervisor pink #FF7AA8, chat #A08CFF, calendar #5EE0C0, team orange); home cards use `--c`. Dark background stays.
+  Marketing visuals still follow AD_STYLE until the owner says otherwise.
 - Existing Instagram posts workspace: `marketing/instagram-campaign/`.
 - Arabic text in generated media must be rendered by our own pipeline (Playwright +
   local font opened via `file://`), never by the image/video model.

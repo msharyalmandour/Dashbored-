@@ -111,7 +111,7 @@ export default function LuxHome(props: {
 
         {/* ── الصف الأول: المواعيد · الاجتماع · ملاحظات الدكتورة ── */}
         <div className="lh-grid lh-grid-3">
-          <section className="lh-card" aria-label={tr("المواعيد المستحقة")}>
+          <section className="lh-card" style={{ ["--c" as string]: "#FF8A24" }} aria-label={tr("المواعيد المستحقة")}>
             <div className="lh-hd">
               <span className="lh-gold">{tr("المواعيد المستحقة")}</span>
               <Link to="/calendar" className="lh-link">
@@ -144,7 +144,7 @@ export default function LuxHome(props: {
             )}
           </section>
 
-          <section className="lh-card hot" aria-label={tr("الاجتماع الجاي")}>
+          <section className="lh-card hot" style={{ ["--c" as string]: "#FF7AA8" }} aria-label={tr("الاجتماع الجاي")}>
             <div className="lh-hd">
               <span className="lh-gold">{meetToday ? tr("اجتماع اليوم") : tr("الاجتماع الجاي")}</span>
               {meetHours !== null && (
@@ -188,7 +188,7 @@ export default function LuxHome(props: {
             )}
           </section>
 
-          <section className="lh-card" aria-label={tr("ملاحظات المشرف/ة")}>
+          <section className="lh-card" style={{ ["--c" as string]: "#FF7AA8" }} aria-label={tr("ملاحظات المشرف/ة")}>
             <div className="lh-hd">
               <span className="lh-gold">{tr("ملاحظات المشرف/ة")}</span>
               {openNotes.length > 0 && <span className="lh-chip solid">{tr("{0} مفتوحة", num(openNotes.length))}</span>}
@@ -208,7 +208,7 @@ export default function LuxHome(props: {
 
         {/* ── الصف الثاني: الاستبيان · المجلس · يوقف شغلكم ── */}
         <div className="lh-grid lh-grid-3">
-          <Link to={hasSurvey ? "/collect" : "/study-kit"} className="lh-card lh-row" aria-label={tr("ردود الاستبيان")}>
+          <Link to={hasSurvey ? "/collect" : "/study-kit"} className="lh-card lh-row" style={{ ["--c" as string]: "#FFC93C" }} aria-label={tr("ردود الاستبيان")}>
             <Ring value={target ? collected / target : 0} label={num(collected)} />
             <span>
               <span className="lh-gold block">{tr("ردود الاستبيان")}</span>
@@ -223,7 +223,7 @@ export default function LuxHome(props: {
             </span>
           </Link>
 
-          <Link to="/chat" className="lh-card" aria-label={tr("المجلس")}>
+          <Link to="/chat" className="lh-card" style={{ ["--c" as string]: "#A08CFF" }} aria-label={tr("المجلس")}>
             <div className="lh-hd">
               <span className="lh-gold">{tr("خلاصة المجلس")}</span>
               <span className="lh-link">{tr("المحادثة")}</span>
@@ -259,7 +259,7 @@ export default function LuxHome(props: {
 
         {/* ── الصف الثالث: السلسلة · العد التنازلي · المراحل ── */}
         <div className="lh-grid lh-grid-3b">
-          <section className="lh-card lh-slim" aria-label={tr("سلسلة الفريق")}>
+          <section className="lh-card lh-slim" style={{ ["--c" as string]: "#3ED6A0" }} aria-label={tr("سلسلة الفريق")}>
             <div className="lh-hd">
               <span className="lh-gold">{weeks.weeks > 0 ? tr("سلسلة الفريق · {0} أسابيع", num(weeks.weeks)) : tr("سلسلة الفريق")}</span>
               <span className="lh-mut text-xs">{streakOk ? tr("خصم الاستمرار شغّال") : tr("٤ أسابيع ورا بعض = ٣ ريال أقل")}</span>
@@ -271,7 +271,7 @@ export default function LuxHome(props: {
             </div>
           </section>
 
-          <section className="lh-card lh-slim lh-row" aria-label={tr("العد التنازلي")}>
+          <section className="lh-card lh-slim lh-row" style={{ ["--c" as string]: "#7B61FF" }} aria-label={tr("العد التنازلي")}>
             {daysLeft !== null ? (
               <>
                 <span>
@@ -290,7 +290,7 @@ export default function LuxHome(props: {
             )}
           </section>
 
-          <Link to="/collect" className="lh-card lh-slim lh-row" aria-label={tr("مراحل البحث")}>
+          <Link to="/collect" className="lh-card lh-slim lh-row" style={{ ["--c" as string]: "#3ED6A0" }} aria-label={tr("مراحل البحث")}>
             <span>
               <b className="lh-num">{num(stagesDone)}</b>
               <span className="lh-mut text-xs">
@@ -337,7 +337,7 @@ function Ring({ value, label }: { value: number; label: string }) {
     <span className="lh-ring" aria-hidden>
       <svg viewBox="0 0 80 80">
         <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="8" />
-        <circle cx="40" cy="40" r="33" fill="none" stroke="#FF6A00" strokeWidth="8" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset={100 - v * 100} transform="rotate(-90 40 40)" />
+        <circle cx="40" cy="40" r="33" fill="none" stroke="var(--c, #FF6A00)" strokeWidth="8" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset={100 - v * 100} transform="rotate(-90 40 40)" />
       </svg>
       <b>{label}</b>
     </span>

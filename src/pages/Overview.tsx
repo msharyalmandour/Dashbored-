@@ -1,39 +1,25 @@
 import { AwayStrip, useTeamTime } from "../components/sup/StudentTime";
 import { MeetLiveStrip } from "../components/meet/MeetLive";
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { AlertTriangle, PartyPopper } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { PartyPopper } from "lucide-react";
 import Dialog from "../components/ui/Dialog";
 import NotificationsBell from "../components/NotificationsBell";
 import HomeToasts from "../components/home/HomeToasts";
 import ErrorBoundary from "../components/ErrorBoundary";
-import { MeetLuxCard, TeamMini, WeekLuxCard } from "../components/home/TeamMeetLux";
-import {
-  AgentPill,
-  DeadlineCard,
-  GlassHeader,
-  ProgressCard,
-  TodoCard,
-  countAr,
-  type AreaBar,
-} from "../components/home/GlassHome";
-import { V3Glow, num } from "../components/v3/WriteHeader";
+import { V3Glow } from "../components/v3/WriteHeader";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import type { Task } from "../data/types";
 import { daysUntil, formatDateLong, toISODate } from "../lib/date";
 import { useResearchStages } from "../hooks/useResearchStages";
-import FirstWeekCard from "../components/home/FirstWeekCard";
-import WesyOffice from "../components/home/WesyOffice";
+import LuxHome from "../components/home/LuxHome";
 import WesyNeeds from "../components/home/WesyNeeds";
-import { placeOf, strictReview } from "../lib/taskLinks";
-import { ReviewCard } from "../components/lux/Lux";
+import { strictReview } from "../lib/taskLinks";
 import { useNavigate } from "react-router-dom";
 import { startSeen } from "./Start";
 import { useTeamStage } from "../lib/teamStage";
 import { useEvidencePapers } from "../hooks/useEvidencePapers";
 import { useProposal } from "../hooks/useProposal";
 import { useMethodology } from "../hooks/useMethodology";
-import { useEthicalApproval } from "../hooks/useEthicalApproval";
 import { useTasksData } from "../hooks/useTasksData";
 import { useTeamRoster } from "../hooks/useTeamRoster";
 import { useResearchProject } from "../hooks/useResearchProject";
@@ -43,20 +29,17 @@ import { computeNextSteps } from "../lib/nextSteps";
 import { isStageReady } from "../lib/stageAdvance";
 import { getCurrentStage, getOverallProgress } from "../lib/progress";
 import { splitReminders } from "../lib/taskReminders";
-import { isLate, teamWeeks, weeklySeries } from "../lib/homeCalm";
-import { METHOD_READY, ethicsStepsDone, methodologyReadyCount } from "../lib/writeProgress";
+import { teamWeeks } from "../lib/homeCalm";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 import WesyTourOffer from "../components/home/WesyTourOffer";
-import { isEn, tr } from "../lib/i18n";
+import { tr } from "../lib/i18n";
 
 // بالعرض التجريبي البيانات مثبّتة على أغسطس 2026، فنثبّت «اليوم» عليه عشان الحسابات تطلع منطقية
 const now = isSupabaseConfigured ? new Date() : new Date(2026, 7, 22, 6);
 const todayIso = toISODate(now);
 
 const LAST_SEEN_STAGE_KEY = "nursync.lastSeenStage";
-const METHOD_TOTAL = Object.keys(METHOD_READY).length;
 
-const rise = (i: number) => ({ ["--v3-i" as string]: i }) as CSSProperties;
 
 export default function Overview() {
   const { currentUser, mode, isLeader, canWrite, team } = useAuth();
@@ -67,8 +50,7 @@ export default function Overview() {
   const { papers, loading: papersLoading } = useEvidencePapers();
   const { sections, gap, questions } = useProposal();
   const { methodology } = useMethodology();
-  const { ethicalApproval } = useEthicalApproval();
-  const { tasks: allTasks, addTask, updateStatus } = useTasksData();
+  const { tasks: allTasks } = useTasksData();
   const { roster, loading: rosterLoading } = useTeamRoster();
   const rosterReady = !rosterLoading && roster.length > 0;
   const { project, updateProject } = useResearchProject();
@@ -118,21 +100,6 @@ export default function Overview() {
   );
   const daysLeft = deadline ? daysUntil(deadline, now) : null;
 
-  // ── الأقسام والأدبيات والمنهجية والأخلاقيات ──
-  const orderedSections = [...sections].sort((a, b) => a.order - b.order);
-  const secTotal = orderedSections.length;
-  const secDone = orderedSections.filter((s) => s.status === "done").length;
-  const reviewed = papers.filter((p) => p.reviewStatus === "reviewed").length;
-  const methReady = methodologyReadyCount(methodology);
-  const ethicsDone = ethicsStepsDone(ethicalApproval).filter(Boolean).length;
-  const sectionOf = (t: Task) => sections.find((s) => s.key === t.sectionKey);
-  // المهمة توديك لمكان شغلها (قسم المقترح، مكتبة الأدلة، الأخلاقيات…) — المكان المحفوظ أو المستنتج من العنوان
-  const taskLink = (t: Task) => placeOf(t)?.route ?? `/tasks?task=${t.id}`;
-  const sectionTag = (t: Task) => {
-    const sec = sectionOf(t);
-    return sec ? tr("المقترح · القسم {0}", num(sec.order)) : placeOf(t)?.label ?? "";
-  };
-
   // ── تقدّم البحث ──
   const pct = getOverallProgress(stages, {
     proposalSections: sections,
@@ -150,31 +117,6 @@ export default function Overview() {
     if (mode !== "supabase" || !supabase || !team) return;
     void supabase.rpc("my_streak_ok").then(({ data, error }) => setStreakOk(error ? null : data === true));
   }, [mode, team]);
-  const [lastWeek, thisWeek] = weeklySeries(tasks, todayIso, 2);
-  const weekDiff = (thisWeek?.done ?? 0) - (lastWeek?.done ?? 0);
-  const progressNote =
-    weekDiff > 0
-      ? tr("أحسن من الأسبوع اللي قبله بـ{0} 👏", countAr(weekDiff, tr("مهمة"), tr("مهمتين"), "{0} مهام", "{0} مهمة"))
-      : currentStage
-        ? tr("المرحلة الحالية: {0}", isEn ? currentStage.titleEn : currentStage.titleAr)
-        : tr("كل المراحل خلصت 🎉");
-
-  // ── أشرطة «باقي على التسليم» ──
-  const bars: AreaBar[] = [
-    {
-      key: "proposal",
-      label: tr("المقترح"),
-      icon: "proposal",
-      done: secDone,
-      total: secTotal,
-      late: orderedSections.filter((s) => s.status !== "done" && tasks.some((t) => t.sectionKey === s.key && isLate(t, todayIso))).length,
-      to: "/proposal",
-    },
-    { key: "lit", label: tr("الأدبيات"), icon: "lit", done: reviewed, total: papers.length, late: 0, to: "/literature-review" },
-    { key: "method", label: tr("المنهجية"), icon: "method", done: methReady, total: METHOD_TOTAL, late: 0, to: "/methodology" },
-    { key: "ethics", label: tr("الأخلاقيات"), icon: "ethics", done: ethicsDone, total: 4, late: 0, to: "/ethical-approval" },
-  ];
-
   // ── «الجاي لكم»: مهمة متأخرة عليكم أول، وإلا خطوة الرحلة (NextCard) ──
   const journeyStep = computeNextSteps({
     stageReady:
@@ -194,20 +136,6 @@ export default function Overview() {
     hasTitle: !!project?.title?.trim(),
     memberCount: rosterReady ? roster.length : undefined,
   })[0];
-
-  const toggleTask = async (t: Task, done: boolean) => {
-    const { error } = await updateStatus(t.id, done ? "done" : "todo");
-    if (error) showToast({ title: tr("ما قدرنا نحفظ المهمة"), desc: error, icon: AlertTriangle, tone: "rose" });
-  };
-  const addTodayTask = async (title: string) => {
-    if (!currentUser) return false;
-    const { error } = await addTask({ title, description: "", assigneeId: currentUser.id, dueDate: todayIso, priority: "medium" });
-    if (error) {
-      showToast({ title: tr("ما قدرنا نضيف المهمة"), desc: error, icon: AlertTriangle, tone: "rose" });
-      return false;
-    }
-    return true;
-  };
 
   const saveDeadline = async () => {
     if (!deadlineDraft) return;
@@ -232,91 +160,47 @@ export default function Overview() {
         <HomeToasts />
       </ErrorBoundary>
 
-      {/* ── الترحيب + زر ويسي + الجرس ── */}
-      <GlassHeader
+      <LuxHome
         firstName={firstName}
         now={now}
+        todayIso={todayIso}
+        pct={pct}
+        step={journeyStep}
+        tasks={tasks}
+        roster={roster}
+        deadline={deadline}
+        daysLeft={daysLeft}
+        review={review}
+        collected={collection.collected}
+        target={collection.target ?? 0}
+        hasSurvey={surveys.length > 0}
+        weeks={weeksRun}
+        streakOk={streakOk}
+        stagesDone={stagesDone}
+        stagesTotal={stages.length}
+        canWrite={canWrite}
+        onSetDeadline={openDeadlineEditor}
         aside={
-          <div className="hidden items-center gap-3 lg:flex">
-            <AgentPill firstName={firstName} />
+          <div className="hidden self-start lg:block">
             <NotificationsBell />
           </div>
         }
+        top={
+          <>
+            <ErrorBoundary>
+              <WesyTourOffer firstName={firstName} />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <WesyNeeds />
+            </ErrorBoundary>
+            {mode === "supabase" && (
+              <ErrorBoundary>
+                <HomeAway />
+              </ErrorBoundary>
+            )}
+          </>
+        }
       />
-
-      {/* «الجاي لكم»: خطوة وحدة بزر برتقالي واحد — أول شي بالصفحة (docs/DESIGN_BRIEF_UNLOCK.md) */}
-      <ErrorBoundary>
-        <WesyTourOffer firstName={firstName} />
-      </ErrorBoundary>
-      <ErrorBoundary>
-        <WesyOffice urgent={journeyStep} fallback={journeyStep} />
-      </ErrorBoundary>
-      <ErrorBoundary>
-        <WesyNeeds />
-      </ErrorBoundary>
-
-      {mode === "supabase" && (
-        <ErrorBoundary>
-          <HomeAway />
-        </ErrorBoundary>
-      )}
-
-      {/* ── ثلاث أعمدة، كل عمود سؤال واحد: وش علينا اليوم؟ · وين وصلنا؟ · وش الجاي بالتقويم؟
-          كل عمود له عنوان صغير بنفس المكان، وآخر بطاقة فيه تمتد لين تتساوى نهايات الأعمدة ── */}
-      <div className="relative mb-4 grid grid-cols-1 gap-2.5 lg:gap-[18px] xl:grid-cols-3 xl:items-stretch">
-        <HomeColumn label={tr("اليوم")}>
-          {mode === "supabase" && (
-            <ErrorBoundary>
-              <FirstWeekCard style={rise(1)} />
-            </ErrorBoundary>
-          )}
-          <ErrorBoundary>
-            <TodoCard
-              style={rise(2)}
-              tasks={tasks}
-              today={todayIso}
-              roster={roster}
-              canToggle={(t) => canWrite && (isLeader || t.assigneeId === currentUser?.id)}
-              canAdd={canWrite && isLeader}
-              sectionTag={sectionTag}
-              taskLink={taskLink}
-              onToggle={toggleTask}
-              onAdd={addTodayTask}
-            />
-          </ErrorBoundary>
-          <Stretch>
-            <ErrorBoundary>
-              {/* المتأخر يطلع فوق مرتين (الجاي لكم + وش علينا اليوم) — ما نكرره هنا */}
-              <ReviewCard items={review.filter((r) => r.id !== "late")} limit={2} />
-            </ErrorBoundary>
-          </Stretch>
-        </HomeColumn>
-
-        <HomeColumn label={tr("وين وصلنا")}>
-          <ErrorBoundary>
-            <ProgressCard style={rise(3)} pct={pct} stagesDone={stagesDone} stagesTotal={stages.length} note={progressNote} streak={{ ...weeksRun, discount: streakOk }} />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <DeadlineCard className="flex" style={rise(3)} deadline={deadline} daysLeft={daysLeft} bars={bars} canWrite={canWrite} onSetDeadline={openDeadlineEditor} />
-          </ErrorBoundary>
-          <Stretch>
-            <ErrorBoundary>
-              <TeamMini tasks={tasks} today={todayIso} style={rise(4)} />
-            </ErrorBoundary>
-          </Stretch>
-        </HomeColumn>
-
-        <HomeColumn label={tr("المواعيد")}>
-          <ErrorBoundary>
-            <MeetLuxCard now={now} style={rise(5)} />
-          </ErrorBoundary>
-          <Stretch>
-            <ErrorBoundary>
-              <WeekLuxCard today={todayIso} now={now} style={rise(6)} />
-            </ErrorBoundary>
-          </Stretch>
-        </HomeColumn>
-      </div>
 
       {mode !== "supabase" && <p className="v3-mut relative mt-3 text-center text-xs">{tr("عرض تجريبي — التاريخ مثبّت على {0}", formatDateLong(todayIso))}</p>}
 
@@ -361,23 +245,4 @@ function MeetLiveStripHome() {
       <MeetLiveStrip />
     </div>
   );
-}
-
-/** عمود من أعمدة الرئيسية الثلاثة: عنوان صغير ثابت فوق، والبطاقات تحته بنفس المسافة */
-function HomeColumn({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <section className="flex min-w-0 flex-col gap-2.5 lg:gap-[18px]" aria-label={label}>
-      <h2 className="lux-eye m-0 flex items-center gap-2.5 px-1 pt-1 !text-base">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ws-accent2" aria-hidden />
-        {label}
-        <span className="h-px flex-1 bg-gradient-to-l from-white/15 to-transparent" aria-hidden />
-      </h2>
-      {children}
-    </section>
-  );
-}
-
-/** آخر بطاقة بالعمود تمتد لين نهاية الصف — عشان الأعمدة تخلص على خط واحد */
-function Stretch({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-0 flex-col xl:flex-1 xl:[&>*]:flex-1">{children}</div>;
 }

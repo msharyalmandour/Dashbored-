@@ -158,7 +158,7 @@ export function TeamRow({ tasks, today, style }: { tasks: Task[]; today: string;
 
 // ───────────────────────────── 2) الاجتماع الجاي ─────────────────────────────
 
-interface NextMeeting {
+export interface NextMeeting {
   id: string;
   date: string;
   time: string;
@@ -178,9 +178,9 @@ function untilLabel(ms: number): string {
   return d <= 10 ? tr("بعد {0} أيام", num(d)) : tr("بعد {0} يوم", num(d));
 }
 
-const dateAt = (d: string, t: string) => new Date(`${d}T${hhmm(t) || "00:00"}:00`);
+export const dateAt = (d: string, t: string) => new Date(`${d}T${hhmm(t) || "00:00"}:00`);
 
-function useUpcoming(now: Date) {
+export function useUpcoming(now: Date) {
   const { events } = useCalendarEvents();
   const { bookings } = useMeetings();
   const { project } = useResearchProject();

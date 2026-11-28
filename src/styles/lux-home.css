@@ -1,0 +1,724 @@
+/* الرئيسية الفخمة — التصميم الموحّد (مركز إعادة التصميم: «كل الأقسام»).
+   Obsidian × Ember: أسود #080808، برتقالي #ff6a00/#ff8a24/#ffb547، Tajawal للنص، Amiri للعناوين والأرقام الكبيرة.
+   الحركة: القوس يعبّي ويتنفس، باب المشهد ينفتح، ويسي يتنفس. كلها تطفى مع prefers-reduced-motion. */
+
+.lx-home {
+  --lx-gold: #ffb547;
+  --lx-o: #ff6a00;
+  --lx-o2: #ff8a24;
+  --lx-cream: #f4ece4;
+  --lx-mut: #a89a8c;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  position: relative;
+}
+@media (min-width: 1600px) {
+  .lx-home {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: stretch;
+  }
+}
+.lx-main {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.lx-home a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── النصوص ── */
+.lx-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lx-gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lx-eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lx-gold));
+}
+.lx-title,
+.lx-big,
+.lx-num,
+.lx-arc-n,
+.lx-quote {
+  font-family: "Amiri", serif;
+  font-weight: 700;
+}
+.lx-title {
+  margin: 4px 0 0;
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 1.1;
+  background: linear-gradient(180deg, #fff8f0 35%, #ebc79a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lx-sub {
+  margin: 6px 0 0;
+  color: var(--lx-mut);
+  font-size: 16px;
+}
+.lx-gold {
+  margin: 0;
+  color: var(--lx-gold);
+  font-size: 14px;
+  font-weight: 700;
+}
+.lx-warn {
+  color: #ff8a5c;
+  font-size: 14px;
+  font-weight: 800;
+}
+.lx-mut {
+  margin: 0;
+  color: var(--lx-mut);
+}
+.lx-link {
+  font-size: 12px;
+  color: #8e8276;
+}
+.lx-link:hover {
+  color: var(--lx-gold);
+}
+
+/* ── العنوان + القوس ── */
+.lx-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.lx-arc {
+  position: relative;
+  width: 260px;
+  height: 140px;
+  flex: none;
+}
+.lx-arc svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: lx-breathe 4.5s ease-in-out infinite;
+}
+.lx-arc-v {
+  stroke-dashoffset: 100;
+  animation: lx-fill 1.6s cubic-bezier(0.3, 0.7, 0.2, 1) 0.2s forwards;
+}
+.lx-arc-n {
+  position: absolute;
+  inset: auto 0 0 0;
+  text-align: center;
+  font-size: 54px;
+  line-height: 1;
+  color: #fff3e6;
+}
+.lx-arc-n small {
+  font-size: 0.55em;
+  margin-inline-start: 2px;
+}
+@keyframes lx-fill {
+  to {
+    stroke-dashoffset: var(--to);
+  }
+}
+@keyframes lx-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(255, 106, 0, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(255, 138, 36, 0.8));
+  }
+}
+
+/* ── الأسطح ── */
+.lx-act,
+.lx-card {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 26px;
+}
+.lx-act {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  background:
+    linear-gradient(180deg, #160c07, #0d0705) padding-box,
+    linear-gradient(135deg, rgba(255, 200, 130, 0.6), rgba(255, 106, 0, 0.12) 38%, rgba(255, 106, 0, 0.05) 62%, rgba(255, 181, 71, 0.4)) border-box;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 220, 0.07),
+    0 40px 90px -40px #000,
+    0 0 90px -40px rgba(255, 106, 0, 0.65);
+}
+.lx-step {
+  margin: 4px 0 2px;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--lx-cream);
+  line-height: 1.35;
+}
+.lx-act .lx-mut {
+  font-size: 14px;
+}
+.lx-card {
+  display: block;
+  padding: 16px 18px;
+  min-width: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)) padding-box,
+    linear-gradient(160deg, rgba(255, 220, 180, 0.22), rgba(255, 255, 255, 0.04) 45%, rgba(255, 255, 255, 0.08)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition:
+    transform 0.25s ease-out,
+    box-shadow 0.25s ease-out;
+}
+a.lx-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 20px 40px -24px rgba(255, 106, 0, 0.6);
+}
+.lx-card.hot {
+  background:
+    linear-gradient(160deg, rgba(255, 106, 0, 0.14), rgba(20, 11, 7, 0.92)) padding-box,
+    linear-gradient(140deg, rgba(255, 200, 130, 0.65), rgba(255, 106, 0, 0.1) 50%, rgba(255, 181, 71, 0.35)) border-box;
+}
+.lx-card.warn {
+  background:
+    linear-gradient(180deg, rgba(255, 90, 50, 0.06), rgba(255, 255, 255, 0.01)) padding-box,
+    linear-gradient(160deg, rgba(255, 120, 80, 0.45), rgba(255, 255, 255, 0.04) 50%, rgba(255, 120, 80, 0.2)) border-box;
+}
+.lx-slim {
+  padding: 14px 18px;
+}
+.lx-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lx-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.lx-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@container (min-width: 560px) {
+  .lx-grid-3,
+  .lx-grid-3b {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container (min-width: 860px) {
+  .lx-grid-3 {
+    grid-template-columns: 1.1fr 1fr 1fr;
+  }
+  .lx-grid-3b {
+    grid-template-columns: 1.3fr 1fr 1fr;
+  }
+}
+
+/* ── الأزرار ── */
+.lx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 54px;
+  padding: 0 26px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 16px;
+  color: #1a0a02 !important;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #ff9a3c, #ff6a00);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 0 rgba(120, 30, 0, 0.25),
+    0 12px 30px -12px rgba(255, 106, 0, 0.85);
+  transition: transform 0.2s ease-out;
+}
+.lx-btn:hover {
+  transform: translateY(-1px);
+}
+.lx-ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lx-cream);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 220, 180, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.lx-ghost:hover {
+  border-color: rgba(255, 181, 71, 0.5);
+}
+.lx-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 220, 180, 0.14);
+  color: #cdbfaf;
+  white-space: nowrap;
+}
+.lx-chip.hot {
+  border-color: rgba(255, 106, 0, 0.5);
+  color: var(--lx-gold);
+  background: rgba(255, 106, 0, 0.12);
+}
+.lx-chip.solid {
+  background: var(--lx-o);
+  border-color: var(--lx-o);
+  color: #1a0a02;
+  font-weight: 800;
+}
+.lx-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 60, 30, 0.14);
+  border: 1px solid rgba(255, 90, 50, 0.4);
+  white-space: nowrap;
+}
+.lx-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff4a2a;
+  animation: lx-pulse 1.2s ease-in-out infinite;
+}
+
+/* ── المواعيد ── */
+.lx-due {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.lx-due-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.lx-due li:last-child .lx-due-row {
+  border-bottom: 0;
+}
+.lx-days {
+  width: 46px;
+  flex: none;
+  text-align: center;
+  color: var(--lx-cream);
+}
+.lx-days b {
+  display: block;
+  font-family: "Amiri", serif;
+  font-size: 28px;
+  line-height: 1;
+}
+.lx-days small {
+  font-size: 11px;
+  color: var(--lx-mut);
+}
+.lx-days.hot b {
+  color: var(--lx-o2);
+}
+.lx-due-t {
+  display: block;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── الاجتماع ── */
+.lx-tl {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+.lx-tl-t {
+  width: 48px;
+  font-size: 13px;
+  color: #8e8276;
+  padding-top: 8px;
+}
+.lx-tl-ev {
+  flex: 1;
+  min-width: 0;
+  border-radius: 14px;
+  background: rgba(255, 106, 0, 0.16);
+  border-inline-start: 4px solid var(--lx-o);
+  padding: 10px 12px;
+}
+.lx-quote {
+  margin: 12px 0 0;
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--lx-cream);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── الدائرة + الأرقام ── */
+.lx-ring {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex: none;
+}
+.lx-ring svg {
+  width: 100%;
+  height: 100%;
+}
+.lx-ring b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Amiri", serif;
+  font-size: 24px;
+}
+.lx-num {
+  font-size: 40px;
+  line-height: 1;
+  color: #fff3e6;
+}
+.lx-vr {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.lx-block {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.lx-block li + li {
+  margin-top: 6px;
+}
+.lx-block a,
+.lx-block button {
+  color: var(--lx-cream);
+  text-align: start;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.lx-block a:hover,
+.lx-block button:hover {
+  color: var(--lx-gold);
+}
+.lx-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.lx-dots span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+}
+.lx-dots span.on {
+  background: var(--lx-o);
+  border: 0;
+}
+.lx-dots span.now {
+  border: 2px solid var(--lx-o2);
+}
+
+/* ── مشهد ويسي ── */
+.lx-scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid transparent;
+  min-height: 300px;
+  background:
+    radial-gradient(120% 80% at 50% 78%, #2b1408 0%, #140a05 55%, #0b0705 100%) padding-box,
+    linear-gradient(170deg, rgba(255, 200, 130, 0.45), rgba(255, 106, 0, 0.06) 40%, rgba(255, 181, 71, 0.25)) border-box;
+}
+@media (max-width: 1599px) {
+  .lx-scene {
+    order: -1;
+    min-height: 230px;
+  }
+}
+.lx-props {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.lx-wesy {
+  position: absolute;
+  bottom: 70px;
+  inset-inline-start: 8%;
+  height: min(62%, 430px);
+  width: auto;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.55));
+  transform-origin: 50% 100%;
+  animation: lx-wesy 3.8s ease-in-out infinite;
+}
+@media (max-width: 1599px) {
+  .lx-wesy {
+    height: 190px;
+    bottom: 60px;
+  }
+}
+.lx-tag {
+  position: absolute;
+  top: 18px;
+  inset-inline-start: 18px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(244, 236, 228, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.lx-cap {
+  position: absolute;
+  top: 58px;
+  inset-inline: 22px;
+}
+@media (max-width: 1599px) {
+  .lx-cap {
+    inset-inline-start: auto;
+    max-width: 55%;
+  }
+}
+.lx-big {
+  margin: 4px 0 0;
+  font-size: 32px;
+  line-height: 1.25;
+  background: linear-gradient(180deg, #fff8f0 35%, #ebc79a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lx-ask {
+  position: absolute;
+  bottom: 16px;
+  inset-inline: 16px;
+  height: 50px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-inline: 18px 6px;
+  background: rgba(244, 236, 228, 0.07);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 181, 71, 0.3);
+  color: #cdbfaf;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 2;
+}
+.lx-ask-t {
+  flex: 1;
+  text-align: start;
+}
+.lx-ask b {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--lx-cream);
+  color: #1a0a02;
+  display: flex;
+  align-items: center;
+}
+.lx-ask:hover {
+  border-color: rgba(255, 181, 71, 0.6);
+}
+.lx-door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(90deg, #0b0705, #1a0f09);
+}
+.lx-door.r {
+  right: 0;
+  border-left: 1px solid rgba(255, 181, 71, 0.4);
+  animation: lx-door-r 1.4s cubic-bezier(0.7, 0, 0.2, 1) 0.15s forwards;
+}
+.lx-door.l {
+  left: 0;
+  border-right: 1px solid rgba(255, 181, 71, 0.4);
+  animation: lx-door-l 1.4s cubic-bezier(0.7, 0, 0.2, 1) 0.15s forwards;
+}
+@keyframes lx-door-r {
+  to {
+    transform: translateX(101%);
+  }
+}
+@keyframes lx-door-l {
+  to {
+    transform: translateX(-101%);
+  }
+}
+@keyframes lx-wesy {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.012);
+  }
+}
+.lx-float {
+  animation: lx-floaty 5s ease-in-out infinite;
+}
+@keyframes lx-floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.lx-glow {
+  animation: lx-pulse 3.5s ease-in-out infinite;
+}
+@keyframes lx-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lx-arc svg,
+  .lx-wesy,
+  .lx-float,
+  .lx-glow,
+  .lx-live i {
+    animation: none;
+  }
+  .lx-arc-v {
+    animation: none;
+    stroke-dashoffset: var(--to);
+  }
+  .lx-door {
+    display: none;
+  }
+}
+
+/* أقل من 1600: المشهد يصير شريط فخم فوق (ويسي على الطرف، والكلام وسؤال ويسي جنبه) */
+@media (max-width: 1599px) {
+  .lx-scene {
+    min-height: 168px;
+  }
+  .lx-props,
+  .lx-tag {
+    display: none;
+  }
+  .lx-wesy {
+    height: 250px;
+    bottom: -84px;
+    inset-inline-start: auto;
+    inset-inline-end: 28px;
+  }
+  .lx-cap {
+    top: 24px;
+    inset-inline-start: 26px;
+    inset-inline-end: auto;
+    max-width: calc(100% - 200px);
+  }
+  .lx-big {
+    font-size: 28px;
+  }
+  .lx-ask {
+    inset-inline-start: 26px;
+    inset-inline-end: auto;
+    width: min(520px, calc(100% - 200px));
+    bottom: 18px;
+  }
+}
+@media (max-width: 640px) {
+  .lx-scene {
+    min-height: 200px;
+  }
+  .lx-wesy {
+    height: 210px;
+    bottom: -60px;
+    inset-inline-end: 6px;
+  }
+  .lx-cap,
+  .lx-ask {
+    max-width: none;
+    width: auto;
+    inset-inline-end: 120px;
+  }
+  .lx-big {
+    font-size: 24px;
+  }
+}
+
+@container (max-width: 560px) {
+  .lx-hero > div:first-child {
+    flex-basis: 100%;
+  }
+  .lx-arc {
+    width: 210px;
+    height: 114px;
+    margin-inline: auto;
+  }
+  .lx-arc-n {
+    font-size: 44px;
+  }
+  .lx-act {
+    padding: 18px;
+  }
+  .lx-act .lx-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .lx-step {
+    font-size: 20px;
+  }
+}

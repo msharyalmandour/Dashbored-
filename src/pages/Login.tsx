@@ -73,6 +73,12 @@ export default function Login() {
   // فعلي بهذي الزيارة، مو كل مرة يفتح فيها كومبوننت اللوقن
   const wasLoggedInOnMount = useRef(!!currentUser);
   const [celebrating, setCelebrating] = useState(false);
+  // أمان: بعد ثانيتين ونص نوقف حركة الظهور، عشان النموذج يبان حتى لو المتصفح ما شغّل الحركة
+  const [blDone, setBlDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setBlDone(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
   const [readyToNavigate, setReadyToNavigate] = useState(false);
 
   useLayoutEffect(() => {
@@ -202,7 +208,7 @@ export default function Login() {
   const signUpView = isSignUp && mode === "supabase";
 
   return (
-    <div className="bl">
+    <div className={`bl${blDone ? " done" : ""}`}>
       <div className="bl-auth">
         <div className="form">
           <div className="bl-strip" aria-hidden>

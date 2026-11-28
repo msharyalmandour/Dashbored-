@@ -70,7 +70,7 @@ export function useSectionMotion(root: RefObject<HTMLElement | null>, key: strin
     const stop = setTimeout(() => mo.disconnect(), 4000);
     // أمان: أي كرت ظل مخفي بعد ٦ ثواني يطلع
     const safety = setTimeout(() => el.querySelectorAll<HTMLElement>("[data-mo]:not(.mo-go)").forEach((c) => {
-      if (c.getBoundingClientRect().top < window.innerHeight) c.classList.add("mo-go");
+      if (c.getBoundingClientRect().top < window.innerHeight) c.classList.add("mo-go", "mo-safe");
     }), 6000);
     return () => {
       io.disconnect();

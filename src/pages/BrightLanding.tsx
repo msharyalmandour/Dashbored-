@@ -118,7 +118,11 @@ export default function BrightLanding() {
   const [barOn, setBarOn] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setBarOn(true), 50);
-    return () => clearTimeout(t);
+    const d = setTimeout(() => root.current?.classList.add("done"), 2500);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(d);
+    };
   }, []);
 
   const prices = [

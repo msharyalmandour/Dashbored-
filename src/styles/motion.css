@@ -1,7 +1,8 @@
 /* حركة الأقسام (SectionMotion) + لحظات الاحتفال (Celebrate) */
 @keyframes mo-rise { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
-[data-mo]:not(.mo-go) { opacity: 0; }
+html:not([data-reduce-motion="true"]) [data-mo]:not(.mo-go) { opacity: 0; }
 [data-mo].mo-go { animation: mo-rise .65s cubic-bezier(.2,.8,.2,1) var(--mo-d, 0ms) backwards; }
+[data-mo].mo-safe { animation: none; opacity: 1; }
 a[data-mo], button[data-mo] { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
 a[data-mo]:hover, button[data-mo]:hover { transform: translateY(-3px); }
 

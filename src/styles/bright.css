@@ -48,13 +48,14 @@
 @keyframes bl-spin{to{transform:rotate(360deg)}}
 @keyframes bl-twinkle{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.18) rotate(20deg)}}
 .bl-fl{animation:bl-float 5.5s ease-in-out infinite}
-.bl-pop{opacity:0;animation:bl-pop .9s cubic-bezier(.2,.8,.2,1) forwards}
-[data-rise]{opacity:0;transform:translateY(34px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
+.bl-pop{animation:bl-pop .9s cubic-bezier(.2,.8,.2,1) backwards}
+html:not([data-reduce-motion="true"]) [data-rise]:not(.in){opacity:0;transform:translateY(34px)}
+[data-rise]{transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
 [data-rise].in{opacity:1;transform:none}
 [data-rise][data-d="1"]{transition-delay:.12s}[data-rise][data-d="2"]{transition-delay:.24s}[data-rise][data-d="3"]{transition-delay:.36s}
 @media (prefers-reduced-motion:reduce){
   .bl-fl,.bl-pop,.bl-star,.bl-ring{animation:none!important;opacity:1}
-  [data-rise]{opacity:1;transform:none;transition:none}
+  [data-rise][data-rise]{opacity:1!important;transform:none!important;transition:none}
   .bl-mark::after{transform:scaleX(1);transition:none}
   .bl-tile img{transition:none}
 }
@@ -143,3 +144,5 @@
 .bl-sbtn{flex:1;height:52px;border-radius:14px;border:1.5px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:15px;opacity:.5;cursor:not-allowed}
 .bl-orl{display:flex;align-items:center;gap:12px;color:#8a8079;font-size:13px;margin:4px 0}
 .bl-orl::before,.bl-orl::after{content:"";flex:1;height:1px;background:#E2D9D0}
+/* أمان: بعد ثانيتين ونص كل شي ظاهر حتى لو المتصفح ما شغّل الحركة (وضع توفير البطارية، تبويب بالخلفية…) */
+.bl.done .bl-pop{animation:none!important;opacity:1!important}

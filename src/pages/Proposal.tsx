@@ -1,4 +1,5 @@
 import { recordAuthorship } from "../lib/authorship";
+import { celebrate } from "../lib/celebrate";
 import AuthorshipSeal from "../components/write/AuthorshipSeal";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ChangeEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -182,6 +183,7 @@ export default function Proposal() {
   const markDoneAndNext = async () => {
     if (!active) return;
     saved(updateSection(active.key, { status: "done" }));
+    celebrate("section");
     if (next) setActiveKey(next.key);
   };
 

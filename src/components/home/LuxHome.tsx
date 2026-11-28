@@ -12,6 +12,7 @@ import { openAgent } from "../../lib/agentBus";
 import { daysUntil, formatDateShort } from "../../lib/date";
 import { arabicWeekdays } from "../../lib/date";
 import { num } from "../v3/WriteHeader";
+import { useCountUp } from "../../hooks/useCountUp";
 import { dateAt, useUpcoming } from "./TeamMeetLux";
 import { isEn, tr } from "../../lib/i18n";
 import "../../styles/lux-home.css";
@@ -275,7 +276,7 @@ export default function LuxHome(props: {
             {daysLeft !== null ? (
               <>
                 <span>
-                  <b className="lh-num">{num(Math.max(0, daysLeft))}</b>
+                  <b className="lh-num"><CountNum to={Math.max(0, daysLeft)} /></b>
                   <span className="lh-mut block text-xs">{tr("يوم للتسليم")}</span>
                 </span>
                 <span className="lh-vr" aria-hidden />
@@ -308,9 +309,15 @@ export default function LuxHome(props: {
   );
 }
 
+/** رقم يعدّ من صفر لقيمته أول ما تطلع الرئيسية */
+function CountNum({ to }: { to: number }) {
+  return <>{num(useCountUp(to))}</>;
+}
+
 /** القوس: نسبة البحث، يعبّي ويتنفس */
 function Arc({ pct }: { pct: number }) {
   const p = Math.max(0, Math.min(100, Math.round(pct)));
+  const shown = useCountUp(p);
   return (
     <div className="lh-arc" role="img" aria-label={tr("بحثكم وصل {0}٪", num(p))}>
       <svg viewBox="0 0 300 160" aria-hidden>
@@ -324,7 +331,7 @@ function Arc({ pct }: { pct: number }) {
         <path className="lh-arc-v" d="M278 150 A128 128 0 0 0 22 150" pathLength={100} strokeDasharray="100" style={{ ["--to" as string]: 100 - p }} fill="none" stroke="url(#lhArc)" strokeWidth="12" strokeLinecap="round" />
       </svg>
       <b className="lh-arc-n">
-        {num(p)}
+        {num(shown)}
         <small>٪</small>
       </b>
     </div>

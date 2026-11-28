@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { tasks as mockTasks } from "../data/mockData";
 import type { Task } from "../data/types";
 import { inferPlace } from "../lib/taskLinks";
+import { celebrate } from "../lib/celebrate";
 import { isSupabaseConfigured, supabase } from "../lib/supabaseClient";
 
 let channelIdCounter = 0;
@@ -117,6 +118,7 @@ export function useTasksData() {
   const updateStatus = async (taskId: string, status: Task["status"]) => {
     if (!isSupabaseConfigured) {
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status } : t)));
+      if (status === "done") celebrate("task");
       return { error: undefined as string | undefined };
     }
 
@@ -128,6 +130,7 @@ export function useTasksData() {
     });
     const { error } = await supabase!.from("tasks").update({ status }).eq("id", taskId);
     if (error) setTasks(previous);
+    else if (status === "done") celebrate("task");
     return { error: error?.message };
   };
 

@@ -1,7 +1,7 @@
 import { applyReduceMotion, getReduceMotion, setReduceMotion } from "../lib/motionPref";
 import { storePaperMode } from "../lib/paperMode";
 import { loadProfilePrefs } from "../lib/profilePrefs";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { lazyPage } from "../lib/lazyPage";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { AlertTriangle, CreditCard } from "lucide-react";
@@ -35,6 +35,9 @@ import { isSupabaseConfigured } from "../lib/supabaseClient";
 import { daysUntil } from "../lib/date";
 import { tr, trx } from "../lib/i18n";
 import StudToast from "./notify/StudToast";
+import Celebrate from "./motion/Celebrate";
+import { useSectionMotion } from "./motion/SectionMotion";
+import "../styles/motion.css";
 import InviteSeats from "./growth/InviteSeats";
 import GiftNotice from "./growth/GiftNotice";
 import WesyCall from "./meet/WesyCall";
@@ -42,7 +45,7 @@ import SideHandle, { useSideHidden } from "./SideHandle";
 import { clearDocCode, clearSignupRef, parseRef, storedDocCode, storedSignupRef } from "../lib/signupSource";
 import { supabase } from "../lib/supabaseClient";
 
-const LuxLanding = lazyPage(() => import("../pages/LuxLanding"));
+const BrightLanding = lazyPage(() => import("../pages/BrightLanding"));
 
 const titles: Record<string, string> = {
   "/": tr("نظرة عامة"),
@@ -97,8 +100,10 @@ const titleInPageRoutes = new Set(["/", "/learn", "/drop", "/research-search", "
 
 export default function Layout() {
   const hasScene = useHasScene();
+  const motionRoot = useRef<HTMLDivElement>(null);
   const { currentUser, canWrite, loading, mode, subscriptionState, isLeader, team } = useAuth();
   const location = useLocation();
+  useSectionMotion(motionRoot, location.pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   // الكمبيوتر: القائمة تنسحب وتختفي والداش ياخذ الشاشة كاملة
@@ -137,7 +142,7 @@ export default function Layout() {
   if (loading) return <AppSplash />;
 
   if (!currentUser) {
-    if (location.pathname === "/") return <Suspense fallback={<AppSplash />}><LuxLanding /></Suspense>;
+    if (location.pathname === "/") return <Suspense fallback={<AppSplash />}><BrightLanding /></Suspense>;
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
@@ -231,6 +236,7 @@ export default function Layout() {
             )}
             <div
               key={location.pathname}
+              ref={motionRoot}
               data-redesign={pageHeaderRoutes.has(location.pathname) ? "" : undefined}
               data-sec={sectionOf(location.pathname)}
               className="animate-[page-in_0.35s_ease-out]"
@@ -252,6 +258,7 @@ export default function Layout() {
         </main>
       </div>
       <StudToast />
+      <Celebrate />
       <WesyCall />
       {checkoutOpen && <CheckoutModal onClose={() => setCheckoutOpen(false)} />}
     </div>

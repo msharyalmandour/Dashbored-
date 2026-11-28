@@ -57,5 +57,8 @@
  "راجعوا": "Review",
  "قدّموا": "Present",
  "حلّلوا": "Analyze",
- "هلا من جديد. فريقكم ينتظركم، نكمّل من وين وقفتوا؟": "Welcome back. Your team is waiting, shall we pick up where you left off?"
+ "هلا من جديد. فريقكم ينتظركم، نكمّل من وين وقفتوا؟": "Welcome back. Your team is waiting, shall we pick up where you left off?",
+ "كفو. مهمة انقفلت، والفريق قرّب خطوة.": "Nice. A task is closed and the team is one step closer.",
+ "كفو. هالجزء خلص، نكمّل اللي بعده؟": "Nice. This part is done, shall we move to the next?",
+ "مرحلة كاملة خلصت. فخور فيكم.": "A whole stage is done. Proud of you."
 }

@@ -20,3 +20,7 @@
 - Release announcements (owner asked 2026-11-27): after a user-facing release, insert a row into
   `public.app_updates` (title, lines[], closing) — the `app-updates` function (pg_cron every 10 min) posts it once as a
   Wesy card in every team chat and emails every member with email reminders on. Show the owner the text first.
+- If wesyncapp.com shows an old page or nothing at all: first check the domain, not the cache. 2026-11-28 the site was
+  down because the registrant email (ICANN) was never verified → Vercel suspended the domain (nameservers empty,
+  "Couldn't resolve host name"); old visitors saw the service-worker copy. Check with Vercel get_domain /
+  get_domain_contact_verification and Supabase net.http_get('https://wesyncapp.com/version.json').
